@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.transform.eia176 &#8212; PUDL 2026.6.2.dev1 documentation</title>
+    <title>pudl.transform.eia176 &#8212; PUDL 2026.6.2.dev12 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5" />
 
-    <script src="../../../_static/documentation_options.js?v=29a75617"></script>
+    <script src="../../../_static/documentation_options.js?v=caf87eab"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -574,8 +574,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.6.2.dev1 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.6.2.dev1 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.6.2.dev12 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.6.2.dev12 documentation - Home"/>
   
   
 </a></div>
@@ -873,12 +873,17 @@ window.runMermaid = runMermaid;</script>
     <span class="n">multi_asset</span><span class="p">,</span>
 <span class="p">)</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">multi_index_stack</span><span class="p">,</span> <span class="n">simplify_columns</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.analysis.record_linkage.name_cleaner</span><span class="w"> </span><span class="kn">import</span> <span class="n">CompanyNameCleaner</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">cleanstrings_series</span><span class="p">,</span> <span class="n">multi_index_stack</span><span class="p">,</span> <span class="n">simplify_columns</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.logging_helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_logger</span>
 
 <div class="viewcode-block" id="logger">
 <a class="viewcode-back" href="../../../autoapi/pudl/transform/eia176/index.html#pudl.transform.eia176.logger">[docs]</a>
 <span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="name_cleaner">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/eia176/index.html#pudl.transform.eia176.name_cleaner">[docs]</a>
+<span class="n">name_cleaner</span> <span class="o">=</span> <span class="n">CompanyNameCleaner</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="DROP_OPERATING_STATES">
@@ -888,6 +893,153 @@ window.runMermaid = runMermaid;</script>
     <span class="s2">&quot;mexico&quot;</span><span class="p">,</span>
     <span class="s2">&quot;other&quot;</span><span class="p">,</span>
 <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CONTINUATION_LINES_ALLOWED_NON_SUBDIVISION_CODES">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/eia176/index.html#pudl.transform.eia176.CONTINUATION_LINES_ALLOWED_NON_SUBDIVISION_CODES">[docs]</a>
+<span class="n">CONTINUATION_LINES_ALLOWED_NON_SUBDIVISION_CODES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="c1"># EIA&#39;s query-system user guide describes the raw REF_CODE field as the code</span>
+    <span class="c1"># associated with continuation cells, but does not publish a complete list of</span>
+    <span class="c1"># country/reference codes. These are non-state/province/territory REF_CODE</span>
+    <span class="c1"># values observed in the raw EIA-176 continuation lines. They are not normalized</span>
+    <span class="c1"># to ISO-3166: some match ISO alpha-2 country codes, while others are</span>
+    <span class="c1"># EIA-specific codes like CN for Canada, C2 for China, I2 for India, and JA for</span>
+    <span class="c1"># Japan.</span>
+    <span class="s2">&quot;operating_state&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;FX&quot;</span><span class="p">,</span> <span class="s2">&quot;MX&quot;</span><span class="p">},</span>
+    <span class="s2">&quot;reference_state&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;AC&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;AG&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;AT&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;AU&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;BB&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;BE&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;BF&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;BG&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;BL&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;C2&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;C4&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CN&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CL&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;DR&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;EG&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;EL&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ES&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;FI&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;FR&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;FX&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;GM&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;GQ&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;GR&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;HA&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;HR&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;I2&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;II&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;IS&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;IT&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;JA&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;JD&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;JM&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;KR&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;KU&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;LH&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;M6&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;MR&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;MX&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;MY&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;NG&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;NO&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;OM&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;OO&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;PK&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;PL&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;PM&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;PT&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;QR&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;RP&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;RU&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;SG&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;SN&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;TH&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;TD&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;TU&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;TW&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;UA&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;UK&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;XX&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;YE&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="UNKNOWN_TYPES">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/eia176/index.html#pudl.transform.eia176.UNKNOWN_TYPES">[docs]</a>
+<span class="n">UNKNOWN_TYPES</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;.&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;0&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;na&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;nan&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;n/a&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;n.a.&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;none&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;not applicable&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;not available&quot;</span><span class="p">,</span>
+<span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SUPPLEMENTAL_GASEOUS_FUEL_TYPE_MAP">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/eia176/index.html#pudl.transform.eia176.SUPPLEMENTAL_GASEOUS_FUEL_TYPE_MAP">[docs]</a>
+<span class="n">SUPPLEMENTAL_GASEOUS_FUEL_TYPE_MAP</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;air_injection&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;air injection&quot;</span><span class="p">,</span> <span class="s2">&quot;air injections&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;biomass&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;biomass&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;biomass_gas&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;biomass gas&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;blast_furnace_gas&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;blast furnance&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;coke_oven_gas&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;coke oven&quot;</span><span class="p">,</span> <span class="s2">&quot;coke oven gas&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;gas_holders&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;gas holders&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;leaks_condensate&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;leaks condensate&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;line_pressure&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;line pressure&quot;</span><span class="p">,</span> <span class="s2">&quot;line pressure chan&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;manufactured_gas&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;manufactured gas&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;natural_gas&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;natural gas&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;other&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;other&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;propane_air&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;propane air&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;refinery_gas&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;refinery gas&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;truck&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;truck&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;unknown&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">&quot;no label - bad cod&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;no label - bad code 9004&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;no label - bad code 9090&quot;</span><span class="p">,</span>
+        <span class="o">*</span><span class="n">UNKNOWN_TYPES</span><span class="p">,</span>
+    <span class="p">],</span>
+    <span class="s2">&quot;vented_flared&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;vented flared&quot;</span><span class="p">],</span>
+<span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="OTHER_DISPOSITION_TYPE_MAP">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/eia176/index.html#pudl.transform.eia176.OTHER_DISPOSITION_TYPE_MAP">[docs]</a>
+<span class="n">OTHER_DISPOSITION_TYPE_MAP</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;del_items_from_2001_form&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;del items from 2001 form&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;franchise_gas&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;franchise gas&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;gas_holders&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;gas holders&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;leaks_condensate&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;leaks condensate&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;line_pressure&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;line pressure&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;lost_leaks_condensate&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;lost leaks condensate&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;migration&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;migration&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;natural_gas&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;natural gas&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;other&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;other&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;plant_fuel&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;plant fuel&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;plant_thermal_reduction&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;plant ptr (extraction los&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;propane_air&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;propane air&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;rail_or_barge&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;rail or barge&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;refinery_gas&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;refinery gas&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;truck&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;truck&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;unknown&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">&quot;no label - bad code&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;no label - bad code 9001&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;no label - bad code 9006&quot;</span><span class="p">,</span>
+        <span class="o">*</span><span class="n">UNKNOWN_TYPES</span><span class="p">,</span>
+    <span class="p">],</span>
+    <span class="s2">&quot;vented_flared&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;vented flared&quot;</span><span class="p">],</span>
+<span class="p">}</span></div>
 
 
 
@@ -965,6 +1117,111 @@ window.runMermaid = runMermaid;</script>
     <span class="n">unstacked</span> <span class="o">=</span> <span class="n">simplify_columns</span><span class="p">(</span><span class="n">unstacked</span><span class="p">)</span>  <span class="c1"># Clean up column names</span>
     <span class="n">unstacked</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># gets rid of &quot;item&quot; name of columns index</span>
     <span class="k">return</span> <span class="n">unstacked</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="_subdivision_code_map">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/eia176/index.html#pudl.transform.eia176._subdivision_code_map">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_subdivision_code_map</span><span class="p">(</span>
+    <span class="n">core_pudl__codes_subdivisions</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Map subdivision names and codes to canonical two-letter codes.&quot;&quot;&quot;</span>
+    <span class="n">code_map</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="n">core_pudl__codes_subdivisions</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="s2">&quot;subdivision_name&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span>
+            <span class="p">),</span>
+            <span class="n">core_pudl__codes_subdivisions</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="s2">&quot;subdivision_code&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span>
+            <span class="p">),</span>
+        <span class="p">],</span>
+        <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">code_map</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="s2">&quot;key&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;key&quot;</span><span class="p">)[</span><span class="s2">&quot;subdivision_code&quot;</span><span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="normalize_continuation_line_location_codes">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/eia176/index.html#pudl.transform.eia176.normalize_continuation_line_location_codes">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">normalize_continuation_line_location_codes</span><span class="p">(</span>
+    <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">core_pudl__codes_subdivisions</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">column</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Validate and normalize EIA-176 continuation line location codes.</span>
+
+<span class="sd">    Values matching ``core_pudl__codes_subdivisions`` by name or code are converted</span>
+<span class="sd">    to canonical two-letter state, province, or territory codes. Known EIA</span>
+<span class="sd">    continuation line codes that are not state, province, or territory codes are</span>
+<span class="sd">    allowed through unchanged so unexpected values still fail loudly. These allowed</span>
+<span class="sd">    values are raw EIA ``REF_CODE`` values, not standardized ISO country codes.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">code_map</span> <span class="o">=</span> <span class="n">_subdivision_code_map</span><span class="p">(</span><span class="n">core_pudl__codes_subdivisions</span><span class="p">)</span>
+    <span class="n">allowed_codes</span> <span class="o">=</span> <span class="n">CONTINUATION_LINES_ALLOWED_NON_SUBDIVISION_CODES</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">column</span><span class="p">,</span> <span class="nb">set</span><span class="p">())</span>
+
+    <span class="n">norm</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">column</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;string&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span>
+    <span class="n">converted</span> <span class="o">=</span> <span class="n">norm</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">code_map</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;string&quot;</span><span class="p">)</span>
+    <span class="n">allowed</span> <span class="o">=</span> <span class="n">norm</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">allowed_codes</span><span class="p">)</span>
+    <span class="n">invalid</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">converted</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span> <span class="o">&amp;</span> <span class="o">~</span><span class="n">allowed</span> <span class="o">&amp;</span> <span class="n">df</span><span class="p">[</span><span class="n">column</span><span class="p">]</span><span class="o">.</span><span class="n">notna</span><span class="p">(),</span> <span class="n">column</span><span class="p">]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">invalid</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Unknown </span><span class="si">{</span><span class="n">column</span><span class="si">}</span><span class="s2"> values: </span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">invalid</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span><span class="si">!r}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+    <span class="n">df</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="o">=</span> <span class="n">converted</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">norm</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">upper</span><span class="p">())</span>
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+
+<div class="viewcode-block" id="_get_continuation_code_type">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/eia176/index.html#pudl.transform.eia176._get_continuation_code_type">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_continuation_code_type</span><span class="p">(</span>
+    <span class="n">continuation_code</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span>
+    <span class="n">core_pudl__codes_subdivisions</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Classify EIA-176 continuation codes as subnational or national/other codes.&quot;&quot;&quot;</span>
+    <span class="n">subdivision_codes</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">core_pudl__codes_subdivisions</span><span class="p">[</span><span class="s2">&quot;subdivision_code&quot;</span><span class="p">])</span>
+    <span class="n">continuation_code</span> <span class="o">=</span> <span class="n">continuation_code</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;string&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+    <span class="n">code_type</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span>
+        <span class="s2">&quot;national_or_other&quot;</span><span class="p">,</span>
+        <span class="n">index</span><span class="o">=</span><span class="n">continuation_code</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
+        <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">code_type</span> <span class="o">=</span> <span class="n">code_type</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="n">continuation_code</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">subdivision_codes</span><span class="p">),</span> <span class="s2">&quot;subnational&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">code_type</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="n">continuation_code</span><span class="o">.</span><span class="n">isna</span><span class="p">(),</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="_find_continuation_line_total_mismatches">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/eia176/index.html#pudl.transform.eia176._find_continuation_line_total_mismatches">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_find_continuation_line_total_mismatches</span><span class="p">(</span>
+    <span class="n">detail_records</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">_core_eia176__yearly_company_data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">company_total_column</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compare detailed continuation line totals with reported company-level totals.&quot;&quot;&quot;</span>
+    <span class="n">primary_key</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;operator_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;report_year&quot;</span><span class="p">]</span>
+    <span class="n">company_totals</span> <span class="o">=</span> <span class="n">_core_eia176__yearly_company_data</span><span class="p">[</span>
+        <span class="p">[</span>
+            <span class="o">*</span><span class="n">primary_key</span><span class="p">,</span>
+            <span class="n">company_total_column</span><span class="p">,</span>
+        <span class="p">]</span>
+    <span class="p">]</span>
+    <span class="n">company_totals</span> <span class="o">=</span> <span class="n">company_totals</span><span class="p">[</span><span class="n">company_totals</span><span class="p">[</span><span class="n">company_total_column</span><span class="p">]</span><span class="o">.</span><span class="n">notna</span><span class="p">()]</span>
+    <span class="n">continuation_totals</span> <span class="o">=</span> <span class="n">detail_records</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">primary_key</span><span class="p">,</span> <span class="n">as_index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">agg</span><span class="p">(</span>
+        <span class="p">{</span><span class="s2">&quot;volume_mcf&quot;</span><span class="p">:</span> <span class="s2">&quot;sum&quot;</span><span class="p">}</span>
+    <span class="p">)</span>
+    <span class="n">comparison</span> <span class="o">=</span> <span class="n">company_totals</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+        <span class="n">continuation_totals</span><span class="p">,</span>
+        <span class="n">how</span><span class="o">=</span><span class="s2">&quot;outer&quot;</span><span class="p">,</span>
+        <span class="n">on</span><span class="o">=</span><span class="n">primary_key</span><span class="p">,</span>
+        <span class="n">validate</span><span class="o">=</span><span class="s2">&quot;1:1&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">comparison</span><span class="p">[</span>
+        <span class="p">(</span><span class="n">comparison</span><span class="p">[</span><span class="n">company_total_column</span><span class="p">]</span> <span class="o">!=</span> <span class="n">comparison</span><span class="p">[</span><span class="s2">&quot;volume_mcf&quot;</span><span class="p">])</span>
+        <span class="o">&amp;</span> <span class="p">(</span><span class="n">comparison</span><span class="p">[</span><span class="n">company_total_column</span><span class="p">]</span><span class="o">.</span><span class="n">notna</span><span class="p">()</span> <span class="o">|</span> <span class="n">comparison</span><span class="p">[</span><span class="s2">&quot;volume_mcf&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">notna</span><span class="p">())</span>
+    <span class="p">]</span></div>
 
 
 
@@ -1237,6 +1494,303 @@ window.runMermaid = runMermaid;</script>
 
 
 <span class="nd">@asset</span><span class="p">(</span><span class="n">io_manager_key</span><span class="o">=</span><span class="s2">&quot;pudl_io_manager&quot;</span><span class="p">)</span>
+<div class="viewcode-block" id="core_eia176__yearly_gas_imports">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/eia176/index.html#pudl.transform.eia176.core_eia176__yearly_gas_imports">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">core_eia176__yearly_gas_imports</span><span class="p">(</span>
+    <span class="n">raw_eia176__continuation_text_lines</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">core_pudl__codes_subdivisions</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">_core_eia176__yearly_company_data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Produce company-level detailed annual gas imports (EIA-176, Line 3.0).&quot;&quot;&quot;</span>
+    <span class="n">keep</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;operator_id_eia&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;report_year&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;operating_state&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;reference_state&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;reference_company_or_line_description&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;volume_mcf&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;mode_of_transportation&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">raw_eia176__continuation_text_lines</span><span class="p">[</span>
+        <span class="n">raw_eia176__continuation_text_lines</span><span class="p">[</span><span class="s2">&quot;line&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">300</span>
+    <span class="p">]</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">keep</span><span class="p">)</span>
+
+    <span class="c1"># Clean up the existing codes</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">normalize_continuation_line_location_codes</span><span class="p">(</span>
+        <span class="n">df</span><span class="p">,</span>
+        <span class="n">core_pudl__codes_subdivisions</span><span class="p">,</span>
+        <span class="n">column</span><span class="o">=</span><span class="s2">&quot;operating_state&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">normalize_continuation_line_location_codes</span><span class="p">(</span>
+        <span class="n">df</span><span class="p">,</span>
+        <span class="n">core_pudl__codes_subdivisions</span><span class="p">,</span>
+        <span class="n">column</span><span class="o">=</span><span class="s2">&quot;reference_state&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Clean up the supplier location</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;supplier_location&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;reference_state&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;string&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+    <span class="p">)</span>
+    <span class="c1"># Create a categorical column noting whether data is a state code</span>
+    <span class="c1"># or something else.</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;supplier_location_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_get_continuation_code_type</span><span class="p">(</span>
+        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;supplier_location&quot;</span><span class="p">],</span>
+        <span class="n">core_pudl__codes_subdivisions</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+        <span class="n">columns</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;reference_company_or_line_description&quot;</span><span class="p">:</span> <span class="s2">&quot;supplier_name&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="s2">&quot;reference_state&quot;</span><span class="p">)</span>
+
+    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;mode_of_transportation&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;mode_of_transportation&quot;</span><span class="p">]</span>
+        <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;string&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="o">.</span><span class="n">replace</span><span class="p">({</span><span class="s2">&quot;.&quot;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span><span class="p">})</span>
+        <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span>
+    <span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span>
+        <span class="p">[</span>
+            <span class="s2">&quot;operator_id_eia&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;report_year&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;operating_state&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;supplier_location&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;supplier_location_type&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;supplier_name&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;mode_of_transportation&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;volume_mcf&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+    <span class="p">]</span>
+
+    <span class="c1"># check that data isn&#39;t too far off from the EIA aggregated data</span>
+    <span class="n">mismatches</span> <span class="o">=</span> <span class="n">_find_continuation_line_total_mismatches</span><span class="p">(</span>
+        <span class="n">detail_records</span><span class="o">=</span><span class="n">df</span><span class="p">,</span>
+        <span class="n">_core_eia176__yearly_company_data</span><span class="o">=</span><span class="n">_core_eia176__yearly_company_data</span><span class="p">,</span>
+        <span class="n">company_total_column</span><span class="o">=</span><span class="s2">&quot;receipts_from_state_or_us_border_volume&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">mismatches</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;More than 2 line 300 total mismatches&quot;</span>
+
+    <span class="c1"># Clean supplier name and map a few values to N/A</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;supplier_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">name_cleaner</span><span class="o">.</span><span class="n">get_clean_data</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;supplier_name&quot;</span><span class="p">])</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;supplier_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;supplier_name&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">UNKNOWN_TYPES</span><span class="p">),</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="s2">&quot;report_year&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;operator_id_eia&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;operating_state&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;supplier_location&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;supplier_location_type&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;supplier_name&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;mode_of_transportation&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+
+<span class="nd">@asset</span><span class="p">(</span><span class="n">io_manager_key</span><span class="o">=</span><span class="s2">&quot;pudl_io_manager&quot;</span><span class="p">)</span>
+<div class="viewcode-block" id="core_eia176__yearly_supplemental_gaseous_fuel_supplies">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/eia176/index.html#pudl.transform.eia176.core_eia176__yearly_supplemental_gaseous_fuel_supplies">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">core_eia176__yearly_supplemental_gaseous_fuel_supplies</span><span class="p">(</span>
+    <span class="n">raw_eia176__continuation_text_lines</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">core_pudl__codes_subdivisions</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">_core_eia176__yearly_company_data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Produce detailed annual supplemental gaseous fuel supplies (EIA-176, Line 6.0).&quot;&quot;&quot;</span>
+    <span class="n">primary_key</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;operator_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;report_year&quot;</span><span class="p">,</span> <span class="s2">&quot;fuel_type&quot;</span><span class="p">]</span>
+    <span class="n">keep</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;operator_id_eia&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;report_year&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;operating_state&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;reference_company_or_line_description&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;volume_mcf&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">raw_eia176__continuation_text_lines</span><span class="p">[</span>
+        <span class="n">raw_eia176__continuation_text_lines</span><span class="p">[</span><span class="s2">&quot;line&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">600</span>
+    <span class="p">]</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">keep</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">normalize_continuation_line_location_codes</span><span class="p">(</span>
+        <span class="n">df</span><span class="p">,</span>
+        <span class="n">core_pudl__codes_subdivisions</span><span class="p">,</span>
+        <span class="n">column</span><span class="o">=</span><span class="s2">&quot;operating_state&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;fuel_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cleanstrings_series</span><span class="p">(</span>
+        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;reference_company_or_line_description&quot;</span><span class="p">],</span> <span class="n">SUPPLEMENTAL_GASEOUS_FUEL_TYPE_MAP</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;reference_company_or_line_description&quot;</span><span class="p">])</span>
+
+    <span class="c1"># We combine two pairs of duplicate rows here, one set of which are zero values.</span>
+    <span class="k">assert</span> <span class="n">df</span><span class="o">.</span><span class="n">duplicated</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="n">primary_key</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="mi">2</span><span class="p">,</span> <span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">df</span><span class="o">.</span><span class="n">duplicated</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="n">primary_key</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span>
+        <span class="p">[</span><span class="o">*</span><span class="n">primary_key</span><span class="p">,</span> <span class="s2">&quot;operating_state&quot;</span><span class="p">],</span> <span class="n">dropna</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">as_index</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">agg</span><span class="p">({</span><span class="s2">&quot;volume_mcf&quot;</span><span class="p">:</span> <span class="s2">&quot;sum&quot;</span><span class="p">})</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span>
+        <span class="p">[</span><span class="s2">&quot;operator_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;report_year&quot;</span><span class="p">,</span> <span class="s2">&quot;operating_state&quot;</span><span class="p">,</span> <span class="s2">&quot;fuel_type&quot;</span><span class="p">,</span> <span class="s2">&quot;volume_mcf&quot;</span><span class="p">]</span>
+    <span class="p">]</span>
+    <span class="k">assert</span> <span class="ow">not</span> <span class="n">df</span><span class="o">.</span><span class="n">duplicated</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="n">primary_key</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">()</span>
+
+    <span class="n">mismatches</span> <span class="o">=</span> <span class="n">_find_continuation_line_total_mismatches</span><span class="p">(</span>
+        <span class="n">detail_records</span><span class="o">=</span><span class="n">df</span><span class="p">,</span>
+        <span class="n">_core_eia176__yearly_company_data</span><span class="o">=</span><span class="n">_core_eia176__yearly_company_data</span><span class="p">,</span>
+        <span class="n">company_total_column</span><span class="o">=</span><span class="s2">&quot;supplemental_gaseous_fuels_volume&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">assert</span> <span class="n">mismatches</span><span class="o">.</span><span class="n">empty</span><span class="p">,</span> <span class="s2">&quot;Found line 600 total mismatches&quot;</span>
+
+    <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span>
+        <span class="p">[</span><span class="s2">&quot;report_year&quot;</span><span class="p">,</span> <span class="s2">&quot;operator_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;operating_state&quot;</span><span class="p">,</span> <span class="s2">&quot;fuel_type&quot;</span><span class="p">]</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+
+<span class="nd">@asset</span><span class="p">(</span><span class="n">io_manager_key</span><span class="o">=</span><span class="s2">&quot;pudl_io_manager&quot;</span><span class="p">)</span>
+<div class="viewcode-block" id="core_eia176__yearly_gas_exports">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/eia176/index.html#pudl.transform.eia176.core_eia176__yearly_gas_exports">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">core_eia176__yearly_gas_exports</span><span class="p">(</span>
+    <span class="n">raw_eia176__continuation_text_lines</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">core_pudl__codes_subdivisions</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">_core_eia176__yearly_company_data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Produce detailed annual out-of-state gas deliveries (EIA-176, Line 14.0).&quot;&quot;&quot;</span>
+    <span class="n">keep</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;operator_id_eia&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;report_year&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;operating_state&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;reference_state&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;reference_company_or_line_description&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;volume_mcf&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;mode_of_transportation&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">raw_eia176__continuation_text_lines</span><span class="p">[</span>
+        <span class="n">raw_eia176__continuation_text_lines</span><span class="p">[</span><span class="s2">&quot;line&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1400</span>
+    <span class="p">]</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">keep</span><span class="p">)</span>
+
+    <span class="c1"># Clean up location codes</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">normalize_continuation_line_location_codes</span><span class="p">(</span>
+        <span class="n">df</span><span class="p">,</span>
+        <span class="n">core_pudl__codes_subdivisions</span><span class="p">,</span>
+        <span class="n">column</span><span class="o">=</span><span class="s2">&quot;operating_state&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">normalize_continuation_line_location_codes</span><span class="p">(</span>
+        <span class="n">df</span><span class="p">,</span>
+        <span class="n">core_pudl__codes_subdivisions</span><span class="p">,</span>
+        <span class="n">column</span><span class="o">=</span><span class="s2">&quot;reference_state&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Clean and categorize destination</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;recipient_location&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;reference_state&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;string&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+    <span class="p">)</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;recipient_location_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_get_continuation_code_type</span><span class="p">(</span>
+        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;recipient_location&quot;</span><span class="p">],</span>
+        <span class="n">core_pudl__codes_subdivisions</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+        <span class="n">columns</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;reference_company_or_line_description&quot;</span><span class="p">:</span> <span class="s2">&quot;recipient_name&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="s2">&quot;reference_state&quot;</span><span class="p">)</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;mode_of_transportation&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;mode_of_transportation&quot;</span><span class="p">]</span>
+        <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;string&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="o">.</span><span class="n">replace</span><span class="p">({</span><span class="s2">&quot;.&quot;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span><span class="p">})</span>
+        <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span>
+    <span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span>
+        <span class="p">[</span>
+            <span class="s2">&quot;operator_id_eia&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;report_year&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;operating_state&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;recipient_location&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;recipient_location_type&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;recipient_name&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;mode_of_transportation&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;volume_mcf&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+    <span class="p">]</span>
+
+    <span class="n">mismatches</span> <span class="o">=</span> <span class="n">_find_continuation_line_total_mismatches</span><span class="p">(</span>
+        <span class="n">detail_records</span><span class="o">=</span><span class="n">df</span><span class="p">,</span>
+        <span class="n">_core_eia176__yearly_company_data</span><span class="o">=</span><span class="n">_core_eia176__yearly_company_data</span><span class="p">,</span>
+        <span class="n">company_total_column</span><span class="o">=</span><span class="s2">&quot;deliveries_out_of_state_volume&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">mismatches</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">4</span><span class="p">,</span> <span class="s2">&quot;More than 4 line 1400 total mismatches&quot;</span>
+
+    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;recipient_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">name_cleaner</span><span class="o">.</span><span class="n">get_clean_data</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;recipient_name&quot;</span><span class="p">])</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;recipient_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;recipient_name&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">UNKNOWN_TYPES</span><span class="p">),</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="s2">&quot;report_year&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;operator_id_eia&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;operating_state&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;recipient_location&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;recipient_location_type&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;recipient_name&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;mode_of_transportation&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+
+<span class="nd">@asset</span><span class="p">(</span><span class="n">io_manager_key</span><span class="o">=</span><span class="s2">&quot;pudl_io_manager&quot;</span><span class="p">)</span>
+<div class="viewcode-block" id="core_eia176__yearly_gas_disposition_other">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/eia176/index.html#pudl.transform.eia176.core_eia176__yearly_gas_disposition_other">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">core_eia176__yearly_gas_disposition_other</span><span class="p">(</span>
+    <span class="n">raw_eia176__continuation_text_lines</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">core_pudl__codes_subdivisions</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">_core_eia176__yearly_company_data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Produce detailed annual gas disposition to other uses (EIA-176, Line 18.4).&quot;&quot;&quot;</span>
+    <span class="n">primary_key</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;operator_id_eia&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;report_year&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;operating_state&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;disposition_type&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="n">keep</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;operator_id_eia&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;report_year&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;operating_state&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;reference_company_or_line_description&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;volume_mcf&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">raw_eia176__continuation_text_lines</span><span class="p">[</span>
+        <span class="n">raw_eia176__continuation_text_lines</span><span class="p">[</span><span class="s2">&quot;line&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1840</span>
+    <span class="p">]</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">keep</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">normalize_continuation_line_location_codes</span><span class="p">(</span>
+        <span class="n">df</span><span class="p">,</span>
+        <span class="n">core_pudl__codes_subdivisions</span><span class="p">,</span>
+        <span class="n">column</span><span class="o">=</span><span class="s2">&quot;operating_state&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;disposition_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cleanstrings_series</span><span class="p">(</span>
+        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;reference_company_or_line_description&quot;</span><span class="p">],</span> <span class="n">OTHER_DISPOSITION_TYPE_MAP</span>
+    <span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;reference_company_or_line_description&quot;</span><span class="p">])</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;report_year&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;report_year&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;int64&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Several hundred records have duplicated values by fuel type. We combine them here.</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">primary_key</span><span class="p">,</span> <span class="n">dropna</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">as_index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">agg</span><span class="p">(</span>
+        <span class="p">{</span><span class="s2">&quot;volume_mcf&quot;</span><span class="p">:</span> <span class="s2">&quot;sum&quot;</span><span class="p">}</span>
+    <span class="p">)</span>
+    <span class="k">assert</span> <span class="ow">not</span> <span class="n">df</span><span class="o">.</span><span class="n">duplicated</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="n">primary_key</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">()</span>
+
+    <span class="n">mismatches</span> <span class="o">=</span> <span class="n">_find_continuation_line_total_mismatches</span><span class="p">(</span>
+        <span class="n">detail_records</span><span class="o">=</span><span class="n">df</span><span class="p">,</span>
+        <span class="n">_core_eia176__yearly_company_data</span><span class="o">=</span><span class="n">_core_eia176__yearly_company_data</span><span class="p">,</span>
+        <span class="n">company_total_column</span><span class="o">=</span><span class="s2">&quot;disposition_to_other_volume&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">mismatches</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">6</span><span class="p">,</span> <span class="s2">&quot;More than 6 line 1840 total mismatches&quot;</span>
+
+    <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span>
+        <span class="p">[</span><span class="s2">&quot;report_year&quot;</span><span class="p">,</span> <span class="s2">&quot;operator_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;operating_state&quot;</span><span class="p">,</span> <span class="s2">&quot;disposition_type&quot;</span><span class="p">]</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+
+<span class="nd">@asset</span><span class="p">(</span><span class="n">io_manager_key</span><span class="o">=</span><span class="s2">&quot;pudl_io_manager&quot;</span><span class="p">)</span>
 <div class="viewcode-block" id="core_eia176__yearly_gas_supply">
 <a class="viewcode-back" href="../../../autoapi/pudl/transform/eia176/index.html#pudl.transform.eia176.core_eia176__yearly_gas_supply">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">core_eia176__yearly_gas_supply</span><span class="p">(</span>
@@ -1446,14 +2000,14 @@ window.runMermaid = runMermaid;</script>
     <span class="p">)</span>
 
     <span class="c1"># 2001: 2</span>
-    <span class="c1"># 2024: 3</span>
+    <span class="c1"># 2024: 4</span>
     <span class="c1"># [km feb 2026] - keep an eye on this. Two of these mismatches (1 2001, 1 2024) happen</span>
     <span class="c1"># bc disposition_to_other_volume is NA while line 1840 has valid data, which suggests</span>
     <span class="c1"># we should continue to prefer line 1840. But for the other three mismatches (1 2001,</span>
     <span class="c1"># 2 2024) disposition_to_other_volume always exceeds the value from 1840. If this pattern</span>
     <span class="c1"># continues, we may want to switch to only using 1840 when disposition_to_other_volume</span>
     <span class="c1"># is not available.</span>
-    <span class="n">max_disposition_mismatch</span> <span class="o">=</span> <span class="mi">5</span>
+    <span class="n">max_disposition_mismatch</span> <span class="o">=</span> <span class="mi">6</span>
     <span class="n">disposition_to_other_mismatch</span> <span class="o">=</span> <span class="p">(</span>
         <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;disposition_to_other_volume&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">df</span><span class="p">[</span><span class="mi">1840</span><span class="p">])</span>
         <span class="o">&amp;</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;disposition_to_other_volume&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">notna</span><span class="p">()</span> <span class="o">|</span> <span class="n">df</span><span class="p">[</span><span class="mi">1840</span><span class="p">]</span><span class="o">.</span><span class="n">notna</span><span class="p">())</span>
@@ -1614,7 +2168,9 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="_normalize_operating_states">
 <a class="viewcode-back" href="../../../autoapi/pudl/transform/eia176/index.html#pudl.transform.eia176._normalize_operating_states">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">_normalize_operating_states</span><span class="p">(</span><span class="n">core_pudl__codes_subdivisions</span><span class="p">,</span> <span class="n">df</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_normalize_operating_states</span><span class="p">(</span>
+    <span class="n">core_pudl__codes_subdivisions</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">column</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;operating_state&quot;</span>
+<span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Map full state names to their postal abbreviations.</span>
 
 <span class="sd">    This uses the latest year of Census PEP data as the reference. If a full state name is not included in this data, it is set to NA.</span>
@@ -1627,7 +2183,7 @@ window.runMermaid = runMermaid;</script>
         <span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="s2">&quot;key&quot;</span><span class="p">)</span>
         <span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;key&quot;</span><span class="p">)[</span><span class="s2">&quot;subdivision_code&quot;</span><span class="p">]</span>
     <span class="p">)</span>
-    <span class="n">norm</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;operating_state&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span>
+    <span class="n">norm</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">column</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span>
     <span class="n">mask_valid</span> <span class="o">=</span> <span class="n">norm</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">codes</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
     <span class="n">mask_safe_drop</span> <span class="o">=</span> <span class="n">norm</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">DROP_OPERATING_STATES</span><span class="p">)</span>
 
@@ -1635,7 +2191,7 @@ window.runMermaid = runMermaid;</script>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">invalid</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown operating_state values: </span><span class="si">{</span><span class="n">invalid</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;operating_state&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">norm</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">codes</span><span class="p">)</span>
+    <span class="n">df</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="o">=</span> <span class="n">norm</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">codes</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">df</span></div>
 
 </pre></div>

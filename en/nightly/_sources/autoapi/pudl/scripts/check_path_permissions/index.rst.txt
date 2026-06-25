@@ -1,0 +1,246 @@
+pudl.scripts.check_path_permissions
+===================================
+
+.. py:module:: pudl.scripts.check_path_permissions
+
+.. autoapi-nested-parse::
+
+   Check read, write, and delete permissions for local or remote paths.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.scripts.check_path_permissions.NOISY_BACKEND_LOGGERS
+
+
+Exceptions
+----------
+
+.. autoapisummary::
+
+   pudl.scripts.check_path_permissions.PathPermissionError
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   pudl.scripts.check_path_permissions.PermissionCheck
+   pudl.scripts.check_path_permissions.CheckReport
+   pudl.scripts.check_path_permissions.PathReport
+   pudl.scripts.check_path_permissions.PathCheckReport
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.scripts.check_path_permissions._get_ferceqr_deployment_paths
+   pudl.scripts.check_path_permissions._build_upath
+   pudl.scripts.check_path_permissions._suppress_backend_tracebacks
+   pudl.scripts.check_path_permissions._ensure_directory_like_path
+   pudl.scripts.check_path_permissions.check_read_access
+   pudl.scripts.check_path_permissions.check_write_access
+   pudl.scripts.check_path_permissions._record_check_output
+   pudl.scripts.check_path_permissions._record_check_outcome
+   pudl.scripts.check_path_permissions._run_check
+   pudl.scripts.check_path_permissions._check_single_path
+   pudl.scripts.check_path_permissions.main
+
+
+Module Contents
+---------------
+
+.. py:data:: NOISY_BACKEND_LOGGERS
+   :value: ('fsspec', 'gcsfs', 'gcsfs.retry', 's3fs')
+
+
+.. py:class:: PermissionCheck
+
+   Bases: :py:obj:`enum.StrEnum`
+
+
+   Named permission-check stages used by the CLI and its reports.
+
+
+   .. py:attribute:: READ
+      :value: 'read'
+
+
+
+   .. py:attribute:: WRITE
+      :value: 'write'
+
+
+
+   .. py:attribute:: DELETE
+      :value: 'delete'
+
+
+
+.. py:exception:: PathPermissionError(message: str)
+
+   Bases: :py:obj:`click.ClickException`
+
+
+   Permission check failure annotated with the stage that failed.
+
+
+   .. py:attribute:: check
+      :type:  PermissionCheck
+
+
+   .. py:attribute:: message
+      :type:  str
+
+
+   .. py:method:: __post_init__() -> None
+
+      Initialize the underlying Click exception message.
+
+
+
+.. py:class:: CheckReport
+
+   Structured result for a single permission check.
+
+
+   .. py:attribute:: requested
+      :type:  bool
+
+
+   .. py:attribute:: success
+      :type:  bool | None
+      :value: None
+
+
+
+   .. py:attribute:: messages
+      :type:  list[str]
+      :value: []
+
+
+
+   .. py:attribute:: errors
+      :type:  list[str]
+      :value: []
+
+
+
+.. py:class:: PathReport
+
+   Structured result for all permission checks against one path.
+
+
+   .. py:attribute:: path
+      :type:  str
+
+
+   .. py:attribute:: resolved_path
+      :type:  str | None
+
+
+   .. py:attribute:: anon
+      :type:  bool
+
+
+   .. py:attribute:: checks
+      :type:  dict[PermissionCheck, CheckReport]
+
+
+   .. py:attribute:: success
+      :type:  bool
+      :value: False
+
+
+
+.. py:class:: PathCheckReport
+
+   Top-level report for a CLI invocation across one or more paths.
+
+
+   .. py:attribute:: paths
+      :type:  list[str]
+
+
+   .. py:attribute:: anon
+      :type:  bool
+
+
+   .. py:attribute:: results
+      :type:  list[PathReport]
+
+
+   .. py:attribute:: success
+      :type:  bool
+      :value: False
+
+
+
+.. py:function:: _get_ferceqr_deployment_paths(anon: bool = False) -> list[upath.UPath]
+
+   Return resolved FERC EQR deployment targets as fully configured UPath objects.
+
+   Each target is constructed with its YAML-defined ``storage_options``, then the
+   global ``--anon`` flag is applied on top (so it can override per-target settings
+   if needed).
+
+   :param anon: Whether to force anonymous access for ``gs://`` or ``s3://`` targets.
+
+
+.. py:function:: _build_upath(path: str, anon: bool, storage_options: dict[str, Any] | None = None) -> upath.UPath
+
+   Return a :class:`~upath.UPath` with anon and any per-target options baked in.
+
+
+.. py:function:: _suppress_backend_tracebacks() -> Any
+
+   Temporarily silence noisy storage-backend exception logging.
+
+
+.. py:function:: _ensure_directory_like_path(path: upath.UPath) -> None
+
+   Raise if the provided path points at an existing file/object.
+
+
+.. py:function:: check_read_access(path: upath.UPath) -> None
+
+   Raise if the given path cannot be read as a directory-like location.
+
+
+.. py:function:: check_write_access(path: upath.UPath) -> None
+
+   Raise if a canary file cannot be written, read back, and deleted.
+
+
+.. py:function:: _record_check_output(*, check_name: PermissionCheck, message: str, json_output: bool, summary: PathReport, is_error: bool = False) -> None
+
+   Record a result message in the summary and optionally print it.
+
+
+.. py:function:: _record_check_outcome(*, check_name: PermissionCheck, success: bool, message: str, json_output: bool, summary: PathReport) -> None
+
+   Set the check outcome and record the message in one step.
+
+
+.. py:function:: _run_check(*, action: PermissionCheck, resolved_path: upath.UPath, json_output: bool, summary: PathReport) -> None
+
+   Run a single permission check and update the structured summary.
+
+
+.. py:function:: _check_single_path(*, path: upath.UPath, read_requested: bool, write_requested: bool, json_output: bool, anon: bool) -> PathReport
+
+   Run the requested checks for one path and return a structured summary.
+
+
+.. py:function:: main(ctx: click.Context, paths: tuple[str, Ellipsis], read_requested: bool, write_requested: bool, json_output: bool, anon: bool, check_ferceqr_deployment_paths: bool) -> int
+
+   Check path permissions using UPath for local filesystems and cloud buckets.
+
+

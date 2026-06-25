@@ -30,7 +30,8 @@ Attributes
    pudl.dagster.resources.zenodo_doi_settings_resource
    pudl.dagster.resources.datastore_resource
    pudl.dagster.resources.ferc_xbrl_runtime_settings
-   pudl.dagster.resources.ferceqr_data_config
+   pudl.dagster.resources.ferceqr_archive
+   pudl.dagster.resources.ferceqr_deployment_targets
    pudl.dagster.resources.zulip_notification_resource
    pudl.dagster.resources.default_resources
 
@@ -45,7 +46,9 @@ Classes
    pudl.dagster.resources.GlobalDataConfigResource
    pudl.dagster.resources.ZenodoDoiSettingsResource
    pudl.dagster.resources.DatastoreResource
-   pudl.dagster.resources.FercEqrDataConfig
+   pudl.dagster.resources.FercEqrArchiveResource
+   pudl.dagster.resources.FercEqrDeploymentTargetConfig
+   pudl.dagster.resources.FercEqrDeploymentResource
    pudl.dagster.resources.ZulipNotificationResource
 
 
@@ -187,27 +190,109 @@ Module Contents
 
 
 
-.. py:class:: FercEqrDataConfig
+.. py:class:: FercEqrArchiveResource
 
    Bases: :py:obj:`dagster.ConfigurableResource`
 
 
    Configure which archived FERC EQR filings are available for extraction.
 
-   The default value of ``ferceqr_archive_uri`` points to the published archive of FERC
-   EQR filings on GCS which is what we use in production. For testing or development,
-   this can be overridden to point to a local path with a subset of the archive.
+   The default value of ``path`` points to the published archive of FERC EQR filings on
+   GCS which is what we use in production. For testing or development, this can be
+   overridden to point to a local path with a subset of the archive.
 
 
-   .. py:attribute:: ferceqr_archive_uri
+   .. py:attribute:: path
       :type:  str
 
 
-   .. py:property:: ferceqr_archive_path
+   .. py:property:: upath
       :type: upath.UPath
 
 
       Return UPath pointing to archive base path.
+
+
+.. py:class:: FercEqrDeploymentTargetConfig(**config_dict)
+
+   Bases: :py:obj:`dagster.Config`
+
+
+   A single deployment destination for FERC EQR outputs.
+
+   ``path`` is a UPath-compatible string: an absolute local directory path, ``file://``
+   URI, ``gs://`` URI, or ``s3://`` URI.  ``storage_options`` is unpacked as
+   ``**kwargs`` when constructing the :class:`~upath.UPath`, allowing per-target fsspec
+   settings such as ``requester_pays=True`` for requester-pays GCS buckets.
+
+
+   .. py:attribute:: path
+      :type:  str
+
+
+   .. py:attribute:: storage_options
+      :type:  dict[str, Any]
+
+
+   .. py:attribute:: append_build_id
+      :type:  bool
+      :value: False
+
+
+
+   .. py:method:: validate_path(value: str) -> str
+      :classmethod:
+
+
+      Validate deployment targets as remote URLs or local directories.
+
+
+
+.. py:class:: FercEqrDeploymentResource
+
+   Bases: :py:obj:`dagster.ConfigurableResource`
+
+
+   One or more deployment destinations for FERC EQR outputs.
+
+   Deployment targets can be provided directly as structured config or loaded from a
+   YAML file. Direct ``deployment_targets`` take precedence. When neither explicit
+   targets nor a deployment config path are provided, deployment is skipped.
+
+
+   .. py:attribute:: deployment_targets
+      :type:  list[FercEqrDeploymentTargetConfig]
+      :value: []
+
+
+
+   .. py:attribute:: deployment_config_path
+      :type:  str | None
+      :value: None
+
+
+
+   .. py:method:: from_yaml(deployment_config_path: str | pathlib.Path) -> FercEqrDeploymentResource
+      :classmethod:
+
+
+      Create a FERC EQR deployment resource from a YAML config file.
+
+
+
+   .. py:method:: configured_targets() -> list[FercEqrDeploymentTargetConfig]
+
+      Return deployment-target config with explicit overrides taking precedence.
+
+
+
+   .. py:method:: resolved_targets() -> list[upath.UPath]
+
+      Return the list of :class:`~upath.UPath` deployment destinations.
+
+      Each configured target is converted to a :class:`~upath.UPath` using its
+      provided ``storage_options``.
+
 
 
 .. py:class:: ZulipNotificationResource
@@ -262,7 +347,9 @@ Module Contents
 
 .. py:data:: ferc_xbrl_runtime_settings
 
-.. py:data:: ferceqr_data_config
+.. py:data:: ferceqr_archive
+
+.. py:data:: ferceqr_deployment_targets
 
 .. py:data:: zulip_notification_resource
 

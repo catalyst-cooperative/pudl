@@ -31,6 +31,8 @@ Attributes
    pudl.metadata.enums.TECH_CLASSES
    pudl.metadata.enums.REVENUE_CLASSES_EIA861
    pudl.metadata.enums.REVENUE_CLASSES_EIA176
+   pudl.metadata.enums.SUPPLEMENTAL_GASEOUS_FUEL_TYPES_EIA176
+   pudl.metadata.enums.OTHER_DISPOSITION_TYPES_EIA176
    pudl.metadata.enums.RELIABILITY_STANDARDS
    pudl.metadata.enums.FUEL_CLASSES
    pudl.metadata.enums.RTO_CLASSES
@@ -187,6 +189,16 @@ Module Contents
 .. py:data:: REVENUE_CLASSES_EIA176
    :type:  list[str]
    :value: ['sales', 'transport']
+
+
+.. py:data:: SUPPLEMENTAL_GASEOUS_FUEL_TYPES_EIA176
+   :type:  list[str]
+   :value: ['air_injection', 'biomass', 'biomass_gas', 'blast_furnace_gas', 'coke_oven_gas', 'gas_holders',...
+
+
+.. py:data:: OTHER_DISPOSITION_TYPES_EIA176
+   :type:  list[str]
+   :value: ['line_pressure', 'other', 'vented_flared', 'plant_fuel', 'plant_thermal_reduction',...
 
 
 .. py:data:: RELIABILITY_STANDARDS

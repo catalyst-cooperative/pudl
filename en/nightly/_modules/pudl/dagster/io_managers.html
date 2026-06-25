@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.dagster.io_managers &#8212; PUDL 2026.6.2.dev1 documentation</title>
+    <title>pudl.dagster.io_managers &#8212; PUDL 2026.6.2.dev12 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5" />
 
-    <script src="../../../_static/documentation_options.js?v=29a75617"></script>
+    <script src="../../../_static/documentation_options.js?v=caf87eab"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -574,8 +574,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.6.2.dev1 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.6.2.dev1 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.6.2.dev12 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.6.2.dev12 documentation - Home"/>
   
   
 </a></div>
@@ -863,8 +863,9 @@ window.runMermaid = runMermaid;</script>
 <span></span><span class="sd">&quot;&quot;&quot;Dagster IO managers used by PUDL assets.</span>
 
 <span class="sd">This module defines the IO-manager implementations that translate between Dagster asset</span>
-<span class="sd">execution and PUDL&#39;s storage formats, including SQLite, Parquet, GeoParquet, and the</span>
-<span class="sd">FERC prerequisite databases. Put :class:`dagster.IOManager` and</span>
+<span class="sd">execution and PUDL&#39;s storage formats, including SQLite, Parquet (with native GeoParquet</span>
+<span class="sd">support for assets that return a :class:`geopandas.GeoDataFrame`), and the FERC</span>
+<span class="sd">prerequisite databases. Put :class:`dagster.IOManager` and</span>
 <span class="sd">:class:`dagster.ConfigurableIOManager` classes here, along with configured singleton</span>
 <span class="sd">instances that the default code location reuses. Keep data-processing logic out of this</span>
 <span class="sd">module; it should focus on persistence, loading, and storage-compatibility concerns.</span>
@@ -873,7 +874,6 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">hashlib</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">cached_property</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
@@ -884,7 +884,6 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">import</span><span class="w"> </span><span class="nn">geopandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gpd</span>  <span class="c1"># noqa: ICN002</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">polars</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pl</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">pyarrow</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pa</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pyarrow.parquet</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pq</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">sqlalchemy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sa</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">alembic.autogenerate.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">compare_metadata</span>
@@ -1307,15 +1306,26 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="PudlParquetIOManager.handle_output">
 <a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.PudlParquetIOManager.handle_output">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">handle_output</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">OutputContext</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="n">pl</span><span class="o">.</span><span class="n">LazyFrame</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">context</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">OutputContext</span><span class="p">,</span>
+        <span class="n">obj</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">|</span> <span class="n">pl</span><span class="o">.</span><span class="n">LazyFrame</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Writes pudl dataframe to parquet file.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Writes a pudl dataframe to a Parquet file.</span>
+
+<span class="sd">        GeoDataFrames are written as GeoParquet using native geopandas output,</span>
+<span class="sd">        which produces spec-compliant CRS metadata readable by DuckDB &gt;= 1.5.</span>
+<span class="sd">        Regular DataFrames and Polars LazyFrames use the PUDL PyArrow schema to</span>
+<span class="sd">        enforce exact column types on disk.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">table_name</span> <span class="o">=</span> <span class="n">get_table_name_from_context</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
         <span class="n">res</span> <span class="o">=</span> <span class="n">Resource</span><span class="o">.</span><span class="n">from_id</span><span class="p">(</span><span class="n">table_name</span><span class="p">)</span>
         <span class="n">parquet_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pudl_paths</span><span class="o">.</span><span class="n">parquet_path</span><span class="p">(</span><span class="n">table_name</span><span class="p">)</span>
         <span class="n">parquet_path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">):</span>
+            <span class="n">gdf</span> <span class="o">=</span> <span class="n">res</span><span class="o">.</span><span class="n">enforce_schema</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+            <span class="n">gdf</span><span class="o">.</span><span class="n">to_parquet</span><span class="p">(</span><span class="n">parquet_path</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
             <span class="n">df</span> <span class="o">=</span> <span class="n">res</span><span class="o">.</span><span class="n">enforce_schema</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
             <span class="n">pa_schema</span> <span class="o">=</span> <span class="n">res</span><span class="o">.</span><span class="n">to_pyarrow</span><span class="p">()</span>
             <span class="n">df</span><span class="o">.</span><span class="n">to_parquet</span><span class="p">(</span>
@@ -1331,8 +1341,8 @@ window.runMermaid = runMermaid;</script>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
-                <span class="s2">&quot;PudlParquetIOManager only supports pandas DataFrames and Polars LazyFrames&quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;, got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
+                <span class="s2">&quot;PudlParquetIOManager only supports pandas DataFrames, &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;geopandas GeoDataFrames, and Polars LazyFrames, got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
             <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_record_parquet_file_metadata</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">parquet_path</span><span class="p">)</span></div>
 
@@ -1349,88 +1359,6 @@ window.runMermaid = runMermaid;</script>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">df</span> <span class="o">=</span> <span class="n">get_parquet_table</span><span class="p">(</span><span class="n">table_name</span><span class="p">,</span> <span class="n">paths</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pudl_paths</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">df</span></div>
-</div>
-
-
-
-<div class="viewcode-block" id="PudlGeoParquetIOManager">
-<a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.PudlGeoParquetIOManager">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">PudlGeoParquetIOManager</span><span class="p">(</span><span class="n">PudlParquetIOManager</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Do some extra work to output valid GeoParquet files when appropriate.&quot;&quot;&quot;</span>
-
-<div class="viewcode-block" id="PudlGeoParquetIOManager._create_geoparquet_metadata">
-<a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.PudlGeoParquetIOManager._create_geoparquet_metadata">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_create_geoparquet_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gdf</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span> <span class="n">res</span><span class="p">:</span> <span class="n">Resource</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create GeoParquet metadata JSON string.&quot;&quot;&quot;</span>
-        <span class="c1"># Find geometry columns from the resource schema</span>
-        <span class="n">geometry_columns</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">res</span><span class="o">.</span><span class="n">schema</span><span class="o">.</span><span class="n">fields</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">field</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;geometry&quot;</span> <span class="ow">and</span> <span class="n">field</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">gdf</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
-                <span class="n">geometry_columns</span><span class="p">[</span><span class="n">field</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-                    <span class="s2">&quot;encoding&quot;</span><span class="p">:</span> <span class="s2">&quot;WKB&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;geometry_types&quot;</span><span class="p">:</span> <span class="p">[],</span>  <span class="c1"># Could be enhanced with actual geometry type detection</span>
-                    <span class="s2">&quot;crs&quot;</span><span class="p">:</span> <span class="n">gdf</span><span class="o">.</span><span class="n">crs</span><span class="o">.</span><span class="n">to_wkt</span><span class="p">()</span> <span class="k">if</span> <span class="n">gdf</span><span class="o">.</span><span class="n">crs</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
-                    <span class="c1"># Calculate bbox from geometry</span>
-                    <span class="s2">&quot;bbox&quot;</span><span class="p">:</span> <span class="n">gdf</span><span class="o">.</span><span class="n">total_bounds</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
-                    <span class="k">if</span> <span class="ow">not</span> <span class="n">gdf</span><span class="o">.</span><span class="n">empty</span> <span class="ow">and</span> <span class="n">gdf</span><span class="o">.</span><span class="n">crs</span>
-                    <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="p">}</span>
-
-        <span class="c1"># Determine primary geometry column</span>
-        <span class="n">primary_column</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">gdf</span><span class="p">,</span> <span class="s2">&quot;geometry&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">gdf</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">geometry_columns</span><span class="p">:</span>
-            <span class="n">primary_column</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">name</span>
-        <span class="k">elif</span> <span class="n">geometry_columns</span><span class="p">:</span>
-            <span class="n">primary_column</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">geometry_columns</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span>
-
-        <span class="n">geo_metadata</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="s2">&quot;1.0.0&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;primary_column&quot;</span><span class="p">:</span> <span class="n">primary_column</span><span class="p">,</span>
-            <span class="s2">&quot;columns&quot;</span><span class="p">:</span> <span class="n">geometry_columns</span><span class="p">,</span>
-        <span class="p">}</span>
-        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">geo_metadata</span><span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="PudlGeoParquetIOManager.handle_output">
-<a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.PudlGeoParquetIOManager.handle_output">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">handle_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">OutputContext</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Write a PUDL dataframe to GeoParquet.&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Only geopandas dataframes are supported, got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
-            <span class="p">)</span>
-        <span class="n">table_name</span> <span class="o">=</span> <span class="n">get_table_name_from_context</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
-        <span class="n">parquet_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pudl_paths</span><span class="o">.</span><span class="n">parquet_path</span><span class="p">(</span><span class="n">table_name</span><span class="p">)</span>
-        <span class="n">parquet_path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-        <span class="n">res</span> <span class="o">=</span> <span class="n">Resource</span><span class="o">.</span><span class="n">from_id</span><span class="p">(</span><span class="n">table_name</span><span class="p">)</span>
-        <span class="n">gdf</span> <span class="o">=</span> <span class="n">res</span><span class="o">.</span><span class="n">enforce_schema</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
-
-        <span class="c1"># Extract metadata before modifying geometry columns</span>
-        <span class="n">geo_metadata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_geoparquet_metadata</span><span class="p">(</span><span class="n">gdf</span><span class="p">,</span> <span class="n">res</span><span class="p">)</span>
-        <span class="c1"># Convert geometry columns to WKB</span>
-        <span class="n">geometry_fields</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">field</span><span class="o">.</span><span class="n">name</span>
-            <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">res</span><span class="o">.</span><span class="n">schema</span><span class="o">.</span><span class="n">fields</span>
-            <span class="k">if</span> <span class="n">field</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;geometry&quot;</span> <span class="ow">and</span> <span class="n">field</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">gdf</span><span class="o">.</span><span class="n">columns</span>
-        <span class="p">]</span>
-        <span class="k">for</span> <span class="n">field_name</span> <span class="ow">in</span> <span class="n">geometry_fields</span><span class="p">:</span>
-            <span class="c1"># This conversion is required to get the right data into the Parquet output</span>
-            <span class="c1"># but it isn&#39;t technically compatible with the GeoDataFrame, so we get a</span>
-            <span class="c1"># warning from Geopandas about the geometry column not being a geometry.</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Convert geometry column </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s2"> to WKB.&quot;</span><span class="p">)</span>
-            <span class="n">gdf</span><span class="p">[</span><span class="n">field_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">gdf</span><span class="p">[</span><span class="n">field_name</span><span class="p">]</span><span class="o">.</span><span class="n">to_wkb</span><span class="p">()</span>
-
-        <span class="c1"># Convert to PyArrow table with explicit schema</span>
-        <span class="n">pa_table</span> <span class="o">=</span> <span class="n">pa</span><span class="o">.</span><span class="n">Table</span><span class="o">.</span><span class="n">from_pandas</span><span class="p">(</span>
-            <span class="n">gdf</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">res</span><span class="o">.</span><span class="n">to_pyarrow</span><span class="p">(),</span> <span class="n">preserve_index</span><span class="o">=</span><span class="kc">False</span>
-        <span class="p">)</span>
-        <span class="c1"># Add GeoParquet metadata</span>
-        <span class="n">metadata</span> <span class="o">=</span> <span class="n">pa_table</span><span class="o">.</span><span class="n">schema</span><span class="o">.</span><span class="n">metadata</span> <span class="ow">or</span> <span class="p">{}</span>
-        <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;geo&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">geo_metadata</span>
-        <span class="n">pa_table</span> <span class="o">=</span> <span class="n">pa_table</span><span class="o">.</span><span class="n">replace_schema_metadata</span><span class="p">(</span><span class="n">metadata</span><span class="p">)</span>
-        <span class="n">pq</span><span class="o">.</span><span class="n">write_table</span><span class="p">(</span><span class="n">pa_table</span><span class="p">,</span> <span class="n">parquet_path</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_record_parquet_file_metadata</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">parquet_path</span><span class="p">)</span></div>
 </div>
 
 
@@ -1583,10 +1511,6 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="parquet_io_manager">
 <a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.parquet_io_manager">[docs]</a>
 <span class="n">parquet_io_manager</span> <span class="o">=</span> <span class="n">PudlParquetIOManager</span><span class="p">(</span><span class="n">pudl_paths</span><span class="o">=</span><span class="n">pudl_paths_resource</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="geoparquet_io_manager">
-<a class="viewcode-back" href="../../../autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.geoparquet_io_manager">[docs]</a>
-<span class="n">geoparquet_io_manager</span> <span class="o">=</span> <span class="n">PudlGeoParquetIOManager</span><span class="p">(</span><span class="n">pudl_paths</span><span class="o">=</span><span class="n">pudl_paths_resource</span><span class="p">)</span></div>
 
 
 
@@ -1927,7 +1851,6 @@ window.runMermaid = runMermaid;</script>
     <span class="s2">&quot;ferc1_dbf_sqlite_io_manager&quot;</span><span class="p">:</span> <span class="n">ferc1_dbf_sqlite_io_manager</span><span class="p">,</span>
     <span class="s2">&quot;ferc1_xbrl_sqlite_io_manager&quot;</span><span class="p">:</span> <span class="n">ferc1_xbrl_sqlite_io_manager</span><span class="p">,</span>
     <span class="s2">&quot;ferc714_xbrl_sqlite_io_manager&quot;</span><span class="p">:</span> <span class="n">ferc714_xbrl_sqlite_io_manager</span><span class="p">,</span>
-    <span class="s2">&quot;geoparquet_io_manager&quot;</span><span class="p">:</span> <span class="n">geoparquet_io_manager</span><span class="p">,</span>
     <span class="s2">&quot;parquet_io_manager&quot;</span><span class="p">:</span> <span class="n">parquet_io_manager</span><span class="p">,</span>
     <span class="s2">&quot;pudl_io_manager&quot;</span><span class="p">:</span> <span class="n">pudl_mixed_format_io_manager</span><span class="p">,</span>
 <span class="p">}</span></div>

@@ -15,7 +15,12 @@ Attributes
 .. autoapisummary::
 
    pudl.transform.eia176.logger
+   pudl.transform.eia176.name_cleaner
    pudl.transform.eia176.DROP_OPERATING_STATES
+   pudl.transform.eia176.CONTINUATION_LINES_ALLOWED_NON_SUBDIVISION_CODES
+   pudl.transform.eia176.UNKNOWN_TYPES
+   pudl.transform.eia176.SUPPLEMENTAL_GASEOUS_FUEL_TYPE_MAP
+   pudl.transform.eia176.OTHER_DISPOSITION_TYPE_MAP
 
 
 Functions
@@ -25,8 +30,16 @@ Functions
 
    pudl.transform.eia176._core_eia176__numeric_data
    pudl.transform.eia176.get_wide_table
+   pudl.transform.eia176._subdivision_code_map
+   pudl.transform.eia176.normalize_continuation_line_location_codes
+   pudl.transform.eia176._get_continuation_code_type
+   pudl.transform.eia176._find_continuation_line_total_mismatches
    pudl.transform.eia176.validate_totals
    pudl.transform.eia176.core_eia176__yearly_gas_disposition_by_consumer
+   pudl.transform.eia176.core_eia176__yearly_gas_imports
+   pudl.transform.eia176.core_eia176__yearly_supplemental_gaseous_fuel_supplies
+   pudl.transform.eia176.core_eia176__yearly_gas_exports
+   pudl.transform.eia176.core_eia176__yearly_gas_disposition_other
    pudl.transform.eia176.core_eia176__yearly_gas_supply
    pudl.transform.eia176._compare_eia176_continuation_line_total
    pudl.transform.eia176.core_eia176__yearly_gas_disposition
@@ -39,9 +52,21 @@ Module Contents
 
 .. py:data:: logger
 
+.. py:data:: name_cleaner
+
 .. py:data:: DROP_OPERATING_STATES
    :value: ('fed. gulf of mexico', 'mexico', 'other')
 
+
+.. py:data:: CONTINUATION_LINES_ALLOWED_NON_SUBDIVISION_CODES
+
+.. py:data:: UNKNOWN_TYPES
+   :value: ('', '.', '0', 'na', 'nan', 'n/a', 'n.a.', 'none', 'not applicable', 'not available')
+
+
+.. py:data:: SUPPLEMENTAL_GASEOUS_FUEL_TYPE_MAP
+
+.. py:data:: OTHER_DISPOSITION_TYPE_MAP
 
 .. py:function:: _core_eia176__numeric_data(raw_eia176__numeric_data: pandas.DataFrame) -> tuple[dagster.Output, dagster.Output]
 
@@ -58,6 +83,32 @@ Module Contents
 .. py:function:: get_wide_table(long_table: pandas.DataFrame, primary_key: list[str]) -> pandas.DataFrame
 
    Take a 'long' or entity-attribute-value table and return a wide table with one column per attribute/variable.
+
+
+.. py:function:: _subdivision_code_map(core_pudl__codes_subdivisions: pandas.DataFrame) -> pandas.Series
+
+   Map subdivision names and codes to canonical two-letter codes.
+
+
+.. py:function:: normalize_continuation_line_location_codes(df: pandas.DataFrame, core_pudl__codes_subdivisions: pandas.DataFrame, column: str) -> pandas.DataFrame
+
+   Validate and normalize EIA-176 continuation line location codes.
+
+   Values matching ``core_pudl__codes_subdivisions`` by name or code are converted
+   to canonical two-letter state, province, or territory codes. Known EIA
+   continuation line codes that are not state, province, or territory codes are
+   allowed through unchanged so unexpected values still fail loudly. These allowed
+   values are raw EIA ``REF_CODE`` values, not standardized ISO country codes.
+
+
+.. py:function:: _get_continuation_code_type(continuation_code: pandas.Series, core_pudl__codes_subdivisions: pandas.DataFrame) -> pandas.Series
+
+   Classify EIA-176 continuation codes as subnational or national/other codes.
+
+
+.. py:function:: _find_continuation_line_total_mismatches(detail_records: pandas.DataFrame, _core_eia176__yearly_company_data: pandas.DataFrame, company_total_column: str) -> pandas.DataFrame
+
+   Compare detailed continuation line totals with reported company-level totals.
 
 
 .. py:function:: validate_totals(_core_eia176__yearly_company_data: pandas.DataFrame, _core_eia176__yearly_aggregate_data: pandas.DataFrame) -> dagster.AssetCheckResult
@@ -103,6 +154,26 @@ Module Contents
    - ``customer_class`` and ``revenue_class`` are returned as categoricals.
 
 
+.. py:function:: core_eia176__yearly_gas_imports(raw_eia176__continuation_text_lines: pandas.DataFrame, core_pudl__codes_subdivisions: pandas.DataFrame, _core_eia176__yearly_company_data: pandas.DataFrame) -> pandas.DataFrame
+
+   Produce company-level detailed annual gas imports (EIA-176, Line 3.0).
+
+
+.. py:function:: core_eia176__yearly_supplemental_gaseous_fuel_supplies(raw_eia176__continuation_text_lines: pandas.DataFrame, core_pudl__codes_subdivisions: pandas.DataFrame, _core_eia176__yearly_company_data: pandas.DataFrame) -> pandas.DataFrame
+
+   Produce detailed annual supplemental gaseous fuel supplies (EIA-176, Line 6.0).
+
+
+.. py:function:: core_eia176__yearly_gas_exports(raw_eia176__continuation_text_lines: pandas.DataFrame, core_pudl__codes_subdivisions: pandas.DataFrame, _core_eia176__yearly_company_data: pandas.DataFrame) -> pandas.DataFrame
+
+   Produce detailed annual out-of-state gas deliveries (EIA-176, Line 14.0).
+
+
+.. py:function:: core_eia176__yearly_gas_disposition_other(raw_eia176__continuation_text_lines: pandas.DataFrame, core_pudl__codes_subdivisions: pandas.DataFrame, _core_eia176__yearly_company_data: pandas.DataFrame) -> pandas.DataFrame
+
+   Produce detailed annual gas disposition to other uses (EIA-176, Line 18.4).
+
+
 .. py:function:: core_eia176__yearly_gas_supply(_core_eia176__yearly_company_data: pandas.DataFrame, core_pudl__codes_subdivisions: pandas.DataFrame, raw_eia176__continuation_text_lines: pandas.DataFrame) -> pandas.DataFrame
 
    Produce company-level natural and supplemental gas supply (EIA176, Lines 1.0-7.0).
@@ -123,7 +194,7 @@ Module Contents
    Operator's LNG storage volume and capacity (EIA176, lines 8.0-8.2).
 
 
-.. py:function:: _normalize_operating_states(core_pudl__codes_subdivisions, df)
+.. py:function:: _normalize_operating_states(core_pudl__codes_subdivisions, df, column: str = 'operating_state')
 
    Map full state names to their postal abbreviations.
 

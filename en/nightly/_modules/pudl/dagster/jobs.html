@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.dagster.jobs &#8212; PUDL 2026.6.2.dev1 documentation</title>
+    <title>pudl.dagster.jobs &#8212; PUDL 2026.6.2.dev12 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5" />
 
-    <script src="../../../_static/documentation_options.js?v=29a75617"></script>
+    <script src="../../../_static/documentation_options.js?v=caf87eab"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -574,8 +574,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.6.2.dev1 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.6.2.dev1 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.6.2.dev12 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.6.2.dev12 documentation - Home"/>
   
   
 </a></div>
@@ -879,49 +879,94 @@ window.runMermaid = runMermaid;</script>
     <span class="n">default_pudl_job_config</span><span class="p">,</span>
 <span class="p">)</span>
 
+<div class="viewcode-block" id="pudl_job">
+<a class="viewcode-back" href="../../../autoapi/pudl/dagster/jobs/index.html#pudl.dagster.jobs.pudl_job">[docs]</a>
+<span class="n">pudl_job</span> <span class="o">=</span> <span class="n">dg</span><span class="o">.</span><span class="n">define_asset_job</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;pudl&quot;</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="p">(</span>
+        <span class="s2">&quot;This job executes the main PUDL ETL without refreshing the FERC-to-SQLite &quot;</span>
+        <span class="s2">&quot;prerequisites.&quot;</span>
+    <span class="p">),</span>
+    <span class="n">config</span><span class="o">=</span><span class="n">default_pudl_job_config</span><span class="p">,</span>
+    <span class="n">selection</span><span class="o">=</span><span class="n">dg</span><span class="o">.</span><span class="n">AssetSelection</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+    <span class="o">-</span> <span class="n">dg</span><span class="o">.</span><span class="n">AssetSelection</span><span class="o">.</span><span class="n">groups</span><span class="p">(</span>
+        <span class="s2">&quot;raw_ferc_to_sqlite&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;raw_ferceqr&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;core_ferceqr&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ferceqr_deployment&quot;</span><span class="p">,</span>
+    <span class="p">),</span>
+<span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ferc_to_sqlite_job">
+<a class="viewcode-back" href="../../../autoapi/pudl/dagster/jobs/index.html#pudl.dagster.jobs.ferc_to_sqlite_job">[docs]</a>
+<span class="n">ferc_to_sqlite_job</span> <span class="o">=</span> <span class="n">dg</span><span class="o">.</span><span class="n">define_asset_job</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;ferc_to_sqlite&quot;</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s2">&quot;This job refreshes the FERC-to-SQLite prerequisite assets only.&quot;</span><span class="p">,</span>
+    <span class="n">config</span><span class="o">=</span><span class="n">default_execution_config</span><span class="p">,</span>
+    <span class="n">selection</span><span class="o">=</span><span class="n">dg</span><span class="o">.</span><span class="n">AssetSelection</span><span class="o">.</span><span class="n">groups</span><span class="p">(</span><span class="s2">&quot;raw_ferc_to_sqlite&quot;</span><span class="p">),</span>
+<span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="pudl_with_ferc_to_sqlite_job">
+<a class="viewcode-back" href="../../../autoapi/pudl/dagster/jobs/index.html#pudl.dagster.jobs.pudl_with_ferc_to_sqlite_job">[docs]</a>
+<span class="n">pudl_with_ferc_to_sqlite_job</span> <span class="o">=</span> <span class="n">dg</span><span class="o">.</span><span class="n">define_asset_job</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;pudl_with_ferc_to_sqlite&quot;</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="p">(</span>
+        <span class="s2">&quot;This job executes the main PUDL ETL including the FERC-to-SQLite &quot;</span>
+        <span class="s2">&quot;prerequisites (default: full settings profile).&quot;</span>
+    <span class="p">),</span>
+    <span class="n">config</span><span class="o">=</span><span class="n">default_pudl_job_config</span><span class="p">,</span>
+    <span class="n">selection</span><span class="o">=</span><span class="n">dg</span><span class="o">.</span><span class="n">AssetSelection</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+    <span class="o">-</span> <span class="n">dg</span><span class="o">.</span><span class="n">AssetSelection</span><span class="o">.</span><span class="n">groups</span><span class="p">(</span>
+        <span class="s2">&quot;raw_ferceqr&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;core_ferceqr&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ferceqr_deployment&quot;</span><span class="p">,</span>
+    <span class="p">),</span>
+<span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ferceqr_job">
+<a class="viewcode-back" href="../../../autoapi/pudl/dagster/jobs/index.html#pudl.dagster.jobs.ferceqr_job">[docs]</a>
+<span class="n">ferceqr_job</span> <span class="o">=</span> <span class="n">dg</span><span class="o">.</span><span class="n">define_asset_job</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;ferceqr&quot;</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s2">&quot;This job processes the FERC EQR data.&quot;</span><span class="p">,</span>
+    <span class="n">selection</span><span class="o">=</span><span class="n">dg</span><span class="o">.</span><span class="n">AssetSelection</span><span class="o">.</span><span class="n">groups</span><span class="p">(</span><span class="s2">&quot;raw_ferceqr&quot;</span><span class="p">,</span> <span class="s2">&quot;core_ferceqr&quot;</span><span class="p">),</span>
+<span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ferceqr_deployment_job">
+<a class="viewcode-back" href="../../../autoapi/pudl/dagster/jobs/index.html#pudl.dagster.jobs.ferceqr_deployment_job">[docs]</a>
+<span class="n">ferceqr_deployment_job</span> <span class="o">=</span> <span class="n">dg</span><span class="o">.</span><span class="n">define_asset_job</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;ferceqr_deployment&quot;</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s2">&quot;This job handles FERC EQR deployment success and failure actions.&quot;</span><span class="p">,</span>
+    <span class="n">config</span><span class="o">=</span><span class="n">default_execution_config</span><span class="p">,</span>
+    <span class="n">selection</span><span class="o">=</span><span class="n">dg</span><span class="o">.</span><span class="n">AssetSelection</span><span class="o">.</span><span class="n">assets</span><span class="p">(</span>
+        <span class="s2">&quot;deploy_ferceqr&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;handle_ferceqr_failure&quot;</span><span class="p">,</span>
+    <span class="p">),</span>
+<span class="p">)</span></div>
+
+
 <div class="viewcode-block" id="default_jobs">
 <a class="viewcode-back" href="../../../autoapi/pudl/dagster/jobs/index.html#pudl.dagster.jobs.default_jobs">[docs]</a>
 <span class="n">default_jobs</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="n">dg</span><span class="o">.</span><span class="n">define_asset_job</span><span class="p">(</span>
-        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;pudl&quot;</span><span class="p">,</span>
-        <span class="n">description</span><span class="o">=</span><span class="p">(</span>
-            <span class="s2">&quot;This job executes the main PUDL ETL without refreshing the FERC-to-SQLite &quot;</span>
-            <span class="s2">&quot;prerequisites.&quot;</span>
-        <span class="p">),</span>
-        <span class="n">config</span><span class="o">=</span><span class="n">default_pudl_job_config</span><span class="p">,</span>
-        <span class="n">selection</span><span class="o">=</span><span class="n">dg</span><span class="o">.</span><span class="n">AssetSelection</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
-        <span class="o">-</span> <span class="n">dg</span><span class="o">.</span><span class="n">AssetSelection</span><span class="o">.</span><span class="n">groups</span><span class="p">(</span>
-            <span class="s2">&quot;raw_ferc_to_sqlite&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;raw_ferceqr&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;core_ferceqr&quot;</span><span class="p">,</span>
-        <span class="p">),</span>
-    <span class="p">),</span>
-    <span class="n">dg</span><span class="o">.</span><span class="n">define_asset_job</span><span class="p">(</span>
-        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;ferc_to_sqlite&quot;</span><span class="p">,</span>
-        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;This job refreshes the FERC-to-SQLite prerequisite assets only.&quot;</span><span class="p">,</span>
-        <span class="n">config</span><span class="o">=</span><span class="n">default_execution_config</span><span class="p">,</span>
-        <span class="n">selection</span><span class="o">=</span><span class="n">dg</span><span class="o">.</span><span class="n">AssetSelection</span><span class="o">.</span><span class="n">groups</span><span class="p">(</span><span class="s2">&quot;raw_ferc_to_sqlite&quot;</span><span class="p">),</span>
-    <span class="p">),</span>
-    <span class="n">dg</span><span class="o">.</span><span class="n">define_asset_job</span><span class="p">(</span>
-        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;pudl_with_ferc_to_sqlite&quot;</span><span class="p">,</span>
-        <span class="n">description</span><span class="o">=</span><span class="p">(</span>
-            <span class="s2">&quot;This job executes the main PUDL ETL including the FERC-to-SQLite &quot;</span>
-            <span class="s2">&quot;prerequisites (default: full settings profile).&quot;</span>
-        <span class="p">),</span>
-        <span class="n">config</span><span class="o">=</span><span class="n">default_pudl_job_config</span><span class="p">,</span>
-        <span class="n">selection</span><span class="o">=</span><span class="n">dg</span><span class="o">.</span><span class="n">AssetSelection</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
-        <span class="o">-</span> <span class="n">dg</span><span class="o">.</span><span class="n">AssetSelection</span><span class="o">.</span><span class="n">groups</span><span class="p">(</span><span class="s2">&quot;raw_ferceqr&quot;</span><span class="p">,</span> <span class="s2">&quot;core_ferceqr&quot;</span><span class="p">),</span>
-    <span class="p">),</span>
-    <span class="n">dg</span><span class="o">.</span><span class="n">define_asset_job</span><span class="p">(</span>
-        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;ferceqr&quot;</span><span class="p">,</span>
-        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;This job processes the FERC EQR data.&quot;</span><span class="p">,</span>
-        <span class="n">config</span><span class="o">=</span><span class="n">default_execution_config</span><span class="p">,</span>
-        <span class="n">selection</span><span class="o">=</span><span class="n">dg</span><span class="o">.</span><span class="n">AssetSelection</span><span class="o">.</span><span class="n">groups</span><span class="p">(</span><span class="s2">&quot;raw_ferceqr&quot;</span><span class="p">,</span> <span class="s2">&quot;core_ferceqr&quot;</span><span class="p">),</span>
-    <span class="p">),</span>
+    <span class="n">pudl_job</span><span class="p">,</span>
+    <span class="n">ferc_to_sqlite_job</span><span class="p">,</span>
+    <span class="n">pudl_with_ferc_to_sqlite_job</span><span class="p">,</span>
+    <span class="n">ferceqr_job</span><span class="p">,</span>
+    <span class="n">ferceqr_deployment_job</span><span class="p">,</span>
 <span class="p">]</span></div>
 
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;default_jobs&quot;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;default_jobs&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ferc_to_sqlite_job&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ferceqr_deployment_job&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ferceqr_job&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;pudl_job&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;pudl_with_ferc_to_sqlite_job&quot;</span><span class="p">,</span>
+<span class="p">]</span>
 </pre></div>
 
                 </article>

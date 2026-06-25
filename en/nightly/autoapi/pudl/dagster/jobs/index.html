@@ -17,7 +17,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.dagster.jobs &#8212; PUDL 2026.6.2.dev1 documentation</title>
+    <title>pudl.dagster.jobs &#8212; PUDL 2026.6.2.dev12 documentation</title>
   
   
   
@@ -50,7 +50,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5" />
 
-    <script src="../../../../_static/documentation_options.js?v=29a75617"></script>
+    <script src="../../../../_static/documentation_options.js?v=caf87eab"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -141,8 +141,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.6.2.dev1 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.6.2.dev1 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.6.2.dev12 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.6.2.dev12 documentation - Home"/>
   
   
 </a></div>
@@ -603,6 +603,7 @@
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../scripts/index.html">pudl.scripts</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../scripts/auto_match_utilities/index.html">pudl.scripts.auto_match_utilities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../scripts/check_path_permissions/index.html">pudl.scripts.check_path_permissions</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../scripts/dbt_helper/index.html">pudl.scripts.dbt_helper</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../scripts/deploy/index.html">pudl.scripts.deploy</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../scripts/dghome/index.html">pudl.scripts.dghome</a></li>
@@ -772,7 +773,22 @@ modules that define them.</p>
 <h2>Attributes<a class="headerlink" href="#attributes" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.jobs.default_jobs" title="pudl.dagster.jobs.default_jobs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">default_jobs</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.jobs.pudl_job" title="pudl.dagster.jobs.pudl_job"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pudl_job</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.jobs.ferc_to_sqlite_job" title="pudl.dagster.jobs.ferc_to_sqlite_job"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ferc_to_sqlite_job</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.jobs.pudl_with_ferc_to_sqlite_job" title="pudl.dagster.jobs.pudl_with_ferc_to_sqlite_job"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pudl_with_ferc_to_sqlite_job</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.jobs.ferceqr_job" title="pudl.dagster.jobs.ferceqr_job"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ferceqr_job</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.jobs.ferceqr_deployment_job" title="pudl.dagster.jobs.ferceqr_deployment_job"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ferceqr_deployment_job</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.jobs.default_jobs" title="pudl.dagster.jobs.default_jobs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">default_jobs</span></code></a></p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -781,6 +797,31 @@ modules that define them.</p>
 </section>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
+<dl class="py data">
+<dt class="sig sig-object py" id="pudl.dagster.jobs.pudl_job">
+<span class="sig-prename descclassname"><span class="pre">pudl.dagster.jobs.</span></span><span class="sig-name descname"><span class="pre">pudl_job</span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/jobs.html#pudl_job"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.jobs.pudl_job" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pudl.dagster.jobs.ferc_to_sqlite_job">
+<span class="sig-prename descclassname"><span class="pre">pudl.dagster.jobs.</span></span><span class="sig-name descname"><span class="pre">ferc_to_sqlite_job</span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/jobs.html#ferc_to_sqlite_job"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.jobs.ferc_to_sqlite_job" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pudl.dagster.jobs.pudl_with_ferc_to_sqlite_job">
+<span class="sig-prename descclassname"><span class="pre">pudl.dagster.jobs.</span></span><span class="sig-name descname"><span class="pre">pudl_with_ferc_to_sqlite_job</span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/jobs.html#pudl_with_ferc_to_sqlite_job"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.jobs.pudl_with_ferc_to_sqlite_job" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pudl.dagster.jobs.ferceqr_job">
+<span class="sig-prename descclassname"><span class="pre">pudl.dagster.jobs.</span></span><span class="sig-name descname"><span class="pre">ferceqr_job</span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/jobs.html#ferceqr_job"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.jobs.ferceqr_job" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pudl.dagster.jobs.ferceqr_deployment_job">
+<span class="sig-prename descclassname"><span class="pre">pudl.dagster.jobs.</span></span><span class="sig-name descname"><span class="pre">ferceqr_deployment_job</span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/jobs.html#ferceqr_deployment_job"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.jobs.ferceqr_deployment_job" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
 <dl class="py data">
 <dt class="sig sig-object py" id="pudl.dagster.jobs.default_jobs">
 <span class="sig-prename descclassname"><span class="pre">pudl.dagster.jobs.</span></span><span class="sig-name descname"><span class="pre">default_jobs</span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/jobs.html#default_jobs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.jobs.default_jobs" title="Link to this definition">#</a></dt>
@@ -838,6 +879,11 @@ modules that define them.</p>
     <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#attributes">Attributes</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.jobs.pudl_job"><code class="docutils literal notranslate"><span class="pre">pudl_job</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.jobs.ferc_to_sqlite_job"><code class="docutils literal notranslate"><span class="pre">ferc_to_sqlite_job</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.jobs.pudl_with_ferc_to_sqlite_job"><code class="docutils literal notranslate"><span class="pre">pudl_with_ferc_to_sqlite_job</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.jobs.ferceqr_job"><code class="docutils literal notranslate"><span class="pre">ferceqr_job</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.jobs.ferceqr_deployment_job"><code class="docutils literal notranslate"><span class="pre">ferceqr_deployment_job</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.jobs.default_jobs"><code class="docutils literal notranslate"><span class="pre">default_jobs</span></code></a></li>
 </ul>
 </li>

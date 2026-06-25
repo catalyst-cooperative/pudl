@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.dagster.assets &#8212; PUDL 2026.6.2.dev1 documentation</title>
+    <title>pudl.dagster.assets &#8212; PUDL 2026.6.2.dev12 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5" />
 
-    <script src="../../../_static/documentation_options.js?v=29a75617"></script>
+    <script src="../../../_static/documentation_options.js?v=caf87eab"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -574,8 +574,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.6.2.dev1 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.6.2.dev1 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.6.2.dev12 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.6.2.dev12 documentation - Home"/>
   
   
 </a></div>
@@ -878,7 +878,6 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">itertools</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">dagster</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">dg</span>
 
@@ -983,9 +982,7 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="ferceqr_deployment_assets">
 <a class="viewcode-back" href="../../../autoapi/pudl/dagster/assets/index.html#pudl.dagster.assets.ferceqr_deployment_assets">[docs]</a>
-<span class="n">ferceqr_deployment_assets</span> <span class="o">=</span> <span class="p">(</span>
-    <span class="p">{</span><span class="s2">&quot;ferceqr_deployment&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">deploy_ferceqr</span><span class="p">]}</span> <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;FERCEQR_BUILD&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="k">else</span> <span class="p">{}</span>
-<span class="p">)</span></div>
+<span class="n">ferceqr_deployment_assets</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;ferceqr_deployment&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">deploy_ferceqr</span><span class="p">]}</span></div>
 
 
 <div class="viewcode-block" id="all_asset_modules">
@@ -1012,7 +1009,7 @@ window.runMermaid = runMermaid;</script>
 <span class="c1"># IO manager keys that write canonical parquet outputs.  Assets using any of</span>
 <span class="c1"># these are included as upstream dependencies of the datapackage asset.</span>
 <span class="n">_PARQUET_IO_MANAGER_KEYS</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span>
-    <span class="p">{</span><span class="s2">&quot;parquet_io_manager&quot;</span><span class="p">,</span> <span class="s2">&quot;geoparquet_io_manager&quot;</span><span class="p">,</span> <span class="s2">&quot;pudl_io_manager&quot;</span><span class="p">}</span>
+    <span class="p">{</span><span class="s2">&quot;parquet_io_manager&quot;</span><span class="p">,</span> <span class="s2">&quot;pudl_io_manager&quot;</span><span class="p">}</span>
 <span class="p">)</span>
 
 
