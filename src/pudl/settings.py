@@ -27,8 +27,8 @@ logger = pudl.logging_helpers.get_logger(__name__)
 
 
 @unique
-class XbrlFormNumber(Enum):
-    """Contains full list of supported FERC XBRL forms."""
+class FercForm(Enum):
+    """Contains full list of supported FERC forms."""
 
     FORM1 = 1
     FORM2 = 2
@@ -844,7 +844,7 @@ class FercToSqliteDataConfig(BaseSettings):
         return data
 
     def get_data_config(
-        self, dataset: str | XbrlFormNumber, data_format: Literal["dbf", "xbrl"]
+        self, dataset: str | FercForm, data_format: Literal["dbf", "xbrl"]
     ) -> FercGenericXbrlToSqliteDataConfig | FercDbfToSqliteDataConfig | None:
         """Look up extraction settings by dataset (``fercX``) and data format (``dbf`` or ``xbrl``).
 
@@ -854,7 +854,7 @@ class FercToSqliteDataConfig(BaseSettings):
         return dict(self).get(key)
 
     def get_dataset_years(
-        self, dataset: str | XbrlFormNumber, data_format: Literal["dbf", "xbrl"]
+        self, dataset: str | FercForm, data_format: Literal["dbf", "xbrl"]
     ) -> list[int]:
         """Look up extraction *years* by dataset (``fercX``) and data format (``dbf`` or ``xbrl``).
 

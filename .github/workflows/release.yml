@@ -14,7 +14,7 @@ jobs:
       contents: write
     steps:
       - name: Checkout source
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - name: Determine previous release tag
@@ -67,15 +67,6 @@ jobs:
     needs:
       - create-github-release
     steps:
-      - name: Status emoji
-        run: |
-          if [[ "${{ needs.create-github-release.result }}" == "success" ]]; then
-            echo "emoji=:check:" >> "$GITHUB_ENV"
-          elif [[ "${{ needs.create-github-release.result }}" == "failure" ]]; then
-            echo "emoji=:x:" >> "$GITHUB_ENV"
-          else
-            echo "emoji=:warning:" >> "$GITHUB_ENV"
-          fi
       - name: Notify Zulip of release status
         uses: zulip/github-actions-zulip/send-message@v2
         continue-on-error: true
@@ -87,7 +78,7 @@ jobs:
           to: "pudl-deployments"
           topic: "pudl-release"
           content: >
-            ${{ env.emoji }}
+            ${{ needs.create-github-release.result  == 'success' && ':check:' || needs.create-github-release.result == 'failure' && ':x:' || ':warning:' }}
             ${{ github.repository }} release (`${{ github.ref_name }}`)
             finished with status: ${{ needs.create-github-release.result }}.
             [See the logs here](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})

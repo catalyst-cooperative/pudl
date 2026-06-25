@@ -53,15 +53,16 @@ DG_PYTEST_CONFIG_PATH = PUDL_SETTINGS_PATH / "dg_pytest.yml"
 # inspect the requested test targets and reject incompatible combinations up front,
 # before xdist workers start or fixture setup can poison shared environment variables.
 
-# In general we run tests and subprocesses with multiple workers, and some tests touch
-# remote HTTPS / S3 resources. We try to LOAD first so collection works in
-# network-restricted environments (for example, sandboxed CI/test runners). If the
-# extension is missing, we install it once and then load it.
-try:
-    duckdb.execute("LOAD httpfs")
-except duckdb.Error:
-    duckdb.execute("INSTALL httpfs")
-    duckdb.execute("LOAD httpfs")
+# We try to LOAD first so collection works in network-restricted environments (for
+# example, sandboxed CI/test runners). If the extension is missing, we install it once
+# and then load it. Installing here ensures both unit and integration tests can load the
+# extension in a new duckdb.connect() without repeating the install step.
+for _ext in ("httpfs", "spatial"):
+    try:
+        duckdb.execute(f"LOAD {_ext}")
+    except duckdb.Error:
+        duckdb.execute(f"INSTALL {_ext}")
+        duckdb.execute(f"LOAD {_ext}")
 
 
 def _requested_test_targets(config: pytest.Config) -> list[Path]:
@@ -665,8 +666,11 @@ def pudl_test_paths(tmp_path_factory, request) -> PudlPaths:
         input_dir = in_tmp.resolve()
         logger.info(f"Using temporary PUDL_INPUT: {in_tmp}")
 
-    # Temporary output path is used when not using live DBs.
-    if not request.config.getoption("--live-pudl-output"):
+    # Temporary output path is used when not using live DBs. Unless we're on
+    # GITHUB_ACTIONS where we need a predictable path for FERC caching.
+    if not request.config.getoption("--live-pudl-output") and not os.getenv(
+        "GITHUB_ACTIONS", False
+    ):
         out_tmp = pudl_tmpdir / "output"
         out_tmp.mkdir()
         output_dir = out_tmp.resolve()

@@ -7,6 +7,9 @@
 # Assert that PUDL_ROOT_PATH is set by the container and points to a valid directory.
 cd "${PUDL_ROOT_PATH:?PUDL_ROOT_PATH must be set by the build container}" || exit 1
 
+# Select the PUDL-specific dagster configuration.
+cp "${DAGSTER_HOME}/dagster-pudl.yaml" "${DAGSTER_HOME}/dagster.yaml"
+
 function send_slack_msg() {
     set +x &&
         echo "sending Slack message" &&
@@ -20,6 +23,17 @@ function authenticate_gcp() {
     gcloud config set project "$GCP_BILLING_PROJECT"
 }
 
+function write_aws_credentials() {
+    # set +x / set -x is used to avoid printing the AWS credentials in the logs
+    echo "Setting AWS credentials"
+    mkdir -p ~/.aws
+    echo "[default]" >~/.aws/credentials
+    set +x
+    echo "aws_access_key_id = ${AWS_ACCESS_KEY_ID}" >>~/.aws/credentials
+    echo "aws_secret_access_key = ${AWS_SECRET_ACCESS_KEY}" >>~/.aws/credentials
+    set -x
+}
+
 function initialize_postgres() {
     echo "initializing postgres."
     # This is sort of a fiddly set of postgres admin tasks:
@@ -27,7 +41,7 @@ function initialize_postgres() {
     # 1. start the dagster cluster, which is set to be owned by ubuntu in the Dockerfile
     # 2. create a db within this cluster so we can do things
     # 3. tell it to actually fail when we mess up, instead of continuing blithely
-    # 4. create a *dagster* user, whose creds correspond with those in builds/dagster.yaml
+    # 4. create a *dagster* user, whose creds correspond with those in builds/dagster-pudl.yaml
     # 5. make a database for dagster, which is owned by the dagster user
     pg_ctlcluster "$PG_VERSION" dagster start &&
         createdb -h127.0.0.1 -p5433 &&
@@ -39,9 +53,7 @@ function initialize_postgres() {
 function run_dagster() {
     echo "Launching Dagster and running the PUDL job"
     send_slack_msg ":play: Launching Dagster and running the PUDL job for $BUILD_ID :floppy_disk:"
-    initialize_postgres &&
-        authenticate_gcp &&
-        pixi run pudl-with-ferc-to-sqlite-nightly
+    pixi run pudl-with-ferc-to-sqlite-nightly
 }
 
 function save_outputs_to_gcs() {
@@ -97,7 +109,7 @@ function zenodo_data_release() {
     PUBLISH=$4
 
     set +x &&
-        echo "Triggerng the zenodo data release workflow using the GitHub API and curl" &&
+        echo "Triggering the zenodo data release workflow using the GitHub API and curl" &&
         curl --fail-with-body -sS -X POST \
             -H "Accept: application/vnd.github+json" \
             -H "Authorization: Bearer ${PUDL_BOT_PAT}" \
@@ -168,21 +180,15 @@ function get_total_build_duration() {
 function run_stage() {
     local status_var=$1
     local duration_var=$2
-    local log_mode=$3
-    shift 3
+    shift 2
 
-    # Most stages follow the same pattern: run, stream logs to the build log,
-    # capture the underlying command status, and record how long the stage took.
+    # Most stages follow the same pattern: run, capture the command status, and
+    # record how long the stage took.
     # SECONDS automatically increments each second the script is running, so if
     # we set it to 0, we get a stopwatch.
     SECONDS=0
-    if [[ "$log_mode" == "append" ]]; then
-        "$@" 2>&1 | tee -a "$LOGFILE"
-    else
-        "$@" 2>&1 | tee "$LOGFILE"
-    fi
-
-    printf -v "$status_var" '%s' "${PIPESTATUS[0]}"
+    "$@"
+    printf -v "$status_var" '%s' "$?"
     set_stage_duration "$duration_var" "$SECONDS"
 }
 
@@ -195,10 +201,9 @@ function stage_failed() {
 function exit_on_stage_failure() {
     local stage_status=$1
 
-    # Required stages fail fast and send Slack immediately instead of letting later
-    # steps continue in a half-broken build environment.
+    # Required stages fail fast instead of letting later steps continue in a
+    # half-broken build environment.
     if stage_failed "$stage_status"; then
-        notify_slack "failure"
         exit 1
     fi
 }
@@ -263,6 +268,40 @@ function notify_slack() {
     send_slack_msg "$message"
 }
 
+function cleanup_on_exit() {
+    local exit_code=$?
+
+    if [[ -n "${LOGFILE:-}" && -f "$LOGFILE" && -n "${PUDL_GCS_OUTPUT:-}" ]]; then
+        gcloud storage --quiet cp "$LOGFILE" "$PUDL_GCS_OUTPUT" || true
+    fi
+
+    if [[ -n "${PG_VERSION:-}" ]]; then
+        pg_ctlcluster "$PG_VERSION" dagster stop || true
+    fi
+
+    rm -f ~/.aws/credentials
+
+    if [[ $exit_code -eq 0 ]] && ! any_stage_failed \
+        "$DAGSTER_STATUS" \
+        "$UNIT_TEST_STATUS" \
+        "$INTEGRATION_TEST_STATUS" \
+        "$DATA_VALIDATION_STATUS" \
+        "$ROW_COUNT_VALIDATION_STATUS" \
+        "$SAVE_OUTPUTS_STATUS" \
+        "$UPDATE_NIGHTLY_STATUS" \
+        "$UPDATE_STABLE_STATUS" \
+        "$PREP_OUTPUTS_STATUS" \
+        "$DISTRIBUTION_BUCKET_STATUS" \
+        "$GCS_TEMPORARY_HOLD_STATUS" \
+        "$TRIGGER_DATA_VIEWER_DEPLOY_STATUS"; then
+        notify_slack "success" || true
+    else
+        notify_slack "failure" || true
+    fi
+
+    return "$exit_code"
+}
+
 function merge_tag_into_branch() {
     TAG=$1
     BRANCH=$2
@@ -318,6 +357,10 @@ function prep_outputs_for_distribution() {
         zip -0 "$PUDL_OUTPUT/ferc6_xbrl.zip" ./ferc6_xbrl/*.parquet ./ferc6_xbrl/*.json &&
         zip -0 "$PUDL_OUTPUT/ferc60_xbrl.zip" ./ferc60_xbrl/*.parquet ./ferc60_xbrl/*.json &&
         zip -0 "$PUDL_OUTPUT/ferc714_xbrl.zip" ./ferc714_xbrl/*.parquet ./ferc714_xbrl/*.json &&
+        zip -0 "$PUDL_OUTPUT/ferc1_dbf.zip" ./ferc1_dbf/*.parquet ./ferc1_dbf/*.json &&
+        zip -0 "$PUDL_OUTPUT/ferc2_dbf.zip" ./ferc2_dbf/*.parquet ./ferc2_dbf/*.json &&
+        zip -0 "$PUDL_OUTPUT/ferc6_dbf.zip" ./ferc6_dbf/*.parquet ./ferc6_dbf/*.json &&
+        zip -0 "$PUDL_OUTPUT/ferc60_dbf.zip" ./ferc60_dbf/*.parquet ./ferc60_dbf/*.json &&
         popd &&
         # Remove any remaining files and directories we don't want to distribute
         rm -rf "$PUDL_OUTPUT/parquet" &&
@@ -380,21 +423,25 @@ fi
 : "${DG_NIGHTLY_CONFIG:=src/pudl/package_data/settings/dg_nightly.yml}"
 export DG_NIGHTLY_CONFIG
 
-# Save credentials for working with AWS S3
-# set +x / set -x is used to avoid printing the AWS credentials in the logs
-echo "Setting AWS credentials"
-mkdir -p ~/.aws
-echo "[default]" >~/.aws/credentials
-set +x
-echo "aws_access_key_id = ${AWS_ACCESS_KEY_ID}" >>~/.aws/credentials
-echo "aws_secret_access_key = ${AWS_SECRET_ACCESS_KEY}" >>~/.aws/credentials
-set -x
+write_aws_credentials
 
-run_stage DAGSTER_STATUS DAGSTER_DURATION overwrite run_dagster
-run_stage UNIT_TEST_STATUS UNIT_TEST_DURATION append pixi run pytest-unit-nightly
-run_stage INTEGRATION_TEST_STATUS INTEGRATION_TEST_DURATION append pixi run pytest-integration-nightly
-run_stage DATA_VALIDATION_STATUS DATA_VALIDATION_DURATION append pixi run pytest-validate-nightly
-run_stage ROW_COUNT_VALIDATION_STATUS ROW_COUNT_VALIDATION_DURATION append pixi run pytest-validate-row-counts-nightly
+touch "$LOGFILE"
+exec > >(tee -a "$LOGFILE") 2>&1
+trap cleanup_on_exit EXIT
+
+if ! {
+    initialize_postgres && \
+    authenticate_gcp && \
+    python -c "from dagster import DagsterInstance; DagsterInstance.get()"
+}; then
+    exit 1
+fi
+
+run_stage DAGSTER_STATUS DAGSTER_DURATION run_dagster
+run_stage UNIT_TEST_STATUS UNIT_TEST_DURATION pixi run pytest-unit-nightly
+run_stage INTEGRATION_TEST_STATUS INTEGRATION_TEST_DURATION pixi run pytest-integration-nightly
+run_stage DATA_VALIDATION_STATUS DATA_VALIDATION_DURATION pixi run pytest-validate-nightly
+run_stage ROW_COUNT_VALIDATION_STATUS ROW_COUNT_VALIDATION_DURATION pixi run pytest-validate-row-counts-nightly
 
 if ! any_stage_failed \
     "$DAGSTER_STATUS" \
@@ -406,12 +453,9 @@ if ! any_stage_failed \
 fi
 
 # Generate new row counts for all tables in the PUDL database
-dbt_helper update-tables --clobber --row-counts all 2>&1 | tee -a "$LOGFILE"
+dbt_helper update-tables --clobber --row-counts all
 
-# This needs to happen regardless of the ETL outcome:
-pg_ctlcluster "$PG_VERSION" dagster stop 2>&1 | tee -a "$LOGFILE"
-
-run_stage SAVE_OUTPUTS_STATUS SAVE_OUTPUTS_DURATION append save_outputs_to_gcs
+run_stage SAVE_OUTPUTS_STATUS SAVE_OUTPUTS_DURATION save_outputs_to_gcs
 
 exit_on_stage_failure "$DAGSTER_STATUS"
 exit_on_stage_failure "$UNIT_TEST_STATUS"
@@ -420,43 +464,43 @@ exit_on_stage_failure "$DATA_VALIDATION_STATUS"
 exit_on_stage_failure "$ROW_COUNT_VALIDATION_STATUS"
 
 if [[ "$BUILD_TYPE" == "nightly" ]]; then
-    run_stage UPDATE_NIGHTLY_STATUS UPDATE_NIGHTLY_DURATION append merge_tag_into_branch "$NIGHTLY_TAG" nightly
+    run_stage UPDATE_NIGHTLY_STATUS UPDATE_NIGHTLY_DURATION merge_tag_into_branch "$NIGHTLY_TAG" nightly
     # Remove files we don't want to distribute and zip SQLite and Parquet outputs
-    run_stage PREP_OUTPUTS_STATUS PREP_OUTPUTS_DURATION append prep_outputs_for_distribution
+    run_stage PREP_OUTPUTS_STATUS PREP_OUTPUTS_DURATION prep_outputs_for_distribution
     exit_on_stage_failure "$PREP_OUTPUTS_STATUS"
     # Copy ed up outputs to the S3 and GCS distribution buckets
-    run_stage DISTRIBUTION_BUCKET_STATUS DISTRIBUTION_BUCKET_DURATION append upload_nightly_distribution
-    run_stage TRIGGER_DATA_VIEWER_DEPLOY_STATUS TRIGGER_DATA_VIEWER_DEPLOY_DURATION append deploy_data_viewer
+    run_stage DISTRIBUTION_BUCKET_STATUS DISTRIBUTION_BUCKET_DURATION upload_nightly_distribution
+    run_stage TRIGGER_DATA_VIEWER_DEPLOY_STATUS TRIGGER_DATA_VIEWER_DEPLOY_DURATION deploy_data_viewer
     if ! stage_failed "$DISTRIBUTION_BUCKET_STATUS"; then
         zenodo_data_release \
             "sandbox" \
             "s3://pudl.catalyst.coop/nightly/" \
             "${ZENODO_IGNORE_REGEX}" \
-            "publish" 2>&1 | tee -a "$LOGFILE"
+            "publish"
     fi
 
 elif [[ "$BUILD_TYPE" == "stable" ]]; then
-    run_stage UPDATE_STABLE_STATUS UPDATE_STABLE_DURATION append merge_tag_into_branch "$BUILD_REF" stable
+    run_stage UPDATE_STABLE_STATUS UPDATE_STABLE_DURATION merge_tag_into_branch "$BUILD_REF" stable
     # Remove files we don't want to distribute and zip SQLite and Parquet outputs
-    run_stage PREP_OUTPUTS_STATUS PREP_OUTPUTS_DURATION append prep_outputs_for_distribution
+    run_stage PREP_OUTPUTS_STATUS PREP_OUTPUTS_DURATION prep_outputs_for_distribution
     exit_on_stage_failure "$PREP_OUTPUTS_STATUS"
     # Copy ed up outputs to the S3 and GCS distribution buckets
-    run_stage DISTRIBUTION_BUCKET_STATUS DISTRIBUTION_BUCKET_DURATION append upload_stable_distribution
+    run_stage DISTRIBUTION_BUCKET_STATUS DISTRIBUTION_BUCKET_DURATION upload_stable_distribution
     # This is a versioned release. Ensure that outputs can't be accidentally deleted.
     # We can only do this on the GCS bucket, not S3
-    run_stage GCS_TEMPORARY_HOLD_STATUS GCS_TEMPORARY_HOLD_DURATION append \
+    run_stage GCS_TEMPORARY_HOLD_STATUS GCS_TEMPORARY_HOLD_DURATION \
         gcloud storage --billing-project="$GCP_BILLING_PROJECT" objects update "gs://pudl.catalyst.coop/$BUILD_REF/*" --temporary-hold
     if ! stage_failed "$DISTRIBUTION_BUCKET_STATUS"; then
         zenodo_data_release \
             "production" \
             "s3://pudl.catalyst.coop/${BUILD_REF}/" \
             "${ZENODO_IGNORE_REGEX}" \
-            "no-publish" 2>&1 | tee -a "$LOGFILE"
+            "no-publish"
     fi
 
 elif [[ "$BUILD_TYPE" == "workflow_dispatch" ]]; then
     # Remove files we don't want to distribute and zip SQLite and Parquet outputs
-    run_stage PREP_OUTPUTS_STATUS PREP_OUTPUTS_DURATION append prep_outputs_for_distribution
+    run_stage PREP_OUTPUTS_STATUS PREP_OUTPUTS_DURATION prep_outputs_for_distribution
     exit_on_stage_failure "$PREP_OUTPUTS_STATUS"
 
     # Disable the test upload to the distribution bucket for now to avoid egress fees
@@ -477,7 +521,7 @@ elif [[ "$BUILD_TYPE" == "workflow_dispatch" ]]; then
             "sandbox" \
             "s3://pudl.catalyst.coop/nightly/" \
             "${ZENODO_IGNORE_REGEX}" \
-            "publish" 2>&1 | tee -a "$LOGFILE"
+            "publish"
     fi
 
 else
@@ -485,17 +529,10 @@ else
     echo "BUILD_TYPE: $BUILD_TYPE"
     echo "GITHUB_ACTION_TRIGGER: $GITHUB_ACTION_TRIGGER"
     echo "BUILD_REF: $BUILD_REF"
-    notify_slack "failure"
     exit 1
 fi
 
-# This way we also save the logs from latter steps in the script
-gcloud storage --quiet cp "$LOGFILE" "$PUDL_GCS_OUTPUT"
-# Remove the AWS credentials file just in case the disk image sticks around
-rm -f ~/.aws/credentials
-
-# Notify slack about entire pipeline's success or failure;
-if ! any_stage_failed \
+if any_stage_failed \
     "$DAGSTER_STATUS" \
     "$UNIT_TEST_STATUS" \
     "$INTEGRATION_TEST_STATUS" \
@@ -508,8 +545,7 @@ if ! any_stage_failed \
     "$DISTRIBUTION_BUCKET_STATUS" \
     "$GCS_TEMPORARY_HOLD_STATUS" \
     "$TRIGGER_DATA_VIEWER_DEPLOY_STATUS"; then
-    notify_slack "success"
-else
-    notify_slack "failure"
     exit 1
 fi
+
+echo "Build succeeded!"

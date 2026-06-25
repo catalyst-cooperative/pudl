@@ -19,6 +19,8 @@
     "containerEnv": {
         "PUDL_INPUT": "/workspaces/pudl-input",
         "PUDL_OUTPUT": "/workspaces/pudl-output",
+        "PUDL_ROOT_PATH": "/workspaces/pudl",
+        "PUDL_FERCEQR_ARCHIVE_PATH": "/workspaces/pudl-input/archives.catalyst.coop/ferceqr/",
         "DAGSTER_HOME": "/workspaces/dagster-home",
         "ANTHROPIC_API_KEY": "${localEnv:ANTHROPIC_API_KEY}",
         "GEMINI_API_KEY": "${localEnv:GEMINI_API_KEY}",
@@ -52,6 +54,7 @@
                 "chat.agent.sandbox.enabled": "off",
                 "chat.tools.global.autoApprove": true,
                 "chat.agent.sandbox.allowUnsandboxedCommands": true,
+                "chat.permissions.default": "autoApprove",
                 "claudeCode.allowDangerouslySkipPermissions": true,
                 "claudeCode.initialPermissionMode": "bypassPermissions",
                 "evenBetterToml.taplo.path": "/home/ubuntu/.pixi/bin/taplo",

@@ -1,8 +1,9 @@
 """Dagster IO managers used by PUDL assets.
 
 This module defines the IO-manager implementations that translate between Dagster asset
-execution and PUDL's storage formats, including SQLite, Parquet, GeoParquet, and the
-FERC prerequisite databases. Put :class:`dagster.IOManager` and
+execution and PUDL's storage formats, including SQLite, Parquet (with native GeoParquet
+support for assets that return a :class:`geopandas.GeoDataFrame`), and the FERC
+prerequisite databases. Put :class:`dagster.IOManager` and
 :class:`dagster.ConfigurableIOManager` classes here, along with configured singleton
 instances that the default code location reuses. Keep data-processing logic out of this
 module; it should focus on persistence, loading, and storage-compatibility concerns.
@@ -11,7 +12,6 @@ For the underlying Dagster concept, see https://docs.dagster.io/guides/build/io-
 """
 
 import hashlib
-import json
 import re
 from functools import cached_property
 from pathlib import Path
@@ -22,7 +22,6 @@ import dagster as dg
 import geopandas as gpd  # noqa: ICN002
 import pandas as pd
 import polars as pl
-import pyarrow as pa
 import pyarrow.parquet as pq
 import sqlalchemy as sa
 from alembic.autogenerate.api import compare_metadata
@@ -40,7 +39,9 @@ from sqlalchemy.exc import IntegrityError
 import pudl.logging_helpers
 from pudl.dagster.provenance import (
     FercSqliteProvenance,
-    assert_ferc_sqlite_compatible,
+    FercSqliteProvenanceRecord,
+    ferc_sqlite_provenance_is_compatible,
+    get_xbrl_extractor_version,
 )
 from pudl.dagster.resources import (
     GlobalDataConfigResource,
@@ -364,15 +365,26 @@ class PudlParquetIOManager(dg.ConfigurableIOManager):
         )
 
     def handle_output(
-        self, context: dg.OutputContext, obj: pd.DataFrame | pl.LazyFrame
+        self,
+        context: dg.OutputContext,
+        obj: pd.DataFrame | gpd.GeoDataFrame | pl.LazyFrame,
     ) -> None:
-        """Writes pudl dataframe to parquet file."""
+        """Writes a pudl dataframe to a Parquet file.
+
+        GeoDataFrames are written as GeoParquet using native geopandas output,
+        which produces spec-compliant CRS metadata readable by DuckDB >= 1.5.
+        Regular DataFrames and Polars LazyFrames use the PUDL PyArrow schema to
+        enforce exact column types on disk.
+        """
         table_name = get_table_name_from_context(context)
         res = Resource.from_id(table_name)
         parquet_path = self.pudl_paths.parquet_path(table_name)
         parquet_path.parent.mkdir(parents=True, exist_ok=True)
 
-        if isinstance(obj, pd.DataFrame):
+        if isinstance(obj, gpd.GeoDataFrame):
+            gdf = res.enforce_schema(obj)
+            gdf.to_parquet(parquet_path, index=False)
+        elif isinstance(obj, pd.DataFrame):
             df = res.enforce_schema(obj)
             pa_schema = res.to_pyarrow()
             df.to_parquet(
@@ -388,8 +400,8 @@ class PudlParquetIOManager(dg.ConfigurableIOManager):
             )
         else:
             raise TypeError(
-                "PudlParquetIOManager only supports pandas DataFrames and Polars LazyFrames"
-                f", got {type(obj)}."
+                "PudlParquetIOManager only supports pandas DataFrames, "
+                f"geopandas GeoDataFrames, and Polars LazyFrames, got {type(obj)}."
             )
         self._record_parquet_file_metadata(context, parquet_path)
 
@@ -403,79 +415,6 @@ class PudlParquetIOManager(dg.ConfigurableIOManager):
         else:
             df = get_parquet_table(table_name, paths=self.pudl_paths)
         return df
-
-
-class PudlGeoParquetIOManager(PudlParquetIOManager):
-    """Do some extra work to output valid GeoParquet files when appropriate."""
-
-    def _create_geoparquet_metadata(self, gdf: gpd.GeoDataFrame, res: Resource) -> str:
-        """Create GeoParquet metadata JSON string."""
-        # Find geometry columns from the resource schema
-        geometry_columns = {}
-        for field in res.schema.fields:
-            if field.type == "geometry" and field.name in gdf.columns:
-                geometry_columns[field.name] = {
-                    "encoding": "WKB",
-                    "geometry_types": [],  # Could be enhanced with actual geometry type detection
-                    "crs": gdf.crs.to_wkt() if gdf.crs else None,
-                    # Calculate bbox from geometry
-                    "bbox": gdf.total_bounds.tolist()
-                    if not gdf.empty and gdf.crs
-                    else None,
-                }
-
-        # Determine primary geometry column
-        primary_column = None
-        if hasattr(gdf, "geometry") and gdf.geometry.name in geometry_columns:
-            primary_column = gdf.geometry.name
-        elif geometry_columns:
-            primary_column = list(geometry_columns.keys())[0]
-
-        geo_metadata = {
-            "version": "1.0.0",
-            "primary_column": primary_column,
-            "columns": geometry_columns,
-        }
-        return json.dumps(geo_metadata)
-
-    def handle_output(self, context: dg.OutputContext, obj: gpd.GeoDataFrame) -> None:
-        """Write a PUDL dataframe to GeoParquet."""
-        if not isinstance(obj, gpd.GeoDataFrame):
-            raise TypeError(
-                f"Only geopandas dataframes are supported, got {type(obj)}."
-            )
-        table_name = get_table_name_from_context(context)
-        parquet_path = self.pudl_paths.parquet_path(table_name)
-        parquet_path.parent.mkdir(parents=True, exist_ok=True)
-
-        res = Resource.from_id(table_name)
-        gdf = res.enforce_schema(obj)
-
-        # Extract metadata before modifying geometry columns
-        geo_metadata = self._create_geoparquet_metadata(gdf, res)
-        # Convert geometry columns to WKB
-        geometry_fields = [
-            field.name
-            for field in res.schema.fields
-            if field.type == "geometry" and field.name in gdf.columns
-        ]
-        for field_name in geometry_fields:
-            # This conversion is required to get the right data into the Parquet output
-            # but it isn't technically compatible with the GeoDataFrame, so we get a
-            # warning from Geopandas about the geometry column not being a geometry.
-            logger.info(f"Convert geometry column {table_name}.{field_name} to WKB.")
-            gdf[field_name] = gdf[field_name].to_wkb()
-
-        # Convert to PyArrow table with explicit schema
-        pa_table = pa.Table.from_pandas(
-            gdf, schema=res.to_pyarrow(), preserve_index=False
-        )
-        # Add GeoParquet metadata
-        metadata = pa_table.schema.metadata or {}
-        metadata["geo"] = geo_metadata
-        pa_table = pa_table.replace_schema_metadata(metadata)
-        pq.write_table(pa_table, parquet_path)
-        self._record_parquet_file_metadata(context, parquet_path)
 
 
 class PudlSqliteIOManager(SqliteIOManager):
@@ -609,7 +548,6 @@ class PudlSqliteIOManager(SqliteIOManager):
 
 pudl_mixed_format_io_manager = PudlMixedFormatIOManager(pudl_paths=pudl_paths_resource)
 parquet_io_manager = PudlParquetIOManager(pudl_paths=pudl_paths_resource)
-geoparquet_io_manager = PudlGeoParquetIOManager(pudl_paths=pudl_paths_resource)
 
 
 class FercSqliteIOManagerBase(dg.ConfigurableIOManager):
@@ -700,11 +638,23 @@ class FercSqliteIOManagerBase(dg.ConfigurableIOManager):
             years=self.global_data_config.ferc_to_sqlite.get_dataset_years(
                 self.dataset, self.data_format
             ),
+            ferc_xbrl_extractor_version=get_xbrl_extractor_version(),
         )
 
-        assert_ferc_sqlite_compatible(
-            instance=_get_dagster_instance_if_available(context), provenance=provenance
-        )
+        if ((instance := _get_dagster_instance_if_available(context)) is not None) and (
+            not ferc_sqlite_provenance_is_compatible(
+                observed_provenance=FercSqliteProvenanceRecord.from_dagster_instance(
+                    instance=instance,
+                    dataset=self.dataset,
+                    data_format=self.data_format,
+                ),
+                required_provenance=provenance,
+            )
+        ):
+            raise RuntimeError(
+                f"{self.dataset}_{self.data_format} provenace metadata is not compatible"
+                " with requirements of current run. Refresh the FERC SQLite assets."
+            )
 
     def load_input(self, context: InputContext) -> pd.DataFrame:
         """Load a dataframe from the configured FERC SQLite database.
@@ -851,7 +801,6 @@ default_io_managers: dict[str, Any] = {
     "ferc1_dbf_sqlite_io_manager": ferc1_dbf_sqlite_io_manager,
     "ferc1_xbrl_sqlite_io_manager": ferc1_xbrl_sqlite_io_manager,
     "ferc714_xbrl_sqlite_io_manager": ferc714_xbrl_sqlite_io_manager,
-    "geoparquet_io_manager": geoparquet_io_manager,
     "parquet_io_manager": parquet_io_manager,
     "pudl_io_manager": pudl_mixed_format_io_manager,
 }

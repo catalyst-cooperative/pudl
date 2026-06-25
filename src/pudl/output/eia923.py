@@ -343,11 +343,11 @@ def out_eia923__fuel_receipts_costs(
         )
         frc_df = _add_fuel_cost_per_mmbtu_source_col(frc_df, "rolling_avg")
     # Calculate useful frequency-independent totals:
-    frc_df["fuel_consumed_mmbtu"] = (
+    frc_df["fuel_received_mmbtu"] = (
         frc_df["fuel_mmbtu_per_unit"] * frc_df["fuel_received_units"]
     )
     frc_df["total_fuel_cost"] = (
-        frc_df["fuel_consumed_mmbtu"] * frc_df["fuel_cost_per_mmbtu"]
+        frc_df["fuel_received_mmbtu"] * frc_df["fuel_cost_per_mmbtu"]
     )
     return denorm_by_plant(frc_df, pu=_out_eia__plants_utilities)
 
@@ -560,7 +560,7 @@ def time_aggregated_eia923_asset_factory(
             .agg(
                 {
                     "fuel_received_units": pudl.helpers.sum_na,
-                    "fuel_consumed_mmbtu": pudl.helpers.sum_na,
+                    "fuel_received_mmbtu": pudl.helpers.sum_na,
                     "total_fuel_cost": pudl.helpers.sum_na,
                     "total_sulfur_content": pudl.helpers.sum_na,
                     "total_ash_content": pudl.helpers.sum_na,
@@ -573,9 +573,9 @@ def time_aggregated_eia923_asset_factory(
                 }
             )
             .assign(
-                fuel_cost_per_mmbtu=lambda x: x.total_fuel_cost / x.fuel_consumed_mmbtu,
+                fuel_cost_per_mmbtu=lambda x: x.total_fuel_cost / x.fuel_received_mmbtu,
                 fuel_mmbtu_per_unit=lambda x: (
-                    x.fuel_consumed_mmbtu / x.fuel_received_units
+                    x.fuel_received_mmbtu / x.fuel_received_units
                 ),
                 ash_content_pct=lambda x: x.total_ash_content / x.fuel_received_units,
                 sulfur_content_pct=lambda x: (

@@ -9,6 +9,7 @@ with cleaning and restructuring dataframes.
 
 import importlib.resources
 import itertools
+import os
 import pathlib
 import re
 import shutil
@@ -1661,9 +1662,10 @@ def drop_records_with_null_in_column(
     # ensure there isn't more than the expected number of nulls before dropping
     if len(null_records := df[df[column].isnull()]) > num_of_expected_nulls:
         raise AssertionError(
-            f"Expected {num_of_expected_nulls} or less records with a null values {column} but found {null_records}"
+            f"Expected {num_of_expected_nulls} or less records with a null values {column} but found {len(null_records)}"
         )
-    return df.dropna(subset=[column])
+    df = df.dropna(subset=[column])
+    return df
 
 
 def standardize_percentages_ratio(
@@ -2491,6 +2493,8 @@ def duckdb_relation_from_parquet(
             Otherwise only read data from the partition specified in parquet_data.
     """
     with duckdb.connect() as conn:
+        # Disable DuckDB progress bar, as it is quite noisy in the logs.
+        conn.execute("PRAGMA disable_progress_bar")
         if use_all_partitions:
             yield conn.read_parquet(f"{parquet_data.parquet_directory}/*.parquet"), conn
         else:
@@ -2526,6 +2530,8 @@ def duckdb_extract_zipped_csv(
         datasore.get_zipfile_resource(dataset=dataset, **partitions) as zf,
         tempfile.TemporaryDirectory() as tmp_dir,
     ):
+        # Disable DuckDB progress bar, as it is quite noisy in the logs.
+        conn.execute("PRAGMA disable_progress_bar")
         tmp_dir = Path(tmp_dir)
         zf.extractall(tmp_dir)
 
@@ -2685,3 +2691,15 @@ def parse_address(addr: str):
 def listify(x: Any) -> list[Any]:
     """Listify an input that is sometimes a list and sometimes not."""
     return x if isinstance(x, list) else [x]  # noqa: E731
+
+
+def env_var_is_true(env_var: str) -> bool:
+    """Check that environment variable is a 'truthy' value.
+
+    Check will pass if the variable is one of (all values are case insensitive):
+    - 'true'
+    - '1'
+    - 'yes'
+    - 'on'
+    """
+    return os.getenv(env_var, default="false").lower() in ["true", "1", "yes", "on"]

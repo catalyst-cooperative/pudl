@@ -1,6 +1,5 @@
 """Generalized DBF extractor for FERC data."""
 
-import contextlib
 import csv
 import importlib.resources
 import json
@@ -9,9 +8,11 @@ import zipfile
 from collections import defaultdict
 from collections.abc import Callable, Iterator
 from functools import lru_cache
+from itertools import chain
 from pathlib import Path
 from typing import IO, Any, Protocol, Self
 
+import duckdb
 import frictionless
 import pandas as pd
 import sqlalchemy as sa
@@ -400,7 +401,7 @@ class FercDbfReader:
 
 
 class FercDbfExtractor:
-    """Generalized class for loading data from foxpro databases into SQLAlchemy.
+    """Generalized class for loading data from foxpro databases into SQLAlchemy and parquet.
 
     When subclassing from this generic extractor, one should implement dataset specific
     logic in the following manner:
@@ -447,7 +448,7 @@ class FercDbfExtractor:
         self.output_path: Path = output_path
         self.datastore: Datastore = datastore
         self.dbf_reader: AbstractFercDbfReader = self.get_dbf_reader(datastore)
-        self.sqlite_engine: Engine = sa.create_engine(self.get_db_path())
+        self.sqlite_engine: Engine = sa.create_engine(self.get_db_uri())
         self.sqlite_meta = sa.MetaData()
         self.sqlite_meta.reflect(self.sqlite_engine)
 
@@ -464,9 +465,12 @@ class FercDbfExtractor:
         return FercDbfReader(datastore, dataset=self.DATASET)
 
     def get_db_path(self) -> str:
+        """Returns the path to the sqlite database."""
+        return str(Path(self.output_path) / self.DATABASE_NAME)
+
+    def get_db_uri(self) -> str:
         """Returns the connection string for the sqlite database."""
-        db_path = str(Path(self.output_path) / self.DATABASE_NAME)
-        return f"sqlite:///{db_path}"
+        return f"sqlite:///{self.get_db_path()}"
 
     def _clean_frictionless_types(self, type_: str) -> str:
         """Normalize types from SQLite to frictionless."""
@@ -483,18 +487,17 @@ class FercDbfExtractor:
     def to_frictionless(self):
         """Create a frictionless DataPackage describing the DBF DB and write to a JSON file."""
         resources = []
-        types = []
-        for table in self.sqlite_meta.sorted_tables:
-            for c in table.columns:
-                types.append(str(c.type))
 
         for table in self.sqlite_meta.sorted_tables:
             resources.append(
                 frictionless.Resource(
-                    path=self.get_db_path(),
+                    path=self.DATABASE_NAME,
                     name=table.name,
                     title=table.name,
                     description=table.description,
+                    profile="tabular-data-resource",
+                    format="sqlite",
+                    mediatype="application/vnd.sqlite3",
                     schema=frictionless.Schema(
                         fields=[
                             frictionless.Field.from_descriptor(
@@ -514,7 +517,16 @@ class FercDbfExtractor:
             title=f"{self.DATASET} data extracted from DBF filings",
             resources=resources,
         )
-        self.datapackage_path.write_text(json.dumps(package.to_dict(), indent=2))
+        package.to_json(path=str(self.datapackage_path))
+
+    def to_parquet(self):
+        """Write parquet files for this resource."""
+        parquet_path = Path(self.output_path) / f"{self.DATASET}_dbf"
+        convert_db_into_parquet(self.get_db_path(), parquet_path)
+        write_datapackage(
+            convert_and_validate_datapackage_sqlite_to_parquet(self.datapackage_path),
+            parquet_path,
+        )
 
     @classmethod
     def get_dagster_op(cls) -> Callable:
@@ -542,7 +554,7 @@ class FercDbfExtractor:
         return inner_method
 
     def execute(self):
-        """Runs the extraction of the data from dbf to sqlite."""
+        """Runs the extraction of the data from dbf to sqlite and parquet."""
         logger.info(
             f"Running dbf extraction for {self.DATASET} with data_config: {self.data_config}"
         )
@@ -550,21 +562,16 @@ class FercDbfExtractor:
             logger.warning(f"Dataset {self.DATASET} has no years configured, skipping")
             return
 
-        self.delete_schema()
         self.initialize_database()
         self.create_sqlite_tables()
         self.load_table_data()
         self.postprocess()
         self.to_frictionless()
-
-    def delete_schema(self):
-        """Drops all tables from the existing sqlite database."""
-        with contextlib.suppress(sa.exc.OperationalError):
-            pudl.helpers.drop_tables(self.sqlite_engine, clobber=True)
+        self.to_parquet()
 
     def initialize_database(self):
         """Create sqlalchemy engine and metadata."""
-        self.sqlite_engine = sa.create_engine(self.get_db_path())
+        self.sqlite_engine = sa.create_engine(self.get_db_uri())
         self.sqlite_meta = sa.MetaData()
         self.sqlite_meta.reflect(self.sqlite_engine)
 
@@ -666,6 +673,64 @@ class FercDbfExtractor:
 
     def postprocess(self):
         """This method is called after all the data is loaded into sqlite."""
+
+
+def convert_db_into_parquet(db_path: Path, parquet_dir: Path):
+    """Convert the database into a directory of parquet files using duckdb.
+
+    We do this using COPY. We tried using EXPORT DATABASE, but it unfortunately
+    sanitizes the table names, which removes the schedule numbers in the table
+    names so we can't use it.
+
+    Maintainer note: this function was adapted from ferc-xbrl-extractor; changes
+    here should be considered for sync there and vice-versa.
+    """
+    con = duckdb.connect(db_path)
+    tables = con.sql("SHOW TABLES").fetchall()
+    # tables is a list of tuples, so condense the list
+    tables = chain.from_iterable(tables)
+    if not parquet_dir.exists():
+        parquet_dir.mkdir(exist_ok=True)
+    for table in tables:
+        con.execute(
+            f"COPY {table} TO '{parquet_dir}/{table}.parquet' (FORMAT parquet);"
+        )
+
+
+def convert_and_validate_datapackage_sqlite_to_parquet(datapackage_path: Path) -> dict:
+    """Convert the SQLite datapackage into one that points at Parquet files.
+
+    * instead of ``path`` pointing at monolithic SQLite db, point at individual Parquet files instead
+    * update format/metadata fields
+
+    Maintainer note: this function was adapted from ferc-xbrl-extractor; changes
+    here should be considered for sync there and vice-versa.
+    """
+    # read existing datapackage
+    with Path(datapackage_path).open() as file:
+        datapackage = json.load(file)
+    for resource in datapackage["resources"]:
+        name = resource["name"]
+        resource["path"] = f"{name}.parquet"
+        resource["format"] = "parquet"
+        resource["mediatype"] = "application/vnd.apache.parquet"
+    # Verify that datapackage descriptor is valid before outputting
+    report = frictionless.Package.validate_descriptor(datapackage)
+    if not report.valid:
+        raise RuntimeError(f"Generated datapackage is invalid - {report.errors}")
+    return datapackage
+
+
+def write_datapackage(datapackage: dict, output_dir: Path):
+    """Write a datapackage to <output_dir>/datapackage.json.
+
+    output_dir must exist.
+
+    Maintainer note: this function was adapted from ferc-xbrl-extractor; changes
+    here should be considered for sync there and vice-versa.
+    """
+    with Path(output_dir / "datapackage.json").open(mode="w") as f:
+        f.write(json.dumps(datapackage, indent=2))
 
 
 def add_key_constraints(

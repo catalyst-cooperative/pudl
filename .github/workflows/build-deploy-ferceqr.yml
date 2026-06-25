@@ -2,30 +2,85 @@
 name: build-deploy-ferceqr
 on:
   workflow_dispatch:
+    inputs:
+      start_partition:
+        description: First partition (e.g. 2013q3). Optional. If set, requires end_partition. If both unset, process all available data.
+        required: false
+        type: string
+      end_partition:
+        description: Last partition (e.g. 2013q4). Optional. If set, requires start_partition. If both unset, process all available data.
+        required: false
+        type: string
+      deployment_mode:
+        description: Deployment target. If none, do not deploy the data.
+        required: false
+        default: test
+        type: choice
+        options:
+          - test
+          - production
+          - none
   schedule:
     - cron: "48 0 3 * *" # 00:48 UTC on the third of every month
 
 env:
   GCP_BILLING_PROJECT: ${{ secrets.GCP_BILLING_PROJECT }}
-  GCS_OUTPUT_BUCKET: gs://pudl.catalyst.coop/ferceqr
   GCS_LOGS_BUCKET: gs://builds.catalyst.coop/ferceqr_logs
-  S3_OUTPUT_BUCKET: s3://pudl.catalyst.coop/ferceqr
   BATCH_JOB_JSON: batch_job.json
   BUILD_ID: ""
   BATCH_JOB_ID: ""
+  PUDL_FERCEQR_DEPLOYMENT_CONFIG_PATH: ""
+  emoji: ":warning:"
 
 jobs:
-  build_and_deploy_eqr:
-    name: Build Docker image, push to Docker Hub and deploy to Google Batch
+  build_and_deploy_ferceqr:
+    name: Kick off a FERC EQR build and deployment with Google Batch
     runs-on: ubuntu-latest
     permissions:
       contents: write
       id-token: write
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
+
+      - name: Set environment variables for the FERC EQR batch job
+        run: |
+          batch_job_id="$(date +%Y-%m-%d-%H%M)-$(git rev-parse --short HEAD)"
+          build_id="$(date +%Y-%m-%d-%H%M)-$(git rev-parse --short HEAD)-${{ github.ref_name }}"
+          case "${{ github.event_name == 'workflow_dispatch' && inputs.deployment_mode || 'production' }}" in
+            test)
+              ferceqr_config_path='/home/ubuntu/pudl/src/pudl/package_data/settings/ferceqr_test_deployment_targets.yml'
+              ;;
+            none)
+              ferceqr_config_path=''
+              ;;
+            *)
+              ferceqr_config_path='/home/ubuntu/pudl/src/pudl/package_data/settings/ferceqr_deployment_targets.yml'
+              ;;
+          esac
+          {
+              echo "BATCH_JOB_ID=$batch_job_id"
+              echo "BUILD_ID=$build_id"
+              echo "PUDL_FERCEQR_DEPLOYMENT_CONFIG_PATH=$ferceqr_config_path"
+          } >> "$GITHUB_ENV"
+          echo "BUILD_ID: $build_id"
+          echo "BATCH_JOB_ID: $batch_job_id"
+          echo "PUDL_FERCEQR_DEPLOYMENT_CONFIG_PATH: $ferceqr_config_path"
+
+      - name: Notify Zulip of FERC EQR build launch
+        if: ${{ always() }}
+        uses: zulip/github-actions-zulip/send-message@v2
+        with:
+          api-key: ${{ secrets.ZULIP_API_KEY }}
+          email: "build-status-bot@catalyst-cooperative.zulipchat.com"
+          organization-url: "https://catalyst-cooperative.zulipchat.com"
+          type: "stream"
+          to: "pudl-deployments"
+          topic: "build-deploy-ferceqr"
+          content: >
+            :rocket: Launching FERC EQR Build: ${{ env.BUILD_ID }}; :bulls_eye: Target: ${{ inputs.deployment_mode }}
 
       - name: Docker Metadata
         id: docker_metadata
@@ -59,30 +114,17 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - id: "auth"
+      - name: Authenticate with Google Cloud
+        id: "gcloud-auth"
         uses: "google-github-actions/auth@v3"
         with:
           workload_identity_provider: "projects/345950277072/locations/global/workloadIdentityPools/gh-actions-pool/providers/gh-actions-provider"
           service_account: "deploy-pudl-github-action@catalyst-cooperative-pudl.iam.gserviceaccount.com"
 
-      - name: Set action environment variables
-        run: |
-          {
-              echo "BATCH_JOB_ID=$(date +%Y-%m-%d-%H%M)-$(git rev-parse --short HEAD)";
-              echo "BUILD_ID=$(date +%Y-%m-%d-%H%M)-$(git rev-parse --short HEAD)-${{ github.ref_name }}";
-          } >> "$GITHUB_ENV"
-
-      - name: Show freshly set envvars
-        run: |
-          echo "BUILD_ID: $BUILD_ID"
-          echo "BATCH_JOB_ID: $BATCH_JOB_ID"
-
-      # Setup gcloud CLI
-      - name: Set up Cloud SDK
+      - name: Set up Google Cloud SDK
+        id: "gcloud-sdk"
         uses: google-github-actions/setup-gcloud@v3
 
-      # Deploy PUDL image to GCE
-      # Dagster Postgres connection configured in builds/dagster.yaml - otherwise we get a str for port num
       - name: Make GCP Batch config file
         run: |-
           ./devtools/generate_batch_config.py \
@@ -96,32 +138,22 @@ jobs:
             --container-env AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
             --container-env BUILD_REF=${{ github.ref_name }} \
             --container-env BUILD_ID=${{ env.BUILD_ID }} \
+            --container-env FERCEQR_START_PARTITION=${{ github.event_name == 'workflow_dispatch' && inputs.start_partition || '' }} \
+            --container-env FERCEQR_END_PARTITION=${{ github.event_name == 'workflow_dispatch' && inputs.end_partition || '' }} \
             --container-env FERCEQR_BUILD=true \
+            --container-env PUDL_FERCEQR_ARCHIVE_PATH=gs://archives.catalyst.coop/ferceqr/published \
+            --container-env PUDL_FERCEQR_DEPLOYMENT_CONFIG_PATH="${{ env.PUDL_FERCEQR_DEPLOYMENT_CONFIG_PATH }}" \
             --container-env ZULIP_API_KEY=${{ secrets.ZULIP_API_KEY }} \
             --container-env GCP_BILLING_PROJECT=${{ secrets.GCP_BILLING_PROJECT }} \
-            --container-env GCS_OUTPUT_BUCKET=${{ env.GCS_OUTPUT_BUCKET }} \
             --container-env GCS_LOGS_BUCKET=${{ env.GCS_LOGS_BUCKET }} \
-            --container-env S3_OUTPUT_BUCKET=${{ env.S3_OUTPUT_BUCKET }} \
             --container-env GITHUB_ACTION_TRIGGER=${{ github.event_name }} \
-            --container-env OMP_NUM_THREADS=4 \
+            --container-env OMP_NUM_THREADS=8 \
             --container-env PUDL_BOT_PAT=${{ secrets.PUDL_BOT_PAT }} \
+            --vcpu 16 \
+            --mem-gb 127 \
             --disk-gb 1000 \
             --output ${{ env.BATCH_JOB_JSON }}
 
-      - name: Send notification to Zulip build status stream
-        if: ${{ always() }}
-        uses: zulip/github-actions-zulip/send-message@v2
-        with:
-          api-key: ${{ secrets.ZULIP_API_KEY }}
-          email: "build-status-bot@catalyst-cooperative.zulipchat.com"
-          organization-url: "https://catalyst-cooperative.zulipchat.com"
-          type: "stream"
-          to: "pudl-deployments"
-          topic: "FERC EQR Builds"
-          content: >
-            :rocket: Launching FERC EQR Build: ${{ env.BUILD_ID }}
-
-      # Start the batch job
       - name: Launch Google Batch job
         run: gcloud batch jobs submit run-ferceqr-etl-${{ env.BATCH_JOB_ID }} --config ${{ env.BATCH_JOB_JSON }} --location us-east1
 
@@ -143,6 +175,6 @@ jobs:
           organization-url: "https://catalyst-cooperative.zulipchat.com"
           type: "stream"
           to: "pudl-deployments"
-          topic: "FERC EQR Builds"
+          topic: "build-deploy-ferceqr"
           content: >
             ${{ env.emoji }} Google Batch job for ${{ env.BUILD_ID }} launched with status: ${{ job.status }}.

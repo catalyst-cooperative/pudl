@@ -1,4 +1,4 @@
-FROM ghcr.io/prefix-dev/pixi:0.70.1-noble
+FROM ghcr.io/prefix-dev/pixi:0.70.2-noble
 
 # The pixi base image uses 'ubuntu' as the non-root user (UID 1000)
 ENV PIXI_USER=ubuntu
@@ -45,8 +45,10 @@ ENV DAGSTER_HOME=${CONTAINER_PUDL_WORKSPACE}/dagster_home
 
 RUN mkdir -p ${PUDL_INPUT} ${PUDL_OUTPUT} ${DAGSTER_HOME} ${PUDL_ROOT_PATH}
 
-# Copy dagster configuration file
-COPY builds/dagster.yaml ${DAGSTER_HOME}/dagster.yaml
+# Copy job-specific dagster configuration files; each batch script selects
+# the appropriate one at startup by copying it to $DAGSTER_HOME/dagster.yaml.
+COPY builds/dagster-pudl.yaml ${DAGSTER_HOME}/dagster-pudl.yaml
+COPY builds/dagster-ferceqr.yaml ${DAGSTER_HOME}/dagster-ferceqr.yaml
 
 # Copy the entire PUDL repo into the image.
 # We can't install the PUDL package without .git/ because the version is dynamically
