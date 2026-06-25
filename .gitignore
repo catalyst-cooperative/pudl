@@ -5,6 +5,7 @@
 **/*.parquet
 **/*.*.swp
 **/__pycache__/*
+**/__marimo__/*
 docs/data_dictionaries/pudl_db.rst
 docs/autoapi/*
 .ipynb_checkpoints/
