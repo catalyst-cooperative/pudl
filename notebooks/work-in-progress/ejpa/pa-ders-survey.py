@@ -31,7 +31,7 @@ def parquet_dir(Path, UPath, os):
         parquet_credential_provider = None
     else:
         parquet_dir = UPath("s3://pudl.catalyst.coop/nightly")
-        parquet_storage_options = {"region": "us-west-2"}
+        parquet_storage_options = {"region": "us-west-2", "anonymous": "true"}
         parquet_credential_provider = None
     return parquet_credential_provider, parquet_dir, parquet_storage_options
 
@@ -138,7 +138,9 @@ def pa_dsm_eia861(
 
     ami_eia861 = (
         pl.scan_parquet(
-            str(parquet_dir / "core_eia861__yearly_advanced_metering_infrastructure.parquet")
+            str(parquet_dir / "core_eia861__yearly_advanced_metering_infrastructure.parquet"),
+            storage_options=parquet_storage_options,
+            credential_provider=parquet_credential_provider,
         )
         .filter(pl.col("state") == selected_state)
         .collect()
