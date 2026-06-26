@@ -27,16 +27,24 @@ def parquet_dir(Path, UPath, os):
     _local = os.environ.get("PUDL_OUTPUT")
     if _local and Path(_local, "parquet").is_dir():
         parquet_dir = UPath(_local) / "parquet"
+        parquet_storage_options = {}
     else:
         parquet_dir = UPath("s3://pudl.catalyst.coop/nightly")
-    return (parquet_dir,)
+        parquet_storage_options = {"region": "us-west-2"}
+    return parquet_dir, parquet_storage_options
 
 
 @app.cell
-def net_metering_customer_fuel_class(parquet_dir, pl, selected_state):
+def net_metering_customer_fuel_class(
+    parquet_dir,
+    parquet_storage_options,
+    pl,
+    selected_state,
+):
     net_metering_customer_fuel_class = (
         pl.scan_parquet(
             str(parquet_dir / "core_eia861__yearly_net_metering_customer_fuel_class.parquet")
+            , storage_options=parquet_storage_options
         )
         .filter(pl.col("state") == selected_state)
         .collect()
@@ -45,10 +53,16 @@ def net_metering_customer_fuel_class(parquet_dir, pl, selected_state):
 
 
 @app.cell
-def non_net_metering_customer_fuel_class(parquet_dir, pl, selected_state):
+def non_net_metering_customer_fuel_class(
+    parquet_dir,
+    parquet_storage_options,
+    pl,
+    selected_state,
+):
     non_net_metering_customer_fuel_class = (
         pl.scan_parquet(
             str(parquet_dir / "core_eia861__yearly_non_net_metering_customer_fuel_class.parquet")
+            , storage_options=parquet_storage_options
         )
         .filter(pl.col("state") == selected_state)
         .collect()
@@ -75,8 +89,13 @@ def gats_registrations(Path, pl, selected_state):
 
 
 @app.cell
-def pa_generators_eia860(parquet_dir, pl, selected_state):
-    _gen = pl.scan_parquet(str(parquet_dir / "out_eia__yearly_generators.parquet")).filter(
+def pa_generators_eia860(
+    parquet_dir,
+    parquet_storage_options,
+    pl,
+    selected_state,
+):
+    _gen = pl.scan_parquet(str(parquet_dir / "out_eia__yearly_generators.parquet"), storage_options=parquet_storage_options).filter(
         pl.col("state") == selected_state
     )
 
@@ -93,15 +112,15 @@ def pa_generators_eia860(parquet_dir, pl, selected_state):
 
 
 @app.cell(hide_code=True)
-def pa_dsm_eia861(parquet_dir, pl, selected_state):
+def pa_dsm_eia861(parquet_dir, parquet_storage_options, pl, selected_state):
     demand_response_eia861 = (
-        pl.scan_parquet(str(parquet_dir / "core_eia861__yearly_demand_response.parquet"))
+        pl.scan_parquet(str(parquet_dir / "core_eia861__yearly_demand_response.parquet"), storage_options=parquet_storage_options)
         .filter(pl.col("state") == selected_state)
         .collect()
     )
 
     energy_efficiency_eia861 = (
-        pl.scan_parquet(str(parquet_dir / "core_eia861__yearly_energy_efficiency.parquet"))
+        pl.scan_parquet(str(parquet_dir / "core_eia861__yearly_energy_efficiency.parquet"), storage_options=parquet_storage_options)
         .filter(pl.col("state") == selected_state)
         .collect()
     )
