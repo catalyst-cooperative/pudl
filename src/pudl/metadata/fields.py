@@ -1791,7 +1791,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "Manufactured (Designed) voltage, expressed in kilo-volts, for three-phase 60 cycle alternative current transmission lines"
         ),
-        "unit": "KV",
+        "unit": "kV",
     },
     "direct_load_control_customers": {
         "type": "integer",
@@ -4423,7 +4423,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "Levelized cost of energy (LCOE) is a summary metric that combines the primary technology cost and performance parameters: capital expenditures, operations expenditures, and capacity factor."
         ),
-        "unit": "USD_per_Mwh",
+        "unit": "USD_per_MWh",
     },
     "liability_type": {
         "type": "string",
@@ -5359,7 +5359,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "The operating voltage, expressed kilo-volts, for three-phase 60 cycle alternative current transmission lines."
         ),
-        "unit": "KV",
+        "unit": "kV",
     },
     "operation_or_maintenance": {
         "type": "string",
@@ -5562,8 +5562,8 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "opex_fuel_per_mwh": {
         "type": "number",
-        "description": "Production expenses: fuel (USD) per megawatt-hour (Mwh).",
-        "unit": "USD_per_Mwh",
+        "description": "Production expenses: fuel (USD) per megawatt-hour (MWh).",
+        "unit": "USD_per_MWh",
     },
     "opex_generation_misc": {
         "type": "number",
@@ -5601,8 +5601,8 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "opex_nonfuel_per_mwh": {
         "type": "number",
-        "description": "Investments in non-fuel production expenses per Mwh.",
-        "unit": "USD_per_Mwh",
+        "description": "Investments in non-fuel production expenses per MWh.",
+        "unit": "USD_per_MWh",
     },
     "opex_operations": {
         "type": "number",
@@ -7831,19 +7831,19 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "summer_capacity_planned_additions_mw": {
         "type": "number",
         "description": "The total planned additions to net summer generating capacity.",
-        "unit": "mw",
+        "unit": "MW",
     },
     "summer_capacity_retirements_mw": {
         "type": "number",
         "description": "The total retirements from net summer generating capacity.",
-        "unit": "mw",
+        "unit": "MW",
     },
     "summer_capacity_unplanned_additions_mw": {
         "type": "number",
         "description": (
             "The total unplanned additions to net summer generating capacity."
         ),
-        "unit": "mw",
+        "unit": "MW",
     },
     "summer_estimated_capability_mw": {
         "type": "number",
