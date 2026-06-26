@@ -30,7 +30,7 @@ def parquet_dir(Path, UPath, os):
         parquet_storage_options = {}
     else:
         parquet_dir = UPath("s3://pudl.catalyst.coop/nightly")
-        parquet_storage_options = {"region": "us-west-2"}
+        parquet_storage_options = {"region": "us-west-2", "anonymous": "true"}
     return parquet_dir, parquet_storage_options
 
 
