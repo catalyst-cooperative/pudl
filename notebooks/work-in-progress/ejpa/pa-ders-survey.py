@@ -1,6 +1,18 @@
+# /// script
+# requires-python = ">=3.13"
+# dependencies = [
+#     "marimo>=0.23.11",
+#     "matplotlib==3.11.0",
+#     "matplotx==0.3.10",
+#     "numpy==2.5.0",
+#     "polars==1.42.0",
+#     "universal-pathlib==0.3.10",
+# ]
+# ///
+
 import marimo
 
-__generated_with = "0.23.10"
+__generated_with = "0.23.11"
 app = marimo.App(width="medium")
 
 
@@ -28,17 +40,14 @@ def parquet_dir(Path, UPath, os):
     if _local and Path(_local, "parquet").is_dir():
         parquet_dir = UPath(_local) / "parquet"
         parquet_storage_options = {}
-        parquet_credential_provider = None
     else:
         parquet_dir = UPath("s3://pudl.catalyst.coop/nightly")
-        parquet_storage_options = {"region": "us-west-2", "anonymous": "true"}
-        parquet_credential_provider = None
-    return parquet_credential_provider, parquet_dir, parquet_storage_options
+        parquet_storage_options = {"region": "us-west-2", "skip_signature": "true"}
+    return parquet_dir, parquet_storage_options
 
 
 @app.cell
 def net_metering_customer_fuel_class(
-    parquet_credential_provider,
     parquet_dir,
     parquet_storage_options,
     pl,
@@ -46,8 +55,8 @@ def net_metering_customer_fuel_class(
 ):
     net_metering_customer_fuel_class = (
         pl.scan_parquet(
-            str(parquet_dir / "core_eia861__yearly_net_metering_customer_fuel_class.parquet")
-            , storage_options=parquet_storage_options, credential_provider=parquet_credential_provider
+            str(parquet_dir / "core_eia861__yearly_net_metering_customer_fuel_class.parquet"),
+            storage_options=parquet_storage_options,
         )
         .filter(pl.col("state") == selected_state)
         .collect()
@@ -57,7 +66,6 @@ def net_metering_customer_fuel_class(
 
 @app.cell
 def non_net_metering_customer_fuel_class(
-    parquet_credential_provider,
     parquet_dir,
     parquet_storage_options,
     pl,
@@ -65,8 +73,8 @@ def non_net_metering_customer_fuel_class(
 ):
     non_net_metering_customer_fuel_class = (
         pl.scan_parquet(
-            str(parquet_dir / "core_eia861__yearly_non_net_metering_customer_fuel_class.parquet")
-            , storage_options=parquet_storage_options, credential_provider=parquet_credential_provider
+            str(parquet_dir / "core_eia861__yearly_non_net_metering_customer_fuel_class.parquet"),
+            storage_options=parquet_storage_options,
         )
         .filter(pl.col("state") == selected_state)
         .collect()
@@ -94,15 +102,15 @@ def gats_registrations(Path, pl, selected_state):
 
 @app.cell
 def pa_generators_eia860(
-    parquet_credential_provider,
     parquet_dir,
     parquet_storage_options,
     pl,
     selected_state,
 ):
-    _gen = pl.scan_parquet(str(parquet_dir / "out_eia__yearly_generators.parquet"), storage_options=parquet_storage_options, credential_provider=parquet_credential_provider).filter(
-        pl.col("state") == selected_state
-    )
+    _gen = pl.scan_parquet(
+        str(parquet_dir / "out_eia__yearly_generators.parquet"),
+        storage_options=parquet_storage_options,
+    ).filter(pl.col("state") == selected_state)
 
     solar_generators_eia860 = _gen.filter(
         (pl.col("technology_description") == "Solar Photovoltaic")
@@ -117,21 +125,21 @@ def pa_generators_eia860(
 
 
 @app.cell
-def pa_dsm_eia861(
-    parquet_credential_provider,
-    parquet_dir,
-    parquet_storage_options,
-    pl,
-    selected_state,
-):
+def pa_dsm_eia861(parquet_dir, parquet_storage_options, pl, selected_state):
     demand_response_eia861 = (
-        pl.scan_parquet(str(parquet_dir / "core_eia861__yearly_demand_response.parquet"), storage_options=parquet_storage_options, credential_provider=parquet_credential_provider)
+        pl.scan_parquet(
+            str(parquet_dir / "core_eia861__yearly_demand_response.parquet"),
+            storage_options=parquet_storage_options,
+        )
         .filter(pl.col("state") == selected_state)
         .collect()
     )
 
     energy_efficiency_eia861 = (
-        pl.scan_parquet(str(parquet_dir / "core_eia861__yearly_energy_efficiency.parquet"), storage_options=parquet_storage_options, credential_provider=parquet_credential_provider)
+        pl.scan_parquet(
+            str(parquet_dir / "core_eia861__yearly_energy_efficiency.parquet"),
+            storage_options=parquet_storage_options,
+        )
         .filter(pl.col("state") == selected_state)
         .collect()
     )
@@ -140,7 +148,6 @@ def pa_dsm_eia861(
         pl.scan_parquet(
             str(parquet_dir / "core_eia861__yearly_advanced_metering_infrastructure.parquet"),
             storage_options=parquet_storage_options,
-            credential_provider=parquet_credential_provider,
         )
         .filter(pl.col("state") == selected_state)
         .collect()
