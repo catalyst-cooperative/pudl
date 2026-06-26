@@ -1,9 +1,27 @@
 version: 7
 platforms:
 - name: linux-64
+  virtual-packages:
+  - __unix=0=0
+  - __linux=4.18
+  - __glibc=2.28
+  - __archspec=0=x86_64
 - name: linux-aarch64
+  virtual-packages:
+  - __unix=0=0
+  - __linux=4.18
+  - __glibc=2.28
+  - __archspec=0=aarch64
 - name: osx-64
+  virtual-packages:
+  - __unix=0=0
+  - __osx=13.0
+  - __archspec=0=x86_64
 - name: osx-arm64
+  virtual-packages:
+  - __unix=0=0
+  - __osx=13.0
+  - __archspec=0=m1
 environments:
   default:
     channels:
@@ -2823,7 +2841,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/lxml-6.1.1-py313h4a16004_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/lz4-c-1.10.0-h5888daf_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/lzo-2.10-h280c20c_1002.conda
-      - conda: https://conda.anaconda.org/conda-forge/linux-64/marimo-0.23.10-py313hd5f5364_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/marimo-0.23.11-py313hd5f5364_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/markupsafe-3.0.3-py313h3dea7bd_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/matplotlib-3.11.0-py313h78bf25f_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/matplotlib-base-3.11.0-py313hd23ff06_0.conda
@@ -4618,7 +4636,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-64/lxml-6.1.1-py313hdc5d0a5_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/lz4-c-1.10.0-h240833e_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/lzo-2.10-h4132b18_1002.conda
-      - conda: https://conda.anaconda.org/conda-forge/osx-64/marimo-0.23.10-py313h11baec3_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/osx-64/marimo-0.23.11-py313h11baec3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/markupsafe-3.0.3-py313h035b7d0_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/matplotlib-3.11.0-py313habf4b1d_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/matplotlib-base-3.11.0-py313h282d897_0.conda
@@ -5275,7 +5293,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/lxml-6.1.1-py313h28ec6f0_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/lz4-c-1.10.0-h286801f_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/lzo-2.10-h925e9cb_1002.conda
-      - conda: https://conda.anaconda.org/conda-forge/osx-arm64/marimo-0.23.10-py313h6fa1262_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/osx-arm64/marimo-0.23.11-py313h6fa1262_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/markupsafe-3.0.3-py313h65a2061_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/matplotlib-3.11.0-py313h39782a4_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/matplotlib-base-3.11.0-py313h113b65d_0.conda
@@ -8728,9 +8746,9 @@ packages:
     - lzo >=2.10,<3.0a0
   size: 191060
   timestamp: 1753889274283
-- conda: https://conda.anaconda.org/conda-forge/linux-64/marimo-0.23.10-py313hd5f5364_0.conda
-  sha256: 931e10721029b85062a94ffe4ae3ba69a2db5d1fef0410caaa7e0818a6407f94
-  md5: 36ca22defa5ca7dbc771f880b134b432
+- conda: https://conda.anaconda.org/conda-forge/linux-64/marimo-0.23.11-py313hd5f5364_0.conda
+  sha256: b2fe00a144ef53452af1649c1d2d335de5e4167fdbc55076cade6a3230aa0d27
+  md5: 8f6b4c00d8c3331a5f6f0526379742f8
   depends:
   - python
   - click >=8.0,<9
@@ -8757,8 +8775,8 @@ packages:
   purls:
   - pkg:pypi/marimo?source=hash-mapping
   run_exports: {}
-  size: 34478901
-  timestamp: 1782249809433
+  size: 34515540
+  timestamp: 1782428621123
 - conda: https://conda.anaconda.org/conda-forge/linux-64/markupsafe-3.0.3-py313h3dea7bd_1.conda
   sha256: 72ed7c0216541d65a17b171bf2eec4a3b81e9158d8ed48e59e1ecd3ae302d263
   md5: aeb9b9da79fd0258b3db091d1fefcd71
@@ -24968,9 +24986,9 @@ packages:
     - lzo >=2.10,<3.0a0
   size: 174634
   timestamp: 1753889269889
-- conda: https://conda.anaconda.org/conda-forge/osx-64/marimo-0.23.10-py313h11baec3_0.conda
-  sha256: 5481c4e5afe0f2e8d8f3feddd27f8576e12659dbb9686b1551e9be0c24b10c6a
-  md5: 9a3e172ed235d0fbddaf49bd5efdeffa
+- conda: https://conda.anaconda.org/conda-forge/osx-64/marimo-0.23.11-py313h11baec3_0.conda
+  sha256: e17a951f67c162c0bf0b75b898d2abc412e7b8c3f69d62f2b65b692fb41fb725
+  md5: 7b0e3a4d153eb2f46a508069ea560a52
   depends:
   - python
   - click >=8.0,<9
@@ -24997,8 +25015,8 @@ packages:
   purls:
   - pkg:pypi/marimo?source=hash-mapping
   run_exports: {}
-  size: 34478360
-  timestamp: 1782249950396
+  size: 34514386
+  timestamp: 1782428771989
 - conda: https://conda.anaconda.org/conda-forge/osx-64/markupsafe-3.0.3-py313h035b7d0_1.conda
   sha256: e589b345402e352fb47394f7bc311c241f37627a34a9becc9299b395809a5853
   md5: 3d88718cbd26857fb68fa899e80177ea
@@ -29277,9 +29295,9 @@ packages:
     - lzo >=2.10,<3.0a0
   size: 152755
   timestamp: 1753889267953
-- conda: https://conda.anaconda.org/conda-forge/osx-arm64/marimo-0.23.10-py313h6fa1262_0.conda
-  sha256: 9b4ec25cc3508dc15f872ea865f6cddd187a0ce65e69ae6dfc302156060b83c6
-  md5: d8ac1396db0865eaaf4a4fbb84747a43
+- conda: https://conda.anaconda.org/conda-forge/osx-arm64/marimo-0.23.11-py313h6fa1262_0.conda
+  sha256: 5d8706c78866af216be96613632a375af89689ba46680dfb77c496dd04c91768
+  md5: 527fbe8e993281577a3da8e1ec90799d
   depends:
   - python
   - click >=8.0,<9
@@ -29307,8 +29325,8 @@ packages:
   purls:
   - pkg:pypi/marimo?source=hash-mapping
   run_exports: {}
-  size: 34483313
-  timestamp: 1782249936813
+  size: 34519557
+  timestamp: 1782428822557
 - conda: https://conda.anaconda.org/conda-forge/osx-arm64/markupsafe-3.0.3-py313h65a2061_1.conda
   sha256: f62892a42948c61aa0a13d9a36ff811651f0a1102331223594aecf3cc042bece
   md5: 0195d558b0c0ab8f4af3089af83067c5

@@ -15,64 +15,49 @@ def imports():
     import matplotx
     import numpy as np
     from pathlib import Path
+    from upath import UPath
 
     matplotlib.style.use(matplotx.styles.onedark)
     plt.rcParams.update({"font.size": 16, "axes.titlesize": 22, "axes.labelsize": 18})
-    return Path, mo, mticker, np, os, pl, plt
+    return Path, UPath, mo, mticker, np, os, pl, plt
 
 
 @app.cell
-def parquet_dir(Path, os):
-    parquet_dir = Path(os.environ["PUDL_OUTPUT"]) / "parquet"
+def parquet_dir(Path, UPath, os):
+    _local = os.environ.get("PUDL_OUTPUT")
+    if _local and Path(_local, "parquet").is_dir():
+        parquet_dir = UPath(_local) / "parquet"
+    else:
+        parquet_dir = UPath("s3://pudl.catalyst.coop/nightly")
     return (parquet_dir,)
 
 
 @app.cell
-def net_metering_customer_fuel_class(parquet_dir, pl):
+def net_metering_customer_fuel_class(parquet_dir, pl, selected_state):
     net_metering_customer_fuel_class = (
         pl.scan_parquet(
-            parquet_dir / "core_eia861__yearly_net_metering_customer_fuel_class.parquet"
+            str(parquet_dir / "core_eia861__yearly_net_metering_customer_fuel_class.parquet")
         )
-        .filter(pl.col("state") == "PA")
+        .filter(pl.col("state") == selected_state)
         .collect()
     )
     return (net_metering_customer_fuel_class,)
 
 
 @app.cell
-def net_metering_misc(parquet_dir, pl):
-    net_metering_misc = (
-        pl.scan_parquet(parquet_dir / "core_eia861__yearly_net_metering_misc.parquet")
-        .filter(pl.col("state") == "PA")
-        .collect()
-    )
-    return
-
-
-@app.cell
-def non_net_metering_customer_fuel_class(parquet_dir, pl):
+def non_net_metering_customer_fuel_class(parquet_dir, pl, selected_state):
     non_net_metering_customer_fuel_class = (
         pl.scan_parquet(
-            parquet_dir / "core_eia861__yearly_non_net_metering_customer_fuel_class.parquet"
+            str(parquet_dir / "core_eia861__yearly_non_net_metering_customer_fuel_class.parquet")
         )
-        .filter(pl.col("state") == "PA")
+        .filter(pl.col("state") == selected_state)
         .collect()
     )
     return (non_net_metering_customer_fuel_class,)
 
 
 @app.cell
-def non_net_metering_misc(parquet_dir, pl):
-    non_net_metering_misc = (
-        pl.scan_parquet(parquet_dir / "core_eia861__yearly_non_net_metering_misc.parquet")
-        .filter(pl.col("state") == "PA")
-        .collect()
-    )
-    return
-
-
-@app.cell
-def gats_registrations(Path, pl):
+def gats_registrations(Path, pl, selected_state):
     _gats_path = Path(__file__).parent / "pjm_gats.csv"
     gats_registrations = (
         pl.read_csv(
@@ -80,7 +65,7 @@ def gats_registrations(Path, pl):
             encoding="latin1",
             infer_schema_length=5000,
         )
-        .filter(pl.col("State") == "PA")
+        .filter(pl.col("State") == selected_state)
         .rename({"Nameplate": "nameplate_mw"})
         .with_columns(
             pl.col("Date Online").str.to_date("%m/%d/%Y").alias("date_online"),
@@ -90,9 +75,9 @@ def gats_registrations(Path, pl):
 
 
 @app.cell
-def pa_generators_eia860(parquet_dir, pl):
-    _gen = pl.scan_parquet(parquet_dir / "out_eia__yearly_generators.parquet").filter(
-        pl.col("state") == "PA"
+def pa_generators_eia860(parquet_dir, pl, selected_state):
+    _gen = pl.scan_parquet(str(parquet_dir / "out_eia__yearly_generators.parquet")).filter(
+        pl.col("state") == selected_state
     )
 
     solar_generators_eia860 = _gen.filter(
@@ -108,24 +93,24 @@ def pa_generators_eia860(parquet_dir, pl):
 
 
 @app.cell(hide_code=True)
-def pa_dsm_eia861(parquet_dir, pl):
+def pa_dsm_eia861(parquet_dir, pl, selected_state):
     demand_response_eia861 = (
-        pl.scan_parquet(parquet_dir / "core_eia861__yearly_demand_response.parquet")
-        .filter(pl.col("state") == "PA")
+        pl.scan_parquet(str(parquet_dir / "core_eia861__yearly_demand_response.parquet"))
+        .filter(pl.col("state") == selected_state)
         .collect()
     )
 
     energy_efficiency_eia861 = (
-        pl.scan_parquet(parquet_dir / "core_eia861__yearly_energy_efficiency.parquet")
-        .filter(pl.col("state") == "PA")
+        pl.scan_parquet(str(parquet_dir / "core_eia861__yearly_energy_efficiency.parquet"))
+        .filter(pl.col("state") == selected_state)
         .collect()
     )
 
     ami_eia861 = (
         pl.scan_parquet(
-            parquet_dir / "core_eia861__yearly_advanced_metering_infrastructure.parquet"
+            str(parquet_dir / "core_eia861__yearly_advanced_metering_infrastructure.parquet")
         )
-        .filter(pl.col("state") == "PA")
+        .filter(pl.col("state") == selected_state)
         .collect()
     )
     return ami_eia861, demand_response_eia861, energy_efficiency_eia861
@@ -165,7 +150,9 @@ def tech_labels():
 
 @app.cell
 def size_bin_helpers(pl):
-    der_bin_edges = [
+    capacity_bin_edges = [
+        (-4.0, -3.5, "0.1–0.3 kW"),
+        (-3.5, -3.0, "0.3–1 kW"),
         (-3.0, -2.5, "1–3 kW"),
         (-2.5, -2.0, "3–10 kW"),
         (-2.0, -1.5, "10–32 kW"),
@@ -174,20 +161,12 @@ def size_bin_helpers(pl):
         (-0.5,  0.0, "316 kW–1 MW"),
         ( 0.0,  0.5, "1–3 MW"),
         ( 0.5,  1.0, "3–10 MW"),
-        ( 1.0,  2.0, ">10 MW"),
+        ( 1.0,  1.5, "10–32 MW"),
+        ( 1.5,  2.0, "32–100 MW"),
+        ( 2.0,  2.5, "100–316 MW"),
     ]
-    der_bin_order = [e[2] for e in der_bin_edges]
-    der_bin_breaks = [e[1] for e in der_bin_edges[:-1]]
-
-    util_bin_edges = [
-        (-0.5, 0.0, "<1 MW"),
-        (0.0, 0.7, "1–5 MW"),
-        (0.7, 1.3, "5–20 MW"),
-        (1.3, 1.7, "20–50 MW"),
-        (1.7, 2.5, "50–300 MW"),
-    ]
-    util_bin_order = [e[2] for e in util_bin_edges]
-    util_bin_breaks = [e[1] for e in util_bin_edges[:-1]]
+    capacity_bin_order = [e[2] for e in capacity_bin_edges]
+    capacity_bin_breaks = [e[1] for e in capacity_bin_edges[:-1]]
 
 
     def capacity_hist(
@@ -220,17 +199,11 @@ def size_bin_helpers(pl):
             .sort("bin")
         )
 
-    return (
-        capacity_hist,
-        der_bin_breaks,
-        der_bin_order,
-        util_bin_breaks,
-        util_bin_order,
-    )
+    return capacity_bin_breaks, capacity_bin_order, capacity_hist
 
 
 @app.cell
-def plot_helpers():
+def plot_helpers(mticker):
     FIGSIZE = (16, 10)
     YEAR_XLIM = (2001.5, 2026.5)
 
@@ -241,12 +214,91 @@ def plot_helpers():
         "transportation": "#c678dd",
     }
 
+    _UNIT_FACTOR = {"": 1.0, "k": 1e3, "M": 1e6, "G": 1e9, "T": 1e12}
+
 
     def style_ax(ax):
         ax.set_axisbelow(True)
         ax.grid(axis="y", linewidth=0.5)
 
-    return CLASS_COLORS, FIGSIZE, YEAR_XLIM, style_ax
+
+    def metric_formatter(max_value: float, base_unit: str = "") -> tuple[str, float]:
+        """Pick a display prefix and divisor so displayed numbers stay in 1–1000.
+
+        `max_value` is in units of `base_unit` (e.g. base_unit="M" for megawatts).
+        Returns (display_prefix, divisor) where displayed = max_value / divisor.
+        """
+        import math
+        if not max_value or not math.isfinite(max_value) or max_value <= 0:
+            return (base_unit, 1.0)
+        base_factor = _UNIT_FACTOR.get(base_unit, 1.0)
+        abs_watts = max_value * base_factor
+        if abs_watts >= 1e12:
+            return ("T", 1e12 / base_factor)
+        if abs_watts >= 1e9:
+            return ("G", 1e9 / base_factor)
+        if abs_watts >= 1e6:
+            return ("M", 1e6 / base_factor)
+        if abs_watts >= 1e3:
+            return ("k", 1e3 / base_factor)
+        return ("", 1.0)
+
+
+    def metric_tick_formatter(prefix: str, divisor: float):
+        """Format ticks with the given prefix/divisor, dropping decimals for integers."""
+        def _fmt(x, _):
+            v = x / divisor
+            if v == 0:
+                return "0"
+            if abs(v - round(v)) < 1e-9:
+                return f"{round(v):,.0f}"
+            return f"{v:,.1f}"
+        return mticker.FuncFormatter(_fmt)
+
+
+    def prefixed_unit(prefix: str, base_unit: str = "W") -> str:
+        """Combine a metric prefix with a unit symbol, e.g. ('G', 'W') -> 'GW'."""
+        return f"{prefix}{base_unit}" if prefix else base_unit
+
+
+    def count_formatter(max_value: float) -> tuple[str, float, str]:
+        """Pick a suffix/divisor for entity-count axes (e.g. 1500 -> ('K', 1e3, 'thousands')).
+
+        Returns (suffix, divisor, label_word) where label_word is '' / 'thousands' /
+        'millions' for use in axis labels like "Customers (thousands)".
+        """
+        import math
+        if not max_value or not math.isfinite(max_value) or max_value <= 0:
+            return ("", 1.0, "")
+        if max_value >= 1e6:
+            return ("M", 1e6, "millions")
+        if max_value >= 1e3:
+            return ("K", 1e3, "thousands")
+        return ("", 1.0, "")
+
+
+    def count_tick_formatter(suffix: str, divisor: float):
+        """Format count ticks with K/M suffix, dropping decimals for integers."""
+        def _fmt(x, _):
+            v = x / divisor
+            if v == 0:
+                return "0"
+            if abs(v - round(v)) < 1e-9:
+                return f"{round(v):,.0f}{suffix}"
+            return f"{v:,.1f}{suffix}"
+        return mticker.FuncFormatter(_fmt)
+
+    return (
+        CLASS_COLORS,
+        FIGSIZE,
+        YEAR_XLIM,
+        count_formatter,
+        count_tick_formatter,
+        metric_formatter,
+        metric_tick_formatter,
+        prefixed_unit,
+        style_ax,
+    )
 
 
 @app.cell
@@ -326,7 +378,7 @@ def gats_annual(gats_registrations, pl):
     return gats_ee_annual, gats_solar_annual
 
 
-@app.cell(hide_code=True)
+@app.cell
 def generators_annual_eia860(
     battery_generators_eia860,
     pl,
@@ -412,10 +464,13 @@ def _(mo):
 def chart_capacity(
     FIGSIZE,
     YEAR_XLIM,
-    mticker,
+    metric_formatter,
+    metric_tick_formatter,
     net_metering_data,
     pl,
     plt,
+    prefixed_unit,
+    state_name,
     style_ax,
     tech_colors,
     tech_order,
@@ -442,13 +497,16 @@ def chart_capacity(
         _ax.bar(_years, _vals, bottom=_bottom, label=_t, color=tech_colors[_t], width=0.8)
         _bottom = [b + v for b, v in zip(_bottom, _vals)]
 
-    _ax.set_title("Pennsylvania Net-Metered DER Capacity by Technology (EIA-861)")
+    _ax.set_title(f"{state_name} Net-Metered DER Capacity by Technology (EIA-861)")
     _ax.set_xlabel("Year")
     _ax.set_ylabel("Installed Capacity (MW)")
     _ax.legend(loc="upper left")
     _ax.set_xlim(*YEAR_XLIM)
+    _stack_max = max(_bottom) if _bottom else 0
+    _pfx, _div = metric_formatter(_stack_max, base_unit="M")
     _ax.set_ylim(0)
-    _ax.yaxis.set_major_formatter(mticker.FuncFormatter(lambda x, _: f"{x:,.0f}"))
+    _ax.yaxis.set_major_formatter(metric_tick_formatter(_pfx, _div))
+    _ax.set_ylabel(f"Installed Capacity ({prefixed_unit(_pfx, 'W')})")
     style_ax(_ax)
     plt.tight_layout()
     chart_capacity = _fig
@@ -472,10 +530,13 @@ def _(mo):
 def chart_non_net_metered_capacity(
     FIGSIZE,
     YEAR_XLIM,
-    mticker,
+    metric_formatter,
+    metric_tick_formatter,
     non_net_metering_by_tech,
     pl,
     plt,
+    prefixed_unit,
+    state_name,
     style_ax,
 ):
     _nnm_label_map = {
@@ -541,13 +602,16 @@ def chart_non_net_metered_capacity(
         )
         _bottom = [b + v for b, v in zip(_bottom, _vals)]
 
-    _ax.set_title("Pennsylvania Non-Net-Metered BTM DER Capacity by Technology (EIA-861)")
+    _ax.set_title(f"{state_name} Non-Net-Metered BTM DER Capacity by Technology (EIA-861)")
     _ax.set_xlabel("Year")
-    _ax.set_ylabel("Installed Capacity (MW)")
+    _ax.set_ylabel("Installed Capacity")
     _ax.legend(loc="upper left")
     _ax.set_xlim(*YEAR_XLIM)
+    _stack_max = max(_bottom) if _bottom else 0
+    _pfx, _div = metric_formatter(_stack_max, base_unit="M")
     _ax.set_ylim(0)
-    _ax.yaxis.set_major_formatter(mticker.FuncFormatter(lambda x, _: f"{x:,.2f}"))
+    _ax.yaxis.set_major_formatter(metric_tick_formatter(_pfx, _div))
+    _ax.set_ylabel(f"Installed Capacity ({prefixed_unit(_pfx, 'W')})")
     style_ax(_ax)
     plt.tight_layout()
     chart_non_net_metered_capacity = _fig
@@ -570,10 +634,12 @@ def chart_customers(
     CLASS_COLORS,
     FIGSIZE,
     YEAR_XLIM,
-    mticker,
+    count_formatter,
+    count_tick_formatter,
     net_metering_customer_fuel_class,
     pl,
     plt,
+    state_name,
     style_ax,
 ):
     _classes = ["residential", "commercial", "industrial", "transportation"]
@@ -605,10 +671,14 @@ def chart_customers(
             )
             _bottom = [b + v for b, v in zip(_bottom, _vals)]
 
-    _ax.set_title("Pennsylvania Net Metering Customer Count by Customer Class (EIA-861)")
+    _ax.set_title(f"{state_name} Net Metering Customer Count by Customer Class (EIA-861)")
     _ax.set_xlabel("Year")
-    _ax.set_ylabel("Net Metering Customers")
-    _ax.yaxis.set_major_formatter(mticker.FuncFormatter(lambda x, _: f"{x:,.0f}"))
+
+    _stack_max = max(_bottom) if _bottom else 0
+    _csfx, _cdiv, _cword = count_formatter(_stack_max)
+    _ax.yaxis.set_major_formatter(count_tick_formatter(_csfx, _cdiv))
+    _label_suffix = f" ({_cword})" if _cword else ""
+    _ax.set_ylabel(f"Net Metering Customers{_label_suffix}")
     _ax.legend(loc="upper left")
     _ax.set_xlim(*YEAR_XLIM)
     _ax.set_ylim(0)
@@ -637,12 +707,20 @@ def chart_storage(
     net_metering_data,
     pl,
     plt,
+    state_name,
     style_ax,
 ):
     _pa_s = net_metering_data.filter(pl.col("technology") == "PV + Battery Storage").sort(
         "year"
     )
     _years = _pa_s["year"].to_list()
+
+    import math
+    _cap_max = float(_pa_s["capacity_mw"].max() or 0)
+    # Round up to the next even integer for clean tick alignment with step=2.
+    _cap_step = 2
+    _y_cap = math.ceil((_cap_max + 1) / _cap_step) * _cap_step
+    _y_cust = _y_cap * 100
 
     _fig, _ax1 = plt.subplots(figsize=FIGSIZE)
     _ax2 = _ax1.twinx()
@@ -666,16 +744,16 @@ def chart_storage(
         label="Customers",
     )
 
-    _ax1.set_ylim(0, 14)
-    _ax2.set_ylim(0, 1400)
-    _ax1.yaxis.set_major_locator(mticker.MultipleLocator(2))
-    _ax2.yaxis.set_major_locator(mticker.MultipleLocator(200))
+    _ax1.set_ylim(0, _y_cap)
+    _ax2.set_ylim(0, _y_cust)
+    _ax1.yaxis.set_major_locator(mticker.MultipleLocator(_cap_step))
+    _ax2.yaxis.set_major_locator(mticker.MultipleLocator(_cap_step * 100))
     _ax1.set_xlabel("Year")
     _ax1.set_ylabel("Inverter Capacity (MW)", color="#2166ac")
     _ax2.set_ylabel("Customers", color="#74add1")
     _ax1.tick_params(axis="y", labelcolor="#2166ac")
     _ax2.tick_params(axis="y", labelcolor="#74add1")
-    _ax1.set_title("Pennsylvania Net-Metered PV+Battery Storage, Co-Located (EIA-861)")
+    _ax1.set_title(f"{state_name} Net-Metered PV+Battery Storage, Co-Located (EIA-861)")
     _ax1.legend(handles=[_l1, _l2], loc="upper left")
     _ax1.set_xlim(*YEAR_XLIM)
     style_ax(_ax1)
@@ -716,11 +794,14 @@ def chart_gats_solar(
     FIGSIZE,
     YEAR_XLIM,
     gats_solar_annual,
-    mticker,
+    metric_formatter,
+    metric_tick_formatter,
     net_metering_by_tech,
     non_net_metering_by_tech,
     pl,
     plt,
+    prefixed_unit,
+    state_name,
     style_ax,
 ):
     _eia_nm = (
@@ -766,11 +847,14 @@ def chart_gats_solar(
         label="EIA-861: Non-Net-Metered Solar",
     )
     _ax.set_title(
-        "Pennsylvania Solar PV — GATS All Registered vs. EIA-861 Net-Metered vs. Non-Net-Metered"
+        f"{state_name} Solar PV — GATS All Registered vs. EIA-861 Net-Metered vs. Non-Net-Metered"
     )
     _ax.set_xlabel("Year")
-    _ax.set_ylabel("Cumulative Capacity (MW)")
-    _ax.yaxis.set_major_formatter(mticker.FuncFormatter(lambda x, _: f"{x:,.0f}"))
+
+    _ymax = float(max(_gats["capacity_mw"].max(), _eia_nm["capacity_mw"].max(), _eia_nnm["capacity_mw"].max()) or 0)
+    _pfx, _div = metric_formatter(_ymax, base_unit="M")
+    _ax.yaxis.set_major_formatter(metric_tick_formatter(_pfx, _div))
+    _ax.set_ylabel(f"Cumulative Capacity ({prefixed_unit(_pfx, 'W')})")
     _ax.legend(loc="upper left")
     _ax.set_xlim(*YEAR_XLIM)
     style_ax(_ax)
@@ -797,9 +881,12 @@ def chart_gats_additions(
     FIGSIZE,
     YEAR_XLIM,
     gats_solar_annual,
-    mticker,
+    metric_formatter,
+    metric_tick_formatter,
     pl,
     plt,
+    prefixed_unit,
+    state_name,
     style_ax,
 ):
     _gadd = gats_solar_annual.filter(pl.col("added_mw").is_not_null()).sort("year")
@@ -808,10 +895,12 @@ def chart_gats_additions(
     _fig, (_ax1, _ax2) = plt.subplots(2, 1, figsize=FIGSIZE)
 
     _ax1.bar(_gadd["year"], _gadd["added_mw"], color="#f4a020", width=0.8)
-    _ax1.set_title("Pennsylvania Solar PV — Annual Capacity Additions (GATS)")
-    _ax1.set_ylabel("Capacity Added (MW)")
+    _add_max = float(_gadd["added_mw"].max() or 0)
+    _pfx1, _div1 = metric_formatter(_add_max, base_unit="M")
+    _ax1.set_title(f"{state_name} Solar PV — Annual Capacity Additions (GATS)")
+    _ax1.set_ylabel(f"Capacity Added ({prefixed_unit(_pfx1, 'W')})")
     _ax1.set_xlim(*YEAR_XLIM)
-    _ax1.yaxis.set_major_formatter(mticker.FuncFormatter(lambda x, _: f"{x:,.0f}"))
+    _ax1.yaxis.set_major_formatter(metric_tick_formatter(_pfx1, _div1))
     style_ax(_ax1)
 
     _ax2.plot(
@@ -823,12 +912,14 @@ def chart_gats_additions(
         markersize=10,
     )
     _ax2.fill_between(_gcum["year"], _gcum["cumulative_mw"], alpha=0.25, color="#f4a020")
-    _ax2.set_title("Pennsylvania Solar PV — Cumulative GATS-Registered Capacity")
+    _cum_max = float(_gcum["cumulative_mw"].max() or 0)
+    _pfx2, _div2 = metric_formatter(_cum_max, base_unit="M")
+    _ax2.set_title(f"{state_name} Solar PV — Cumulative GATS-Registered Capacity")
     _ax2.set_xlabel("Year")
-    _ax2.set_ylabel("Cumulative Capacity (MW)")
+    _ax2.set_ylabel(f"Cumulative Capacity ({prefixed_unit(_pfx2, 'W')})")
     _ax2.set_xlim(*YEAR_XLIM)
     _ax2.set_ylim(0)
-    _ax2.yaxis.set_major_formatter(mticker.FuncFormatter(lambda x, _: f"{x:,.0f}"))
+    _ax2.yaxis.set_major_formatter(metric_tick_formatter(_pfx2, _div2))
     style_ax(_ax2)
 
     plt.tight_layout()
@@ -840,44 +931,54 @@ def chart_gats_additions(
 @app.cell(hide_code=True)
 def chart_gats_size_hist(
     FIGSIZE,
+    capacity_bin_breaks,
+    capacity_bin_order,
     capacity_hist,
-    der_bin_breaks,
-    der_bin_order,
+    count_formatter,
+    count_tick_formatter,
     gats_registrations,
-    mticker,
+    metric_formatter,
+    metric_tick_formatter,
     np,
     pl,
     plt,
+    prefixed_unit,
+    state_name,
     style_ax,
 ):
     _sun_all = gats_registrations.filter(pl.col("Primary Fuel Type") == "SUN")
-    _hist_sun = capacity_hist(_sun_all, 'nameplate_mw', der_bin_breaks, der_bin_order)
+    _hist_sun = capacity_hist(_sun_all, 'nameplate_mw', capacity_bin_breaks, capacity_bin_order)
     _n_sun = _sun_all.height
 
-    _sun_x = np.arange(len(der_bin_order))
-    _sun_counts = [_hist_sun.filter(pl.col("bin") == b)["count"].sum() for b in der_bin_order]
-    _sun_mw = [_hist_sun.filter(pl.col("bin") == b)["capacity_mw"].sum() for b in der_bin_order]
+    _sun_x = np.arange(len(capacity_bin_order))
+    _sun_counts = [_hist_sun.filter(pl.col("bin") == b)["count"].sum() for b in capacity_bin_order]
+    _sun_mw = [_hist_sun.filter(pl.col("bin") == b)["capacity_mw"].sum() for b in capacity_bin_order]
 
     _fig, (_ax1, _ax2) = plt.subplots(2, 1, figsize=FIGSIZE)
     _ax1.bar(_sun_x, _sun_counts, color="#f4a020")
     _ax1.set_title(
-        f"PA Solar PV — System Count by Size, All Online Systems (GATS, n={_n_sun:,})"
+        f"{state_name} Solar PV — System Count by Size, All Online Systems (GATS, n={_n_sun:,})"
     )
     _ax1.set_ylabel("Number of Systems")
     _ax1.set_xticks(_sun_x)
-    _ax1.set_xticklabels(der_bin_order, rotation=30, ha="right")
-    _ax1.yaxis.set_major_formatter(mticker.FuncFormatter(lambda x, _: f"{x:,.0f}"))
+    _ax1.set_xticklabels(capacity_bin_order, rotation=30, ha="right")
+    _mw_max = max(_sun_counts) if _sun_counts else 0
+    _csfx, _cdiv, _cword = count_formatter(_mw_max)
+    _ax1.yaxis.set_major_formatter(count_tick_formatter(_csfx, _cdiv))
     style_ax(_ax1)
 
     _ax2.bar(_sun_x, _sun_mw, color="#f4a020")
     _ax2.set_title(
-        "PA Solar PV — Installed Capacity (MW) by Size, All Online Systems (GATS)"
+        f"{state_name} Solar PV — Installed Capacity (MW) by Size, All Online Systems (GATS)"
     )
-    _ax2.set_ylabel("Installed Capacity (MW)")
+
     _ax2.set_xlabel("System Size")
     _ax2.set_xticks(_sun_x)
-    _ax2.set_xticklabels(der_bin_order, rotation=30, ha="right")
-    _ax2.yaxis.set_major_formatter(mticker.FuncFormatter(lambda x, _: f"{x:,.1f}"))
+    _ax2.set_xticklabels(capacity_bin_order, rotation=30, ha="right")
+    _mw_max2 = max(_sun_mw) if _sun_mw else 0
+    _pfx2, _div2 = metric_formatter(_mw_max2, base_unit="M")
+    _ax2.yaxis.set_major_formatter(metric_tick_formatter(_pfx2, _div2))
+    _ax2.set_ylabel(f"Installed Capacity ({prefixed_unit(_pfx2, 'W')})")
     style_ax(_ax2)
 
     plt.tight_layout()
@@ -900,46 +1001,56 @@ def _(mo):
 @app.cell(hide_code=True)
 def chart_ee_size_hist(
     FIGSIZE,
+    capacity_bin_breaks,
+    capacity_bin_order,
     capacity_hist,
-    der_bin_breaks,
-    der_bin_order,
+    count_formatter,
+    count_tick_formatter,
     gats_registrations,
-    mticker,
+    metric_formatter,
+    metric_tick_formatter,
     np,
     pl,
     plt,
+    prefixed_unit,
+    state_name,
     style_ax,
 ):
     _ee_all = gats_registrations.filter(
         pl.col("Primary Fuel Type").str.strip_chars() == "EE"
     )
-    _hist_ee = capacity_hist(_ee_all, 'nameplate_mw', der_bin_breaks, der_bin_order)
+    _hist_ee = capacity_hist(_ee_all, 'nameplate_mw', capacity_bin_breaks, capacity_bin_order)
     _n_ee = _ee_all.height
 
-    _ee_x = np.arange(len(der_bin_order))
-    _ee_counts = [_hist_ee.filter(pl.col("bin") == b)["count"].sum() for b in der_bin_order]
-    _ee_mw = [_hist_ee.filter(pl.col("bin") == b)["capacity_mw"].sum() for b in der_bin_order]
+    _ee_x = np.arange(len(capacity_bin_order))
+    _ee_counts = [_hist_ee.filter(pl.col("bin") == b)["count"].sum() for b in capacity_bin_order]
+    _ee_mw = [_hist_ee.filter(pl.col("bin") == b)["capacity_mw"].sum() for b in capacity_bin_order]
 
     _fig, (_ax1, _ax2) = plt.subplots(2, 1, figsize=FIGSIZE)
     _ax1.bar(_ee_x, _ee_counts, color="#2ca02c")
     _ax1.set_title(
-        f"PA Energy Efficiency — Registration Count by Size, All Systems (GATS, n={_n_ee:,})"
+        f"{state_name} Energy Efficiency — Registration Count by Size, All Systems (GATS, n={_n_ee:,})"
     )
     _ax1.set_ylabel("Number of EE Registrations")
     _ax1.set_xticks(_ee_x)
-    _ax1.set_xticklabels(der_bin_order, rotation=30, ha="right")
-    _ax1.yaxis.set_major_formatter(mticker.FuncFormatter(lambda x, _: f"{x:,.0f}"))
+    _ax1.set_xticklabels(capacity_bin_order, rotation=30, ha="right")
+    _mw_max = max(_ee_counts) if _ee_counts else 0
+    _csfx, _cdiv, _cword = count_formatter(_mw_max)
+    _ax1.yaxis.set_major_formatter(count_tick_formatter(_csfx, _cdiv))
     style_ax(_ax1)
 
     _ax2.bar(_ee_x, _ee_mw, color="#2ca02c")
     _ax2.set_title(
-        "PA Energy Efficiency — Registered Capacity (MW) by Size, All Systems (GATS)"
+        f"{state_name} Energy Efficiency — Registered Capacity (MW) by Size, All Systems (GATS)"
     )
-    _ax2.set_ylabel("Registered Capacity (MW)")
+
     _ax2.set_xlabel("System Size")
     _ax2.set_xticks(_ee_x)
-    _ax2.set_xticklabels(der_bin_order, rotation=30, ha="right")
-    _ax2.yaxis.set_major_formatter(mticker.FuncFormatter(lambda x, _: f"{x:,.2f}"))
+    _ax2.set_xticklabels(capacity_bin_order, rotation=30, ha="right")
+    _mw_max2 = max(_ee_mw) if _ee_mw else 0
+    _pfx2, _div2 = metric_formatter(_mw_max2, base_unit="M")
+    _ax2.yaxis.set_major_formatter(metric_tick_formatter(_pfx2, _div2))
+    _ax2.set_ylabel(f"Installed Capacity ({prefixed_unit(_pfx2, 'W')})")
     style_ax(_ax2)
 
     plt.tight_layout()
@@ -953,9 +1064,12 @@ def chart_ee_cumulative(
     FIGSIZE,
     YEAR_XLIM,
     gats_ee_annual,
-    mticker,
+    metric_formatter,
+    metric_tick_formatter,
     pl,
     plt,
+    prefixed_unit,
+    state_name,
     style_ax,
 ):
     _ee_add = gats_ee_annual.filter(pl.col("added_mw").is_not_null()).sort("year")
@@ -964,10 +1078,12 @@ def chart_ee_cumulative(
     _fig, (_ax1, _ax2) = plt.subplots(2, 1, figsize=FIGSIZE)
 
     _ax1.bar(_ee_add["year"], _ee_add["added_mw"], color="#2ca02c", width=0.8)
-    _ax1.set_title("Pennsylvania Energy Efficiency Resources — Annual Additions (GATS)")
-    _ax1.set_ylabel("Capacity Added (MW)")
+    _add_max = float(_ee_add["added_mw"].max() or 0)
+    _pfx1, _div1 = metric_formatter(_add_max, base_unit="M")
+    _ax1.set_title(f"{state_name} Energy Efficiency Resources — Annual Additions (GATS)")
+    _ax1.set_ylabel(f"Capacity Added ({prefixed_unit(_pfx1, 'W')})")
     _ax1.set_xlim(*YEAR_XLIM)
-    _ax1.yaxis.set_major_formatter(mticker.FuncFormatter(lambda x, _: f"{x:,.1f}"))
+    _ax1.yaxis.set_major_formatter(metric_tick_formatter(_pfx1, _div1))
     style_ax(_ax1)
 
     _ax2.plot(
@@ -981,14 +1097,16 @@ def chart_ee_cumulative(
     _ax2.fill_between(
         _ee_cum["year"], _ee_cum["cumulative_mw"], alpha=0.25, color="#2ca02c"
     )
+    _cum_max = float(_ee_cum["cumulative_mw"].max() or 0)
+    _pfx2, _div2 = metric_formatter(_cum_max, base_unit="M")
     _ax2.set_title(
-        "Pennsylvania Energy Efficiency Resources — Cumulative GATS-Registered Capacity"
+        f"{state_name} Energy Efficiency Resources — Cumulative GATS-Registered Capacity"
     )
     _ax2.set_xlabel("Year")
-    _ax2.set_ylabel("Cumulative Capacity (MW)")
+    _ax2.set_ylabel(f"Cumulative Capacity ({prefixed_unit(_pfx2, 'W')})")
     _ax2.set_xlim(*YEAR_XLIM)
     _ax2.set_ylim(0)
-    _ax2.yaxis.set_major_formatter(mticker.FuncFormatter(lambda x, _: f"{x:,.1f}"))
+    _ax2.yaxis.set_major_formatter(metric_tick_formatter(_pfx2, _div2))
     style_ax(_ax2)
 
     plt.tight_layout()
@@ -1010,47 +1128,57 @@ def _(mo):
 @app.cell(hide_code=True)
 def chart_eia860_solar_hist(
     FIGSIZE,
+    capacity_bin_breaks,
+    capacity_bin_order,
     capacity_hist,
-    mticker,
+    count_formatter,
+    count_tick_formatter,
+    metric_formatter,
+    metric_tick_formatter,
     np,
     pl,
     plt,
+    prefixed_unit,
     solar_generators_eia860,
+    state_name,
     style_ax,
-    util_bin_breaks,
-    util_bin_order,
 ):
     _solar_snap = solar_generators_eia860.sort("report_date", descending=True).unique(
         subset=["plant_id_eia", "generator_id"], keep="first"
     )
-    _hist_solar = capacity_hist(_solar_snap, 'capacity_mw', util_bin_breaks, util_bin_order)
+    _hist_solar = capacity_hist(_solar_snap, 'capacity_mw', capacity_bin_breaks, capacity_bin_order)
     _n_solar = _solar_snap.height
-    _sx = np.arange(len(util_bin_order))
+    _sx = np.arange(len(capacity_bin_order))
     _solar_counts = [
-        _hist_solar.filter(pl.col("bin") == b)["count"].sum() for b in util_bin_order
+        _hist_solar.filter(pl.col("bin") == b)["count"].sum() for b in capacity_bin_order
     ]
     _solar_mw = [
-        _hist_solar.filter(pl.col("bin") == b)["capacity_mw"].sum() for b in util_bin_order
+        _hist_solar.filter(pl.col("bin") == b)["capacity_mw"].sum() for b in capacity_bin_order
     ]
 
     _fig, (_ax1, _ax2) = plt.subplots(2, 1, figsize=FIGSIZE)
     _ax1.bar(_sx, _solar_counts, color="#f4a020")
     _ax1.set_title(
-        f"PA Utility-Scale Solar PV — Generator Count by Size (EIA-860, n={_n_solar})"
+        f"{state_name} Utility-Scale Solar PV — Generator Count by Size (EIA-860, n={_n_solar})"
     )
     _ax1.set_ylabel("Number of Generators")
     _ax1.set_xticks(_sx)
-    _ax1.set_xticklabels(util_bin_order, rotation=30, ha="right")
-    _ax1.yaxis.set_major_formatter(mticker.FuncFormatter(lambda x, _: f"{x:,.0f}"))
+    _ax1.set_xticklabels(capacity_bin_order, rotation=30, ha="right")
+    _mw_max = max(_solar_counts) if _solar_counts else 0
+    _csfx, _cdiv, _cword = count_formatter(_mw_max)
+    _ax1.yaxis.set_major_formatter(count_tick_formatter(_csfx, _cdiv))
     style_ax(_ax1)
 
     _ax2.bar(_sx, _solar_mw, color="#f4a020")
-    _ax2.set_title("PA Utility-Scale Solar PV — Installed Capacity (MW) by Size (EIA-860)")
-    _ax2.set_ylabel("Installed Capacity (MW)")
+    _ax2.set_title(f"{state_name} Utility-Scale Solar PV — Installed Capacity (MW) by Size (EIA-860)")
+
     _ax2.set_xlabel("Generator Size")
     _ax2.set_xticks(_sx)
-    _ax2.set_xticklabels(util_bin_order, rotation=30, ha="right")
-    _ax2.yaxis.set_major_formatter(mticker.FuncFormatter(lambda x, _: f"{x:,.0f}"))
+    _ax2.set_xticklabels(capacity_bin_order, rotation=30, ha="right")
+    _mw_max2 = max(_solar_mw) if _solar_mw else 0
+    _pfx2, _div2 = metric_formatter(_mw_max2, base_unit="M")
+    _ax2.yaxis.set_major_formatter(metric_tick_formatter(_pfx2, _div2))
+    _ax2.set_ylabel(f"Installed Capacity ({prefixed_unit(_pfx2, 'W')})")
     style_ax(_ax2)
 
     plt.tight_layout()
@@ -1063,11 +1191,14 @@ def chart_eia860_solar_hist(
 def chart_eia860_solar_capacity(
     FIGSIZE,
     YEAR_XLIM,
-    mticker,
+    metric_formatter,
+    metric_tick_formatter,
     pl,
     plt,
+    prefixed_unit,
     solar_additions_annual,
     solar_capacity_annual,
+    state_name,
     style_ax,
 ):
     _sadd = solar_additions_annual.filter(pl.col("year") <= 2026)
@@ -1076,27 +1207,31 @@ def chart_eia860_solar_capacity(
 
     _scum = solar_capacity_annual.filter(pl.col("year") <= 2026)
     _scum_years = _scum["year"].to_list()
-    _scum_mw = [v / 1000 for v in _scum["total_mw"].to_list()]
+    _scum_mw = _scum["total_mw"].to_list()  # MW
 
     _fig, (_ax1, _ax2) = plt.subplots(2, 1, figsize=FIGSIZE)
 
     _ax1.bar(_sadd_years, _sadd_mw, color="#f4a020")
-    _ax1.set_title("PA Utility-Scale Solar PV — Annual Capacity Additions (EIA-860)")
-    _ax1.set_ylabel("Capacity Added (MW)")
+    _add_max = float(_sadd["added_mw"].max() or 0)
+    _pfx1, _div1 = metric_formatter(_add_max, base_unit="M")
+    _ax1.set_title(f"{state_name} Utility-Scale Solar PV — Annual Capacity Additions (EIA-860)")
+    _ax1.set_ylabel(f"Capacity Added ({prefixed_unit(_pfx1, 'W')})")
     _ax1.set_xlim(*YEAR_XLIM)
-    _ax1.yaxis.set_major_formatter(mticker.FuncFormatter(lambda x, _: f"{x:,.0f}"))
+    _ax1.yaxis.set_major_formatter(metric_tick_formatter(_pfx1, _div1))
     style_ax(_ax1)
 
     _ax2.plot(
         _scum_years, _scum_mw, color="#f4a020", linewidth=5, marker="o", markersize=10
     )
     _ax2.fill_between(_scum_years, _scum_mw, alpha=0.25, color="#f4a020")
-    _ax2.set_title("PA Utility-Scale Solar PV — Cumulative Installed Capacity (EIA-860)")
+    _ax2.set_title(f"{state_name} Utility-Scale Solar PV — Cumulative Installed Capacity (EIA-860)")
     _ax2.set_xlabel("Year")
-    _ax2.set_ylabel("Installed Capacity (GW)")
+    _cum_max = float(max(_scum_mw) or 0)  # MW
+    _pfx2, _div2 = metric_formatter(_cum_max, base_unit="M")
+    _ax2.set_ylabel(f"Installed Capacity ({prefixed_unit(_pfx2, 'W')})")
     _ax2.set_xlim(*YEAR_XLIM)
     _ax2.set_ylim(0)
-    _ax2.yaxis.set_major_formatter(mticker.FuncFormatter(lambda x, _: f"{x:.2f}"))
+    _ax2.yaxis.set_major_formatter(metric_tick_formatter(_pfx2, _div2))
     style_ax(_ax2)
 
     plt.tight_layout()
@@ -1119,48 +1254,56 @@ def _(mo):
 def chart_eia860_batt_hist(
     FIGSIZE,
     battery_generators_eia860,
+    capacity_bin_breaks,
+    capacity_bin_order,
     capacity_hist,
-    mticker,
+    count_formatter,
+    count_tick_formatter,
+    metric_formatter,
+    metric_tick_formatter,
     np,
     pl,
     plt,
+    prefixed_unit,
+    state_name,
     style_ax,
-    util_bin_breaks,
-    util_bin_order,
 ):
     _batt_snap = battery_generators_eia860.sort("report_date", descending=True).unique(
         subset=["plant_id_eia", "generator_id"], keep="first"
     )
-    _hist_batt = capacity_hist(_batt_snap, 'capacity_mw', util_bin_breaks, util_bin_order)
+    _hist_batt = capacity_hist(_batt_snap, 'capacity_mw', capacity_bin_breaks, capacity_bin_order)
     _n_batt = _batt_snap.height
-    _bx = np.arange(len(util_bin_order))
+    _bx = np.arange(len(capacity_bin_order))
     _batt_counts = [
-        _hist_batt.filter(pl.col("bin") == b)["count"].sum() for b in util_bin_order
+        _hist_batt.filter(pl.col("bin") == b)["count"].sum() for b in capacity_bin_order
     ]
     _batt_mw = [
-        _hist_batt.filter(pl.col("bin") == b)["capacity_mw"].sum() for b in util_bin_order
+        _hist_batt.filter(pl.col("bin") == b)["capacity_mw"].sum() for b in capacity_bin_order
     ]
 
     _fig, (_ax1, _ax2) = plt.subplots(2, 1, figsize=FIGSIZE)
     _ax1.bar(_bx, _batt_counts, color="#5ba4cf")
     _ax1.set_title(
-        f"PA Utility-Scale Battery Storage — Generator Count by Size (EIA-860, n={_n_batt})"
+        f"{state_name} Utility-Scale Battery Storage — Generator Count by Size (EIA-860, n={_n_batt})"
     )
     _ax1.set_ylabel("Number of Generators")
     _ax1.set_xticks(_bx)
-    _ax1.set_xticklabels(util_bin_order, rotation=30, ha="right")
-    _ax1.yaxis.set_major_formatter(mticker.FuncFormatter(lambda x, _: f"{x:,.0f}"))
+    _ax1.set_xticklabels(capacity_bin_order, rotation=30, ha="right")
+    _mw_max = max(_batt_counts) if _batt_counts else 0
+    _csfx, _cdiv, _cword = count_formatter(_mw_max)
+    _ax1.yaxis.set_major_formatter(count_tick_formatter(_csfx, _cdiv))
     style_ax(_ax1)
 
     _ax2.bar(_bx, _batt_mw, color="#5ba4cf")
-    _ax2.set_title(
-        "PA Utility-Scale Battery Storage — Installed Capacity (MW) by Size (EIA-860)"
-    )
-    _ax2.set_ylabel("Installed Capacity (MW)")
+    _ax2.set_title(f"{state_name} Utility-Scale Battery Storage — Installed Capacity (MW) by Size (EIA-860)")
+
     _ax2.set_xlabel("Generator Size")
     _ax2.set_xticks(_bx)
-    _ax2.set_xticklabels(util_bin_order, rotation=30, ha="right")
-    _ax2.yaxis.set_major_formatter(mticker.FuncFormatter(lambda x, _: f"{x:,.0f}"))
+    _ax2.set_xticklabels(capacity_bin_order, rotation=30, ha="right")
+    _mw_max2 = max(_batt_mw) if _batt_mw else 0
+    _pfx2, _div2 = metric_formatter(_mw_max2, base_unit="M")
+    _ax2.yaxis.set_major_formatter(metric_tick_formatter(_pfx2, _div2))
+    _ax2.set_ylabel(f"Installed Capacity ({prefixed_unit(_pfx2, 'W')})")
     style_ax(_ax2)
 
     plt.tight_layout()
@@ -1174,9 +1317,12 @@ def chart_eia860_batt_capacity(
     FIGSIZE,
     YEAR_XLIM,
     battery_additions_annual,
-    mticker,
+    metric_formatter,
+    metric_tick_formatter,
     pl,
     plt,
+    prefixed_unit,
+    state_name,
     style_ax,
 ):
     _badd = battery_additions_annual.filter(pl.col("year") <= 2025)
@@ -1193,10 +1339,12 @@ def chart_eia860_batt_capacity(
     _fig, (_ax1, _ax2) = plt.subplots(2, 1, figsize=FIGSIZE)
 
     _ax1.bar(_badd_years, _badd_mw, color="#5ba4cf")
-    _ax1.set_title("PA Utility-Scale Battery Storage — Annual Capacity Additions (EIA-860)")
-    _ax1.set_ylabel("Capacity Added (MW)")
+    _add_max = float(_badd["added_mw"].max() or 0)
+    _pfx1, _div1 = metric_formatter(_add_max, base_unit="M")
+    _ax1.set_title(f"{state_name} Utility-Scale Battery Storage — Annual Capacity Additions (EIA-860)")
+    _ax1.set_ylabel(f"Capacity Added ({prefixed_unit(_pfx1, 'W')})")
     _ax1.set_xlim(*YEAR_XLIM)
-    _ax1.yaxis.set_major_formatter(mticker.FuncFormatter(lambda x, _: f"{x:,.0f}"))
+    _ax1.yaxis.set_major_formatter(metric_tick_formatter(_pfx1, _div1))
     style_ax(_ax1)
 
     _ax2.plot(
@@ -1204,13 +1352,15 @@ def chart_eia860_batt_capacity(
     )
     _ax2.fill_between(_bcum_years, _bcum_mw, alpha=0.25, color="#5ba4cf")
     _ax2.set_title(
-        "PA Utility-Scale Battery Storage — Cumulative Installed Capacity (EIA-860)"
+        f"{state_name} Utility-Scale Battery Storage — Cumulative Installed Capacity (EIA-860)"
     )
     _ax2.set_xlabel("Year")
-    _ax2.set_ylabel("Installed Capacity (MW)")
+    _cum_max = float(_bcum["cumulative_mw"].max() or 0)
+    _pfx2, _div2 = metric_formatter(_cum_max, base_unit="M")
+    _ax2.set_ylabel(f"Installed Capacity ({prefixed_unit(_pfx2, 'W')})")
     _ax2.set_xlim(*YEAR_XLIM)
     _ax2.set_ylim(0)
-    _ax2.yaxis.set_major_formatter(mticker.FuncFormatter(lambda x, _: f"{x:,.0f}"))
+    _ax2.yaxis.set_major_formatter(metric_tick_formatter(_pfx2, _div2))
     style_ax(_ax2)
 
     plt.tight_layout()
@@ -1235,9 +1385,12 @@ def chart_ee_by_class(
     FIGSIZE,
     YEAR_XLIM,
     energy_efficiency_eia861,
-    mticker,
+    metric_formatter,
+    metric_tick_formatter,
     pl,
     plt,
+    prefixed_unit,
+    state_name,
     style_ax,
 ):
     _classes = ["commercial", "residential", "industrial"]
@@ -1268,14 +1421,17 @@ def chart_ee_by_class(
         _bottom = [b + v for b, v in zip(_bottom, _vals)]
 
     _ax.set_title(
-        "PA Energy Efficiency Programs — Incremental Peak Reduction by Customer Class (EIA-861)"
+        f"{state_name} Energy Efficiency Programs — Incremental Peak Reduction by Customer Class (EIA-861)"
     )
     _ax.set_xlabel("Year")
-    _ax.set_ylabel("Incremental Peak Reduction (MW)")
+
+    _stack_max = max(_bottom) if _bottom else 0
+    _pfx, _div = metric_formatter(_stack_max, base_unit="M")
     _ax.set_xlim(*YEAR_XLIM)
     _ax.set_ylim(0)
     _ax.legend(loc="upper left")
-    _ax.yaxis.set_major_formatter(mticker.FuncFormatter(lambda x, _: f"{x:,.0f}"))
+    _ax.yaxis.set_major_formatter(metric_tick_formatter(_pfx, _div))
+    _ax.set_ylabel(f"Incremental Peak Reduction ({prefixed_unit(_pfx, 'W')})")
     style_ax(_ax)
     plt.tight_layout()
     chart_ee_by_class = _fig
@@ -1302,9 +1458,12 @@ def chart_dr_by_class(
     FIGSIZE,
     YEAR_XLIM,
     demand_response_eia861,
-    mticker,
+    metric_formatter,
+    metric_tick_formatter,
     pl,
     plt,
+    prefixed_unit,
+    state_name,
     style_ax,
 ):
     _dr = (
@@ -1340,6 +1499,12 @@ def chart_dr_by_class(
 
     _fig, (_ax1, _ax2) = plt.subplots(2, 1, figsize=FIGSIZE)
 
+    _res_max = max(
+        float(_pot["residential"].max() or 0),
+        float(_act["residential"].max() or 0),
+    )
+    _pfx1, _div1 = metric_formatter(_res_max, base_unit="M")
+
     _ax1.bar(
         _years,
         _pot["residential"].to_list(),
@@ -1358,13 +1523,13 @@ def chart_dr_by_class(
         zorder=5,
     )
     _ax1.set_title(
-        "PA Demand Response — Residential: Potential vs. Actual Peak Savings (EIA-861)"
+        f"{state_name} Demand Response — Residential: Potential vs. Actual Peak Savings (EIA-861)"
     )
-    _ax1.set_ylabel("Peak Demand Savings (MW)")
+    _ax1.set_ylabel(f"Peak Demand Savings ({prefixed_unit(_pfx1, 'W')})")
     _ax1.set_xlim(*YEAR_XLIM)
     _ax1.set_ylim(0)
     _ax1.legend(loc="upper right")
-    _ax1.yaxis.set_major_formatter(mticker.FuncFormatter(lambda x, _: f"{x:,.0f}"))
+    _ax1.yaxis.set_major_formatter(metric_tick_formatter(_pfx1, _div1))
     style_ax(_ax1)
 
     _ci_classes = ["commercial", "industrial"]
@@ -1384,6 +1549,8 @@ def chart_dr_by_class(
         sum(_act[c][i] for c in _ci_classes if c in _act.columns)
         for i in range(len(_years))
     ]
+    _ci_max = max(max(_bottom) if _bottom else 0, max(_ci_actual) if _ci_actual else 0)
+    _pfx2, _div2 = metric_formatter(_ci_max, base_unit="M")
     _ax2.plot(
         _years,
         _ci_actual,
@@ -1396,14 +1563,14 @@ def chart_dr_by_class(
         zorder=5,
     )
     _ax2.set_title(
-        "PA Demand Response — Commercial & Industrial: Potential vs. Actual Peak Savings (EIA-861)"
+        f"{state_name} Demand Response — Commercial & Industrial: Potential vs. Actual Peak Savings (EIA-861)"
     )
     _ax2.set_xlabel("Year")
-    _ax2.set_ylabel("Peak Demand Savings (MW)")
+    _ax2.set_ylabel(f"Peak Demand Savings ({prefixed_unit(_pfx2, 'W')})")
     _ax2.set_xlim(*YEAR_XLIM)
     _ax2.set_ylim(0)
     _ax2.legend(loc="upper right")
-    _ax2.yaxis.set_major_formatter(mticker.FuncFormatter(lambda x, _: f"{x:,.0f}"))
+    _ax2.yaxis.set_major_formatter(metric_tick_formatter(_pfx2, _div2))
     style_ax(_ax2)
 
     plt.tight_layout()
@@ -1476,9 +1643,12 @@ def chart_ami_penetration(
     CLASS_COLORS,
     YEAR_XLIM,
     ami_eia861,
+    count_formatter,
+    count_tick_formatter,
     mticker,
     pl,
     plt,
+    state_name,
     style_ax,
 ):
     _classes = ["commercial", "residential", "industrial"]
@@ -1544,12 +1714,12 @@ def chart_ami_penetration(
         )
 
 
-    def _stacked_bar(ax, df: pl.DataFrame, scale: float, unit: str) -> None:
+    def _stacked_bar(ax, df: pl.DataFrame) -> None:
         _yrs = df["year"].to_list()
-        _ami = [v / scale for v in df["ami"].to_list()]
-        _amr = [v / scale for v in df["amr"].to_list()]
-        _std = [v / scale for v in df["standard"].to_list()]
-        _est = [v / scale for v in df["standard_est"].to_list()]
+        _ami = df["ami"].to_list()
+        _amr = df["amr"].to_list()
+        _std = df["standard"].to_list()
+        _est = df["standard_est"].to_list()
         _b1 = _ami
         _b2 = [a + b for a, b in zip(_ami, _amr)]
         _b3 = _b2
@@ -1567,9 +1737,13 @@ def chart_ami_penetration(
             hatch="//",
             width=0.8,
         )
+        _stack_max = max(_b2[i] + _std[i] + _est[i] for i in range(len(_yrs))) if _yrs else 0
+        _csfx, _cdiv, _cword = count_formatter(_stack_max)
         ax.set_xlim(*YEAR_XLIM)
         ax.set_ylim(0)
-        ax.yaxis.set_major_formatter(mticker.FuncFormatter(lambda x, _: f"{x:,.1f}{unit}"))
+        ax.yaxis.set_major_formatter(count_tick_formatter(_csfx, _cdiv))
+        _label_suffix = f" ({_cword})" if _cword else ""
+        ax.set_ylabel(f"Meters{_label_suffix}")
         style_ax(ax)
 
 
@@ -1587,29 +1761,37 @@ def chart_ami_penetration(
             markersize=10,
         )
     _ax1.set_title(
-        "PA Advanced Metering Infrastructure — AMI Penetration by Customer Class (EIA-861)"
+        f"{state_name} Advanced Metering Infrastructure — AMI Penetration by Customer Class (EIA-861)"
     )
     _ax1.set_ylabel("Meters with AMI (%)")
     _ax1.set_xlim(*YEAR_XLIM)
     _ax1.set_ylim(0, 105)
     _ax1.legend(loc="upper left")
     _ax1.yaxis.set_major_formatter(mticker.FuncFormatter(lambda x, _: f"{x:.0f}%"))
+    _ax1.text(
+        0.98,
+        0.04,
+        "Note: Includes AMI (bi-directional) only.",
+        transform=_ax1.transAxes,
+        ha="right",
+        va="bottom",
+        fontsize=11,
+        color="#9aa0a6",
+        style="italic",
+    )
     style_ax(_ax1)
 
-    _stacked_bar(_ax2, _meter_inventory("residential"), 1e6, "M")
-    _ax2.set_title("PA Residential Meter Inventory by Type (EIA-861)")
-    _ax2.set_ylabel("Meters (millions)")
+    _stacked_bar(_ax2, _meter_inventory("residential"))
+    _ax2.set_title(f"{state_name} Residential Meter Inventory by Type (EIA-861)")
     _ax2.legend(loc="upper left")
 
-    _stacked_bar(_ax3, _meter_inventory("commercial"), 1e3, "K")
-    _ax3.set_title("PA Commercial Meter Inventory by Type (EIA-861)")
-    _ax3.set_ylabel("Meters (thousands)")
+    _stacked_bar(_ax3, _meter_inventory("commercial"))
+    _ax3.set_title(f"{state_name} Commercial Meter Inventory by Type (EIA-861)")
     _ax3.legend(loc="upper left")
 
-    _stacked_bar(_ax4, _meter_inventory("industrial"), 1e3, "K")
-    _ax4.set_title("PA Industrial Meter Inventory by Type (EIA-861)")
+    _stacked_bar(_ax4, _meter_inventory("industrial"))
+    _ax4.set_title(f"{state_name} Industrial Meter Inventory by Type (EIA-861)")
     _ax4.set_xlabel("Year")
-    _ax4.set_ylabel("Meters (thousands)")
     _ax4.legend(loc="upper left")
 
     plt.tight_layout()
@@ -1703,6 +1885,38 @@ def _tbl_peco_2024(ami_eia861, pl):
         .sort("customer_class", "year")
     )
     return
+
+
+@app.cell
+def _(mo):
+    # State selector — appears in a persistent left sidebar.
+    # Add more entries here as pjm_gats.csv grows to cover more PJM states.
+    _state_options = {
+        "Pennsylvania": "PA",
+        "New Jersey": "NJ",
+    }
+
+    state_selector = mo.ui.dropdown(
+        options=_state_options,
+        value="Pennsylvania",
+        label="## Select a state",
+        searchable=True,
+    )
+
+    mo.sidebar(state_selector)
+    return (state_selector,)
+
+
+@app.cell
+def _(state_selector):
+    selected_state = state_selector.value
+
+    STATE_NAMES = {
+        "PA": "Pennsylvania",
+        "NJ": "New Jersey",
+    }
+    state_name = STATE_NAMES.get(selected_state, selected_state)
+    return selected_state, state_name
 
 
 if __name__ == "__main__":
