@@ -1,7 +1,7 @@
 """PUDL unit registry built on top of Pint's default registry.
 
 Extends Pint with energy-industry units (MMBtu, Mcf, MMcf, TBtu), reactive
-power (VAr), a currency dimension (USD), and a person count alias. All PUDL
+power (VAr), and a currency dimension (USD). All PUDL
 code that needs to parse or validate unit strings should import
 PUDL_UNIT_REGISTRY from here rather than constructing a bare UnitRegistry.
 
@@ -28,6 +28,3 @@ PUDL_UNIT_REGISTRY.define("VAr = watt = volt_ampere_reactive")
 # parseable. Exchange-rate conversions are outside Pint's scope.
 PUDL_UNIT_REGISTRY.define("[currency] = [currency]")
 PUDL_UNIT_REGISTRY.define("USD = [currency]")
-
-# Person as a count alias, enabling per-capita and population-density units.
-PUDL_UNIT_REGISTRY.define("person = count")

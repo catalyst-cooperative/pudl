@@ -247,6 +247,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "consumers": {
         "type": "integer",
         "description": "Number of end-use consumers within the report state.",
+        "unit": "count",
     },
     "recipient_location": {
         "type": "string",
@@ -346,6 +347,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "meters and extend to real-time meters with built-in two-way communication "
             "capable of recording and transmitting instantaneous data."
         ),
+        "unit": "count",
     },
     "aggregation_group": {
         "type": "string",
@@ -600,6 +602,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Number of meters that collect data for billing purposes only and transmit "
             "this data one way, usually from the customer to the distribution utility."
         ),
+        "unit": "count",
     },
     "avg_customers_per_month": {
         "type": "number",
@@ -1214,6 +1217,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Number of distribution circuits that employ voltage/VAR optimization "
             "(VVO)."
         ),
+        "unit": "count",
     },
     "city": {
         "type": "string",
@@ -1584,6 +1588,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Number of customers able to access daily energy usage through a webportal "
             "or other electronic means."
         ),
+        "unit": "count",
     },
     "data_date": {
         "type": "date",
@@ -1710,7 +1715,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "Per-capita annual demand, averaged using Census county-level population estimates."
         ),
-        "unit": "MWh / person",
+        "unit": "MWh / count",
     },
     "demand_charges": {
         "type": "number",
@@ -1807,6 +1812,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "customer’s electrical equipment (e.g. air conditioner, water heater) on "
             "short notice."
         ),
+        "unit": "count",
     },
     "disposal_landfill_units": {
         "type": "number",
@@ -1847,6 +1853,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "distribution_circuits": {
         "type": "integer",
         "description": "Total number of distribution circuits.",
+        "unit": "count",
     },
     "division_code_us_census": {
         "type": "string",
@@ -2803,14 +2810,17 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "employees_num": {
         "type": "integer",
         "description": "Number of employees.",
+        "unit": "count",
     },
     "employees_full_time_num": {
         "type": "integer",
         "description": "Number of employees hired full-time for normal operations of the system.",
+        "unit": "count",
     },
     "employees_part_time_num": {
         "type": "integer",
         "description": "Number employees regularly employed on a part-time basis. Exclude employees hired for short periods of time to complete special jobs.",
+        "unit": "count",
     },
     "employee_hours_worked_total": {
         "type": "number",
@@ -3136,6 +3146,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "(i.e., receipt of information by the operator from the notification "
             "center)."
         ),
+        "unit": "count",
     },
     "exchange_energy_delivered_mwh": {
         "type": "number",
@@ -3819,6 +3830,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "A count of how many different simple energy sources there are associated with a generator."
         ),
+        "unit": "count",
     },
     "fuel_units": {
         "type": "string",
@@ -3874,10 +3886,12 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "generators_num_less_1_mw": {
         "type": "integer",
         "description": "Total number of generators less than 1 MW.",
+        "unit": "count",
     },
     "generators_number": {
         "type": "integer",
         "description": "Total number of generators",
+        "unit": "count",
     },
     "generator_operating_date": {
         "type": "date",
@@ -4031,6 +4045,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "Number of AMI meters with home area network (HAN) gateway enabled."
         ),
+        "unit": "count",
     },
     "hours_in_service": {
         "type": "integer",
@@ -5151,6 +5166,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "also include functions to measure time-of-use and/or demand with data "
             "manually retrieved over monthly billing cycles."
         ),
+        "unit": "count",
     },
     "non_coincident_peak_demand_mw": {
         "type": "number",
@@ -5305,6 +5321,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "num_transmission_circuits": {
         "type": "integer",
         "description": "Number of circuits in a transmission line.",
+        "unit": "count",
     },
     "office_city": {
         "type": "string",
@@ -6241,6 +6258,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "plant_num": {
         "type": "integer",
         "description": "Number of plants.",
+        "unit": "count",
     },
     "plant_part": {
         "type": "string",
@@ -6333,7 +6351,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "population_density_km2": {
         "type": "number",
         "description": "Average population per sq. km area of a service territory.",
-        "unit": "person / km**2",
+        "unit": "count / km**2",
     },
     "potential_peak_demand_savings_mw": {
         "type": "number",
@@ -6396,6 +6414,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "The number of customers participating in the respondent's incentive-based "
             "demand response programs."
         ),
+        "unit": "count",
     },
     "primary_fuel_by_cost": {
         "type": "string",
@@ -6570,6 +6589,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "Number of distinct generator IDs that participated in the aggregation for a plant part list record."
         ),
+        "unit": "count",
     },
     "record_id": {
         "type": "string",
@@ -7185,6 +7205,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "in the system at end of reported year related to "
             "natural gas distribution."
         ),
+        "unit": "count",
     },
     "services_efv_installed": {
         "type": "integer",
@@ -7192,6 +7213,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Total number of services with Excess Flow Valve installed "
             "during reported year related to natural gas distribution."
         ),
+        "unit": "count",
     },
     "services_shutoff_valve_in_system": {
         "type": "integer",
@@ -7200,6 +7222,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "shut-off valves installed in the system at end of report year "
             "related to natural gas distribution."
         ),
+        "unit": "count",
     },
     "services_shutoff_valve_installed": {
         "type": "integer",
@@ -7207,6 +7230,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Total number of manual service line shut-off valves installed "
             "during reported year related to natural gas distribution."
         ),
+        "unit": "count",
     },
     "service_type": {
         "type": "string",
@@ -8027,6 +8051,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "The number of cusomters participating in the respondent's time-based "
             "rate programs."
         ),
+        "unit": "count",
     },
     "timezone": {
         "type": "string",
@@ -8252,10 +8277,12 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "turbines_inverters_hydrokinetics": {
         "type": "integer",
         "description": "Number of wind turbines, or hydrokinetic buoys.",
+        "unit": "count",
     },
     "turbines_num": {
         "type": "integer",
         "description": "Number of wind turbines, or hydrokinetic buoys.",
+        "unit": "count",
     },
     "turndown_ratio": {
         "type": "number",
@@ -8498,11 +8525,12 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "num_water_heaters": {
         "type": "integer",
         "description": (
-            "The number of grid-enabled water heaters added to the respondent's "
+            "The number of grid-enabled water heaters added to the respondent’s "
             "program this year - if the respondent has DSM program for grid-enabled "
             "water heaters (as defined by DOE’s Office of Energy Efficiency and "
             "Renewable Energy)."
         ),
+        "unit": "count",
     },
     "water_limited_capacity_mw": {
         "type": "number",
@@ -9766,10 +9794,15 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "datetime",
         "description": "The date of the last annual meeting.",
     },
-    "members_num": {"type": "integer", "description": "The total number of members."},
+    "members_num": {
+        "type": "integer",
+        "description": "The total number of members.",
+        "unit": "count",
+    },
     "members_present_at_meeting_num": {
         "type": "integer",
         "description": "The number of members present at the last annual meeting.",
+        "unit": "count",
     },
     "was_quorum_present": {
         "type": "boolean",
@@ -9778,10 +9811,12 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "members_voting_by_proxy_or_mail_num": {
         "type": "integer",
         "description": "The number of members voting by mail or by proxy.",
+        "unit": "count",
     },
     "board_members_num": {
         "type": "integer",
         "description": "The total number of board members.",
+        "unit": "count",
     },
     "fees_and_expenses_for_board_members": {
         "type": "integer",
@@ -9799,6 +9834,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "employees_fte_num": {
         "type": "integer",
         "description": "The number of full time employees.",
+        "unit": "count",
     },
     "employee_hours_worked_regular_time": {
         "type": "integer",
@@ -10383,6 +10419,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "The number of times this entity - aka this particular utility, plant, etc - "
             "occurs across the pre-entity resolution tables."
         ),
+        "unit": "count",
     },
     "record_occurrences": {
         "type": "integer",
@@ -10390,6 +10427,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "The number of times this particular ``record_value`` occurs across the pre-entity resolution "
             "tables in association with this particular entity."
         ),
+        "unit": "count",
     },
     "consistent_rate": {
         "type": "number",
