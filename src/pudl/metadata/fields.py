@@ -1248,7 +1248,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "coal_fraction_mmbtu": {
         "type": "number",
         "description": (
-            "Coal heat content as a percentage of overall fuel heat content (MMBTU)."
+            "Coal heat content as a fraction (0-1) of overall fuel heat content, "
+            "measured in MMBtu. The '_mmbtu' suffix indicates the denominator unit "
+            "used to compute the fraction, not the unit of this field."
         ),
     },
     "coalmine_county_id_fips": {
@@ -1827,19 +1829,28 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "disposal_landfill_units": {
         "type": "number",
         "description": (
-            "Disposed by-products in landfill, to the nearest hundred tons or in MMBTU for steam sales."
+            "By-products disposed in landfill. The unit varies by by-product type: "
+            "short_ton (to the nearest 100 short_ton) for solid by-products, or MMBtu "
+            "for steam sales. See the associated by-product type column to determine "
+            "which unit applies to each row."
         ),
     },
     "disposal_offsite_units": {
         "type": "number",
         "description": (
-            "Disposed by-products offsite, to the nearest hundred tons or in MMBTU for steam sales."
+            "By-products disposed offsite. The unit varies by by-product type: "
+            "short_ton (to the nearest 100 short_ton) for solid by-products, or MMBtu "
+            "for steam sales. See the associated by-product type column to determine "
+            "which unit applies to each row."
         ),
     },
     "disposal_ponds_units": {
         "type": "number",
         "description": (
-            "Disposed by-products in ponds, to the nearest hundred tons or in MMBTU for steam sales."
+            "By-products disposed in ponds. The unit varies by by-product type: "
+            "short_ton (to the nearest 100 short_ton) for solid by-products, or MMBtu "
+            "for steam sales. See the associated by-product type column to determine "
+            "which unit applies to each row."
         ),
     },
     "distributed_generation": {
@@ -3742,7 +3753,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "fuel_received_units": {
         "type": "number",
-        "description": "Quantity of fuel received in tons, barrel, or Mcf.",
+        "description": (
+            "Quantity of fuel received. The unit varies by fuel type: short_ton for "
+            "coal, oil_barrel for petroleum, and Mcf for natural gas. See the "
+            "associated fuel_units column to determine which unit applies to each row."
+        ),
     },
     "fuel_switch_energy_source_1": {
         "type": "string",
@@ -3870,7 +3885,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "gas_fraction_mmbtu": {
         "type": "number",
         "description": (
-            "Natural gas heat content as a percentage of overall fuel heat content (MMBTU)."
+            "Natural gas heat content as a fraction (0-1) of overall fuel heat content, "
+            "measured in MMBtu. The '_mmbtu' suffix indicates the denominator unit "
+            "used to compute the fraction, not the unit of this field."
         ),
     },
     "generation_activity": {
@@ -4624,7 +4641,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "mains": {
         "type": "number",
-        "description": "The number of mains distribution pipeline.",
+        "description": "Miles of mains distribution pipeline.",
         "unit": "mile",
     },
     "main_size": {
@@ -5323,7 +5340,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "nuclear_fraction_mmbtu": {
         "type": "number",
         "description": (
-            "Nuclear heat content as a percentage of overall fuel heat content (MMBTU)."
+            "Nuclear heat content as a fraction (0-1) of overall fuel heat content, "
+            "measured in MMBtu. The '_mmbtu' suffix indicates the denominator unit "
+            "used to compute the fraction, not the unit of this field."
         ),
     },
     "nuclear_unit_id": {
@@ -5367,7 +5386,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "oil_fraction_mmbtu": {
         "type": "number",
         "description": (
-            "Oil heat content as a percentage of overall fuel heat content (MMBTU)."
+            "Oil heat content as a fraction (0-1) of overall fuel heat content, "
+            "measured in MMBtu. The '_mmbtu' suffix indicates the denominator unit "
+            "used to compute the fraction, not the unit of this field."
         ),
     },
     "operates_generating_plant": {
@@ -6053,10 +6074,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": (
             "Particulate removal efficiency, based on the annual operating factor, "
-            "which is defined as annual fuel consumption (MMBTU) divided by the product "
-            "of the boiler design firing rate (MMBTU per hour) and hours of operation per year."
+            "which is defined as annual fuel consumption (MMBtu) divided by the product "
+            "of the boiler design firing rate (MMBtu per hour) and hours of operation per year. "
             "When actual data are not available, estimates are provided based on equipment "
-            "design performance specifications. Ranges from 0 to 1."
+            "design performance specifications. Ranges from 0 to 1; a small number of "
+            "records contain values slightly above 1, likely due to reporting anomalies."
         ),
     },
     "particulate_test_date": {
@@ -7014,23 +7036,32 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "saifi_w_major_event_days_customers": {
         "type": "number",
         "description": (
-            "Average number of times a customer experienced a sustained interruption "
-            "(over 5 minutes) during the report year including major event days."
+            "System Average Interruption Frequency Index (SAIFI): the average number "
+            "of times a customer experienced a sustained interruption (over 5 minutes) "
+            "during the report year, including major event days. Dimensionless rate "
+            "(interruptions per customer); the '_customers' suffix is part of the IEEE "
+            "metric name, not a customer count."
         ),
     },
     "saifi_w_major_event_days_minus_loss_of_service_customers": {
         "type": "number",
         "description": (
-            "Average number of times a customer experienced a sustained interruption "
-            "(over 5 minutes) during the report year including major event days and "
-            "excluding reliability events caused by a loss of supply."
+            "System Average Interruption Frequency Index (SAIFI): the average number "
+            "of times a customer experienced a sustained interruption (over 5 minutes) "
+            "during the report year, including major event days and excluding reliability "
+            "events caused by a loss of supply. Dimensionless rate (interruptions per "
+            "customer); the '_customers' suffix is part of the IEEE metric name, not a "
+            "customer count."
         ),
     },
     "saifi_wo_major_event_days_customers": {
         "type": "number",
         "description": (
-            "Average number of times a customer experienced a sustained interruption "
-            "(over 5 minutes) during the report year excluding major event days."
+            "System Average Interruption Frequency Index (SAIFI): the average number "
+            "of times a customer experienced a sustained interruption (over 5 minutes) "
+            "during the report year, excluding major event days. Dimensionless rate "
+            "(interruptions per customer); the '_customers' suffix is part of the IEEE "
+            "metric name, not a customer count."
         ),
     },
     "sales_for_resale_mwh": {
@@ -7421,7 +7452,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "so2_removal_efficiency_design": {
         "type": "number",
         "description": (
-            "Designed removal efficiency for sulfur dioxide when operating at 100 percent load. Reported at the nearest 0.1 percent by weight of gases removed from the flue gas."
+            "Designed removal efficiency for sulfur dioxide when operating at 100 percent "
+            "load, reported to the nearest 0.1 percentage point by weight of gases removed "
+            "from the flue gas. Ranges from 0 to 1."
         ),
     },
     "so2_removal_efficiency_tested": {
@@ -7437,8 +7470,8 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": (
             "Sulfur dioxide removal efficiency, based on the annual operating factor, "
-            "which is defined as annual fuel consumption (MMBTU) divided by the product "
-            "of the boiler design firing rate (MMBTU per hour) and hours of operation per year."
+            "which is defined as annual fuel consumption (MMBtu) divided by the product "
+            "of the boiler design firing rate (MMBtu per hour) and hours of operation per year. "
             "When actual data are not available, estimates are provided based on equipment "
             "design performance specifications. Ranges from 0 to 1."
         ),
@@ -7452,7 +7485,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "sold_units": {
         "type": "number",
         "description": (
-            "Sold by-products, in tons (to the nearest 100 tons) or, for Steam, MMBTU."
+            "By-products sold. The unit varies by by-product type: short_ton (to the "
+            "nearest 100 short_ton) for solid by-products, or MMBtu for steam sales. "
+            "See the associated by-product type column to determine which unit applies "
+            "to each row."
         ),
     },
     "sold_to_utility_mwh": {
@@ -7693,13 +7729,19 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "stored_offsite_units": {
         "type": "number",
         "description": (
-            "Stored by-products offsite, to the nearest hundred tons or in MMBTU for steam sales."
+            "By-products stored offsite. The unit varies by by-product type: "
+            "short_ton (to the nearest 100 short_ton) for solid by-products, or MMBtu "
+            "for steam sales. See the associated by-product type column to determine "
+            "which unit applies to each row."
         ),
     },
     "stored_onsite_units": {
         "type": "number",
         "description": (
-            "Stored by-products onsite, to the nearest hundred tons or in MMBTU for steam sales."
+            "By-products stored onsite. The unit varies by by-product type: "
+            "short_ton (to the nearest 100 short_ton) for solid by-products, or MMBtu "
+            "for steam sales. See the associated by-product type column to determine "
+            "which unit applies to each row."
         ),
     },
     "street_address": {
@@ -8099,7 +8141,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "total_disposal_units": {
         "type": "number",
         "description": (
-            "Total by-product disposal, to the nearest hundred tons or in MMBTU for steam sales."
+            "Total by-product disposal. The unit varies by by-product type: "
+            "short_ton (to the nearest 100 short_ton) for solid by-products, or MMBtu "
+            "for steam sales. See the associated by-product type column to determine "
+            "which unit applies to each row."
         ),
     },
     "total_disposition_mwh": {
@@ -8357,13 +8402,19 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "used_offsite_units": {
         "type": "number",
         "description": (
-            "Used offsite by-products, to the nearest hundred tons or in MMBTU for steam sales."
+            "By-products used offsite. The unit varies by by-product type: "
+            "short_ton (to the nearest 100 short_ton) for solid by-products, or MMBtu "
+            "for steam sales. See the associated by-product type column to determine "
+            "which unit applies to each row."
         ),
     },
     "used_onsite_units": {
         "type": "number",
         "description": (
-            "Used onsite by-products, to the nearest hundred tons or in MMBTU for steam sales."
+            "By-products used onsite. The unit varies by by-product type: "
+            "short_ton (to the nearest 100 short_ton) for solid by-products, or MMBtu "
+            "for steam sales. See the associated by-product type column to determine "
+            "which unit applies to each row."
         ),
     },
     "utility_id_eia": {
@@ -8528,7 +8579,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "waste_fraction_mmbtu": {
         "type": "number",
         "description": (
-            "Waste-heat heat content as a percentage of overall fuel heat content (MMBTU)."
+            "Waste-heat heat content as a fraction (0-1) of overall fuel heat content, "
+            "measured in MMBtu. The '_mmbtu' suffix indicates the denominator unit "
+            "used to compute the fraction, not the unit of this field."
         ),
     },
     "waste_heat_input_mmbtu_per_hour": {
@@ -8574,7 +8627,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "wet_dry_bottom": {
         "type": "string",
-        "unit": "MMBtu / hour",
         "description": (
             "Wet or Dry Bottom where Wet Bottom is defined as slag tanks that are installed at furnace throat to contain and remove molten ash from the furnace, and Dry Bottom is defined as having no slag tanks at furnace throat area, throat area is clear, and bottom ash drops through throat to bottom ash water hoppers."
         ),
@@ -9853,12 +9905,12 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "unit": "count",
     },
     "employee_hours_worked_regular_time": {
-        "type": "integer",
+        "type": "number",
         "description": "The number of regular (non-overtime) hours worked by employees.",
         "unit": "hour",
     },
     "employee_hours_worked_over_time": {
-        "type": "integer",
+        "type": "number",
         "description": "The number of overtime hours worked by employees.",
         "unit": "hour",
     },
