@@ -58,7 +58,7 @@ def _core_eia860__ownership(raw_eia860__ownership: pd.DataFrame) -> pd.DataFrame
 
     # This has to come before the fancy indexing below, otherwise the plant_id_eia
     # is still a float.
-    own_df = apply_pudl_dtypes(own_df, group="eia")
+    own_df = apply_pudl_dtypes(own_df, group="eia", resource="_core_eia860__ownership")
 
     # A small number of generators are reported multiple times in the ownership
     # table due to the use of leading zeroes in their integer generator_id values
@@ -1382,7 +1382,9 @@ def _core_eia860__cooling_equipment(
     ce_df.columns = ce_df.columns.str.replace("_thousand_dollars", "")
 
     # Encoding is required here because this table is not yet getting harvested.
-    return apply_pudl_dtypes(ce_df, group="eia", strict=True).pipe(PUDL_PACKAGE.encode)
+    return apply_pudl_dtypes(
+        ce_df, group="eia", resource="_core_eia860__cooling_equipment", strict=True
+    ).pipe(PUDL_PACKAGE.encode)
 
 
 @asset_check(asset=_core_eia860__cooling_equipment, blocking=True)
@@ -1511,7 +1513,9 @@ def _core_eia860__fgd_equipment(
     )
 
     # Encoding required because this isn't fed into harvesting yet.
-    return PUDL_PACKAGE.encode(fgd_df).pipe(apply_pudl_dtypes, strict=False)
+    return PUDL_PACKAGE.encode(fgd_df).pipe(
+        apply_pudl_dtypes, resource="_core_eia860__fgd_equipment", strict=False
+    )
 
 
 @asset_check(asset=_core_eia860__fgd_equipment, blocking=True)

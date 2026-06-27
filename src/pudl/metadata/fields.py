@@ -370,21 +370,21 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
     },
     "all_known_leaks_scheduled_for_repair": {
-        "type": "number",
+        "type": "integer",
         "description": (
             "The number of known system leaks at the end of the report year scheduled for repair."
         ),
         "unit": "count",
     },
     "all_known_leaks_scheduled_for_repair_main": {
-        "type": "number",
+        "type": "integer",
         "description": (
             "The number of known leaks on main at the end of the report year scheduled for repair."
         ),
         "unit": "count",
     },
     "hazardous_leaks_mechanical_joint_failure": {
-        "type": "number",
+        "type": "integer",
         "description": (
             "The total number of hazardous leaks caused by a mechanical joint failure."
         ),
@@ -1588,7 +1588,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "customers": {
         "description": "Number of customers.",
-        "type": "number",
+        "type": "integer",
         "unit": "count",
     },
     "daily_digital_access_customers": {
@@ -1645,7 +1645,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "constraints": {"enum": DAMAGE_SUB_TYPES_PHMSAGAS},
     },
     "damages": {
-        "type": "number",
+        "type": "integer",
         "description": "Number of instances of excavation damage.",
         "unit": "count",
     },
@@ -3371,14 +3371,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
     },
     "fgd_trains_100pct": {
-        "type": "number",
+        "type": "integer",
         "description": (
             "Total number of flue gas desulfurization unit scrubber trains operated at 100 percent load."
         ),
         "unit": "count",
     },
     "fgd_trains_total": {
-        "type": "number",
+        "type": "integer",
         "description": "Total number of flue gas desulfurization unit scrubber trains.",
         "unit": "count",
     },
@@ -6359,7 +6359,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "unit": "acre_foot",
     },
     "population": {
-        "type": "number",
+        "type": "integer",
         "description": "County population, sourced from Census DP1 data.",
         "unit": "count",
     },
@@ -7257,7 +7257,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "constraints": {"enum": ["bundled", "energy", "delivery"]},
     },
     "services": {
-        "type": "number",
+        "type": "integer",
         "description": "Number of services in system at end of year.",
         "unit": "count",
     },
@@ -9894,7 +9894,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "customers_num": {
         "description": "Number of customers.",
-        "type": "number",
+        "type": "integer",
         "unit": "count",
     },
     "observation_period": {
@@ -10160,7 +10160,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "unit": "hour",
     },
     "times_started": {
-        "type": "number",
+        "type": "integer",
         "description": (
             "Number of times the plant was started. "
             "This field is only reported for plant_type's steam and nuclear."
@@ -10703,6 +10703,11 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
         },
     },
     "sector_consolidated_eia": {"code": {"type": "integer"}},
+    "core_eia861__yearly_reliability": {
+        "customers": {
+            "type": "number",
+        },
+    },
     "core_ferc1__yearly_hydroelectric_plants_sched406": {
         "plant_type": {
             "type": "string",
@@ -11987,19 +11992,25 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
 
 def get_pudl_dtypes(
     group: str | None = None,
+    resource: str | None = None,
     field_meta: dict[str, Any] = FIELD_METADATA,
     field_meta_by_group: dict[str, Any] = FIELD_METADATA_BY_GROUP,
+    field_meta_by_resource: dict[str, Any] = FIELD_METADATA_BY_RESOURCE,
     dtype_map: dict[str, Any] = FIELD_DTYPES_PANDAS,
 ) -> dict[str, Any]:
-    """Compile a dictionary of field dtypes, applying group overrides.
+    """Compile a dictionary of field dtypes, applying group and resource overrides.
 
     Args:
         group: The data group (e.g. ferc1, eia) to use for overriding the default
-            field types. If None, no overrides are applied and the default types
-            are used.
+            field types. If None, no group overrides are applied.
+        resource: The resource (table) name to use for per-table type overrides. If
+            None, no resource-level overrides are applied. Resource overrides take
+            precedence over group overrides.
         field_meta: Field metadata dictionary which at least describes a "type".
         field_meta_by_group: Field metadata type overrides to apply based on the data
             group that the field is part of, if any.
+        field_meta_by_resource: Field metadata type overrides to apply based on the
+            resource (table) name, if any. These take precedence over group overrides.
         dtype_map: Mapping from canonical PUDL data types to some other set of data
             types. Uses pandas data types by default.
 
@@ -12011,6 +12022,8 @@ def get_pudl_dtypes(
     for f in field_meta:
         if f in field_meta_by_group.get(group, []):
             field_meta[f].update(field_meta_by_group[group][f])
+        if f in field_meta_by_resource.get(resource, []):
+            field_meta[f].update(field_meta_by_resource[resource][f])
         dtypes[f] = dtype_map[field_meta[f]["type"]]
 
     return dtypes
@@ -12019,8 +12032,10 @@ def get_pudl_dtypes(
 def apply_pudl_dtypes(
     df: pd.DataFrame | gpd.GeoDataFrame,
     group: str | None = None,
+    resource: str | None = None,
     field_meta: dict[str, Any] = FIELD_METADATA,
     field_meta_by_group: dict[str, Any] = FIELD_METADATA_BY_GROUP,
+    field_meta_by_resource: dict[str, Any] = FIELD_METADATA_BY_RESOURCE,
     strict: bool = False,
 ) -> pd.DataFrame | gpd.GeoDataFrame:
     """Apply dtypes to those columns in a dataframe that have PUDL types defined.
@@ -12033,12 +12048,18 @@ def apply_pudl_dtypes(
         df: The dataframe to apply types to. Not all columns need to have types
             defined in the PUDL metadata unless you pass ``strict=True``.
         group: The data group to use for overrides, if any. E.g. "eia", "ferc1".
+        resource: The resource (table) name to use for per-table type overrides. If
+            None, no resource-level overrides are applied. Resource overrides take
+            precedence over group overrides.
         field_meta: A dictionary of field metadata, where each key is a field name
             and the values are dictionaries which must have a "type" element. By
             default this is pudl.metadata.fields.FIELD_METADATA.
         field_meta_by_group: A dictionary of field metadata to use as overrides,
             based on the value of `group`, if any. By default it uses the overrides
             defined in pudl.metadata.fields.FIELD_METADATA_BY_GROUP.
+        field_meta_by_resource: A dictionary of field metadata to use as overrides,
+            based on the value of `resource`, if any. By default it uses the overrides
+            defined in pudl.metadata.fields.FIELD_METADATA_BY_RESOURCE.
         strict: whether or not all columns need a corresponding field.
 
     Returns:
@@ -12048,13 +12069,16 @@ def apply_pudl_dtypes(
         set(df.columns)
         - set(field_meta.keys())
         - set(field_meta_by_group.get(group, {}).keys())
+        - set(field_meta_by_resource.get(resource, {}).keys())
     )
     if strict and len(unspecified_fields) > 0:
         raise ValueError(f"Found unspecified fields: {unspecified_fields}")
     dtypes = get_pudl_dtypes(
         group=group,
+        resource=resource,
         field_meta=field_meta,
         field_meta_by_group=field_meta_by_group,
+        field_meta_by_resource=field_meta_by_resource,
         dtype_map=FIELD_DTYPES_PANDAS,
     )
     return df.astype({col: dtypes[col] for col in df.columns if col in dtypes})
@@ -12063,8 +12087,10 @@ def apply_pudl_dtypes(
 def apply_pudl_dtypes_polars(
     lf: pl.LazyFrame,
     group: str | None = None,
+    resource: str | None = None,
     field_meta: dict[str, Any] = FIELD_METADATA,
     field_meta_by_group: dict[str, Any] = FIELD_METADATA_BY_GROUP,
+    field_meta_by_resource: dict[str, Any] = FIELD_METADATA_BY_RESOURCE,
     strict: bool = False,
 ) -> pl.LazyFrame:
     """Apply dtypes to those columns in a dataframe that have PUDL types defined.
@@ -12074,36 +12100,45 @@ def apply_pudl_dtypes_polars(
     types you need to apply alongside the standard PUDL field types.
 
     Args:
-        df: The dataframe to apply types to. Not all columns need to have types
+        lf: The LazyFrame to apply types to. Not all columns need to have types
             defined in the PUDL metadata unless you pass ``strict=True``.
         group: The data group to use for overrides, if any. E.g. "eia", "ferc1".
+        resource: The resource (table) name to use for per-table type overrides. If
+            None, no resource-level overrides are applied. Resource overrides take
+            precedence over group overrides.
         field_meta: A dictionary of field metadata, where each key is a field name
             and the values are dictionaries which must have a "type" element. By
             default this is pudl.metadata.fields.FIELD_METADATA.
         field_meta_by_group: A dictionary of field metadata to use as overrides,
             based on the value of `group`, if any. By default it uses the overrides
             defined in pudl.metadata.fields.FIELD_METADATA_BY_GROUP.
+        field_meta_by_resource: A dictionary of field metadata to use as overrides,
+            based on the value of `resource`, if any. By default it uses the overrides
+            defined in pudl.metadata.fields.FIELD_METADATA_BY_RESOURCE.
         strict: whether or not all columns need a corresponding field.
 
     Returns:
-        The input dataframe, but with standard PUDL types applied.
+        The input LazyFrame, but with standard PUDL types applied.
     """
     columns = lf.collect_schema().names()
     unspecified_fields = sorted(
         set(columns)
         - set(field_meta.keys())
         - set(field_meta_by_group.get(group, {}).keys())
+        - set(field_meta_by_resource.get(resource, {}).keys())
     )
     if strict and len(unspecified_fields) > 0:
         raise ValueError(f"Found unspecified fields: {unspecified_fields}")
     dtypes = get_pudl_dtypes(
         group=group,
+        resource=resource,
         field_meta={
             key: value
             for key, value in field_meta.items()
             if value["type"] in FIELD_DTYPES_POLARS
         },
         field_meta_by_group=field_meta_by_group,
+        field_meta_by_resource=field_meta_by_resource,
         dtype_map=FIELD_DTYPES_POLARS,
     )
     return lf.cast({key: value for key, value in dtypes.items() if key in columns})
