@@ -3196,6 +3196,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Total number of leaks repaired, eliminated, or scheduled for repair on "
             "federal land during the reporting year."
         ),
+        "unit": "count",
     },
     "ferc1_generator_agg_id": {
         "type": "integer",
