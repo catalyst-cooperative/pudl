@@ -374,18 +374,21 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "The number of known system leaks at the end of the report year scheduled for repair."
         ),
+        "unit": "count",
     },
     "all_known_leaks_scheduled_for_repair_main": {
         "type": "number",
         "description": (
             "The number of known leaks on main at the end of the report year scheduled for repair."
         ),
+        "unit": "count",
     },
     "hazardous_leaks_mechanical_joint_failure": {
         "type": "number",
         "description": (
             "The total number of hazardous leaks caused by a mechanical joint failure."
         ),
+        "unit": "count",
     },
     "average_service_length_feet": {
         "type": "number",
@@ -607,10 +610,12 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "avg_customers_per_month": {
         "type": "number",
         "description": "Average number of customers per month.",
+        "unit": "count",
     },
     "avg_num_employees": {
         "type": "number",
         "description": "The average number of employees assigned to each plant.",
+        "unit": "count",
     },
     "backup_capacity_mw": {
         "type": "number",
@@ -1144,7 +1149,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "Capital cost (USD). Expenditures required to achieve commercial operation of the generation plant."
         ),
-        "unit": "USD",
+        "unit": "USD / kW",
     },
     "capex_grid_connection_per_kw": {
         "type": "number",
@@ -1158,7 +1163,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "capex if plant could be constructed overnight (i.e., excludes construction period financing); includes on-site electrical equipment (e.g., switchyard), a nominal-distance spur line (<1 mi), and necessary upgrades at a transmission substation."
         ),
-        "unit": "USD",
+        "unit": "USD / kW",
     },
     "capex_overnight_additional_per_kw": {
         "type": "number",
@@ -1581,7 +1586,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
         "unit": "USD",
     },
-    "customers": {"description": "Number of customers.", "type": "number"},
+    "customers": {
+        "description": "Number of customers.",
+        "type": "number",
+        "unit": "count",
+    },
     "daily_digital_access_customers": {
         "type": "integer",
         "description": (
@@ -1638,6 +1647,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "damages": {
         "type": "number",
         "description": "Number of instances of excavation damage.",
+        "unit": "count",
     },
     "account_detail": {
         "type": "string",
@@ -3364,10 +3374,12 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "Total number of flue gas desulfurization unit scrubber trains operated at 100 percent load."
         ),
+        "unit": "count",
     },
     "fgd_trains_total": {
         "type": "number",
         "description": "Total number of flue gas desulfurization unit scrubber trains.",
+        "unit": "count",
     },
     "field_name": {
         "type": "string",
@@ -4579,6 +4591,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "loan_balance": {
         "type": "number",
         "description": "The amount of money still owned on a loan at the end of the reporting year.",
+        "unit": "USD",
     },
     "loan_maturity_date": {
         "type": "date",
@@ -4903,7 +4916,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Monthly volume of water consumed at consumption point (accurate to 0.1 million gal)"
         ),
         "type": "number",
-        "unit": "gal",
+        "unit": "gallon",
     },
     "monthly_total_cooling_hours_in_service": {
         "description": "Total hours the system operated during the month",
@@ -4915,21 +4928,21 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Monthly volume of water discharged at discharge point (accurate to 0.1 million gal)"
         ),
         "type": "number",
-        "unit": "gal",
+        "unit": "gallon",
     },
     "monthly_total_diversion_volume_gallons": {
         "description": (
             "Monthly volume of water diverted at diversion point (accurate to 0.1 million gal)"
         ),
         "type": "number",
-        "unit": "gal",
+        "unit": "gallon",
     },
     "monthly_total_withdrawal_volume_gallons": {
         "description": (
             "Monthly volume of water withdrawn at withdrawal point (accurate to 0.1 million gal)"
         ),
         "type": "number",
-        "unit": "gal",
+        "unit": "gallon",
     },
     "can_burn_multiple_fuels": {
         "type": "boolean",
@@ -6347,6 +6360,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "population": {
         "type": "number",
         "description": "County population, sourced from Census DP1 data.",
+        "unit": "count",
     },
     "population_density_km2": {
         "type": "number",
@@ -6827,7 +6841,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "The amount of revenue per kWh by rate schedule acquired in the given "
             "report year."
         ),
-        "unit": "USD",
+        "unit": "USD / kWh",
     },
     "revenue_type": {
         "type": "string",
@@ -7244,6 +7258,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "services": {
         "type": "number",
         "description": "Number of services in system at end of year.",
+        "unit": "count",
     },
     "short_form": {
         "type": "boolean",
@@ -9876,7 +9891,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "The amount of plant payroll spent on accounts other than maintenance and operations.",
         "unit": "USD",
     },
-    "customers_num": {"description": "Number of customers.", "type": "number"},
+    "customers_num": {
+        "description": "Number of customers.",
+        "type": "number",
+        "unit": "count",
+    },
     "observation_period": {
         "type": "string",
         "description": (
@@ -9978,14 +9997,17 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "included_investments": {
         "type": "number",
         "description": "Included investment.",
+        "unit": "USD",
     },
     "excluded_investments": {
         "type": "number",
         "description": "Excluded investment.",
+        "unit": "USD",
     },
     "income_or_loss": {
         "type": "number",
         "description": "Income or loss from investment.",
+        "unit": "USD",
     },
     "opex_group": {
         "type": "string",
@@ -10107,7 +10129,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Annual gallons of oil consumed for fuel."
             "This field is only reported for plant_type's combined_cycle, combined_cycle and steam."
         ),
-        "unit": "gal",
+        "unit": "gallon",
     },
     "fuel_consumption_other": {
         "type": "number",
@@ -10142,6 +10164,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Number of times the plant was started. "
             "This field is only reported for plant_type's steam and nuclear."
         ),
+        "unit": "count",
     },
     "delivered_demand_mw": {
         "type": "number",
@@ -10389,10 +10412,12 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "debits": {
         "type": "number",
         "description": "The increase (decrease) during the period in the value of other assets resulting from the ratemaking actions of regulatory agencies.",
+        "unit": "USD",
     },
     "credits_written_off_recovered": {
         "type": "number",
         "description": "Recovered amount of divestiture of other assets lacking physical substance resulting from the ratemaking actions of regulatory agencies.",
+        "unit": "USD",
     },
     "additional_description": {
         "type": "string",
