@@ -37,6 +37,7 @@ from pudl.dagster.assets import all_asset_modules, asset_keys
 from pudl.dagster.partitions import ferceqr_year_quarters
 from pudl.helpers import ParquetData, get_parquet_table_polars
 from pudl.metadata.classes import PUDL_PACKAGE, Package, Resource
+from pudl.metadata.units import PUDL_UNIT_REGISTRY
 
 
 def _collect_asset_metadata(asset_value) -> dict[str, Any]:
@@ -443,8 +444,82 @@ default_asset_checks.append(
     )
 )
 
+
+def _validate_datapackage_unit_strings(descriptor: dict) -> list[str]:
+    """Walk descriptor fields and parse each ``unit`` value; return error strings."""
+    errors = []
+    for resource in descriptor.get("resources", []):
+        resource_name = resource.get("name", "<unnamed>")
+        for field in resource.get("schema", {}).get("fields", []):
+            unit = field.get("unit")
+            if unit is None:
+                continue
+            try:
+                PUDL_UNIT_REGISTRY.parse_units(unit)
+            except Exception as exc:
+                field_name = field.get("name", "<unnamed>")
+                errors.append(f"{resource_name}.{field_name}: unit={unit!r} — {exc}")
+    return errors
+
+
+def valid_datapackage_unit_strings_check(
+    asset_key: dg.AssetKey | str,
+    *,
+    description: str = (
+        "Validate that all unit strings in a frictionless datapackage descriptor "
+        "are parseable by the PUDL Pint unit registry."
+    ),
+    blocking: bool = True,
+) -> dg.AssetChecksDefinition:
+    """Return a Dagster asset check that validates unit strings in a datapackage descriptor.
+
+    Reads the descriptor from ``$PUDL_OUTPUT/parquet/datapackage.json`` and attempts
+    to parse every ``unit`` field value using :data:`pudl.metadata.units.PUDL_UNIT_REGISTRY`.
+    All failures are collected before the check reports so a single run surfaces every
+    bad unit string.
+
+    Args:
+        asset_key: Key of the asset that produces the datapackage descriptor.
+        description: Human-readable description attached to the check in the
+            Dagster UI.
+        blocking: Whether the check is blocking (default ``True``).
+    """
+
+    @dg.asset_check(
+        asset=asset_key,
+        blocking=blocking,
+        description=description,
+        required_resource_keys={"pudl_paths"},
+    )
+    def _unit_strings_check(
+        context: dg.AssetCheckExecutionContext,
+    ) -> dg.AssetCheckResult:
+        descriptor_path = (
+            context.resources.pudl_paths.parquet_path() / "datapackage.json"
+        )
+        descriptor = json.loads(descriptor_path.read_text())
+        errors = _validate_datapackage_unit_strings(descriptor)
+        return dg.AssetCheckResult(
+            passed=not errors,
+            metadata={"errors": dg.MetadataValue.json(errors)},
+        )
+
+    return _unit_strings_check
+
+
+default_asset_checks.append(
+    valid_datapackage_unit_strings_check(
+        "pudl_datapackage",
+        description=(
+            "Validate that all unit strings in the PUDL datapackage descriptor "
+            "are parseable by the PUDL Pint unit registry."
+        ),
+    )
+)
+
 __all__ = [
     "valid_datapackage_check",
+    "valid_datapackage_unit_strings_check",
     "asset_check_from_schema",
     "group_mean_continuity_check",
     "default_asset_checks",
