@@ -71,6 +71,7 @@ from pudl.metadata.helpers import (
 )
 from pudl.metadata.resources import FOREIGN_KEYS, RESOURCE_METADATA
 from pudl.metadata.sources import SOURCES
+from pudl.metadata.units import unit_registry_to_frictionless
 from pudl.workspace.datastore import Datastore, ZenodoDoi
 from pudl.workspace.setup import PudlPaths
 
@@ -2624,6 +2625,7 @@ class Package(PudlMeta):
         package.custom["$schema"] = (
             "https://datapackage.org/profiles/2.0/datapackage.json"
         )
+        package.custom["unit_registry"] = unit_registry_to_frictionless()
         return package
 
 

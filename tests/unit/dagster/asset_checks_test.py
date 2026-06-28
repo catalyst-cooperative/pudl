@@ -32,6 +32,7 @@ import io
 
 import dagster as dg
 import pandas as pd
+import pint
 import polars as pl
 import pytest
 from dagster._core.definitions.asset_checks.asset_checks_definition import (
@@ -39,11 +40,14 @@ from dagster._core.definitions.asset_checks.asset_checks_definition import (
 )
 
 from pudl.dagster.asset_checks import (
+    _build_registry_from_descriptor,
+    _validate_datapackage_unit_strings,
     asset_check_from_schema,
     group_mean_continuity_check,
 )
 from pudl.helpers import ParquetData
 from pudl.metadata.classes import PUDL_PACKAGE
+from pudl.metadata.units import PUDL_UNIT_DEFINITIONS
 
 
 @pytest.mark.parametrize(
@@ -136,3 +140,70 @@ def test_group_mean_continuity_check(
         assert "threshold" in column_metadata
         assert column_metadata["threshold"] == threshold
         assert "top5" in column_metadata
+
+
+# ---------------------------------------------------------------------------
+# Tests for descriptor-embedded unit registry helpers
+# ---------------------------------------------------------------------------
+
+_MINIMAL_DESCRIPTOR = {
+    "unit_registry": {"format": "pint", "definitions": PUDL_UNIT_DEFINITIONS},
+    "resources": [
+        {
+            "name": "test_resource",
+            "schema": {
+                "fields": [
+                    {"name": "energy_mwh", "unit": "MWh"},
+                    {"name": "heat_mmbtu", "unit": "MMBtu"},
+                    {"name": "cost_usd_per_mwh", "unit": "USD / MWh"},
+                    {"name": "no_unit_field"},
+                ]
+            },
+        }
+    ],
+}
+
+
+def test_build_registry_from_descriptor_parses_custom_units() -> None:
+    """Registry built from descriptor definitions must parse PUDL custom units."""
+    ureg = _build_registry_from_descriptor(_MINIMAL_DESCRIPTOR)
+    assert isinstance(ureg, pint.UnitRegistry)
+    ureg.parse_units("MMBtu")
+    ureg.parse_units("VAr")
+    ureg.parse_units("USD / MWh")
+
+
+def test_build_registry_from_descriptor_missing_key() -> None:
+    """KeyError is raised when the descriptor has no unit_registry field."""
+    with pytest.raises(KeyError):
+        _build_registry_from_descriptor({})
+
+
+def test_validate_datapackage_unit_strings_all_valid() -> None:
+    """No errors are returned for a descriptor with only valid unit strings."""
+    errors = _validate_datapackage_unit_strings(_MINIMAL_DESCRIPTOR)
+    assert errors == []
+
+
+def test_validate_datapackage_unit_strings_bad_unit() -> None:
+    """An unparseable unit string produces exactly one error entry."""
+    descriptor = {
+        "unit_registry": {"format": "pint", "definitions": PUDL_UNIT_DEFINITIONS},
+        "resources": [
+            {
+                "name": "bad_resource",
+                "schema": {"fields": [{"name": "col", "unit": "not_a_unit"}]},
+            }
+        ],
+    }
+    errors = _validate_datapackage_unit_strings(descriptor)
+    assert len(errors) == 1
+    assert "bad_resource.col" in errors[0]
+    assert "not_a_unit" in errors[0]
+
+
+def test_validate_datapackage_unit_strings_missing_registry() -> None:
+    """A descriptor without unit_registry produces an error rather than crashing."""
+    errors = _validate_datapackage_unit_strings({"resources": []})
+    assert len(errors) == 1
+    assert "Could not build unit registry" in errors[0]

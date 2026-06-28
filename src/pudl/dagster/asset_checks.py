@@ -30,6 +30,7 @@ import geopandas as gpd  # noqa: ICN002
 import pandas as pd
 import pandera.pandas as pr_pandas
 import pandera.polars as pr_polars
+import pint
 import polars as pl
 from pandera.errors import SchemaErrors
 
@@ -37,7 +38,6 @@ from pudl.dagster.assets import all_asset_modules, asset_keys
 from pudl.dagster.partitions import ferceqr_year_quarters
 from pudl.helpers import ParquetData, get_parquet_table_polars
 from pudl.metadata.classes import PUDL_PACKAGE, Package, Resource
-from pudl.metadata.units import PUDL_UNIT_REGISTRY
 
 
 def _collect_asset_metadata(asset_value) -> dict[str, Any]:
@@ -445,9 +445,33 @@ default_asset_checks.append(
 )
 
 
+def _build_registry_from_descriptor(descriptor: dict) -> pint.UnitRegistry:
+    """Build a Pint registry from the ``unit_registry`` embedded in a datapackage descriptor.
+
+    Raises ``KeyError`` if the descriptor has no ``unit_registry`` field, or
+    ``ValueError`` if the field is missing the expected ``definitions`` list.
+    """
+    unit_registry_meta = descriptor["unit_registry"]
+    definitions = unit_registry_meta["definitions"]
+    ureg = pint.UnitRegistry()
+    for defn in definitions:
+        ureg.define(defn)
+    return ureg
+
+
 def _validate_datapackage_unit_strings(descriptor: dict) -> list[str]:
-    """Walk descriptor fields and parse each ``unit`` value; return error strings."""
+    """Walk descriptor fields and parse each ``unit`` value; return error strings.
+
+    Builds a Pint registry from the ``unit_registry`` field embedded in
+    ``descriptor`` and uses it to parse every ``unit`` value found in resource
+    field schemas.  Returns one error string per unparsable unit.
+    """
     errors = []
+    try:
+        ureg = _build_registry_from_descriptor(descriptor)
+    except (KeyError, ValueError) as exc:
+        return [f"Could not build unit registry from descriptor: {exc}"]
+
     for resource in descriptor.get("resources", []):
         resource_name = resource.get("name", "<unnamed>")
         for field in resource.get("schema", {}).get("fields", []):
@@ -455,7 +479,7 @@ def _validate_datapackage_unit_strings(descriptor: dict) -> list[str]:
             if unit is None:
                 continue
             try:
-                PUDL_UNIT_REGISTRY.parse_units(unit)
+                ureg.parse_units(unit)
             except Exception as exc:
                 field_name = field.get("name", "<unnamed>")
                 errors.append(f"{resource_name}.{field_name}: unit={unit!r} — {exc}")
@@ -467,15 +491,16 @@ def valid_datapackage_unit_strings_check(
     *,
     description: str = (
         "Validate that all unit strings in a frictionless datapackage descriptor "
-        "are parseable by the PUDL Pint unit registry."
+        "are parseable using the unit definitions embedded in the descriptor."
     ),
     blocking: bool = True,
 ) -> dg.AssetChecksDefinition:
     """Return a Dagster asset check that validates unit strings in a datapackage descriptor.
 
-    Reads the descriptor from ``$PUDL_OUTPUT/parquet/datapackage.json`` and attempts
-    to parse every ``unit`` field value using :data:`pudl.metadata.units.PUDL_UNIT_REGISTRY`.
-    All failures are collected before the check reports so a single run surfaces every
+    Reads the descriptor from ``$PUDL_OUTPUT/parquet/datapackage.json``, builds a
+    Pint unit registry from the ``unit_registry`` field embedded in the descriptor,
+    and attempts to parse every ``unit`` field value with that registry.  All
+    failures are collected before the check reports so a single run surfaces every
     bad unit string.
 
     Args:
@@ -512,7 +537,7 @@ default_asset_checks.append(
         "pudl_datapackage",
         description=(
             "Validate that all unit strings in the PUDL datapackage descriptor "
-            "are parseable by the PUDL Pint unit registry."
+            "are parseable using the unit definitions embedded in the descriptor."
         ),
     )
 )
