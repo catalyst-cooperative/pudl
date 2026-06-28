@@ -54,9 +54,21 @@ Bug Fixes & Data Cleaning
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-Quality of Life Improvements
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Developer Experience
+^^^^^^^^^^^^^^^^^^^^
 
+* Reduced noise in unit test output. A shared ``conftest.py`` for Dagster unit
+  tests suppresses spurious ``sqlalchemy.pool`` ERROR-level tracebacks caused by
+  a Dagster + Python 3.13 pathlib compatibility issue during GC teardown of
+  ephemeral instances. Error-path tests in ``ferceqr_deployment_test.py`` now mock
+  the module logger so expected failures don't appear as alarming log output.
+  Several pandas FutureWarnings are fixed in production code
+  (``resample(include_groups=False)`` in :func:`~pudl.helpers.expand_timeseries`,
+  ``include_groups=False`` in :mod:`~pudl.dagster.assets.core.glue`, and
+  ``stack(future_stack=True)`` in :mod:`~pudl.transform.eia923`). Eight ``xfail``
+  test cases are restructured to use explicit ``pytest.raises``, and five obsolete
+  or duplicate ``filterwarnings`` entries are removed from ``pyproject.toml``.
+  See PR :pr:`5362`.
 * Merged ``PudlGeoParquetIOManager`` into
   :class:`~pudl.dagster.io_managers.PudlParquetIOManager` and retired the
   ``geoparquet_io_manager`` Dagster resource key. The four geo assets
