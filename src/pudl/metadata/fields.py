@@ -458,7 +458,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Actual controlled (or uncontrolled) nitrogen oxides emission rate. "
             "Based on data from CEMS where possible."
         ),
-        "unit": "lb / MMBtu",
+        "unit": "pound / MMBtu",
     },
     "annual_total_chlorine_lbs": {
         "description": (
@@ -467,7 +467,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "schedule 9 is filled out."
         ),
         "type": "number",
-        "unit": "lb",
+        "unit": "pound",
     },
     "annual_total_cost": {
         "type": "number",
@@ -4712,7 +4712,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "max_steam_flow_lbs_per_hour": {
         "type": "number",
-        "unit": "lb / hour",
+        "unit": "pound / hour",
         "description": "Maximum continuous steam flow at 100 percent load.",
     },
     "maximum_daily_delivery_mcf": {
@@ -4796,7 +4796,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Actual controlled (or uncontrolled) mercury emission rate, based on "
             "data from CEMS, where possible."
         ),
-        "unit": "lb / TBtu",
+        "unit": "pound / TBtu",
     },
     "mercury_removal_efficiency": {
         "type": "number",
@@ -4927,7 +4927,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "schedule 9 is filled out."
         ),
         "type": "number",
-        "unit": "lb",
+        "unit": "pound",
     },
     "monthly_total_consumption_volume_gallons": {
         "description": (
@@ -5324,7 +5324,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "nox_mass_lbs": {
         "type": "number",
         "description": "NOx emissions in pounds.",
-        "unit": "lb",
+        "unit": "pound",
     },
     "nox_mass_measurement_code": {
         "type": "string",
@@ -5916,7 +5916,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "ozone_season_nox_emission_rate_lb_per_mmbtu": {
         "type": "number",
         "description": "Actual controlled (or uncontrolled) nitrogen oxides emission rate during the ozone season (May to September)",
-        "unit": "lb / MMBtu",
+        "unit": "pound / MMBtu",
     },
     "ownership_pct": {
         "type": "number",
@@ -6059,7 +6059,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "particulate_emission_rate_lb_per_mmbtu": {
         "type": "number",
         "description": "Average annual emission removal rate for particulate matter.",
-        "unit": "lb / MMBtu",
+        "unit": "pound / MMBtu",
     },
     "particulate_removal_efficiency_tested": {
         "type": "number",
@@ -7416,7 +7416,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "so2_emission_rate_lbs_per_hour": {
         "type": "number",
-        "unit": "lb / hour",
+        "unit": "pound / hour",
         "description": (
             "Sulfur dioxide emission rate when operating at 100 percent load (pounds per hour)."
         ),
@@ -7440,7 +7440,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "so2_mass_lbs": {
         "type": "number",
         "description": "Sulfur dioxide emissions in pounds.",
-        "unit": "lb",
+        "unit": "pound",
     },
     "so2_mass_measurement_code": {
         "type": "string",
@@ -7670,7 +7670,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "Total steam pressure produced by a unit during the reported hour."
         ),
-        "unit": "lb",
+        "unit": "pound",
     },
     "steam_plant_type_code": {
         "type": "integer",
@@ -10166,7 +10166,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Annual pounds of coal consumed for fuel."
             "This field is only reported for plant_type steam."
         ),
-        "unit": "lb",
+        "unit": "pound",
     },
     "fuel_consumption_gas_cubic_feet": {
         "type": "number",
