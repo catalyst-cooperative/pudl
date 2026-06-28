@@ -119,6 +119,7 @@ pandas = ">=2.3"
 pandoc = ">=3.7"
 pandera-polars = ">=0.31"
 parallel = ">=20250822"
+pint = ">=0.25.3"
 polars = ">=1.41.2" # v1.41.2 fixed a big memory leak
 prek = ">=0.4"
 # potentially unresolveable breaking changes in prettier 4.x
@@ -170,7 +171,6 @@ usaddress = ">=0.5.16,<0.6"
 uv = ">=0.11"
 xlsxwriter = ">=3.2"
 zip = ">=3.0"
-pint = ">=0.25.3"
 
 [tool.pixi.pypi-dependencies]
 # Install the local package in editable mode. Assume dependencies are specified either
