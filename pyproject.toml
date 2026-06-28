@@ -533,7 +533,6 @@ ignore-path = ["docs/ferc/form1", "docs/_build", "docs/data_sources/phmsagas"]
 minversion = "9.0"
 testpaths = ["./"]
 filterwarnings = [
-    "ignore:distutils Version classes are deprecated:DeprecationWarning",
     "ignore:Deprecated call to `pkg_resources.declare_namespace:DeprecationWarning",
     "ignore:Deprecated call to.*declare_namespace:DeprecationWarning:pkg_resources",
     "ignore:Deprecated call to:DeprecationWarning:google.rpc",
@@ -543,7 +542,6 @@ filterwarnings = [
     "ignore:Integration of EIA 861:UserWarning:pudl.extract.eia861",
     "ignore:pkg_resources is deprecated as an API.:DeprecationWarning",
     "ignore:Subclassing validator classes is not intended to be part of their public API.:DeprecationWarning",
-    "ignore:Subclassing validator classes:DeprecationWarning:tableschema",
     "ignore:datetime.datetime.utcnow() is deprecated:DeprecationWarning",
     "ignore:Python 3.14 will, by default, filter extracted tar archives:DeprecationWarning:dbt_common[.*]",
     "ignore:The Shapely GEOS version:UserWarning:geopandas[.*]",
@@ -557,9 +555,6 @@ filterwarnings = [
     "ignore:Pydantic V1 style `@validator` validators are deprecated:pydantic.PydanticDeprecatedSince20:mlflow.gateway.config",
     "ignore:The `update_forward_refs` method is deprecated:pydantic.PydanticDeprecatedSince20:ferc_xbrl_extractor.taxonomy",
     "once:Could not infer format, so each element will be parsed individually, falling back to `dateutil`.:UserWarning:pudl.extract.eia_bulk_elec",
-    "once:In a future version:FutureWarning:pudl.helpers",
-    "once:open_binary is deprecated:DeprecationWarning:pudl.glue.ferc1_eia",
-    "once:open_text is deprecated:DeprecationWarning:pudl.glue.ferc1_eia",
     "once:The behavior of DataFrame concatenation with empty or all-NA entries is deprecated.:FutureWarning",
     "once:Valid config keys have changed in V2:UserWarning",
     "once:AssetExecutionContext.op_config is deprecated:DeprecationWarning",
