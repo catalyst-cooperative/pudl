@@ -393,7 +393,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "average_service_length_feet": {
         "type": "number",
         "description": "The average system service length in feet.",
-        "unit": "ft",
+        "unit": "foot",
     },
     "alternative_fuel_vehicle_2_activity": {
         "type": "boolean",
@@ -4373,12 +4373,12 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "intake_distance_shore_feet": {
         "description": "Maximum distance from shore to intake",
         "type": "number",
-        "unit": "ft",
+        "unit": "foot",
     },
     "intake_distance_surface_feet": {
         "description": "Average distance below water surface to intake",
         "type": "number",
-        "unit": "ft",
+        "unit": "foot",
     },
     "intake_rate_100pct_gallons_per_minute": {
         "description": "Design cooling water flow rate at 100 percent load at in-take",
@@ -5853,12 +5853,12 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "outlet_distance_shore_feet": {
         "description": "Maximum distance from shore to outlet",
         "type": "number",
-        "unit": "ft",
+        "unit": "foot",
     },
     "outlet_distance_surface_feet": {
         "description": "Average distance below water surface to outlet",
         "type": "number",
-        "unit": "ft",
+        "unit": "foot",
     },
     "owned_by_non_utility": {
         "type": "boolean",
@@ -8763,7 +8763,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "The hub height of turbines at this generator. If more than one value exists, the one that best represents the turbines."
         ),
-        "unit": "ft",
+        "unit": "foot",
     },
     "wind_quality_class": {
         "type": "integer",

@@ -18,7 +18,7 @@ from pudl.metadata.units import PUDL_UNIT_REGISTRY
         "count",
         "kg",
         "short_ton",
-        "ft",
+        "foot",
         "gallon",
         "cubic_foot",
         "USD",
