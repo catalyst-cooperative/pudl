@@ -89,7 +89,7 @@ fsspec = ">=2026"
 gcsfs = ">=2026"
 gdal = ">=3.13.1"
 geoarrow-pyarrow = ">=0.2"
-geopandas = ">=1.1"
+geopandas = ">=1.1.4"
 google-cloud-sdk = ">=535"
 # grpcio packages all need to have same version to avoid conflicts.
 # They are also compiled and finnicky. Check compatibility before upgrading.
@@ -119,7 +119,7 @@ pandas = ">=2.3"
 pandoc = ">=3.7"
 pandera-polars = ">=0.31"
 parallel = ">=20250822"
-polars = ">=1.41.2" # v1.41.2 fixed a big memory leak
+polars = ">=1.42" # v1.41.2 fixed a big memory leak
 prek = ">=0.4"
 # potentially unresolveable breaking changes in prettier 4.x
 prettier = ">=3.8,<4"
@@ -189,7 +189,7 @@ openai = ">=2.43"
 plotly = ">=6.6"
 pydantic-ai-slim = ">=1.107.0,<2" # For use with claude and marimo
 ripgrep = ">=15" # Primarily for agent skills use
-ty = ">=0.0.50" # Experimental, also for agent skills use
+ty = ">=0.0.55" # Experimental, also for agent skills use
 
 [tool.pixi.environments]
 dev = { features = ["dev"], solve-group = "default" }
