@@ -1,8 +1,8 @@
-"""Correct types of (some) fields with 'count' units to integer
+"""Correct wayward field types.
 
-Revision ID: 1ee92ec8354e
+Revision ID: be62dcd32dba
 Revises: 208522b13d2d
-Create Date: 2026-06-27 01:12:03.042428
+Create Date: 2026-06-27 23:01:30.771422
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '1ee92ec8354e'
+revision = 'be62dcd32dba'
 down_revision = '208522b13d2d'
 branch_labels = None
 depends_on = None
@@ -126,6 +126,16 @@ def upgrade() -> None:
                type_=sa.Integer(),
                existing_nullable=True)
 
+    with op.batch_alter_table('core_rus7__yearly_employee_statistics', schema=None) as batch_op:
+        batch_op.alter_column('employee_hours_worked_regular_time',
+               existing_type=sa.INTEGER(),
+               type_=sa.Float(),
+               existing_nullable=True)
+        batch_op.alter_column('employee_hours_worked_over_time',
+               existing_type=sa.INTEGER(),
+               type_=sa.Float(),
+               existing_nullable=True)
+
     with op.batch_alter_table('core_rus7__yearly_energy_efficiency', schema=None) as batch_op:
         batch_op.alter_column('customers_num',
                existing_type=sa.FLOAT(),
@@ -172,6 +182,16 @@ def upgrade() -> None:
         batch_op.alter_column('services',
                existing_type=sa.FLOAT(),
                type_=sa.Integer(),
+               existing_nullable=True)
+
+    with op.batch_alter_table('out_rus7__yearly_employee_statistics', schema=None) as batch_op:
+        batch_op.alter_column('employee_hours_worked_regular_time',
+               existing_type=sa.INTEGER(),
+               type_=sa.Float(),
+               existing_nullable=True)
+        batch_op.alter_column('employee_hours_worked_over_time',
+               existing_type=sa.INTEGER(),
+               type_=sa.Float(),
                existing_nullable=True)
 
     with op.batch_alter_table('out_rus7__yearly_energy_efficiency', schema=None) as batch_op:
@@ -203,6 +223,16 @@ def downgrade() -> None:
                type_=sa.FLOAT(),
                existing_nullable=True)
 
+    with op.batch_alter_table('out_rus7__yearly_employee_statistics', schema=None) as batch_op:
+        batch_op.alter_column('employee_hours_worked_over_time',
+               existing_type=sa.Float(),
+               type_=sa.INTEGER(),
+               existing_nullable=True)
+        batch_op.alter_column('employee_hours_worked_regular_time',
+               existing_type=sa.Float(),
+               type_=sa.INTEGER(),
+               existing_nullable=True)
+
     with op.batch_alter_table('out_rus7__yearly_distribution_services', schema=None) as batch_op:
         batch_op.alter_column('services',
                existing_type=sa.Integer(),
@@ -249,6 +279,16 @@ def downgrade() -> None:
         batch_op.alter_column('customers_num',
                existing_type=sa.Integer(),
                type_=sa.FLOAT(),
+               existing_nullable=True)
+
+    with op.batch_alter_table('core_rus7__yearly_employee_statistics', schema=None) as batch_op:
+        batch_op.alter_column('employee_hours_worked_over_time',
+               existing_type=sa.Float(),
+               type_=sa.INTEGER(),
+               existing_nullable=True)
+        batch_op.alter_column('employee_hours_worked_regular_time',
+               existing_type=sa.Float(),
+               type_=sa.INTEGER(),
                existing_nullable=True)
 
     with op.batch_alter_table('core_rus7__yearly_distribution_services', schema=None) as batch_op:
