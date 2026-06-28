@@ -9,16 +9,19 @@ import pytest
 def suppress_sqlalchemy_pool_noise():
     """Suppress SQLAlchemy NullPool teardown errors from Dagster's ephemeral instance.
 
-    build_asset_context() and build_output_context() create Dagster ephemeral
-    instances backed by their own internal SQLite databases. When these contexts
-    are GC'd (e.g. after a failed asset execution or after a test exits), Dagster's
-    teardown code accesses pathlib internals (_str, _drv) that were removed in
-    Python 3.13, causing a cascade: GeneratorExit propagates through build_resources,
-    the finally block tries to roll back an already-closed SQLite connection, and
-    sqlalchemy.pool logs the ProgrammingError at ERROR level.
-    The tests are correct; this is a Dagster + Python 3.13 compatibility issue.
-    Setting the level here (not in a with-block) ensures it's active during GC
-    teardown, which occurs after the test function returns.
+    build_asset_context() and build_output_context() create Dagster ephemeral instances
+    backed by their own internal SQLite databases. After the tests complete there's a
+    conflict between Dagster's teardown code and the SQLAlchemy teardown code that
+    results in something trying to access a closed SQLite connection, which is logged at
+    ERROR level. This doesn't actually cause a problem. It seems to be some kind of race
+    condition.
+
+    This autouse fixture (which applies to all the Dagster unit tests by virtue of its
+    location in the pytest directory structure) preemptively suppressive non-CRITICAL
+    logging output from sqlalchemy.pool, which is where the error is logged, to avoid
+    cluttering the test output with scary SQLite errors. Logging suppression with a
+    context manager in the tests themselves doesn't work because the error is logged
+    after the test has completed.
     """
     sa_pool_logger = logging.getLogger("sqlalchemy.pool")
     original_level = sa_pool_logger.level
