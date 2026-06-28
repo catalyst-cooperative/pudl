@@ -20,12 +20,9 @@ Enhancements
   compound units (``lb_per_MMBTU``, ``USD_per_MWh``), and inconsistent
   capitalization. A new :mod:`pudl.metadata.units` module defines
   ``PUDL_UNIT_REGISTRY``, a ``pint.UnitRegistry`` extended with energy-industry
-  units (``MMBtu``, ``Mcf``, ``MMcf``, ``TBtu``, ``VAr``, ``USD``). About 70
-  fields that were missing unit annotations have been annotated, mostly discrete
-  count fields (customers, meters, employees, generators, circuits, services,
-  etc.) that now carry ``"unit": "count"``. These changes should facilitate
-  programmatic unit conversions in analysis that uses the PUDL data. See :issue:`5078`
-  and :pr:`5361`.
+  units (``MMBtu``, ``Mcf``, ``MMcf``, ``TBtu``, ``VAr``, ``USD``). Added extensive
+  new per-column units annotations. These changes should facilitate programmatic unit
+  parsing, display, and conversion. See :issue:`5078` and :pr:`5361`.
 
 New Data
 ^^^^^^^^
@@ -52,6 +49,15 @@ Documentation
 New Data Tests & Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* A new :func:`~pudl.dagster.asset_checks.valid_datapackage_unit_strings_check` asset
+  check factory validates all unit strings in the PUDL datapackage descriptor against
+  the registry after each ETL run. About a dozen fields in PHMSA gas and EIA-860 FGD
+  data that were typed as ``number`` but contain integer counts have been corrected to
+  ``"type": "integer"``. A bug where ``convert_cols_dtypes`` and ``get_parquet_table``
+  did not propagate the table name to the dtype helpers, silently ignoring per-table
+  overrides in ``FIELD_METADATA_BY_RESOURCE``, has been fixed. See :issue:`5078` and
+  :pr:`5361`.
+
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -66,22 +72,14 @@ Bug Fixes & Data Cleaning
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-Quality of Life Improvements
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Developer Experience
+^^^^^^^^^^^^^^^^^^^^
 
 * Refactored :mod:`tests.unit.metadata.metadata_test` to replace parametrized
   tests (which produced 2,600+ individual test cases) with loop-based tests that
   accumulate all failures into a single structured report. Test count drops from
   2,600+ to 44 with equivalent coverage and faster collection. See :issue:`5078`
   and :pr:`5361`.
-* A new :func:`~pudl.dagster.asset_checks.valid_datapackage_unit_strings_check` asset
-  check factory validates all unit strings in the PUDL datapackage descriptor against
-  the registry after each ETL run. About a dozen fields in PHMSA gas and EIA-860 FGD
-  data that were typed as ``number`` but contain integer counts have been corrected to
-  ``"type": "integer"``. A bug where ``convert_cols_dtypes`` and ``get_parquet_table``
-  did not propagate the table name to the dtype helpers, silently ignoring per-table
-  overrides in ``FIELD_METADATA_BY_RESOURCE``, has been fixed. See :issue:`5078` and
-  :pr:`5361`.
 * Merged ``PudlGeoParquetIOManager`` into
   :class:`~pudl.dagster.io_managers.PudlParquetIOManager` and retired the
   ``geoparquet_io_manager`` Dagster resource key. The four geo assets
