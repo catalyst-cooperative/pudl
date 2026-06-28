@@ -882,7 +882,11 @@ def drop_invalid_rows(df: pd.DataFrame, params: InvalidRows) -> pd.DataFrame:
     # on some dfs with NA values. this cols_to_check.transform() is intended as
     # a drop-in replacement for cols_to_check.isin(params.invalid_values)
     invalids = cols_to_check.transform(
-        lambda x: x.map(dict.fromkeys(params.invalid_values, True)).fillna(False)
+        lambda x: (
+            x.map(dict.fromkeys(params.invalid_values, True))
+            .fillna(False)
+            .infer_objects(copy=False)
+        )
     )
     mask = ~(invalids.all(axis="columns"))
     # Mask the input dataframe and make a copy to avoid returning a slice.
