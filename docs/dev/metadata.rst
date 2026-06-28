@@ -298,8 +298,7 @@ To define metadata for a new field:
 * To define a new field, add an entry to the dictionary with the following keys:
 
   * ``type``: The data type - integer, string, number, or boolean.
-  * ``description``: No more than a few sentences describing what the field
-    contains.
+  * ``description``: No more than a few sentences describing what the field contains.
   * ``unit``: The unit of the column (when applicable). Unit strings must be
     parseable by :data:`pudl.metadata.units.PUDL_UNIT_REGISTRY` — a
     ``pint.UnitRegistry`` that extends Pint's defaults with energy-industry
@@ -311,9 +310,9 @@ To define metadata for a new field:
     generators, etc.). Do **not** invent ad-hoc abbreviations (``gpm``,
     ``cfm``, ``MMBTU_per_MWh``) — these are not machine-readable. The
     unit strings written here are published verbatim in ``datapackage.json``
-    and validated after each ETL run by the
-    :func:`~pudl.dagster.asset_checks.valid_datapackage_unit_strings_check`
-    asset check.
+    and validated by the
+    :func:`~pudl.dagster.asset_checks.valid_datapackage_unit_strings_check` asset check,
+    so non-standard units will cause a failure.
   * ``constraints``: Categorical columns should largely be encoded by coding tables,
     but you can use this field to constrain a field to a short list of items
     using the ``enum`` key, or a regex pattern using the ``pattern`` key.

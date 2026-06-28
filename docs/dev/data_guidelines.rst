@@ -112,25 +112,19 @@ Different data sources often use different units to describe the same type of
 quantities. Rather than force users to do endless conversions while using the
 data, we try to convert similar quantities into the same units during ETL. For
 example, we typically convert all electrical generation to MWh, plant
-capacities to MW, and heat content to MMBTUs (though, MMBTUs are awful:
+capacities to MW, and heat content to MMBtu (though, MMBtus are awful:
 seriously M=1000 because Roman numerals? So MM is a million, despite the fact
 that M/Mega is a million in SI. And a `BTU
 <https://en.wikipedia.org/wiki/British_thermal_unit>`__ is... the amount of
 energy required to raise the temperature of one an *avoirdupois pound* of water
 by 1 degree *Fahrenheit*?! What century even is this?).
 
-When adding or updating field metadata in :mod:`pudl.metadata.fields`, every
-numeric field that measures a physical or financial quantity should carry a
-``unit`` annotation. Unit strings must follow
-`Pint expression syntax <https://pint.readthedocs.io/>`__ and be parseable by
-:data:`pudl.metadata.units.PUDL_UNIT_REGISTRY`. That registry extends Pint's
-defaults with the energy-industry units ``MMBtu``, ``Mcf``, ``MMcf``,
-``TBtu``, ``VAr``, and ``USD``. Use the slash-with-spaces convention for
-compound units (``MMBtu / MWh``, ``USD / MWh``, ``gallon / minute``). Use
-Pint's built-in ``count`` for fields that enumerate discrete items. Do **not**
-invent ad-hoc abbreviations; unit strings are published verbatim in
-``datapackage.json`` and validated after each ETL run. See
-:ref:`field_description` for full guidance.
+When adding or updating field metadata in :mod:`pudl.metadata.fields`, every numeric
+field that measures a physical or financial quantity should carry a ``unit`` annotation.
+Unit strings must follow `Pint expression syntax <https://pint.readthedocs.io/>`__. Do
+**not** invent ad-hoc abbreviations; unit strings are published verbatim in
+``datapackage.json`` and validated with an asset check. See :ref:`field_description` for
+more details.
 
 -------------------------------------------------------------------------------
 Partition Big Data
