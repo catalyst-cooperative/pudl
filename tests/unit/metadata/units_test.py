@@ -23,6 +23,7 @@ from pudl.metadata.units import PUDL_UNIT_REGISTRY
         "foot**3",
         "USD",
         "degree",
+        "degF",
         "pound",
         # Compound standard units
         "short_ton / hour",
