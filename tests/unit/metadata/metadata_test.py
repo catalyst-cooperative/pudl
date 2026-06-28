@@ -775,9 +775,7 @@ def test_apply_pudl_dtypes_resource_override_prevents_cast_failure() -> None:
     """Resource override must prevent the float→Int64 cast that would raise TypeError."""
     df = pd.DataFrame({_OVERRIDE_FIELD: [1.5, 2.3, 3.7]})
     # Without the resource override, casting float values to Int64 raises TypeError
-    import pytest as _pytest
-
-    with _pytest.raises(TypeError):
+    with pytest.raises(TypeError):
         apply_pudl_dtypes(df)
 
     # With the override it succeeds silently
