@@ -20,14 +20,17 @@ from pudl.metadata.units import PUDL_UNIT_REGISTRY
         "short_ton",
         "foot",
         "gallon",
-        "cubic_foot",
+        "foot**3",
         "USD",
+        "degree",
+        "pound",
         # Compound standard units
         "short_ton / hour",
         "gallon / minute",
-        "cubic_foot / minute",
+        "foot**3 / minute",
         "MWh / count",
         "count / km**2",
+        "degree**2",
         # PUDL custom energy-industry units
         "MMBtu",
         "MMBTU",
@@ -40,7 +43,11 @@ from pudl.metadata.units import PUDL_UNIT_REGISTRY
         "MMBtu / MWh",
         "USD / MWh",
         "USD / MMBtu",
+        "pound / MMBtu",
+        "pound / hour",
         "short_ton / MMBtu",
+        "megaVAr",
+        "MVAr",
     ],
 )
 def test_valid_unit_strings(unit_string: str) -> None:

@@ -364,7 +364,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "air_flow_100pct_load_cubic_feet_per_minute": {
         "type": "number",
-        "unit": "cubic_foot / minute",
+        "unit": "foot**3 / minute",
         "description": (
             "Total air flow including excess air at 100 percent load, reported at standard temperature and pressure (i.e. 68 F and one atmosphere pressure)."
         ),
@@ -3512,7 +3512,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "flue_gas_exit_rate_cubic_feet_per_minute": {
         "type": "number",
-        "unit": "cubic_foot / minute",
+        "unit": "foot**3 / minute",
         "description": "Actual flue gas exit rate, in cubic feet per minute.",
     },
     "flue_gas_exit_temperature_fahrenheit": {
@@ -6581,7 +6581,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "reactive_power_output_mvar": {
         "type": "number",
         "description": "Reactive Power Output (MVAr)",
-        "unit": "megaVAr",
+        "unit": "MVAr",
     },
     "real_cost_basis_year": {
         "type": "integer",
@@ -10174,7 +10174,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Annual cubic feet of natural gas consumed for fuel."
             "This field is only reported for plant_type's combined_cycle, combined_cycle and steam."
         ),
-        "unit": "cubic_foot",
+        "unit": "foot**3",
     },
     "fuel_consumption_oil_gallons": {
         "type": "number",

@@ -23,6 +23,7 @@ PUDL_UNIT_DEFINITIONS: list[str] = [
     # Reactive power — dimensionally equal to watt in SI, but conventionally
     # labeled VAr in power systems to distinguish from real power.
     "VAr = watt = volt_ampere_reactive",
+    "MVAr = 1e6 * VAr",
     # Currency — a custom dimension so that compound units like USD / MWh are
     # parseable. Exchange-rate conversions are outside Pint's scope.
     "USD = [currency]",
