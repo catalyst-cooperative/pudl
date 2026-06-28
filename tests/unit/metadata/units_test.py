@@ -25,6 +25,7 @@ from pudl.metadata.units import PUDL_UNIT_REGISTRY
         "degree",
         "degF",
         "pound",
+        "percent",
         # Compound standard units
         "short_ton / hour",
         "gallon / minute",

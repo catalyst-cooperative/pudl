@@ -635,6 +635,7 @@ def _core_eia860__generators_multifuel(
         & (multifuel_df["plant_id_eia"] == 56032)
     ]
     multifuel_df = multifuel_df.drop(dupe_pk_rows_to_drop.index)
+    multifuel_df["max_oil_heat_input"] = multifuel_df["max_oil_heat_input"] / 100
     return multifuel_df
 
 
@@ -1380,6 +1381,9 @@ def _core_eia860__cooling_equipment(
     # Convert thousands of dollars to dollars and remove suffix from column name
     ce_df.loc[:, ce_df.columns.str.endswith("_thousand_dollars")] *= 1000
     ce_df.columns = ce_df.columns.str.replace("_thousand_dollars", "")
+
+    ce_df["dry_cooling_pct"] = ce_df["dry_cooling_pct"] / 100
+    ce_df = ce_df.rename(columns={"dry_cooling_pct": "dry_cooling_fraction"})
 
     # Encoding is required here because this table is not yet getting harvested.
     return apply_pudl_dtypes(

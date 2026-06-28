@@ -166,7 +166,7 @@ sources:
                   so2_control_proposed_strategy_3: EXTRACT(year FROM report_date) >= 2013
                   standard_nox_rate: EXTRACT(year FROM report_date) >= 2009
                   standard_particulate_rate: EXTRACT(year FROM report_date) >= 2009
-                  standard_so2_percent_scrubbed: EXTRACT(year FROM report_date) >= 2013
+                  standard_so2_fraction_scrubbed: EXTRACT(year FROM report_date) >= 2013
                   standard_so2_rate: EXTRACT(year FROM report_date) >= 2009
                   turndown_ratio: EXTRACT(year FROM report_date) >= 2013
                   unit_nox: EXTRACT(year FROM report_date) >= 2009

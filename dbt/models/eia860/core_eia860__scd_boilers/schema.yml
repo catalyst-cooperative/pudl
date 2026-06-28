@@ -5,11 +5,10 @@ sources:
       - name: core_eia860__scd_boilers
         data_tests:
           - expect_columns_not_all_null:
-              description: >
-                This table has a lot of row_conditions because it has a few columns that
-                are found in the EIA-860M generators table (and so appear in the most
-                recent monthly data) but most of the columns are specific to boilers,
-                which are not reported in the EIA-860M.
+              description:
+                "This table has a lot of row_conditions because it has a few columns that are found in the EIA-860M generators table (and so appear in the most recent monthly data) but most of the columns are specific to boilers, which are not reported in the EIA-860M.
+
+                "
               arguments:
                 ignore_eia860m_nulls: true
                 row_conditions:
@@ -99,11 +98,11 @@ sources:
                   so2_control_proposed_strategy_1: EXTRACT(year FROM report_date) >= 2013
                   so2_control_proposed_strategy_2: EXTRACT(year FROM report_date) >= 2013
                   so2_control_proposed_strategy_3: EXTRACT(year FROM report_date) >= 2013
-                  standard_so2_percent_scrubbed: EXTRACT(year FROM report_date) >= 2013
+                  standard_so2_fraction_scrubbed: EXTRACT(year FROM report_date) >= 2013
           - check_row_counts_per_partition:
               arguments:
                 table_name: core_eia860__scd_boilers
-                partition_expr: "EXTRACT(YEAR FROM report_date)"
+                partition_expr: EXTRACT(YEAR FROM report_date)
         columns:
           - name: plant_id_eia
           - name: boiler_id
@@ -130,7 +129,17 @@ sources:
           - name: max_steam_flow_lbs_per_hour
           - name: turndown_ratio
           - name: efficiency_100pct_load
+            data_tests:
+              - dbt_expectations.expect_column_values_to_be_between:
+                  arguments:
+                    min_value: 0.0
+                    max_value: 1.0
           - name: efficiency_50pct_load
+            data_tests:
+              - dbt_expectations.expect_column_values_to_be_between:
+                  arguments:
+                    min_value: 0.0
+                    max_value: 1.0
           - name: air_flow_100pct_load_cubic_feet_per_minute
           - name: new_source_review
           - name: new_source_review_date
@@ -194,5 +203,10 @@ sources:
           - name: so2_control_proposed_strategy_1
           - name: so2_control_proposed_strategy_2
           - name: so2_control_proposed_strategy_3
-          - name: standard_so2_percent_scrubbed
+          - name: standard_so2_fraction_scrubbed
+            data_tests:
+              - dbt_expectations.expect_column_values_to_be_between:
+                  arguments:
+                    min_value: 0.0
+                    max_value: 1.0
           - name: data_maturity

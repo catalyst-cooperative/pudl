@@ -57,10 +57,30 @@ New Data Tests & Validations
   did not propagate the table name to the dtype helpers, silently ignoring per-table
   overrides in ``FIELD_METADATA_BY_RESOURCE``, has been fixed. See :issue:`5078` and
   :pr:`5361`.
+* Added ``dbt`` ``expect_column_values_to_be_between`` tests to codify range
+  expectations for percent columns (``[0, 100]``: ``sulfur_content_pct``,
+  ``ash_content_pct``, ``moisture_content_pct`` in EIA-923 fuel receipts and monthly
+  boiler fuel) and fraction columns (``[0, 1]``: ``efficiency_100pct_load``,
+  ``efficiency_50pct_load``, ``standard_so2_fraction_scrubbed``, ``max_oil_heat_input``,
+  ``dry_cooling_fraction``, ``fraction_owned``,
+  ``balancing_authority_code_eia_consistent_rate``, and all five FERC1 steam fuel
+  ``*_fraction_cost`` columns). FERC1 fraction tests use ``error_if`` thresholds to
+  accommodate a known small number of out-of-range values caused by rounding or negative
+  costs in the underlying Form 1 data. See :pr:`5361`.
 
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* Three EIA-860 columns that EIA reports as percentages but PUDL describes as
+  fractions have been corrected. ``standard_so2_percent_scrubbed`` (boilers) was
+  already stored as a fraction but misnamed; it is now renamed
+  ``standard_so2_fraction_scrubbed``. ``max_oil_heat_input`` (multi-fuel generators)
+  and ``dry_cooling_pct`` (cooling equipment) were extracted as percentages; both are
+  now divided by 100 in the transform step and the cooling column is renamed
+  ``dry_cooling_fraction``. Field descriptions for the FERC1 ``*_fraction_cost``
+  columns have been updated to say "fraction (0-1)" instead of "percentage".
+  All true ``_pct`` columns now carry an explicit ``"unit": "percent"`` annotation.
+  See :pr:`5361`.
 * Fixed a DuckDB >= 1.5 incompatibility with PUDL's GeoParquet outputs. DuckDB 1.5
   requires CRS metadata in PROJJSON format, but the old
   :class:`~pudl.dagster.io_managers.PudlGeoParquetIOManager` wrote a WKT string,

@@ -42,7 +42,7 @@ sources:
           - check_row_counts_per_partition:
               arguments:
                 table_name: core_eia860__scd_generators_multifuel
-                partition_expr: "EXTRACT(YEAR FROM report_date)"
+                partition_expr: EXTRACT(YEAR FROM report_date)
         columns:
           - name: report_date
           - name: utility_id_eia
@@ -86,6 +86,11 @@ sources:
           - name: can_cofire_oil_and_gas
           - name: can_cofire_100_oil
           - name: max_oil_heat_input
+            data_tests:
+              - dbt_expectations.expect_column_values_to_be_between:
+                  arguments:
+                    min_value: 0.0
+                    max_value: 1.0
           - name: max_oil_output_mw
           - name: can_fuel_switch
           - name: has_regulatory_limits

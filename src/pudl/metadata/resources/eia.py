@@ -1100,7 +1100,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "so2_control_proposed_strategy_3",
                 "standard_nox_rate",
                 "standard_particulate_rate",
-                "standard_so2_percent_scrubbed",
+                "standard_so2_fraction_scrubbed",
                 "standard_so2_rate",
                 "state",
                 "street_address",

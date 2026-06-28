@@ -308,10 +308,12 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "anticipated_pct": {
         "type": "number",
         "description": ("Expected percentage."),
+        "unit": "percent",
     },
     "actual_pct": {
         "type": "number",
         "description": ("Observed percentage."),
+        "unit": "percent",
     },
     "actual_peak_demand_savings_mw": {
         "type": "number",
@@ -522,6 +524,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "ash_content_pct": {
         "type": "number",
         "description": "Ash content percentage by weight to the nearest 0.1 percent.",
+        "unit": "percent",
     },
     "ash_impoundment": {
         "type": "boolean",
@@ -646,7 +649,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "balancing_authority_code_eia_consistent_rate": {
         "type": "number",
         "description": (
-            "Percentage consistency of balancing authority code across entity records."
+            "Rate of consistency of balancing authority code across entity records."
         ),
     },
     "balancing_authority_id_eia": {
@@ -1243,7 +1246,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "coal_fraction_cost": {
         "type": "number",
-        "description": "Coal cost as a percentage of overall fuel cost.",
+        "description": "Coal cost as a fraction (0-1) of overall fuel cost.",
     },
     "coal_fraction_mmbtu": {
         "type": "number",
@@ -2754,13 +2757,13 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "efficiency_100pct_load": {
         "type": "number",
         "description": (
-            "Boiler efficiency percentage when burning at 100 percent load to the nearest 0.1 percent."
+            "Boiler efficiency when burning at 100 percent load to the nearest 0.1 percent."
         ),
     },
     "efficiency_50pct_load": {
         "type": "number",
         "description": (
-            "Boiler efficiency percentage when burning at 50 percent load to the nearest 0.1 percent."
+            "Boiler efficiency when burning at 50 percent load to the nearest 0.1 percent."
         ),
     },
     "eia_code": {
@@ -3730,6 +3733,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "fuel_pct": {
         "type": "number",
         "description": "Percent of fuel",
+        "unit": "percent",
     },
     "fuel_phase": {
         "type": "string",
@@ -3880,7 +3884,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "gas_fraction_cost": {
         "type": "number",
-        "description": "Natural gas cost as a percentage of overall fuel cost.",
+        "description": "Natural gas cost as a fraction (0-1) of overall fuel cost.",
     },
     "gas_fraction_mmbtu": {
         "type": "number",
@@ -4700,7 +4704,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "max_oil_heat_input": {
         "type": "number",
         "description": (
-            "The maximum oil heat input (percent of MMBTUs) expected for proposed unit when co-firing with natural gas"
+            "The maximum oil heat input as a fraction (0-1) of total MMBTUs expected for proposed unit when co-firing with natural gas."
         ),
     },
     "max_oil_output_mw": {
@@ -4872,6 +4876,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "For coal only: the moisture content of the fuel in terms of moisture "
             "percentage by weight. Reported to the nearest 0.01 percent."
         ),
+        "unit": "percent",
     },
     "momentary_interruption_definition": {
         "type": "string",
@@ -5335,7 +5340,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "nuclear_fraction_cost": {
         "type": "number",
-        "description": "Nuclear cost as a percentage of overall fuel cost.",
+        "description": "Nuclear cost as a fraction (0-1) of overall fuel cost.",
     },
     "nuclear_fraction_mmbtu": {
         "type": "number",
@@ -5381,7 +5386,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "oil_fraction_cost": {
         "type": "number",
-        "description": "Oil cost as a percentage of overall fuel cost.",
+        "description": "Oil cost as a fraction (0-1) of overall fuel cost.",
     },
     "oil_fraction_mmbtu": {
         "type": "number",
@@ -5921,6 +5926,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "ownership_pct": {
         "type": "number",
         "description": "Percentage of the plant owned by the respondent.",
+        "unit": "percent",
     },
     "parent_company_central_index_key": {
         "type": "string",
@@ -6117,8 +6123,8 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "expected negative values in this column."
         ),
     },
-    "percent_dry_cooling": {
-        "description": "Percent of cooling load served by dry cooling components",
+    "dry_cooling_fraction": {
+        "description": "Fraction of cooling load served by dry cooling components.",
         "type": "number",
     },
     "phone_extension": {
@@ -6738,6 +6744,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "renewable_fuel_pct": {
         "type": "number",
         "description": "Percentage of renewable fuel used.",
+        "unit": "percent",
     },
     "report_date": {"type": "date", "description": "Date reported."},
     "report_timezone": {
@@ -7603,10 +7610,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Numeric value for the unit of measurement specified for sulfur dioxide."
         ),
     },
-    "standard_so2_percent_scrubbed": {
+    "standard_so2_fraction_scrubbed": {
         "type": "number",
         "description": (
-            "The percent of sulfur dioxide to be scrubbed specified by the most stringent sulfur dioxide regulation."
+            "The fraction of sulfur dioxide to be scrubbed specified by the most stringent sulfur dioxide regulation."
         ),
     },
     "start_point": {
@@ -7916,6 +7923,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "Sulfur content percentage by weight to the nearest 0.01 percent."
         ),
+        "unit": "percent",
     },
     "summer_capacity_estimate": {
         "type": "boolean",
@@ -8574,7 +8582,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "waste_fraction_cost": {
         "type": "number",
-        "description": "Waste-heat cost as a percentage of overall fuel cost.",
+        "description": "Waste-heat cost as a fraction (0-1) of overall fuel cost.",
     },
     "waste_fraction_mmbtu": {
         "type": "number",
