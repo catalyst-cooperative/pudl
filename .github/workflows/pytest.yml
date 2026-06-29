@@ -224,7 +224,7 @@ jobs:
           cache-write: ${{ github.event_name == 'push' && github.ref_name == 'main' }}
 
       - name: Restore Zenodo datastore from cache if possible
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         id: cache-zenodo-datastore
         with:
           path: ${{ env.PUDL_INPUT }}
@@ -241,7 +241,7 @@ jobs:
           } >> "$GITHUB_ENV"
 
       - name: Restore ferc1 XBRL outputs from cache if possible
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         id: cache-ferc1-xbrl
         with:
           path: |
@@ -252,7 +252,7 @@ jobs:
           key: ferc1-xbrl-${{ env.FERC1_XBRL_HASH }}
 
       - name: Restore ferc1 DBF from cache if possible
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         id: cache-ferc1-dbf
         with:
           path: |
@@ -261,7 +261,7 @@ jobs:
           key: ferc1-dbf-${{ env.FERC1_DBF_HASH }}
 
       - name: Restore ferc714 XBRL from cache if possible
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         id: cache-ferc714-xbrl
         with:
           path: |
