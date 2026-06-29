@@ -38,7 +38,7 @@ repos:
       - id: ruff-format
 
   - repo: https://github.com/rbubley/mirrors-prettier
-    rev: v3.8.5
+    rev: v3.9.1
     hooks:
       - id: prettier
         types_or: [yaml]
