@@ -3043,8 +3043,7 @@ def disaggregate_null_or_total_tag(
         # records even if there is no way to disaggregate them.
         .assign(
             ending_balance=lambda x: (
-                x[f"ratio_{tag_col}"].fillna(1).infer_objects(copy=False)
-                * x.ending_balance
+                x[f"ratio_{tag_col}"].fillna(1).astype(float) * x.ending_balance
             ),
         )
         .assign(**{f"is_disaggregated_{tag_col}": True})

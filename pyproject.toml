@@ -562,6 +562,8 @@ filterwarnings = [
     "ignore:Specifying a partitions_def on an AssetCheckSpec is currently in preview",
     "ignore:No path_separator found in configuration:DeprecationWarning:alembic",
     "ignore:Extension type 'geoarrow.wkb' is not registered:UserWarning",
+    "ignore:invalid escape sequence:SyntaxWarning:stringcase",
+    "ignore:invalid escape sequence:SyntaxWarning:parsedatetime",
 ]
 
 markers = ["slow: marks tests as slow (deselect with '-m \"not slow\"')"]

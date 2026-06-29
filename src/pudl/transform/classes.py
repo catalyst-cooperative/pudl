@@ -885,7 +885,7 @@ def drop_invalid_rows(df: pd.DataFrame, params: InvalidRows) -> pd.DataFrame:
         lambda x: (
             x.map(dict.fromkeys(params.invalid_values, True))
             .fillna(False)
-            .infer_objects(copy=False)
+            .astype("boolean")
         )
     )
     mask = ~(invalids.all(axis="columns"))
