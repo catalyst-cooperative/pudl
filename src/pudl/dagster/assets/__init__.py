@@ -16,7 +16,6 @@ For the underlying Dagster concept, see https://docs.dagster.io/guides/build/ass
 """
 
 import itertools
-import os
 
 import dagster as dg
 
@@ -110,9 +109,7 @@ out_module_groups = {
     "out_state_demand_ferc714": [pudl.analysis.state_demand],
 }
 
-ferceqr_deployment_assets = (
-    {"ferceqr_deployment": [deploy_ferceqr]} if os.getenv("FERCEQR_BUILD", None) else {}
-)
+ferceqr_deployment_assets = {"ferceqr_deployment": [deploy_ferceqr]}
 
 all_asset_modules = (
     raw_module_groups
@@ -135,7 +132,7 @@ _base_assets = list(
 # IO manager keys that write canonical parquet outputs.  Assets using any of
 # these are included as upstream dependencies of the datapackage asset.
 _PARQUET_IO_MANAGER_KEYS: frozenset[str] = frozenset(
-    {"parquet_io_manager", "geoparquet_io_manager", "pudl_io_manager"}
+    {"parquet_io_manager", "pudl_io_manager"}
 )
 
 
