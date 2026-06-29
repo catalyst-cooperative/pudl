@@ -1,12 +1,6 @@
 ---
 name: deploy-pudl
 on:
-  push:
-    tags:
-      # Run the stable deployment pipeline when a tag that looks like a stable tag is pushed
-      # This expects that there was successful build associated with the git ref the tag points to
-      # It will fail if there was no such build (the same is true of a manually triggered build)
-      - "v20*"
   workflow_dispatch:
     inputs:
       git_tag:
