@@ -17,7 +17,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.transform &#8212; PUDL 2026.6.2.dev12 documentation</title>
+    <title>pudl.transform &#8212; PUDL 2026.6.2.dev14 documentation</title>
   
   
   
@@ -50,7 +50,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5" />
 
-    <script src="../../../_static/documentation_options.js?v=caf87eab"></script>
+    <script src="../../../_static/documentation_options.js?v=8b9b4b7d"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -141,8 +141,8 @@
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.6.2.dev12 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.6.2.dev12 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.6.2.dev14 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.6.2.dev14 documentation - Home"/>
   
   
 </a></div>
@@ -761,9 +761,9 @@
 <p>Modules implementing the “Transform” step of the PUDL ETL pipeline.</p>
 <p>Each module in this subpackage transforms the tabular data associated with a single data
 source from the PUDL <a class="reference internal" href="../../../data_sources/index.html#data-sources"><span class="std std-ref">Data Sources</span></a>. This process begins with a dictionary of
-“raw” <a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code></a> objects produced by the corresponding data source
+“raw” <a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code></a> objects produced by the corresponding data source
 specific routines from the <a class="reference internal" href="../extract/index.html#module-pudl.extract" title="pudl.extract"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pudl.extract</span></code></a> subpackage, and ends with a dictionary of
-<a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code></a> objects that are fully normalized, cleaned, and ready to be
+<a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code></a> objects that are fully normalized, cleaned, and ready to be
 loaded into external databases and Parquet files by the <code class="xref py py-mod docutils literal notranslate"><span class="pre">pudl.load</span></code> subpackage.</p>
 <p>Inputs to the transform functions are a dictionary of dataframes, each of which
 represents a concatenation of records with common column names from across some set of
