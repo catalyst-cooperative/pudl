@@ -493,7 +493,8 @@ class Encoder(PudlMeta):
         """Apply the stored code mapping to an input Series."""
         # Every value in the Series should appear in the map. If that's not the
         # case we want to hear about it so we don't wipe out data unknowingly.
-        logger.info(f"Encoding {col.name}")
+        if col.name is not None:
+            logger.info(f"Encoding {col.name}")
         unknown_codes = set(col.dropna()).difference(self.code_map)
         if unknown_codes:
             raise ValueError(
