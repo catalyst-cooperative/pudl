@@ -19,6 +19,7 @@ from pudl.metadata.classes import (
     Package,
     PudlResourceDescriptor,
     Resource,
+    SnakeCase,
 )
 from pudl.metadata.descriptions import (
     PARTITION_OFFSETS,
@@ -46,18 +47,10 @@ def test_all_resources_valid() -> None:
     _ = PUDL_PACKAGE
 
 
-def test_all_data_sources_valid() -> None:
-    """All stored DataSource definitions are valid."""
-    failures = []
-    for src in SOURCES:
-        try:
-            DataSource.from_id(src)
-        except Exception as exc:
-            failures.append(f"  {src}: {exc}")
-    if failures:
-        raise AssertionError(
-            f"{len(failures)} data source(s) are invalid:\n" + "\n".join(failures)
-        )
+@pytest.mark.parametrize("src", list(SOURCES))
+def test_all_data_sources_valid(src) -> None:
+    """Test that all stored DataSource definitions are valid."""
+    _ = DataSource.from_id(src)
 
 
 def test_all_excluded_resources_exist() -> None:
@@ -83,49 +76,24 @@ def test_get_etl_group_tables() -> None:
         Package.get_etl_group_tables("not_an_etl_group")
 
 
-def test_pyarrow_schemas() -> None:
-    """All defined Resources can produce pyarrow schemas."""
-    failures = []
-    for resource_name in sorted(PUDL_RESOURCES.keys()):
-        try:
-            PUDL_RESOURCES[resource_name].to_pyarrow()
-        except Exception as exc:
-            failures.append(f"  {resource_name}: {exc}")
-    if failures:
-        raise AssertionError(
-            f"{len(failures)} resource(s) failed to produce pyarrow schemas:\n"
-            + "\n".join(failures)
-        )
+@pytest.mark.parametrize("resource_name", sorted(PUDL_RESOURCES.keys()))
+def test_pyarrow_schemas(resource_name: str):
+    """Verify that we can produce pyarrow schemas for all defined Resources."""
+    _ = PUDL_RESOURCES[resource_name].to_pyarrow()
 
 
-def test_encoders() -> None:
-    """All Encoders work on the kinds of values they're supposed to."""
-    failures = []
-    for encoder_name in sorted(PUDL_ENCODERS.keys()):
-        try:
-            encoder = PUDL_ENCODERS[encoder_name]
-            test_data = encoder.generate_encodable_data(size=100)
-            encoder.encode(test_data)
-        except Exception as exc:
-            failures.append(f"  {encoder_name}: {exc}")
-    if failures:
-        raise AssertionError(
-            f"{len(failures)} encoder(s) failed:\n" + "\n".join(failures)
-        )
+@pytest.mark.parametrize("encoder_name", sorted(PUDL_ENCODERS.keys()))
+def test_encoders(encoder_name: SnakeCase):
+    """Verify that Encoders work on the kinds of values they're supposed to."""
+    encoder = PUDL_ENCODERS[encoder_name]
+    test_data = encoder.generate_encodable_data(size=100)
+    _ = encoder.encode(test_data)
 
 
-def test_field_definitions() -> None:
-    """All defined fields are valid."""
-    failures = []
-    for field_name in sorted(FIELD_METADATA.keys()):
-        try:
-            Field(name=field_name, **FIELD_METADATA[field_name])
-        except Exception as exc:
-            failures.append(f"  {field_name}: {exc}")
-    if failures:
-        raise AssertionError(
-            f"{len(failures)} field(s) are invalid:\n" + "\n".join(failures)
-        )
+@pytest.mark.parametrize("field_name", sorted(FIELD_METADATA.keys()))
+def test_field_definitions(field_name: str):
+    """Check that all defined fields are valid."""
+    _ = Field(name=field_name, **FIELD_METADATA[field_name])
 
 
 def test_field_unit_strings() -> None:
@@ -510,8 +478,9 @@ def test_availability_offsets(partition_key, period, offset, expected):
     assert PARTITION_OFFSETS[partition_key](period, offset) == expected
 
 
-def test_source_availability() -> None:
-    """All sources have a reasonable temporal availability.
+@pytest.mark.parametrize("source_id", sorted(r for r in SOURCES))
+def test_source_availability(source_id):
+    """Check that all sources have a reasonable temporal availability.
 
     Sources with only non-temporal partitions will evaluate to None; all others
     should show after 1990.
@@ -519,26 +488,13 @@ def test_source_availability() -> None:
     We check this because if you get the data types wrong in pd.Timestamp, it
     spits out 1970 instead of the proper year.
     """
+    src = DataSource.from_id(source_id)
+    availability = ResourceDescriptionBuilder.offset_source_availability(src, 0)
     # Checking the lexical ordering of strings using > is a bit brittle, but has
     # the bonus of handling years, year quarters, half years, and year months.
     # If this breaks it probably means we're running on a machine that orders
     # strings by weird criteria -- we can revisit this at that time.
-    failures = []
-    for source_id in sorted(SOURCES):
-        try:
-            src = DataSource.from_id(source_id)
-            availability = ResourceDescriptionBuilder.offset_source_availability(src, 0)
-            if not ((availability is None) or (availability > "1990")):
-                failures.append(
-                    f"  {source_id}: availability {availability!r} is before 1990"
-                )
-        except Exception as exc:
-            failures.append(f"  {source_id}: {exc}")
-    if failures:
-        raise AssertionError(
-            f"{len(failures)} source(s) have invalid availability:\n"
-            + "\n".join(failures)
-        )
+    assert (availability is None) or (availability > "1990")
 
 
 @pytest.mark.parametrize(
@@ -649,78 +605,67 @@ EXPECT_NO_AVAILABILITY = {
 }
 
 
-def test_description_compliance() -> None:
-    """Migrated resource descriptions comply with all formatting and availability rules.
-
-    Only checks resources where ``description`` has been converted from a string to a
-    dict (i.e. migrated tables).
-    """
+@pytest.mark.parametrize(
     # todo: back this off to sorted(PUDL_RESOURCES.keys()) after the migration.
     # only check migrated tables. a table is migrated if "description" has been converted from a string to a dict.
-    resource_ids = sorted(
+    "resource_id",
+    sorted(
         r
         for r in PUDL_RESOURCES
         if isinstance(RESOURCE_METADATA[r]["description"], dict)
+    ),
+)
+def test_description_compliance(resource_id):
+    resource_dict = RESOURCE_METADATA[resource_id]
+    description_dict = resource_dict["description"]
+    assert isinstance(description_dict, dict), (
+        f"""Table {resource_id} must have a dictionary under the "description" key, but instead I found a {type(description_dict)}"""
     )
-    failures = []
-    for resource_id in resource_ids:
-        try:
-            resource_dict = RESOURCE_METADATA[resource_id]
-            description_dict = resource_dict["description"]
-            assert isinstance(description_dict, dict), (
-                f"""Table {resource_id} must have a dictionary under the "description" key, but instead I found a {type(description_dict)}"""
+    resolved = ResourceDescriptionBuilder(
+        resource_id=resource_id,
+        settings=Resource._resolve_references_from_resource_descriptor(
+            resource_id, PudlResourceDescriptor.model_validate(resource_dict)
+        ),
+    ).build()
+    name_parse = {
+        "layer_code": resolved.layer.type,
+        "source_code": resolved.source.type,
+        "table_type_code": (
+            (resolved.summary.type.split("[")[0] != "None")
+            or (
+                (len(resolved.summary.description) > 0)
+                and RE_CAPS.match(resolved.summary.description[0])
             )
-            resolved = ResourceDescriptionBuilder(
-                resource_id=resource_id,
-                settings=Resource._resolve_references_from_resource_descriptor(
-                    resource_id, PudlResourceDescriptor.model_validate(resource_dict)
-                ),
-            ).build()
-            name_parse = {
-                "layer_code": resolved.layer.type,
-                "source_code": resolved.source.type,
-                "table_type_code": (
-                    (resolved.summary.type.split("[")[0] != "None")
-                    or (
-                        (len(resolved.summary.description) > 0)
-                        and RE_CAPS.match(resolved.summary.description[0])
-                    )
-                ),
-                "timeseries_resolution_code": (
-                    (not resolved.summary.type.startswith("timeseries"))
-                    or (len(resolved.summary.type.split("[")[1]) > 1)
-                    or RE_CAPS.match(resolved.summary.description[0])
-                ),
-            }
-            fix_with_summary = f"""Ensure RESOURCE_METADATA["{resource_id}"]["description"]["additional_summary_text"] is a complete sentence starting with a capital letter"""
-            for key, has_value in name_parse.items():
-                assert has_value, f"""Table {resource_id} could not be parsed as layer_source__tabletype_slug and insufficient hints were set in the table metadata. Repair using one of the following:
+        ),
+        "timeseries_resolution_code": (
+            (not resolved.summary.type.startswith("timeseries"))
+            or (len(resolved.summary.type.split("[")[1]) > 1)
+            or RE_CAPS.match(resolved.summary.description[0])
+        ),
+    }
+    fix_with_summary = f"""Ensure RESOURCE_METADATA["{resource_id}"]["description"]["additional_summary_text"] is a complete sentence starting with a capital letter"""
+    for key, has_value in name_parse.items():
+        assert has_value, f"""Table {resource_id} could not be parsed as layer_source__tabletype_slug and insufficient hints were set in the table metadata. Repair using one of the following:
 \t1. Rename {resource_id}
 \t2. Set the following keys in RESOURCE_METADATA["{resource_id}"]["description"]: {key}{("\n\t3. " + fix_with_summary) if key in {"table_type_code", "timeseries_resolution_code"} else ""}"""
-            # todo: layer-based checks
-            # todo: asset_type-based checks
-            # pk-based checks
-            has_pk = resolved.primary_key.type == "True"
-            if CHECK_DESCRIPTION_PRIMARY_KEYS and not has_pk:  # pragma: no cover
-                assert "additional_primary_key_text" in description_dict, (
-                    f"""Table {resource_id} has no primary key, but the table metadata does not include an explanation in the required format. We expect the key "additional_primary_key_text" to briefly describe what each record represents and, if needed, why no primary key is possible."""
-                )
-            # availability-based checks
-            assert ("availability_text" not in description_dict) or (
-                "availability_offset" not in description_dict
-            ), (
-                f"Table {resource_id} has set both availability_text and availability_offset; you can't have both."
-            )
-            if resource_id not in EXPECT_NO_AVAILABILITY:
-                assert resolved.availability.type == "True", (
-                    f"Missing availability for {resource_id}"
-                )
-        except AssertionError as exc:
-            failures.append(f"  {exc}")
-    if failures:
-        raise AssertionError(
-            f"{len(failures)} resource(s) failed description compliance:\n"
-            + "\n".join(failures)
+    # todo: layer-based checks
+    # todo: asset_type-based checks
+    # pk-based checks
+    has_pk = resolved.primary_key.type == "True"
+    if CHECK_DESCRIPTION_PRIMARY_KEYS and not has_pk:  # pragma: no cover
+        assert "additional_primary_key_text" in description_dict, (
+            f"""Table {resource_id} has no primary key, but the table metadata does not include an explanation in the required format. We expect the key "additional_primary_key_text" to briefly describe what each record represents and, if needed, why no primary key is possible."""
+        )
+
+    # availability-based checks
+    assert ("availability_text" not in description_dict) or (
+        "availability_offset" not in description_dict
+    ), (
+        f"Table {resource_id} has set both availability_text and availability_offset; you can't have both."
+    )
+    if resource_id not in EXPECT_NO_AVAILABILITY:
+        assert resolved.availability.type == "True", (
+            f"Missing availability for {resource_id}"
         )
 
 
