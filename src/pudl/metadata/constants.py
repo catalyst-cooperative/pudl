@@ -3,16 +3,18 @@
 import datetime
 from collections.abc import Callable
 
-import duckdb
+import duckdb.sqltypes
 import geoarrow.pyarrow as ga
-import geopandas as gpd  # noqa: ICN002
+import geopandas
 import pandas as pd
 import polars as pl
 import pyarrow as pa
 import sqlalchemy as sa
+from duckdb.sqltypes import DuckDBPyType
 from sqlalchemy.dialects.sqlite import DATETIME as SQLITE_DATETIME
+from sqlalchemy.types import TypeEngine as SATypeEngine
 
-FIELD_DTYPES_POLARS: dict[str, str] = {
+FIELD_DTYPES_POLARS: dict[str, type[pl.DataType] | pl.DataType] = {
     "boolean": pl.datatypes.Boolean,
     "date": pl.datatypes.Date,
     "datetime": pl.datatypes.Datetime(time_unit="ms"),
@@ -23,7 +25,7 @@ FIELD_DTYPES_POLARS: dict[str, str] = {
 }
 """Polars data type by simplified PUDL field type."""
 
-FIELD_DTYPES_DUCKDB: dict[str, str] = {
+FIELD_DTYPES_DUCKDB: dict[str, DuckDBPyType] = {
     "boolean": duckdb.sqltypes.BOOLEAN,
     "date": duckdb.sqltypes.DATE,
     "datetime": duckdb.sqltypes.TIMESTAMP_MS,
@@ -33,6 +35,7 @@ FIELD_DTYPES_DUCKDB: dict[str, str] = {
     "year": duckdb.sqltypes.TIMESTAMP_MS,
 }
 """DuckDB data type by simplified PUDL field type."""
+
 FIELD_DTYPES_PANDAS: dict[str, str] = {
     "boolean": "boolean",
     "date": "datetime64[s]",
@@ -56,7 +59,7 @@ FIELD_DTYPES_PYARROW: dict[str, pa.DataType] = {
     "year": pa.int32(),
 }
 
-FIELD_DTYPES_SQL: dict[str, type] = {
+FIELD_DTYPES_SQL: dict[str, type[SATypeEngine] | SATypeEngine] = {
     "boolean": sa.Boolean,
     "date": sa.Date,
     # Ensure SQLite's string representation of datetime uses only whole seconds:
@@ -74,7 +77,7 @@ CONSTRAINT_DTYPES: dict[str, type] = {
     "boolean": bool,
     "date": datetime.date,
     "datetime": datetime.datetime,
-    "geometry": gpd.array.GeometryDtype,
+    "geometry": geopandas.array.GeometryDtype,
     "integer": int,
     "number": float,
     "string": str,
@@ -96,7 +99,7 @@ LICENSES: dict[str, dict[str, str]] = {
 }
 """License attributes."""
 
-PERIODS: dict[str, Callable[[pd.Series], pd.Series]] = {
+PERIODS: dict[str, Callable[[pd.Series], pd.Series | pd.DataFrame]] = {
     "year": lambda x: pd.Series(x.to_numpy().astype("datetime64[Y]")),
     "quarter": lambda x: x.apply(
         pd.tseries.offsets.QuarterBegin(startingMonth=1).rollback

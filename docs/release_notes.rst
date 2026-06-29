@@ -95,11 +95,6 @@ Performance Improvements
 Developer Experience
 ^^^^^^^^^^^^^^^^^^^^
 
-* Refactored :mod:`tests.unit.metadata.metadata_test` to replace parametrized
-  tests (which produced 2,600+ individual test cases) with loop-based tests that
-  accumulate all failures into a single structured report. Test count drops from
-  2,600+ to 44 with equivalent coverage and faster collection. See :issue:`5078`
-  and :pr:`5361`.
 * Merged ``PudlGeoParquetIOManager`` into
   :class:`~pudl.dagster.io_managers.PudlParquetIOManager` and retired the
   ``geoparquet_io_manager`` Dagster resource key. The four geo assets
