@@ -8,13 +8,24 @@ sources:
           - check_row_counts_per_partition:
               arguments:
                 table_name: out_rus7__yearly_transmission_and_distribution_mileage
-                partition_expr: "EXTRACT(YEAR FROM report_date)"
-          # TODO: CHECK SUBCOMPONENTS SUM TO TOTAL
+                partition_expr: EXTRACT(YEAR FROM report_date)
+          - subcomponents_sum_to_total:
+              arguments:
+                group_by_columns:
+                  - borrower_id_rus
+                  - report_date
+                categorical_column: line_type
+                value_column: miles
+                total_label: total
+                tolerance: 1
+              config:
+                error_if: ">4"
+              description: Check that miles by line type sum to total energized miles.
         columns:
-          - name: borrower_name_rus
-          - name: state
           - name: report_date
           - name: borrower_id_rus
+          - name: borrower_name_rus
+          - name: state
           - name: line_type
           - name: miles
             data_tests:
