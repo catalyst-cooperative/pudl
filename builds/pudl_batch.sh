@@ -264,6 +264,17 @@ touch "$LOGFILE"
 exec > >(tee -a "$LOGFILE") 2>&1
 trap cleanup_on_exit EXIT
 
+# Check if there are any existing builds associated with the current commit
+if pixi run pudl_check_for_build "$GIT_TAG"; then
+    run_stage TRIGGER_DEPLOYMENT_STATUS TRIGGER_DEPLOYMENT_DURATION trigger_deployment
+    if any_stage_failed "$TRIGGER_DEPLOYMENT_STATUS"; then
+        echo "Found successful build, but failed to trigger deployment"
+        exit 1
+    fi
+    echo "Found a successful build and triggered a deployment"
+    exit 0
+fi
+
 if ! {
     initialize_postgres && \
     authenticate_gcp && \

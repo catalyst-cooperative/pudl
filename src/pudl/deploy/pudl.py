@@ -329,7 +329,7 @@ def get_build_from_tag(tag: str) -> UPath:
     """Find any builds associated with a git tag and return a GCS path to most recent build."""
     build_bucket = UPath("gs://builds.catalyst.coop")
     try:
-        git_ref = _run(["git", "rev-parse", "--short", f"{tag}^{{}}"]).strip()
+        git_ref = _run(["git", "rev-parse", "--short=9", f"{tag}^{{}}"]).strip()
     except subprocess.CalledProcessError as e:
         raise RuntimeError(f"Can't find git tag: {tag}") from e
 
