@@ -239,7 +239,7 @@ def trigger_zenodo_release(
             "Accept": "application/vnd.github+json",
             "Authorization": f"Bearer {token}",
         },
-        data={
+        json={
             "ref": build_ref,
             "inputs": {
                 "env": env,
@@ -280,14 +280,14 @@ def update_pudl_viewer(
             "Accept": "application/vnd.github+json",
             "Authorization": f"Bearer {token}",
         },
-        data={
+        json={
             "ref": "main",
         },
         timeout=10,
     )
 
     if response.status_code != 200:
-        raise RuntimeError(f"Zenodo release request failed: {response.content}")
+        raise RuntimeError(f"PUDL Viewer update request failed: {response.content}")
 
     logger.info("PUDL Viewer Cloud Run service updated")
 
