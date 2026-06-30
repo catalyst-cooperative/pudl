@@ -60,7 +60,7 @@ jobs:
         if: ${{ env.SKIP_BUILD != 'true' }}
         run: |
           {
-              echo "BUILD_ID=$(date +%Y-%m-%d-%H%M)-$(git rev-parse --short HEAD)-${{ github.ref_name }}";
+              echo "BUILD_ID=$(date +%Y-%m-%d-%H%M)-$(git rev-parse --short=9 HEAD)-${{ github.ref_name }}";
               echo "BATCH_JOB_ID=$(date +%Y-%m-%d-%H%M)-$(git rev-parse --short HEAD)";
           } >> "$GITHUB_ENV"
 
