@@ -19,7 +19,6 @@ env:
   SKIP_BUILD: "false"
   GIT_TAG: ""
   BUILD_ID: ""
-  BATCH_JOB_ID: ""
 
 jobs:
   build_and_deploy_pudl:
@@ -61,7 +60,6 @@ jobs:
         run: |
           {
               echo "BUILD_ID=$(date +%Y-%m-%d-%H%M)-$(git rev-parse --short=9 HEAD)-${{ github.ref_name }}";
-              echo "BATCH_JOB_ID=$(date +%Y-%m-%d-%H%M)-$(git rev-parse --short HEAD)";
           } >> "$GITHUB_ENV"
 
       - name: Show freshly set envvars
@@ -69,7 +67,6 @@ jobs:
         run: |
           echo "GIT_TAG: $GIT_TAG"
           echo "BUILD_ID: $BUILD_ID"
-          echo "BATCH_JOB_ID: $BATCH_JOB_ID"
 
       - name: Tag build
         if: ${{ (env.SKIP_BUILD != 'true') && (github.event_name != 'push') }}
@@ -183,7 +180,7 @@ jobs:
       # Start the batch job
       - name: Kick off batch job
         if: ${{ env.SKIP_BUILD != 'true' }}
-        run: gcloud batch jobs submit run-etl-${{ env.BATCH_JOB_ID }} --config ${{ env.BATCH_JOB_JSON }} --location us-west1
+        run: gcloud batch jobs submit run-etl-${{ env.BUILD_ID }} --config ${{ env.BATCH_JOB_JSON }} --location us-west1
 
       - name: Status emoji
         if: ${{ env.SKIP_BUILD != 'true' }}
