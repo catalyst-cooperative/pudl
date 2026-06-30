@@ -84,8 +84,29 @@ def append_eia860m(
     """
     meta_eia860m = excel.ExcelMetadata("eia860m")
     pages_eia860m = meta_eia860m.get_all_pages()
-    # page names in 860m and 860 are the same.
+
+    # Concatenate Puerto Rico generator data with mainland data.
+    # PR pages exist in 860m but not in 860, so we merge them into mainland pages
+    # before appending to EIA 860 data.
+    pr_page_mapping = {
+        "generator_existing": "puerto_rico_generator_existing",
+        "generator_proposed": "puerto_rico_generator_proposed",
+        "generator_retired": "puerto_rico_generator_retired",
+    }
+
+    for mainland_page, pr_page in pr_page_mapping.items():
+        if pr_page in eia860m_raw_dfs:
+            # Concatenate PR data into the mainland page
+            eia860m_raw_dfs[mainland_page] = pd.concat(
+                [eia860m_raw_dfs[mainland_page], eia860m_raw_dfs[pr_page]],
+                ignore_index=True,
+                sort=True,
+            )
+
+    # page names in 860m and 860 are the same (except for PR pages, which we skip)
     for page in pages_eia860m:
+        if "puerto_rico" in page:
+            continue
         eia860_raw_dfs[page] = pd.concat(
             [eia860_raw_dfs[page], eia860m_raw_dfs[page].drop(columns=["report_date"])],
             ignore_index=True,
