@@ -207,6 +207,10 @@ New Data Tests & Validations
 * Added validations to :doc:`RUS7 <data_sources/rus7>` service interruption
   tables to ensure subcomponents sum to the total for annual observation
   periods. See issue :issue:`5285` and PR :pr:`5286`.
+* Validate that sub-components in
+  :ref:`core_rus7__yearly_transmission_and_distribution_mileage` and
+  :ref:`out_rus7__yearly_transmission_and_distribution_mileage` sum to their reported
+  totals. See issue :issue:`5314` and PR :pr:`5342`.
 
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
