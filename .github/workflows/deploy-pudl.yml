@@ -55,7 +55,7 @@ jobs:
 
           TAG_SHA=$(git rev-list -n 1 "$TAG")
           CURRENT_SHA="${{ github.sha }}"
-          if [[ "$CURRENT_SHA" != "$TAG_SHA" ]] && [[ "$TAG" == v* ]]; then
+          if [[ "$CURRENT_SHA" != "$TAG_SHA" ]] && [[ "$TAG" == v20* ]]; then
             echo "::error::Stable deployments must be run from the same commit that produced the build!"
             exit 1
           fi
