@@ -31,7 +31,7 @@ jobs:
           fetch-depth: 0
 
       - name: Install pudl environment with pixi
-        uses: prefix-dev/setup-pixi@v0.9.6
+        uses: prefix-dev/setup-pixi@v0.10.0
         with:
           locked: true
           cache: true
