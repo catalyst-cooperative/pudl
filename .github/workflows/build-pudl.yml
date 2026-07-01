@@ -1,11 +1,206 @@
 ---
 name: build-pudl
-
 on:
   workflow_dispatch:
+  push:
+    tags:
+      # Run a build when a stable tag is pushed. If a build has already been run
+      # successfully from the tagged commit, it will skip the build and trigger a deployment
+      - "v20*"
+  schedule:
+    # 6am UTC daily (11pm PDT, 2am EDT)
+    # But only if there are changes since the last nightly build.
+    - cron: "0 6 * * *"
+
+env:
+  GCP_BILLING_PROJECT: ${{ secrets.GCP_BILLING_PROJECT }}
+  GCS_OUTPUT_BUCKET: gs://builds.catalyst.coop
+  BATCH_JOB_JSON: batch_job.json
+  SKIP_BUILD: "false"
+  GIT_TAG: ""
+  BUILD_ID: ""
 
 jobs:
-  no_op:
+  build_and_deploy_pudl:
+    name: Build Docker image, push to Docker Hub and deploy to Google Batch
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
     steps:
-      - uses: actions/checkout@v7
+      - name: Checkout Repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Skip the build if no changes since the last successful nightly build.
+        if: ${{ (github.event_name == 'schedule') }}
+        run: |
+          CURRENT_COMMIT=$(git rev-parse HEAD)
+          NIGHTLY_COMMIT=$(git rev-parse origin/nightly)
+          if [[ "$CURRENT_COMMIT" == "$NIGHTLY_COMMIT" ]]; then
+            echo "::notice::No changes since last successful nightly build. Skipping."
+            echo "SKIP_BUILD=true" >> "$GITHUB_ENV"
+            exit 0
+          fi
+
+      - name: Set git tag based on build type
+        if: ${{ env.SKIP_BUILD != 'true' }}
+        run: |
+          if [[ ${{ github.event_name }} == "schedule" ]]; then
+              echo "GIT_TAG=nightly-$(date +%Y-%m-%d)" >> $GITHUB_ENV
+          elif [[ ${{ github.event_name }} == "workflow_dispatch" ]]; then
+              echo "GIT_TAG=branch-${{ github.ref_name }}-$(date +%Y-%m-%d)" >> $GITHUB_ENV
+          elif [[ ${{ github.event_name }} == "push" ]]; then
+              echo "GIT_TAG=${{ github.ref_name }}" >> $GITHUB_ENV
+          fi
+
+      - name: Set action environment variables
+        if: ${{ env.SKIP_BUILD != 'true' }}
+        run: |
+          {
+              echo "BUILD_ID=$(date +%Y-%m-%d-%H%M)-$(git rev-parse --short=9 HEAD)-${{ github.ref_name }}";
+          } >> "$GITHUB_ENV"
+
+      - name: Show freshly set envvars
+        if: ${{ env.SKIP_BUILD != 'true' }}
+        run: |
+          echo "GIT_TAG: $GIT_TAG"
+          echo "BUILD_ID: $BUILD_ID"
+
+      - name: Tag build
+        if: ${{ (env.SKIP_BUILD != 'true') && (github.event_name != 'push') }}
+        run: |
+          git config user.email "pudl@catalyst.coop"
+          git config user.name "pudlbot"
+          git tag -a -m "$GIT_TAG" "$GIT_TAG" ${{ github.ref_name }}
+          git push origin "$GIT_TAG"
+
+      - name: Docker Metadata
+        id: docker_metadata
+        if: ${{ env.SKIP_BUILD != 'true' }}
+        uses: docker/metadata-action@v6
+        with:
+          images: catalystcoop/pudl-etl
+          flavor: |
+            latest=auto
+          tags: |
+            type=raw,value=${{ github.ref_name }}
+            type=ref,event=tag
+
+      - name: Set up Docker Buildx
+        if: ${{ env.SKIP_BUILD != 'true' }}
+        uses: docker/setup-buildx-action@v4
+
+      - name: Login to DockerHub
+        if: ${{ (github.event_name != 'pull_request') && (env.SKIP_BUILD != 'true') }}
+        uses: docker/login-action@v4
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build image and push to Docker Hub
+        id: docker-build
+        if: ${{ env.SKIP_BUILD != 'true' }}
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: builds/Dockerfile
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.docker_metadata.outputs.tags }}
+          labels: ${{ steps.docker_metadata.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - id: "auth"
+        if: ${{ env.SKIP_BUILD != 'true' }}
+        uses: "google-github-actions/auth@v3"
+        with:
+          workload_identity_provider: "projects/345950277072/locations/global/workloadIdentityPools/gh-actions-pool/providers/gh-actions-provider"
+          service_account: "deploy-pudl-github-action@catalyst-cooperative-pudl.iam.gserviceaccount.com"
+
+      # Setup gcloud CLI
+      - name: Set up Cloud SDK
+        if: ${{ env.SKIP_BUILD != 'true' }}
+        uses: google-github-actions/setup-gcloud@v3
+
+      # Deploy PUDL image to GCE
+      # Dagster Postgres connection configured in builds/dagster.yaml - otherwise we get a str for port num
+      - name: Make GCP Batch config file
+        if: ${{ env.SKIP_BUILD != 'true' }}
+        env:
+          PUDL_GCS_OUTPUT: ${{ env.GCS_OUTPUT_BUCKET }}/${{ env.BUILD_ID }}
+        run: |-
+          ./devtools/generate_batch_config.py \
+            --container-image "docker.io/catalystcoop/pudl-etl@${{ steps.docker-build.outputs.digest }}" \
+            --container-command "pixi" \
+            --container-arg="run" \
+            --container-arg="bash" \
+            --container-arg="./builds/pudl_batch.sh" \
+            --container-env AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} \
+            --container-env AWS_DEFAULT_REGION=${{ secrets.AWS_DEFAULT_REGION }} \
+            --container-env AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
+            --container-env BUILD_ID=${{ env.BUILD_ID }} \
+            --container-env BUILD_REF=${{ github.ref_name }} \
+            --container-env GCP_BILLING_PROJECT=${{ secrets.GCP_BILLING_PROJECT }} \
+            --container-env GITHUB_ACTION_TRIGGER=${{ github.event_name }} \
+            --container-env GIT_TAG=${{ env.GIT_TAG }} \
+            --container-env OMP_NUM_THREADS=4 \
+            --container-env PUDL_BOT_PAT=${{ secrets.PUDL_BOT_PAT }} \
+            --container-env PUDL_GCS_OUTPUT=${{ env.PUDL_GCS_OUTPUT }} \
+            --container-env DG_NIGHTLY_CONFIG="src/pudl/package_data/settings/dg_nightly.yml" \
+            --container-env SLACK_TOKEN=${{ secrets.PUDL_DEPLOY_SLACK_TOKEN }} \
+            --container-env ZULIP_API_KEY=${{ secrets.ZULIP_API_KEY }} \
+            --container-env ZENODO_SANDBOX_TOKEN_PUBLISH=${{ secrets.ZENODO_SANDBOX_TOKEN_PUBLISH }} \
+            --container-env ZENODO_TARGET_ENV=${{ (startsWith(github.ref_name, 'v20') && 'production') || 'sandbox' }} \
+            --container-env ZENODO_TOKEN_UPLOAD=${{ secrets.ZENODO_TOKEN_UPLOAD }} \
+            --container-env PUDL_FORCE_FERC_TO_SQLITE="true" \
+            --output ${{ env.BATCH_JOB_JSON }}
+
+      - name: Compile notification content
+        run: |
+          if [[ "${{ env.SKIP_BUILD }}" == 'true' ]]; then
+            echo "notification_content=:ghost: Skipping nightly build for $(date +%Y-%m-%d)" >> "$GITHUB_ENV"
+          else
+            echo "notification_content=:rocket: Launching PUDL Build: ${{ env.BUILD_ID }}" >> "$GITHUB_ENV"
+          fi
+
+      - name: Notify Zulip of build start or skip
+        if: ${{ always() }}
+        uses: zulip/github-actions-zulip/send-message@v2
+        with:
+          api-key: ${{ secrets.ZULIP_API_KEY }}
+          email: "build-status-bot@catalyst-cooperative.zulipchat.com"
+          organization-url: "https://catalyst-cooperative.zulipchat.com"
+          type: "stream"
+          to: "pudl-deployments"
+          topic: "build-deploy-pudl"
+          content: "${{ env.notification_content }}"
+
+      # Start the batch job
+      - name: Kick off batch job
+        if: ${{ env.SKIP_BUILD != 'true' }}
+        run: gcloud batch jobs submit run-etl-${{ env.BUILD_ID }} --config ${{ env.BATCH_JOB_JSON }} --location us-west1
+
+      - name: Status emoji
+        if: ${{ env.SKIP_BUILD != 'true' }}
+        run: |
+          if [[ "${{ job.status }}" == "success" ]]; then
+            echo "emoji=:check:" >> "$GITHUB_ENV"
+          elif [[ "${{ job.status }}" == "failure" ]]; then
+            echo "emoji=:x:" >> "$GITHUB_ENV"
+          else
+            echo "emoji=:warning:" >> "$GITHUB_ENV"
+          fi
+      - name: Notify Zulip of build launch status
+        if: ${{ env.SKIP_BUILD != 'true' }}
+        uses: zulip/github-actions-zulip/send-message@v2
+        with:
+          api-key: ${{ secrets.ZULIP_API_KEY }}
+          email: "build-status-bot@catalyst-cooperative.zulipchat.com"
+          organization-url: "https://catalyst-cooperative.zulipchat.com"
+          type: "stream"
+          to: "pudl-deployments"
+          topic: "build-deploy-pudl"
+          content: >
+            ${{ env.emoji }} Google Batch job for ${{ env.BUILD_ID }} launched with status: ${{ job.status }}.
