@@ -17,7 +17,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>Run a Versioned Release &#8212; PUDL 2026.6.2.dev16 documentation</title>
+    <title>Run a Versioned Release &#8212; PUDL 2026.6.2.dev17 documentation</title>
   
   
   
@@ -50,7 +50,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5" />
 
-    <script src="../_static/documentation_options.js?v=026aa5f0"></script>
+    <script src="../_static/documentation_options.js?v=ab2ad196"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -141,8 +141,8 @@
       
     
     
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.6.2.dev16 documentation - Home"/>
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.6.2.dev16 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.6.2.dev17 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.6.2.dev17 documentation - Home"/>
   
   
 </a></div>
@@ -605,13 +605,14 @@
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/auto_match_utilities/index.html">pudl.scripts.auto_match_utilities</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/check_path_permissions/index.html">pudl.scripts.check_path_permissions</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/dbt_helper/index.html">pudl.scripts.dbt_helper</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/deploy/index.html">pudl.scripts.deploy</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/dghome/index.html">pudl.scripts.dghome</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/generate_ferc_provenance/index.html">pudl.scripts.generate_ferc_provenance</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/generate_pudl_duckdb/index.html">pudl.scripts.generate_pudl_duckdb</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/metadata_to_rst/index.html">pudl.scripts.metadata_to_rst</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/pudl_check_fks/index.html">pudl.scripts.pudl_check_fks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/pudl_check_for_build/index.html">pudl.scripts.pudl_check_for_build</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/pudl_datastore/index.html">pudl.scripts.pudl_datastore</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/pudl_deploy/index.html">pudl.scripts.pudl_deploy</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/pudl_null_cols/index.html">pudl.scripts.pudl_null_cols</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/pudl_service_territories/index.html">pudl.scripts.pudl_service_territories</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/resource_description/index.html">pudl.scripts.resource_description</a></li>
@@ -786,18 +787,13 @@ Review <a class="reference external" href="https://github.com/catalyst-cooperati
 and ensure they’re all listed in the notes.
 Populate the top of the release notes with a blank
 section for the subsequent release.</p></li>
-<li><p>Wait for the nightly build to pass. Ideally, this build contains the updated
-release notes, but it’s okay to proceed so long as the only PR merged after
-a passing nightly build is the release notes update.</p></li>
-<li><p>Once everything is passing and the release notes update is in,
-push a git tag <code class="docutils literal notranslate"><span class="pre">vYYYY.M.x</span></code> that points at the head of <code class="docutils literal notranslate"><span class="pre">main</span></code>. <strong>This
-should be either the commit which just passed the nightly build, or the
-merge commit for the release notes update.</strong> Pushing the tag
-will kick off another build and
-create a GitHub Release.</p></li>
+<li><p>Once the release notes update is in, push a git tag <code class="docutils literal notranslate"><span class="pre">vYYYY.M.x</span></code> that points at
+the head of <code class="docutils literal notranslate"><span class="pre">main</span></code>. Pushing the tag will trigger the <code class="docutils literal notranslate"><span class="pre">build-pudl</span></code> workflow. If
+there is already a successful build from the tagged commit, then the build will be
+skipped and it will immediately trigger a deployment.</p></li>
 <li><p>Verify that a new release with that tag has appeared on GitHub.</p></li>
 <li><p>Verify that a new archive of the PUDL repository has appeared on Zenodo.</p></li>
-<li><p>If <em>that</em> build passes, verify the following:</p>
+<li><p>Once the <code class="docutils literal notranslate"><span class="pre">deploy-pudl</span></code> action is complete, verify the following:</p>
 <ul class="simple">
 <li><p>GCS/AWS distribution buckets have the appropriate data</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">stable</span></code> and <code class="docutils literal notranslate"><span class="pre">vYYYY.M.x</span></code> point at the same Git ref</p></li>

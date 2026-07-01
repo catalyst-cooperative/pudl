@@ -1,0 +1,37 @@
+pudl.scripts.pudl_check_for_build
+=================================
+
+.. py:module:: pudl.scripts.pudl_check_for_build
+
+.. autoapi-nested-parse::
+
+   Check if there are build outputs associated with a git tag.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.scripts.pudl_check_for_build.logger
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.scripts.pudl_check_for_build.main
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:function:: main(git_tag: str) -> int
+
+   Check if there are build outputs on GCS associated with a git-tag.
+
+

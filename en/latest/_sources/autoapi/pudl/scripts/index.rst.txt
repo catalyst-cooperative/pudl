@@ -101,13 +101,14 @@ Submodules
    /autoapi/pudl/scripts/auto_match_utilities/index
    /autoapi/pudl/scripts/check_path_permissions/index
    /autoapi/pudl/scripts/dbt_helper/index
-   /autoapi/pudl/scripts/deploy/index
    /autoapi/pudl/scripts/dghome/index
    /autoapi/pudl/scripts/generate_ferc_provenance/index
    /autoapi/pudl/scripts/generate_pudl_duckdb/index
    /autoapi/pudl/scripts/metadata_to_rst/index
    /autoapi/pudl/scripts/pudl_check_fks/index
+   /autoapi/pudl/scripts/pudl_check_for_build/index
    /autoapi/pudl/scripts/pudl_datastore/index
+   /autoapi/pudl/scripts/pudl_deploy/index
    /autoapi/pudl/scripts/pudl_null_cols/index
    /autoapi/pudl/scripts/pudl_service_territories/index
    /autoapi/pudl/scripts/resource_description/index

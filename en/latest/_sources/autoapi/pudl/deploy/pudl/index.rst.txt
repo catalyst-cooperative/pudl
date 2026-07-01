@@ -33,6 +33,7 @@ Functions
 
 .. autoapisummary::
 
+   pudl.deploy.pudl._zip_parquet_files
    pudl.deploy.pudl.prepare_outputs_for_distribution
    pudl.deploy.pudl._run
    pudl.deploy.pudl.upload_outputs
@@ -55,7 +56,7 @@ Module Contents
    Bases: :py:obj:`enum.Enum`
 
 
-   Deployments can be 'nightly' or 'stable'.
+   Deployments can be 'nightly', 'branch', or 'stable'.
 
 
    .. py:attribute:: NIGHTLY
@@ -66,6 +67,22 @@ Module Contents
    .. py:attribute:: STABLE
       :value: 'stable'
 
+
+
+   .. py:attribute:: BRANCH
+      :value: 'branch'
+
+
+
+.. py:function:: _zip_parquet_files(parquet_path: pathlib.Path, output_path: pathlib.Path) -> None
+
+   Create a zipfile containing parquet files and an associated datapackage JSON file.
+
+   ``parquet_path`` should contain a set of parquet files and exactly one datapackage
+   JSON file that describes those parquet files.
+
+   :param parquet_path: Path to directory containing parquet files.
+   :param output_path: Path to zipfile that should be created by this function.
 
 
 .. py:function:: prepare_outputs_for_distribution(local_path: pathlib.Path, build_path: upath.UPath) -> None
@@ -103,23 +120,24 @@ Module Contents
    :param path_suffixes: Path suffixes to upload to (e.g., ["nightly", "eel-hole"]).
 
 
-.. py:function:: update_git_branch(tag: str, branch: str, staging: bool) -> None
+.. py:function:: update_git_branch(tag: str, branch: str, environment: Literal['staging', 'production']) -> None
 
    Merge git tag into branch and push to origin.
 
    Performs fast-forward merge of a tag into a branch and pushes the result.
    This updates the nightly or stable branch to point to the tagged release.
 
-   In staging, will try the checkout and merge, but skip the git push.
+   If environment is 'staging', this will try the checkout and merge, but skip the
+   git push.
 
    :param tag: Git tag to merge (e.g., "nightly-2025-02-05" or "v2025.2.3").
    :param branch: Target branch to update (e.g., "nightly" or "stable").
-   :param staging: True if this is a staging environment.
+   :param environment: Deployment environment.
 
    :raises subprocess.CalledProcessError: If git commands fail.
 
 
-.. py:function:: trigger_zenodo_release(build_ref: str, env: str, source_dir: str, ignore_regex: str, publish: bool, token: str) -> None
+.. py:function:: trigger_zenodo_release(build_ref: str, env: str, source_suffix: str, ignore_regex: str, publish: bool, token: str) -> None
 
    Trigger Zenodo data release GitHub Actions workflow.
 
@@ -128,17 +146,19 @@ Module Contents
 
    :param build_ref: The git reference for the workflow. The reference can be a branch or tag name.
    :param env: Zenodo environment - "sandbox" or "production".
-   :param source_dir: Cloud storage path to source data (e.g., "s3://pudl.catalyst.coop/nightly/").
+   :param source_suffix: Suffix appended to s3 path (s3://pudl.catalyst.coop) to get
+                         path to data outputs which will populate zenodo deposition.
    :param ignore_regex: Regex pattern for files to exclude from upload.
    :param publish: If True, automatically publish the Zenodo record.
    :param token: the bearer token to authenticate to GitHub.
 
 
-.. py:function:: update_pudl_viewer() -> None
+.. py:function:: update_pudl_viewer(token: str, environment: Literal['staging', 'production']) -> None
 
    Update PUDL Viewer Cloud Run service to latest image.
 
-   :param service_name: Name of the Cloud Run service (e.g., "pudl-viewer").
+   :param token: the bearer token to authenticate to GitHub.
+   :param environment: deploy staging or production version of viewer.
 
 
 .. py:function:: set_gcs_temporary_hold(gcs_path: str) -> None
@@ -164,6 +184,6 @@ Module Contents
 
 .. py:function:: get_deployment_type_from_tag(git_tag: str) -> DeploymentType
 
-   Check if tag looks like a 'nightly' or 'stable' tag.
+   Check if tag looks like a 'nightly', 'branch', or 'stable' tag.
 
 
