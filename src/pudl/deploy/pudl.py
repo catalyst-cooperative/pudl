@@ -250,9 +250,7 @@ def trigger_zenodo_release(
         },
         timeout=10,
     )
-
-    if response.status_code != 200:
-        raise RuntimeError(f"Zenodo release request failed: {response.content}")
+    response.raise_for_status()
 
     logger.info("Zenodo release workflow triggered")
 
@@ -285,9 +283,7 @@ def update_pudl_viewer(
         },
         timeout=10,
     )
-
-    if response.status_code != 200:
-        raise RuntimeError(f"PUDL Viewer update request failed: {response.content}")
+    response.raise_for_status()
 
     logger.info("PUDL Viewer Cloud Run service updated")
 
