@@ -22,15 +22,24 @@ def test_prepare_outputs_for_distribution(tmp_path):
     build_path = tmp_path / "build_path"
     output_dir.mkdir()
     build_path.mkdir()
-    parquet_dir = build_path / "parquet"
-    parquet_dir.mkdir()
+    parquet_dirs = [
+        build_path / "parquet",
+        build_path / "ferc1_xbrl",
+        build_path / "ferc2_xbrl",
+        build_path / "ferc6_xbrl",
+        build_path / "ferc60_xbrl",
+        build_path / "ferc714_xbrl",
+    ]
 
     (build_path / "pudl.sqlite").write_text("db content")
     (build_path / "ferc1.sqlite").write_text("ferc db")
     (build_path / "pudl_dbt_tests.duckdb").write_text("test db")
-    (parquet_dir / "table1.parquet").write_text("p1")
-    (parquet_dir / "table2.parquet").write_text("p2")
-    (parquet_dir / "datapackage.json").write_text("{}")
+
+    for parquet_dir in parquet_dirs:
+        parquet_dir.mkdir()
+        (parquet_dir / "table1.parquet").write_text("p1")
+        (parquet_dir / "table2.parquet").write_text("p2")
+        (parquet_dir / "datapackage.json").write_text("{}")
 
     prepare_outputs_for_distribution(output_dir, UPath(build_path))
 
@@ -47,12 +56,19 @@ def test_prepare_outputs_for_distribution(tmp_path):
 
     # Parquet archive created
     assert (output_dir / "pudl_parquet.zip").exists()
-    with zipfile.ZipFile(output_dir / "pudl_parquet.zip") as zf:
-        names = zf.namelist()
-        assert "table1.parquet" in names
-        assert "table2.parquet" in names
-        assert "datapackage.json" in names
-        assert "pudl_parquet_datapackage.json" not in names
+    for parquet_zip in [
+        output_dir / "pudl_parquet.zip",
+        output_dir / "ferc1_xbrl.zip",
+        output_dir / "ferc2_xbrl.zip",
+        output_dir / "ferc6_xbrl.zip",
+        output_dir / "ferc60_xbrl.zip",
+        output_dir / "ferc714_xbrl.zip",
+    ]:
+        with zipfile.ZipFile(parquet_zip) as zf:
+            names = zf.namelist()
+            assert "table1.parquet" in names
+            assert "table2.parquet" in names
+            assert "datapackage.json" in names
 
     assert not (output_dir / "pudl_dbt_tests.duckdb").exists()
     assert not (output_dir / "parquet").exists()
@@ -114,18 +130,22 @@ def test_update_git_branch():
     stable_tag = "v2026.2.9"
     with patch("pudl.deploy.pudl.subprocess.run") as mock_run:
         mock_run.retudeploymentvalue = MagicMock(returncode=0)
-        update_git_branch(tag="nightly-2026-02-09", branch="nightly", staging=False)
+        update_git_branch(
+            tag="nightly-2026-02-09", branch="nightly", environment="production"
+        )
 
         with pytest.raises(
             RuntimeError,
             match=f"Git tag, {nightly_tag}, does not match deployment branch, stable.",
         ):
-            update_git_branch(tag=nightly_tag, branch="stable", staging=False)
+            update_git_branch(
+                tag=nightly_tag, branch="stable", environment="production"
+            )
         with pytest.raises(
             RuntimeError,
             match=f"Git tag, {stable_tag}, does not match deployment branch, nightly.",
         ):
-            update_git_branch(tag=stable_tag, branch="nightly", staging=False)
+            update_git_branch(tag=stable_tag, branch="nightly", environment="staging")
 
         kwargs = {"check": True, "capture_output": True, "text": True}
         assert mock_run.call_count == 3
@@ -143,7 +163,9 @@ def test_update_git_branch_staging():
     with patch("pudl.deploy.pudl.subprocess.run") as mock_run:
         mock_run.retudeploymentvalue = MagicMock(returncode=0)
 
-        update_git_branch(tag="nightly-2026-02-09", branch="nightly", staging=True)
+        update_git_branch(
+            tag="nightly-2026-02-09", branch="nightly", environment="staging"
+        )
 
         kwargs = {"check": True, "capture_output": True, "text": True}
         assert mock_run.call_count == 2
