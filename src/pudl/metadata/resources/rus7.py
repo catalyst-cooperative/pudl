@@ -502,11 +502,11 @@ RESOURCE_METADATA_BASE: dict[str, dict[str, Any]] = {
             "usage_warnings": ["aggregation_hazard"],
             "additional_source_text": "(Part B)",
             "additional_details_text": (
-                "Per RUS Form 7 Part B, ``total_services`` (Total Services in Place) is a "
+                "Per RUS Form 7 Part B, ``total_in_place`` (Total Services in Place) is a "
                 "cumulative stock, while ``connected_this_year`` (New Services Connected) and "
                 "``retired_this_year`` (Services Retired) are annual flows. The form defines no "
                 "sum relationship among these line items, so the subcomponents do not sum to the "
-                "total within a year; ``idle_services`` is a subset of the total rather than a "
+                "total within a year; ``idle_in_place`` is a subset of the total rather than a "
                 "summand. The underlying relationship is year-over-year: "
                 "total(y) = total(y-1) + connected(y) - retired(y)."
             ),

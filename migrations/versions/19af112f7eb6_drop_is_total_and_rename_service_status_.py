@@ -26,9 +26,9 @@ def upgrade() -> None:
             existing_type=sa.Enum("connected", "idle", "retired", "total"),
             type_=sa.Enum(
                 "connected_this_year",
-                "idle_services",
                 "retired_this_year",
-                "total_services",
+                "total_in_place",
+                "idle_in_place",
             ),
             existing_nullable=False,
         )
@@ -42,9 +42,9 @@ def upgrade() -> None:
             existing_type=sa.Enum("connected", "idle", "retired", "total"),
             type_=sa.Enum(
                 "connected_this_year",
-                "idle_services",
                 "retired_this_year",
-                "total_services",
+                "total_in_place",
+                "idle_in_place",
             ),
             existing_nullable=False,
         )
@@ -70,9 +70,9 @@ def downgrade() -> None:
             "service_status",
             existing_type=sa.Enum(
                 "connected_this_year",
-                "idle_services",
                 "retired_this_year",
-                "total_services",
+                "total_in_place",
+                "idle_in_place",
             ),
             type_=sa.Enum("connected", "idle", "retired", "total"),
             existing_nullable=False,
@@ -93,9 +93,9 @@ def downgrade() -> None:
             "service_status",
             existing_type=sa.Enum(
                 "connected_this_year",
-                "idle_services",
                 "retired_this_year",
-                "total_services",
+                "total_in_place",
+                "idle_in_place",
             ),
             type_=sa.Enum("connected", "idle", "retired", "total"),
             existing_nullable=False,

@@ -1142,19 +1142,10 @@ SERVICE_INTERRUPTION_PERIODS_RUS7 = ["five_year_average", "annual"]
 
 SERVICE_STATUS_RUS7 = [
     "connected_this_year",
-    "idle_services",
     "retired_this_year",
-    "total_services",
+    "total_in_place",
+    "idle_in_place",
 ]
-
-# Maps the raw RUS Form 7 Part B column suffixes to the self-explanatory
-# ``service_status`` values exposed in the distribution services tables.
-SERVICE_STATUS_RENAME_RUS7 = {
-    "connected": "connected_this_year",
-    "idle": "idle_services",
-    "retired": "retired_this_year",
-    "total": "total_services",
-}
 
 TRANSMISSION_DISTRIBUTION_TYPES_RUS7 = [
     "distribution_overhead",
