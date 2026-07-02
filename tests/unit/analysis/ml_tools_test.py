@@ -76,12 +76,11 @@ def test_create_experiment_tracker(
         lambda: mlflow.log_param("test_param", "param_value")
     )
     experiment_tracker.execute_logging(lambda: mlflow.log_metric("test_metric", 5.0))
-    runs_df = mlflow.search_runs(
-        output_format="pandas",
-        experiment_names=[experiment_name],
-    )
-
     if tracking_enabled:
+        runs_df = mlflow.search_runs(
+            output_format="pandas",
+            experiment_names=[experiment_name],
+        )
         pd.testing.assert_frame_equal(
             runs_df[["params.test_param", "metrics.test_metric", "tags.run_context"]],
             pd.DataFrame(
@@ -93,4 +92,4 @@ def test_create_experiment_tracker(
             ),
         )
     else:
-        assert runs_df.empty
+        assert mlflow.get_experiment_by_name(experiment_name) is None

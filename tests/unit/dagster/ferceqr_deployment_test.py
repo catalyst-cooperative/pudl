@@ -162,6 +162,7 @@ def test_sensors_converge_to_same_run_key_in_race_condition(
     produces a RunRequest with the same run_key prefix. Dagster deduplicates by run_key,
     so exactly one downstream run is launched regardless of how many sensors fire.
     """
+    mocker.patch.object(sensors, "logger", mocker.Mock())
     context = mocker.Mock()
     context.dagster_run.run_id = "run-123"
     context.dagster_run.job_name = "ferceqr"
@@ -183,6 +184,7 @@ def test_sensors_converge_to_same_run_key_in_race_condition(
 
 def test_ferceqr_failure_sensor_backfill_with_failures_aggregated(mocker):
     """Failure sensor should produce an aggregated RunRequest when all backfill runs are terminal and some failed."""
+    mocker.patch.object(sensors, "logger", mocker.Mock())
     context = mocker.Mock()
     context.dagster_run.run_id = "run-456"
     context.dagster_run.job_name = "ferceqr"
@@ -280,6 +282,7 @@ def test_deploy_ferceqr_success_path_writes_success_and_notifies(mocker, tmp_pat
 def test_deploy_ferceqr_requires_source_partitions(mocker, tmp_path):
     """Deployment should fail closed if the run is missing source partition tags."""
     deploy_context = _build_deploy_context(tmp_path, mocker)
+    mocker.patch.object(deploy_ferceqr, "logger", mocker.Mock())
 
     with pytest.raises(RuntimeError, match="no deployable partitions"):
         deploy_ferceqr.deploy_ferceqr(deploy_context)
@@ -288,6 +291,7 @@ def test_deploy_ferceqr_requires_source_partitions(mocker, tmp_path):
 def test_handle_ferceqr_failure_writes_failure_and_notifies(mocker, tmp_path):
     """Failure handler should notify Zulip and write the FAILURE sentinel file."""
     deploy_context = _build_deploy_context(tmp_path, mocker)
+    mocker.patch.object(deploy_ferceqr, "logger", mocker.Mock())
     (tmp_path / "FERCEQR_SUCCESS").write_text("stale success")
     zulip_mock = deploy_context.resources.zulip_notification
 
@@ -504,6 +508,10 @@ def test_deploy_ferceqr_staging_is_cleaned_up_on_failure(mocker, tmp_path):
             raise RuntimeError("promotion failed before rename")
 
     mocker.patch.object(deploy_ferceqr, "_promote_staging", _broken_promote)
+    # Suppress expected error-path logging so it doesn't appear as alarming noise
+    # in the test output. The error handling is production-correct; this test is
+    # only verifying that staging cleanup runs after promotion fails.
+    mocker.patch.object(deploy_ferceqr, "logger", mocker.Mock())
 
     with pytest.raises(RuntimeError, match="promotion failed"):
         deploy_ferceqr.deploy_ferceqr(deploy_context)
