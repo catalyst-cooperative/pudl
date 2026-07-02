@@ -429,7 +429,7 @@ def _yearly_to_monthly_records(df: pd.DataFrame) -> pd.DataFrame:
     month_idx = pd.MultiIndex.from_frame(col_df).set_names([None, "report_month"])
     # reshape
     df.columns = month_idx
-    stacked = df.stack()
+    stacked = df.stack(future_stack=True)
     # Keep return type stable for type-checkers when stack collapses to Series.
     df = stacked.to_frame() if isinstance(stacked, pd.Series) else stacked
     # restore original index and columns - reset index except level 0

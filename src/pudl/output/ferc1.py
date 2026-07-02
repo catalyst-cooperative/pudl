@@ -3042,7 +3042,9 @@ def disaggregate_null_or_total_tag(
         # during the left merge above. We want to preserve the ending balance's for these
         # records even if there is no way to disaggregate them.
         .assign(
-            ending_balance=lambda x: x[f"ratio_{tag_col}"].fillna(1) * x.ending_balance,
+            ending_balance=lambda x: (
+                x[f"ratio_{tag_col}"].fillna(1).astype(float) * x.ending_balance
+            ),
         )
         .assign(**{f"is_disaggregated_{tag_col}": True})
         .drop(columns=[f"ratio_{tag_col}", f"{tag_col}_total_or_null"])

@@ -27,18 +27,21 @@ AK_FIPS = {"name": "Alaska", "code": "AK", "fips": "02"}
         ("2", AK_FIPS),
         (2.0, AK_FIPS),
         (np.int64(2), AK_FIPS),
-        pytest.param(99, {}, marks=pytest.mark.xfail),
-        pytest.param("Oaxaca", {}, marks=pytest.mark.xfail),
-        pytest.param("MX", {}, marks=pytest.mark.xfail),
-        pytest.param(np.nan, {}, marks=pytest.mark.xfail),
-        pytest.param(pd.NA, {}, marks=pytest.mark.xfail),
-        pytest.param("", {}, marks=pytest.mark.xfail),
-        pytest.param(None, {}, marks=pytest.mark.xfail),
     ],
 )
 def test_lookup_state(state: str | int, expected: dict[str, str | int]) -> None:
     """Check that various kinds of state lookups work."""
     assert lookup_state(state) == expected
+
+
+@pytest.mark.parametrize(
+    "state",
+    [99, "Oaxaca", "MX", np.nan, pd.NA, "", None],
+)
+def test_lookup_state_invalid(state: str | int) -> None:
+    """Check that invalid state identifiers raise KeyError or TypeError."""
+    with pytest.raises((KeyError, TypeError)):
+        lookup_state(state)
 
 
 @pytest.fixture
