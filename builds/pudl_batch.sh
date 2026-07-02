@@ -217,10 +217,6 @@ function cleanup_on_exit() {
         gcloud storage --quiet cp "$LOGFILE" "$PUDL_GCS_OUTPUT" || true
     fi
 
-    if [[ -n "${PG_VERSION:-}" ]]; then
-        pg_ctlcluster "$PG_VERSION" dagster stop || true
-    fi
-
     rm -f ~/.aws/credentials
 
     if [[ $exit_code -eq 0 ]] && ! any_stage_failed \
