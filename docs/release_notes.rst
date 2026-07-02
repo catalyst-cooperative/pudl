@@ -78,6 +78,7 @@ Developer Experience
   DuckDB, Polars, pandas) now agree on 64-bit numeric types. The unused ``compact``
   parameter on :meth:`~pudl.metadata.classes.Field.to_pandas_dtype` (which returned
   32-bit types) has been removed.
+* Reduced spurious logging and error output from our unit tests. See PR :pr:`5362`.
 * Reworked the nightly PUDL build and deployment automation to send start and
   status notifications to the ``pudl-deployments`` Zulip stream directly from
   GitHub Actions and the batch build script, with per-stage timing summaries and
