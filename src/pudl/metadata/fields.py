@@ -10764,6 +10764,11 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
     },
     "sector_consolidated_eia": {"code": {"type": "integer"}},
     "core_eia861__yearly_reliability": {
+        # customers genuinely contains fractional values (122 rows out of ~12,000
+        # have non-integer values, e.g. 127553.8, 8989.3). This happens because
+        # EIA uses the customer count as an averaging denominator when
+        # computing reliability metrics like SAIDI, SAIFI, and CAIDI, so the reported
+        # value in that context is an average rather than a raw count.
         "customers": {
             "type": "number",
         },
