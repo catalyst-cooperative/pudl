@@ -1,7 +1,5 @@
 """Tiny CLI for showing table descriptions without building the full docs."""
 
-import sys
-
 import click
 
 from pudl.metadata.classes import PudlResourceDescriptor, Resource
@@ -16,7 +14,8 @@ from pudl.metadata.classes import PudlResourceDescriptor, Resource
     prompt="Table or resource name",
     help="The name of the resource whose description information to display.",
 )
-def main(name: str) -> int:
+@click.pass_context
+def main(ctx: click.Context, name: str) -> None:
     """Compute and display the description components for a resource.
 
     These components are used to build the full resource description which goes into the
@@ -32,7 +31,7 @@ def main(name: str) -> int:
 
     if name not in RESOURCE_METADATA:
         click.echo(f"No table {name}")
-        return 1
+        ctx.exit(1)
     resolved = ResourceDescriptionBuilder(
         name,
         Resource._resolve_references_from_resource_descriptor(
@@ -41,8 +40,7 @@ def main(name: str) -> int:
     ).build()
     click.echo("Table found:")
     click.echo(resolved.summarize())
-    return 0
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

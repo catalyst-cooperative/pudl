@@ -123,6 +123,48 @@ jobs:
             --disk-gb=100 \
             --output batch_job.json
 
+      - name: Compile notification content
+        if: ${{ always() }}
+        run: |
+          echo "notification_content=:rocket: Launching PUDL deployment for ${{ env.GIT_TAG }} (${{ env.DEPLOYMENT_ENVIRONMENT }})" >> "$GITHUB_ENV"
+
+      - name: Notify Zulip of deployment start
+        if: ${{ always() }}
+        uses: zulip/github-actions-zulip/send-message@v2
+        with:
+          api-key: ${{ secrets.ZULIP_API_KEY }}
+          email: "build-status-bot@catalyst-cooperative.zulipchat.com"
+          organization-url: "https://catalyst-cooperative.zulipchat.com"
+          type: "stream"
+          to: "pudl-deployments"
+          topic: "build-deploy-pudl"
+          content: "${{ env.notification_content }}"
+
       - name: Kick off batch job
         if: ${{ env.SKIP_BUILD != 'true' }}
         run: gcloud batch jobs submit deploy-outputs-${{ github.run_id }}-${{ github.run_attempt }} --config batch_job.json --location us-east1
+
+      - name: Status emoji
+        if: ${{ always() }}
+        run: |
+          if [[ "${{ job.status }}" == "success" ]]; then
+            echo "emoji=:check:" >> "$GITHUB_ENV"
+          elif [[ "${{ job.status }}" == "failure" ]]; then
+            echo "emoji=:x:" >> "$GITHUB_ENV"
+          else
+            echo "emoji=:warning:" >> "$GITHUB_ENV"
+          fi
+
+      - name: Notify Zulip of deployment batch job status
+        if: ${{ always() }}
+        uses: zulip/github-actions-zulip/send-message@v2
+        with:
+          api-key: ${{ secrets.ZULIP_API_KEY }}
+          email: "build-status-bot@catalyst-cooperative.zulipchat.com"
+          organization-url: "https://catalyst-cooperative.zulipchat.com"
+          type: "stream"
+          to: "pudl-deployments"
+          topic: "build-deploy-pudl"
+          content: >
+            ${{ env.emoji }} PUDL deployment batch job for ${{ env.GIT_TAG }}
+            (${{ env.DEPLOYMENT_ENVIRONMENT }}) launched with status: ${{ job.status }}.
