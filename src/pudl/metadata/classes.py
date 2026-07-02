@@ -659,19 +659,10 @@ class Field(PudlMeta):
             return pl.Enum(self.constraints.enum)
         return FIELD_DTYPES_POLARS[self.type]
 
-    def to_pandas_dtype(self, compact: bool = False) -> str | pd.CategoricalDtype:
-        """Return Pandas data type.
-
-        Args:
-            compact: Whether to return a low-memory data type (32-bit integer or float).
-        """
+    def to_pandas_dtype(self) -> str | pd.CategoricalDtype:
+        """Return Pandas data type."""
         if self.constraints.enum:
             return pd.CategoricalDtype(self.constraints.enum)
-        if compact:
-            if self.type == "integer":
-                return "Int32"
-            if self.type == "number":
-                return "float32"
         return FIELD_DTYPES_PANDAS[self.type]
 
     def to_sql_dtype(self) -> type:  # noqa: A003
@@ -1911,13 +1902,9 @@ class Resource(PudlMeta):
         """Return Polars data type of each field by field name."""
         return {f.name: f.to_polars_dtype() for f in self.schema.fields}
 
-    def to_pandas_dtypes(self, **kwargs: Any) -> dict[str, str | pd.CategoricalDtype]:
-        """Return Pandas data type of each field by field name.
-
-        Args:
-            kwargs: Arguments to :meth:`Field.to_pandas_dtype`.
-        """
-        return {f.name: f.to_pandas_dtype(**kwargs) for f in self.schema.fields}
+    def to_pandas_dtypes(self) -> dict[str, str | pd.CategoricalDtype]:
+        """Return Pandas data type of each field by field name."""
+        return {f.name: f.to_pandas_dtype() for f in self.schema.fields}
 
     def match_primary_key(self, names: Iterable[str]) -> dict[str, str] | None:
         """Match primary key fields to input field names.
@@ -1994,7 +1981,7 @@ class Resource(PudlMeta):
         return matches if len(matches) == len(keys) else None
 
     def format_df(
-        self, df: pd.DataFrame | gpd.GeoDataFrame | None = None, **kwargs: Any
+        self, df: pd.DataFrame | gpd.GeoDataFrame | None = None
     ) -> pd.DataFrame | gpd.GeoDataFrame:
         """Format a dataframe according to the resources's table schema.
 
@@ -2009,12 +1996,11 @@ class Resource(PudlMeta):
 
         Args:
             df: Dataframe to format.
-            kwargs: Arguments to :meth:`Field.to_pandas_dtypes`.
 
         Returns:
             Dataframe with column names and data types matching the resource fields.
         """
-        dtypes = self.to_pandas_dtypes(**kwargs)
+        dtypes = self.to_pandas_dtypes()
         if df is None:
             return pd.DataFrame({n: pd.Series(dtype=d) for n, d in dtypes.items()})
         matches = self.match_primary_key(df.columns)
