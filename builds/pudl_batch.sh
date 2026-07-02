@@ -152,6 +152,17 @@ function exit_on_stage_failure() {
     fi
 }
 
+function require_stage_success() {
+    local stage_status=$1
+
+    # Deployment requires every preceding stage to have actually run and
+    # succeeded. A skipped stage (status == STAGE_SKIPPED) means the step was
+    # never attempted, which is just as unsafe to deploy from as a failure.
+    if [[ "$stage_status" != 0 ]]; then
+        exit 1
+    fi
+}
+
 function any_stage_failed() {
     local stage_status
 
@@ -307,12 +318,12 @@ dbt_helper update-tables --clobber --row-counts all
 
 run_stage SAVE_OUTPUTS_STATUS SAVE_OUTPUTS_DURATION save_outputs_to_gcs
 
-exit_on_stage_failure "$DAGSTER_STATUS"
-exit_on_stage_failure "$UNIT_TEST_STATUS"
-exit_on_stage_failure "$INTEGRATION_TEST_STATUS"
-exit_on_stage_failure "$DATA_VALIDATION_STATUS"
-exit_on_stage_failure "$ROW_COUNT_VALIDATION_STATUS"
-exit_on_stage_failure "$SAVE_OUTPUTS_STATUS"
+require_stage_success "$DAGSTER_STATUS"
+require_stage_success "$UNIT_TEST_STATUS"
+require_stage_success "$INTEGRATION_TEST_STATUS"
+require_stage_success "$DATA_VALIDATION_STATUS"
+require_stage_success "$ROW_COUNT_VALIDATION_STATUS"
+require_stage_success "$SAVE_OUTPUTS_STATUS"
 
 run_stage TRIGGER_DEPLOYMENT_STATUS TRIGGER_DEPLOYMENT_DURATION trigger_deployment
 
