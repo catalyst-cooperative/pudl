@@ -1140,7 +1140,12 @@ SERVICE_INTERRUPTION_TYPES_RUS7 = {
 
 SERVICE_INTERRUPTION_PERIODS_RUS7 = ["five_year_average", "annual"]
 
-SERVICE_STATUS_RUS7 = ["connected", "idle", "retired", "total"]
+SERVICE_STATUS_RUS7 = [
+    "connected_this_year",
+    "retired_this_year",
+    "total_in_place",
+    "idle_in_place",
+]
 
 TRANSMISSION_DISTRIBUTION_TYPES_RUS7 = [
     "distribution_overhead",

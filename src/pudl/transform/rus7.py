@@ -429,7 +429,8 @@ def _core_rus7__transmission_and_distribution(
     services_df = df[id_cols + [col for col in df.columns if "services" in col]]
     miles_df = df[id_cols + [col for col in df.columns if col not in services_df]]
 
-    # Stack the services table
+    # Stack the services table. The column suffixes are already the
+    # self-explanatory service_status values (renamed in the column maps).
     pattern = rf"^(services)_({'|'.join(SERVICE_STATUS_RUS7)})$"
     services_df = multi_index_stack(
         services_df,
@@ -439,7 +440,6 @@ def _core_rus7__transmission_and_distribution(
         match_names=["data_cols", "service_status"],
         unstack_level=["service_status"],
     )
-    services_df["is_total"] = services_df["service_status"] == "total"
 
     # Stack the mileage dataframe
     pattern = rf"^({'|'.join(TRANSMISSION_DISTRIBUTION_TYPES_RUS7)})_(?:length|energized)_(miles)$"
