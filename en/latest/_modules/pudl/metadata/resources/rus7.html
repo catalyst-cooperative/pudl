@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.metadata.resources.rus7 &#8212; PUDL 2026.6.2.dev18 documentation</title>
+    <title>pudl.metadata.resources.rus7 &#8212; PUDL 2026.6.2.dev19 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5" />
 
-    <script src="../../../../_static/documentation_options.js?v=095d20d1"></script>
+    <script src="../../../../_static/documentation_options.js?v=a01d54b7"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -574,8 +574,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.6.2.dev18 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.6.2.dev18 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.6.2.dev19 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.6.2.dev19 documentation - Home"/>
   
   
 </a></div>
@@ -1368,6 +1368,15 @@ window.runMermaid = runMermaid;</script>
             <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;distribution services.&quot;</span><span class="p">),</span>
             <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;aggregation_hazard&quot;</span><span class="p">],</span>
             <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Part B)&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">&quot;Per RUS Form 7 Part B, ``total_in_place`` (Total Services in Place) is a &quot;</span>
+                <span class="s2">&quot;cumulative stock, while ``connected_this_year`` (New Services Connected) and &quot;</span>
+                <span class="s2">&quot;``retired_this_year`` (Services Retired) are annual flows. The form defines no &quot;</span>
+                <span class="s2">&quot;sum relationship among these line items, so the subcomponents do not sum to the &quot;</span>
+                <span class="s2">&quot;total within a year; ``idle_in_place`` is a subset of the total rather than a &quot;</span>
+                <span class="s2">&quot;summand. The underlying relationship is year-over-year: &quot;</span>
+                <span class="s2">&quot;total(y) = total(y-1) + connected(y) - retired(y).&quot;</span>
+            <span class="p">),</span>
         <span class="p">},</span>
         <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
             <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
@@ -1375,7 +1384,6 @@ window.runMermaid = runMermaid;</script>
                 <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;service_status&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;services&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;is_total&quot;</span><span class="p">,</span>
             <span class="p">],</span>
             <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">,</span> <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span> <span class="s2">&quot;service_status&quot;</span><span class="p">],</span>
         <span class="p">},</span>
