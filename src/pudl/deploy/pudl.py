@@ -208,7 +208,7 @@ def update_git_branch(
         ]
     )
     _run(["git", "fetch", "--force", "--tags", "origin", tag])
-    _run(["git", "fetch", f"{branch}:{branch}"])
+    _run(["git", "fetch", "origin", f"{branch}:{branch}"])
     _run(["git", "checkout", branch])
     _run(["git", "merge", "--ff-only", tag])
     if environment != "staging":

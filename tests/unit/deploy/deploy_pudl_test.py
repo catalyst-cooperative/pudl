@@ -179,7 +179,7 @@ def test_update_git_branch():
                     ["git", "fetch", "--force", "--tags", "origin", nightly_tag],
                     **kwargs,
                 ),
-                call(["git", "fetch", "nightly:nightly"], **kwargs),
+                call(["git", "fetch", "origin", "nightly:nightly"], **kwargs),
                 call(["git", "checkout", "nightly"], **kwargs),
                 call(["git", "merge", "--ff-only", "nightly-2026-02-09"], **kwargs),
                 call(["git", "push", "-u", "origin", "nightly"], **kwargs),
@@ -227,7 +227,7 @@ def test_update_git_branch_staging():
                     ],
                     **kwargs,
                 ),
-                call(["git", "fetch", "nightly:nightly"], **kwargs),
+                call(["git", "fetch", "origin", "nightly:nightly"], **kwargs),
                 call(["git", "checkout", "nightly"], **kwargs),
                 call(["git", "merge", "--ff-only", "nightly-2026-02-09"], **kwargs),
             ]
