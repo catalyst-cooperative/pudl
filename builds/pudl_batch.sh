@@ -64,7 +64,7 @@ function trigger_deployment() {
   "ref": "${BUILD_REF}",
   "inputs": {
     "git_tag": "${GIT_TAG}",
-    "deployment_environment": "${GIT_ENVIRONMENT}"
+    "deployment_environment": "${DEPLOYMENT_ENVIRONMENT}"
   }
 }
 JSON
