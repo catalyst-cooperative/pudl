@@ -99,24 +99,26 @@ def test_pudl_service_territories(
 
 
 @pytest.mark.parametrize(
-    "resource_id",
+    "resource_id,expected_success",
     [
         # One migrated table
-        "core_epacems__hourly_emissions",
+        ("core_epacems__hourly_emissions", True),
         # One unmigrated table (TODO: drop after migration)
-        "_core_eia860__cooling_equipment",
+        ("_core_eia860__cooling_equipment", True),
         # One nonexistent table
-        "imaginary_resource",
+        ("imaginary_resource", False),
     ],
 )
 @pytest.mark.script_launch_mode("inprocess")
 @pytest.mark.order(1)
-def test_resource_description(script_runner, resource_id: str):
+def test_resource_description(script_runner, resource_id: str, expected_success: bool):
     """CLI tests specific to the resource_description script."""
     ret = script_runner.run(
         ["resource_description", "-n", resource_id], print_result=True
     )
-    assert ret.success
+    assert ret.success is expected_success
+    if not expected_success:
+        assert f"No table {resource_id}" in ret.stdout
 
 
 @pytest.mark.script_launch_mode("inprocess")
