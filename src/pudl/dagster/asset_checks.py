@@ -453,10 +453,10 @@ def _build_registry_from_descriptor(descriptor: dict) -> pint.UnitRegistry:
     """
     unit_registry_meta = descriptor["unit_registry"]
     definitions = unit_registry_meta["definitions"]
-    ureg = pint.UnitRegistry()
-    for defn in definitions:
-        ureg.define(defn)
-    return ureg
+    unit_registry = pint.UnitRegistry()
+    for definition in definitions:
+        unit_registry.define(definition)
+    return unit_registry
 
 
 def _validate_datapackage_unit_strings(descriptor: dict) -> list[str]:
