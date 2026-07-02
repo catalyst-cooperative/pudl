@@ -48,11 +48,11 @@ jobs:
         if: ${{ env.SKIP_BUILD != 'true' }}
         run: |
           if [[ ${{ github.event_name }} == "schedule" ]]; then
-              echo "GIT_TAG=nightly-$(date +%Y-%m-%d)" >> $GITHUB_ENV
+              echo "GIT_TAG=nightly-$(date +%Y-%m-%d)" >> "$GITHUB_ENV"
           elif [[ ${{ github.event_name }} == "workflow_dispatch" ]]; then
-              echo "GIT_TAG=branch-${{ github.ref_name }}-$(date +%Y-%m-%d)" >> $GITHUB_ENV
+              echo "GIT_TAG=branch-${{ github.ref_name }}-$(date +%Y-%m-%d)" >> "$GITHUB_ENV"
           elif [[ ${{ github.event_name }} == "push" ]]; then
-              echo "GIT_TAG=${{ github.ref_name }}" >> $GITHUB_ENV
+              echo "GIT_TAG=${{ github.ref_name }}" >>  "$GITHUB_ENV"
           fi
 
       - name: Set action environment variables
@@ -149,7 +149,6 @@ jobs:
             --container-env PUDL_BOT_PAT=${{ secrets.PUDL_BOT_PAT }} \
             --container-env PUDL_GCS_OUTPUT=${{ env.PUDL_GCS_OUTPUT }} \
             --container-env DG_NIGHTLY_CONFIG="src/pudl/package_data/settings/dg_nightly.yml" \
-            --container-env SLACK_TOKEN=${{ secrets.PUDL_DEPLOY_SLACK_TOKEN }} \
             --container-env ZULIP_API_KEY=${{ secrets.ZULIP_API_KEY }} \
             --container-env ZENODO_SANDBOX_TOKEN_PUBLISH=${{ secrets.ZENODO_SANDBOX_TOKEN_PUBLISH }} \
             --container-env ZENODO_TARGET_ENV=${{ (startsWith(github.ref_name, 'v20') && 'production') || 'sandbox' }} \
