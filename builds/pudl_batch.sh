@@ -214,7 +214,7 @@ function cleanup_on_exit() {
     local exit_code=$?
 
     if [[ -n "${LOGFILE:-}" && -f "$LOGFILE" && -n "${PUDL_GCS_OUTPUT:-}" ]]; then
-        gcloud storage --quiet cp "$LOGFILE" "$PUDL_GCS_OUTPUT" || true
+        gcloud storage --quiet cp "$LOGFILE" "${PUDL_GCS_OUTPUT}/${BUILD_ID}.log" || true
     fi
 
     rm -f ~/.aws/credentials
