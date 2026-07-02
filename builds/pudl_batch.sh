@@ -63,7 +63,8 @@ function trigger_deployment() {
 {
   "ref": "${BUILD_REF}",
   "inputs": {
-    "git_tag": "${GIT_TAG}"
+    "git_tag": "${GIT_TAG}",
+    "deployment_environment": "${GIT_ENVIRONMENT}"
   }
 }
 JSON
@@ -225,13 +226,7 @@ function cleanup_on_exit() {
         "$INTEGRATION_TEST_STATUS" \
         "$DATA_VALIDATION_STATUS" \
         "$ROW_COUNT_VALIDATION_STATUS" \
-        "$SAVE_OUTPUTS_STATUS" \
-        "$UPDATE_NIGHTLY_STATUS" \
-        "$UPDATE_STABLE_STATUS" \
-        "$PREP_OUTPUTS_STATUS" \
-        "$DISTRIBUTION_BUCKET_STATUS" \
-        "$GCS_TEMPORARY_HOLD_STATUS" \
-        "$TRIGGER_DATA_VIEWER_DEPLOY_STATUS"; then
+        "$SAVE_OUTPUTS_STATUS"; then
         notify_zulip "success" || true
     else
         notify_zulip "failure" || true

@@ -44,15 +44,20 @@ jobs:
             exit 0
           fi
 
-      - name: Set git tag based on build type
+      - name: Set git tag and deployment type based on build type
         if: ${{ env.SKIP_BUILD != 'true' }}
+        # Nightly builds and builds triggered by stable tag pushes trigger production
+        # deployments. Branch builds trigger staging deployments
         run: |
           if [[ ${{ github.event_name }} == "schedule" ]]; then
               echo "GIT_TAG=nightly-$(date +%Y-%m-%d)" >> "$GITHUB_ENV"
+              echo "DEPLOYMENT_ENVIRONMENT=production" >> "$GITHUB_ENV"
           elif [[ ${{ github.event_name }} == "workflow_dispatch" ]]; then
               echo "GIT_TAG=branch-${{ github.ref_name }}-$(date +%Y-%m-%d)" >> "$GITHUB_ENV"
+              echo "DEPLOYMENT_ENVIRONMENT=staging" >> "$GITHUB_ENV"
           elif [[ ${{ github.event_name }} == "push" ]]; then
               echo "GIT_TAG=${{ github.ref_name }}" >>  "$GITHUB_ENV"
+              echo "DEPLOYMENT_ENVIRONMENT=production" >> "$GITHUB_ENV"
           fi
 
       - name: Set action environment variables
