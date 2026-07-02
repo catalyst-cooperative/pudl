@@ -7,11 +7,14 @@ on:
         description: "Git tag to merge into nightly/stable branch and trigger Zenodo workflow for"
         required: true
         type: string
-      staging:
-        description: "Deploy to staging environment?"
+      deployment_environment:
+        type: choice
+        description: "Deploy to staging or production environment?"
         required: true
-        default: true
-        type: boolean
+        default: "staging"
+        options:
+          - staging
+          - production
 
 jobs:
   deploy_pudl:
@@ -20,11 +23,43 @@ jobs:
       id-token: write
     name: Deploy PUDL build from GCS bucket
     runs-on: ubuntu-latest
+    env:
+      # 'git_tag' and 'deployment_environment' will not be set when triggered by a stable tag push
+      # inputs.git_tag will only be null when the workflow is triggered by pushing
+      # a release tag, in which case github.ref_name will always be a tag name
+      GIT_TAG: ${{ inputs.git_tag || github.ref_name }}
+      DEPLOYMENT_ENVIRONMENT: ${{ inputs.deployment_environment || 'production' }}
     steps:
       - name: Check out repository
         uses: actions/checkout@v7
         with:
           fetch-depth: 0
+
+      - name: Validate tag exists and matches expected pattern
+        run: |
+          TAG="${{ env.GIT_TAG }}"
+          REGEX='^(v[0-9]{4}\.[0-9]{1,2}\.[0-9]{1,2}|nightly-[0-9]{4}-[0-9]{2}-[0-9]{2}|branch-.+-[0-9]{4}-[0-9]{2}-[0-9]{2})$'
+
+          if [[ ! "$TAG" =~ $REGEX ]]; then
+            echo "::error::Tag '$TAG' does not look like a nightly, branch, or stable tag!"
+            exit 1
+          fi
+
+          git fetch --tags
+          if git rev-parse "refs/tags/$TAG" >/dev/null 2>&1; then
+            echo "Tag '$TAG' exists."
+          else
+            echo "::error::Tag '$TAG' does not exist."
+            exit 1
+          fi
+
+          TAG_SHA=$(git rev-list -n 1 "$TAG")
+          CURRENT_SHA="${{ github.sha }}"
+          if [[ "$CURRENT_SHA" != "$TAG_SHA" ]] && [[ "$TAG" == v20* ]]; then
+            echo "::error::Stable deployments must be run from the same commit that produced the build!"
+            exit 1
+          fi
+
       - name: Docker Metadata
         id: docker_metadata
         uses: docker/metadata-action@v5
@@ -77,9 +112,9 @@ jobs:
             --container-command "pixi" \
             --container-arg="run" \
             --container-arg="pudl_deploy" \
-            --container-arg="${{ inputs.git_tag }}" \
-            --container-arg="--staging" \
-            --container-arg="${{ inputs.staging }}" \
+            --container-arg="${{ env.GIT_TAG }}" \
+            --container-arg="--environment" \
+            --container-arg="${{ env.DEPLOYMENT_ENVIRONMENT }}" \
             --container-env GITHUB_TOKEN=${{ secrets.PUDL_BOT_PAT }} \
             --container-env AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} \
             --container-env AWS_DEFAULT_REGION=${{ secrets.AWS_DEFAULT_REGION }} \

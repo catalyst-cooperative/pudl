@@ -89,7 +89,7 @@ fsspec = ">=2026"
 gcsfs = ">=2026"
 gdal = ">=3.13.1"
 geoarrow-pyarrow = ">=0.2"
-geopandas = ">=1.1"
+geopandas = ">=1.1.4"
 google-cloud-sdk = ">=535"
 # grpcio packages all need to have same version to avoid conflicts.
 # They are also compiled and finnicky. Check compatibility before upgrading.
@@ -119,7 +119,7 @@ pandas = ">=2.3"
 pandoc = ">=3.7"
 pandera-polars = ">=0.31"
 parallel = ">=20250822"
-polars = ">=1.41.2" # v1.41.2 fixed a big memory leak
+polars = ">=1.42" # v1.41.2 fixed a big memory leak
 prek = ">=0.4"
 # potentially unresolveable breaking changes in prettier 4.x
 prettier = ">=3.8,<4"
@@ -185,7 +185,7 @@ marimo = ">=0.13"
 matplotx = ">=0.3.10"
 plotly = ">=6.6"
 ripgrep = ">=15" # Primarily for agent skills use
-ty = ">=0.0.40" # Experimental, also for agent skills use
+ty = ">=0.0.55" # Experimental, also for agent skills use
 
 [tool.pixi.environments]
 dev = { features = ["dev"], solve-group = "default" }
@@ -418,7 +418,8 @@ auto_match_utilities = "pudl.scripts.auto_match_utilities:main"
 metadata_to_rst = "pudl.scripts.metadata_to_rst:main"
 pudl_check_fks = "pudl.scripts.pudl_check_fks:main"
 pudl_datastore = "pudl.scripts.pudl_datastore:main"
-pudl_deploy = "pudl.scripts.deploy:main"
+pudl_deploy = "pudl.scripts.pudl_deploy:main"
+pudl_check_for_build = "pudl.scripts.pudl_check_for_build:main"
 pudl_service_territories = "pudl.scripts.pudl_service_territories:main"
 dbt_helper = "pudl.scripts.dbt_helper:main"
 dghome = "pudl.scripts.dghome:main"
