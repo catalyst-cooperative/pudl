@@ -544,16 +544,18 @@ def _pre_process(df: pd.DataFrame, idx_cols: list[str]) -> pd.DataFrame:
       data is an early release, and we extract this information from the filenames, as
       it's uniform across the whole dataset.
     * Convert report_year column to report_date.
-    * Aggregate values for rows with utility id 88888 (anonymized) - see _combine_88888_values
-      for details.
+    * If we've gotten an empty dataframe, make sure it has a data_maturity column.
     """
-    prep_df = (
+    # If we're only processing some years of data, we may have entirely empty dataframes
+    # in the extraction phase, in which case the data_maturity field doesn't get added.
+    if df.empty:
+        df["data_maturity"] = pd.NA
+    return (
         standardize_na_values(df)
         .drop(columns=["early_release"], errors="ignore")
         .pipe(convert_to_date)
         .pipe(_combine_88888_values, idx_cols)
     )
-    return prep_df
 
 
 def _post_process(df: pd.DataFrame) -> pd.DataFrame:
@@ -737,10 +739,10 @@ def _tidy_class_dfs(
     # of tables.
     data_dupe_mask = data_cols.duplicated(subset=idx_cols + [class_type], keep=False)
     data_dupes = data_cols[data_dupe_mask]
-    fraction_data_dupes = len(data_dupes) / len(data_cols)
+    fraction_data_dupes = len(data_dupes) / len(data_cols) if len(data_cols) else 0
     denorm_dupe_mask = denorm_cols.duplicated(subset=idx_cols, keep=False)
     denorm_dupes = denorm_cols[denorm_dupe_mask]
-    fraction_denorm_dupes = len(denorm_dupes) / len(data_cols)
+    fraction_denorm_dupes = len(denorm_dupes) / len(data_cols) if len(data_cols) else 0
     err_msg = (
         f"{df_name} table: Found {len(data_dupes)}/{len(data_cols)} "
         f"({fraction_data_dupes:0.2%}) records with duplicated PKs. "
@@ -779,7 +781,7 @@ def _drop_dupes(df, df_name, subset):
     logger.info(
         f"Dropped {tidy_nrows - deduped_nrows} duplicate records from EIA 861 "
         f"{df_name} table, out of a total of {tidy_nrows} records "
-        f"({(tidy_nrows - deduped_nrows) / tidy_nrows:.4%} of all records). "
+        f"({(tidy_nrows - deduped_nrows) / tidy_nrows if tidy_nrows else 0:.4%} of all records). "
     )
     return deduped_df
 
@@ -1010,7 +1012,11 @@ def _harvest_associations(dfs: list[pd.DataFrame], cols: list[str]) -> pd.DataFr
         if set(df.columns).issuperset(set(cols)):
             assn = pd.concat([assn, df[cols]])
     assn = assn.dropna().drop_duplicates()
-    if assn.empty:
+    # If we found no associations AND any of our dfs were non-empty, we raise an error.
+    # We need to check for non-empty dataframes because in some cases we separately
+    # harvest associations for early vs. late reporting periods, and in the fast ETL
+    # we don't have any of the early years.
+    if assn.empty and any(not df.empty for df in dfs):
         raise ValueError(
             f"These dataframes contain no associations for the columns: {cols}"
         )
@@ -1095,14 +1101,15 @@ def _combine_88888_values(df: pd.DataFrame, idx_cols: list[str]) -> pd.DataFrame
     recombined_df = pd.concat(
         [df[df["utility_id_eia"] != 88888], agg_utils_88888], ignore_index=True
     )
-    # We don't expect there to be a lot of dropped or combined 88888 rows so we'll
-    # monitor the percent decrease in rows. Need the len_diff < -1 because the unit
-    # tests only test a few rows and therefore the difference in rows is a
-    # much higher percentage than 0.001.
+    # Guard against unexpectedly large data loss. The known drop counts per table
+    # across all years (as of Aug 2025) are: BA: 1, OD: 16, Sales: 32, UD: 15, DP: 8.
+    # A threshold of 100 (~3× the historical max) catches genuine runaway cases
+    # without being sensitive to dataset size (full ETL vs. fast ETL subsets).
     len_diff = len(recombined_df) - len(df)
-    if (len_diff < -1) and (len_diff / len(df) < -0.0015):
+    if -len_diff > 100:
         raise AssertionError(
-            f"Expected reduction in 88888 rows less than ~{len(df) * 0.001} but found: {-len_diff}!"
+            f"Expected at most ~100 dropped 88888 rows but found: {-len_diff}! "
+            f"Historical maximums by table (Aug 2025): BA: 1, OD: 16, Sales: 32, UD: 15, DP: 8."
         )
     return recombined_df
 

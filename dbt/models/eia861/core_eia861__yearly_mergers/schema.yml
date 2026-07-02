@@ -4,7 +4,12 @@ sources:
     tables:
       - name: core_eia861__yearly_mergers
         data_tests:
-          - expect_columns_not_all_null
+          - expect_columns_not_all_null:
+              arguments:
+                row_conditions:
+                  entity_type: EXTRACT(year FROM report_date) <= 2011
+                  state: EXTRACT(year FROM report_date) <= 2012
+                  zip_code_4: EXTRACT(year FROM report_date) <= 2010
           - check_row_counts_per_partition:
               arguments:
                 table_name: core_eia861__yearly_mergers
