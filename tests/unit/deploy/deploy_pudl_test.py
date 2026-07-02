@@ -131,7 +131,10 @@ def test_update_git_branch():
     with patch("pudl.deploy.pudl.subprocess.run") as mock_run:
         mock_run.retudeploymentvalue = MagicMock(returncode=0)
         update_git_branch(
-            tag="nightly-2026-02-09", branch="nightly", environment="production"
+            tag="nightly-2026-02-09",
+            branch="nightly",
+            environment="production",
+            github_token="github_token",  # noqa: S106
         )
 
         with pytest.raises(
@@ -139,18 +142,43 @@ def test_update_git_branch():
             match=f"Git tag, {nightly_tag}, does not match deployment branch, stable.",
         ):
             update_git_branch(
-                tag=nightly_tag, branch="stable", environment="production"
+                tag=nightly_tag,
+                branch="stable",
+                environment="production",
+                github_token="github_token",  # noqa: S106
             )
         with pytest.raises(
             RuntimeError,
             match=f"Git tag, {stable_tag}, does not match deployment branch, nightly.",
         ):
-            update_git_branch(tag=stable_tag, branch="nightly", environment="staging")
+            update_git_branch(
+                tag=stable_tag,
+                branch="nightly",
+                environment="staging",
+                github_token="github_token",  # noqa: S106
+            )
 
         kwargs = {"check": True, "capture_output": True, "text": True}
-        assert mock_run.call_count == 3
+        assert mock_run.call_count == 7
         mock_run.assert_has_calls(
             [
+                call(["git", "config", "user.name", "'pudlbot'"], **kwargs),
+                call(
+                    [
+                        "git",
+                        "remote",
+                        "set-url",
+                        "origin",
+                        "'https://pudlbot"  # Combine strings to avoid secret checkers
+                        + ":github_token@github.com/catalyst-cooperative/pudl.git'",
+                    ],
+                    **kwargs,
+                ),
+                call(
+                    ["git", "fetch", "--force", "--tags", "origin", nightly_tag],
+                    **kwargs,
+                ),
+                call(["git", "fetch", "nightly:nightly"], **kwargs),
                 call(["git", "checkout", "nightly"], **kwargs),
                 call(["git", "merge", "--ff-only", "nightly-2026-02-09"], **kwargs),
                 call(["git", "push", "-u", "origin", "nightly"], **kwargs),
@@ -164,13 +192,40 @@ def test_update_git_branch_staging():
         mock_run.retudeploymentvalue = MagicMock(returncode=0)
 
         update_git_branch(
-            tag="nightly-2026-02-09", branch="nightly", environment="staging"
+            tag="nightly-2026-02-09",
+            branch="nightly",
+            environment="staging",
+            github_token="github_token",  # noqa: S106
         )
 
         kwargs = {"check": True, "capture_output": True, "text": True}
-        assert mock_run.call_count == 2
+        assert mock_run.call_count == 6
         mock_run.assert_has_calls(
             [
+                call(["git", "config", "user.name", "'pudlbot'"], **kwargs),
+                call(
+                    [
+                        "git",
+                        "remote",
+                        "set-url",
+                        "origin",
+                        "'https://pudlbot"  # Combine strings to avoid secret checkers
+                        + ":github_token@github.com/catalyst-cooperative/pudl.git'",
+                    ],
+                    **kwargs,
+                ),
+                call(
+                    [
+                        "git",
+                        "fetch",
+                        "--force",
+                        "--tags",
+                        "origin",
+                        "nightly-2026-02-09",
+                    ],
+                    **kwargs,
+                ),
+                call(["git", "fetch", "nightly:nightly"], **kwargs),
                 call(["git", "checkout", "nightly"], **kwargs),
                 call(["git", "merge", "--ff-only", "nightly-2026-02-09"], **kwargs),
             ]
