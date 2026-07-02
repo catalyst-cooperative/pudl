@@ -8,7 +8,6 @@ sources:
               arguments:
                 table_name: out_rus7__yearly_distribution_services
                 partition_expr: EXTRACT(YEAR FROM report_date)
-        # TODO: VALIDATE STATUSES SUM TO TOTAL
         columns:
           - name: services
             data_tests:

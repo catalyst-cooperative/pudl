@@ -7156,7 +7156,8 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "service_status": {
         "type": "string",
         "description": (
-            "Status of services (e.g., idle, retired) in report period. Idle services exclude seasonals."
+            "Status of services (e.g., idle_in_place, retired_this_year) in report period. "
+            "Idle services exclude seasonals."
         ),
         "constraints": {"enum": SERVICE_STATUS_RUS7},
     },
