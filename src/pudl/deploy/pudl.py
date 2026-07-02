@@ -196,15 +196,15 @@ def update_git_branch(
         )
     logger.info(f"Updating git branch {branch} to tag {tag}")
 
-    _run(["git", "config", "user.email", "'pudl@catalyst.coop'"])
-    _run(["git", "config", "user.name", "'pudlbot'"])
+    _run(["git", "config", "user.email", "pudl@catalyst.coop"])
+    _run(["git", "config", "user.name", "pudlbot"])
     _run(
         [
             "git",
             "remote",
             "set-url",
             "origin",
-            f"'https://pudlbot:{github_token}@github.com/catalyst-cooperative/pudl.git'",
+            f"https://pudlbot:{github_token}@github.com/catalyst-cooperative/pudl.git",
         ]
     )
     _run(["git", "fetch", "--force", "--tags", "origin", tag])

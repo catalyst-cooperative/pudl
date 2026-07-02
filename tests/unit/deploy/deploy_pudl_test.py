@@ -162,16 +162,16 @@ def test_update_git_branch():
         assert mock_run.call_count == 8
         mock_run.assert_has_calls(
             [
-                call(["git", "config", "user.email", "'pudl@catalyst.coop'"], **kwargs),
-                call(["git", "config", "user.name", "'pudlbot'"], **kwargs),
+                call(["git", "config", "user.email", "pudl@catalyst.coop"], **kwargs),
+                call(["git", "config", "user.name", "pudlbot"], **kwargs),
                 call(
                     [
                         "git",
                         "remote",
                         "set-url",
                         "origin",
-                        "'https://pudlbot"  # Combine strings to avoid secret checkers
-                        + ":github_token@github.com/catalyst-cooperative/pudl.git'",
+                        "https://pudlbot"  # Combine strings to avoid secret checkers
+                        + ":github_token@github.com/catalyst-cooperative/pudl.git",
                     ],
                     **kwargs,
                 ),
@@ -203,16 +203,16 @@ def test_update_git_branch_staging():
         assert mock_run.call_count == 7
         mock_run.assert_has_calls(
             [
-                call(["git", "config", "user.email", "'pudl@catalyst.coop'"], **kwargs),
-                call(["git", "config", "user.name", "'pudlbot'"], **kwargs),
+                call(["git", "config", "user.email", "pudl@catalyst.coop"], **kwargs),
+                call(["git", "config", "user.name", "pudlbot"], **kwargs),
                 call(
                     [
                         "git",
                         "remote",
                         "set-url",
                         "origin",
-                        "'https://pudlbot"  # Combine strings to avoid secret checkers
-                        + ":github_token@github.com/catalyst-cooperative/pudl.git'",
+                        "https://pudlbot"  # Combine strings to avoid secret checkers
+                        + ":github_token@github.com/catalyst-cooperative/pudl.git",
                     ],
                     **kwargs,
                 ),
