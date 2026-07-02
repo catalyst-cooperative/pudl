@@ -49,7 +49,7 @@ Module Contents
    Check all DOIs and update to latest record versions.
 
 
-.. py:function:: main(datasets: tuple[str, Ellipsis]) -> int
+.. py:function:: main(ctx: click.Context, datasets: tuple[str, Ellipsis]) -> None
 
    Auto-update Zenodo DOIs to the latest value.
 

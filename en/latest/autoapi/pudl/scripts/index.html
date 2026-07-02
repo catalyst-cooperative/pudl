@@ -17,7 +17,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.scripts &#8212; PUDL 2026.6.2.dev17 documentation</title>
+    <title>pudl.scripts &#8212; PUDL 2026.6.2.dev18 documentation</title>
   
   
   
@@ -50,7 +50,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5" />
 
-    <script src="../../../_static/documentation_options.js?v=ab2ad196"></script>
+    <script src="../../../_static/documentation_options.js?v=095d20d1"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -141,8 +141,8 @@
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.6.2.dev17 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.6.2.dev17 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.6.2.dev18 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.6.2.dev18 documentation - Home"/>
   
   
 </a></div>
@@ -799,10 +799,11 @@ modules (e.g. tests), keep the existing name as an alias after defining
 <li><p><strong>Always support</strong> <code class="docutils literal notranslate"><span class="pre">-h</span></code> <strong>and</strong> <code class="docutils literal notranslate"><span class="pre">--help</span></code>: every Click command must set
 <code class="docutils literal notranslate"><span class="pre">context_settings={&quot;help_option_names&quot;:</span> <span class="pre">[&quot;-h&quot;,</span> <span class="pre">&quot;--help&quot;]}</span></code> so users can
 get help with either flag without waiting for heavy imports to finish.</p></li>
-<li><p><strong>Use one process-exit boundary</strong>: command bodies should return integer status
-codes (<code class="docutils literal notranslate"><span class="pre">0</span></code> for success) and should not call <code class="docutils literal notranslate"><span class="pre">sys.exit()</span></code> directly.
-Reserve <code class="docutils literal notranslate"><span class="pre">sys.exit(main())</span></code> for the module launcher under
-<code class="docutils literal notranslate"><span class="pre">if</span> <span class="pre">__name__</span> <span class="pre">==</span> <span class="pre">&quot;__main__&quot;:</span></code>.</p></li>
+<li><p><strong>Use Click-native exits</strong>: command bodies should not return integer status
+codes expecting Click to turn them into process exit codes. Use
+<code class="docutils literal notranslate"><span class="pre">ctx.exit(code)</span></code> or raise <code class="docutils literal notranslate"><span class="pre">click.ClickException</span></code> / <code class="docutils literal notranslate"><span class="pre">click.UsageError</span></code>
+for non-zero exits. Keep the module launcher as <code class="docutils literal notranslate"><span class="pre">if</span> <span class="pre">__name__</span> <span class="pre">==</span>
+<span class="pre">&quot;__main__&quot;:</span> <span class="pre">main()</span></code>.</p></li>
 </ul>
 </section>
 <section id="keeping-help-fast-defer-heavy-imports-inside-main">

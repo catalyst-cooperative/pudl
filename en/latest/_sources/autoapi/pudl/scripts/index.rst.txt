@@ -49,10 +49,11 @@ pudl.scripts
    - **Always support** ``-h`` **and** ``--help``: every Click command must set
      ``context_settings={"help_option_names": ["-h", "--help"]}`` so users can
      get help with either flag without waiting for heavy imports to finish.
-   - **Use one process-exit boundary**: command bodies should return integer status
-     codes (``0`` for success) and should not call ``sys.exit()`` directly.
-     Reserve ``sys.exit(main())`` for the module launcher under
-     ``if __name__ == "__main__":``.
+   - **Use Click-native exits**: command bodies should not return integer status
+     codes expecting Click to turn them into process exit codes. Use
+     ``ctx.exit(code)`` or raise ``click.ClickException`` / ``click.UsageError``
+     for non-zero exits. Keep the module launcher as ``if __name__ ==
+     "__main__": main()``.
 
    Keeping ``--help`` fast: defer heavy imports inside ``main()``
    --------------------------------------------------------------

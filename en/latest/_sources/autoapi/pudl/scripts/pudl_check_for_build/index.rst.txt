@@ -30,7 +30,7 @@ Module Contents
 
 .. py:data:: logger
 
-.. py:function:: main(git_tag: str) -> int
+.. py:function:: main(ctx: click.Context, git_tag: str) -> None
 
    Check if there are build outputs on GCS associated with a git-tag.
 

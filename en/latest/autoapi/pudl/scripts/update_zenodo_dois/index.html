@@ -17,7 +17,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.scripts.update_zenodo_dois &#8212; PUDL 2026.6.2.dev17 documentation</title>
+    <title>pudl.scripts.update_zenodo_dois &#8212; PUDL 2026.6.2.dev18 documentation</title>
   
   
   
@@ -50,7 +50,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5" />
 
-    <script src="../../../../_static/documentation_options.js?v=ab2ad196"></script>
+    <script src="../../../../_static/documentation_options.js?v=095d20d1"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -141,8 +141,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.6.2.dev17 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.6.2.dev17 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.6.2.dev18 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.6.2.dev18 documentation - Home"/>
   
   
 </a></div>
@@ -787,7 +787,7 @@ require hand mapping to extract in PUDL.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="#pudl.scripts.update_zenodo_dois.update_yaml_dois" title="pudl.scripts.update_zenodo_dois.update_yaml_dois"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_yaml_dois</span></code></a>(→ dict[str, dict])</p></td>
 <td><p>Check all DOIs and update to latest record versions.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.scripts.update_zenodo_dois.main" title="pudl.scripts.update_zenodo_dois.main"><code class="xref py py-obj docutils literal notranslate"><span class="pre">main</span></code></a>(→ int)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.scripts.update_zenodo_dois.main" title="pudl.scripts.update_zenodo_dois.main"><code class="xref py py-obj docutils literal notranslate"><span class="pre">main</span></code></a>(→ None)</p></td>
 <td><p>Auto-update Zenodo DOIs to the latest value.</p></td>
 </tr>
 </tbody>
@@ -817,7 +817,7 @@ latest version associated with the same concept DOI.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pudl.scripts.update_zenodo_dois.main">
-<span class="sig-prename descclassname"><span class="pre">pudl.scripts.update_zenodo_dois.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">datasets</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Ellipsis</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/scripts/update_zenodo_dois.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.scripts.update_zenodo_dois.main" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">pudl.scripts.update_zenodo_dois.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">click.Context</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">datasets</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Ellipsis</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/scripts/update_zenodo_dois.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.scripts.update_zenodo_dois.main" title="Link to this definition">#</a></dt>
 <dd><p>Auto-update Zenodo DOIs to the latest value.</p>
 </dd></dl>
 
