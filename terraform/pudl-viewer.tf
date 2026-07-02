@@ -27,7 +27,6 @@ resource "google_service_account" "pudl_viewer_gha" {
   display_name = "PUDL Viewer GitHub Actions Service Account"
 }
 
-
 resource "google_project_iam_member" "pudl_viewer_gha" {
   for_each = toset([
     "roles/artifactregistry.writer", // push docker image to artifact registry
@@ -38,6 +37,39 @@ resource "google_project_iam_member" "pudl_viewer_gha" {
   role    = each.key
   member  = google_service_account.pudl_viewer_gha.member
 }
+
+// NOTE 2026-07-01 custom roles need to be separate because the for_each doesn't like dynamic role.id
+// Custom roles to allow the GHA to set up a public-internet-facing service that's gated behind the Identity-Aware Proxy (require catalyst google account login to access)
+
+// allow us to give the service a public URL
+resource "google_project_iam_custom_role" "disable_invoker_iam_checks_role" {
+  role_id     = "disable_invoker_iam_checks"
+  title       = "Set Cloud Run Service IAM policies"
+  project     = var.project_id
+  permissions = ["run.services.setIamPolicy"]
+}
+
+resource "google_project_iam_member" "pudl_viewer_gha_pr_preview_invoker" {
+  project = var.project_id
+  role    = google_project_iam_custom_role.disable_invoker_iam_checks_role.id // want to make invoker public (but enforce catalyst.coop login to actually access via IAP)
+  member  = google_service_account.pudl_viewer_gha.member
+}
+
+// allow us to allow catalyst.coop email addresses through IAP
+resource "google_project_iam_custom_role" "enable_setting_iap_role" {
+  role_id     = "enable_setting_iap"
+  title       = "Allow changing Identity-Aware Proxy settings"
+  project     = var.project_id
+  permissions = ["iap.webServices.getIamPolicy", "iap.webServices.setIamPolicy"]
+
+}
+
+resource "google_project_iam_member" "pudl_viewer_gha_pr_preview_iap" {
+  project = var.project_id
+  role    = google_project_iam_custom_role.enable_setting_iap_role.id
+  member  = google_service_account.pudl_viewer_gha.member
+}
+
 
 // cloud run service account & permissions
 resource "google_service_account" "pudl_viewer_sa" {
