@@ -5299,7 +5299,7 @@ class UtilityPlantSummaryTableTransformer(Ferc1AbstractTableTransformer):
                 raise AssertionError("None of these spot fixes should be negative")
             df = df.reset_index()
 
-        return apply_pudl_dtypes(df, group="ferc1")
+        return apply_pudl_dtypes(df, group="ferc1", resource=self.table_id.value)
 
 
 class BalanceSheetLiabilitiesTableTransformer(Ferc1AbstractTableTransformer):
@@ -5536,7 +5536,7 @@ class IncomeStatementsTableTransformer(Ferc1AbstractTableTransformer):
                 & (df.income_type == "net_utility_operating_income")
             )
         ]
-        return apply_pudl_dtypes(df, group="ferc1")
+        return apply_pudl_dtypes(df, group="ferc1", resource=self.table_id.value)
 
 
 class RetainedEarningsTableTransformer(Ferc1AbstractTableTransformer):

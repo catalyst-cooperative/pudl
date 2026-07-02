@@ -1035,7 +1035,11 @@ def core_eia860__assn_boiler_generator(context, **clean_dfs) -> pd.DataFrame:
             on=["plant_id_eia", "generator_id", "boiler_id"],
         )
         .astype({"unit_id_pudl": pd.Int64Dtype()})
-        .pipe(apply_pudl_dtypes, group="eia")
+        .pipe(
+            apply_pudl_dtypes,
+            group="eia",
+            resource="core_eia860__assn_boiler_generator",
+        )
     )
 
     # If we're NOT debugging, drop additional forensic information and bad BGAs

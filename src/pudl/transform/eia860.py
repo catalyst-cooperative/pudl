@@ -58,7 +58,7 @@ def _core_eia860__ownership(raw_eia860__ownership: pd.DataFrame) -> pd.DataFrame
 
     # This has to come before the fancy indexing below, otherwise the plant_id_eia
     # is still a float.
-    own_df = apply_pudl_dtypes(own_df, group="eia")
+    own_df = apply_pudl_dtypes(own_df, group="eia", resource="_core_eia860__ownership")
 
     # A small number of generators are reported multiple times in the ownership
     # table due to the use of leading zeroes in their integer generator_id values
@@ -635,6 +635,7 @@ def _core_eia860__generators_multifuel(
         & (multifuel_df["plant_id_eia"] == 56032)
     ]
     multifuel_df = multifuel_df.drop(dupe_pk_rows_to_drop.index)
+    multifuel_df["max_oil_heat_input"] = multifuel_df["max_oil_heat_input"] / 100
     return multifuel_df
 
 
@@ -1381,8 +1382,13 @@ def _core_eia860__cooling_equipment(
     ce_df.loc[:, ce_df.columns.str.endswith("_thousand_dollars")] *= 1000
     ce_df.columns = ce_df.columns.str.replace("_thousand_dollars", "")
 
+    ce_df["dry_cooling_pct"] = ce_df["dry_cooling_pct"] / 100
+    ce_df = ce_df.rename(columns={"dry_cooling_pct": "dry_cooling_fraction"})
+
     # Encoding is required here because this table is not yet getting harvested.
-    return apply_pudl_dtypes(ce_df, group="eia", strict=True).pipe(PUDL_PACKAGE.encode)
+    return apply_pudl_dtypes(
+        ce_df, group="eia", resource="_core_eia860__cooling_equipment", strict=True
+    ).pipe(PUDL_PACKAGE.encode)
 
 
 @asset_check(asset=_core_eia860__cooling_equipment, blocking=True)
@@ -1511,7 +1517,9 @@ def _core_eia860__fgd_equipment(
     )
 
     # Encoding required because this isn't fed into harvesting yet.
-    return PUDL_PACKAGE.encode(fgd_df).pipe(apply_pudl_dtypes, strict=False)
+    return PUDL_PACKAGE.encode(fgd_df).pipe(
+        apply_pudl_dtypes, resource="_core_eia860__fgd_equipment", strict=False
+    )
 
 
 @asset_check(asset=_core_eia860__fgd_equipment, blocking=True)

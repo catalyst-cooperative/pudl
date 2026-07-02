@@ -99,7 +99,7 @@ from pudl.metadata.sources import SOURCES
 FIELD_METADATA: dict[str, dict[str, Any]] = {
     "delivered_gas_heat_content_mmbtu_per_mcf": {
         "description": "The average annual heat content of gas delivered directly to consumers.",
-        "unit": "MMBTU_per_Mcf",
+        "unit": "MMBtu / Mcf",
         "type": "number",
     },
     "operational_consumption_facility_space_heat_mcf": {
@@ -247,6 +247,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "consumers": {
         "type": "integer",
         "description": "Number of end-use consumers within the report state.",
+        "unit": "count",
     },
     "recipient_location": {
         "type": "string",
@@ -274,7 +275,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Daily deliverability capacity of a liquefied natural gas storage facility "
             "at the end of the report year."
         ),
-        "unit": "MMcf_per_day",
+        "unit": "MMcf / day",
     },
     "operator_id_eia": {
         "type": "string",
@@ -307,10 +308,12 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "anticipated_pct": {
         "type": "number",
         "description": ("Expected percentage."),
+        "unit": "percent",
     },
     "actual_pct": {
         "type": "number",
         "description": ("Observed percentage."),
+        "unit": "percent",
     },
     "actual_peak_demand_savings_mw": {
         "type": "number",
@@ -346,6 +349,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "meters and extend to real-time meters with built-in two-way communication "
             "capable of recording and transmitting instantaneous data."
         ),
+        "unit": "count",
     },
     "aggregation_group": {
         "type": "string",
@@ -362,33 +366,36 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "air_flow_100pct_load_cubic_feet_per_minute": {
         "type": "number",
-        "unit": "cfm",
+        "unit": "foot**3 / minute",
         "description": (
             "Total air flow including excess air at 100 percent load, reported at standard temperature and pressure (i.e. 68 F and one atmosphere pressure)."
         ),
     },
     "all_known_leaks_scheduled_for_repair": {
-        "type": "number",
+        "type": "integer",
         "description": (
             "The number of known system leaks at the end of the report year scheduled for repair."
         ),
+        "unit": "count",
     },
     "all_known_leaks_scheduled_for_repair_main": {
-        "type": "number",
+        "type": "integer",
         "description": (
             "The number of known leaks on main at the end of the report year scheduled for repair."
         ),
+        "unit": "count",
     },
     "hazardous_leaks_mechanical_joint_failure": {
-        "type": "number",
+        "type": "integer",
         "description": (
             "The total number of hazardous leaks caused by a mechanical joint failure."
         ),
+        "unit": "count",
     },
     "average_service_length_feet": {
         "type": "number",
         "description": "The average system service length in feet.",
-        "unit": "feet",
+        "unit": "foot",
     },
     "alternative_fuel_vehicle_2_activity": {
         "type": "boolean",
@@ -405,17 +412,17 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "annual_average_consumption_rate_gallons_per_minute": {
         "description": "Annual average consumption rate of cooling water",
         "type": "number",
-        "unit": "gpm",
+        "unit": "gallon / minute",
     },
     "annual_average_discharge_rate_gallons_per_minute": {
         "description": "Annual average discharge rate of cooling water",
         "type": "number",
-        "unit": "gpm",
+        "unit": "gallon / minute",
     },
     "annual_average_withdrawal_rate_gallons_per_minute": {
         "description": "Annual average withdrawal rate of cooling water",
         "type": "number",
-        "unit": "gpm",
+        "unit": "gallon / minute",
     },
     "annual_indirect_program_cost": {
         "type": "number",
@@ -430,22 +437,22 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "annual_maximum_intake_summer_temperature_fahrenheit": {
         "description": "Maximum cooling water temperature at intake during the summer",
         "type": "number",
-        "unit": "F",
+        "unit": "degF",
     },
     "annual_maximum_intake_winter_temperature_fahrenheit": {
         "description": "Maximum cooling water temperature at intake in winter",
         "type": "number",
-        "unit": "F",
+        "unit": "degF",
     },
     "annual_maximum_outlet_summer_temperature_fahrenheit": {
         "description": "Maximum cooling water temperature at outlet in summer",
         "type": "number",
-        "unit": "F",
+        "unit": "degF",
     },
     "annual_maximum_outlet_winter_temperature_fahrenheit": {
         "description": "Maximum cooling water temperature at outlet in winter",
         "type": "number",
-        "unit": "F",
+        "unit": "degF",
     },
     "annual_nox_emission_rate_lb_per_mmbtu": {
         "type": "number",
@@ -453,7 +460,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Actual controlled (or uncontrolled) nitrogen oxides emission rate. "
             "Based on data from CEMS where possible."
         ),
-        "unit": "lb_per_MMBTU",
+        "unit": "pound / MMBtu",
     },
     "annual_total_chlorine_lbs": {
         "description": (
@@ -462,7 +469,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "schedule 9 is filled out."
         ),
         "type": "number",
-        "unit": "lb",
+        "unit": "pound",
     },
     "annual_total_cost": {
         "type": "number",
@@ -509,10 +516,15 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "string",
         "description": "EIA record ID of the associated true granularity record.",
     },
-    "area_km2": {"type": "number", "description": "County area in km2.", "unit": "km2"},
+    "area_km2": {
+        "type": "number",
+        "description": "County area in km2.",
+        "unit": "km**2",
+    },
     "ash_content_pct": {
         "type": "number",
         "description": "Ash content percentage by weight to the nearest 0.1 percent.",
+        "unit": "percent",
     },
     "ash_impoundment": {
         "type": "boolean",
@@ -596,14 +608,17 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Number of meters that collect data for billing purposes only and transmit "
             "this data one way, usually from the customer to the distribution utility."
         ),
+        "unit": "count",
     },
     "avg_customers_per_month": {
         "type": "number",
         "description": "Average number of customers per month.",
+        "unit": "count",
     },
     "avg_num_employees": {
         "type": "number",
         "description": "The average number of employees assigned to each plant.",
+        "unit": "count",
     },
     "backup_capacity_mw": {
         "type": "number",
@@ -634,7 +649,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "balancing_authority_code_eia_consistent_rate": {
         "type": "number",
         "description": (
-            "Percentage consistency of balancing authority code across entity records."
+            "Rate of consistency of balancing authority code across entity records."
         ),
     },
     "balancing_authority_id_eia": {
@@ -786,6 +801,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "aggregate average fuel price for a whole state, region, month, sector, "
             "etc. Used to fill in missing fuel prices."
         ),
+        "unit": "USD / MMBtu",
     },
     "bundled_activity": {
         "type": "boolean",
@@ -864,7 +880,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Average number of minutes per interruption (SAIDI/SAIFI) including major "
             "event days."
         ),
-        "unit": "min",
+        "unit": "minute",
     },
     "caidi_w_major_event_days_minus_loss_of_service_minutes": {
         "type": "number",
@@ -872,7 +888,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Average number of minutes per interruption (SAIDI/SAIFI) including major "
             "event days and excluding reliability events caused by a loss of supply."
         ),
-        "unit": "min",
+        "unit": "minute",
     },
     "caidi_wo_major_event_days_minutes": {
         "type": "number",
@@ -880,7 +896,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Average number of minutes per interruption (SAIDI/SAIFI) excluding major "
             "event days."
         ),
-        "unit": "min",
+        "unit": "minute",
     },
     "can_cofire_100_oil": {
         "type": "boolean",
@@ -1023,27 +1039,27 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "capex_annual_per_kw": {
         "type": "number",
         "description": "Annual capital addition into `capex_total` per kw.",
-        "unit": "USD_per_kw",
+        "unit": "USD / kW",
     },
     "capex_annual_per_mw": {
         "type": "number",
         "description": "Annual capital addition into `capex_total` per MW.",
-        "unit": "USD_per_MW",
+        "unit": "USD / MW",
     },
     "capex_annual_per_mw_rolling": {
         "type": "number",
         "description": "Year-to-date capital addition into `capex_total` per MW.",
-        "unit": "USD_per_MW",
+        "unit": "USD / MW",
     },
     "capex_annual_per_mwh": {
         "type": "number",
         "description": "Annual capital addition into `capex_total` per MWh.",
-        "unit": "USD_per_MWh",
+        "unit": "USD / MWh",
     },
     "capex_annual_per_mwh_rolling": {
         "type": "number",
         "description": "Year-to-date capital addition into `capex_total` per MWh.",
-        "unit": "USD_per_MWh",
+        "unit": "USD / MWh",
     },
     "capex_equipment": {
         "type": "number",
@@ -1088,7 +1104,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "Cost of plant per megawatt of installed (nameplate) capacity. Nominal USD."
         ),
-        "unit": "USD_per_MW",
+        "unit": "USD / MW",
     },
     "capex_roads": {
         "type": "number",
@@ -1136,27 +1152,28 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "Capital cost (USD). Expenditures required to achieve commercial operation of the generation plant."
         ),
-        "unit": "USD",
+        "unit": "USD / kW",
     },
     "capex_grid_connection_per_kw": {
         "type": "number",
         "description": (
             "Overnight capital cost includes a nominal-distance spur line (<1 mi) for all technologies, and for offshore wind, it includes export cable and construction period transit costs for a 30-km distance from shore. Project-specific costs lines that are based on distance to existing transmission are not included. This only applies to offshore wind."
         ),
+        "unit": "USD / kW",
     },
     "capex_overnight_per_kw": {
         "type": "number",
         "description": (
             "capex if plant could be constructed overnight (i.e., excludes construction period financing); includes on-site electrical equipment (e.g., switchyard), a nominal-distance spur line (<1 mi), and necessary upgrades at a transmission substation."
         ),
-        "unit": "USD",
+        "unit": "USD / kW",
     },
     "capex_overnight_additional_per_kw": {
         "type": "number",
         "description": (
             "capex for retrofits if plant could be constructed overnight (i.e., excludes construction period financing); includes on-site electrical equipment (e.g., switchyard), a nominal-distance spur line (<1 mi), and necessary upgrades at a transmission substation."
         ),
-        "unit": "USD",
+        "unit": "USD / kW",
     },
     "capex_construction_finance_factor": {
         "type": "number",
@@ -1208,6 +1225,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Number of distribution circuits that employ voltage/VAR optimization "
             "(VVO)."
         ),
+        "unit": "count",
     },
     "city": {
         "type": "string",
@@ -1228,12 +1246,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "coal_fraction_cost": {
         "type": "number",
-        "description": "Coal cost as a percentage of overall fuel cost.",
+        "description": "Coal cost as a fraction (0-1) of overall fuel cost.",
     },
     "coal_fraction_mmbtu": {
         "type": "number",
         "description": (
-            "Coal heat content as a percentage of overall fuel heat content (MMBTU)."
+            "Coal heat content as a fraction (0-1) of overall fuel heat content, "
+            "measured in MMBtu. The '_mmbtu' suffix indicates the denominator unit "
+            "used to compute the fraction, not the unit of this field."
         ),
     },
     "coalmine_county_id_fips": {
@@ -1571,13 +1591,18 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
         "unit": "USD",
     },
-    "customers": {"description": "Number of customers.", "type": "number"},
+    "customers": {
+        "description": "Number of customers.",
+        "type": "integer",
+        "unit": "count",
+    },
     "daily_digital_access_customers": {
         "type": "integer",
         "description": (
             "Number of customers able to access daily energy usage through a webportal "
             "or other electronic means."
         ),
+        "unit": "count",
     },
     "data_date": {
         "type": "date",
@@ -1625,8 +1650,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "constraints": {"enum": DAMAGE_SUB_TYPES_PHMSAGAS},
     },
     "damages": {
-        "type": "number",
+        "type": "integer",
         "description": "Number of instances of excavation damage.",
+        "unit": "count",
     },
     "account_detail": {
         "type": "string",
@@ -1704,7 +1730,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "Per-capita annual demand, averaged using Census county-level population estimates."
         ),
-        "unit": "MWh_per_person",
+        "unit": "MWh / count",
     },
     "demand_charges": {
         "type": "number",
@@ -1719,7 +1745,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "demand_density_mwh_km2": {
         "type": "number",
         "description": "Annual demand per km2 of a given service territory.",
-        "unit": "MWh_per_km2",
+        "unit": "MWh / km**2",
     },
     "has_air_permit_limits": {
         "type": "boolean",
@@ -1791,7 +1817,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "Manufactured (Designed) voltage, expressed in kilo-volts, for three-phase 60 cycle alternative current transmission lines"
         ),
-        "unit": "KV",
+        "unit": "kV",
     },
     "direct_load_control_customers": {
         "type": "integer",
@@ -1801,23 +1827,33 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "customer’s electrical equipment (e.g. air conditioner, water heater) on "
             "short notice."
         ),
+        "unit": "count",
     },
     "disposal_landfill_units": {
         "type": "number",
         "description": (
-            "Disposed by-products in landfill, to the nearest hundred tons or in MMBTU for steam sales."
+            "By-products disposed in landfill. The unit varies by by-product type: "
+            "short_ton (to the nearest 100 short_ton) for solid by-products, or MMBtu "
+            "for steam sales. See the associated by-product type column to determine "
+            "which unit applies to each row."
         ),
     },
     "disposal_offsite_units": {
         "type": "number",
         "description": (
-            "Disposed by-products offsite, to the nearest hundred tons or in MMBTU for steam sales."
+            "By-products disposed offsite. The unit varies by by-product type: "
+            "short_ton (to the nearest 100 short_ton) for solid by-products, or MMBtu "
+            "for steam sales. See the associated by-product type column to determine "
+            "which unit applies to each row."
         ),
     },
     "disposal_ponds_units": {
         "type": "number",
         "description": (
-            "Disposed by-products in ponds, to the nearest hundred tons or in MMBTU for steam sales."
+            "By-products disposed in ponds. The unit varies by by-product type: "
+            "short_ton (to the nearest 100 short_ton) for solid by-products, or MMBtu "
+            "for steam sales. See the associated by-product type column to determine "
+            "which unit applies to each row."
         ),
     },
     "distributed_generation": {
@@ -1841,6 +1877,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "distribution_circuits": {
         "type": "integer",
         "description": "Total number of distribution circuits.",
+        "unit": "count",
     },
     "division_code_us_census": {
         "type": "string",
@@ -1891,12 +1928,12 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "land_area": {
         "type": "number",
         "description": "Land area in square meters.",
-        "unit": "square meters",
+        "unit": "meter**2",
     },
     "water_area": {
         "type": "number",
         "description": "Water area in square meters.",
-        "unit": "square meters",
+        "unit": "meter**2",
     },
     "internal_point_latitude": {
         "type": "number",
@@ -1916,7 +1953,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "shape_area": {
         "type": "number",
         "description": "Area of the feature in square degrees.",
-        "unit": "square degrees",
+        "unit": "degree**2",
     },
     # DPSF1. Sex and age - Universe: Total population
     "dp0010001": {
@@ -2720,13 +2757,13 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "efficiency_100pct_load": {
         "type": "number",
         "description": (
-            "Boiler efficiency percentage when burning at 100 percent load to the nearest 0.1 percent."
+            "Boiler efficiency when burning at 100 percent load to the nearest 0.1 percent."
         ),
     },
     "efficiency_50pct_load": {
         "type": "number",
         "description": (
-            "Boiler efficiency percentage when burning at 50 percent load to the nearest 0.1 percent."
+            "Boiler efficiency when burning at 50 percent load to the nearest 0.1 percent."
         ),
     },
     "eia_code": {
@@ -2797,18 +2834,22 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "employees_num": {
         "type": "integer",
         "description": "Number of employees.",
+        "unit": "count",
     },
     "employees_full_time_num": {
         "type": "integer",
         "description": "Number of employees hired full-time for normal operations of the system.",
+        "unit": "count",
     },
     "employees_part_time_num": {
         "type": "integer",
         "description": "Number employees regularly employed on a part-time basis. Exclude employees hired for short periods of time to complete special jobs.",
+        "unit": "count",
     },
     "employee_hours_worked_total": {
         "type": "number",
         "description": "Total number of hours worked by employees.",
+        "unit": "hour",
     },
     "external_financial_risk_ratio": {
         "type": "number",
@@ -3076,7 +3117,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "Energy use, in MMBTU; also referred to as energy consumption, energy demand, or delivered energy, depending on type."
         ),
-        "unit": "MMBTU",
+        "unit": "MMBtu",
     },
     "energy_use_sector": {
         "type": "string",
@@ -3129,6 +3170,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "(i.e., receipt of information by the operator from the notification "
             "center)."
         ),
+        "unit": "count",
     },
     "exchange_energy_delivered_mwh": {
         "type": "number",
@@ -3168,6 +3210,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Total number of leaks repaired, eliminated, or scheduled for repair on "
             "federal land during the reporting year."
         ),
+        "unit": "count",
     },
     "ferc1_generator_agg_id": {
         "type": "integer",
@@ -3293,7 +3336,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "fgd_hours_in_service": {
         "type": "integer",
-        "unit": "hours",
+        "unit": "hour",
         "description": (
             "Number of hours the flue gas desulfurization equipment was in operation during the year."
         ),
@@ -3329,7 +3372,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "fgd_sorbent_consumption_tons": {
         "type": "number",
-        "unit": "tons",
+        "unit": "short_ton",
         "description": (
             "Quantity of flue gas desulfurization sorbent used, to the nearest 100 ton."
         ),
@@ -3342,14 +3385,16 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
     },
     "fgd_trains_100pct": {
-        "type": "number",
+        "type": "integer",
         "description": (
             "Total number of flue gas desulfurization unit scrubber trains operated at 100 percent load."
         ),
+        "unit": "count",
     },
     "fgd_trains_total": {
-        "type": "number",
+        "type": "integer",
         "description": "Total number of flue gas desulfurization unit scrubber trains.",
+        "unit": "count",
     },
     "field_name": {
         "type": "string",
@@ -3396,21 +3441,21 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "firing_rate_using_coal_tons_per_hour": {
         "type": "number",
-        "unit": "tons_per_hour",
+        "unit": "short_ton / hour",
         "description": (
             "Design firing rate at maximum continuous steam flow for coal to the nearest 0.1 ton per hour."
         ),
     },
     "firing_rate_using_gas_mcf_per_hour": {
         "type": "number",
-        "unit": "mcf_per_hour",
+        "unit": "Mcf / hour",
         "description": (
             "Design firing rate at maximum continuous steam flow for gas to the nearest 0.1 cubic feet per hour."
         ),
     },
     "firing_rate_using_oil_bbls_per_hour": {
         "type": "number",
-        "unit": "bbls_per_hour",
+        "unit": "oil_barrel / hour",
         "description": (
             "Design firing rate at maximum continuous steam flow for pet coke to the nearest 0.1 barrels per hour."
         ),
@@ -3470,12 +3515,12 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "flue_gas_exit_rate_cubic_feet_per_minute": {
         "type": "number",
-        "unit": "cfm",
+        "unit": "foot**3 / minute",
         "description": "Actual flue gas exit rate, in cubic feet per minute.",
     },
     "flue_gas_exit_temperature_fahrenheit": {
         "type": "number",
-        "unit": "F",
+        "unit": "degF",
         "description": "Flue gas exit temperature, in degrees Fahrenheit.",
     },
     "flue_id_eia": {
@@ -3537,7 +3582,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "Total consumption of fuel to produce electricity, in physical unit, year to date."
         ),
-        "unit": "MMBTU",
+        "unit": "MMBtu",
     },
     "fuel_consumed_for_electricity_units": {
         "type": "number",
@@ -3550,7 +3595,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "Total consumption of fuel in physical unit, year to date. Note: this is the total quantity consumed for both electricity and, in the case of combined heat and power plants, process steam production."
         ),
-        "unit": "MMBTU",
+        "unit": "MMBtu",
     },
     "fuel_consumed_total_cost": {
         "type": "number",
@@ -3583,43 +3628,43 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "fuel_mmbtu": {
         "type": "number",
         "description": "Total heat content for plant (in MMBTU).",
-        "unit": "MMBTU",
+        "unit": "MMBtu",
     },
     "fuel_cost_per_mmbtu": {
         "type": "number",
         "description": "Average fuel cost per MMBTU of heat content in nominal USD.",
-        "unit": "USD_per_MMBTU",
+        "unit": "USD / MMBtu",
     },
     "fuel_cost_per_mmbtu_eia": {
         "type": "number",
         "description": "Average fuel cost per MMBTU of heat content in nominal USD.",
-        "unit": "USD_per_MMBTU",
+        "unit": "USD / MMBtu",
     },
     "fuel_cost_per_mmbtu_ferc1": {
         "type": "number",
         "description": "Average fuel cost per MMBTU of heat content in nominal USD.",
-        "unit": "USD_per_MMBTU",
+        "unit": "USD / MMBtu",
     },
     "fuel_cost_per_mwh": {
         "type": "number",
         "description": (
             "Derived from MCOE, a unit level value. Average fuel cost per MWh of heat content in nominal USD."
         ),
-        "unit": "USD_per_MWh",
+        "unit": "USD / MWh",
     },
     "fuel_cost_per_mwh_eia": {
         "type": "number",
         "description": (
             "Derived from MCOE, a unit level value. Average fuel cost per MWh of heat content in nominal USD."
         ),
-        "unit": "USD_per_MWh",
+        "unit": "USD / MWh",
     },
     "fuel_cost_per_mwh_ferc1": {
         "type": "number",
         "description": (
             "Derived from MCOE, a unit level value. Average fuel cost per MWh of heat content in nominal USD."
         ),
-        "unit": "USD_per_MWh",
+        "unit": "USD / MWh",
     },
     "fuel_cost_per_unit_burned": {
         "type": "number",
@@ -3642,7 +3687,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "standardized to the value of a USD in the year defined by "
             "``real_cost_basis_year``."
         ),
-        "unit": "USD_per_MMBTU",
+        "unit": "USD / MMBtu",
     },
     "fuel_derived_from": {
         "type": "string",
@@ -3684,11 +3729,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "Heat content of the fuel in millions of Btus per physical unit."
         ),
-        "unit": "MMBTU_per_unit",
     },
     "fuel_pct": {
         "type": "number",
         "description": "Percent of fuel",
+        "unit": "percent",
     },
     "fuel_phase": {
         "type": "string",
@@ -3708,11 +3753,15 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "Aggregated fuel receipts, in MMBTU, in EIA bulk electricity data."
         ),
-        "unit": "MMBTU",
+        "unit": "MMBtu",
     },
     "fuel_received_units": {
         "type": "number",
-        "description": "Quantity of fuel received in tons, barrel, or Mcf.",
+        "description": (
+            "Quantity of fuel received. The unit varies by fuel type: short_ton for "
+            "coal, oil_barrel for petroleum, and Mcf for natural gas. See the "
+            "associated fuel_units column to determine which unit applies to each row."
+        ),
     },
     "fuel_switch_energy_source_1": {
         "type": "string",
@@ -3813,6 +3862,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "A count of how many different simple energy sources there are associated with a generator."
         ),
+        "unit": "count",
     },
     "fuel_units": {
         "type": "string",
@@ -3834,12 +3884,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "gas_fraction_cost": {
         "type": "number",
-        "description": "Natural gas cost as a percentage of overall fuel cost.",
+        "description": "Natural gas cost as a fraction (0-1) of overall fuel cost.",
     },
     "gas_fraction_mmbtu": {
         "type": "number",
         "description": (
-            "Natural gas heat content as a percentage of overall fuel heat content (MMBTU)."
+            "Natural gas heat content as a fraction (0-1) of overall fuel heat content, "
+            "measured in MMBtu. The '_mmbtu' suffix indicates the denominator unit "
+            "used to compute the fraction, not the unit of this field."
         ),
     },
     "generation_activity": {
@@ -3868,10 +3920,12 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "generators_num_less_1_mw": {
         "type": "integer",
         "description": "Total number of generators less than 1 MW.",
+        "unit": "count",
     },
     "generators_number": {
         "type": "integer",
         "description": "Total number of generators",
+        "unit": "count",
     },
     "generator_operating_date": {
         "type": "date",
@@ -3974,7 +4028,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "heat_content_mmbtu": {
         "type": "number",
         "description": "The energy contained in fuel burned, measured in million BTU.",
-        "unit": "MMBTU",
+        "unit": "MMBtu",
     },
     "hour_of_year": {
         "type": "integer",
@@ -3987,33 +4041,33 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "Fuel content per unit of electricity generated. Coming from MCOE calculation."
         ),
-        "unit": "MMBTU_MWh",
+        "unit": "MMBtu / MWh",
     },
     "unit_heat_rate_mmbtu_per_mwh_eia": {
         "type": "number",
         "description": (
             "Fuel content per unit of electricity generated. Coming from MCOE calculation."
         ),
-        "unit": "MMBTU_MWh",
+        "unit": "MMBtu / MWh",
     },
     "unit_heat_rate_mmbtu_per_mwh_ferc1": {
         "type": "number",
         "description": (
             "Fuel content per unit of electricity generated. Calculated from FERC reported fuel consumption and net generation."
         ),
-        "unit": "MMBTU_MWh",
+        "unit": "MMBtu / MWh",
     },
     "heat_rate_mmbtu_per_mwh": {
         "type": "number",
         "description": "Fuel content per unit of electricity generated.",
-        "unit": "MMBTU_MWh",
+        "unit": "MMBtu / MWh",
     },
     "heat_rate_penalty": {
         "type": "number",
         "description": (
             "Heat rate penalty for retrofitting. This column only has contents to retrofit technologies. It seems to be a rate between 0.35 and 0.09"
         ),
-        "unit": "MMBTU_MWh",
+        "unit": "MMBtu / MWh",
     },
     "highest_distribution_voltage_kv": {
         "type": "number",
@@ -4025,6 +4079,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "Number of AMI meters with home area network (HAN) gateway enabled."
         ),
+        "unit": "count",
     },
     "hours_in_service": {
         "type": "integer",
@@ -4032,7 +4087,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Total hours the emissions control was in service during the reporting year, "
             "rounded to the nearest hour."
         ),
-        "unit": "hr",
+        "unit": "hour",
     },
     "hrsg": {
         "type": "boolean",
@@ -4322,17 +4377,17 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "intake_distance_shore_feet": {
         "description": "Maximum distance from shore to intake",
         "type": "number",
-        "unit": "ft",
+        "unit": "foot",
     },
     "intake_distance_surface_feet": {
         "description": "Average distance below water surface to intake",
         "type": "number",
-        "unit": "ft",
+        "unit": "foot",
     },
     "intake_rate_100pct_gallons_per_minute": {
         "description": "Design cooling water flow rate at 100 percent load at in-take",
         "type": "number",
-        "unit": "gpm",
+        "unit": "gallon / minute",
     },
     "interchange_adjusted_mwh": {
         "type": "number",
@@ -4393,7 +4448,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "The code of the plant's ISO or RTO. NA if not reported in that year."
         ),
     },
-    "kwh_per_customer": {"type": "number", "description": "kWh per customer."},
+    "kwh_per_customer": {
+        "type": "number",
+        "description": "kWh per customer.",
+        "unit": "kWh",
+    },
     "label": {
         "type": "string",
         "description": "Longer human-readable code using snake_case",
@@ -4401,6 +4460,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "latitude": {
         "type": "number",
         "description": "Latitude of the plant's location, in degrees.",
+        "unit": "degrees",
     },
     "leak_severity": {
         "type": "string",
@@ -4423,7 +4483,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "Levelized cost of energy (LCOE) is a summary metric that combines the primary technology cost and performance parameters: capital expenditures, operations expenditures, and capacity factor."
         ),
-        "unit": "USD_per_Mwh",
+        "unit": "USD / MWh",
     },
     "liability_type": {
         "type": "string",
@@ -4553,6 +4613,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "loan_balance": {
         "type": "number",
         "description": "The amount of money still owned on a loan at the end of the reporting year.",
+        "unit": "USD",
     },
     "loan_maturity_date": {
         "type": "date",
@@ -4575,16 +4636,17 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "longitude": {
         "type": "number",
         "description": "Longitude of the plant's location, in degrees.",
+        "unit": "degrees",
     },
     "mains_miles": {
         "type": "number",
         "description": "The miles of mains distribution pipeline.",
-        "unit": "miles",
+        "unit": "mile",
     },
     "mains": {
         "type": "number",
-        "description": "The number of mains distribution pipeline.",
-        "unit": "miles",
+        "description": "Miles of mains distribution pipeline.",
+        "unit": "mile",
     },
     "main_size": {
         "type": "string",
@@ -4637,14 +4699,13 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "max_fuel_mmbtu_per_unit": {
         "type": "number",
         "description": "Maximum heat content per physical unit of fuel in MMBTU.",
-        "unit": "MMBTU",
+        "unit": "MMBtu",
     },
     "max_oil_heat_input": {
         "type": "number",
         "description": (
-            "The maximum oil heat input (percent of MMBTUs) expected for proposed unit when co-firing with natural gas"
+            "The maximum oil heat input as a fraction (0-1) of total MMBTUs expected for proposed unit when co-firing with natural gas."
         ),
-        "unit": "% MMBTU",
     },
     "max_oil_output_mw": {
         "type": "number",
@@ -4655,7 +4716,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "max_steam_flow_lbs_per_hour": {
         "type": "number",
-        "unit": "lb_per_hour",
+        "unit": "pound / hour",
         "description": "Maximum continuous steam flow at 100 percent load.",
     },
     "maximum_daily_delivery_mcf": {
@@ -4739,6 +4800,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Actual controlled (or uncontrolled) mercury emission rate, based on "
             "data from CEMS, where possible."
         ),
+        "unit": "pound / TBtu",
     },
     "mercury_removal_efficiency": {
         "type": "number",
@@ -4767,12 +4829,12 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "miles": {
         "type": "number",
         "description": "Line length at the end of the reported period, in miles.",
-        "unit": "miles",
+        "unit": "mile",
     },
     "min_fuel_mmbtu_per_unit": {
         "type": "number",
         "description": "Minimum heat content per physical unit of fuel in MMBTU.",
-        "unit": "MMBTU",
+        "unit": "MMBtu",
     },
     "mine_id_msha": {"type": "integer", "description": "MSHA issued mine identifier."},
     "mine_id_pudl": {
@@ -4814,6 +4876,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "For coal only: the moisture content of the fuel in terms of moisture "
             "percentage by weight. Reported to the nearest 0.01 percent."
         ),
+        "unit": "percent",
     },
     "momentary_interruption_definition": {
         "type": "string",
@@ -4825,42 +4888,42 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "monthly_average_consumption_rate_gallons_per_minute": {
         "description": "Monthly average consumption rate of cooling water",
         "type": "number",
-        "unit": "gpm",
+        "unit": "gallon / minute",
     },
     "monthly_average_discharge_rate_gallons_per_minute": {
         "description": "Monthly average discharge rate of cooling water",
         "type": "number",
-        "unit": "gpm",
+        "unit": "gallon / minute",
     },
     "monthly_average_discharge_temperature_fahrenheit": {
         "description": "Average cooling water temperature at discharge point",
         "type": "number",
-        "unit": "F",
+        "unit": "degF",
     },
     "monthly_average_diversion_rate_gallons_per_minute": {
         "description": "Monthly average diversion rate of cooling water",
         "type": "number",
-        "unit": "gpm",
+        "unit": "gallon / minute",
     },
     "monthly_average_intake_temperature_fahrenheit": {
         "description": "Average cooling water temperature at intake point",
         "type": "number",
-        "unit": "F",
+        "unit": "degF",
     },
     "monthly_average_withdrawal_rate_gallons_per_minute": {
         "description": "Monthly average withdrawal rate of cooling water",
         "type": "number",
-        "unit": "gpm",
+        "unit": "gallon / minute",
     },
     "monthly_maximum_discharge_temperature_fahrenheit": {
         "description": "Maximum cooling water temperature at discharge",
         "type": "number",
-        "unit": "F",
+        "unit": "degF",
     },
     "monthly_maximum_intake_temperature_fahrenheit": {
         "description": "Maximum cooling water temperature at intake",
         "type": "number",
-        "unit": "F",
+        "unit": "degF",
     },
     "monthly_total_chlorine_lbs": {
         "description": (
@@ -4869,40 +4932,40 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "schedule 9 is filled out."
         ),
         "type": "number",
-        "unit": "lb",
+        "unit": "pound",
     },
     "monthly_total_consumption_volume_gallons": {
         "description": (
             "Monthly volume of water consumed at consumption point (accurate to 0.1 million gal)"
         ),
         "type": "number",
-        "unit": "gal",
+        "unit": "gallon",
     },
     "monthly_total_cooling_hours_in_service": {
         "description": "Total hours the system operated during the month",
         "type": "integer",
-        "unit": "hr",
+        "unit": "hour",
     },
     "monthly_total_discharge_volume_gallons": {
         "description": (
             "Monthly volume of water discharged at discharge point (accurate to 0.1 million gal)"
         ),
         "type": "number",
-        "unit": "gal",
+        "unit": "gallon",
     },
     "monthly_total_diversion_volume_gallons": {
         "description": (
             "Monthly volume of water diverted at diversion point (accurate to 0.1 million gal)"
         ),
         "type": "number",
-        "unit": "gal",
+        "unit": "gallon",
     },
     "monthly_total_withdrawal_volume_gallons": {
         "description": (
             "Monthly volume of water withdrawn at withdrawal point (accurate to 0.1 million gal)"
         ),
         "type": "number",
-        "unit": "gal",
+        "unit": "gallon",
     },
     "can_burn_multiple_fuels": {
         "type": "boolean",
@@ -5139,6 +5202,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "also include functions to measure time-of-use and/or demand with data "
             "manually retrieved over monthly billing cycles."
         ),
+        "unit": "count",
     },
     "non_coincident_peak_demand_mw": {
         "type": "number",
@@ -5265,7 +5329,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "nox_mass_lbs": {
         "type": "number",
         "description": "NOx emissions in pounds.",
-        "unit": "lb",
+        "unit": "pound",
     },
     "nox_mass_measurement_code": {
         "type": "string",
@@ -5276,12 +5340,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "nuclear_fraction_cost": {
         "type": "number",
-        "description": "Nuclear cost as a percentage of overall fuel cost.",
+        "description": "Nuclear cost as a fraction (0-1) of overall fuel cost.",
     },
     "nuclear_fraction_mmbtu": {
         "type": "number",
         "description": (
-            "Nuclear heat content as a percentage of overall fuel heat content (MMBTU)."
+            "Nuclear heat content as a fraction (0-1) of overall fuel heat content, "
+            "measured in MMBtu. The '_mmbtu' suffix indicates the denominator unit "
+            "used to compute the fraction, not the unit of this field."
         ),
     },
     "nuclear_unit_id": {
@@ -5293,6 +5359,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "num_transmission_circuits": {
         "type": "integer",
         "description": "Number of circuits in a transmission line.",
+        "unit": "count",
     },
     "office_city": {
         "type": "string",
@@ -5319,12 +5386,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "oil_fraction_cost": {
         "type": "number",
-        "description": "Oil cost as a percentage of overall fuel cost.",
+        "description": "Oil cost as a fraction (0-1) of overall fuel cost.",
     },
     "oil_fraction_mmbtu": {
         "type": "number",
         "description": (
-            "Oil heat content as a percentage of overall fuel heat content (MMBTU)."
+            "Oil heat content as a fraction (0-1) of overall fuel heat content, "
+            "measured in MMBtu. The '_mmbtu' suffix indicates the denominator unit "
+            "used to compute the fraction, not the unit of this field."
         ),
     },
     "operates_generating_plant": {
@@ -5352,14 +5421,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "operating_time_hours": {
         "type": "number",
         "description": "Length of time interval measured.",
-        "unit": "hr",
+        "unit": "hour",
     },
     "operating_voltage_kv": {
         "type": "number",
         "description": (
             "The operating voltage, expressed kilo-volts, for three-phase 60 cycle alternative current transmission lines."
         ),
-        "unit": "KV",
+        "unit": "kV",
     },
     "operation_or_maintenance": {
         "type": "string",
@@ -5525,7 +5594,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "Fixed operation and maintenance expenses. Annual expenditures to operate and maintain equipment that are not incurred on a per-unit-energy basis."
         ),
-        "unit": "USD_per_kw",
+        "unit": "USD / kW",
     },
     "opex_fly_ash_collection": {
         "type": "number",
@@ -5553,7 +5622,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "Operation and maintenance costs incurred on a per-unit-energy basis."
         ),
-        "unit": "USD_per_MWh",
+        "unit": "USD / MWh",
     },
     "opex_fuel": {
         "type": "number",
@@ -5562,8 +5631,8 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "opex_fuel_per_mwh": {
         "type": "number",
-        "description": "Production expenses: fuel (USD) per megawatt-hour (Mwh).",
-        "unit": "USD_per_Mwh",
+        "description": "Production expenses: fuel (USD) per megawatt-hour (MWh).",
+        "unit": "USD / MWh",
     },
     "opex_generation_misc": {
         "type": "number",
@@ -5601,8 +5670,8 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "opex_nonfuel_per_mwh": {
         "type": "number",
-        "description": "Investments in non-fuel production expenses per Mwh.",
-        "unit": "USD_per_Mwh",
+        "description": "Investments in non-fuel production expenses per MWh.",
+        "unit": "USD / MWh",
     },
     "opex_operations": {
         "type": "number",
@@ -5635,7 +5704,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "opex_per_mwh": {
         "type": "number",
         "description": "Total production expenses (USD per MWh generated).",
-        "unit": "USD per MWh",
+        "unit": "USD / MWh",
     },
     "opex_plant": {
         "type": "number",
@@ -5710,7 +5779,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
         "unit": "USD",
     },
-    "opex_transfer": {"type": "number", "description": "Steam transferred (Credit)."},
+    "opex_transfer": {
+        "type": "number",
+        "description": "Steam transferred (Credit).",
+        "unit": "USD",
+    },
     "opex_water_for_power": {
         "type": "number",
         "description": "Production expenses: water for power (USD).",
@@ -5785,12 +5858,12 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "outlet_distance_shore_feet": {
         "description": "Maximum distance from shore to outlet",
         "type": "number",
-        "unit": "ft",
+        "unit": "foot",
     },
     "outlet_distance_surface_feet": {
         "description": "Average distance below water surface to outlet",
         "type": "number",
-        "unit": "ft",
+        "unit": "foot",
     },
     "owned_by_non_utility": {
         "type": "boolean",
@@ -5848,11 +5921,12 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "ozone_season_nox_emission_rate_lb_per_mmbtu": {
         "type": "number",
         "description": "Actual controlled (or uncontrolled) nitrogen oxides emission rate during the ozone season (May to September)",
-        "unit": "lb_per_MMBTU",
+        "unit": "pound / MMBtu",
     },
     "ownership_pct": {
         "type": "number",
         "description": "Percentage of the plant owned by the respondent.",
+        "unit": "percent",
     },
     "parent_company_central_index_key": {
         "type": "string",
@@ -5991,7 +6065,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "particulate_emission_rate_lb_per_mmbtu": {
         "type": "number",
         "description": "Average annual emission removal rate for particulate matter.",
-        "unit": "lb_per_MMBTU",
+        "unit": "pound / MMBtu",
     },
     "particulate_removal_efficiency_tested": {
         "type": "number",
@@ -6006,10 +6080,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": (
             "Particulate removal efficiency, based on the annual operating factor, "
-            "which is defined as annual fuel consumption (MMBTU) divided by the product "
-            "of the boiler design firing rate (MMBTU per hour) and hours of operation per year."
+            "which is defined as annual fuel consumption (MMBtu) divided by the product "
+            "of the boiler design firing rate (MMBtu per hour) and hours of operation per year. "
             "When actual data are not available, estimates are provided based on equipment "
-            "design performance specifications. Ranges from 0 to 1."
+            "design performance specifications. Ranges from 0 to 1; a small number of "
+            "records contain values slightly above 1, likely due to reporting anomalies."
         ),
     },
     "particulate_test_date": {
@@ -6048,8 +6123,8 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "expected negative values in this column."
         ),
     },
-    "percent_dry_cooling": {
-        "description": "Percent of cooling load served by dry cooling components",
+    "dry_cooling_fraction": {
+        "description": "Fraction of cooling load served by dry cooling components.",
         "type": "number",
     },
     "phone_extension": {
@@ -6168,7 +6243,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "Hours the plant was connected to load while generating in the report year."
         ),
-        "unit": "hr",
+        "unit": "hour",
         # TODO Add min/max constraint. 0 <= X <= 8784
     },
     "plant_id_eia": {
@@ -6225,6 +6300,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "plant_num": {
         "type": "integer",
         "description": "Number of plants.",
+        "unit": "count",
     },
     "plant_part": {
         "type": "string",
@@ -6291,7 +6367,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "pond_landfill_requirements_acre_foot_per_year": {
         "type": "number",
-        "unit": "acre_foot_per_year",
+        "unit": "acre_foot / year",
         "description": (
             "Annual pond and land fill requirements for flue gas desulfurization equipment."
         ),
@@ -6308,15 +6384,17 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "pond_volume_acre_feet": {
         "description": "Total volume of water in cooling pond",
         "type": "number",
-        "unit": "acre-feet",
+        "unit": "acre_foot",
     },
     "population": {
-        "type": "number",
+        "type": "integer",
         "description": "County population, sourced from Census DP1 data.",
+        "unit": "count",
     },
     "population_density_km2": {
         "type": "number",
         "description": "Average population per sq. km area of a service territory.",
+        "unit": "count / km**2",
     },
     "potential_peak_demand_savings_mw": {
         "type": "number",
@@ -6328,7 +6406,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "power_cost_per_mwh": {
         "type": "number",
         "description": ("The cost of power per mwh."),
-        "unit": "USD_per_MWh",
+        "unit": "USD / MWh",
     },
     "power_requirement_mw": {
         "description": (
@@ -6379,6 +6457,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "The number of customers participating in the respondent's incentive-based "
             "demand response programs."
         ),
+        "unit": "count",
     },
     "primary_fuel_by_cost": {
         "type": "string",
@@ -6553,6 +6632,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "Number of distinct generator IDs that participated in the aggregation for a plant part list record."
         ),
+        "unit": "count",
     },
     "record_id": {
         "type": "string",
@@ -6625,6 +6705,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "rental_cost_ytd": {
         "type": "number",
         "description": "Year-to-date rental cost for leased property.",
+        "unit": "USD",
     },
     "has_regulatory_limits": {
         "type": "boolean",
@@ -6663,6 +6744,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "renewable_fuel_pct": {
         "type": "number",
         "description": "Percentage of renewable fuel used.",
+        "unit": "percent",
     },
     "report_date": {"type": "date", "description": "Date reported."},
     "report_timezone": {
@@ -6789,7 +6871,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "The amount of revenue per kWh by rate schedule acquired in the given "
             "report year."
         ),
-        "unit": "USD",
+        "unit": "USD / kWh",
     },
     "revenue_type": {
         "type": "string",
@@ -6931,7 +7013,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Cumulative duration (minutes) of interruption for the average customer "
             "during the report year."
         ),
-        "unit": "min",
+        "unit": "minute",
     },
     "saidi_w_major_event_days_minus_loss_of_service_minutes": {
         "type": "number",
@@ -6940,7 +7022,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "during the report year including major event days and excluding "
             "reliability events caused by a loss of supply."
         ),
-        "unit": "min",
+        "unit": "minute",
     },
     "saidi_w_major_event_days_minutes": {
         "type": "number",
@@ -6948,7 +7030,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Cumulative duration (minutes) of interruption for the average customer "
             "during the report year including major event days."
         ),
-        "unit": "min",
+        "unit": "minute",
     },
     "saidi_wo_major_event_days_minutes": {
         "type": "number",
@@ -6956,28 +7038,37 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Cumulative duration (minutes) of interruption for the average customer "
             "during the report year excluding major event days."
         ),
-        "unit": "min",
+        "unit": "minute",
     },
     "saifi_w_major_event_days_customers": {
         "type": "number",
         "description": (
-            "Average number of times a customer experienced a sustained interruption "
-            "(over 5 minutes) during the report year including major event days."
+            "System Average Interruption Frequency Index (SAIFI): the average number "
+            "of times a customer experienced a sustained interruption (over 5 minutes) "
+            "during the report year, including major event days. Dimensionless rate "
+            "(interruptions per customer); the '_customers' suffix is part of the IEEE "
+            "metric name, not a customer count."
         ),
     },
     "saifi_w_major_event_days_minus_loss_of_service_customers": {
         "type": "number",
         "description": (
-            "Average number of times a customer experienced a sustained interruption "
-            "(over 5 minutes) during the report year including major event days and "
-            "excluding reliability events caused by a loss of supply."
+            "System Average Interruption Frequency Index (SAIFI): the average number "
+            "of times a customer experienced a sustained interruption (over 5 minutes) "
+            "during the report year, including major event days and excluding reliability "
+            "events caused by a loss of supply. Dimensionless rate (interruptions per "
+            "customer); the '_customers' suffix is part of the IEEE metric name, not a "
+            "customer count."
         ),
     },
     "saifi_wo_major_event_days_customers": {
         "type": "number",
         "description": (
-            "Average number of times a customer experienced a sustained interruption "
-            "(over 5 minutes) during the report year excluding major event days."
+            "System Average Interruption Frequency Index (SAIFI): the average number "
+            "of times a customer experienced a sustained interruption (over 5 minutes) "
+            "during the report year, excluding major event days. Dimensionless rate "
+            "(interruptions per customer); the '_customers' suffix is part of the IEEE "
+            "metric name, not a customer count."
         ),
     },
     "sales_for_resale_mwh": {
@@ -7167,6 +7258,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "in the system at end of reported year related to "
             "natural gas distribution."
         ),
+        "unit": "count",
     },
     "services_efv_installed": {
         "type": "integer",
@@ -7174,6 +7266,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Total number of services with Excess Flow Valve installed "
             "during reported year related to natural gas distribution."
         ),
+        "unit": "count",
     },
     "services_shutoff_valve_in_system": {
         "type": "integer",
@@ -7182,6 +7275,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "shut-off valves installed in the system at end of report year "
             "related to natural gas distribution."
         ),
+        "unit": "count",
     },
     "services_shutoff_valve_installed": {
         "type": "integer",
@@ -7189,6 +7283,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Total number of manual service line shut-off valves installed "
             "during reported year related to natural gas distribution."
         ),
+        "unit": "count",
     },
     "service_type": {
         "type": "string",
@@ -7200,8 +7295,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "constraints": {"enum": ["bundled", "energy", "delivery"]},
     },
     "services": {
-        "type": "number",
+        "type": "integer",
         "description": "Number of services in system at end of year.",
+        "unit": "count",
     },
     "short_form": {
         "type": "boolean",
@@ -7327,7 +7423,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "so2_emission_rate_lbs_per_hour": {
         "type": "number",
-        "unit": "lb_per_hour",
+        "unit": "pound / hour",
         "description": (
             "Sulfur dioxide emission rate when operating at 100 percent load (pounds per hour)."
         ),
@@ -7351,7 +7447,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "so2_mass_lbs": {
         "type": "number",
         "description": "Sulfur dioxide emissions in pounds.",
-        "unit": "lb",
+        "unit": "pound",
     },
     "so2_mass_measurement_code": {
         "type": "string",
@@ -7363,7 +7459,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "so2_removal_efficiency_design": {
         "type": "number",
         "description": (
-            "Designed removal efficiency for sulfur dioxide when operating at 100 percent load. Reported at the nearest 0.1 percent by weight of gases removed from the flue gas."
+            "Designed removal efficiency for sulfur dioxide when operating at 100 percent "
+            "load, reported to the nearest 0.1 percentage point by weight of gases removed "
+            "from the flue gas. Ranges from 0 to 1."
         ),
     },
     "so2_removal_efficiency_tested": {
@@ -7379,8 +7477,8 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "description": (
             "Sulfur dioxide removal efficiency, based on the annual operating factor, "
-            "which is defined as annual fuel consumption (MMBTU) divided by the product "
-            "of the boiler design firing rate (MMBTU per hour) and hours of operation per year."
+            "which is defined as annual fuel consumption (MMBtu) divided by the product "
+            "of the boiler design firing rate (MMBtu per hour) and hours of operation per year. "
             "When actual data are not available, estimates are provided based on equipment "
             "design performance specifications. Ranges from 0 to 1."
         ),
@@ -7394,7 +7492,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "sold_units": {
         "type": "number",
         "description": (
-            "Sold by-products, in tons (to the nearest 100 tons) or, for Steam, MMBTU."
+            "By-products sold. The unit varies by by-product type: short_ton (to the "
+            "nearest 100 short_ton) for solid by-products, or MMBtu for steam sales. "
+            "See the associated by-product type column to determine which unit applies "
+            "to each row."
         ),
     },
     "sold_to_utility_mwh": {
@@ -7509,10 +7610,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Numeric value for the unit of measurement specified for sulfur dioxide."
         ),
     },
-    "standard_so2_percent_scrubbed": {
+    "standard_so2_fraction_scrubbed": {
         "type": "number",
         "description": (
-            "The percent of sulfur dioxide to be scrubbed specified by the most stringent sulfur dioxide regulation."
+            "The fraction of sulfur dioxide to be scrubbed specified by the most stringent sulfur dioxide regulation."
         ),
     },
     "start_point": {
@@ -7576,7 +7677,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "Total steam pressure produced by a unit during the reported hour."
         ),
-        "unit": "lb",
+        "unit": "pound",
     },
     "steam_plant_type_code": {
         "type": "integer",
@@ -7634,16 +7735,20 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "stored_offsite_units": {
         "type": "number",
-        "unit": "tons or MMBTU",
         "description": (
-            "Stored by-products offsite, to the nearest hundred tons or in MMBTU for steam sales."
+            "By-products stored offsite. The unit varies by by-product type: "
+            "short_ton (to the nearest 100 short_ton) for solid by-products, or MMBtu "
+            "for steam sales. See the associated by-product type column to determine "
+            "which unit applies to each row."
         ),
     },
     "stored_onsite_units": {
         "type": "number",
-        "unit": "tons or MMBTU",
         "description": (
-            "Stored by-products onsite, to the nearest hundred tons or in MMBTU for steam sales."
+            "By-products stored onsite. The unit varies by by-product type: "
+            "short_ton (to the nearest 100 short_ton) for solid by-products, or MMBtu "
+            "for steam sales. See the associated by-product type column to determine "
+            "which unit applies to each row."
         ),
     },
     "street_address": {
@@ -7818,6 +7923,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "Sulfur content percentage by weight to the nearest 0.01 percent."
         ),
+        "unit": "percent",
     },
     "summer_capacity_estimate": {
         "type": "boolean",
@@ -7831,24 +7937,24 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "summer_capacity_planned_additions_mw": {
         "type": "number",
         "description": "The total planned additions to net summer generating capacity.",
-        "unit": "mw",
+        "unit": "MW",
     },
     "summer_capacity_retirements_mw": {
         "type": "number",
         "description": "The total retirements from net summer generating capacity.",
-        "unit": "mw",
+        "unit": "MW",
     },
     "summer_capacity_unplanned_additions_mw": {
         "type": "number",
         "description": (
             "The total unplanned additions to net summer generating capacity."
         ),
-        "unit": "mw",
+        "unit": "MW",
     },
     "summer_estimated_capability_mw": {
         "type": "number",
-        "description": "EIA estimated summer capacity (in MWh).",
-        "unit": "MWh",
+        "description": "EIA estimated summer capacity (in MW).",
+        "unit": "MW",
     },
     "summer_peak_demand_forecast_mw": {
         "type": "number",
@@ -8011,6 +8117,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "The number of cusomters participating in the respondent's time-based "
             "rate programs."
         ),
+        "unit": "count",
     },
     "timezone": {
         "type": "string",
@@ -8041,9 +8148,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "total_disposal_units": {
         "type": "number",
-        "unit": "tons or MMBTU",
         "description": (
-            "Total by-product disposal, to the nearest hundred tons or in MMBTU for steam sales."
+            "Total by-product disposal. The unit varies by by-product type: "
+            "short_ton (to the nearest 100 short_ton) for solid by-products, or MMBtu "
+            "for steam sales. See the associated by-product type column to determine "
+            "which unit applies to each row."
         ),
     },
     "total_disposition_mwh": {
@@ -8071,6 +8180,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "unit or the anticipated costs to bring a planned flue gas desulfurization "
             "unit into commercial operation."
         ),
+        "unit": "USD",
     },
     "total_field_capacity_mcf": {
         "type": "number",
@@ -8085,36 +8195,42 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "Total annual reported fuel costs for the plant part. Includes costs from all fuels."
         ),
+        "unit": "USD",
     },
     "total_fuel_cost_eia": {
         "type": "number",
         "description": (
             "Total annual reported fuel costs for the plant part. Includes costs from all fuels."
         ),
+        "unit": "USD",
     },
     "total_fuel_cost_ferc1": {
         "type": "number",
         "description": (
             "Total annual reported fuel costs for the plant part. Includes costs from all fuels."
         ),
+        "unit": "USD",
     },
     "total_mmbtu": {
         "type": "number",
         "description": (
             "Total annual heat content of fuel consumed by a plant part record in the plant parts list."
         ),
+        "unit": "MMBtu",
     },
     "total_mmbtu_eia": {
         "type": "number",
         "description": (
             "Total annual heat content of fuel consumed by a plant part record in the plant parts list."
         ),
+        "unit": "MMBtu",
     },
     "total_mmbtu_ferc1": {
         "type": "number",
         "description": (
             "Total annual heat content of fuel consumed by a plant part record in the plant parts list."
         ),
+        "unit": "MMBtu",
     },
     "total_settlement": {
         "type": "number",
@@ -8167,7 +8283,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Maximum design rate of water flow at 100 percent load for the cooling towers"
         ),
         "type": "number",
-        "unit": "gpm",
+        "unit": "gallon / minute",
     },
     "transmission_activity": {
         "type": "boolean",
@@ -8212,12 +8328,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "Length (in pole miles or circuit miles (if transmission lines are underground)) for lines that are agrregated with other lines / structures (whose cost are aggregated and combined with other structures)."
         ),
+        "unit": "mile",
     },
     "transmission_line_length_miles": {
         "type": "number",
         "description": (
             "Length (in pole miles or circuit miles (if transmission lines are underground)) for lines that are stand alone structures (whose cost are reported on a stand-alone basis)."
         ),
+        "unit": "mile",
     },
     "true_gran": {
         "type": "boolean",
@@ -8228,10 +8346,12 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "turbines_inverters_hydrokinetics": {
         "type": "integer",
         "description": "Number of wind turbines, or hydrokinetic buoys.",
+        "unit": "count",
     },
     "turbines_num": {
         "type": "integer",
         "description": "Number of wind turbines, or hydrokinetic buoys.",
+        "unit": "count",
     },
     "turndown_ratio": {
         "type": "number",
@@ -8289,16 +8409,20 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "used_offsite_units": {
         "type": "number",
-        "unit": "tons or MMBTU",
         "description": (
-            "Used offsite by-products, to the nearest hundred tons or in MMBTU for steam sales."
+            "By-products used offsite. The unit varies by by-product type: "
+            "short_ton (to the nearest 100 short_ton) for solid by-products, or MMBtu "
+            "for steam sales. See the associated by-product type column to determine "
+            "which unit applies to each row."
         ),
     },
     "used_onsite_units": {
         "type": "number",
-        "unit": "tons or MMBTU",
         "description": (
-            "Used onsite by-products, to the nearest hundred tons or in MMBTU for steam sales."
+            "By-products used onsite. The unit varies by by-product type: "
+            "short_ton (to the nearest 100 short_ton) for solid by-products, or MMBtu "
+            "for steam sales. See the associated by-product type column to determine "
+            "which unit applies to each row."
         ),
     },
     "utility_id_eia": {
@@ -8458,17 +8582,19 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "waste_fraction_cost": {
         "type": "number",
-        "description": "Waste-heat cost as a percentage of overall fuel cost.",
+        "description": "Waste-heat cost as a fraction (0-1) of overall fuel cost.",
     },
     "waste_fraction_mmbtu": {
         "type": "number",
         "description": (
-            "Waste-heat heat content as a percentage of overall fuel heat content (MMBTU)."
+            "Waste-heat heat content as a fraction (0-1) of overall fuel heat content, "
+            "measured in MMBtu. The '_mmbtu' suffix indicates the denominator unit "
+            "used to compute the fraction, not the unit of this field."
         ),
     },
     "waste_heat_input_mmbtu_per_hour": {
         "type": "number",
-        "unit": "MMBTU_per_hour",
+        "unit": "MMBtu / hour",
         "description": (
             "Design waste-heat input rate at maximum continuous steam flow where a waste-heat boiler is a boiler that receives all or a substantial portion of its energy input from the noncumbustible exhaust gases of a separate fuel-burning process (MMBTU per hour)."
         ),
@@ -8476,11 +8602,12 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "num_water_heaters": {
         "type": "integer",
         "description": (
-            "The number of grid-enabled water heaters added to the respondent's "
+            "The number of grid-enabled water heaters added to the respondent’s "
             "program this year - if the respondent has DSM program for grid-enabled "
             "water heaters (as defined by DOE’s Office of Energy Efficiency and "
             "Renewable Energy)."
         ),
+        "unit": "count",
     },
     "water_limited_capacity_mw": {
         "type": "number",
@@ -8508,7 +8635,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "wet_dry_bottom": {
         "type": "string",
-        "unit": "MMBTU_per_hour",
         "description": (
             "Wet or Dry Bottom where Wet Bottom is defined as slag tanks that are installed at furnace throat to contain and remove molten ash from the furnace, and Dry Bottom is defined as having no slag tanks at furnace throat area, throat area is clear, and bottom ash drops through throat to bottom ash water hoppers."
         ),
@@ -8557,8 +8683,8 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "winter_estimated_capability_mw": {
         "type": "number",
-        "description": "EIA estimated winter capacity (in MWh).",
-        "unit": "MWh",
+        "description": "EIA estimated winter capacity (in MW).",
+        "unit": "MW",
     },
     "winter_peak_demand_forecast_mw": {
         "type": "number",
@@ -8617,6 +8743,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "Average annual wind speed that turbines at this wind site were designed for."
         ),
+        "unit": "mile / hour",
     },
     "obstacle_id_faa": {
         "type": "string",
@@ -8644,7 +8771,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "The hub height of turbines at this generator. If more than one value exists, the one that best represents the turbines."
         ),
-        "unit": "ft",
+        "unit": "foot",
     },
     "wind_quality_class": {
         "type": "integer",
@@ -8659,14 +8786,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "wind_speed_avg_ms": {
         "type": "number",
         "description": "Average wind speed in meters per second.",
-        "unit": "ms",
+        "unit": "meter / second",
     },
     "extreme_fifty_year_gust_ms": {
         "type": "number",
         "description": (
-            "The extreme 50-year wind gusts at this generator in meters per hour."
+            "The extreme 50-year wind gusts at this generator in meters per second."
         ),
-        "unit": "ms",
+        "unit": "meter / second",
     },
     "turbulence_intensity_a": {
         "type": "number",
@@ -8685,7 +8812,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "Indicates the azimuth angle of the unit for fixed tilt or single-axis technologies."
         ),
-        "unit": "deg",
+        "unit": "degrees",
     },
     "standard_testing_conditions_capacity_mwdc": {
         "type": "number",
@@ -8706,7 +8833,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "Indicates the tilt angle of the unit for fixed tilt or single-axis technologies."
         ),
-        "unit": "deg",
+        "unit": "degrees",
     },
     "uses_material_crystalline_silicon": {
         "type": "boolean",
@@ -9743,10 +9870,15 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "datetime",
         "description": "The date of the last annual meeting.",
     },
-    "members_num": {"type": "integer", "description": "The total number of members."},
+    "members_num": {
+        "type": "integer",
+        "description": "The total number of members.",
+        "unit": "count",
+    },
     "members_present_at_meeting_num": {
         "type": "integer",
         "description": "The number of members present at the last annual meeting.",
+        "unit": "count",
     },
     "was_quorum_present": {
         "type": "boolean",
@@ -9755,10 +9887,12 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "members_voting_by_proxy_or_mail_num": {
         "type": "integer",
         "description": "The number of members voting by mail or by proxy.",
+        "unit": "count",
     },
     "board_members_num": {
         "type": "integer",
         "description": "The total number of board members.",
+        "unit": "count",
     },
     "fees_and_expenses_for_board_members": {
         "type": "integer",
@@ -9776,26 +9910,32 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "employees_fte_num": {
         "type": "integer",
         "description": "The number of full time employees.",
+        "unit": "count",
     },
     "employee_hours_worked_regular_time": {
-        "type": "integer",
+        "type": "number",
         "description": "The number of regular (non-overtime) hours worked by employees.",
+        "unit": "hour",
     },
     "employee_hours_worked_over_time": {
-        "type": "integer",
+        "type": "number",
         "description": "The number of overtime hours worked by employees.",
+        "unit": "hour",
     },
     "payroll_expensed": {
         "type": "integer",
         "description": "The amount of payroll spent that was expensed.",
+        "unit": "USD",
     },
     "payroll_capitalized": {
         "type": "integer",
         "description": "The amount of payroll spent that was capitalized.",
+        "unit": "USD",
     },
     "payroll_other": {
         "type": "integer",
         "description": "The amount of payroll spent that was funded by other means - not capitalized or expensed.",
+        "unit": "USD",
     },
     "payroll_maintenance": {
         "type": "number",
@@ -9812,7 +9952,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "The amount of plant payroll spent on accounts other than maintenance and operations.",
         "unit": "USD",
     },
-    "customers_num": {"description": "Number of customers.", "type": "number"},
+    "customers_num": {
+        "description": "Number of customers.",
+        "type": "integer",
+        "unit": "count",
+    },
     "observation_period": {
         "type": "string",
         "description": (
@@ -9844,7 +9988,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Warning: We found values much larger than expected that we have not yet "
             "cleaned - this is likely a reporting unit error."
         ),
-        "unit": "MMBTU",
+        "unit": "MMBtu",
     },
     "electric_sales_revenue": {
         "type": "integer",
@@ -9879,7 +10023,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "purchases_and_generation_cost": {
         "type": "integer",
         "description": "The cost of purchases and generation of electricity.",
-        "unit": "UDS",
+        "unit": "USD",
     },
     "interchange_mwh": {
         "type": "number",
@@ -9914,14 +10058,17 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "included_investments": {
         "type": "number",
         "description": "Included investment.",
+        "unit": "USD",
     },
     "excluded_investments": {
         "type": "number",
         "description": "Excluded investment.",
+        "unit": "USD",
     },
     "income_or_loss": {
         "type": "number",
         "description": "Income or loss from investment.",
+        "unit": "USD",
     },
     "opex_group": {
         "type": "string",
@@ -10000,12 +10147,12 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "cost_per_mwh": {
         "type": "number",
         "description": "Unit cost of energy production in cost per MWh",
-        "unit": "USD_per_MWh",
+        "unit": "USD / MWh",
     },
     "cost_per_mmbtu": {
         "type": "number",
         "description": "Unit cost of energy production in cost per MMBTU",
-        "unit": "USD_per_MMBTU",
+        "unit": "USD / MMBtu",
     },
     "is_full_ownership_portion": {
         "type": "boolean",
@@ -10027,7 +10174,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Annual pounds of coal consumed for fuel."
             "This field is only reported for plant_type steam."
         ),
-        "unit": "lb",
+        "unit": "pound",
     },
     "fuel_consumption_gas_cubic_feet": {
         "type": "number",
@@ -10035,7 +10182,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Annual cubic feet of natural gas consumed for fuel."
             "This field is only reported for plant_type's combined_cycle, combined_cycle and steam."
         ),
-        "unit": "cf",
+        "unit": "foot**3",
     },
     "fuel_consumption_oil_gallons": {
         "type": "number",
@@ -10043,7 +10190,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Annual gallons of oil consumed for fuel."
             "This field is only reported for plant_type's combined_cycle, combined_cycle and steam."
         ),
-        "unit": "gal",
+        "unit": "gallon",
     },
     "fuel_consumption_other": {
         "type": "number",
@@ -10055,29 +10202,30 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "operating_hours_in_service": {
         "type": "number",
         "description": "Number of operating hours in service.",
-        "unit": "hours",
+        "unit": "hour",
     },
     "operating_hours_on_standby": {
         "type": "number",
         "description": "Number of operating hours on standby.",
-        "unit": "hours",
+        "unit": "hour",
     },
     "operating_hours_out_of_service_scheduled": {
         "type": "number",
         "description": "Number of operating hours out of service which were scheduled.",
-        "unit": "hours",
+        "unit": "hour",
     },
     "operating_hours_out_of_service_unscheduled": {
         "type": "number",
         "description": "Number of operating hours out of service which were unscheduled.",
-        "unit": "hours",
+        "unit": "hour",
     },
     "times_started": {
-        "type": "number",
+        "type": "integer",
         "description": (
             "Number of times the plant was started. "
             "This field is only reported for plant_type's steam and nuclear."
         ),
+        "unit": "count",
     },
     "delivered_demand_mw": {
         "type": "number",
@@ -10128,7 +10276,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "average_energy_cost_dollars_per_mwh": {
         "type": "number",
         "description": "The average cost of energy per MWh.",
-        "unit": "dollars_per_MWh",
+        "unit": "USD / MWh",
     },
     "purchased_energy_cost_total": {
         "type": "number",
@@ -10151,6 +10299,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "The cost of wheeling and other charges or credits related to fuel. "
             "Included in the total cost."
         ),
+        "unit": "USD",
     },
     "fuel_cost_adjustment": {
         "type": "number",
@@ -10160,6 +10309,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "from the supplying utility, reported separately from base power charges and "
             "wheeling costs. Included in the total cost."
         ),
+        "unit": "USD",
     },
     "fuel_type_code_rus": {
         "type": "integer",
@@ -10323,10 +10473,12 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "debits": {
         "type": "number",
         "description": "The increase (decrease) during the period in the value of other assets resulting from the ratemaking actions of regulatory agencies.",
+        "unit": "USD",
     },
     "credits_written_off_recovered": {
         "type": "number",
         "description": "Recovered amount of divestiture of other assets lacking physical substance resulting from the ratemaking actions of regulatory agencies.",
+        "unit": "USD",
     },
     "additional_description": {
         "type": "string",
@@ -10353,6 +10505,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "The number of times this entity - aka this particular utility, plant, etc - "
             "occurs across the pre-entity resolution tables."
         ),
+        "unit": "count",
     },
     "record_occurrences": {
         "type": "integer",
@@ -10360,6 +10513,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "The number of times this particular ``record_value`` occurs across the pre-entity resolution "
             "tables in association with this particular entity."
         ),
+        "unit": "count",
     },
     "consistent_rate": {
         "type": "number",
@@ -10609,6 +10763,16 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
         },
     },
     "sector_consolidated_eia": {"code": {"type": "integer"}},
+    "core_eia861__yearly_reliability": {
+        # customers genuinely contains fractional values (122 rows out of ~12,000
+        # have non-integer values, e.g. 127553.8, 8989.3). This happens because
+        # EIA uses the customer count as an averaging denominator when
+        # computing reliability metrics like SAIDI, SAIFI, and CAIDI, so the reported
+        # value in that context is an average rather than a raw count.
+        "customers": {
+            "type": "number",
+        },
+    },
     "core_ferc1__yearly_hydroelectric_plants_sched406": {
         "plant_type": {
             "type": "string",
@@ -11470,7 +11634,7 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
             "description": (
                 "Fuel costs in USD$/MWh. NREL-derived values using heat rates."
             ),
-            "unit": "USD_per_MWh",
+            "unit": "USD / MWh",
         }
     },
     "core_sec10k__changelog_company_name": {
@@ -11893,19 +12057,25 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
 
 def get_pudl_dtypes(
     group: str | None = None,
+    resource: str | None = None,
     field_meta: dict[str, Any] = FIELD_METADATA,
     field_meta_by_group: dict[str, Any] = FIELD_METADATA_BY_GROUP,
+    field_meta_by_resource: dict[str, Any] = FIELD_METADATA_BY_RESOURCE,
     dtype_map: dict[str, Any] = FIELD_DTYPES_PANDAS,
 ) -> dict[str, Any]:
-    """Compile a dictionary of field dtypes, applying group overrides.
+    """Compile a dictionary of field dtypes, applying group and resource overrides.
 
     Args:
         group: The data group (e.g. ferc1, eia) to use for overriding the default
-            field types. If None, no overrides are applied and the default types
-            are used.
+            field types. If None, no group overrides are applied.
+        resource: The resource (table) name to use for per-table type overrides. If
+            None, no resource-level overrides are applied. Resource overrides take
+            precedence over group overrides.
         field_meta: Field metadata dictionary which at least describes a "type".
         field_meta_by_group: Field metadata type overrides to apply based on the data
             group that the field is part of, if any.
+        field_meta_by_resource: Field metadata type overrides to apply based on the
+            resource (table) name, if any. These take precedence over group overrides.
         dtype_map: Mapping from canonical PUDL data types to some other set of data
             types. Uses pandas data types by default.
 
@@ -11917,6 +12087,8 @@ def get_pudl_dtypes(
     for f in field_meta:
         if f in field_meta_by_group.get(group, []):
             field_meta[f].update(field_meta_by_group[group][f])
+        if f in field_meta_by_resource.get(resource, []):
+            field_meta[f].update(field_meta_by_resource[resource][f])
         dtypes[f] = dtype_map[field_meta[f]["type"]]
 
     return dtypes
@@ -11925,8 +12097,10 @@ def get_pudl_dtypes(
 def apply_pudl_dtypes(
     df: pd.DataFrame | gpd.GeoDataFrame,
     group: str | None = None,
+    resource: str | None = None,
     field_meta: dict[str, Any] = FIELD_METADATA,
     field_meta_by_group: dict[str, Any] = FIELD_METADATA_BY_GROUP,
+    field_meta_by_resource: dict[str, Any] = FIELD_METADATA_BY_RESOURCE,
     strict: bool = False,
 ) -> pd.DataFrame | gpd.GeoDataFrame:
     """Apply dtypes to those columns in a dataframe that have PUDL types defined.
@@ -11939,12 +12113,18 @@ def apply_pudl_dtypes(
         df: The dataframe to apply types to. Not all columns need to have types
             defined in the PUDL metadata unless you pass ``strict=True``.
         group: The data group to use for overrides, if any. E.g. "eia", "ferc1".
+        resource: The resource (table) name to use for per-table type overrides. If
+            None, no resource-level overrides are applied. Resource overrides take
+            precedence over group overrides.
         field_meta: A dictionary of field metadata, where each key is a field name
             and the values are dictionaries which must have a "type" element. By
             default this is pudl.metadata.fields.FIELD_METADATA.
         field_meta_by_group: A dictionary of field metadata to use as overrides,
             based on the value of `group`, if any. By default it uses the overrides
             defined in pudl.metadata.fields.FIELD_METADATA_BY_GROUP.
+        field_meta_by_resource: A dictionary of field metadata to use as overrides,
+            based on the value of `resource`, if any. By default it uses the overrides
+            defined in pudl.metadata.fields.FIELD_METADATA_BY_RESOURCE.
         strict: whether or not all columns need a corresponding field.
 
     Returns:
@@ -11954,13 +12134,16 @@ def apply_pudl_dtypes(
         set(df.columns)
         - set(field_meta.keys())
         - set(field_meta_by_group.get(group, {}).keys())
+        - set(field_meta_by_resource.get(resource, {}).keys())
     )
     if strict and len(unspecified_fields) > 0:
         raise ValueError(f"Found unspecified fields: {unspecified_fields}")
     dtypes = get_pudl_dtypes(
         group=group,
+        resource=resource,
         field_meta=field_meta,
         field_meta_by_group=field_meta_by_group,
+        field_meta_by_resource=field_meta_by_resource,
         dtype_map=FIELD_DTYPES_PANDAS,
     )
     return df.astype({col: dtypes[col] for col in df.columns if col in dtypes})
@@ -11969,8 +12152,10 @@ def apply_pudl_dtypes(
 def apply_pudl_dtypes_polars(
     lf: pl.LazyFrame,
     group: str | None = None,
+    resource: str | None = None,
     field_meta: dict[str, Any] = FIELD_METADATA,
     field_meta_by_group: dict[str, Any] = FIELD_METADATA_BY_GROUP,
+    field_meta_by_resource: dict[str, Any] = FIELD_METADATA_BY_RESOURCE,
     strict: bool = False,
 ) -> pl.LazyFrame:
     """Apply dtypes to those columns in a dataframe that have PUDL types defined.
@@ -11980,36 +12165,45 @@ def apply_pudl_dtypes_polars(
     types you need to apply alongside the standard PUDL field types.
 
     Args:
-        df: The dataframe to apply types to. Not all columns need to have types
+        lf: The LazyFrame to apply types to. Not all columns need to have types
             defined in the PUDL metadata unless you pass ``strict=True``.
         group: The data group to use for overrides, if any. E.g. "eia", "ferc1".
+        resource: The resource (table) name to use for per-table type overrides. If
+            None, no resource-level overrides are applied. Resource overrides take
+            precedence over group overrides.
         field_meta: A dictionary of field metadata, where each key is a field name
             and the values are dictionaries which must have a "type" element. By
             default this is pudl.metadata.fields.FIELD_METADATA.
         field_meta_by_group: A dictionary of field metadata to use as overrides,
             based on the value of `group`, if any. By default it uses the overrides
             defined in pudl.metadata.fields.FIELD_METADATA_BY_GROUP.
+        field_meta_by_resource: A dictionary of field metadata to use as overrides,
+            based on the value of `resource`, if any. By default it uses the overrides
+            defined in pudl.metadata.fields.FIELD_METADATA_BY_RESOURCE.
         strict: whether or not all columns need a corresponding field.
 
     Returns:
-        The input dataframe, but with standard PUDL types applied.
+        The input LazyFrame, but with standard PUDL types applied.
     """
     columns = lf.collect_schema().names()
     unspecified_fields = sorted(
         set(columns)
         - set(field_meta.keys())
         - set(field_meta_by_group.get(group, {}).keys())
+        - set(field_meta_by_resource.get(resource, {}).keys())
     )
     if strict and len(unspecified_fields) > 0:
         raise ValueError(f"Found unspecified fields: {unspecified_fields}")
     dtypes = get_pudl_dtypes(
         group=group,
+        resource=resource,
         field_meta={
             key: value
             for key, value in field_meta.items()
             if value["type"] in FIELD_DTYPES_POLARS
         },
         field_meta_by_group=field_meta_by_group,
+        field_meta_by_resource=field_meta_by_resource,
         dtype_map=FIELD_DTYPES_POLARS,
     )
     return lf.cast({key: value for key, value in dtypes.items() if key in columns})

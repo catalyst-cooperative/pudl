@@ -54,3 +54,10 @@ sources:
               arguments:
                 table_name: core_eia860__scd_generators_multifuel
                 partition_expr: EXTRACT(YEAR FROM report_date)
+        columns:
+          - name: max_oil_heat_input
+            data_tests:
+              - dbt_expectations.expect_column_values_to_be_between:
+                  arguments:
+                    min_value: 0.0
+                    max_value: 1.0

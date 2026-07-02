@@ -30,6 +30,7 @@ import geopandas as gpd  # noqa: ICN002
 import pandas as pd
 import pandera.pandas as pr_pandas
 import pandera.polars as pr_polars
+import pint
 import polars as pl
 from pandera.errors import SchemaErrors
 
@@ -443,8 +444,107 @@ default_asset_checks.append(
     )
 )
 
+
+def _build_registry_from_descriptor(descriptor: dict) -> pint.UnitRegistry:
+    """Build a Pint registry from the ``unit_registry`` embedded in a datapackage descriptor.
+
+    Raises ``KeyError`` if the descriptor has no ``unit_registry`` field, or
+    ``ValueError`` if the field is missing the expected ``definitions`` list.
+    """
+    unit_registry_meta = descriptor["unit_registry"]
+    definitions = unit_registry_meta["definitions"]
+    unit_registry = pint.UnitRegistry()
+    for definition in definitions:
+        unit_registry.define(definition)
+    return unit_registry
+
+
+def _validate_datapackage_unit_strings(descriptor: dict) -> list[str]:
+    """Walk descriptor fields and parse each ``unit`` value; return error strings.
+
+    Builds a Pint registry from the ``unit_registry`` field embedded in
+    ``descriptor`` and uses it to parse every ``unit`` value found in resource
+    field schemas.  Returns one error string per unparsable unit.
+    """
+    errors = []
+    try:
+        ureg = _build_registry_from_descriptor(descriptor)
+    except (KeyError, ValueError) as exc:
+        return [f"Could not build unit registry from descriptor: {exc}"]
+
+    for resource in descriptor.get("resources", []):
+        resource_name = resource.get("name", "<unnamed>")
+        for field in resource.get("schema", {}).get("fields", []):
+            unit = field.get("unit")
+            if unit is None:
+                continue
+            try:
+                ureg.parse_units(unit)
+            except Exception as exc:
+                field_name = field.get("name", "<unnamed>")
+                errors.append(f"{resource_name}.{field_name}: unit={unit!r} — {exc}")
+    return errors
+
+
+def valid_datapackage_unit_strings_check(
+    asset_key: dg.AssetKey | str,
+    *,
+    description: str = (
+        "Validate that all unit strings in a frictionless datapackage descriptor "
+        "are parseable using the unit definitions embedded in the descriptor."
+    ),
+    blocking: bool = True,
+) -> dg.AssetChecksDefinition:
+    """Return a Dagster asset check that validates unit strings in a datapackage descriptor.
+
+    Reads the descriptor from ``$PUDL_OUTPUT/parquet/datapackage.json``, builds a
+    Pint unit registry from the ``unit_registry`` field embedded in the descriptor,
+    and attempts to parse every ``unit`` field value with that registry.  All
+    failures are collected before the check reports so a single run surfaces every
+    bad unit string.
+
+    Args:
+        asset_key: Key of the asset that produces the datapackage descriptor.
+        description: Human-readable description attached to the check in the
+            Dagster UI.
+        blocking: Whether the check is blocking (default ``True``).
+    """
+
+    @dg.asset_check(
+        asset=asset_key,
+        blocking=blocking,
+        description=description,
+        required_resource_keys={"pudl_paths"},
+    )
+    def _unit_strings_check(
+        context: dg.AssetCheckExecutionContext,
+    ) -> dg.AssetCheckResult:
+        descriptor_path = (
+            context.resources.pudl_paths.parquet_path() / "datapackage.json"
+        )
+        descriptor = json.loads(descriptor_path.read_text())
+        errors = _validate_datapackage_unit_strings(descriptor)
+        return dg.AssetCheckResult(
+            passed=not errors,
+            metadata={"errors": dg.MetadataValue.json(errors)},
+        )
+
+    return _unit_strings_check
+
+
+default_asset_checks.append(
+    valid_datapackage_unit_strings_check(
+        "pudl_datapackage",
+        description=(
+            "Validate that all unit strings in the PUDL datapackage descriptor "
+            "are parseable using the unit definitions embedded in the descriptor."
+        ),
+    )
+)
+
 __all__ = [
     "valid_datapackage_check",
+    "valid_datapackage_unit_strings_check",
     "asset_check_from_schema",
     "group_mean_continuity_check",
     "default_asset_checks",

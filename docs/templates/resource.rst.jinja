@@ -22,9 +22,11 @@ Columns
 
   * - **Field Name**
     - **Type**
+    - **Unit**
     - **Description**
 {%- for field in resource.schema.fields %}
   * - {{ field.name }}
     - {{ field.type }}
+    - {{ field.unit if field.unit else "" }}
     - {{ field.description|safe if field.description else "N/A" }}
 {%- endfor %}

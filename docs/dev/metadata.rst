@@ -298,9 +298,16 @@ To define metadata for a new field:
 * To define a new field, add an entry to the dictionary with the following keys:
 
   * ``type``: The data type - integer, string, number, or boolean.
-  * ``description``: No more than a few sentences describing what the field
-    contains.
-  * ``unit``: The unit of the column (when applicable).
+  * ``description``: No more than a few sentences describing what the field contains.
+  * ``unit``: The unit of the column (when applicable). Unit strings must be
+    parseable by :data:`pudl.metadata.units.PUDL_UNIT_REGISTRY` — a
+    ``pint.UnitRegistry`` that extends Pint's defaults with energy-industry
+    units (``MMBtu``, ``Mcf``, ``MMcf``, ``TBtu``, ``VAr``, ``USD``).
+    Follow `Pint expression syntax <https://pint.readthedocs.io/>`__ using
+    slash-with-spaces for compound units — e.g. ``MMBtu / MWh``,
+    ``USD / MWh``, ``gallon / minute``. Use Pint's built-in ``count`` unit
+    for fields that enumerate discrete items (customers, employees, meters,
+    generators, etc.).
   * ``constraints``: Categorical columns should largely be encoded by coding tables,
     but you can use this field to constrain a field to a short list of items
     using the ``enum`` key, or a regex pattern using the ``pattern`` key.

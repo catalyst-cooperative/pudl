@@ -5,14 +5,12 @@ sources:
         data_tests:
           - expect_columns_not_all_null:
               description:
-                "Excluded mercury control strategies are very infrequently used,
+                Excluded mercury control strategies are very infrequently used,
                 since few boilers have more than three. It's fine if they're null. The
                 boiler manufacturer and code are static attributes which were only reported
                 in a single year and are effectively forward/back filled because they are
                 part of the boiler entity table. This means they're fully populated if
                 that year of data is included, and entirely null if it's not.
-
-                "
               arguments:
                 ignore_eia860m_nulls: true
                 exclude_columns:
@@ -166,7 +164,7 @@ sources:
                   so2_control_proposed_strategy_3: EXTRACT(year FROM report_date) >= 2013
                   standard_nox_rate: EXTRACT(year FROM report_date) >= 2009
                   standard_particulate_rate: EXTRACT(year FROM report_date) >= 2009
-                  standard_so2_percent_scrubbed: EXTRACT(year FROM report_date) >= 2013
+                  standard_so2_fraction_scrubbed: EXTRACT(year FROM report_date) >= 2013
                   standard_so2_rate: EXTRACT(year FROM report_date) >= 2009
                   turndown_ratio: EXTRACT(year FROM report_date) >= 2013
                   unit_nox: EXTRACT(year FROM report_date) >= 2009
