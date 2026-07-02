@@ -12,6 +12,7 @@ import zipfile
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
+from typing import Literal
 
 import gcsfs
 import requests
@@ -23,10 +24,42 @@ logger = logging.getLogger(__name__)
 
 
 class DeploymentType(Enum):
-    """Deployments can be 'nightly' or 'stable'."""
+    """Deployments can be 'nightly', 'branch', or 'stable'."""
 
     NIGHTLY = "nightly"
     STABLE = "stable"
+    BRANCH = "branch"
+
+
+def _zip_parquet_files(parquet_path: Path, output_path: Path) -> None:
+    """Create a zipfile containing parquet files and an associated datapackage JSON file.
+
+    ``parquet_path`` should contain a set of parquet files and exactly one datapackage
+    JSON file that describes those parquet files.
+
+    Args:
+        parquet_path: Path to directory containing parquet files.
+        output_path: Path to zipfile that should be created by this function.
+    """
+    parquet_files = list(parquet_path.glob("*.parquet"))
+    assert len(parquet_files) > 0, f"No parquet files in {parquet_path}."
+
+    # Create parquet archive (store mode, no compression)
+    with zipfile.ZipFile(output_path, "w", zipfile.ZIP_STORED) as zf:
+        for parquet_file in parquet_files:
+            if parquet_file.exists():
+                zf.write(parquet_file, arcname=parquet_file.name)
+            else:
+                raise RuntimeError(f"{parquet_file} must be a file!")
+
+        # There should be exactly one datapackage JSON file in each parquet directory
+        [datapackage] = parquet_path.glob("*datapackage.json")
+        if datapackage.is_file():
+            zf.write(datapackage, arcname="datapackage.json")
+        else:
+            raise RuntimeError(f"{datapackage} must be a file!")
+
+    logger.info(f"Created parquet archive: {output_path}")
 
 
 def prepare_outputs_for_distribution(local_path: Path, build_path: UPath) -> None:
@@ -47,29 +80,30 @@ def prepare_outputs_for_distribution(local_path: Path, build_path: UPath) -> Non
         build_path: Remote path containing raw build outputs.
     """
     # Copy raw build outputs to local path
-    local_path = Path(local_path)
     fs = build_path.fs
     fs.get(f"{build_path.as_uri()}/", str(local_path), recursive=True)
 
     logger.info(f"Preparing outputs in {local_path} for distribution")
-    logger.info(f"Contents: {local_path.glob('*')}")
 
-    # Move files around
-    parquet_dir = local_path / "parquet"
-    parquet_files = parquet_dir.glob("*.parquet")
-    logger.info(f"Found parquets: {parquet_files}")
-    for parquet_file in parquet_dir.glob("*.parquet"):
+    # Zip parquet files (for main pudl outputs + ferc extracted outputs)
+    pudl_parquet_dir = local_path / "parquet"
+    _zip_parquet_files(pudl_parquet_dir, local_path / "pudl_parquet.zip")
+    _zip_parquet_files(local_path / "ferc1_xbrl", local_path / "ferc1_xbrl.zip")
+    _zip_parquet_files(local_path / "ferc2_xbrl", local_path / "ferc2_xbrl.zip")
+    _zip_parquet_files(local_path / "ferc6_xbrl", local_path / "ferc6_xbrl.zip")
+    _zip_parquet_files(local_path / "ferc60_xbrl", local_path / "ferc60_xbrl.zip")
+    _zip_parquet_files(local_path / "ferc714_xbrl", local_path / "ferc714_xbrl.zip")
+
+    # Move parquet files to base directory
+    for parquet_file in pudl_parquet_dir.glob("*.parquet"):
         shutil.move(str(parquet_file), str(local_path / parquet_file.name))
 
-    datapackage = parquet_dir / "datapackage.json"
-    if datapackage.exists():
-        shutil.move(str(datapackage), str(local_path / "pudl_parquet_datapackage.json"))
-    else:
-        logger.warning(
-            f"datapackage.json not found in {parquet_dir}; pudl_parquet_datapackage.json will not be distributed and pudl_parquet.zip will have no descriptor."
-        )
+    # Move parquet datapackage to base directory
+    datapackage = pudl_parquet_dir / "datapackage.json"
+    shutil.move(str(datapackage), str(local_path / "pudl_parquet_datapackage.json"))
 
-    shutil.rmtree(parquet_dir)
+    # Remove parquet directory
+    shutil.rmtree(pudl_parquet_dir)
 
     # Compress SQLite databases
     sqlite_files = list(local_path.glob("*.sqlite"))
@@ -81,24 +115,6 @@ def prepare_outputs_for_distribution(local_path: Path, build_path: UPath) -> Non
             zf.write(sqlite_file, arcname=sqlite_file.name)
         sqlite_file.unlink()
         logger.info(f"Compressed {sqlite_file.name}")
-
-    # Create parquet archive (store mode, no compression)
-    parquet_files = list(local_path.glob("*.parquet"))
-    assert len(parquet_files) > 0, f"No parquet files in {local_path}."
-    archive_path = local_path / "pudl_parquet.zip"
-    with zipfile.ZipFile(archive_path, "w", zipfile.ZIP_STORED) as zf:
-        for parquet_file in parquet_files:
-            zf.write(parquet_file, arcname=parquet_file.name)
-
-        datapackage = local_path / "pudl_parquet_datapackage.json"
-        if datapackage.exists():
-            zf.write(datapackage, arcname="datapackage.json")
-        else:
-            logger.warning(
-                f"pudl_parquet_datapackage.json not found in {local_path}; pudl_parquet.zip will have no frictionless descriptor."
-            )
-
-    logger.info(f"Created parquet archive: {archive_path}")
 
     logger.info("Removing dbt database.")
     test_db = local_path / "pudl_dbt_tests.duckdb"
@@ -152,18 +168,21 @@ def upload_outputs(
     logger.info(f"Upload complete for {len(path_suffixes)} path(s)")
 
 
-def update_git_branch(tag: str, branch: str, staging: bool) -> None:
+def update_git_branch(
+    tag: str, branch: str, environment: Literal["staging", "production"]
+) -> None:
     """Merge git tag into branch and push to origin.
 
     Performs fast-forward merge of a tag into a branch and pushes the result.
     This updates the nightly or stable branch to point to the tagged release.
 
-    In staging, will try the checkout and merge, but skip the git push.
+    If environment is 'staging', this will try the checkout and merge, but skip the
+    git push.
 
     Args:
         tag: Git tag to merge (e.g., "nightly-2025-02-05" or "v2025.2.3").
         branch: Target branch to update (e.g., "nightly" or "stable").
-        staging: True if this is a staging environment.
+        environment: Deployment environment.
 
     Raises:
         subprocess.CalledProcessError: If git commands fail.
@@ -176,7 +195,7 @@ def update_git_branch(tag: str, branch: str, staging: bool) -> None:
 
     _run(["git", "checkout", branch])
     _run(["git", "merge", "--ff-only", tag])
-    if not staging:
+    if environment != "staging":
         _run(["git", "push", "-u", "origin", branch])
 
     logger.info(f"Git branch {branch} updated successfully")
@@ -185,7 +204,7 @@ def update_git_branch(tag: str, branch: str, staging: bool) -> None:
 def trigger_zenodo_release(
     build_ref: str,
     env: str,
-    source_dir: str,
+    source_suffix: str,
     ignore_regex: str,
     publish: bool,
     token: str,
@@ -198,7 +217,8 @@ def trigger_zenodo_release(
     Args:
         build_ref: The git reference for the workflow. The reference can be a branch or tag name.
         env: Zenodo environment - "sandbox" or "production".
-        source_dir: Cloud storage path to source data (e.g., "s3://pudl.catalyst.coop/nightly/").
+        source_suffix: Suffix appended to s3 path (s3://pudl.catalyst.coop) to get
+            path to data outputs which will populate zenodo deposition.
         ignore_regex: Regex pattern for files to exclude from upload.
         publish: If True, automatically publish the Zenodo record.
         token: the bearer token to authenticate to GitHub.
@@ -219,45 +239,51 @@ def trigger_zenodo_release(
             "Accept": "application/vnd.github+json",
             "Authorization": f"Bearer {token}",
         },
-        data={
+        json={
             "ref": build_ref,
             "inputs": {
                 "env": env,
-                "source_dir": source_dir,
+                "source_dir": f"s3://pudl.catalyst.coop/{source_suffix}",
                 "ignore_regex": ignore_regex,
                 "publish": publish_flag,
             },
         },
         timeout=10,
     )
-
-    if response.status_code != 200:
-        raise RuntimeError(f"Zenodo release request failed: {response.content}")
+    response.raise_for_status()
 
     logger.info("Zenodo release workflow triggered")
 
 
-def update_pudl_viewer() -> None:
+def update_pudl_viewer(
+    token: str,
+    environment: Literal["staging", "production"],
+) -> None:
     """Update PUDL Viewer Cloud Run service to latest image.
 
     Args:
-        service_name: Name of the Cloud Run service (e.g., "pudl-viewer").
+        token: the bearer token to authenticate to GitHub.
+        environment: deploy staging or production version of viewer.
     """
     logger.info("Updating PUDL Viewer Cloud Run service")
 
-    _run(
-        [
-            "gcloud",
-            "run",
-            "services",
-            "update",
-            "pudl_viewer",
-            "--image",
-            "us-east1-docker.pkg.dev/catalyst-cooperative-pudl/pudl-viewer/pudl-viewer:latest",
-            "--region",
-            "us-east1",
-        ],
+    if environment == "staging":
+        deploy_workflow_url = "https://api.github.com/repos/catalyst-cooperative/eel-hole/actions/workflows/build-deploy-staging.yml/dispatches"
+    else:
+        deploy_workflow_url = "https://api.github.com/repos/catalyst-cooperative/eel-hole/actions/workflows/build-deploy.yml/dispatches"
+
+    response = requests.post(
+        deploy_workflow_url,
+        headers={
+            "Accept": "application/vnd.github+json",
+            "Authorization": f"Bearer {token}",
+        },
+        json={
+            "ref": "main",
+        },
+        timeout=10,
     )
+    response.raise_for_status()
 
     logger.info("PUDL Viewer Cloud Run service updated")
 
@@ -299,7 +325,7 @@ def get_build_from_tag(tag: str) -> UPath:
     """Find any builds associated with a git tag and return a GCS path to most recent build."""
     build_bucket = UPath("gs://builds.catalyst.coop")
     try:
-        git_ref = _run(["git", "rev-parse", "--short", f"{tag}^{{}}"]).strip()
+        git_ref = _run(["git", "rev-parse", "--short=9", f"{tag}^{{}}"]).strip()
     except subprocess.CalledProcessError as e:
         raise RuntimeError(f"Can't find git tag: {tag}") from e
 
@@ -331,11 +357,13 @@ def get_build_from_tag(tag: str) -> UPath:
 
 
 def get_deployment_type_from_tag(git_tag: str) -> DeploymentType:
-    """Check if tag looks like a 'nightly' or 'stable' tag."""
+    """Check if tag looks like a 'nightly', 'branch', or 'stable' tag."""
     if re.match(r"v\d{4}\.\d{1,2}\.\d{1,2}", git_tag):
         deploy_type = DeploymentType.STABLE
     elif re.match(r"nightly-\d{4}-\d{2}-\d{2}", git_tag):
         deploy_type = DeploymentType.NIGHTLY
+    elif re.match(r"branch-.+-\d{4}-\d{2}-\d{2}", git_tag):
+        deploy_type = DeploymentType.BRANCH
     else:
         raise RuntimeError(
             f"Git tag does not look like a stable or nightly tag. Input tag: {git_tag}"
