@@ -98,7 +98,7 @@ sources:
                   so2_control_proposed_strategy_1: EXTRACT(year FROM report_date) >= 2013
                   so2_control_proposed_strategy_2: EXTRACT(year FROM report_date) >= 2013
                   so2_control_proposed_strategy_3: EXTRACT(year FROM report_date) >= 2013
-                  standard_so2_fraction_scrubbed: EXTRACT(year FROM report_date) >= 2013
+                  standard_so2_scrubbed_fraction: EXTRACT(year FROM report_date) >= 2013
           - check_row_counts_per_partition:
               arguments:
                 table_name: core_eia860__scd_boilers
@@ -203,7 +203,7 @@ sources:
           - name: so2_control_proposed_strategy_1
           - name: so2_control_proposed_strategy_2
           - name: so2_control_proposed_strategy_3
-          - name: standard_so2_fraction_scrubbed
+          - name: standard_so2_scrubbed_fraction
             data_tests:
               - dbt_expectations.expect_column_values_to_be_between:
                   arguments:

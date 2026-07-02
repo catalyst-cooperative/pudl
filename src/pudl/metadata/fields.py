@@ -7612,7 +7612,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Numeric value for the unit of measurement specified for sulfur dioxide."
         ),
     },
-    "standard_so2_fraction_scrubbed": {
+    "standard_so2_scrubbed_fraction": {
         "type": "number",
         "description": (
             "The fraction of sulfur dioxide to be scrubbed specified by the most stringent sulfur dioxide regulation."

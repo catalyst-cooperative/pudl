@@ -1,8 +1,8 @@
 """Correct wayward field types.
 
-Revision ID: 56b259276e63
+Revision ID: fb27cb669517
 Revises: 19af112f7eb6
-Create Date: 2026-07-02 16:40:29.603636
+Create Date: 2026-07-02 17:24:38.205481
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '56b259276e63'
+revision = 'fb27cb669517'
 down_revision = '19af112f7eb6'
 branch_labels = None
 depends_on = None
@@ -77,7 +77,7 @@ def upgrade() -> None:
                existing_nullable=True)
 
     with op.batch_alter_table('core_eia860__scd_boilers', schema=None) as batch_op:
-        batch_op.add_column(sa.Column('standard_so2_fraction_scrubbed', sa.Float(), nullable=True, comment='The fraction of sulfur dioxide to be scrubbed specified by the most stringent sulfur dioxide regulation.'))
+        batch_op.add_column(sa.Column('standard_so2_scrubbed_fraction', sa.Float(), nullable=True, comment='The fraction of sulfur dioxide to be scrubbed specified by the most stringent sulfur dioxide regulation.'))
         batch_op.drop_column('standard_so2_percent_scrubbed')
 
     with op.batch_alter_table('core_eia861__yearly_demand_response', schema=None) as batch_op:
@@ -169,7 +169,7 @@ def upgrade() -> None:
                existing_nullable=True)
 
     with op.batch_alter_table('out_eia__yearly_boilers', schema=None) as batch_op:
-        batch_op.add_column(sa.Column('standard_so2_fraction_scrubbed', sa.Float(), nullable=True, comment='The fraction of sulfur dioxide to be scrubbed specified by the most stringent sulfur dioxide regulation.'))
+        batch_op.add_column(sa.Column('standard_so2_scrubbed_fraction', sa.Float(), nullable=True, comment='The fraction of sulfur dioxide to be scrubbed specified by the most stringent sulfur dioxide regulation.'))
         batch_op.drop_column('standard_so2_percent_scrubbed')
 
     with op.batch_alter_table('out_ferc714__summarized_demand', schema=None) as batch_op:
@@ -271,7 +271,7 @@ def downgrade() -> None:
 
     with op.batch_alter_table('out_eia__yearly_boilers', schema=None) as batch_op:
         batch_op.add_column(sa.Column('standard_so2_percent_scrubbed', sa.FLOAT(), nullable=True))
-        batch_op.drop_column('standard_so2_fraction_scrubbed')
+        batch_op.drop_column('standard_so2_scrubbed_fraction')
 
     with op.batch_alter_table('out_eia861__yearly_utility_service_territory', schema=None) as batch_op:
         batch_op.alter_column('population',
@@ -363,7 +363,7 @@ def downgrade() -> None:
 
     with op.batch_alter_table('core_eia860__scd_boilers', schema=None) as batch_op:
         batch_op.add_column(sa.Column('standard_so2_percent_scrubbed', sa.FLOAT(), nullable=True))
-        batch_op.drop_column('standard_so2_fraction_scrubbed')
+        batch_op.drop_column('standard_so2_scrubbed_fraction')
 
     with op.batch_alter_table('_core_phmsagas__yearly_distribution_misc', schema=None) as batch_op:
         batch_op.alter_column('hazardous_leaks_mechanical_joint_failure',

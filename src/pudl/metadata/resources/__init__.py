@@ -277,7 +277,7 @@ ENTITIES: dict[str, dict[str, list[str] | dict[str, str]]] = {
             "so2_control_proposed_strategy_1",
             "so2_control_proposed_strategy_2",
             "so2_control_proposed_strategy_3",
-            "standard_so2_fraction_scrubbed",
+            "standard_so2_scrubbed_fraction",
             "data_maturity",
         ],
     },

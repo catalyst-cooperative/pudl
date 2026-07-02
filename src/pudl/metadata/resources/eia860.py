@@ -108,7 +108,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "so2_control_proposed_strategy_1",
                 "so2_control_proposed_strategy_2",
                 "so2_control_proposed_strategy_3",
-                "standard_so2_fraction_scrubbed",
+                "standard_so2_scrubbed_fraction",
                 "data_maturity",
             ],
             "primary_key": ["plant_id_eia", "boiler_id", "report_date"],
