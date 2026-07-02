@@ -361,7 +361,7 @@ def _validate_datapackage_descriptor(descriptor: dict) -> list[str]:
 def valid_datapackage_check(
     asset_key: dg.AssetKey | str,
     *,
-    description: str = "Validate a frictionless datapackage descriptor against the spec.",
+    description: str,
     blocking: bool = True,
 ) -> dg.AssetChecksDefinition:
     """Return a Dagster asset check that validates a frictionless datapackage descriptor.
@@ -489,10 +489,7 @@ def _validate_datapackage_unit_strings(descriptor: dict) -> list[str]:
 def valid_datapackage_unit_strings_check(
     asset_key: dg.AssetKey | str,
     *,
-    description: str = (
-        "Validate that all unit strings in a frictionless datapackage descriptor "
-        "are parseable using the unit definitions embedded in the descriptor."
-    ),
+    description: str,
     blocking: bool = True,
 ) -> dg.AssetChecksDefinition:
     """Return a Dagster asset check that validates unit strings in a datapackage descriptor.

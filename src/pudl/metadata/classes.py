@@ -14,6 +14,7 @@ from re import Pattern
 from typing import Annotated, Any, Literal, Self, TypeVar
 
 import duckdb
+import duckdb.sqltypes
 import frictionless
 import geopandas as gpd  # noqa: ICN002
 import jinja2
@@ -47,14 +48,16 @@ import pudl.logging_helpers
 from pudl.metadata import descriptions
 from pudl.metadata.codes import CODE_METADATA
 from pudl.metadata.constants import (
-    CONSTRAINT_DTYPES,
     CONTRIBUTORS,
+    LICENSES,
+)
+from pudl.metadata.dtypes import (
+    CONSTRAINT_DTYPES,
     FIELD_DTYPES_DUCKDB,
     FIELD_DTYPES_PANDAS,
     FIELD_DTYPES_POLARS,
     FIELD_DTYPES_PYARROW,
-    FIELD_DTYPES_SQL,
-    LICENSES,
+    FIELD_DTYPES_SQLITE,
     PERIODS,
 )
 from pudl.metadata.fields import (
@@ -680,7 +683,7 @@ class Field(PudlMeta):
         """Return SQLAlchemy data type."""
         if self.constraints.enum and self.type == "string":
             return sa.Enum(*self.constraints.enum)
-        return FIELD_DTYPES_SQL[self.type]
+        return FIELD_DTYPES_SQLITE[self.type]
 
     def to_pyarrow_dtype(self) -> pa.DataType:
         """Return PyArrow data type."""

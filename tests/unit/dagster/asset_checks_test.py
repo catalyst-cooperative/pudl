@@ -182,7 +182,7 @@ def test_build_registry_from_descriptor_missing_key() -> None:
 def test_validate_datapackage_unit_strings_all_valid() -> None:
     """No errors are returned for a descriptor with only valid unit strings."""
     errors = _validate_datapackage_unit_strings(_MINIMAL_DESCRIPTOR)
-    assert errors == []
+    assert errors == [], f"Expected no errors for valid unit strings, but got: {errors}"
 
 
 def test_validate_datapackage_unit_strings_bad_unit() -> None:
@@ -206,4 +206,6 @@ def test_validate_datapackage_unit_strings_missing_registry() -> None:
     """A descriptor without unit_registry produces an error rather than crashing."""
     errors = _validate_datapackage_unit_strings({"resources": []})
     assert len(errors) == 1
-    assert "Could not build unit registry" in errors[0]
+    assert "Could not build unit registry" in errors[0], (
+        f"Unexpected error message: {errors[0]}"
+    )

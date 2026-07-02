@@ -39,6 +39,6 @@ def unit_registry_to_frictionless() -> dict:
 
     The returned dict is suitable for embedding as ``unit_registry`` in a
     Frictionless datapackage descriptor.  Consumers can reconstruct the registry
-    by calling ``pint.UnitRegistry().define(d)`` for each definition string.
+    by calling ``pint.UnitRegistry().define(unit_def)`` for each definition string.
     """
     return {"format": "pint", "definitions": PUDL_UNIT_DEFINITIONS}

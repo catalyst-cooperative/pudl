@@ -9,8 +9,8 @@ import polars as pl
 from pytz import all_timezones
 
 from pudl.metadata.codes import CODE_METADATA
-from pudl.metadata.constants import FIELD_DTYPES_PANDAS, FIELD_DTYPES_POLARS
 from pudl.metadata.dfs import BALANCING_AUTHORITY_SUBREGIONS_EIA
+from pudl.metadata.dtypes import FIELD_DTYPES_PANDAS, FIELD_DTYPES_POLARS
 from pudl.metadata.enums import (
     ASSET_TYPES_FERC1,
     ASSET_TYPES_RUS7,
@@ -3727,7 +3727,8 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "fuel_mmbtu_per_unit": {
         "type": "number",
         "description": (
-            "Heat content of the fuel in millions of Btus per physical unit."
+            "Heat content of the fuel in millions of Btus per physical unit. "
+            "Note that units vary by fuel type (solid: short_ton, liquid: oil_barrel, gas: Mcf)."
         ),
     },
     "fuel_pct": {
@@ -8597,7 +8598,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "number",
         "unit": "MMBtu / hour",
         "description": (
-            "Design waste-heat input rate at maximum continuous steam flow where a waste-heat boiler is a boiler that receives all or a substantial portion of its energy input from the noncumbustible exhaust gases of a separate fuel-burning process (MMBTU per hour)."
+            "Design waste-heat input rate at maximum continuous steam flow where a "
+            "waste-heat boiler is a boiler that receives all or a substantial portion "
+            "of its energy input from the noncumbustible exhaust gases of a separate "
+            "fuel-burning process (MMBtu / hour)."
         ),
     },
     "num_water_heaters": {
@@ -8637,7 +8641,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "wet_dry_bottom": {
         "type": "string",
         "description": (
-            "Wet or Dry Bottom where Wet Bottom is defined as slag tanks that are installed at furnace throat to contain and remove molten ash from the furnace, and Dry Bottom is defined as having no slag tanks at furnace throat area, throat area is clear, and bottom ash drops through throat to bottom ash water hoppers."
+            "Wet or Dry Bottom where Wet Bottom is defined as slag tanks that are "
+            "installed at furnace throat to contain and remove molten ash from the "
+            "furnace, and Dry Bottom is defined as having no slag tanks at furnace throat "
+            "area, throat area is clear, and bottom ash drops through throat to bottom "
+            "ash water hoppers."
         ),
     },
     "wheeled_power_delivered_mwh": {
