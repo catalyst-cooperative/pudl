@@ -59,7 +59,8 @@ Quality of Life Improvements
 - [ ] Push the release tag to `main`: `git push origin vYYYY.M.x`
 - [ ] Verify that the new [GitHub (software) release](https://github.com/catalyst-cooperative/pudl/releases) has been published
 - [ ] Verify that [PUDL repo archive on Zenodo](https://zenodo.org/doi/10.5281/zenodo.3404014) has been updated w/ new version
-- [ ] Wait several hours for a successful build to complete ([monitor here](https://console.cloud.google.com/monitoring/dashboards/builder/992bbe3f-17e6-49c4-a9e8-8f1925d4ec24))
+- [ ] Wait for a successful build to complete. If the nightly builds ran off of the tagged commit, then the build will be skipped and a deployment will be triggered immediately ([monitor here](https://console.cloud.google.com/monitoring/dashboards/builder/992bbe3f-17e6-49c4-a9e8-8f1925d4ec24))
+- [ ] Wait for the corresponding `deploy-pudl` GHA to complete. This will automatically be triggered by the build action
 - [ ] Verify that the corresponding `zenodo-data-release` GHA completed successfully. If it times out less than halfway through, re-run manually (production, vYYYY.M.x, default regex, no-publish). If Zenodo is extra cranky, ignore the GHA and upload the remaining files manually.
 - [ ] Use GitHub to [edit `available_versions.json`](https://github.com/catalyst-cooperative/pudl/blob/gh-pages/available_versions.json) and add an entry for the new version (automate!)
 - [ ] Verify that `stable` and the version tag point at same git ref
