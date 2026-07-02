@@ -36,8 +36,10 @@ function authenticate_gcp() {
 }
 
 function run_dagster() {
+    # shellcheck disable=SC2153
+    local build_id="${BUILD_ID}"
     echo "Launching Dagster and running the PUDL job"
-    send_zulip_msg ":rocket: Launching Dagster and running the PUDL job for $BUILD_ID"
+    send_zulip_msg ":rocket: Launching Dagster and running the PUDL job for ${build_id}"
     pixi run pudl-with-ferc-to-sqlite-nightly
 }
 
@@ -51,7 +53,7 @@ function save_outputs_to_gcs() {
 
 function trigger_deployment() {
     set +x &&
-        echo "Triggering the zenodo data release workflow using the GitHub API and curl" &&
+        echo "Triggering the PUDL deployment workflow using the GitHub API and curl" &&
         curl --fail-with-body -sS -X POST \
             -H "Accept: application/vnd.github+json" \
             -H "Authorization: Bearer ${PUDL_BOT_PAT}" \
@@ -69,26 +71,29 @@ JSON
         set -x
 }
 
-function format_stage_status() {
-    local stage_name=$1
-    local stage_status=$2
-    local stage_duration=$3
-    local stage_emoji=":x:"
-    local duration_field="\`[--:--:--]\`"
-
-    # Rows show whether a stage passed, failed, or was intentionally skipped.
+function stage_emoji() {
+    local stage_status=$1
     if [[ $stage_status == "$STAGE_SKIPPED" ]]; then
-        stage_emoji=":ghost:"
+        printf ':ghost:'
     elif [[ $stage_status == 0 ]]; then
-        stage_emoji=":check:"
+        printf ':check:'
+    else
+        printf ':x:'
     fi
+}
 
-    # Always render a fixed-width duration field so the stage names line up.
-    if [[ -n "$stage_duration" ]]; then
-        printf -v duration_field "\`[%s]\`" "$stage_duration"
-    fi
-
-    printf '%s %s %s' "$stage_emoji" "$duration_field" "$stage_name"
+function pudl_logfile_links() {
+    local build_id="${BUILD_ID}"
+    local download_url="https://storage.cloud.google.com/builds.catalyst.coop/${build_id}/${build_id}.log"
+    # we need to trim off the last dash-delimited section off the build ID to get a valid log link
+    local console_url="https://console.cloud.google.com/batch/jobsDetail/regions/us-west1/jobs/run-etl-${build_id%-*}/logs?project=catalyst-cooperative-pudl"
+    local browser_url="https://console.cloud.google.com/storage/browser/builds.catalyst.coop/${build_id}"
+    printf '## Review PUDL Build Logs\n\n'
+    # shellcheck disable=SC2016
+    printf '* GCS URL: `gs://builds.catalyst.coop/%s/%s.log`\n' "${build_id}" "${build_id}"
+    printf '* [Download PUDL build logs to review locally](%s)\n' "${download_url}"
+    printf '* [Review PUDL build logs in the Google Cloud Console](%s)\n' "${console_url}"
+    printf '* [Browse full build outputs in the Google Cloud Console](%s)\n' "${browser_url}"
 }
 
 function format_stage_duration() {
@@ -166,28 +171,30 @@ function notify_zulip() {
 
     echo "Notifying Zulip about deployment status"
     total_build_duration=$(get_total_build_duration)
-    message="${BUILD_ID} status${nl}${nl}"
+
     if [[ "$1" == "success" ]]; then
-        message+=":green_circle: :sunglasses: :unicorn: :rainbow: PUDL Data Build Succeeded!! :partygritty: :database_parrot: :blob-dance: :green_circle:${nl}${nl}"
+        message="${nl}# :check: PUDL Data Build Succeeded!! :partygritty: :database_parrot: :blob-dance:${nl}${nl}"
     elif [[ "$1" == "failure" ]]; then
-        message+=":x: Oh bummer the deployment failed :fiiiiine: :sob: :cry_spin: :x:${nl}${nl}"
+        message="${nl}# :x: PUDL Data Build Failed :fiiiiine: :sob: :cry_spin:${nl}${nl}"
     else
         echo "Invalid deployment status"
         exit 1
     fi
 
-    message+=":time: \`[${total_build_duration}]\` Total Build Duration${nl}${nl}"
-    message+="$(format_stage_status "Run PUDL Dagster Job" "$DAGSTER_STATUS" "$DAGSTER_DURATION")${nl}"
-    message+="$(format_stage_status "Unit Tests" "$UNIT_TEST_STATUS" "$UNIT_TEST_DURATION")${nl}"
-    message+="$(format_stage_status "Integration Tests" "$INTEGRATION_TEST_STATUS" "$INTEGRATION_TEST_DURATION")${nl}"
-    message+="$(format_stage_status "Data Validations (FKs/dbt)" "$DATA_VALIDATION_STATUS" "$DATA_VALIDATION_DURATION")${nl}"
-    message+="$(format_stage_status "Row Count Checks (dbt)" "$ROW_COUNT_VALIDATION_STATUS" "$ROW_COUNT_VALIDATION_DURATION")${nl}"
-    message+="$(format_stage_status "Save Build Outputs" "$SAVE_OUTPUTS_STATUS" "$SAVE_OUTPUTS_DURATION")${nl}"
-    message+="$(format_stage_status "Trigger Deployment" "$TRIGGER_DEPLOYMENT_STATUS" "$TRIGGER_DEPLOYMENT_DURATION")${nl}${nl}"
-    # we need to trim off the last dash-delimited section off the build ID to get a valid log link
-    message+="[**Query logs online**](https://console.cloud.google.com/batch/jobsDetail/regions/us-west1/jobs/run-etl-${BUILD_ID%-*}/logs?project=catalyst-cooperative-pudl)${nl}${nl}"
-    message+="[**Download logs to your computer**](https://storage.cloud.google.com/builds.catalyst.coop/$BUILD_ID/$BUILD_ID.log)${nl}${nl}"
-    message+="[**Browse full build outputs**](https://console.cloud.google.com/storage/browser/builds.catalyst.coop/$BUILD_ID)"
+    message+="- Build ID: \`${BUILD_ID}\`${nl}"
+    message+="## :time: Total Build Duration: \`[${total_build_duration}]\`${nl}${nl}"
+    message+="## Build Stage Status${nl}${nl}"
+    message+=":check: = SUCCESS; :x: = FAILURE; :ghost: = SKIPPED${nl}${nl}"
+    message+="| Stage | Status | Duration |${nl}"
+    message+="|:---|:---:|:---:|${nl}"
+    message+="| Run PUDL Dagster Job | $(stage_emoji "$DAGSTER_STATUS") | \`[${DAGSTER_DURATION:---:--:--}]\` |${nl}"
+    message+="| Unit Tests | $(stage_emoji "$UNIT_TEST_STATUS") | \`[${UNIT_TEST_DURATION:---:--:--}]\` |${nl}"
+    message+="| Integration Tests | $(stage_emoji "$INTEGRATION_TEST_STATUS") | \`[${INTEGRATION_TEST_DURATION:---:--:--}]\` |${nl}"
+    message+="| Data Validations (FKs/dbt) | $(stage_emoji "$DATA_VALIDATION_STATUS") | \`[${DATA_VALIDATION_DURATION:---:--:--}]\` |${nl}"
+    message+="| Row Count Checks (dbt) | $(stage_emoji "$ROW_COUNT_VALIDATION_STATUS") | \`[${ROW_COUNT_VALIDATION_DURATION:---:--:--}]\` |${nl}"
+    message+="| Save Build Outputs | $(stage_emoji "$SAVE_OUTPUTS_STATUS") | \`[${SAVE_OUTPUTS_DURATION:---:--:--}]\` |${nl}"
+    message+="| Trigger Deployment | $(stage_emoji "$TRIGGER_DEPLOYMENT_STATUS") | \`[${TRIGGER_DEPLOYMENT_DURATION:---:--:--}]\` |${nl}${nl}"
+    message+="$(pudl_logfile_links)"
 
     send_zulip_msg "$message"
 }
@@ -305,6 +312,7 @@ exit_on_stage_failure "$UNIT_TEST_STATUS"
 exit_on_stage_failure "$INTEGRATION_TEST_STATUS"
 exit_on_stage_failure "$DATA_VALIDATION_STATUS"
 exit_on_stage_failure "$ROW_COUNT_VALIDATION_STATUS"
+exit_on_stage_failure "$SAVE_OUTPUTS_STATUS"
 
 run_stage TRIGGER_DEPLOYMENT_STATUS TRIGGER_DEPLOYMENT_DURATION trigger_deployment
 

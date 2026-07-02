@@ -76,6 +76,26 @@ jobs:
           git tag -a -m "$GIT_TAG" "$GIT_TAG" ${{ github.ref_name }}
           git push origin "$GIT_TAG"
 
+      - name: Compile notification content
+        run: |
+          if [[ "${{ env.SKIP_BUILD }}" == 'true' ]]; then
+            echo "notification_content=:ghost: Skipping nightly build for $(date +%Y-%m-%d)" >> "$GITHUB_ENV"
+          else
+            echo "notification_content=:rocket: Launching PUDL Build: ${{ env.BUILD_ID }}" >> "$GITHUB_ENV"
+          fi
+
+      - name: Notify Zulip of build start or skip
+        if: ${{ always() }}
+        uses: zulip/github-actions-zulip/send-message@v2
+        with:
+          api-key: ${{ secrets.ZULIP_API_KEY }}
+          email: "build-status-bot@catalyst-cooperative.zulipchat.com"
+          organization-url: "https://catalyst-cooperative.zulipchat.com"
+          type: "stream"
+          to: "pudl-deployments"
+          topic: "build-deploy-pudl"
+          content: "${{ env.notification_content }}"
+
       - name: Docker Metadata
         id: docker_metadata
         if: ${{ env.SKIP_BUILD != 'true' }}
@@ -155,26 +175,6 @@ jobs:
             --container-env ZENODO_TOKEN_UPLOAD=${{ secrets.ZENODO_TOKEN_UPLOAD }} \
             --container-env PUDL_FORCE_FERC_TO_SQLITE="true" \
             --output ${{ env.BATCH_JOB_JSON }}
-
-      - name: Compile notification content
-        run: |
-          if [[ "${{ env.SKIP_BUILD }}" == 'true' ]]; then
-            echo "notification_content=:ghost: Skipping nightly build for $(date +%Y-%m-%d)" >> "$GITHUB_ENV"
-          else
-            echo "notification_content=:rocket: Launching PUDL Build: ${{ env.BUILD_ID }}" >> "$GITHUB_ENV"
-          fi
-
-      - name: Notify Zulip of build start or skip
-        if: ${{ always() }}
-        uses: zulip/github-actions-zulip/send-message@v2
-        with:
-          api-key: ${{ secrets.ZULIP_API_KEY }}
-          email: "build-status-bot@catalyst-cooperative.zulipchat.com"
-          organization-url: "https://catalyst-cooperative.zulipchat.com"
-          type: "stream"
-          to: "pudl-deployments"
-          topic: "build-deploy-pudl"
-          content: "${{ env.notification_content }}"
 
       # Start the batch job
       - name: Kick off batch job
