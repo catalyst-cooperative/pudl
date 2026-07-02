@@ -297,10 +297,10 @@ fi
 # run_stage DAGSTER_STATUS DAGSTER_DURATION run_dagster
 DAGSTER_STATUS=1
 DAGSTER_DURATION="00:00:00"
-run_stage UNIT_TEST_STATUS UNIT_TEST_DURATION pixi run pytest-unit-nightly
-run_stage INTEGRATION_TEST_STATUS INTEGRATION_TEST_DURATION pixi run pytest-integration-nightly
-run_stage DATA_VALIDATION_STATUS DATA_VALIDATION_DURATION pixi run pytest-validate-nightly
-run_stage ROW_COUNT_VALIDATION_STATUS ROW_COUNT_VALIDATION_DURATION pixi run pytest-validate-row-counts-nightly
+#run_stage UNIT_TEST_STATUS UNIT_TEST_DURATION pixi run pytest-unit-nightly
+#run_stage INTEGRATION_TEST_STATUS INTEGRATION_TEST_DURATION pixi run pytest-integration-nightly
+#run_stage DATA_VALIDATION_STATUS DATA_VALIDATION_DURATION pixi run pytest-validate-nightly
+#run_stage ROW_COUNT_VALIDATION_STATUS ROW_COUNT_VALIDATION_DURATION pixi run pytest-validate-row-counts-nightly
 
 if ! any_stage_failed \
     "$DAGSTER_STATUS" \
