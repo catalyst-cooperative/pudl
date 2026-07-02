@@ -42,6 +42,11 @@ New Data Tests & Validations
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* Fixed several Click-based console scripts so shell callers now receive correct
+  non-zero exit codes on failure. The script-entry conventions in
+  :mod:`pudl.scripts` now use Click-native exits and call ``main()`` directly in
+  the module launcher, which fixes automation that branches on
+  ``pudl_check_for_build`` success or failure. See PR :pr:`5374`.
 * Fixed a DuckDB >= 1.5 incompatibility with PUDL's GeoParquet outputs. DuckDB 1.5
   requires CRS metadata in PROJJSON format, but the old
   :class:`~pudl.dagster.io_managers.PudlGeoParquetIOManager` wrote a WKT string,
@@ -53,8 +58,8 @@ Bug Fixes & Data Cleaning
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-Quality of Life Improvements
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Developer Experience
+^^^^^^^^^^^^^^^^^^^^
 
 * Switched PUDL's PyArrow and DuckDB field type maps to use 64-bit types for ``integer``
   and ``number`` fields. Previously
@@ -66,6 +71,14 @@ Quality of Life Improvements
   DuckDB, Polars, pandas) now agree on 64-bit numeric types. The unused ``compact``
   parameter on :meth:`~pudl.metadata.classes.Field.to_pandas_dtype` (which returned
   32-bit types) has been removed.
+* Reworked the nightly PUDL build and deployment automation to send start and
+  status notifications to the ``pudl-deployments`` Zulip stream directly from
+  GitHub Actions and the batch build script, with per-stage timing summaries and
+  direct links to build logs and outputs. The nightly build container also no
+  longer installs or bootstraps a local PostgreSQL cluster solely to initialize
+  Dagster, and the batch script now refuses to trigger deployment unless all
+  required stages, including output upload, completed successfully. See PR
+  :pr:`5374`.
 * Merged ``PudlGeoParquetIOManager`` into
   :class:`~pudl.dagster.io_managers.PudlParquetIOManager` and retired the
   ``geoparquet_io_manager`` Dagster resource key. The four geo assets
