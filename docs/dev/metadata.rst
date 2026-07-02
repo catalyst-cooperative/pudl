@@ -307,12 +307,7 @@ To define metadata for a new field:
     slash-with-spaces for compound units — e.g. ``MMBtu / MWh``,
     ``USD / MWh``, ``gallon / minute``. Use Pint's built-in ``count`` unit
     for fields that enumerate discrete items (customers, employees, meters,
-    generators, etc.). Do **not** invent ad-hoc abbreviations (``gpm``,
-    ``cfm``, ``MMBTU_per_MWh``) — these are not machine-readable. The
-    unit strings written here are published verbatim in ``datapackage.json``
-    and validated by the
-    :func:`~pudl.dagster.asset_checks.valid_datapackage_unit_strings_check` asset check,
-    so non-standard units will cause a failure.
+    generators, etc.).
   * ``constraints``: Categorical columns should largely be encoded by coding tables,
     but you can use this field to constrain a field to a short list of items
     using the ``enum`` key, or a regex pattern using the ``pattern`` key.
