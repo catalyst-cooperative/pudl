@@ -159,9 +159,10 @@ def test_update_git_branch():
             )
 
         kwargs = {"check": True, "capture_output": True, "text": True}
-        assert mock_run.call_count == 7
+        assert mock_run.call_count == 8
         mock_run.assert_has_calls(
             [
+                call(["git", "config", "user.email", "'pudl@catalyst.coop'"], **kwargs),
                 call(["git", "config", "user.name", "'pudlbot'"], **kwargs),
                 call(
                     [
@@ -199,9 +200,10 @@ def test_update_git_branch_staging():
         )
 
         kwargs = {"check": True, "capture_output": True, "text": True}
-        assert mock_run.call_count == 6
+        assert mock_run.call_count == 7
         mock_run.assert_has_calls(
             [
+                call(["git", "config", "user.email", "'pudl@catalyst.coop'"], **kwargs),
                 call(["git", "config", "user.name", "'pudlbot'"], **kwargs),
                 call(
                     [

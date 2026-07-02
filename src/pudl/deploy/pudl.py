@@ -196,6 +196,7 @@ def update_git_branch(
         )
     logger.info(f"Updating git branch {branch} to tag {tag}")
 
+    _run(["git", "config", "user.email", "'pudl@catalyst.coop'"])
     _run(["git", "config", "user.name", "'pudlbot'"])
     _run(
         [
