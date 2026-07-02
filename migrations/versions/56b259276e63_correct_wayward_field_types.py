@@ -1,8 +1,8 @@
 """Correct wayward field types.
 
-Revision ID: be88fe589c51
-Revises: 208522b13d2d
-Create Date: 2026-06-28 02:47:15.161695
+Revision ID: 56b259276e63
+Revises: 19af112f7eb6
+Create Date: 2026-07-02 16:40:29.603636
 
 """
 from alembic import op
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'be88fe589c51'
-down_revision = '208522b13d2d'
+revision = '56b259276e63'
+down_revision = '19af112f7eb6'
 branch_labels = None
 depends_on = None
 
