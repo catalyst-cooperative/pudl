@@ -22,7 +22,7 @@ env:
 
 jobs:
   build_and_deploy_pudl:
-    name: Build Docker image, push to Docker Hub and deploy to Google Batch
+    name: Kick off a PUDL build and deployment with Google Batch
     runs-on: ubuntu-latest
     permissions:
       contents: write
