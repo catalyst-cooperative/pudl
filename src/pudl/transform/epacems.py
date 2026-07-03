@@ -214,11 +214,7 @@ def transform_epacems(
             pl.col(col).replace(mapped_measurement_codes).alias(col)
             for col in measurement_cols
         )
-        .pipe(
-            apply_pudl_dtypes_polars,
-            group="epacems",
-            resource="core_epacems__hourly_emissions",
-        )
+        .pipe(apply_pudl_dtypes_polars, resource="core_epacems__hourly_emissions")
         .with_columns(
             # Strip leading zeros from strings
             # TODO: Update method in helpers.py with polars implementation from here.
@@ -239,11 +235,7 @@ def transform_epacems(
             steam_load_lbs=(pl.col("steam_load_1000_lbs") * 1000),
         )
         .drop("steam_load_1000_lbs")  # drop original
-        .pipe(
-            apply_pudl_dtypes_polars,
-            group="epacems",
-            resource="core_epacems__hourly_emissions",
-        )
+        .pipe(apply_pudl_dtypes_polars, resource="core_epacems__hourly_emissions")
     )
 
 

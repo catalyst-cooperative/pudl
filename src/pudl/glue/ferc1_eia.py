@@ -393,7 +393,7 @@ def label_plants_eia(
             ["plant_id_eia", "report_date"], as_index=False
         )[["capacity_mw"]]
         .sum(min_count=1)
-        .pipe(apply_pudl_dtypes, group="eia")
+        .pipe(apply_pudl_dtypes, field_namespace="eia")
     )
     plants_w_capacity = (
         out_eia__yearly_plants.merge(

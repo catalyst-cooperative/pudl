@@ -211,7 +211,6 @@ def filled_core_eia861__yearly_balancing_authority(
             df,
             apply_pudl_dtypes(
                 pd.DataFrame(rows),
-                group="eia",
                 resource="core_eia861__yearly_balancing_authority",
             ),
         ],
@@ -220,7 +219,7 @@ def filled_core_eia861__yearly_balancing_authority(
     # Remove balancing authorities treated as utilities
     mask = df["balancing_authority_id_eia"].isin([util["id"] for util in UTILITIES])
     return apply_pudl_dtypes(
-        df[~mask], group="eia", resource="core_eia861__yearly_balancing_authority"
+        df[~mask], resource="core_eia861__yearly_balancing_authority"
     )
 
 
@@ -265,7 +264,6 @@ def filled_core_eia861__assn_balancing_authority(
             df[~replaced],
             apply_pudl_dtypes(
                 pd.concat(tables),
-                group="eia",
                 resource="core_eia861__assn_balancing_authority",
             ),
         ]
@@ -311,7 +309,6 @@ def filled_core_eia861__assn_balancing_authority(
         .drop_duplicates()
         .pipe(
             apply_pudl_dtypes,
-            group="eia",
             resource="core_eia861__assn_balancing_authority",
         )
     )
@@ -365,7 +362,7 @@ def filled_service_territory_eia861(
         mask &= mdf["report_date"].eq(years[idx])
         tables.append(mdf[mask].assign(report_date=row["report_date"]))
     return pd.concat([core_eia861__yearly_service_territory] + tables).pipe(
-        apply_pudl_dtypes, group="eia", resource="core_eia861__yearly_service_territory"
+        apply_pudl_dtypes, resource="core_eia861__yearly_service_territory"
     )
 
 
@@ -505,7 +502,7 @@ def _out_ferc714__categorized_respondents(
             categorized[categorized.respondent_type.isnull()],
         ]
     )
-    categorized = apply_pudl_dtypes(categorized, group="ferc714")
+    categorized = apply_pudl_dtypes(categorized, field_namespace="ferc714")
     return categorized
 
 
@@ -596,7 +593,6 @@ def out_ferc714__respondents_with_fips(
         ]
     ).pipe(
         apply_pudl_dtypes,
-        group="ferc714",
         resource="out_ferc714__respondents_with_fips",
     )
     return fipsified
@@ -621,7 +617,7 @@ def _out_ferc714__georeferenced_counties(
     counties_gdf = pudl.analysis.service_territory.add_geometries(
         out_ferc714__respondents_with_fips,
         census_gdf=out_censusdp1tract__counties,
-    ).pipe(apply_pudl_dtypes, group="ferc714")
+    ).pipe(apply_pudl_dtypes, field_namespace="ferc714")
     return counties_gdf
 
 
@@ -658,7 +654,6 @@ def out_ferc714__georeferenced_respondents(
         )
         .pipe(
             apply_pudl_dtypes,
-            group="ferc714",
             resource="out_ferc714__georeferenced_respondents",
         )
     )
@@ -717,9 +712,7 @@ def out_ferc714__summarized_demand(
     # Merge respondent categorizations into the annual demand
     demand_summary = pd.merge(
         demand_annual, _out_ferc714__categorized_respondents, how="left"
-    ).pipe(
-        apply_pudl_dtypes, group="ferc714", resource="out_ferc714__summarized_demand"
-    )
+    ).pipe(apply_pudl_dtypes, resource="out_ferc714__summarized_demand")
     return demand_summary
 
 

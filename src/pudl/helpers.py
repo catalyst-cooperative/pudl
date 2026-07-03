@@ -1310,7 +1310,7 @@ def convert_cols_dtypes(
     # get me all of the columns for the table in the constants dtype dict
     dtypes = {
         col: dtype
-        for col, dtype in get_pudl_dtypes(group=data_source, resource=name).items()
+        for col, dtype in get_pudl_dtypes(resource=name).items()
         if col in df.columns
     }
 
@@ -2309,7 +2309,7 @@ def get_parquet_table(
     if set(columns) == set(resource.get_field_names()):
         return resource.enforce_schema(df)
     # For specific columns, apply PUDL dtypes including resource-level overrides
-    return apply_pudl_dtypes(df, group=resource.field_namespace, resource=resource.name)
+    return apply_pudl_dtypes(df, resource=resource.name)
 
 
 def standardize_phone_column(df: pd.DataFrame, columns: list[str]) -> pd.DataFrame:

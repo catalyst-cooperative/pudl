@@ -821,16 +821,22 @@ def test_get_pudl_dtypes_resource_uses_package_schema() -> None:
 
 def test_get_pudl_dtypes_resource_overrides_group() -> None:
     """Resource-level override takes precedence over group-level override."""
-    dtypes_no_resource = get_pudl_dtypes(group="eia")
-    dtypes_with_resource = get_pudl_dtypes(group="eia", resource=_RELIABILITY_RESOURCE)
+    dtypes_no_resource = get_pudl_dtypes(field_namespace="eia")
+    dtypes_with_resource = get_pudl_dtypes(resource=_RELIABILITY_RESOURCE)
     assert dtypes_no_resource[_OVERRIDE_FIELD] == "Int64"
     assert dtypes_with_resource[_OVERRIDE_FIELD] == "float64"
 
 
-def test_get_pudl_dtypes_invalid_group() -> None:
-    """Unknown groups should fail with a clear error."""
-    with pytest.raises(ValueError, match="Unknown PUDL metadata group"):
-        get_pudl_dtypes(group="not_a_real_group")
+def test_get_pudl_dtypes_invalid_field_namespace() -> None:
+    """Unknown field namespaces should fail with a clear error."""
+    with pytest.raises(ValueError, match="Unknown PUDL field namespace"):
+        get_pudl_dtypes(field_namespace="not_a_real_group")
+
+
+def test_get_pudl_dtypes_rejects_field_namespace_and_resource() -> None:
+    """field_namespace and resource should be mutually exclusive selectors."""
+    with pytest.raises(ValueError, match="mutually exclusive"):
+        get_pudl_dtypes(field_namespace="eia", resource=_RELIABILITY_RESOURCE)
 
 
 def test_get_pudl_dtypes_invalid_resource() -> None:

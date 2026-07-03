@@ -58,7 +58,7 @@ def _core_eia860__ownership(raw_eia860__ownership: pd.DataFrame) -> pd.DataFrame
 
     # This has to come before the fancy indexing below, otherwise the plant_id_eia
     # is still a float.
-    own_df = apply_pudl_dtypes(own_df, group="eia")
+    own_df = apply_pudl_dtypes(own_df, field_namespace="eia")
 
     # A small number of generators are reported multiple times in the ownership
     # table due to the use of leading zeroes in their integer generator_id values
@@ -1387,7 +1387,7 @@ def _core_eia860__cooling_equipment(
 
     # Encoding is required here because this table is not yet getting harvested.
     return apply_pudl_dtypes(
-        ce_df, group="eia", resource="_core_eia860__cooling_equipment", strict=False
+        ce_df, resource="_core_eia860__cooling_equipment", strict=False
     ).pipe(PUDL_PACKAGE.encode)
 
 

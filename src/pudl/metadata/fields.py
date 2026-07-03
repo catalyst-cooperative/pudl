@@ -10542,7 +10542,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
 """Field attributes by PUDL identifier (`field.name`)."""
 
 
-FIELD_METADATA_BY_GROUP: dict[str, dict[str, Any]] = {
+FIELD_METADATA_BY_NAMESPACE: dict[str, dict[str, Any]] = {
     "epacems": {
         "state": {"constraints": {"enum": EPACEMS_STATES}},
         "operating_datetime_utc": {

@@ -42,7 +42,7 @@ def denorm_by_plant(
         )
         .dropna(subset=["plant_id_eia", "utility_id_eia"])
         .pipe(pudl.helpers.organize_cols, cols=first_cols)
-        .pipe(apply_pudl_dtypes, group="eia")
+        .pipe(apply_pudl_dtypes, field_namespace="eia")
     )
     return df
 
@@ -70,7 +70,7 @@ def denorm_by_gen(
         )
         .dropna(subset=["plant_id_eia", "utility_id_eia", "generator_id"])
         .pipe(pudl.helpers.organize_cols, cols=first_cols)
-        .pipe(apply_pudl_dtypes, group="eia")
+        .pipe(apply_pudl_dtypes, field_namespace="eia")
     )
     return df
 
@@ -98,7 +98,7 @@ def denorm_by_boil(
         )
         .dropna(subset=["plant_id_eia", "utility_id_eia", "boiler_id"])
         .pipe(pudl.helpers.organize_cols, cols=first_cols)
-        .pipe(apply_pudl_dtypes, group="eia")
+        .pipe(apply_pudl_dtypes, field_namespace="eia")
     )
     return df
 

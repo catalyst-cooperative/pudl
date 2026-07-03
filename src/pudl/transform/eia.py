@@ -155,7 +155,7 @@ def occurrence_consistency(
     # select only the columns you want and drop the NaNs
     # we want to drop the NaNs because
     col_df = compiled_df[entity_idx + ["report_date", col]].copy()
-    if get_pudl_dtypes(group="eia")[col] == "string":
+    if get_pudl_dtypes(field_namespace="eia")[col] == "string":
         nan_str_mask = (col_df[col] == "nan").fillna(False)
         col_df.loc[nan_str_mask, col] = pd.NA
     col_df = col_df.dropna()
@@ -460,7 +460,7 @@ def _compile_all_entity_records(
 
     logger.debug("    Casting harvested IDs to correct data types")
     # most columns become objects (ack!), so assign types
-    compiled_df = apply_pudl_dtypes(compiled_df, group="eia")
+    compiled_df = apply_pudl_dtypes(compiled_df, field_namespace="eia")
     return compiled_df
 
 
@@ -1035,11 +1035,7 @@ def core_eia860__assn_boiler_generator(context, **clean_dfs) -> pd.DataFrame:
             on=["plant_id_eia", "generator_id", "boiler_id"],
         )
         .astype({"unit_id_pudl": pd.Int64Dtype()})
-        .pipe(
-            apply_pudl_dtypes,
-            group="eia",
-            resource="core_eia860__assn_boiler_generator",
-        )
+        .pipe(apply_pudl_dtypes, resource="core_eia860__assn_boiler_generator")
     )
 
     # If we're NOT debugging, drop additional forensic information and bad BGAs

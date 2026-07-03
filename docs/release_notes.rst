@@ -22,7 +22,9 @@ Enhancements
   ``PUDL_UNIT_REGISTRY``, a ``pint.UnitRegistry`` extended with energy-industry
   units (``MMBtu``, ``Mcf``, ``MMcf``, ``TBtu``, ``VAr``, ``USD``). Added extensive
   new per-column units annotations. These changes should facilitate programmatic unit
-  parsing, display, and conversion. See :issue:`5078` and :pr:`5361`.
+  parsing, display, and conversion, and they are now surfaced in the PUDL metadata and
+  datapackage outputs as machine-readable Pint-compatible unit definitions. See
+  :issue:`5078` and :pr:`5361`.
 
 New Data
 ^^^^^^^^
@@ -45,6 +47,9 @@ EIA860
 
 Documentation
 ^^^^^^^^^^^^^
+* Expanded the developer docs around metadata naming, typing, and updates to explain
+  how unit annotations, field namespaces, and namespace/table-specific metadata
+  overrides should be defined and maintained. See :pr:`5361`.
 
 New Data Tests & Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -55,7 +60,9 @@ New Data Tests & Validations
   data that were typed as ``number`` but contain integer counts have been corrected to
   ``"type": "integer"``. A bug where ``convert_cols_dtypes`` and ``get_parquet_table``
   did not propagate the table name to the dtype helpers, silently ignoring per-table
-  overrides in ``FIELD_METADATA_BY_RESOURCE``, has been fixed. See :issue:`5078` and
+  overrides in ``FIELD_METADATA_BY_RESOURCE``, has been fixed. The dtype helper API is
+  now backend-aware, validates field namespaces and resources more explicitly, and has
+  focused unit coverage for backend-specific geometry handling. See :issue:`5078` and
   :pr:`5361`.
 * Added ``dbt`` ``expect_column_values_to_be_between`` tests to codify range
   expectations for percent columns (``[0, 100]``: ``sulfur_content_pct``,
@@ -108,6 +115,10 @@ Developer Experience
 ^^^^^^^^^^^^^^^^^^^^
 
 * Reduced spurious logging and error output from our unit tests. See PR :pr:`5362`.
+* Refactored the contributor-facing dtype helper API so it now lives in
+  :mod:`pudl.metadata.dtypes`, uses explicit ``dtype_backend`` selection, and separates
+  field-namespace-based dtype resolution from resource-authoritative table schemas. Also
+  updated helper function calls and tests to be less pandas-centric. See :pr:`5361`.
 * Reworked the nightly PUDL build and deployment automation to send start and
   status notifications to the ``pudl-deployments`` Zulip stream directly from
   GitHub Actions and the batch build script, with per-stage timing summaries and

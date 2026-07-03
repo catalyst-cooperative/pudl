@@ -62,7 +62,7 @@ from pudl.metadata.dtypes import (
 )
 from pudl.metadata.fields import (
     FIELD_METADATA,
-    FIELD_METADATA_BY_GROUP,
+    FIELD_METADATA_BY_NAMESPACE,
     FIELD_METADATA_BY_RESOURCE,
 )
 from pudl.metadata.helpers import (
@@ -1741,8 +1741,8 @@ class Resource(PudlMeta):
                 value = Field.dict_from_id(name)
                 # Update with any custom group-level metadata
                 namespace = obj.get("field_namespace")
-                if name in FIELD_METADATA_BY_GROUP.get(namespace, {}):
-                    value = {**value, **FIELD_METADATA_BY_GROUP[namespace][name]}
+                if name in FIELD_METADATA_BY_NAMESPACE.get(namespace, {}):
+                    value = {**value, **FIELD_METADATA_BY_NAMESPACE[namespace][name]}
                 # Update with any custom resource-level metadata
                 if name in FIELD_METADATA_BY_RESOURCE.get(resource_id, {}):
                     value = {**value, **FIELD_METADATA_BY_RESOURCE[resource_id][name]}

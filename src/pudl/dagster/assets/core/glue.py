@@ -194,7 +194,7 @@ def core_epa__assn_eia_epacamd(
             pudl.helpers.remove_leading_zeros_from_numeric_strings,
             col_name="emissions_unit_id_epa",
         )
-        .pipe(apply_pudl_dtypes, "eia")
+        .pipe(apply_pudl_dtypes, field_namespace="eia")
         .dropna(subset=["plant_id_eia"])
         .pipe(correct_epa_eia_plant_id_mapping)
     )

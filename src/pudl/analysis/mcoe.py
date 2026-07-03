@@ -644,7 +644,7 @@ def capacity_factor(
         cf, min_cap_fact=min_cap_fact, max_cap_fact=max_cap_fact, freq=freq
     )
 
-    return apply_pudl_dtypes(cf, group="eia")
+    return apply_pudl_dtypes(cf, field_namespace="eia")
 
 
 def mcoe(
@@ -797,7 +797,7 @@ def mcoe_generators(
                 "report_date",
             ]
         )
-        .pipe(apply_pudl_dtypes, group="eia")
+        .pipe(apply_pudl_dtypes, field_namespace="eia")
     )
 
     return mcoe_gens_out

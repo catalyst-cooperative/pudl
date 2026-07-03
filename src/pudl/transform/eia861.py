@@ -250,7 +250,7 @@ BA_ID_NAME_FIXES: pd.DataFrame = (
         ],
     )
     .assign(report_date=lambda x: pd.to_datetime(x.report_date))
-    .pipe(apply_pudl_dtypes, group="eia")
+    .pipe(apply_pudl_dtypes, field_namespace="eia")
     .dropna(subset=["report_date", "balancing_authority_name_eia", "utility_id_eia"])
     .set_index(["report_date", "balancing_authority_name_eia", "utility_id_eia"])
 )
@@ -1180,7 +1180,7 @@ def _core_eia861__balancing_authority(
     idx_cols = ["report_date", "balancing_authority_id_eia", "utility_id_eia", "state"]
     df = (
         _pre_process(raw_eia861__balancing_authority, idx_cols)
-        .pipe(apply_pudl_dtypes, "eia")
+        .pipe(apply_pudl_dtypes, field_namespace="eia")
         .set_index(["report_date", "balancing_authority_name_eia", "utility_id_eia"])
     )
     # Fill in BA IDs based on date, utility ID, and BA Name:
@@ -2750,7 +2750,7 @@ def core_eia861__assn_balancing_authority(
         pd.concat([early_date_ba_util_state, late_date_ba_util_state])
         # If there's no BA ID, the record is not useful:
         .dropna(subset=["balancing_authority_id_eia"])
-        .pipe(apply_pudl_dtypes, group="eia")
+        .pipe(apply_pudl_dtypes, field_namespace="eia")
     )
     ba_assn_eia861 = ba_assn_eia861[
         # Without both Utility ID and State, there's no association information:

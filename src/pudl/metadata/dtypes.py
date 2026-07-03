@@ -39,7 +39,7 @@ import sqlalchemy as sa
 from sqlalchemy.dialects.sqlite import DATETIME as SQLITE_DATETIME
 from sqlalchemy.types import TypeEngine as SATypeEngine
 
-from pudl.metadata.fields import FIELD_METADATA, FIELD_METADATA_BY_GROUP
+from pudl.metadata.fields import FIELD_METADATA, FIELD_METADATA_BY_NAMESPACE
 
 FIELD_DTYPES_POLARS: dict[str, type[pl.DataType] | pl.DataType] = {
     "boolean": polars_datatypes.Boolean,
@@ -133,44 +133,70 @@ _DTYPE_MAPS_BY_BACKEND: dict[PudlDtypeBackend, dict[str, Any]] = {
 }
 
 
-def _get_dtype_map(dtype_backend: PudlDtypeBackend) -> dict[str, Any]:
-    """Return the canonical PUDL dtype map for a named backend."""
-    return _DTYPE_MAPS_BY_BACKEND[dtype_backend]
+def _get_applicable_dtypes(
+    columns: list[str],
+    field_namespace: str | None,
+    resource: str | None,
+    dtype_backend: PudlDtypeBackend,
+    strict: bool,
+) -> dict[str, Any]:
+    """Return the subset of resolved dtypes needed to cast the given columns."""
+    dtypes = get_pudl_dtypes(
+        field_namespace=field_namespace,
+        resource=resource,
+        dtype_backend=dtype_backend,
+    )
+
+    if resource is not None:
+        known_fields = set(dtypes.keys())
+    else:
+        field_namespace_overrides = (
+            FIELD_METADATA_BY_NAMESPACE.get(field_namespace, {})
+            if field_namespace is not None
+            else {}
+        )
+        known_fields = set(FIELD_METADATA.keys()) | set(
+            field_namespace_overrides.keys()
+        )
+
+    unspecified_fields = sorted(set(columns) - known_fields)
+    if strict and len(unspecified_fields) > 0:
+        raise ValueError(f"Found unspecified fields: {unspecified_fields}")
+    return {column: dtypes[column] for column in columns if column in dtypes}
 
 
-def _validate_group(group: str | None) -> None:
-    """Raise a helpful error if a requested metadata group is unknown."""
-    if group is None:
-        return
-
-    from pudl.metadata.classes import FIELD_NAMESPACES
-
-    if group not in FIELD_NAMESPACES:
-        raise ValueError(f"Unknown PUDL metadata group: {group!r}.")
-
-
-def get_pudl_dtypes(
-    group: str | None = None,
+def get_pudl_dtypes(  # noqa: C901
+    field_namespace: str | None = None,
     resource: str | None = None,
     dtype_backend: PudlDtypeBackend = "pandas",
 ) -> dict[str, Any]:
     """Compile a dictionary of field dtypes.
 
     Args:
-        group: The data group (e.g. ferc1, eia) to use for overriding the default
-            field types. If None, no group overrides are applied.
+        field_namespace: The field namespace (e.g. ferc1, eia) to use for overriding
+            the default field types. If None, no namespace overrides are applied.
         resource: The resource (table) name whose schema should define the field
-            types. If provided, resource field types are authoritative and group
-            overrides are ignored.
+            types. If provided, resource field types are authoritative.
         dtype_backend: Named dtype backend to compile. Supported values are
-            ``"pandas"``, ``"polars"``, ``"sqlite"``, ``"duckdb"``, and
-            ``"pyarrow"``.
+            ``"pandas"``, ``"polars"``, ``"sqlite"``, ``"duckdb"``, and ``"pyarrow"``.
 
     Returns:
         A mapping of PUDL field names to their associated data types.
     """
-    dtype_map = _get_dtype_map(dtype_backend)
-    _validate_group(group)
+    dtype_map = _DTYPE_MAPS_BY_BACKEND[dtype_backend]
+
+    if field_namespace is not None and resource is not None:
+        raise ValueError(
+            "field_namespace and resource are mutually exclusive when selecting "
+            "PUDL dtypes."
+        )
+
+    if field_namespace is not None:
+        from pudl.metadata.classes import FIELD_NAMESPACES
+
+        if field_namespace not in FIELD_NAMESPACES:
+            raise ValueError(f"Unknown PUDL field namespace: {field_namespace!r}.")
+
     if resource is not None:
         from pudl.metadata.classes import PUDL_PACKAGE
 
@@ -193,22 +219,23 @@ def get_pudl_dtypes(
         }
 
     field_meta = deepcopy(FIELD_METADATA)
-    group_overrides = (
-        FIELD_METADATA_BY_GROUP.get(group, {}) if group is not None else {}
+    field_namespace_overrides = (
+        FIELD_METADATA_BY_NAMESPACE.get(field_namespace, {})
+        if field_namespace is not None
+        else {}
     )
     dtypes = {}
-    for f in field_meta:
-        if f in group_overrides:
-            field_meta[f].update(group_overrides[f])
-        if field_meta[f]["type"] in dtype_map:
-            dtypes[f] = dtype_map[field_meta[f]["type"]]
-
+    for field_name in field_meta:
+        if field_name in field_namespace_overrides:
+            field_meta[field_name].update(field_namespace_overrides[field_name])
+        if field_meta[field_name]["type"] in dtype_map:
+            dtypes[field_name] = dtype_map[field_meta[field_name]["type"]]
     return dtypes
 
 
 def apply_pudl_dtypes(
     df: pd.DataFrame | geopandas.GeoDataFrame,
-    group: str | None = None,
+    field_namespace: str | None = None,
     resource: str | None = None,
     strict: bool = False,
 ) -> pd.DataFrame | geopandas.GeoDataFrame:
@@ -217,37 +244,27 @@ def apply_pudl_dtypes(
     Args:
         df: The dataframe to apply types to. Not all columns need to have types
             defined in the PUDL metadata unless you pass ``strict=True``.
-        group: The data group to use for overrides, if any. E.g. "eia", "ferc1".
+        field_namespace: The field namespace to use for overrides, if any.
         resource: The resource (table) name whose schema should define the field
-            types. If provided, resource field types are authoritative and group
-            overrides are ignored.
+            types. If provided, resource field types are authoritative.
         strict: whether or not all columns need a corresponding field.
 
     Returns:
         The input dataframe, but with standard PUDL types applied.
     """
-    group_overrides = (
-        FIELD_METADATA_BY_GROUP.get(group, {}) if group is not None else {}
-    )
-    known_fields = (
-        set(get_pudl_dtypes(resource=resource).keys())
-        if resource is not None
-        else set(FIELD_METADATA.keys()) | set(group_overrides.keys())
-    )
-    unspecified_fields = sorted(set(df.columns) - known_fields)
-    if strict and len(unspecified_fields) > 0:
-        raise ValueError(f"Found unspecified fields: {unspecified_fields}")
-    dtypes = get_pudl_dtypes(
-        group=group,
+    dtypes = _get_applicable_dtypes(
+        columns=df.columns.tolist(),
+        field_namespace=field_namespace,
         resource=resource,
         dtype_backend="pandas",
+        strict=strict,
     )
     return df.astype({col: dtypes[col] for col in df.columns if col in dtypes})
 
 
 def apply_pudl_dtypes_polars(
     lf: pl.LazyFrame,
-    group: str | None = None,
+    field_namespace: str | None = None,
     resource: str | None = None,
     strict: bool = False,
 ) -> pl.LazyFrame:
@@ -256,30 +273,20 @@ def apply_pudl_dtypes_polars(
     Args:
         lf: The LazyFrame to apply types to. Not all columns need to have types
             defined in the PUDL metadata unless you pass ``strict=True``.
-        group: The data group to use for overrides, if any. E.g. "eia", "ferc1".
+        field_namespace: The field namespace to use for overrides, if any.
         resource: The resource (table) name whose schema should define the field
-            types. If provided, resource field types are authoritative and group
-            overrides are ignored.
+            types. If provided, resource field types are authoritative.
         strict: whether or not all columns need a corresponding field.
 
     Returns:
         The input LazyFrame, but with standard PUDL types applied.
     """
     columns = lf.collect_schema().names()
-    group_overrides = (
-        FIELD_METADATA_BY_GROUP.get(group, {}) if group is not None else {}
-    )
-    known_fields = (
-        set(get_pudl_dtypes(resource=resource, dtype_backend="polars").keys())
-        if resource is not None
-        else set(FIELD_METADATA.keys()) | set(group_overrides.keys())
-    )
-    unspecified_fields = sorted(set(columns) - known_fields)
-    if strict and len(unspecified_fields) > 0:
-        raise ValueError(f"Found unspecified fields: {unspecified_fields}")
-    dtypes = get_pudl_dtypes(
-        group=group,
+    dtypes = _get_applicable_dtypes(
+        columns=columns,
+        field_namespace=field_namespace,
         resource=resource,
         dtype_backend="polars",
+        strict=strict,
     )
     return lf.cast({key: value for key, value in dtypes.items() if key in columns})

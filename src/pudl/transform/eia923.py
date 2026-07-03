@@ -1362,7 +1362,6 @@ def _core_eia923__monthly_cooling_system_information(
         pudl.helpers.dedupe_and_drop_nas(csi_df, primary_key_cols=primary_key)
         .pipe(
             apply_pudl_dtypes,
-            group="eia",
             resource="_core_eia923__monthly_cooling_system_information",
             strict=False,
         )
