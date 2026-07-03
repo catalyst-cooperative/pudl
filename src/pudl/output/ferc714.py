@@ -18,7 +18,7 @@ from pudl.analysis.timeseries_cleaning import (
     ImputeTimeseriesSettings,
     impute_timeseries_asset_factory,
 )
-from pudl.metadata.fields import apply_pudl_dtypes
+from pudl.metadata.dtypes import apply_pudl_dtypes
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -505,9 +505,7 @@ def _out_ferc714__categorized_respondents(
             categorized[categorized.respondent_type.isnull()],
         ]
     )
-    categorized = apply_pudl_dtypes(
-        categorized, group="ferc714", resource="_out_ferc714__categorized_respondents"
-    )
+    categorized = apply_pudl_dtypes(categorized, group="ferc714")
     return categorized
 
 
@@ -623,11 +621,7 @@ def _out_ferc714__georeferenced_counties(
     counties_gdf = pudl.analysis.service_territory.add_geometries(
         out_ferc714__respondents_with_fips,
         census_gdf=out_censusdp1tract__counties,
-    ).pipe(
-        apply_pudl_dtypes,
-        group="ferc714",
-        resource="_out_ferc714__georeferenced_counties",
-    )
+    ).pipe(apply_pudl_dtypes, group="ferc714")
     return counties_gdf
 
 

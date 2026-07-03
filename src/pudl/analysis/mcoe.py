@@ -15,7 +15,7 @@ from dagster import (
 )
 
 import pudl.helpers
-from pudl.metadata.fields import apply_pudl_dtypes
+from pudl.metadata.dtypes import apply_pudl_dtypes
 from pudl.validate import quality as pv
 
 DEFAULT_GENS_COLS = [

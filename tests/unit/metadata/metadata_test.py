@@ -2,14 +2,18 @@
 
 import json
 import re
+from typing import Any
 
+import duckdb.sqltypes
 import frictionless
 import geopandas as gpd  # noqa: ICN002
 import pandas as pd
 import pandera.pandas as pr_pandas
 import pandera.polars as pr_polars
 import polars as pl
+import pyarrow as pa
 import pytest
+import sqlalchemy as sa
 from shapely import Point
 
 from pudl.metadata.classes import (
@@ -25,11 +29,14 @@ from pudl.metadata.descriptions import (
     ResourceDescriptionBuilder,
     ResourceTrait,
 )
-from pudl.metadata.fields import (
-    FIELD_METADATA,
+from pudl.metadata.dtypes import (
+    PudlDtypeBackend,
     apply_pudl_dtypes,
     apply_pudl_dtypes_polars,
     get_pudl_dtypes,
+)
+from pudl.metadata.fields import (
+    FIELD_METADATA,
 )
 from pudl.metadata.helpers import format_errors
 from pudl.metadata.resource_helpers import merge_descriptions
@@ -734,6 +741,15 @@ def test_description_compliance() -> None:
 # it back to "number" (→ float64).
 _RELIABILITY_RESOURCE = "core_eia861__yearly_reliability"
 _OVERRIDE_FIELD = "customers"
+_GEOMETRY_RESOURCE = "out_censusdp1tract__states"
+
+_BACKEND_GEOMETRY_SUPPORT: list[tuple[PudlDtypeBackend, bool]] = [
+    ("pandas", True),
+    ("polars", False),
+    ("sqlite", False),
+    ("duckdb", False),
+    ("pyarrow", True),
+]
 
 
 def test_get_pudl_dtypes_global_type() -> None:
@@ -742,10 +758,65 @@ def test_get_pudl_dtypes_global_type() -> None:
     assert dtypes[_OVERRIDE_FIELD] == "Int64"
 
 
+@pytest.mark.parametrize(
+    ("dtype_backend", "expected_dtype"),
+    [
+        ("pandas", "Int64"),
+        ("polars", pl.Int64),
+        ("sqlite", sa.Integer),
+        ("duckdb", duckdb.sqltypes.INTEGER),
+        ("pyarrow", pa.int32()),
+    ],
+)
+def test_get_pudl_dtypes_named_backend(
+    dtype_backend: PudlDtypeBackend, expected_dtype: Any
+) -> None:
+    """Named dtype backends should select the expected canonical mapping."""
+    dtypes = get_pudl_dtypes(dtype_backend=dtype_backend)
+    assert dtypes[_OVERRIDE_FIELD] == expected_dtype
+
+
+def test_get_pudl_dtypes_polars_skips_unsupported_types() -> None:
+    """Polars dtype selection should skip fields whose canonical type is unsupported."""
+    dtypes = get_pudl_dtypes(dtype_backend="polars")
+    assert "geometry" not in dtypes
+
+
+@pytest.mark.parametrize(
+    ("dtype_backend", "includes_geometry"), _BACKEND_GEOMETRY_SUPPORT
+)
+def test_get_pudl_dtypes_geometry_field_support(
+    dtype_backend: PudlDtypeBackend, includes_geometry: bool
+) -> None:
+    """Each backend should explicitly include or omit global geometry fields."""
+    dtypes = get_pudl_dtypes(dtype_backend=dtype_backend)
+    assert ("geometry" in dtypes) is includes_geometry
+
+
+@pytest.mark.parametrize(
+    ("dtype_backend", "includes_geometry"), _BACKEND_GEOMETRY_SUPPORT
+)
+def test_get_pudl_dtypes_resource_geometry_field_support(
+    dtype_backend: PudlDtypeBackend, includes_geometry: bool
+) -> None:
+    """Geometry inclusion should also be explicit for concrete resources."""
+    dtypes = get_pudl_dtypes(
+        resource=_GEOMETRY_RESOURCE,
+        dtype_backend=dtype_backend,
+    )
+    assert ("geometry" in dtypes) is includes_geometry
+
+
 def test_get_pudl_dtypes_resource_override() -> None:
     """With the reliability resource name, customers maps to float64."""
     dtypes = get_pudl_dtypes(resource=_RELIABILITY_RESOURCE)
     assert dtypes[_OVERRIDE_FIELD] == "float64"
+
+
+def test_get_pudl_dtypes_resource_uses_package_schema() -> None:
+    """Default resource lookups should use the already-defined resource dtypes."""
+    dtypes = get_pudl_dtypes(resource=_RELIABILITY_RESOURCE)
+    assert dtypes == PUDL_PACKAGE.get_resource(_RELIABILITY_RESOURCE).to_pandas_dtypes()
 
 
 def test_get_pudl_dtypes_resource_overrides_group() -> None:
@@ -754,6 +825,18 @@ def test_get_pudl_dtypes_resource_overrides_group() -> None:
     dtypes_with_resource = get_pudl_dtypes(group="eia", resource=_RELIABILITY_RESOURCE)
     assert dtypes_no_resource[_OVERRIDE_FIELD] == "Int64"
     assert dtypes_with_resource[_OVERRIDE_FIELD] == "float64"
+
+
+def test_get_pudl_dtypes_invalid_group() -> None:
+    """Unknown groups should fail with a clear error."""
+    with pytest.raises(ValueError, match="Unknown PUDL metadata group"):
+        get_pudl_dtypes(group="not_a_real_group")
+
+
+def test_get_pudl_dtypes_invalid_resource() -> None:
+    """Unknown resources should fail with a clear error."""
+    with pytest.raises(ValueError, match="Unknown PUDL resource"):
+        get_pudl_dtypes(resource="not_a_real_resource")
 
 
 def test_apply_pudl_dtypes_global_type() -> None:

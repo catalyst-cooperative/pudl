@@ -5,7 +5,7 @@ from io import StringIO
 import pandas as pd
 import pytest
 
-from pudl.metadata.fields import apply_pudl_dtypes
+from pudl.metadata.dtypes import apply_pudl_dtypes
 from pudl.transform import eia861
 
 # Test that rows with the same primary key are combined correctly

@@ -36,11 +36,7 @@ from pandas._libs.missing import NAType
 from pydantic import BaseModel, Field
 
 import pudl.logging_helpers
-from pudl.metadata.fields import (
-    FIELD_METADATA_BY_RESOURCE,
-    apply_pudl_dtypes,
-    get_pudl_dtypes,
-)
+from pudl.metadata.dtypes import apply_pudl_dtypes, get_pudl_dtypes
 from pudl.workspace.setup import PudlPaths
 
 sum_na = partial(pd.Series.sum, skipna=False)
@@ -1304,9 +1300,8 @@ def convert_cols_dtypes(
     Args:
         df: dataframe with columns that appear in the PUDL tables.
         data_source: the name of the datasource (eia, ferc1, etc.)
-        name: name of the table; used for logging and for looking up per-table
-            type overrides from
-            :py:const:`pudl.metadata.fields.FIELD_METADATA_BY_RESOURCE`.
+        name: name of the table; used for logging and for looking up the table's
+            schema-defined field types.
 
     Returns:
         Input dataframe, but with column types as specified by
@@ -1315,11 +1310,7 @@ def convert_cols_dtypes(
     # get me all of the columns for the table in the constants dtype dict
     dtypes = {
         col: dtype
-        for col, dtype in get_pudl_dtypes(
-            group=data_source,
-            resource=name,
-            field_meta_by_resource=FIELD_METADATA_BY_RESOURCE,
-        ).items()
+        for col, dtype in get_pudl_dtypes(group=data_source, resource=name).items()
         if col in df.columns
     }
 

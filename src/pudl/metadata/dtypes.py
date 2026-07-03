@@ -1,7 +1,32 @@
-"""Mappings of simplified PUDL field types to other tabular data types."""
+"""Canonical PUDL dtype mappings and dtype-application helpers.
+
+This module serves two related purposes:
+
+1. Define the canonical mapping from PUDL's simplified field types
+    (``string``, ``integer``, ``geometry``, etc.) to the concrete dtype objects used
+    by supported tabular backends like pandas, Polars, SQLite, DuckDB, and PyArrow.
+2. Expose helper functions that resolve those backend dtypes for either the global
+    field metadata or a concrete PUDL resource schema, and apply them to pandas or
+    Polars dataframes.
+
+When a concrete ``resource`` is provided to :func:`get_pudl_dtypes`, the resource
+schema is authoritative. That means resource-specific field typing and enum/category
+information already encoded in ``PUDL_PACKAGE`` will be used directly where possible.
+
+Not every backend supports every canonical PUDL field type. In particular, some
+backends do not yet support PUDL's ``geometry`` fields. In those cases the dtype
+helpers intentionally omit unsupported fields rather than returning an incompatible
+dtype mapping.
+
+This module intentionally keeps the import of ``PUDL_PACKAGE`` local to the helper
+functions that need it, so the metadata class graph does not introduce a module import
+cycle.
+"""
 
 import datetime
 from collections.abc import Callable
+from copy import deepcopy
+from typing import Any, Literal
 
 import duckdb.sqltypes
 import geoarrow.pyarrow as ga
@@ -13,6 +38,8 @@ import pyarrow as pa
 import sqlalchemy as sa
 from sqlalchemy.dialects.sqlite import DATETIME as SQLITE_DATETIME
 from sqlalchemy.types import TypeEngine as SATypeEngine
+
+from pudl.metadata.fields import FIELD_METADATA, FIELD_METADATA_BY_GROUP
 
 FIELD_DTYPES_POLARS: dict[str, type[pl.DataType] | pl.DataType] = {
     "boolean": polars_datatypes.Boolean,
@@ -94,3 +121,165 @@ PERIODS: dict[str, Callable[[pd.Series], pd.Series | pd.DataFrame]] = {
     "date": lambda x: pd.Series(x.to_numpy().astype("datetime64[D]")),
 }
 """Functions converting datetimes to period start times, by time period."""
+
+PudlDtypeBackend = Literal["pandas", "polars", "sqlite", "duckdb", "pyarrow"]
+
+_DTYPE_MAPS_BY_BACKEND: dict[PudlDtypeBackend, dict[str, Any]] = {
+    "pandas": FIELD_DTYPES_PANDAS,
+    "polars": FIELD_DTYPES_POLARS,
+    "sqlite": FIELD_DTYPES_SQLITE,
+    "duckdb": FIELD_DTYPES_DUCKDB,
+    "pyarrow": FIELD_DTYPES_PYARROW,
+}
+
+
+def _get_dtype_map(dtype_backend: PudlDtypeBackend) -> dict[str, Any]:
+    """Return the canonical PUDL dtype map for a named backend."""
+    return _DTYPE_MAPS_BY_BACKEND[dtype_backend]
+
+
+def _validate_group(group: str | None) -> None:
+    """Raise a helpful error if a requested metadata group is unknown."""
+    if group is None:
+        return
+
+    from pudl.metadata.classes import FIELD_NAMESPACES
+
+    if group not in FIELD_NAMESPACES:
+        raise ValueError(f"Unknown PUDL metadata group: {group!r}.")
+
+
+def get_pudl_dtypes(
+    group: str | None = None,
+    resource: str | None = None,
+    dtype_backend: PudlDtypeBackend = "pandas",
+) -> dict[str, Any]:
+    """Compile a dictionary of field dtypes.
+
+    Args:
+        group: The data group (e.g. ferc1, eia) to use for overriding the default
+            field types. If None, no group overrides are applied.
+        resource: The resource (table) name whose schema should define the field
+            types. If provided, resource field types are authoritative and group
+            overrides are ignored.
+        dtype_backend: Named dtype backend to compile. Supported values are
+            ``"pandas"``, ``"polars"``, ``"sqlite"``, ``"duckdb"``, and
+            ``"pyarrow"``.
+
+    Returns:
+        A mapping of PUDL field names to their associated data types.
+    """
+    dtype_map = _get_dtype_map(dtype_backend)
+    _validate_group(group)
+    if resource is not None:
+        from pudl.metadata.classes import PUDL_PACKAGE
+
+        try:
+            resource_metadata = PUDL_PACKAGE.get_resource(resource)
+        except ValueError as exc:
+            raise ValueError(f"Unknown PUDL resource: {resource!r}.") from exc
+        if dtype_backend == "pandas":
+            return resource_metadata.to_pandas_dtypes()
+        if dtype_backend == "polars":
+            return {
+                field.name: field.to_polars_dtype()
+                for field in resource_metadata.schema.fields
+                if field.type in FIELD_DTYPES_POLARS
+            }
+        return {
+            field.name: dtype_map[field.type]
+            for field in resource_metadata.schema.fields
+            if field.type in dtype_map
+        }
+
+    field_meta = deepcopy(FIELD_METADATA)
+    group_overrides = (
+        FIELD_METADATA_BY_GROUP.get(group, {}) if group is not None else {}
+    )
+    dtypes = {}
+    for f in field_meta:
+        if f in group_overrides:
+            field_meta[f].update(group_overrides[f])
+        if field_meta[f]["type"] in dtype_map:
+            dtypes[f] = dtype_map[field_meta[f]["type"]]
+
+    return dtypes
+
+
+def apply_pudl_dtypes(
+    df: pd.DataFrame | geopandas.GeoDataFrame,
+    group: str | None = None,
+    resource: str | None = None,
+    strict: bool = False,
+) -> pd.DataFrame | geopandas.GeoDataFrame:
+    """Apply dtypes to those columns in a dataframe that have PUDL types defined.
+
+    Args:
+        df: The dataframe to apply types to. Not all columns need to have types
+            defined in the PUDL metadata unless you pass ``strict=True``.
+        group: The data group to use for overrides, if any. E.g. "eia", "ferc1".
+        resource: The resource (table) name whose schema should define the field
+            types. If provided, resource field types are authoritative and group
+            overrides are ignored.
+        strict: whether or not all columns need a corresponding field.
+
+    Returns:
+        The input dataframe, but with standard PUDL types applied.
+    """
+    group_overrides = (
+        FIELD_METADATA_BY_GROUP.get(group, {}) if group is not None else {}
+    )
+    known_fields = (
+        set(get_pudl_dtypes(resource=resource).keys())
+        if resource is not None
+        else set(FIELD_METADATA.keys()) | set(group_overrides.keys())
+    )
+    unspecified_fields = sorted(set(df.columns) - known_fields)
+    if strict and len(unspecified_fields) > 0:
+        raise ValueError(f"Found unspecified fields: {unspecified_fields}")
+    dtypes = get_pudl_dtypes(
+        group=group,
+        resource=resource,
+        dtype_backend="pandas",
+    )
+    return df.astype({col: dtypes[col] for col in df.columns if col in dtypes})
+
+
+def apply_pudl_dtypes_polars(
+    lf: pl.LazyFrame,
+    group: str | None = None,
+    resource: str | None = None,
+    strict: bool = False,
+) -> pl.LazyFrame:
+    """Apply dtypes to those columns in a dataframe that have PUDL types defined.
+
+    Args:
+        lf: The LazyFrame to apply types to. Not all columns need to have types
+            defined in the PUDL metadata unless you pass ``strict=True``.
+        group: The data group to use for overrides, if any. E.g. "eia", "ferc1".
+        resource: The resource (table) name whose schema should define the field
+            types. If provided, resource field types are authoritative and group
+            overrides are ignored.
+        strict: whether or not all columns need a corresponding field.
+
+    Returns:
+        The input LazyFrame, but with standard PUDL types applied.
+    """
+    columns = lf.collect_schema().names()
+    group_overrides = (
+        FIELD_METADATA_BY_GROUP.get(group, {}) if group is not None else {}
+    )
+    known_fields = (
+        set(get_pudl_dtypes(resource=resource, dtype_backend="polars").keys())
+        if resource is not None
+        else set(FIELD_METADATA.keys()) | set(group_overrides.keys())
+    )
+    unspecified_fields = sorted(set(columns) - known_fields)
+    if strict and len(unspecified_fields) > 0:
+        raise ValueError(f"Found unspecified fields: {unspecified_fields}")
+    dtypes = get_pudl_dtypes(
+        group=group,
+        resource=resource,
+        dtype_backend="polars",
+    )
+    return lf.cast({key: value for key, value in dtypes.items() if key in columns})

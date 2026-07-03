@@ -15,7 +15,7 @@ import pudl.logging_helpers
 from pudl.helpers import convert_col_to_bool, normalize_year_fragments
 from pudl.metadata.classes import PUDL_PACKAGE
 from pudl.metadata.codes import CODE_METADATA
-from pudl.metadata.fields import apply_pudl_dtypes
+from pudl.metadata.dtypes import apply_pudl_dtypes
 from pudl.transform.classes import InvalidRows, drop_invalid_rows
 
 logger = pudl.logging_helpers.get_logger(__name__)

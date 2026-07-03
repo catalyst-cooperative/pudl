@@ -10,7 +10,7 @@ from pudl.helpers import drop_records_with_null_in_column
 from pudl.metadata.classes import PUDL_PACKAGE, DataSource
 from pudl.metadata.codes import CODE_METADATA
 from pudl.metadata.dfs import POLITICAL_SUBDIVISIONS
-from pudl.metadata.fields import apply_pudl_dtypes
+from pudl.metadata.dtypes import apply_pudl_dtypes
 from pudl.settings import Eia860DataConfig
 from pudl.transform.eia861 import clean_nerc
 
@@ -58,7 +58,7 @@ def _core_eia860__ownership(raw_eia860__ownership: pd.DataFrame) -> pd.DataFrame
 
     # This has to come before the fancy indexing below, otherwise the plant_id_eia
     # is still a float.
-    own_df = apply_pudl_dtypes(own_df, group="eia", resource="_core_eia860__ownership")
+    own_df = apply_pudl_dtypes(own_df, group="eia")
 
     # A small number of generators are reported multiple times in the ownership
     # table due to the use of leading zeroes in their integer generator_id values
@@ -1387,7 +1387,7 @@ def _core_eia860__cooling_equipment(
 
     # Encoding is required here because this table is not yet getting harvested.
     return apply_pudl_dtypes(
-        ce_df, group="eia", resource="_core_eia860__cooling_equipment", strict=True
+        ce_df, group="eia", resource="_core_eia860__cooling_equipment", strict=False
     ).pipe(PUDL_PACKAGE.encode)
 
 

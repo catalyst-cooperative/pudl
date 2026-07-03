@@ -37,8 +37,8 @@ from dagster import (
 import pudl.logging_helpers
 from pudl.helpers import convert_cols_dtypes, make_changelog
 from pudl.metadata.classes import PUDL_PACKAGE
+from pudl.metadata.dtypes import apply_pudl_dtypes, get_pudl_dtypes
 from pudl.metadata.enums import APPROXIMATE_TIMEZONES
-from pudl.metadata.fields import apply_pudl_dtypes, get_pudl_dtypes
 from pudl.metadata.resources import ENTITIES
 from pudl.settings import EiaDataConfig
 

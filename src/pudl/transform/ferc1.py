@@ -39,7 +39,7 @@ from pudl.helpers import (
 )
 from pudl.metadata.classes import PUDL_PACKAGE
 from pudl.metadata.dfs import POLITICAL_SUBDIVISIONS
-from pudl.metadata.fields import apply_pudl_dtypes
+from pudl.metadata.dtypes import apply_pudl_dtypes
 from pudl.settings import Ferc1DataConfig
 from pudl.transform.classes import (
     AbstractTableTransformer,

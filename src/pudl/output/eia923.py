@@ -8,7 +8,7 @@ from dagster import AssetsDefinition, Field, asset
 
 import pudl.helpers
 import pudl.logging_helpers
-from pudl.metadata.fields import apply_pudl_dtypes
+from pudl.metadata.dtypes import apply_pudl_dtypes
 
 logger = pudl.logging_helpers.get_logger(__name__)
 

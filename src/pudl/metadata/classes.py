@@ -11,7 +11,7 @@ from hashlib import sha1
 from importlib.metadata import version as _get_version
 from pathlib import Path
 from re import Pattern
-from typing import Annotated, Any, Literal, Self, TypeVar
+from typing import Annotated, Any, Literal, Self, TypeVar, get_args
 
 import duckdb
 import duckdb.sqltypes
@@ -214,6 +214,72 @@ StrictList = Annotated[list[T], pydantic.Field(min_length=1)]
 Allows :class:`list`, :class:`tuple`, :class:`set`, :class:`frozenset`,
 :class:`collections.deque`, or generators and casts to a :class:`list`.
 """
+
+
+FieldNamespace = Literal[
+    "censusdp1tract",
+    "eia",
+    "eiaaeo",
+    "eiaapi",
+    "epacems",
+    "ferc",
+    "ferc1",
+    "ferc714",
+    "ferceqr",
+    "glue",
+    "gridpathratoolkit",
+    "ppe",
+    "pudl",
+    "nrelatb",
+    "vcerare",
+    "phmsagas",
+    "sec",
+    "rus",
+]
+"""Canonical field namespace identifiers used by PUDL resources."""
+
+FIELD_NAMESPACES: tuple[FieldNamespace, ...] = get_args(FieldNamespace)
+"""All valid PUDL field namespace identifiers."""
+
+EtlGroup = Literal[
+    "censusdp1tract",
+    "eia176",
+    "eia191",
+    "eia860",
+    "eia861",
+    "eia861_disabled",
+    "eia923",
+    "eia930",
+    "eiaaeo",
+    "entity_eia",
+    "epacems",
+    "entity_ferc",
+    "ferc1",
+    "ferc1_disabled",
+    "ferc714",
+    "ferceqr",
+    "glue",
+    "gridpathratoolkit",
+    "outputs",
+    "static_ferc1",
+    "static_eia",
+    "static_eia_disabled",
+    "eiaapi",
+    "state_demand",
+    "static_pudl",
+    "service_territories",
+    "nrelatb",
+    "vcerare",
+    "phmsagas",
+    "sec10k",
+    "rus7",
+    "static_rus",
+    "rus12",
+]
+"""Canonical ETL group identifiers used by PUDL resources."""
+
+ETL_GROUPS: tuple[EtlGroup, ...] = get_args(EtlGroup)
+"""All valid PUDL ETL group identifiers."""
 
 
 # ---- Class attribute validators ---- #
@@ -1603,67 +1669,8 @@ class Resource(PudlMeta):
     encoder: Encoder | None = None
     path: str = pydantic.Field(default_factory=lambda data: f"{data['name']}.parquet")
     extrapaths: list[str] | None = None
-    field_namespace: (
-        Literal[
-            "censusdp1tract",
-            "eia",
-            "eiaaeo",
-            "eiaapi",
-            "epacems",
-            "ferc",
-            "ferc1",
-            "ferc714",
-            "ferceqr",
-            "glue",
-            "gridpathratoolkit",
-            "ppe",
-            "pudl",
-            "nrelatb",
-            "vcerare",
-            "phmsagas",
-            "sec",
-            "rus",
-        ]
-        | None
-    ) = None
-    etl_group: (
-        Literal[
-            "censusdp1tract",
-            "eia176",
-            "eia191",
-            "eia860",
-            "eia861",
-            "eia861_disabled",
-            "eia923",
-            "eia930",
-            "eiaaeo",
-            "entity_eia",
-            "epacems",
-            "entity_ferc",
-            "ferc1",
-            "ferc1_disabled",
-            "ferc714",
-            "ferceqr",
-            "glue",
-            "gridpathratoolkit",
-            "outputs",
-            "static_ferc1",
-            "static_eia",
-            "static_eia_disabled",
-            "eiaapi",
-            "state_demand",
-            "static_pudl",
-            "service_territories",
-            "nrelatb",
-            "vcerare",
-            "phmsagas",
-            "sec10k",
-            "rus7",
-            "static_rus",
-            "rus12",
-        ]
-        | None
-    ) = None
+    field_namespace: FieldNamespace | None = None
+    etl_group: EtlGroup | None = None
     create_database_schema: bool = True
 
     _check_unique = _validator(

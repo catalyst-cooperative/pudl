@@ -14,8 +14,8 @@ import pudl.glue.ferc1_eia
 import pudl.glue.ferc714
 import pudl.helpers
 import pudl.logging_helpers
-import pudl.metadata.fields
 from pudl.metadata.classes import DataSource, Package
+from pudl.metadata.dtypes import apply_pudl_dtypes
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -194,7 +194,7 @@ def core_epa__assn_eia_epacamd(
             pudl.helpers.remove_leading_zeros_from_numeric_strings,
             col_name="emissions_unit_id_epa",
         )
-        .pipe(pudl.metadata.fields.apply_pudl_dtypes, "eia")
+        .pipe(apply_pudl_dtypes, "eia")
         .dropna(subset=["plant_id_eia"])
         .pipe(correct_epa_eia_plant_id_mapping)
     )
@@ -342,7 +342,7 @@ def core_epa__assn_eia_epacamd_subplant_ids(
     )
     # use graph analysis to identify subplants
     subplant_ids = make_subplant_ids(epacamd_eia_complete).pipe(
-        pudl.metadata.fields.apply_pudl_dtypes, "glue"
+        apply_pudl_dtypes, "glue"
     )
     logger.info(
         "After making the networkx generateds subplant_ids, "

@@ -10,7 +10,7 @@ import pytz
 
 import pudl.logging_helpers
 from pudl.extract.epacems import extract_quarter
-from pudl.metadata.fields import apply_pudl_dtypes_polars
+from pudl.metadata.dtypes import apply_pudl_dtypes_polars
 from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)

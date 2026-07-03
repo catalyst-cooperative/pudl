@@ -17,6 +17,7 @@ from pudl.helpers import (
     standardize_na_values,
 )
 from pudl.metadata.classes import PUDL_PACKAGE
+from pudl.metadata.dtypes import apply_pudl_dtypes
 from pudl.metadata.enums import (
     CUSTOMER_CLASSES,
     FUEL_CLASSES,
@@ -26,7 +27,6 @@ from pudl.metadata.enums import (
     RTO_CLASSES,
     TECH_CLASSES,
 )
-from pudl.metadata.fields import apply_pudl_dtypes
 from pudl.metadata.labels import ESTIMATED_OR_ACTUAL
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -1217,7 +1217,7 @@ def _core_eia861__balancing_authority(
         "balancing_authority_code_eia",
     ] = "TIDC"
 
-    return _post_process(df, name="_core_eia861__balancing_authority")
+    return _post_process(df)
 
 
 @asset(io_manager_key="pudl_io_manager")
