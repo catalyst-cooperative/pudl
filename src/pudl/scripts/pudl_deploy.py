@@ -100,7 +100,15 @@ def _deploy_outputs(
         environment=environment,
     )
 
-    update_git_branch(tag=git_tag, branch=deploy_type.value, environment=environment)
+    # We don't need to update any branches when doing a branch build
+    if deploy_type != DeploymentType.BRANCH:
+        update_git_branch(
+            tag=git_tag,
+            branch=deploy_type.value,
+            environment=environment,
+            github_token=github_token,
+        )
+
     trigger_zenodo_release(
         build_ref=git_tag,
         deploy_type=deploy_type,
