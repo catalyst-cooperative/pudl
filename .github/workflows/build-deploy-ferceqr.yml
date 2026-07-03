@@ -20,8 +20,9 @@ on:
           - test
           - production
           - none
-  schedule:
-    - cron: "48 0 3 * *" # 00:48 UTC on the third of every month
+  # Disable scheduled build until we have archiving is highly reliable
+  # schedule:
+  #   - cron: "48 0 3 * *" # 00:48 UTC on the third of every month
 
 env:
   GCP_BILLING_PROJECT: ${{ secrets.GCP_BILLING_PROJECT }}
