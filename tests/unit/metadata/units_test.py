@@ -3,7 +3,20 @@
 import pint
 import pytest
 
+from pudl.metadata.classes import PUDL_PACKAGE
 from pudl.metadata.units import PUDL_UNIT_REGISTRY
+
+
+def _get_pudl_package_unit_strings() -> list[str]:
+    """Return sorted unique unit strings used by fields in PUDL_PACKAGE."""
+    return sorted(
+        {
+            field.unit
+            for resource in PUDL_PACKAGE.resources
+            for field in resource.schema.fields
+            if field.unit is not None
+        }
+    )
 
 
 @pytest.mark.parametrize(
@@ -53,7 +66,11 @@ from pudl.metadata.units import PUDL_UNIT_REGISTRY
     ],
 )
 def test_valid_unit_strings(unit_string: str) -> None:
-    """Valid unit strings must parse without error."""
+    """Valid unit strings must parse without error.
+
+    This is not intended to be an exhaustive test of the unit registry, just a sanity
+    check that some units we are actually using and expect to parse do.
+    """
     PUDL_UNIT_REGISTRY.parse_units(unit_string)
 
 
@@ -72,3 +89,9 @@ def test_invalid_unit_strings(unit_string: str) -> None:
     """Invalid unit strings must raise an exception."""
     with pytest.raises(pint.errors.UndefinedUnitError):
         PUDL_UNIT_REGISTRY.parse_units(unit_string)
+
+
+@pytest.mark.parametrize("unit_string", _get_pudl_package_unit_strings())
+def test_pudl_package_field_unit_strings(unit_string: str) -> None:
+    """All deduplicated unit strings used by PUDL_PACKAGE fields must parse."""
+    PUDL_UNIT_REGISTRY.parse_units(unit_string)
