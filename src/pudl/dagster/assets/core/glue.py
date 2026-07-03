@@ -535,7 +535,7 @@ def _convert_global_id_to_composite_id(
         idx_col = idx_name
 
     composite_key: pd.Series = reindexed.groupby("plant_id_eia", as_index=False).apply(
-        lambda x: x.groupby("global_subplant_id").ngroup()
+        lambda x: x.groupby("global_subplant_id").ngroup(), include_groups=False
     )
 
     # Recombine. Could use index join but I chose to reindex, sort and assign.
