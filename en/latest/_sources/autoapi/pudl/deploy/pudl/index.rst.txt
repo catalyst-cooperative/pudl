@@ -120,7 +120,7 @@ Module Contents
    :param path_suffixes: Path suffixes to upload to (e.g., ["nightly", "eel-hole"]).
 
 
-.. py:function:: update_git_branch(tag: str, branch: str, environment: Literal['staging', 'production']) -> None
+.. py:function:: update_git_branch(tag: str, branch: str, environment: Literal['staging', 'production'], github_token: str) -> None
 
    Merge git tag into branch and push to origin.
 
