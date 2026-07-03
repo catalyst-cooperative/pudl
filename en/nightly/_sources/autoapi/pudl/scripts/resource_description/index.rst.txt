@@ -20,7 +20,7 @@ Functions
 Module Contents
 ---------------
 
-.. py:function:: main(name: str) -> int
+.. py:function:: main(ctx: click.Context, name: str) -> None
 
    Compute and display the description components for a resource.
 

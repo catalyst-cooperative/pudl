@@ -9,12 +9,13 @@ to ensure that any new changes merged into ``main`` are fully tested. These comp
 builds also enable continuous deployment of PUDL's data outputs. If no changes have been
 merged into ``main`` since the last time the builds ran, the builds are skipped.
 
-The builds are kicked off by the ``build-deploy-pudl`` GitHub Action, which builds and
+The builds are kicked off by the ``build-pudl`` GitHub Action, which builds and
 pushes a Docker image with PUDL installed to `Docker Hub <https://hub.docker.com/r/catalystcoop/pudl-etl>`__
 and then launches a Google Batch job using that image. Inside the container,
 ``builds/pudl_batch.sh`` runs the ETL and tests, saves the raw build outputs to
-``gs://builds.catalyst.coop``, and if successful publishes the distributable outputs to
-our public cloud buckets.
+``gs://builds.catalyst.coop``. If the ``build-pudl`` action completes successfully,
+it will kickoff the ``deploy-pudl`` action, which uses the same Docker image as the
+builds, but will run the script ``src/pudl/scripts/deploy.py``.
 
 Breaking the Builds
 -------------------
@@ -66,30 +67,49 @@ occurred:
     process. If the "transient" problem persists, bring it up with the person
     managing the builds.
 
-The GitHub Action
------------------
-The ``build-deploy-pudl`` GitHub action contains the main coordination logic for
-the Nightly Data Builds. The action is triggered every night and when new versioned
-release tags are pushed to the PUDL repository. This way, new data outputs are
-automatically updated for releases, and PUDL's code and data are tested every night.
+Build Action
+------------
+The ``build-pudl`` GitHub action contains the main coordination logic for
+the Nightly Data Builds. The action is triggered every night so any code changes are
+tested nightly. During a nightly build, the action will automatically tag the current
+commit on ``main`` with a tag that looks like ``nightly-YYYY-MM-DD``. If the action is
+manually triggered, it will instead tag the build with a "branch" tag, that looks like
+``branch-[BRANCH-BUILD-WAS-TRIGGERED-FROM]-YYYY-MM-DD``. Upon a successful build, the
+action will trigger the ``deploy-pudl`` action, passing the tag associated with the
+build as an input.
 
-The ``gcloud`` command in ``build-deploy-pudl`` requires certain Google Cloud
+The ``gcloud`` command in ``build-pudl`` requires certain Google Cloud
 Platform (GCP) permissions to start and update the Google Batch VM. We use Workflow
 Identity Federation to authenticate the GitHub Action with GCP in the GitHub Action
 workflow.
 
 Deployment Action
 -----------------
-The experimental ``deploy-pudl`` action separates deployment from the build process.
-This action takes a git tag that has already been built as an input and will find the
-corresponding build outputs and determine the deployment type (``stable`` or
-``nightly``) from the tag. It will then upload outputs from the build to GCS and S3,
+The ``deploy-pudl`` action separates deployment from the build process.
+This action takes a git tag, which should already have an associated build, and it uses
+it to determine the deployment type (``stable``, ``branch``, or ``nightly``). It will
+then find outputs associated with the build and upload them to GCS and S3,
 update the git branch associated with the deployment type, and trigger a zenodo release.
-This action can also take an optional ``staging`` flag will upload outputs to a
-dedicated staging area, and will not update the git branch or trigger a Zenodo release.
 
-Eventually, the deployment functionality will be removed from the ``build-deploy-pudl``
-action and it will instead trigger this action at the end of a successful build.
+This action also takes a ``deployment_environment`` option, which can be used to switch
+between ``production`` and ``staging`` deployments. During a ``staging`` deployment,
+outputs will be uploaded to a dedicated staging area, and will trigger a sandbox
+Zenodo release. The staging area for outputs will mirror the paths used during a
+``production`` deployment, but they will include a 'staging' prefix. This looks like
+the following:
+
+*Nightly production deployment paths:*
+- s3://pudl.catalyst.coop/nightly
+- s3://pudl.catalyst.coop/eel-hole
+
+*Nightly staging deployment paths:*
+- s3://pudl.catalyst.coop/staging/nightly
+- s3://pudl.catalyst.coop/staging/eel-hole
+
+The ``deploy-pudl`` action will be automatically triggered upon a successful build,
+or when a stable tag is pushed, which should look like ``vYYYY.DD.MM``. This means
+we can tag an existing, successful build with a stable tag and produce a stable
+deployment without requiring a new build.
 
 Google Compute Engine
 ---------------------

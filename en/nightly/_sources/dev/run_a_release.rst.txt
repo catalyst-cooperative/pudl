@@ -34,22 +34,16 @@ Here's how to do it!
    Populate the top of the release notes with a blank
    section for the subsequent release.
 
-3. Wait for the nightly build to pass. Ideally, this build contains the updated
-   release notes, but it's okay to proceed so long as the only PR merged after
-   a passing nightly build is the release notes update.
+3. Once the release notes update is in, push a git tag ``vYYYY.M.x`` that points at
+   the head of ``main``. Pushing the tag will trigger the ``build-pudl`` workflow. If
+   there is already a successful build from the tagged commit, then the build will be
+   skipped and it will immediately trigger a deployment.
 
-4. Once everything is passing and the release notes update is in,
-   push a git tag ``vYYYY.M.x`` that points at the head of ``main``. **This
-   should be either the commit which just passed the nightly build, or the
-   merge commit for the release notes update.** Pushing the tag
-   will kick off another build and
-   create a GitHub Release.
+4. Verify that a new release with that tag has appeared on GitHub.
 
-5. Verify that a new release with that tag has appeared on GitHub.
+5. Verify that a new archive of the PUDL repository has appeared on Zenodo.
 
-6. Verify that a new archive of the PUDL repository has appeared on Zenodo.
-
-7. If *that* build passes, verify the following:
+6. Once the ``deploy-pudl`` action is complete, verify the following:
 
    * GCS/AWS distribution buckets have the appropriate data
    * ``stable`` and ``vYYYY.M.x`` point at the same Git ref
@@ -57,7 +51,7 @@ Here's how to do it!
      changes in the release notes
    * GitHub Releases has the new version with appropriate release notes.
 
-8. Verify that the Zenodo draft deposition has all the expected data (raw FERC
+7. Verify that the Zenodo draft deposition has all the expected data (raw FERC
    databases, PUDL database, everything the right size. Compare to the files in
    the GCS/S3 distribution buckets). If the ``zenodo-data-release`` action failed,
    you can re-run it manually with settings:
@@ -69,12 +63,12 @@ Here's how to do it!
 
    If Zenodo is extra cranky, upload the files to the draft deposition manually.
 
-9. Update the Zenodo metadata to include the description from the release notes and
+8. Update the Zenodo metadata to include the description from the release notes and
    update the links to other resources related to the release. Make sure all the
    metadata fields are complete and accurate.
 
-10. Publish the Zenodo deposition! Wahoo! You're now done!
+9. Publish the Zenodo deposition! Wahoo! You're now done!
 
-11. Tell #team that the release is complete, and they can resume merges to ``main``.
+10. Tell #team that the release is complete, and they can resume merges to ``main``.
     Remind folks that release notes in open PRs may need to be adjusted to make sure
     the notes are filed under the correct release number.
