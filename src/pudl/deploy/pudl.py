@@ -169,7 +169,10 @@ def upload_outputs(
 
 
 def update_git_branch(
-    tag: str, branch: str, environment: Literal["staging", "production"]
+    tag: str,
+    branch: str,
+    environment: Literal["staging", "production"],
+    github_token: str,
 ) -> None:
     """Merge git tag into branch and push to origin.
 
@@ -193,6 +196,19 @@ def update_git_branch(
         )
     logger.info(f"Updating git branch {branch} to tag {tag}")
 
+    _run(["git", "config", "user.email", "pudl@catalyst.coop"])
+    _run(["git", "config", "user.name", "pudlbot"])
+    _run(
+        [
+            "git",
+            "remote",
+            "set-url",
+            "origin",
+            f"https://pudlbot:{github_token}@github.com/catalyst-cooperative/pudl.git",
+        ]
+    )
+    _run(["git", "fetch", "--force", "--tags", "origin", tag])
+    _run(["git", "fetch", "origin", f"{branch}:{branch}"])
     _run(["git", "checkout", branch])
     _run(["git", "merge", "--ff-only", tag])
     if environment != "staging":
