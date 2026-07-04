@@ -635,6 +635,8 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/sphinx-autoapi-3.8.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/sphinx-design-0.7.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/sphinx-issues-6.0.0-pyhd8ed1ab_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/sphinx-llm-0.4.1-pyhcf101f3_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/sphinx-markdown-builder-0.6.10-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/sphinx-reredirects-1.1.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/sphinxcontrib-applehelp-2.0.0-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/sphinxcontrib-bibtex-2.7.0-pyhd8ed1ab_0.conda
@@ -1306,6 +1308,8 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/sphinx-autoapi-3.8.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/sphinx-design-0.7.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/sphinx-issues-6.0.0-pyhd8ed1ab_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/sphinx-llm-0.4.1-pyhcf101f3_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/sphinx-markdown-builder-0.6.10-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/sphinx-reredirects-1.1.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/sphinxcontrib-applehelp-2.0.0-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/sphinxcontrib-bibtex-2.7.0-pyhd8ed1ab_0.conda
@@ -1687,6 +1691,8 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/sphinx-autoapi-3.8.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/sphinx-design-0.7.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/sphinx-issues-6.0.0-pyhd8ed1ab_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/sphinx-llm-0.4.1-pyhcf101f3_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/sphinx-markdown-builder-0.6.10-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/sphinx-reredirects-1.1.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/sphinxcontrib-applehelp-2.0.0-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/sphinxcontrib-bibtex-2.7.0-pyhd8ed1ab_0.conda
@@ -2312,6 +2318,8 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/sphinx-autoapi-3.8.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/sphinx-design-0.7.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/sphinx-issues-6.0.0-pyhd8ed1ab_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/sphinx-llm-0.4.1-pyhcf101f3_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/sphinx-markdown-builder-0.6.10-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/sphinx-reredirects-1.1.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/sphinxcontrib-applehelp-2.0.0-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/sphinxcontrib-bibtex-2.7.0-pyhd8ed1ab_0.conda
@@ -3265,6 +3273,8 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/sphinx-autoapi-3.8.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/sphinx-design-0.7.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/sphinx-issues-6.0.0-pyhd8ed1ab_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/sphinx-llm-0.4.1-pyhcf101f3_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/sphinx-markdown-builder-0.6.10-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/sphinx-reredirects-1.1.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/sphinxcontrib-applehelp-2.0.0-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/sphinxcontrib-bibtex-2.7.0-pyhd8ed1ab_0.conda
@@ -3966,6 +3976,8 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/sphinx-autoapi-3.8.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/sphinx-design-0.7.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/sphinx-issues-6.0.0-pyhd8ed1ab_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/sphinx-llm-0.4.1-pyhcf101f3_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/sphinx-markdown-builder-0.6.10-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/sphinx-reredirects-1.1.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/sphinxcontrib-applehelp-2.0.0-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/sphinxcontrib-bibtex-2.7.0-pyhd8ed1ab_0.conda
@@ -4350,6 +4362,8 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/sphinx-autoapi-3.8.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/sphinx-design-0.7.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/sphinx-issues-6.0.0-pyhd8ed1ab_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/sphinx-llm-0.4.1-pyhcf101f3_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/sphinx-markdown-builder-0.6.10-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/sphinx-reredirects-1.1.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/sphinxcontrib-applehelp-2.0.0-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/sphinxcontrib-bibtex-2.7.0-pyhd8ed1ab_0.conda
@@ -4987,6 +5001,8 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/sphinx-autoapi-3.8.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/sphinx-design-0.7.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/sphinx-issues-6.0.0-pyhd8ed1ab_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/sphinx-llm-0.4.1-pyhcf101f3_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/sphinx-markdown-builder-0.6.10-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/sphinx-reredirects-1.1.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/sphinxcontrib-applehelp-2.0.0-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/sphinxcontrib-bibtex-2.7.0-pyhd8ed1ab_0.conda
@@ -5343,7 +5359,7 @@ packages:
   license: MIT AND Apache-2.0
   license_family: Apache
   purls:
-  - pkg:pypi/aiohttp?source=compressed-mapping
+  - pkg:pypi/aiohttp?source=hash-mapping
   run_exports: {}
   size: 1083744
   timestamp: 1780914191006
@@ -6108,7 +6124,7 @@ packages:
   license: MIT
   license_family: MIT
   purls:
-  - pkg:pypi/debugpy?source=compressed-mapping
+  - pkg:pypi/debugpy?source=hash-mapping
   run_exports: {}
   size: 2825625
   timestamp: 1780390153372
@@ -6227,7 +6243,7 @@ packages:
   license: MIT
   license_family: MIT
   purls:
-  - pkg:pypi/fonttools?source=compressed-mapping
+  - pkg:pypi/fonttools?source=hash-mapping
   run_exports: {}
   size: 2995315
   timestamp: 1778770432258
@@ -9027,7 +9043,7 @@ packages:
   license: BSD-3-Clause
   license_family: BSD
   purls:
-  - pkg:pypi/numpy?source=compressed-mapping
+  - pkg:pypi/numpy?source=hash-mapping
   run_exports:
     weak:
     - numpy >=1.23,<3
@@ -10213,7 +10229,7 @@ packages:
   - __glibc >=2.17
   license: MIT
   purls:
-  - pkg:pypi/ty?source=compressed-mapping
+  - pkg:pypi/ty?source=hash-mapping
   run_exports: {}
   size: 10218365
   timestamp: 1782936582388
@@ -10348,7 +10364,7 @@ packages:
   license: BSD-2-Clause
   license_family: BSD
   purls:
-  - pkg:pypi/wrapt?source=compressed-mapping
+  - pkg:pypi/wrapt?source=hash-mapping
   run_exports: {}
   size: 117401
   timestamp: 1782133645625
@@ -14650,7 +14666,7 @@ packages:
   - libxcb >=1.17.0,<2.0a0
   license: HPND
   purls:
-  - pkg:pypi/pillow?source=compressed-mapping
+  - pkg:pypi/pillow?source=hash-mapping
   run_exports: {}
   size: 1046004
   timestamp: 1782912107475
@@ -15366,7 +15382,7 @@ packages:
   license: BSD-3-Clause
   license_family: BSD
   purls:
-  - pkg:pypi/scipy?source=compressed-mapping
+  - pkg:pypi/scipy?source=hash-mapping
   run_exports: {}
   size: 17157159
   timestamp: 1781912672622
@@ -15535,7 +15551,7 @@ packages:
   - __glibc >=2.17
   license: MIT
   purls:
-  - pkg:pypi/ty?source=compressed-mapping
+  - pkg:pypi/ty?source=hash-mapping
   run_exports: {}
   size: 9824972
   timestamp: 1782936594539
@@ -16220,7 +16236,7 @@ packages:
   license: PSF-2.0
   license_family: PSF
   purls:
-  - pkg:pypi/aiohappyeyeballs?source=compressed-mapping
+  - pkg:pypi/aiohappyeyeballs?source=hash-mapping
   run_exports: {}
   size: 20727
   timestamp: 1779297825279
@@ -16504,7 +16520,7 @@ packages:
   license: MIT
   license_family: MIT
   purls:
-  - pkg:pypi/beautifulsoup4?source=compressed-mapping
+  - pkg:pypi/beautifulsoup4?source=hash-mapping
   run_exports: {}
   size: 92704
   timestamp: 1780853175566
@@ -17233,7 +17249,7 @@ packages:
   - python
   license: Apache-2.0
   purls:
-  - pkg:pypi/dbt-core?source=compressed-mapping
+  - pkg:pypi/dbt-core?source=hash-mapping
   run_exports: {}
   size: 819770
   timestamp: 1782927491619
@@ -17506,8 +17522,7 @@ packages:
   - uvicorn-standard
   license: MIT
   license_family: MIT
-  purls:
-  - pkg:pypi/fastapi?source=compressed-mapping
+  purls: []
   run_exports: {}
   size: 4840
   timestamp: 1782765988154
@@ -17552,7 +17567,7 @@ packages:
   license: MIT
   license_family: MIT
   purls:
-  - pkg:pypi/fastapi?source=compressed-mapping
+  - pkg:pypi/fastapi?source=hash-mapping
   run_exports: {}
   size: 103236
   timestamp: 1782765988154
@@ -18337,7 +18352,7 @@ packages:
   license: MIT
   license_family: MIT
   purls:
-  - pkg:pypi/humanize?source=compressed-mapping
+  - pkg:pypi/humanize?source=hash-mapping
   run_exports: {}
   size: 72882
   timestamp: 1782906300604
@@ -18815,7 +18830,7 @@ packages:
   license: BSD-3-Clause
   license_family: BSD
   purls:
-  - pkg:pypi/jupyter-client?source=compressed-mapping
+  - pkg:pypi/jupyter-client?source=hash-mapping
   run_exports: {}
   size: 117954
   timestamp: 1781019994076
@@ -18906,7 +18921,7 @@ packages:
   license: BSD-3-Clause
   license_family: BSD
   purls:
-  - pkg:pypi/jupyter-server?source=hash-mapping
+  - pkg:pypi/jupyter-server?source=compressed-mapping
   run_exports: {}
   size: 363068
   timestamp: 1781713810089
@@ -19175,7 +19190,7 @@ packages:
   license: BSD-3-Clause
   license_family: BSD
   purls:
-  - pkg:pypi/matplotlib-inline?source=compressed-mapping
+  - pkg:pypi/matplotlib-inline?source=hash-mapping
   run_exports: {}
   size: 15725
   timestamp: 1778264403247
@@ -19328,7 +19343,7 @@ packages:
   license: Apache-2.0
   license_family: APACHE
   purls:
-  - pkg:pypi/mlflow?source=compressed-mapping
+  - pkg:pypi/mlflow?source=hash-mapping
   run_exports: {}
   size: 4860250
   timestamp: 1780907416227
@@ -19797,7 +19812,7 @@ packages:
   license: MIT
   license_family: MIT
   purls:
-  - pkg:pypi/petl?source=compressed-mapping
+  - pkg:pypi/petl?source=hash-mapping
   run_exports: {}
   size: 318755
   timestamp: 1780380316948
@@ -20154,7 +20169,7 @@ packages:
   license: BSD-3-Clause
   license_family: BSD
   purls:
-  - pkg:pypi/pydata-sphinx-theme?source=compressed-mapping
+  - pkg:pypi/pydata-sphinx-theme?source=hash-mapping
   run_exports: {}
   size: 1312203
   timestamp: 1781528227244
@@ -20214,7 +20229,7 @@ packages:
   license: MIT
   license_family: MIT
   purls:
-  - pkg:pypi/pymdown-extensions?source=compressed-mapping
+  - pkg:pypi/pymdown-extensions?source=hash-mapping
   run_exports: {}
   size: 172181
   timestamp: 1778686891401
@@ -20787,7 +20802,7 @@ packages:
   license: BSD-3-Clause
   license_family: BSD
   purls:
-  - pkg:pypi/s3fs?source=compressed-mapping
+  - pkg:pypi/s3fs?source=hash-mapping
   run_exports: {}
   size: 36232
   timestamp: 1781621673975
@@ -20908,7 +20923,7 @@ packages:
   license: BSD-3-Clause
   license_family: BSD
   purls:
-  - pkg:pypi/smmap?source=compressed-mapping
+  - pkg:pypi/smmap?source=hash-mapping
   run_exports: {}
   size: 27262
   timestamp: 1781021238494
@@ -21047,6 +21062,36 @@ packages:
   run_exports: {}
   size: 15020
   timestamp: 1773443913498
+- conda: https://conda.anaconda.org/conda-forge/noarch/sphinx-llm-0.4.1-pyhcf101f3_0.conda
+  sha256: 1335afc012ae55a2205814c86c67f84a5fdaa8bfcff96e3de923c6910df22796
+  md5: 47b4654f4d7dabd83341ca3ef7915c9c
+  depends:
+  - python >=3.10
+  - sphinx-markdown-builder >=0.6.8
+  - sphinx >=5
+  - python
+  license: BSD-3-Clause
+  license_family: BSD
+  purls:
+  - pkg:pypi/sphinx-llm?source=hash-mapping
+  run_exports: {}
+  size: 34771
+  timestamp: 1775124355749
+- conda: https://conda.anaconda.org/conda-forge/noarch/sphinx-markdown-builder-0.6.10-pyhd8ed1ab_0.conda
+  sha256: 57079789716b56cc198c1f8518d9422c62380ebc7cb77b3170ece04b1d914f17
+  md5: e804fed0abd0c8df4ff40e3084d724a0
+  depends:
+  - docutils
+  - python >=3.10
+  - sphinx >=5.1.0
+  - tabulate
+  license: MIT
+  license_family: MIT
+  purls:
+  - pkg:pypi/sphinx-markdown-builder?source=hash-mapping
+  run_exports: {}
+  size: 22212
+  timestamp: 1773231549728
 - conda: https://conda.anaconda.org/conda-forge/noarch/sphinx-reredirects-1.1.0-pyhd8ed1ab_0.conda
   sha256: 932d79a9a5c94554ec2e94458d28cac656cb52db914f52406cd782355238625a
   md5: 8392493ce6fbb8ab72a101af8e8a5d03
@@ -21175,7 +21220,7 @@ packages:
   license: BSD-2-Clause
   license_family: BSD
   purls:
-  - pkg:pypi/sphinxcontrib-serializinghtml?source=compressed-mapping
+  - pkg:pypi/sphinxcontrib-serializinghtml?source=hash-mapping
   run_exports: {}
   size: 30640
   timestamp: 1781260357443
@@ -21554,7 +21599,7 @@ packages:
   - python
   license: Apache-2.0 AND MIT
   purls:
-  - pkg:pypi/types-pyyaml?source=compressed-mapping
+  - pkg:pypi/types-pyyaml?source=hash-mapping
   run_exports: {}
   size: 26875
   timestamp: 1779101988372
@@ -22574,7 +22619,7 @@ packages:
   license: MIT
   license_family: MIT
   purls:
-  - pkg:pypi/debugpy?source=compressed-mapping
+  - pkg:pypi/debugpy?source=hash-mapping
   run_exports: {}
   size: 2768469
   timestamp: 1780390318296
@@ -25389,7 +25434,7 @@ packages:
   license: MIT
   license_family: MIT
   purls:
-  - pkg:pypi/pyobjc-framework-cocoa?source=compressed-mapping
+  - pkg:pypi/pyobjc-framework-cocoa?source=hash-mapping
   run_exports: {}
   size: 382873
   timestamp: 1782265579173
@@ -25549,7 +25594,7 @@ packages:
   license: BSD-3-Clause
   license_family: BSD
   purls:
-  - pkg:pypi/pyzmq?source=compressed-mapping
+  - pkg:pypi/pyzmq?source=hash-mapping
   run_exports: {}
   size: 192531
   timestamp: 1779484028794
@@ -25845,7 +25890,7 @@ packages:
   license: Apache-2.0
   license_family: Apache
   purls:
-  - pkg:pypi/tornado?source=compressed-mapping
+  - pkg:pypi/tornado?source=hash-mapping
   run_exports: {}
   size: 886027
   timestamp: 1781007192525
@@ -29097,7 +29142,7 @@ packages:
   license: BSD-3-Clause
   license_family: BSD
   purls:
-  - pkg:pypi/numpy?source=compressed-mapping
+  - pkg:pypi/numpy?source=hash-mapping
   run_exports:
     weak:
     - numpy >=1.23,<3
@@ -29811,7 +29856,7 @@ packages:
   license: BSD-3-Clause
   license_family: BSD
   purls:
-  - pkg:pypi/pyzmq?source=compressed-mapping
+  - pkg:pypi/pyzmq?source=hash-mapping
   run_exports: {}
   size: 191432
   timestamp: 1779484184540
@@ -29935,7 +29980,7 @@ packages:
   license: BSD-3-Clause
   license_family: BSD
   purls:
-  - pkg:pypi/scikit-learn?source=compressed-mapping
+  - pkg:pypi/scikit-learn?source=hash-mapping
   run_exports: {}
   size: 9578596
   timestamp: 1780401265477
@@ -30111,7 +30156,7 @@ packages:
   license: Apache-2.0
   license_family: Apache
   purls:
-  - pkg:pypi/tornado?source=compressed-mapping
+  - pkg:pypi/tornado?source=hash-mapping
   run_exports: {}
   size: 889689
   timestamp: 1781007967544
@@ -30128,7 +30173,7 @@ packages:
   - __osx >=11.0
   license: MIT
   purls:
-  - pkg:pypi/ty?source=compressed-mapping
+  - pkg:pypi/ty?source=hash-mapping
   run_exports: {}
   size: 9278358
   timestamp: 1782936587025
