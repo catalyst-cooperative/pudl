@@ -199,20 +199,34 @@ BA_FIXES = BaFixMap.model_validate(
         ],
     }
 )
-"""Spot-fixes for known EIA-861 balancing authority ID errors, keyed by target year.
+"""Explicit year-to-year repair instructions for EIA-861 balancing authority data.
 
-Each key is a year whose reported BA-utility associations are known to be
-incorrect.  Each value is a list of :class:`BaFix` entries describing which BA
-to fix and which year's data to use as the authoritative template.
+Each key is a target year that requires a manual repair for one or more
+balancing authorities. Each value is a list of :class:`BaFix` entries
+describing which BA to repair and which single ``source_year`` should be
+treated as the authoritative template for that specific target year.
 
-The fixes are applied by three functions:
+The fixes are consumed by three functions:
 :func:`filled_core_eia861__yearly_balancing_authority`,
 :func:`filled_core_eia861__assn_balancing_authority`, and
-:func:`filled_service_territory_eia861`.  Each function:
+:func:`filled_service_territory_eia861`. They all use the same explicit
+``source_year -> target_year`` mappings, but apply them differently:
 
-* Silently skips a target year that is not present in the available EIA-861 data.
-* Logs a warning and skips a fix when the target year IS present but the
-  ``source_year`` is NOT, since the repair cannot be applied correctly.
+* ``filled_core_eia861__yearly_balancing_authority`` backfills missing BA
+    id rows for a target year without overwriting any existing target rows.
+* ``filled_core_eia861__assn_balancing_authority`` replaces the target-year
+    BA-utility association rows with rows copied from ``source_year``.
+* ``filled_service_territory_eia861`` limits itself to the utility-state-year
+    combinations implicated by those explicit fixes and copies county coverage
+    from the nearest available relevant year when needed.
+
+This is not a general forward-fill or backward-fill across all years. Data from
+one year is only applied to another year when that exact ``source_year ->
+target_year`` pair is listed here.
+
+All three functions silently skip a target year that is not present in the
+available EIA-861 data, and log a warning when the target year is present but
+the ``source_year`` required for the repair is not.
 
 To add a new fix: identify the target year(s), the affected BA's
 ``balancing_authority_id_eia``, and a ``source_year`` whose data is correct.
@@ -366,12 +380,19 @@ def filled_core_eia861__yearly_balancing_authority(
 ) -> pd.DataFrame:
     """Modified core_eia861__yearly_balancing_authority table.
 
-    For each entry in :data:`BA_FIXES`, adds a row for the target year if
-    one is missing, copying all attributes from the source year.  Silently
-    skips any target year absent from the data.  Logs a warning and skips if
-    the target year is present but the source year is not.  Also removes
-    balancing authorities that are manually categorised as utilities via
-    :data:`UTILITIES`.
+    Applies the explicit year-to-year repairs described in :data:`BA_FIXES` to the
+    BA identity table.
+
+    For each ``source_year -> target_year`` mapping, adds a row for the target
+    year if one is missing, copying all attributes from the source year.
+    Existing target-year rows are left unchanged. This is therefore an
+    explicit year-to-year copy for missing BA identity rows, not a general
+    forward-fill or backward-fill across a range of years.
+
+    Silently skips any target year absent from the data. Logs a warning and
+    skips if the target year is present but the source year, or the specific
+    BA row within that source year, is not. Also removes balancing authorities
+    that are manually categorised as utilities via :data:`UTILITIES`.
     """
     df = core_eia861__yearly_balancing_authority
     index = ["balancing_authority_id_eia", "report_date"]
@@ -414,21 +435,30 @@ def filled_core_eia861__yearly_balancing_authority(
     return apply_pudl_dtypes(df[~mask], group="eia")
 
 
-def filled_core_eia861__assn_balancing_authority(
+def filled_core_eia861__assn_balancing_authority(  # noqa: C901
     core_eia861__assn_balancing_authority: pd.DataFrame,
 ) -> pd.DataFrame:
     """Modified core_eia861__assn_balancing_authority table.
 
-    For each entry in :data:`BA_FIXES`, replaces all existing rows for
-    the (BA, target_year) pair with rows copied from the source year (optionally
-    filtered by :attr:`BaFix.exclude_states`).  Silently skips target years
-    absent from the data; logs a warning when the target year is present but
-    the source year is not.  Also removes balancing authorities listed in
-    :data:`UTILITIES` and, when ``reassign=True``, re-parents their child
-    utilities to the grandparent BAs.
+    Applies the explicit year-to-year repairs described in :data:`BA_FIXES` to the
+    BA-utility association table.
+
+    For each ``source_year -> target_year`` mapping, replaces all existing rows
+    for the ``(BA, target_year)`` pair with rows copied from the source year,
+    optionally filtered by :attr:`BaFix.exclude_states`. This is an explicit
+    year-to-year rewrite of known-bad associations, not a general forward-fill
+    or backward-fill across a range of years.
+
+    Silently skips target years absent from the data; logs a warning when the
+    target year is present but the source year is not, or when that BA has no
+    source-year rows to copy. In those cases the target-year rows are left
+    unchanged because the repair cannot be applied correctly. Also removes
+    balancing authorities listed in :data:`UTILITIES` and, when
+    ``reassign=True``, re-parents their child utilities to the grandparent BAs.
     """
     df = core_eia861__assn_balancing_authority
-    eia861_years = set(df["report_date"].dt.year)
+    if (eia861_years := set(df["report_date"].dt.year)) == set():
+        raise ValueError("No EIA-861 years found!")
 
     replaced = np.zeros(df.shape[0], dtype=bool)
     new_tables: list[pd.DataFrame] = []
@@ -453,6 +483,13 @@ def filled_core_eia861__assn_balancing_authority(
                 df["balancing_authority_id_eia"].eq(fix.id)
                 & df["report_date"].eq(source_date)
             ]
+            if ref.empty:
+                logger.warning(
+                    f"Skipping BA association repair for id={fix.id} "
+                    f"target_year={target_year}: source rows for "
+                    f"source_year={source_year} not found in association table."
+                )
+                continue
             ref = _apply_exclude_states(ref, fix, target_year)
             # Mark existing target-year rows for removal
             target_mask = df["balancing_authority_id_eia"].eq(fix.id) & df[
@@ -465,7 +502,11 @@ def filled_core_eia861__assn_balancing_authority(
         new_rows = apply_pudl_dtypes(pd.concat(new_tables), group="eia")
         df = pd.concat([df[~replaced], new_rows], axis="index")
     else:
-        df = df[~replaced]
+        if replaced.any():
+            raise AssertionError(
+                "BA association repair marked target rows for replacement without "
+                "producing any replacement rows."
+            )
 
     # Remove BAs that are really utilities; optionally re-parent their children
     removal_mask = np.zeros(df.shape[0], dtype=bool)
@@ -509,17 +550,28 @@ def filled_core_eia861__assn_balancing_authority(
     )
 
 
-def filled_service_territory_eia861(
+def filled_core_eia861__yearly_service_territory(
     filled_assn: pd.DataFrame,
     core_eia861__yearly_service_territory: pd.DataFrame,
 ) -> pd.DataFrame:
     """Modified core_eia861__yearly_service_territory table.
 
-    Selects utility-state-year combinations that are relevant to the BA
-    repairs in :data:`BA_FIXES` (covering both source and target years),
-    merges them with the service territory to obtain county FIPS data, drops
-    utility-state pairs that have no county data in *any* year, and fills
-    records missing counties with data from the nearest available year.
+    Applies county-level service territory repairs implied by :data:`BA_FIXES`.
+
+    Selects utility-state-year combinations that are relevant to the explicit
+    ``source_year -> target_year`` BA repairs in :data:`BA_FIXES`, covering
+    both the listed target years and the source years used to repair them. It
+    then merges those rows with the service territory to obtain county FIPS
+    data, drops utility-state pairs that have no county data in *any*
+    explicitly implicated year, and copies county rows onto missing years from
+    the closest other explicitly implicated year for that same utility-state
+    pair.
+
+    This is not a traditional forward-fill or backward-fill across all years in
+    the dataset. County rows are only copied between years when those years are
+    explicitly implicated by the ``source_year -> target_year`` mappings in
+    :data:`BA_FIXES`, and the copy is only used to support those explicit
+    repairs.
 
     Args:
         filled_assn: The already-repaired BA-utility association table, as
@@ -529,8 +581,8 @@ def filled_service_territory_eia861(
     index = ["utility_id_eia", "state", "report_date"]
     eia861_years = set(core_eia861__yearly_service_territory["report_date"].dt.year)
 
-    # Collect (ba_id, date) pairs relevant to any BA_FIXES fix so we can
-    # select the matching rows from the filled association table.
+    # Collect the exact (ba_id, date) pairs implicated by BA_FIXES so we only
+    # look at source and target years that participate in an explicit repair.
     relevant: set[tuple] = set()
     for target_year, fixes in BA_FIXES.items():
         for fix in fixes:
@@ -546,14 +598,16 @@ def filled_service_territory_eia861(
             & filled_assn["report_date"].eq(date)
         ).to_numpy(bool)
 
-    # Unique utility-state-year triples relevant to any fix
+    # Unique utility-state-year triples implicated by the explicit repairs.
     assn = filled_assn[selected][index].drop_duplicates()
     # Left-join to service territory: missing counties become NaN
     mdf = assn.merge(core_eia861__yearly_service_territory, how="left")
-    # Drop utility-state pairs that never have any county data
+    # Drop utility-state pairs that never have any county data in any
+    # explicitly implicated year.
     grouped = mdf.groupby(["utility_id_eia", "state"])["county_id_fips"]
     mdf = mdf[grouped.transform("count").gt(0)]
-    # Fill utility-state-year triples missing counties from the nearest year
+    # Copy county rows onto missing years from the closest other implicated
+    # year for the same utility-state pair.
     grouped = mdf.groupby(index)["county_id_fips"]
     missing = mdf[grouped.transform("count").eq(0)].to_dict("records")
     has_county = mdf["county_id_fips"].notna()
@@ -571,6 +625,11 @@ def filled_service_territory_eia861(
     return pd.concat([core_eia861__yearly_service_territory] + fill_tables).pipe(
         apply_pudl_dtypes, group="eia"
     )
+
+
+################################################################################
+# Asset definitions
+################################################################################
 
 
 @asset(
@@ -752,7 +811,7 @@ def out_ferc714__respondents_with_fips(
     assn = filled_core_eia861__assn_balancing_authority(
         core_eia861__assn_balancing_authority
     )
-    st_eia861 = filled_service_territory_eia861(
+    st_eia861 = filled_core_eia861__yearly_service_territory(
         assn, core_eia861__yearly_service_territory
     )
 

@@ -1,34 +1,38 @@
 """Unit tests for pudl.output.ferc714 EIA-861 data repair functions.
 
-Tests focus on the three fill functions that apply manual spot-fixes to
-EIA-861 balancing authority and service territory tables:
+Tests focus on the three fill functions that apply manual spot-fixes to EIA-861
+balancing authority and service territory tables:
+
   - filled_core_eia861__yearly_balancing_authority
   - filled_core_eia861__assn_balancing_authority
   - filled_service_territory_eia861
 
-These tests use real BA IDs from the BA_FIXES constant so that they
-exercise the actual fix specifications.  All three functions are pure
-DataFrame → DataFrame transforms with no external dependencies.
+These tests use real BA IDs from the BA_FIXES constant so that they exercise the actual
+fix specifications.  All three functions are pure DataFrame → DataFrame transforms with
+no external dependencies.
 
 Selected BA IDs used in tests:
+
   - 56669 (MISO): source_year=2011, target_years=[2009, 2010]
   - 59504 (SWPP): source_year=2014, target_years=[2006..2013];
       exclude_states=["NE"] for 2006-2009
   - 13407 (Nevada Power): source_year=2013, target_years=[2014..2019]
 
 Selected UTILITIES IDs used in tests:
-  - 4254  (Consumers Energy): no reassign — just removed
+
+  - 4254  (Consumers Energy): reassign=False — just removed
   - 14328 (Pacific G&E):      reassign=True — children move to parent BA
 """
 
 import pandas as pd
 import pytest
 
+from pudl.metadata.classes import Resource
 from pudl.output.ferc714 import (
     BaFixMap,
     filled_core_eia861__assn_balancing_authority,
     filled_core_eia861__yearly_balancing_authority,
-    filled_service_territory_eia861,
+    filled_core_eia861__yearly_service_territory,
 )
 
 # ---------------------------------------------------------------------------
@@ -60,7 +64,7 @@ def _ba_yearly(*rows: dict) -> pd.DataFrame:
 def _ba_assn(*rows: dict) -> pd.DataFrame:
     """Build a minimal core_eia861__assn_balancing_authority DataFrame.
 
-    Each dict may have keys: ba_id, util_id, state, year.
+    Each dict must have keys: ba_id, util_id, state, year.
     """
     return pd.DataFrame(
         {
@@ -92,6 +96,21 @@ def _service_territory(*rows: dict) -> pd.DataFrame:
     )
 
 
+def _assert_resource_equal(
+    actual: pd.DataFrame, expected: pd.DataFrame, resource_name: str
+) -> None:
+    """Compare DataFrames using the resource primary key as the index."""
+    resource = Resource.from_id(resource_name)
+    primary_key = resource.schema.primary_key
+    actual = resource.format_df(actual)
+    expected = resource.format_df(expected)
+    pd.testing.assert_frame_equal(
+        actual.set_index(primary_key),
+        expected.set_index(primary_key),
+        check_like=True,
+    )
+
+
 # ---------------------------------------------------------------------------
 # Tests for filled_core_eia861__yearly_balancing_authority
 # ---------------------------------------------------------------------------
@@ -109,18 +128,14 @@ class TestFilledYearlyBalancingAuthority:
             {"id": 56669, "year": 2011, "code": "MISO", "name": "Midwest ISO"},
             {"id": 99999, "year": 2009, "code": "XX", "name": "Dummy"},
         )
-        result = filled_core_eia861__yearly_balancing_authority(df)
-        result_keys = set(
-            zip(
-                result["balancing_authority_id_eia"],
-                result["report_date"].dt.year,
-                strict=False,
-            )
+        actual = filled_core_eia861__yearly_balancing_authority(df)
+        expected = _ba_yearly(
+            {"id": 56669, "year": 2011, "code": "MISO", "name": "Midwest ISO"},
+            {"id": 99999, "year": 2009, "code": "XX", "name": "Dummy"},
+            {"id": 56669, "year": 2009, "code": "MISO", "name": "Midwest ISO"},
         )
-        assert (56669, 2009) in result_keys, "MISO 2009 row should be added"
-        # 2010 not in eia861_years, so should not be added
-        assert (56669, 2010) not in result_keys, (
-            "MISO 2010 should not be added (2010 not in data)"
+        _assert_resource_equal(
+            actual, expected, "core_eia861__yearly_balancing_authority"
         )
 
     def test_added_row_copies_source_attributes(self):
@@ -129,14 +144,17 @@ class TestFilledYearlyBalancingAuthority:
             {"id": 56669, "year": 2011, "code": "MISO", "name": "Midwest ISO"},
             {"id": 99999, "year": 2009},
         )
-        result = filled_core_eia861__yearly_balancing_authority(df)
-        added = result[
-            (result["balancing_authority_id_eia"] == 56669)
-            & (result["report_date"].dt.year == 2009)
+        actual = filled_core_eia861__yearly_balancing_authority(df)
+        actual = actual[
+            actual["balancing_authority_id_eia"].eq(56669)
+            & actual["report_date"].eq(pd.Timestamp("2009-01-01"))
         ]
-        assert len(added) == 1
-        assert added.iloc[0]["balancing_authority_code_eia"] == "MISO"
-        assert added.iloc[0]["balancing_authority_name_eia"] == "Midwest ISO"
+        expected = _ba_yearly(
+            {"id": 56669, "year": 2009, "code": "MISO", "name": "Midwest ISO"},
+        )
+        _assert_resource_equal(
+            actual, expected, "core_eia861__yearly_balancing_authority"
+        )
 
     def test_does_not_overwrite_existing_target_year_row(self):
         """If the target BA-year already exists, it is left unchanged."""
@@ -155,24 +173,33 @@ class TestFilledYearlyBalancingAuthority:
             },
             {"id": 99999, "year": 2009},
         )
-        result = filled_core_eia861__yearly_balancing_authority(df)
-        existing = result[
-            (result["balancing_authority_id_eia"] == 56669)
-            & (result["report_date"].dt.year == 2009)
+        actual = filled_core_eia861__yearly_balancing_authority(df)
+        actual = actual[
+            actual["balancing_authority_id_eia"].eq(56669)
+            & actual["report_date"].eq(pd.Timestamp("2009-01-01"))
         ]
-        assert len(existing) == 1, "Should not duplicate an existing target row"
-        assert existing.iloc[0]["balancing_authority_code_eia"] == "MISO_2009"
+        expected = _ba_yearly(
+            {
+                "id": 56669,
+                "year": 2009,
+                "code": "MISO_2009",
+                "name": "Midwest ISO 2009",
+            }
+        )
+        _assert_resource_equal(
+            actual, expected, "core_eia861__yearly_balancing_authority"
+        )
 
     def test_skips_fix_when_target_year_not_in_data(self):
         """No row is added if the target year is not present in eia861_years at all."""
         # Input only has 2011 — 2009 and 2010 are not in eia861_years
-        df = _ba_yearly(
+        expected = _ba_yearly(
             {"id": 56669, "year": 2011, "code": "MISO", "name": "Midwest ISO"}
         )
-        result = filled_core_eia861__yearly_balancing_authority(df)
-        result_years = set(result["report_date"].dt.year)
-        assert 2009 not in result_years
-        assert 2010 not in result_years
+        actual = filled_core_eia861__yearly_balancing_authority(expected)
+        _assert_resource_equal(
+            actual, expected, "core_eia861__yearly_balancing_authority"
+        )
 
     def test_removes_utilities_ba_rows(self):
         """BAs listed in UTILITIES are removed from the result table."""
@@ -181,38 +208,24 @@ class TestFilledYearlyBalancingAuthority:
             {"id": 4254, "year": 2020, "code": "CE", "name": "Consumers Energy"},
             {"id": 56669, "year": 2020, "code": "MISO", "name": "Midwest ISO"},
         )
-        result = filled_core_eia861__yearly_balancing_authority(df)
-        assert 4254 not in result["balancing_authority_id_eia"].to_numpy()
-        assert 56669 in result["balancing_authority_id_eia"].to_numpy()
+        actual = filled_core_eia861__yearly_balancing_authority(df)
+        expected = _ba_yearly(
+            {"id": 56669, "year": 2020, "code": "MISO", "name": "Midwest ISO"},
+        )
+        _assert_resource_equal(
+            actual, expected, "core_eia861__yearly_balancing_authority"
+        )
 
     def test_noop_when_no_relevant_years_in_data(self):
         """Fast-ETL case: no fixes applied when years don't overlap BA_FIXES."""
         # Fast ETL uses years like 2020, 2024 — none of the BA_FIXES fixes apply
-        df = _ba_yearly(
+        expected = _ba_yearly(
             {"id": 56669, "year": 2020, "code": "MISO", "name": "Midwest ISO"},
             {"id": 99999, "year": 2024, "code": "XX", "name": "Dummy"},
         )
-        result = filled_core_eia861__yearly_balancing_authority(df)
-        # Row count may differ due to UTILITIES removal, but no new rows are added
-        original_ids = set(
-            zip(
-                df["balancing_authority_id_eia"],
-                df["report_date"].dt.year,
-                strict=False,
-            )
-        )
-        result_ids = set(
-            zip(
-                result["balancing_authority_id_eia"],
-                result["report_date"].dt.year,
-                strict=False,
-            )
-        )
-        # Any rows present in result but not original must be from UTILITIES reassignment,
-        # not from BA_FIXES fixes (since no BA_FIXES fixes apply here)
-        added = result_ids - original_ids
-        assert all(year not in range(2006, 2020) for _, year in added), (
-            "No BA_FIXES fix rows should be added for fast ETL years"
+        actual = filled_core_eia861__yearly_balancing_authority(expected)
+        _assert_resource_equal(
+            actual, expected, "core_eia861__yearly_balancing_authority"
         )
 
 
@@ -234,41 +247,60 @@ class TestFilledAssnBalancingAuthority:
             {"ba_id": 56669, "util_id": 200, "state": "MN", "year": 2011},
             # Existing wrong rows for 2009 (to be replaced)
             {"ba_id": 56669, "util_id": 999, "state": "WI", "year": 2009},
-            # Dummy row to put 2009 in eia861_years
-            {"ba_id": 99999, "util_id": 1, "state": "TX", "year": 2009},
         )
-        result = filled_core_eia861__assn_balancing_authority(df)
-        miso_2009 = result[
-            (result["balancing_authority_id_eia"] == 56669)
-            & (result["report_date"].dt.year == 2009)
-        ]
-        # Old wrong row should be gone
-        assert 999 not in miso_2009["utility_id_eia"].to_numpy()
-        # Source year rows should be present with target date
-        assert set(miso_2009["utility_id_eia"].to_numpy()) == {100, 200}
+        actual = filled_core_eia861__assn_balancing_authority(df)
+        actual = actual[actual["report_date"].eq(pd.Timestamp("2009-01-01"))]
+        expected = _ba_assn(
+            {"ba_id": 56669, "util_id": 100, "state": "IL", "year": 2009},
+            {"ba_id": 56669, "util_id": 200, "state": "MN", "year": 2009},
+        )
+        _assert_resource_equal(
+            actual, expected, "core_eia861__assn_balancing_authority"
+        )
 
     def test_adds_target_year_assn_rows_when_absent(self):
         """Source year assn rows are copied to a target year that has none."""
         df = _ba_assn(
             {"ba_id": 56669, "util_id": 100, "state": "IL", "year": 2011},
+            # Dummy row to put 2009 in eia861_years
             {"ba_id": 99999, "util_id": 1, "state": "TX", "year": 2009},
         )
-        result = filled_core_eia861__assn_balancing_authority(df)
-        miso_2009 = result[
-            (result["balancing_authority_id_eia"] == 56669)
-            & (result["report_date"].dt.year == 2009)
+        actual = filled_core_eia861__assn_balancing_authority(df)
+        actual = actual[
+            actual["balancing_authority_id_eia"].eq(56669)
+            & actual["report_date"].eq(pd.Timestamp("2009-01-01"))
         ]
-        assert len(miso_2009) == 1
-        assert miso_2009.iloc[0]["utility_id_eia"] == 100
-        assert miso_2009.iloc[0]["state"] == "IL"
+        expected = _ba_assn(
+            {"ba_id": 56669, "util_id": 100, "state": "IL", "year": 2009},
+        )
+        _assert_resource_equal(
+            actual, expected, "core_eia861__assn_balancing_authority"
+        )
+
+    def test_skips_fix_when_source_rows_for_ba_are_missing(self):
+        """If a source year exists globally but not for the repaired BA, skip it.
+
+        The existing target-year rows should remain unchanged because the repair
+        cannot be applied without source rows for that BA.
+        """
+        expected = _ba_assn(
+            {"ba_id": 56669, "util_id": 999, "state": "WI", "year": 2009},
+            {"ba_id": 99999, "util_id": 1, "state": "TX", "year": 2011},
+        )
+        actual = filled_core_eia861__assn_balancing_authority(expected)
+        _assert_resource_equal(
+            actual, expected, "core_eia861__assn_balancing_authority"
+        )
 
     def test_skips_fix_when_target_year_not_in_data(self):
         """No rows are added when the target year is absent from eia861_years."""
-        df = _ba_assn({"ba_id": 56669, "util_id": 100, "state": "IL", "year": 2011})
-        result = filled_core_eia861__assn_balancing_authority(df)
-        # 2009 is not in eia861_years, so no MISO 2009 rows
-        years_present = set(result["report_date"].dt.year)
-        assert 2009 not in years_present
+        expected = _ba_assn(
+            {"ba_id": 56669, "util_id": 100, "state": "IL", "year": 2011}
+        )
+        actual = filled_core_eia861__assn_balancing_authority(expected)
+        _assert_resource_equal(
+            actual, expected, "core_eia861__assn_balancing_authority"
+        )
 
     def test_exclude_states_filters_associations(self):
         """exclude_states removes utilities in those states from copied rows.
@@ -283,16 +315,16 @@ class TestFilledAssnBalancingAuthority:
             # Dummy row to put 2009 in eia861_years
             {"ba_id": 99999, "util_id": 1, "state": "TX", "year": 2009},
         )
-        result = filled_core_eia861__assn_balancing_authority(df)
-        swpp_2009 = result[
-            (result["balancing_authority_id_eia"] == 59504)
-            & (result["report_date"].dt.year == 2009)
+        actual = filled_core_eia861__assn_balancing_authority(df)
+        actual = actual[
+            actual["balancing_authority_id_eia"].eq(59504)
+            & actual["report_date"].eq(pd.Timestamp("2009-01-01"))
         ]
-        assert 100 in swpp_2009["utility_id_eia"].to_numpy(), (
-            "KS utility should be included"
+        expected = _ba_assn(
+            {"ba_id": 59504, "util_id": 100, "state": "KS", "year": 2009},
         )
-        assert 200 not in swpp_2009["utility_id_eia"].to_numpy(), (
-            "NE utility should be excluded"
+        _assert_resource_equal(
+            actual, expected, "core_eia861__assn_balancing_authority"
         )
 
     def test_removes_utility_ba_without_reassign(self):
@@ -307,12 +339,13 @@ class TestFilledAssnBalancingAuthority:
             # Some other BA where 4254 is a utility (should be unchanged)
             {"ba_id": 56669, "util_id": 4254, "state": "MI", "year": 2020},
         )
-        result = filled_core_eia861__assn_balancing_authority(df)
-        assert 4254 not in result["balancing_authority_id_eia"].to_numpy()
-        # 4254 as utility should still be present (no reassign)
-        child_rows = result[result["utility_id_eia"] == 4254]
-        assert len(child_rows) == 1
-        assert child_rows.iloc[0]["balancing_authority_id_eia"] == 56669
+        actual = filled_core_eia861__assn_balancing_authority(df)
+        expected = _ba_assn(
+            {"ba_id": 56669, "util_id": 4254, "state": "MI", "year": 2020},
+        )
+        _assert_resource_equal(
+            actual, expected, "core_eia861__assn_balancing_authority"
+        )
 
     def test_reassigns_utility_ba_children_to_parent(self):
         """BAs in UTILITIES with reassign=True have children moved to parent BAs.
@@ -329,26 +362,25 @@ class TestFilledAssnBalancingAuthority:
             # 14328 also appears as its own utility (should be ignored in reassign)
             {"ba_id": 14328, "util_id": 14328, "state": "CA", "year": 2020},
         )
-        result = filled_core_eia861__assn_balancing_authority(df)
-        # 14328 should no longer appear as a BA
-        assert 14328 not in result["balancing_authority_id_eia"].to_numpy()
-        # 56669 should now be under parent BA 12345
-        reassigned = result[
-            (result["balancing_authority_id_eia"] == 12345)
-            & (result["utility_id_eia"] == 56669)
-        ]
-        assert len(reassigned) == 1, "Child utility should be reassigned to parent BA"
+        actual = filled_core_eia861__assn_balancing_authority(df)
+        expected = _ba_assn(
+            {"ba_id": 12345, "util_id": 14328, "state": "CA", "year": 2020},
+            {"ba_id": 12345, "util_id": 56669, "state": "CA", "year": 2020},
+        )
+        _assert_resource_equal(
+            actual, expected, "core_eia861__assn_balancing_authority"
+        )
 
     def test_noop_when_no_relevant_years_in_data(self):
         """Fast-ETL case: no BA_FIXES fixes applied for years 2020/2024."""
-        df = _ba_assn(
+        expected = _ba_assn(
             {"ba_id": 56669, "util_id": 100, "state": "IL", "year": 2020},
             {"ba_id": 56669, "util_id": 100, "state": "IL", "year": 2024},
         )
-        result = filled_core_eia861__assn_balancing_authority(df)
-        # MISO rows should pass through unchanged (no UTILITIES entries match 56669)
-        miso_rows = result[result["balancing_authority_id_eia"] == 56669]
-        assert len(miso_rows) == 2
+        actual = filled_core_eia861__assn_balancing_authority(expected)
+        _assert_resource_equal(
+            actual, expected, "core_eia861__assn_balancing_authority"
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -374,45 +406,33 @@ class TestFilledServiceTerritoryEia861:
             {"util_id": 100, "state": "CA", "year": 2009, "county_id_fips": pd.NA},
             {"util_id": 100, "state": "CA", "year": 2011, "county_id_fips": "06001"},
         )
-        result = filled_service_territory_eia861(filled_assn, st)
-        # Should have filled 2009 from 2011
-        filled_2009 = result[
-            (result["utility_id_eia"] == 100)
-            & (result["state"] == "CA")
-            & (result["report_date"].dt.year == 2009)
-            & result["county_id_fips"].notna()
-        ]
-        assert len(filled_2009) == 1
-        assert filled_2009.iloc[0]["county_id_fips"] == "06001"
+        actual = filled_core_eia861__yearly_service_territory(filled_assn, st)
+        expected = _service_territory(
+            {"util_id": 100, "state": "CA", "year": 2009, "county_id_fips": pd.NA},
+            {"util_id": 100, "state": "CA", "year": 2011, "county_id_fips": "06001"},
+            {"util_id": 100, "state": "CA", "year": 2009, "county_id_fips": "06001"},
+        )
+        _assert_resource_equal(
+            actual, expected, "core_eia861__yearly_service_territory"
+        )
 
     def test_no_fill_for_utility_state_with_no_county_data_ever(self):
         """A utility-state pair with no county data in any year is not filled.
 
-        The original NA rows pass through unchanged, but no additional fill
-        rows are appended (because there's no year to copy from).
+        The original NA rows pass through unchanged, with no additional fill
+        rows appended because there is no year to copy from.
         """
         filled_assn = _ba_assn(
-            {"ba_id": 56669, "util_id": 100, "state": "CA", "year": 2009},
-            {"ba_id": 56669, "util_id": 100, "state": "CA", "year": 2011},
-            # Utility 200 in NV: never has county data
             {"ba_id": 56669, "util_id": 200, "state": "NV", "year": 2009},
             {"ba_id": 56669, "util_id": 200, "state": "NV", "year": 2011},
         )
-        st = _service_territory(
-            {"util_id": 100, "state": "CA", "year": 2009, "county_id_fips": pd.NA},
-            {"util_id": 100, "state": "CA", "year": 2011, "county_id_fips": "06001"},
+        expected = _service_territory(
             {"util_id": 200, "state": "NV", "year": 2009, "county_id_fips": pd.NA},
             {"util_id": 200, "state": "NV", "year": 2011, "county_id_fips": pd.NA},
         )
-        result = filled_service_territory_eia861(filled_assn, st)
-        nv_rows = result[(result["utility_id_eia"] == 200) & (result["state"] == "NV")]
-        # Original NA rows pass through but no fill rows are added — county data stays NA
-        assert nv_rows["county_id_fips"].isna().all(), (
-            "NV rows should have no county data"
-        )
-        # No extra rows appended beyond the original two
-        assert len(nv_rows) == 2, (
-            "No fill rows should have been added for utility 200 in NV"
+        actual = filled_core_eia861__yearly_service_territory(filled_assn, expected)
+        _assert_resource_equal(
+            actual, expected, "core_eia861__yearly_service_territory"
         )
 
     def test_original_service_territory_preserved(self):
@@ -421,15 +441,14 @@ class TestFilledServiceTerritoryEia861:
             {"ba_id": 56669, "util_id": 100, "state": "CA", "year": 2011},
         )
         # Include a utility-state row NOT associated with any BA_FIXES fix
-        st = _service_territory(
+        expected = _service_territory(
             {"util_id": 100, "state": "CA", "year": 2011, "county_id_fips": "06001"},
             {"util_id": 999, "state": "TX", "year": 2011, "county_id_fips": "48001"},
         )
-        result = filled_service_territory_eia861(filled_assn, st)
-        # The unrelated row should still be in the output
-        tx_row = result[(result["utility_id_eia"] == 999) & (result["state"] == "TX")]
-        assert len(tx_row) >= 1
-        assert tx_row.iloc[0]["county_id_fips"] == "48001"
+        actual = filled_core_eia861__yearly_service_territory(filled_assn, expected)
+        _assert_resource_equal(
+            actual, expected, "core_eia861__yearly_service_territory"
+        )
 
     def test_noop_for_fast_etl_years(self):
         """Fast-ETL case: no additional rows added when no BA_FIXES fixes apply."""
@@ -438,13 +457,14 @@ class TestFilledServiceTerritoryEia861:
             {"ba_id": 56669, "util_id": 100, "state": "IL", "year": 2020},
             {"ba_id": 56669, "util_id": 100, "state": "IL", "year": 2024},
         )
-        st = _service_territory(
+        expected = _service_territory(
             {"util_id": 100, "state": "IL", "year": 2020, "county_id_fips": "17031"},
             {"util_id": 100, "state": "IL", "year": 2024, "county_id_fips": "17031"},
         )
-        result = filled_service_territory_eia861(filled_assn, st)
-        # No extra rows should be added
-        assert len(result) == len(st)
+        actual = filled_core_eia861__yearly_service_territory(filled_assn, expected)
+        _assert_resource_equal(
+            actual, expected, "core_eia861__yearly_service_territory"
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -454,7 +474,7 @@ class TestFilledServiceTerritoryEia861:
 
 class TestBaFixMap:
     def test_rejects_duplicate_ba_in_same_target_year(self):
-        """Two entries with the same BA id in one target year raise ValueError."""
+        """Sourcing a single target from multiple years is ambiguous and not permitted."""
         with pytest.raises(ValueError, match="Duplicate"):
             BaFixMap.model_validate(
                 {
@@ -466,7 +486,7 @@ class TestBaFixMap:
             )
 
     def test_rejects_self_referential_source_year(self):
-        """source_year == target_year raises ValueError."""
+        """A source matching the target is a no-op and not permitted."""
         with pytest.raises(ValueError, match="source_year"):
             BaFixMap.model_validate({2009: [{"id": 56669, "source_year": 2009}]})
 
