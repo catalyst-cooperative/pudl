@@ -75,14 +75,14 @@ class BaFixMap(RootModel[dict[int, list[BaFix]]]):
 
 BA_FIXES = BaFixMap.model_validate(
     {
-        # Each key is a target year that needs repair. Each value is the list of
-        # per-BA fixes to apply for that year.  A fix copies the BA's utility
-        # associations from source_year into target_year, replacing any rows that
-        # already exist for that (BA, target_year) pair.
+        # Each key is a target year that needs repair. Each value is the list of per-BA
+        # fixes to apply for that year.  A fix copies the BA's utility associations from
+        # source_year into target_year, replacing any rows that already exist for that
+        # (BA, target_year) pair.
         #
-        # When either target_year or source_year is absent from the available
-        # EIA-861 data (e.g. in the fast ETL), the fix is skipped.  If
-        # target_year IS present but source_year is NOT, a warning is logged.
+        # When either target_year or source_year is absent from the available EIA-861
+        # data (e.g. in the fast ETL), the fix is skipped.  If target_year IS present
+        # but source_year is NOT, a warning is logged.
         2006: [
             # SWPP: Southwest Power Pool (Nebraska utilities excluded — reported separately)
             {"id": 59504, "source_year": 2014, "exclude_states": ["NE"]},
@@ -201,36 +201,35 @@ BA_FIXES = BaFixMap.model_validate(
 )
 """Explicit year-to-year repair instructions for EIA-861 balancing authority data.
 
-Each key is a target year that requires a manual repair for one or more
-balancing authorities. Each value is a list of :class:`BaFix` entries
-describing which BA to repair and which single ``source_year`` should be
-treated as the authoritative template for that specific target year.
+Each key is a target year that requires a manual repair for one or more balancing
+authorities. Each value is a list of :class:`BaFix` entries describing which BA to
+repair and which single ``source_year`` should be treated as the authoritative template
+for that specific target year.
 
 The fixes are consumed by three functions:
 :func:`filled_core_eia861__yearly_balancing_authority`,
 :func:`filled_core_eia861__assn_balancing_authority`, and
-:func:`filled_service_territory_eia861`. They all use the same explicit
+:func:`filled_core_eia861__yearly_service_territory`. They all use the same explicit
 ``source_year -> target_year`` mappings, but apply them differently:
 
-* ``filled_core_eia861__yearly_balancing_authority`` backfills missing BA
-    id rows for a target year without overwriting any existing target rows.
+* ``filled_core_eia861__yearly_balancing_authority`` fills missing BA id rows for a
+  target year without overwriting any existing target rows.
 * ``filled_core_eia861__assn_balancing_authority`` replaces the target-year
     BA-utility association rows with rows copied from ``source_year``.
-* ``filled_service_territory_eia861`` limits itself to the utility-state-year
+* ``filled_core_eia861__yearly_service_territory`` limits itself to the utility-state-year
     combinations implicated by those explicit fixes and copies county coverage
     from the nearest available relevant year when needed.
 
-This is not a general forward-fill or backward-fill across all years. Data from
-one year is only applied to another year when that exact ``source_year ->
-target_year`` pair is listed here.
+This is not a forward-fill or backward-fill across all years. Data from one year is only
+applied to another year when a ``source_year -> target_year`` pair is listed here.
 
-All three functions silently skip a target year that is not present in the
-available EIA-861 data, and log a warning when the target year is present but
-the ``source_year`` required for the repair is not.
+All three functions silently skip a target year that is not present in the available
+EIA-861 data, and log a warning when the target year is present but the ``source_year``
+required for the repair is not.
 
 To add a new fix: identify the target year(s), the affected BA's
-``balancing_authority_id_eia``, and a ``source_year`` whose data is correct.
-If certain states should be excluded from the copy, add ``exclude_states``.
+``balancing_authority_id_eia``, and a ``source_year`` whose data is correct. If certain
+states should be excluded from the copy, add ``exclude_states``.
 """
 
 UTILITIES: list[dict[str, Any]] = [

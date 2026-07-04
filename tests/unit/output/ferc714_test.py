@@ -5,7 +5,7 @@ balancing authority and service territory tables:
 
   - filled_core_eia861__yearly_balancing_authority
   - filled_core_eia861__assn_balancing_authority
-  - filled_service_territory_eia861
+  - filled_core_eia861__yearly_service_territory
 
 These tests use real BA IDs from the BA_FIXES constant so that they exercise the actual
 fix specifications.  All three functions are pure DataFrame → DataFrame transforms with
@@ -384,7 +384,7 @@ class TestFilledAssnBalancingAuthority:
 
 
 # ---------------------------------------------------------------------------
-# Tests for filled_service_territory_eia861
+# Tests for filled_core_eia861__yearly_service_territory
 # ---------------------------------------------------------------------------
 
 
