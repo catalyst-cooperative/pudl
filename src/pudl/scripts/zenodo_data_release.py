@@ -58,14 +58,6 @@ RETRYABLE_STATUS_CODES = {
     524,  # A timeout occurred (proxy)
 }
 
-# Zenodo's legacy and "new" (InvenioRDM) APIs are eventually consistent with each
-# other: a record ID freshly minted via the new API's POST .../versions endpoint can
-# 404 on the legacy API for a few seconds before it's actually visible there. This is
-# a different failure mode from RETRYABLE_STATUS_CODES (slow-to-recover server
-# errors), so it gets its own short polling loop rather than exponential backoff.
-NOT_YET_VISIBLE_MAX_TRIES = 5
-NOT_YET_VISIBLE_RETRY_DELAY_SECONDS = 3
-
 logger = get_logger(__name__)
 coloredlogs.install(
     level=logging.INFO,
@@ -94,6 +86,7 @@ class _LegacyDeposition(BaseModel):
     conceptrecid: int
     links: _LegacyLinks
     metadata: _LegacyMetadata
+    submitted: bool = False
 
 
 class _NewFile(BaseModel):
@@ -214,47 +207,15 @@ class ZenodoClient:
             )
         return response
 
-    def _get_until_visible(
-        self,
-        url: str,
-        max_tries: int = NOT_YET_VISIBLE_MAX_TRIES,
-        delay_seconds: float = NOT_YET_VISIBLE_RETRY_DELAY_SECONDS,
-    ) -> requests.Response:
-        """GET a URL, tolerating a few transient 404s.
-
-        A record ID freshly created via the new API can briefly 404 when read back
-        through the legacy API before Zenodo's two backends agree about it (see
-        ``NOT_YET_VISIBLE_MAX_TRIES`` above). A persistent 404 after all attempts is
-        a genuine error and raises normally via ``raise_for_status``.
-        """
-        if max_tries < 1:
-            raise ValueError(f"max_tries must be >= 1, got {max_tries}")
-
-        response: requests.Response | None = None
-        for attempt in range(1, max_tries + 1):
-            response = self.retry_request(
-                method="GET", url=url, headers=self.auth_headers
-            )
-            if response.status_code != 404:
-                return response
-            if attempt < max_tries:
-                logger.warning(
-                    f"Got 404 for {url} on attempt {attempt}/{max_tries}; Zenodo's "
-                    f"legacy and new APIs can take a few seconds to agree about a "
-                    f"freshly created record, retrying in {delay_seconds}s"
-                )
-                time.sleep(delay_seconds)
-        assert response is not None  # noqa: S101 -- guaranteed by max_tries >= 1 check above
-        response.raise_for_status()
-        return response
-
     def get_deposition(self, deposition_id: int) -> _LegacyDeposition:
         """LEGACY API: Get JSON describing a deposition.
 
         Depositions can be published *or* unpublished.
         """
-        response = self._get_until_visible(
+        response = self.retry_request(
+            method="GET",
             url=f"{self.base_url}/deposit/depositions/{deposition_id}",
+            headers=self.auth_headers,
         )
         logger.debug(
             f"License from JSON for {deposition_id} is "
@@ -267,8 +228,10 @@ class ZenodoClient:
 
         All records are published records.
         """
-        response = self._get_until_visible(
+        response = self.retry_request(
+            method="GET",
             url=f"{self.base_url}/records/{record_id}",
+            headers=self.auth_headers,
         )
         return _NewRecord(**response.json())
 
@@ -354,12 +317,30 @@ class ZenodoClient:
         )
 
     def publish_deposition(self, deposition_id: int) -> _LegacyDeposition:
-        """LEGACY API: publish deposition."""
+        """LEGACY API: publish deposition.
+
+        The publish action isn't safely retriable: if a request times out after
+        Zenodo already processed it server-side, a retried POST to the same
+        ``actions/publish`` URL 404s, since a deposition that's already published no
+        longer has a pending publish action -- even though the publish itself
+        succeeded. Rather than fail on that specific 404, check whether the
+        deposition is actually already published before giving up.
+        """
         response = self.retry_request(
             method="POST",
             url=f"{self.base_url}/deposit/depositions/{deposition_id}/actions/publish",
             headers=self.auth_headers,
         )
+        if response.status_code == 404:
+            logger.warning(
+                f"Publish action for {deposition_id} returned 404 -- an earlier "
+                f"attempt's response may have been lost (e.g. to a timeout) after "
+                f"the publish actually succeeded. Checking current deposition state..."
+            )
+            deposition = self.get_deposition(deposition_id)
+            if deposition.submitted:
+                return deposition
+        response.raise_for_status()
         return _LegacyDeposition(**response.json())
 
 

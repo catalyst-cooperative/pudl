@@ -12,6 +12,7 @@ from pudl.scripts.zenodo_data_release import (
     SANDBOX,
     EmptyDraft,
     ZenodoClient,
+    _LegacyDeposition,
     build_zenodo_release_zulip_message,
 )
 
@@ -46,7 +47,16 @@ def _fake_response(status_code: int, payload: dict | None = None) -> SimpleNames
     def _json():
         return payload
 
-    return SimpleNamespace(status_code=status_code, text="ok", json=_json)
+    def _raise_for_status():
+        if status_code >= 400:
+            raise requests.HTTPError(f"{status_code} error", response=None)
+
+    return SimpleNamespace(
+        status_code=status_code,
+        text="ok",
+        json=_json,
+        raise_for_status=_raise_for_status,
+    )
 
 
 def _requests_response(status_code: int) -> requests.Response:
@@ -194,51 +204,76 @@ def test_sync_directory_skips_top_level_directories_and_ignored_files(
     assert uploaded_paths == ["keep.txt"]
 
 
-def test_get_until_visible_returns_immediately_on_success(mocker, zenodo_client):
-    """A 200 on the first try should return immediately, with no retries."""
-    mock_retry_request = mocker.patch.object(
-        zenodo_client, "retry_request", return_value=_fake_response(200, {"ok": True})
+def _deposition_payload(*, submitted: bool) -> dict:
+    """A minimal but schema-valid ``_LegacyDeposition`` payload."""
+    return {
+        "id": 535155,
+        "conceptrecid": 535136,
+        "links": {
+            "html": "https://sandbox.zenodo.org/records/535155",
+            "bucket": "https://sandbox.zenodo.org/api/files/abc123",
+        },
+        "metadata": {
+            "title": "PUDL",
+            "access_right": "open",
+            "creators": [{"name": "Test Creator"}],
+        },
+        "submitted": submitted,
+    }
+
+
+def test_publish_deposition_returns_normally_on_success(mocker, zenodo_client):
+    """A clean 200 response should be parsed and returned directly."""
+    mocker.patch.object(
+        zenodo_client,
+        "retry_request",
+        return_value=_fake_response(200, _deposition_payload(submitted=True)),
     )
 
-    response = zenodo_client._get_until_visible(url="https://example.com/records/1")
+    deposition = zenodo_client.publish_deposition(535155)
 
-    assert response.status_code == 200
-    assert mock_retry_request.call_count == 1
+    assert deposition.submitted is True
 
 
-def test_get_until_visible_retries_transient_404_then_succeeds(mocker, zenodo_client):
-    """A record ID that isn't visible yet should be tolerated and retried.
+def test_publish_deposition_tolerates_404_after_lost_response(mocker, zenodo_client):
+    """A 404 on the publish action is tolerated if the deposition is already published.
 
-    Simulates the eventual-consistency race between Zenodo's legacy and new APIs:
-    a freshly created record 404s a couple of times before it becomes visible.
+    This reproduces a real production failure: a POST to .../actions/publish times
+    out on the client side after Zenodo already processed it, so the deposition gets
+    published. But 404 isn't in RETRYABLE_STATUS_CODES, so retry_request returns it
+    as-is rather than retrying -- and a retried POST to the same publish-action URL
+    404s anyway, since a deposition that's already published has no pending publish
+    action left to trigger.
     """
-    responses = [
-        _fake_response(404),
-        _fake_response(404),
-        _fake_response(200, {"ok": True}),
-    ]
-    mock_retry_request = mocker.patch.object(
-        zenodo_client, "retry_request", side_effect=responses
+    mocker.patch.object(
+        zenodo_client, "retry_request", return_value=_fake_response(404)
+    )
+    mocker.patch.object(
+        zenodo_client,
+        "get_deposition",
+        return_value=_LegacyDeposition(**_deposition_payload(submitted=True)),
     )
 
-    response = zenodo_client._get_until_visible(url="https://example.com/records/1")
+    deposition = zenodo_client.publish_deposition(535155)
 
-    assert response.status_code == 200
-    assert mock_retry_request.call_count == 3
+    assert deposition.submitted is True
 
 
-def test_get_until_visible_raises_after_persistent_404(mocker, zenodo_client):
-    """A 404 that never resolves is a genuine error and should raise."""
-    mock_retry_request = mocker.patch.object(
+def test_publish_deposition_raises_on_404_when_not_actually_published(
+    mocker, zenodo_client
+):
+    """A 404 that doesn't correspond to an already-published deposition still raises."""
+    mocker.patch.object(
         zenodo_client, "retry_request", return_value=_requests_response(404)
+    )
+    mocker.patch.object(
+        zenodo_client,
+        "get_deposition",
+        return_value=_LegacyDeposition(**_deposition_payload(submitted=False)),
     )
 
     with pytest.raises(requests.HTTPError):
-        zenodo_client._get_until_visible(
-            url="https://example.com/records/1", max_tries=3
-        )
-
-    assert mock_retry_request.call_count == 3
+        zenodo_client.publish_deposition(535155)
 
 
 def test_build_zenodo_release_zulip_message_success_publish():
