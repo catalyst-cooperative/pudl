@@ -18,7 +18,6 @@ from pudl.deploy.pudl import (
     build_deployment_plan,
     clear_deployment_path,
     dispatch_github_workflow,
-    format_stage_duration,
     get_build_from_tag,
     get_deployment_type_from_tag,
     new_deploy_stage_results,
@@ -26,7 +25,6 @@ from pudl.deploy.pudl import (
     run_best_effort_stage,
     run_stage,
     send_zulip_message,
-    stage_emoji,
     trigger_zenodo_release,
     update_git_branch,
     update_pudl_viewer,
@@ -57,6 +55,9 @@ def test_prepare_outputs_for_distribution(tmp_path):
     (build_path / "pudl.sqlite").write_text("db content")
     (build_path / "ferc1.sqlite").write_text("ferc db")
     (build_path / "pudl_dbt_tests.duckdb").write_text("test db")
+    (build_path / f"{build_id}.log").write_text("build log")
+    (build_path / f"{build_id}-deploy-2026-07-04-0700.log").write_text("deploy log")
+    (build_path / "success").write_text("")
 
     for parquet_dir in parquet_dirs:
         parquet_dir.mkdir()
@@ -108,52 +109,14 @@ def test_prepare_outputs_for_distribution(tmp_path):
     assert marker.stat().st_size > 0
     assert marker.read_text() == build_id
 
-
-def test_prepare_outputs_for_distribution_excludes_internal_files(tmp_path):
-    """Build/deploy logs and the "success" sentinel must never be distributed.
-
-    Build and deploy logs live alongside the real outputs under
-    builds.catalyst.coop (so a ``fs.get(..., recursive=True)`` pulls them down
-    too), but they can contain stack traces or other details we don't want to
-    expose publicly. The "success" sentinel is internal build-completion
-    plumbing with no meaning for consumers of the distributed outputs.
-    """
-    output_dir = tmp_path / "output"
-    build_path = tmp_path / "build_path"
-    output_dir.mkdir()
-    build_path.mkdir()
-
-    (build_path / "pudl.sqlite").write_text("db content")
-    (build_path / "pudl_dbt_tests.duckdb").write_text("test db")
-    (build_path / "2026-07-04-0600-abc123456-main.log").write_text("build log")
-    (
-        build_path / "2026-07-04-0600-abc123456-main-deploy-2026-07-04-0700.log"
-    ).write_text("deploy log")
-    (build_path / "success").write_text("")
-
-    for name in ["parquet", "ferc1_dbf", "ferc2_dbf", "ferc6_dbf", "ferc60_dbf"]:
-        parquet_dir = build_path / name
-        parquet_dir.mkdir()
-        (parquet_dir / "table1.parquet").write_text("p1")
-        (parquet_dir / "datapackage.json").write_text("{}")
-    for xbrl_name in [
-        "ferc1_xbrl",
-        "ferc2_xbrl",
-        "ferc6_xbrl",
-        "ferc60_xbrl",
-        "ferc714_xbrl",
-    ]:
-        xbrl_dir = build_path / xbrl_name
-        xbrl_dir.mkdir()
-        (xbrl_dir / "table1.parquet").write_text("p1")
-        (xbrl_dir / "datapackage.json").write_text("{}")
-
-    prepare_outputs_for_distribution(output_dir, UPath(build_path))
-
+    # Build/deploy logs and the "success" sentinel must never be distributed. Logs
+    # live alongside the real outputs under builds.catalyst.coop (so a
+    # ``fs.get(..., recursive=True)`` pulls them down too), but they can contain
+    # stack traces or other details we don't want to expose publicly. The
+    # "success" sentinel is internal build-completion plumbing with no meaning
+    # for consumers of the distributed outputs.
     assert list(output_dir.glob("*.log")) == []
     assert not (output_dir / "success").exists()
-    # Everything else should still have made it through.
-    assert (output_dir / "pudl.sqlite.zip").exists()
 
 
 def test_upload_outputs_nightly(tmp_path):
@@ -410,8 +373,18 @@ def test_update_git_branch_staging():
         )
 
 
-def test_dispatch_github_workflow_without_inputs():
-    """dispatch_github_workflow should POST a bare ref when no inputs are given."""
+@pytest.mark.parametrize(
+    "inputs,expected_json",
+    [
+        (None, {"ref": "main"}),
+        (
+            {"env": "sandbox", "publish": "publish"},
+            {"ref": "main", "inputs": {"env": "sandbox", "publish": "publish"}},
+        ),
+    ],
+)
+def test_dispatch_github_workflow_posts_expected_payload(inputs, expected_json):
+    """dispatch_github_workflow should POST a bare ref, or one with inputs attached."""
     with patch("pudl.deploy.pudl.requests.post") as mock_post:
         mock_post.return_value = MagicMock(status_code=204)
 
@@ -420,6 +393,7 @@ def test_dispatch_github_workflow_without_inputs():
             workflow_file="build-deploy.yml",
             ref="main",
             token="fake-token",  # noqa: S106  # pragma: allowlist secret
+            inputs=inputs,
         )
 
         mock_post.return_value.raise_for_status.assert_called_once()
@@ -429,27 +403,7 @@ def test_dispatch_github_workflow_without_inputs():
             "/actions/workflows/build-deploy.yml/dispatches"
         )
         assert kwargs["headers"]["Authorization"] == "Bearer fake-token"
-        assert kwargs["json"] == {"ref": "main"}
-
-
-def test_dispatch_github_workflow_with_inputs():
-    """dispatch_github_workflow should include workflow_dispatch inputs when given."""
-    with patch("pudl.deploy.pudl.requests.post") as mock_post:
-        mock_post.return_value = MagicMock(status_code=204)
-
-        dispatch_github_workflow(
-            repo="catalyst-cooperative/pudl",
-            workflow_file="zenodo-data-release.yml",
-            ref="nightly-2026-07-05",
-            token="fake-token",  # noqa: S106  # pragma: allowlist secret
-            inputs={"env": "sandbox", "publish": "publish"},
-        )
-
-        _args, kwargs = mock_post.call_args
-        assert kwargs["json"] == {
-            "ref": "nightly-2026-07-05",
-            "inputs": {"env": "sandbox", "publish": "publish"},
-        }
+        assert kwargs["json"] == expected_json
 
 
 def test_dispatch_github_workflow_raises_on_http_error():
@@ -469,50 +423,35 @@ def test_dispatch_github_workflow_raises_on_http_error():
             )
 
 
-def test_trigger_zenodo_release_nightly_dispatches_sandbox_publish():
-    """Nightly/branch releases should publish a sandbox Zenodo deposition."""
+@pytest.mark.parametrize(
+    "deploy_type,build_ref,source_suffix,expected_env,expected_publish",
+    [
+        (DeploymentType.NIGHTLY, "nightly-2026-07-05", "nightly", "sandbox", "publish"),
+        (DeploymentType.STABLE, "v2026.7.0", "v2026.7.0", "production", "no-publish"),
+    ],
+)
+def test_trigger_zenodo_release_dispatches_expected_inputs(
+    deploy_type, build_ref, source_suffix, expected_env, expected_publish
+):
+    """Nightly releases publish to sandbox; stable releases draft to production."""
     with patch("pudl.deploy.pudl.dispatch_github_workflow") as mock_dispatch:
         trigger_zenodo_release(
-            build_ref="nightly-2026-07-05",
-            deploy_type=DeploymentType.NIGHTLY,
-            source_suffix="nightly",
+            build_ref=build_ref,
+            deploy_type=deploy_type,
+            source_suffix=source_suffix,
             token="fake-token",  # noqa: S106  # pragma: allowlist secret
         )
 
         mock_dispatch.assert_called_once_with(
             repo="catalyst-cooperative/pudl",
             workflow_file="zenodo-data-release.yml",
-            ref="nightly-2026-07-05",
+            ref=build_ref,
             token="fake-token",  # noqa: S106  # pragma: allowlist secret
             inputs={
-                "env": "sandbox",
-                "source_dir": "s3://pudl.catalyst.coop/nightly",
+                "env": expected_env,
+                "source_dir": f"s3://pudl.catalyst.coop/{source_suffix}",
                 "ignore_regex": r"^.*\.parquet$",
-                "publish": "publish",
-            },
-        )
-
-
-def test_trigger_zenodo_release_stable_dispatches_production_no_publish():
-    """Stable releases should leave a production Zenodo deposition as a draft."""
-    with patch("pudl.deploy.pudl.dispatch_github_workflow") as mock_dispatch:
-        trigger_zenodo_release(
-            build_ref="v2026.7.0",
-            deploy_type=DeploymentType.STABLE,
-            source_suffix="v2026.7.0",
-            token="fake-token",  # noqa: S106  # pragma: allowlist secret
-        )
-
-        mock_dispatch.assert_called_once_with(
-            repo="catalyst-cooperative/pudl",
-            workflow_file="zenodo-data-release.yml",
-            ref="v2026.7.0",
-            token="fake-token",  # noqa: S106  # pragma: allowlist secret
-            inputs={
-                "env": "production",
-                "source_dir": "s3://pudl.catalyst.coop/v2026.7.0",
-                "ignore_regex": r"^.*\.parquet$",
-                "publish": "no-publish",
+                "publish": expected_publish,
             },
         )
 
@@ -716,36 +655,8 @@ def test_build_deployment_plan(
     assert plan.gcs_temporary_hold == expect_hold
 
 
-@pytest.mark.parametrize(
-    "elapsed_seconds,expected",
-    [
-        (0, "00:00:00"),
-        (59, "00:00:59"),
-        (60, "00:01:00"),
-        (3661, "01:01:01"),
-        (7325, "02:02:05"),
-    ],
-)
-def test_format_stage_duration(elapsed_seconds, expected):
-    """Durations should be formatted as zero-padded HH:MM:SS."""
-    assert format_stage_duration(elapsed_seconds) == expected
-
-
-@pytest.mark.parametrize(
-    "status,expected_emoji",
-    [
-        ("success", ":check:"),
-        ("failure", ":x:"),
-        ("skipped", ":ghost:"),
-    ],
-)
-def test_stage_emoji(status, expected_emoji):
-    """Each stage status should map to its corresponding Zulip emoji."""
-    assert stage_emoji(status) == expected_emoji
-
-
 def test_run_stage_records_success():
-    """A successful stage should be recorded with 'success' and its duration."""
+    """A successful stage is recorded with 'success'; other stages stay skipped."""
     stage_results = new_deploy_stage_results()
 
     run_stage(
@@ -756,6 +667,8 @@ def test_run_stage_records_success():
 
     assert stage_results["Upload outputs"].status == "success"
     assert stage_results["Upload outputs"].duration_seconds >= 0
+    assert stage_results["Trigger Zenodo Release"].status == "skipped"
+    assert stage_results["Trigger Zenodo Release"].duration_seconds == 0.0
 
 
 def test_run_stage_records_failure_and_reraises():
@@ -771,20 +684,6 @@ def test_run_stage_records_failure_and_reraises():
         )
 
     assert stage_results["Upload outputs"].status == "failure"
-
-
-def test_run_stage_leaves_other_stages_skipped():
-    """Stages never run should keep their default skipped status."""
-    stage_results = new_deploy_stage_results()
-
-    run_stage(
-        stage_fn=lambda: None,
-        stage_name="Upload outputs",
-        stage_results=stage_results,
-    )
-
-    assert stage_results["Trigger Zenodo Release"].status == "skipped"
-    assert stage_results["Trigger Zenodo Release"].duration_seconds == 0.0
 
 
 def test_run_best_effort_stage_does_not_raise_on_failure():

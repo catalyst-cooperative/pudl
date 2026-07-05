@@ -276,34 +276,43 @@ def test_publish_deposition_raises_on_404_when_not_actually_published(
         zenodo_client.publish_deposition(535155)
 
 
-def test_build_zenodo_release_zulip_message_success_publish():
-    """A successful publish run should show PRODUCTION/publish and the live URL."""
+@pytest.mark.parametrize(
+    "env,publish,record_url,expected_substrings",
+    [
+        (
+            PRODUCTION,
+            True,
+            "https://zenodo.org/records/12345",
+            [
+                ":check: PUDL Zenodo Release Succeeded",
+                "PRODUCTION",
+                "publish",
+                "Published record: https://zenodo.org/records/12345",
+            ],
+        ),
+        (
+            SANDBOX,
+            False,
+            "https://sandbox.zenodo.org/records/6789",
+            [
+                ":check: PUDL Zenodo Release Succeeded",
+                "SANDBOX",
+                "draft, no-publish",
+                "Draft record: https://sandbox.zenodo.org/records/6789",
+            ],
+        ),
+    ],
+)
+def test_build_zenodo_release_zulip_message_success(
+    env, publish, record_url, expected_substrings
+):
+    """A successful run should label its env/mode and link to the resulting record."""
     message = build_zenodo_release_zulip_message(
-        env=PRODUCTION,
-        publish=True,
-        succeeded=True,
-        record_url="https://zenodo.org/records/12345",
+        env=env, publish=publish, succeeded=True, record_url=record_url
     )
 
-    assert ":check: PUDL Zenodo Release Succeeded" in message
-    assert "PRODUCTION" in message
-    assert "publish" in message
-    assert "Published record: https://zenodo.org/records/12345" in message
-
-
-def test_build_zenodo_release_zulip_message_success_draft():
-    """A successful no-publish run should show SANDBOX/draft and the draft URL."""
-    message = build_zenodo_release_zulip_message(
-        env=SANDBOX,
-        publish=False,
-        succeeded=True,
-        record_url="https://sandbox.zenodo.org/records/6789",
-    )
-
-    assert ":check: PUDL Zenodo Release Succeeded" in message
-    assert "SANDBOX" in message
-    assert "draft, no-publish" in message
-    assert "Draft record: https://sandbox.zenodo.org/records/6789" in message
+    for substring in expected_substrings:
+        assert substring in message
 
 
 def test_build_zenodo_release_zulip_message_failure_omits_record_link():
