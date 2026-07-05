@@ -40,12 +40,12 @@ from typing import Literal
 import click
 
 from pudl.deploy.pudl import (
-    DeploymentType,
+    DeploymentPlan,
+    DeployStage,
     StageResult,
+    StageStatus,
     build_deploy_zulip_message,
-    build_deployment_plan,
     get_build_from_tag,
-    get_deployment_type_from_tag,
     new_deploy_stage_results,
     prepare_outputs_for_distribution,
     run_best_effort_stage,
@@ -64,31 +64,24 @@ logger = get_logger(__name__)
 
 def _deploy_outputs(
     source_dir: Path,
-    deploy_type: DeploymentType,
-    git_tag: str,
-    environment: Literal["staging", "production"],
+    plan: DeploymentPlan,
     github_token: str,
-    stage_results: dict[str, StageResult],
+    stage_results: dict[DeployStage, StageResult],
 ):
     """Execute stable or nightly deployment workflow.
 
     Every decision about what to do -- which paths to upload to, whether to
     redeploy Eel Hole, update git branches, trigger a Zenodo release, or set a GCS
-    temporary hold -- comes from a single ``DeploymentPlan`` resolved from
-    ``deploy_type`` and ``environment``, rather than being re-derived here.
+    temporary hold -- comes from ``plan`` rather than being re-derived here.
 
     ``stage_results`` records the status and duration of each stage for Zulip
     reporting; "Upload outputs" is a hard prerequisite for the rest (a failure
     there raises and aborts the remaining stages, leaving them recorded as
     skipped), while the remaining stages are independent of one another.
     """
-    plan = build_deployment_plan(
-        deploy_type=deploy_type, git_tag=git_tag, environment=environment
-    )
-
     run_stage(
         stage_fn=upload_outputs,
-        stage_name="Upload outputs",
+        stage_name=DeployStage.UPLOAD_OUTPUTS,
         stage_results=stage_results,
         source_dir=source_dir,
         path_suffixes=plan.path_suffixes,
@@ -98,39 +91,39 @@ def _deploy_outputs(
     if plan.redeploy_eel_hole:
         run_best_effort_stage(
             stage_fn=update_pudl_viewer,
-            stage_name="Redeploy Eel Hole",
+            stage_name=DeployStage.REDEPLOY_EEL_HOLE,
             stage_results=stage_results,
             token=github_token,
-            environment=environment,
+            environment=plan.environment,
         )
 
     if plan.update_git_branch:
         run_best_effort_stage(
             stage_fn=update_git_branch,
-            stage_name="Update Git Branch",
+            stage_name=DeployStage.UPDATE_GIT_BRANCH,
             stage_results=stage_results,
-            tag=git_tag,
-            branch=deploy_type.value,
-            environment=environment,
+            tag=plan.git_tag,
+            branch=plan.deploy_type.value,
+            environment=plan.environment,
             github_token=github_token,
         )
 
     if plan.trigger_zenodo_release:
         run_best_effort_stage(
             stage_fn=trigger_zenodo_release,
-            stage_name="Trigger Zenodo Release",
+            stage_name=DeployStage.TRIGGER_ZENODO_RELEASE,
             stage_results=stage_results,
-            build_ref=git_tag,
-            deploy_type=deploy_type,
+            build_ref=plan.git_tag,
+            deploy_type=plan.deploy_type,
             source_suffix=plan.zenodo_source_suffix,
             token=github_token,
         )
 
     if plan.gcs_temporary_hold:
-        gcs_path = f"gs://pudl.catalyst.coop/{git_tag}/"
+        gcs_path = f"gs://pudl.catalyst.coop/{plan.git_tag}/"
         run_best_effort_stage(
             stage_fn=set_gcs_temporary_hold,
-            stage_name="GCS Temporary Hold",
+            stage_name=DeployStage.GCS_TEMPORARY_HOLD,
             stage_results=stage_results,
             gcs_path=gcs_path,
         )
@@ -158,7 +151,7 @@ def _deploy_outputs(
 def main(
     ctx: click.Context,
     git_tag: str,
-    environment: str,
+    environment: Literal["staging", "production"],
 ) -> None:
     """Deploy PUDL ETL outputs to cloud storage and external services.
 
@@ -173,13 +166,10 @@ def main(
     Saves a log of the deployment and a Zulip stage-status notification, mirroring
     the nightly build's own reporting.
     """
-    # Check if tag is a nightly or stable build
-    deploy_type = get_deployment_type_from_tag(git_tag)
-
-    if (deploy_type == DeploymentType.BRANCH) and (environment != "staging"):
-        raise RuntimeError(
-            "Branch builds should never be used to deploy to production!"
-        )
+    # Resolve and validate the full deployment plan up front -- e.g. this raises if
+    # git_tag doesn't look like a nightly/stable/branch tag, or if a branch tag is
+    # being deployed to production.
+    plan = DeploymentPlan(git_tag=git_tag, environment=environment)
 
     # Find build associated with tag
     build_path = get_build_from_tag(git_tag)
@@ -197,7 +187,7 @@ def main(
     logger.info(
         f"Starting deployment for tag: {git_tag}\n"
         f"Build path: {build_path}\n"
-        f"Deployment type: {deploy_type}\n"
+        f"Deployment type: {plan.deploy_type}\n"
     )
 
     stage_results = new_deploy_stage_results()
@@ -205,7 +195,7 @@ def main(
     try:
         run_stage(
             stage_fn=prepare_outputs_for_distribution,
-            stage_name="Prepare outputs",
+            stage_name=DeployStage.PREPARE_OUTPUTS,
             stage_results=stage_results,
             local_path=local_copy_path,
             build_path=build_path,
@@ -213,9 +203,7 @@ def main(
 
         _deploy_outputs(
             source_dir=local_copy_path,
-            deploy_type=deploy_type,
-            git_tag=git_tag,
-            environment=environment,
+            plan=plan,
             github_token=os.environ["GITHUB_TOKEN"],
             stage_results=stage_results,
         )
@@ -240,7 +228,7 @@ def main(
                 str(local_logfile), f"{build_path}/{local_logfile.name}"
             )
 
-    if any(result.status == "failure" for result in stage_results.values()):
+    if any(result.status == StageStatus.FAILURE for result in stage_results.values()):
         ctx.exit(1)
 
     logger.info("Deployment completed successfully")

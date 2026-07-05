@@ -8,14 +8,17 @@ from unittest.mock import MagicMock, call, patch
 
 import pytest
 import requests
+from pydantic import ValidationError
 from upath import UPath
 
 from pudl.deploy.pudl import (
+    DeploymentPlan,
     DeploymentType,
+    DeployStage,
     StageResult,
+    StageStatus,
     build_deploy_logfile_links,
     build_deploy_zulip_message,
-    build_deployment_plan,
     clear_deployment_path,
     dispatch_github_workflow,
     get_build_from_tag,
@@ -211,14 +214,19 @@ def test_upload_outputs_skips_clearing_immutable_suffix(tmp_path):
     source_dir.mkdir()
     (source_dir / "table1.parquet").write_text("p1")
 
+    def _exists(path):
+        # The permanent version path doesn't exist yet; the rolling "stable" path
+        # already does and should get cleared.
+        return "v2026.7.0" not in path
+
     with (
         patch("pudl.deploy.pudl.gcsfs.GCSFileSystem") as mock_gcs_cls,
         patch("pudl.deploy.pudl.s3fs.S3FileSystem") as mock_s3_cls,
     ):
         mock_gcs = MagicMock()
         mock_s3 = MagicMock()
-        mock_gcs.exists.return_value = True
-        mock_s3.exists.return_value = True
+        mock_gcs.exists.side_effect = _exists
+        mock_s3.exists.side_effect = _exists
         mock_gcs_cls.return_value = mock_gcs
         mock_s3_cls.return_value = mock_s3
 
@@ -236,6 +244,40 @@ def test_upload_outputs_skips_clearing_immutable_suffix(tmp_path):
         assert mock_s3.rm.call_args_list == [
             call("s3://pudl.catalyst.coop/stable/", recursive=True),
         ]
+
+
+def test_upload_outputs_raises_if_permanent_path_already_exists(tmp_path):
+    """Deploying to a permanent version path that already has content is invalid.
+
+    Regression test for the case this is meant to prevent: re-deploying the same
+    stable version tag a second time, which would otherwise silently mix old and
+    new files together instead of being rejected outright.
+    """
+    source_dir = tmp_path / "output"
+    source_dir.mkdir()
+    (source_dir / "table1.parquet").write_text("p1")
+
+    with (
+        patch("pudl.deploy.pudl.gcsfs.GCSFileSystem") as mock_gcs_cls,
+        patch("pudl.deploy.pudl.s3fs.S3FileSystem") as mock_s3_cls,
+    ):
+        mock_gcs = MagicMock()
+        mock_s3 = MagicMock()
+        mock_gcs.exists.return_value = True
+        mock_s3.exists.return_value = True
+        mock_gcs_cls.return_value = mock_gcs
+        mock_s3_cls.return_value = mock_s3
+
+        with pytest.raises(RuntimeError, match="already has content"):
+            upload_outputs(
+                source_dir,
+                ["v2026.7.0", "stable"],
+                immutable_suffixes=frozenset({"v2026.7.0"}),
+            )
+
+        # Should fail fast, before ever attempting to upload anything.
+        mock_gcs.put.assert_not_called()
+        mock_s3.put.assert_not_called()
 
 
 def test_clear_deployment_path_skips_nonexistent_path():
@@ -561,13 +603,14 @@ def test_get_deployment_type_from_tag_rejects_unrecognized_tags(git_tag):
 
 
 @pytest.mark.parametrize(
-    "deploy_type,git_tag,environment,expected_suffixes,expected_zenodo_suffix,"
-    "expected_immutable_suffixes,expect_eel_hole,expect_git,expect_zenodo,expect_hold",
+    "git_tag,environment,expected_deploy_type,expected_suffixes,"
+    "expected_zenodo_suffix,expected_immutable_suffixes,expect_eel_hole,"
+    "expect_git,expect_zenodo,expect_hold",
     [
         (
-            DeploymentType.NIGHTLY,
             "nightly-2026-07-05",
             "production",
+            DeploymentType.NIGHTLY,
             ["nightly", "eel-hole"],
             "nightly",
             frozenset(),
@@ -577,9 +620,9 @@ def test_get_deployment_type_from_tag_rejects_unrecognized_tags(git_tag):
             False,
         ),
         (
-            DeploymentType.NIGHTLY,
             "nightly-2026-07-05",
             "staging",
+            DeploymentType.NIGHTLY,
             ["staging/nightly", "staging/eel-hole"],
             "staging/nightly",
             frozenset(),
@@ -589,9 +632,9 @@ def test_get_deployment_type_from_tag_rejects_unrecognized_tags(git_tag):
             False,
         ),
         (
-            DeploymentType.STABLE,
             "v2026.7.0",
             "production",
+            DeploymentType.STABLE,
             ["v2026.7.0", "stable"],
             "v2026.7.0",
             frozenset({"v2026.7.0"}),
@@ -601,9 +644,9 @@ def test_get_deployment_type_from_tag_rejects_unrecognized_tags(git_tag):
             True,
         ),
         (
-            DeploymentType.STABLE,
             "v2026.7.0",
             "staging",
+            DeploymentType.STABLE,
             ["staging/v2026.7.0", "staging/stable"],
             "staging/v2026.7.0",
             frozenset(),
@@ -613,9 +656,9 @@ def test_get_deployment_type_from_tag_rejects_unrecognized_tags(git_tag):
             False,
         ),
         (
-            DeploymentType.BRANCH,
             "branch-my-branch-2026-07-05",
             "staging",
+            DeploymentType.BRANCH,
             ["staging/nightly", "staging/eel-hole"],
             "staging/nightly",
             frozenset(),
@@ -626,10 +669,10 @@ def test_get_deployment_type_from_tag_rejects_unrecognized_tags(git_tag):
         ),
     ],
 )
-def test_build_deployment_plan(
-    deploy_type,
+def test_deployment_plan(
     git_tag,
     environment,
+    expected_deploy_type,
     expected_suffixes,
     expected_zenodo_suffix,
     expected_immutable_suffixes,
@@ -639,13 +682,12 @@ def test_build_deployment_plan(
     expect_hold,
 ):
     """The deployment plan should be the single source of truth for every
-    deploy_type/environment decision -- path suffixes, the immutable (never
-    cleared) suffix, and which stages run.
+    git_tag/environment decision -- the deploy type it implies, path suffixes, the
+    immutable (never cleared) suffix, and which stages run.
     """
-    plan = build_deployment_plan(
-        deploy_type=deploy_type, git_tag=git_tag, environment=environment
-    )
+    plan = DeploymentPlan(git_tag=git_tag, environment=environment)
 
+    assert plan.deploy_type == expected_deploy_type
     assert plan.path_suffixes == expected_suffixes
     assert plan.zenodo_source_suffix == expected_zenodo_suffix
     assert plan.immutable_suffixes == expected_immutable_suffixes
@@ -655,20 +697,39 @@ def test_build_deployment_plan(
     assert plan.gcs_temporary_hold == expect_hold
 
 
+def test_deployment_plan_rejects_branch_deploy_to_production():
+    """A branch deployment must never be allowed to target production."""
+    with pytest.raises(ValidationError, match="Branch deployments can only target"):
+        DeploymentPlan(git_tag="branch-my-branch-2026-07-05", environment="production")
+
+
+def test_deployment_plan_rejects_unrecognized_tag():
+    """A git_tag that doesn't match any known deploy-type pattern should raise.
+
+    ``deploy_type`` is derived from ``git_tag`` (see ``get_deployment_type_from_tag``)
+    and accessed during validation, so an unparseable tag fails fast at construction
+    time rather than later when some property happens to be accessed.
+    """
+    with pytest.raises(RuntimeError, match="does not look like"):
+        DeploymentPlan(git_tag="not-a-real-tag", environment="staging")
+
+
 def test_run_stage_records_success():
     """A successful stage is recorded with 'success'; other stages stay skipped."""
     stage_results = new_deploy_stage_results()
 
     run_stage(
         stage_fn=lambda: None,
-        stage_name="Upload outputs",
+        stage_name=DeployStage.UPLOAD_OUTPUTS,
         stage_results=stage_results,
     )
 
-    assert stage_results["Upload outputs"].status == "success"
-    assert stage_results["Upload outputs"].duration_seconds >= 0
-    assert stage_results["Trigger Zenodo Release"].status == "skipped"
-    assert stage_results["Trigger Zenodo Release"].duration_seconds == 0.0
+    assert stage_results[DeployStage.UPLOAD_OUTPUTS].status == StageStatus.SUCCESS
+    assert stage_results[DeployStage.UPLOAD_OUTPUTS].duration_seconds >= 0
+    assert stage_results[DeployStage.TRIGGER_ZENODO_RELEASE].status == (
+        StageStatus.SKIPPED
+    )
+    assert stage_results[DeployStage.TRIGGER_ZENODO_RELEASE].duration_seconds == 0.0
 
 
 def test_run_stage_records_failure_and_reraises():
@@ -680,10 +741,12 @@ def test_run_stage_records_failure_and_reraises():
 
     with pytest.raises(ValueError, match="kaboom"):
         run_stage(
-            stage_fn=_boom, stage_name="Upload outputs", stage_results=stage_results
+            stage_fn=_boom,
+            stage_name=DeployStage.UPLOAD_OUTPUTS,
+            stage_results=stage_results,
         )
 
-    assert stage_results["Upload outputs"].status == "failure"
+    assert stage_results[DeployStage.UPLOAD_OUTPUTS].status == StageStatus.FAILURE
 
 
 def test_run_best_effort_stage_does_not_raise_on_failure():
@@ -698,20 +761,24 @@ def test_run_best_effort_stage_does_not_raise_on_failure():
     with patch("pudl.deploy.pudl.logger"):
         run_best_effort_stage(
             stage_fn=_boom,
-            stage_name="Trigger Zenodo Release",
+            stage_name=DeployStage.TRIGGER_ZENODO_RELEASE,
             stage_results=stage_results,
         )
 
-    assert stage_results["Trigger Zenodo Release"].status == "failure"
+    assert stage_results[DeployStage.TRIGGER_ZENODO_RELEASE].status == (
+        StageStatus.FAILURE
+    )
 
 
 def test_build_deploy_zulip_message_reports_success_and_all_stage_rows():
     """The Zulip message should include every tracked stage, in order."""
     stage_results = new_deploy_stage_results()
-    stage_results["Prepare outputs"] = StageResult(
-        status="success", duration_seconds=10
+    stage_results[DeployStage.PREPARE_OUTPUTS] = StageResult(
+        status=StageStatus.SUCCESS, duration_seconds=10
     )
-    stage_results["Upload outputs"] = StageResult(status="success", duration_seconds=20)
+    stage_results[DeployStage.UPLOAD_OUTPUTS] = StageResult(
+        status=StageStatus.SUCCESS, duration_seconds=20
+    )
     # "Redeploy Eel Hole", "Update Git Branch", "Trigger Zenodo Release", and
     # "GCS Temporary Hold" are left at their default skipped status.
 
@@ -739,7 +806,9 @@ def test_build_deploy_zulip_message_reports_success_and_all_stage_rows():
 def test_build_deploy_zulip_message_reports_failure():
     """A failed stage should flip the message header to a failure state."""
     stage_results = new_deploy_stage_results()
-    stage_results["Upload outputs"] = StageResult(status="failure", duration_seconds=5)
+    stage_results[DeployStage.UPLOAD_OUTPUTS] = StageResult(
+        status=StageStatus.FAILURE, duration_seconds=5
+    )
 
     message = build_deploy_zulip_message(
         build_id="2026-07-05-0600-abc123456-main",

@@ -20,6 +20,7 @@ from typing import Literal
 import gcsfs
 import requests
 import s3fs
+from pydantic import BaseModel, ConfigDict, model_validator
 from upath import UPath
 
 from pudl.logging_helpers import get_logger
@@ -35,67 +36,104 @@ class DeploymentType(Enum):
     BRANCH = "branch"
 
 
-@dataclass(frozen=True)
-class DeploymentPlan:
-    """Fully resolved deployment behavior for one deploy type and environment.
+class DeploymentPlan(BaseModel):
+    """Fully resolved, validated deployment behavior for one git tag and environment.
 
-    This is the single source of truth for what a deployment actually does --
+    This is the single source of truth both for what a deployment actually does --
     every other piece of code (path suffixes, which stages run) derives from a
-    ``DeploymentPlan`` instead of independently re-deriving the same
-    deploy-type/environment rules.
+    ``DeploymentPlan`` instead of independently re-deriving the same rules -- and for
+    which ``git_tag``/``environment`` combinations are valid in the first place.
+
+    ``deploy_type`` is derived from ``git_tag`` (see ``get_deployment_type_from_tag``)
+    rather than accepted as a separate input, so a plan can never be constructed with
+    a ``deploy_type`` that doesn't match its own ``git_tag``.
+
+    This intentionally only validates what's knowable from ``git_tag`` and
+    ``environment`` alone -- e.g. it does NOT check that a nightly/stable tag is
+    actually reachable from ``main``, since that requires a git checkout the deploy
+    container doesn't have (that check lives in the GHA workflow instead).
     """
 
-    path_suffixes: list[str]
-    zenodo_source_suffix: str
-    immutable_suffixes: frozenset[str]
-    redeploy_eel_hole: bool
-    update_git_branch: bool
-    trigger_zenodo_release: bool
-    gcs_temporary_hold: bool
+    model_config = ConfigDict(frozen=True)
 
+    git_tag: str
+    environment: Literal["staging", "production"]
 
-def build_deployment_plan(
-    deploy_type: DeploymentType,
-    git_tag: str,
-    environment: Literal["staging", "production"],
-) -> DeploymentPlan:
-    """Resolve every deploy_type x environment decision into one plan.
+    @property
+    def deploy_type(self) -> DeploymentType:
+        """The deploy type implied by ``git_tag``'s shape."""
+        return get_deployment_type_from_tag(self.git_tag)
 
-    - Nightly and branch builds share the same rolling "nightly"/"eel-hole" paths;
-      stable releases get their own permanent version-tagged path plus "stable".
-    - Only nightly builds redeploy the PUDL Viewer (Eel Hole).
-    - Branch builds never update git branches or trigger Zenodo releases.
-    - Only a *production* stable release gets a GCS temporary hold, protecting its
-      permanent version-tagged path -- which is also the only path that's never
-      cleared before upload (see ``immutable_suffixes``). A staging deploy of the
-      same tag is just a disposable test output and must remain clearable.
-    """
-    if deploy_type in (DeploymentType.NIGHTLY, DeploymentType.BRANCH):
-        path_suffixes = ["nightly", "eel-hole"]
-        zenodo_source_suffix = "nightly"
-    else:
-        path_suffixes = [git_tag, "stable"]
-        zenodo_source_suffix = git_tag
+    @model_validator(mode="after")
+    def _validate_branch_only_targets_staging(self) -> "DeploymentPlan":
+        if self.deploy_type == DeploymentType.BRANCH and self.environment != "staging":
+            raise ValueError(
+                f"Branch deployments can only target staging, got "
+                f"environment={self.environment!r} for git_tag={self.git_tag!r}."
+            )
+        return self
 
-    if environment == "staging":
-        path_suffixes = [f"staging/{s}" for s in path_suffixes]
-        zenodo_source_suffix = f"staging/{zenodo_source_suffix}"
+    @property
+    def path_suffixes(self) -> list[str]:
+        """Cloud storage path suffixes this deployment uploads to.
 
-    gcs_temporary_hold = (
-        deploy_type == DeploymentType.STABLE and environment == "production"
-    )
+        Nightly and branch builds share the same rolling "nightly"/"eel-hole"
+        paths; stable releases get their own permanent version-tagged path plus
+        "stable".
+        """
+        if self.deploy_type in (DeploymentType.NIGHTLY, DeploymentType.BRANCH):
+            suffixes = ["nightly", "eel-hole"]
+        else:
+            suffixes = [self.git_tag, "stable"]
+        if self.environment == "staging":
+            suffixes = [f"staging/{s}" for s in suffixes]
+        return suffixes
 
-    return DeploymentPlan(
-        path_suffixes=path_suffixes,
-        zenodo_source_suffix=zenodo_source_suffix,
-        immutable_suffixes=(
-            frozenset({git_tag}) if gcs_temporary_hold else frozenset()
-        ),
-        redeploy_eel_hole=(deploy_type == DeploymentType.NIGHTLY),
-        update_git_branch=(deploy_type != DeploymentType.BRANCH),
-        trigger_zenodo_release=(deploy_type != DeploymentType.BRANCH),
-        gcs_temporary_hold=gcs_temporary_hold,
-    )
+    @property
+    def zenodo_source_suffix(self) -> str:
+        """The single path suffix Zenodo should pull outputs from."""
+        suffix = (
+            self.git_tag if self.deploy_type == DeploymentType.STABLE else "nightly"
+        )
+        if self.environment == "staging":
+            suffix = f"staging/{suffix}"
+        return suffix
+
+    @property
+    def gcs_temporary_hold(self) -> bool:
+        """Whether this deployment's permanent path should get a GCS temporary hold.
+
+        Only a *production* stable release gets a hold, protecting its permanent
+        version-tagged path. A staging deploy of the same tag is just a disposable
+        test output and must remain clearable.
+        """
+        return (
+            self.deploy_type == DeploymentType.STABLE
+            and self.environment == "production"
+        )
+
+    @property
+    def immutable_suffixes(self) -> frozenset[str]:
+        """Path suffixes that are permanent and must never be cleared before upload.
+
+        This is also the only path that's protected by ``gcs_temporary_hold``.
+        """
+        return frozenset({self.git_tag}) if self.gcs_temporary_hold else frozenset()
+
+    @property
+    def redeploy_eel_hole(self) -> bool:
+        """Whether this deployment should redeploy the PUDL Viewer (Eel Hole)."""
+        return self.deploy_type == DeploymentType.NIGHTLY
+
+    @property
+    def update_git_branch(self) -> bool:
+        """Whether this deployment should fast-forward a git branch to its tag."""
+        return self.deploy_type != DeploymentType.BRANCH
+
+    @property
+    def trigger_zenodo_release(self) -> bool:
+        """Whether this deployment should trigger a Zenodo release."""
+        return self.deploy_type != DeploymentType.BRANCH
 
 
 def _zip_parquet_files(parquet_path: Path, output_path: Path) -> None:
@@ -263,6 +301,38 @@ def _upload_to_path(fs, path: str, source_dir: Path, clear_first: bool) -> None:
     fs.put(f"{source_dir}/*", path, recursive=True)
 
 
+def _assert_permanent_paths_are_empty(
+    gcs_fs: gcsfs.GCSFileSystem,
+    s3_fs: s3fs.S3FileSystem,
+    path_suffixes: list[str],
+    immutable_suffixes: frozenset[str],
+) -> None:
+    """Refuse to deploy to a permanent, version-tagged path that already has content.
+
+    Rolling paths (nightly/stable/eel-hole) are cleared before every upload, but a
+    permanent path like ``gs://pudl.catalyst.coop/v2026.7.0/`` deliberately never is
+    -- it's meant to be written exactly once. If it already has content, deploying
+    again would silently mix old and new files instead of cleanly replacing them,
+    which almost always means the same version tag is being deployed a second time.
+    That's an invalid request, so we check and raise up front rather than silently
+    uploading over the top of it.
+    """
+    for suffix in path_suffixes:
+        if suffix not in immutable_suffixes:
+            continue
+        for fs, path in (
+            (gcs_fs, f"gs://pudl.catalyst.coop/{suffix}/"),
+            (s3_fs, f"s3://pudl.catalyst.coop/{suffix}/"),
+        ):
+            if fs.exists(path):
+                raise RuntimeError(
+                    f"Refusing to deploy to {path}: it's a permanent, "
+                    f"version-tagged path that must never be overwritten, and it "
+                    f"already has content. This usually means version {suffix!r} "
+                    f"has already been deployed."
+                )
+
+
 def upload_outputs(
     source_dir: Path,
     path_suffixes: list[str],
@@ -273,10 +343,9 @@ def upload_outputs(
     Uploads all files from source directory to GCS and S3 using the provided path
     suffixes. Each suffix is uploaded to both gs://pudl.catalyst.coop/{suffix}/ and
     s3://pudl.catalyst.coop/{suffix}/. Any existing objects at a suffix are removed
-    first, unless that suffix is listed in ``immutable_suffixes`` -- this keeps stale
-    files from earlier deployments (e.g. removed or renamed tables) from lingering
-    alongside fresh outputs, while never touching a permanent, hold-protected
-    versioned release path.
+    first, unless that suffix is listed in ``immutable_suffixes`` -- a permanent,
+    hold-protected versioned release path is never cleared, and instead must not
+    exist at all yet (see ``_assert_permanent_paths_are_empty``).
 
     Each (suffix, destination) pair is uploaded concurrently: GCS and S3 are
     separate network destinations, and this is I/O-bound work that releases the
@@ -289,7 +358,11 @@ def upload_outputs(
         source_dir: Local directory containing prepared outputs to upload.
         path_suffixes: Path suffixes to upload to (e.g., ["nightly", "eel-hole"]).
         immutable_suffixes: Path suffixes that should never be cleared before upload
-            (e.g. a permanent stable-version path like "v2026.7.0").
+            (e.g. a permanent stable-version path like "v2026.7.0"). It's an error
+            for one of these paths to already exist.
+
+    Raises:
+        RuntimeError: If a permanent, immutable path already has content.
     """
     logger.info("Uploading outputs to cloud storage")
 
@@ -301,6 +374,8 @@ def upload_outputs(
     # NOTE (2026-02-11): our GCS distribution bucket is requester pays.
     gcs_fs = gcsfs.GCSFileSystem(requester_pays=True)
     s3_fs = s3fs.S3FileSystem()
+
+    _assert_permanent_paths_are_empty(gcs_fs, s3_fs, path_suffixes, immutable_suffixes)
 
     upload_targets = []
     for suffix in path_suffixes:
@@ -557,19 +632,32 @@ def get_deployment_type_from_tag(git_tag: str) -> DeploymentType:
     return deploy_type
 
 
-STAGE_SKIPPED = "skipped"
-STAGE_SUCCESS = "success"
-STAGE_FAILURE = "failure"
+class StageStatus(Enum):
+    """Possible outcomes of a single deployment stage."""
 
-#: Deploy stages, in the order they should appear in the Zulip notification table.
-DEPLOY_STAGE_NAMES = [
-    "Prepare outputs",
-    "Upload outputs",
-    "Redeploy Eel Hole",
-    "Update Git Branch",
-    "Trigger Zenodo Release",
-    "GCS Temporary Hold",
-]
+    SKIPPED = "skipped"
+    SUCCESS = "success"
+    FAILURE = "failure"
+
+
+class DeployStage(Enum):
+    """The fixed set of tracked deployment stages.
+
+    Members are declared in the order they should appear in the Zulip notification
+    table, and ``DeployStage`` iteration preserves that order -- so this is the
+    single source of truth for both the valid stage identifiers (used as dict keys
+    and passed to ``run_stage``/``run_best_effort_stage``) and their display order,
+    rather than an unconstrained string that's only coincidentally consistent
+    between call sites. ``.value`` gives the human-readable name shown in messages.
+    """
+
+    PREPARE_OUTPUTS = "Prepare outputs"
+    UPLOAD_OUTPUTS = "Upload outputs"
+    REDEPLOY_EEL_HOLE = "Redeploy Eel Hole"
+    UPDATE_GIT_BRANCH = "Update Git Branch"
+    TRIGGER_ZENODO_RELEASE = "Trigger Zenodo Release"
+    GCS_TEMPORARY_HOLD = "GCS Temporary Hold"
+
 
 ZULIP_API_URL = "https://catalyst-cooperative.zulipchat.com/api/v1/messages"
 ZULIP_BOT_EMAIL = "build-status-bot@catalyst-cooperative.zulipchat.com"
@@ -581,17 +669,21 @@ ZULIP_TOPIC = "build-deploy-pudl"
 class StageResult:
     """Outcome of a single deployment stage, for Zulip stage-table reporting."""
 
-    status: str = STAGE_SKIPPED
+    status: StageStatus = StageStatus.SKIPPED
     duration_seconds: float = 0.0
 
 
-def new_deploy_stage_results() -> dict[str, StageResult]:
+def new_deploy_stage_results() -> dict[DeployStage, StageResult]:
     """Initialize every tracked deploy stage as skipped, in table display order."""
-    return {name: StageResult() for name in DEPLOY_STAGE_NAMES}
+    return {stage: StageResult() for stage in DeployStage}
 
 
 def run_stage(
-    stage_fn, stage_name: str, stage_results: dict[str, StageResult], *args, **kwargs
+    stage_fn,
+    stage_name: DeployStage,
+    stage_results: dict[DeployStage, StageResult],
+    *args,
+    **kwargs,
 ) -> None:
     """Run a deploy stage, recording its status and duration in ``stage_results``.
 
@@ -601,10 +693,10 @@ def run_stage(
     call (see ``run_best_effort_stage``).
     """
     start = time.monotonic()
-    status = STAGE_FAILURE
+    status = StageStatus.FAILURE
     try:
         stage_fn(*args, **kwargs)
-        status = STAGE_SUCCESS
+        status = StageStatus.SUCCESS
     finally:
         stage_results[stage_name] = StageResult(
             status=status, duration_seconds=time.monotonic() - start
@@ -612,7 +704,11 @@ def run_stage(
 
 
 def run_best_effort_stage(
-    stage_fn, stage_name: str, stage_results: dict[str, StageResult], *args, **kwargs
+    stage_fn,
+    stage_name: DeployStage,
+    stage_results: dict[DeployStage, StageResult],
+    *args,
+    **kwargs,
 ) -> None:
     """Run an independent deploy stage, logging (not raising) on failure.
 
@@ -622,7 +718,7 @@ def run_best_effort_stage(
     try:
         run_stage(stage_fn, stage_name, stage_results, *args, **kwargs)
     except Exception:
-        logger.exception(f"Deploy stage {stage_name!r} failed; continuing.")
+        logger.exception(f"Deploy stage {stage_name.value!r} failed; continuing.")
 
 
 def format_stage_duration(elapsed_seconds: float) -> str:
@@ -633,11 +729,11 @@ def format_stage_duration(elapsed_seconds: float) -> str:
     return f"{hours:02d}:{minutes:02d}:{seconds:02d}"
 
 
-def stage_emoji(status: str) -> str:
+def stage_emoji(status: StageStatus) -> str:
     """Return the Zulip emoji corresponding to a stage status."""
-    if status == STAGE_SKIPPED:
+    if status == StageStatus.SKIPPED:
         return ":ghost:"
-    if status == STAGE_SUCCESS:
+    if status == StageStatus.SUCCESS:
         return ":check:"
     return ":x:"
 
@@ -690,14 +786,14 @@ def build_deploy_logfile_links(
 def build_deploy_zulip_message(
     build_id: str,
     git_tag: str,
-    stage_results: dict[str, StageResult],
+    stage_results: dict[DeployStage, StageResult],
     total_duration_seconds: float,
     deploy_logfile_name: str,
     batch_job_name: str | None = None,
 ) -> str:
     """Build a markdown Zulip message summarizing deployment stage statuses."""
     succeeded = all(
-        result.status in (STAGE_SUCCESS, STAGE_SKIPPED)
+        result.status in (StageStatus.SUCCESS, StageStatus.SKIPPED)
         for result in stage_results.values()
     )
     nl = "\n"
@@ -717,10 +813,10 @@ def build_deploy_zulip_message(
     message += f":check: = SUCCESS; :x: = FAILURE; :ghost: = SKIPPED{nl}{nl}"
     message += f"| Stage | Status | Duration |{nl}"
     message += f"|:---|:---:|:---:|{nl}"
-    for name in DEPLOY_STAGE_NAMES:
-        result = stage_results[name]
+    for stage in DeployStage:
+        result = stage_results[stage]
         message += (
-            f"| {name} | {stage_emoji(result.status)} | "
+            f"| {stage.value} | {stage_emoji(result.status)} | "
             f"`[{format_stage_duration(result.duration_seconds)}]` |{nl}"
         )
     message += nl

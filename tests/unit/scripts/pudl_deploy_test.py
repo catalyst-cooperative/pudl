@@ -5,7 +5,7 @@ import os
 import pytest
 from click.testing import CliRunner
 
-from pudl.deploy.pudl import DeploymentType, new_deploy_stage_results
+from pudl.deploy.pudl import DeploymentPlan, DeploymentType, new_deploy_stage_results
 from pudl.scripts import pudl_deploy
 from pudl.scripts.pudl_deploy import _deploy_outputs
 
@@ -61,11 +61,11 @@ def test_deploy_outputs_gates_side_effects_by_deploy_type(
     if deploy_type == DeploymentType.BRANCH:
         git_tag = "branch-my-branch-2026-07-05"
 
+    plan = DeploymentPlan(git_tag=git_tag, environment=environment)
+
     _deploy_outputs(
         source_dir=mocker.MagicMock(),
-        deploy_type=deploy_type,
-        git_tag=git_tag,
-        environment=environment,
+        plan=plan,
         github_token="fake-token",  # noqa: S106
         stage_results=new_deploy_stage_results(),
     )
