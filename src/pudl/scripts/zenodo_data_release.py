@@ -42,6 +42,7 @@ import fsspec
 import requests
 from pydantic import AnyHttpUrl, BaseModel, Field
 
+from pudl.deploy.pudl import send_zulip_message
 from pudl.logging_helpers import get_logger
 
 SANDBOX = "sandbox"
@@ -56,6 +57,14 @@ RETRYABLE_STATUS_CODES = {
     522,  # Connection timed out (proxy)
     524,  # A timeout occurred (proxy)
 }
+
+# Zenodo's legacy and "new" (InvenioRDM) APIs are eventually consistent with each
+# other: a record ID freshly minted via the new API's POST .../versions endpoint can
+# 404 on the legacy API for a few seconds before it's actually visible there. This is
+# a different failure mode from RETRYABLE_STATUS_CODES (slow-to-recover server
+# errors), so it gets its own short polling loop rather than exponential backoff.
+NOT_YET_VISIBLE_MAX_TRIES = 5
+NOT_YET_VISIBLE_RETRY_DELAY_SECONDS = 3
 
 logger = get_logger(__name__)
 coloredlogs.install(
@@ -205,15 +214,47 @@ class ZenodoClient:
             )
         return response
 
+    def _get_until_visible(
+        self,
+        url: str,
+        max_tries: int = NOT_YET_VISIBLE_MAX_TRIES,
+        delay_seconds: float = NOT_YET_VISIBLE_RETRY_DELAY_SECONDS,
+    ) -> requests.Response:
+        """GET a URL, tolerating a few transient 404s.
+
+        A record ID freshly created via the new API can briefly 404 when read back
+        through the legacy API before Zenodo's two backends agree about it (see
+        ``NOT_YET_VISIBLE_MAX_TRIES`` above). A persistent 404 after all attempts is
+        a genuine error and raises normally via ``raise_for_status``.
+        """
+        if max_tries < 1:
+            raise ValueError(f"max_tries must be >= 1, got {max_tries}")
+
+        response: requests.Response | None = None
+        for attempt in range(1, max_tries + 1):
+            response = self.retry_request(
+                method="GET", url=url, headers=self.auth_headers
+            )
+            if response.status_code != 404:
+                return response
+            if attempt < max_tries:
+                logger.warning(
+                    f"Got 404 for {url} on attempt {attempt}/{max_tries}; Zenodo's "
+                    f"legacy and new APIs can take a few seconds to agree about a "
+                    f"freshly created record, retrying in {delay_seconds}s"
+                )
+                time.sleep(delay_seconds)
+        assert response is not None  # noqa: S101 -- guaranteed by max_tries >= 1 check above
+        response.raise_for_status()
+        return response
+
     def get_deposition(self, deposition_id: int) -> _LegacyDeposition:
         """LEGACY API: Get JSON describing a deposition.
 
         Depositions can be published *or* unpublished.
         """
-        response = self.retry_request(
-            method="GET",
+        response = self._get_until_visible(
             url=f"{self.base_url}/deposit/depositions/{deposition_id}",
-            headers=self.auth_headers,
         )
         logger.debug(
             f"License from JSON for {deposition_id} is "
@@ -226,10 +267,8 @@ class ZenodoClient:
 
         All records are published records.
         """
-        response = self.retry_request(
-            method="GET",
+        response = self._get_until_visible(
             url=f"{self.base_url}/records/{record_id}",
-            headers=self.auth_headers,
         )
         return _NewRecord(**response.json())
 
@@ -517,6 +556,40 @@ class CompleteDraft(State):
         return self.zenodo_client.get_deposition(self.record_id).links.html
 
 
+def build_zenodo_release_zulip_message(
+    env: str,
+    publish: bool,
+    succeeded: bool,
+    record_url: str | None,
+) -> str:
+    """Build a markdown Zulip message summarizing a Zenodo release attempt.
+
+    Makes the sandbox/production environment and publish/draft mode immediately
+    visible, so a misconfigured run is obvious at a glance, and links to the
+    resulting record when the release succeeded -- the live record if ``publish``
+    was requested, otherwise the draft awaiting manual review.
+    """
+    nl = "\n"
+    env_label = "PRODUCTION" if env == PRODUCTION else "SANDBOX"
+    mode_label = "publish" if publish else "draft, no-publish"
+
+    if succeeded:
+        message = (
+            f"{nl}# :check: PUDL Zenodo Release Succeeded "
+            f"({env_label}, {mode_label}){nl}{nl}"
+        )
+    else:
+        message = (
+            f"{nl}# :x: PUDL Zenodo Release Failed ({env_label}, {mode_label}){nl}{nl}"
+        )
+
+    if record_url:
+        record_label = "Published record" if publish else "Draft record"
+        message += f"- {record_label}: {record_url}{nl}"
+
+    return message
+
+
 @click.command(
     help=__doc__,
     context_settings={"help_option_names": ["-h", "--help"]},
@@ -557,18 +630,38 @@ def main(env: str, source_dir: str, publish: bool, ignore: tuple[str]) -> int:
         rec_id = 3653158
     else:
         raise ValueError(f"{env=}, expected {SANDBOX} or {PRODUCTION}")
-    completed_draft = (
-        InitialDataset(zenodo_client=zenodo_client, record_id=rec_id)
-        .get_empty_draft()
-        .sync_directory(source_dir, ignore)
-        .update_metadata()
-    )
 
-    if publish:
-        completed_draft.publish()
-        logger.info(f"Published at {completed_draft.get_html_url()}")
-    else:
-        logger.info(f"Completed draft at {completed_draft.get_html_url()}")
+    zulip_api_key = os.environ.get("ZULIP_API_KEY")
+    record_url: str | None = None
+    succeeded = False
+    try:
+        completed_draft = (
+            InitialDataset(zenodo_client=zenodo_client, record_id=rec_id)
+            .get_empty_draft()
+            .sync_directory(source_dir, ignore)
+            .update_metadata()
+        )
+
+        if publish:
+            completed_draft.publish()
+            logger.info(f"Published at {completed_draft.get_html_url()}")
+        else:
+            logger.info(f"Completed draft at {completed_draft.get_html_url()}")
+        record_url = str(completed_draft.get_html_url())
+        succeeded = True
+    finally:
+        if zulip_api_key:
+            send_zulip_message(
+                build_zenodo_release_zulip_message(
+                    env=env,
+                    publish=publish,
+                    succeeded=succeeded,
+                    record_url=record_url,
+                ),
+                api_key=zulip_api_key,
+            )
+        else:
+            logger.warning("Skipping Zulip notification: ZULIP_API_KEY is unset.")
 
     return 0
 

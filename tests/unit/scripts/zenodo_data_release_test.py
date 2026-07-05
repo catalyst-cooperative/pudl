@@ -7,10 +7,12 @@ import pytest
 import requests
 
 from pudl.scripts.zenodo_data_release import (
+    PRODUCTION,
     RETRYABLE_STATUS_CODES,
     SANDBOX,
     EmptyDraft,
     ZenodoClient,
+    build_zenodo_release_zulip_message,
 )
 
 
@@ -190,3 +192,93 @@ def test_sync_directory_skips_top_level_directories_and_ignored_files(
         for call in zenodo_client.create_bucket_file.call_args_list
     ]
     assert uploaded_paths == ["keep.txt"]
+
+
+def test_get_until_visible_returns_immediately_on_success(mocker, zenodo_client):
+    """A 200 on the first try should return immediately, with no retries."""
+    mock_retry_request = mocker.patch.object(
+        zenodo_client, "retry_request", return_value=_fake_response(200, {"ok": True})
+    )
+
+    response = zenodo_client._get_until_visible(url="https://example.com/records/1")
+
+    assert response.status_code == 200
+    assert mock_retry_request.call_count == 1
+
+
+def test_get_until_visible_retries_transient_404_then_succeeds(mocker, zenodo_client):
+    """A record ID that isn't visible yet should be tolerated and retried.
+
+    Simulates the eventual-consistency race between Zenodo's legacy and new APIs:
+    a freshly created record 404s a couple of times before it becomes visible.
+    """
+    responses = [
+        _fake_response(404),
+        _fake_response(404),
+        _fake_response(200, {"ok": True}),
+    ]
+    mock_retry_request = mocker.patch.object(
+        zenodo_client, "retry_request", side_effect=responses
+    )
+
+    response = zenodo_client._get_until_visible(url="https://example.com/records/1")
+
+    assert response.status_code == 200
+    assert mock_retry_request.call_count == 3
+
+
+def test_get_until_visible_raises_after_persistent_404(mocker, zenodo_client):
+    """A 404 that never resolves is a genuine error and should raise."""
+    mock_retry_request = mocker.patch.object(
+        zenodo_client, "retry_request", return_value=_requests_response(404)
+    )
+
+    with pytest.raises(requests.HTTPError):
+        zenodo_client._get_until_visible(
+            url="https://example.com/records/1", max_tries=3
+        )
+
+    assert mock_retry_request.call_count == 3
+
+
+def test_build_zenodo_release_zulip_message_success_publish():
+    """A successful publish run should show PRODUCTION/publish and the live URL."""
+    message = build_zenodo_release_zulip_message(
+        env=PRODUCTION,
+        publish=True,
+        succeeded=True,
+        record_url="https://zenodo.org/records/12345",
+    )
+
+    assert ":check: PUDL Zenodo Release Succeeded" in message
+    assert "PRODUCTION" in message
+    assert "publish" in message
+    assert "Published record: https://zenodo.org/records/12345" in message
+
+
+def test_build_zenodo_release_zulip_message_success_draft():
+    """A successful no-publish run should show SANDBOX/draft and the draft URL."""
+    message = build_zenodo_release_zulip_message(
+        env=SANDBOX,
+        publish=False,
+        succeeded=True,
+        record_url="https://sandbox.zenodo.org/records/6789",
+    )
+
+    assert ":check: PUDL Zenodo Release Succeeded" in message
+    assert "SANDBOX" in message
+    assert "draft, no-publish" in message
+    assert "Draft record: https://sandbox.zenodo.org/records/6789" in message
+
+
+def test_build_zenodo_release_zulip_message_failure_omits_record_link():
+    """A failed run should be clearly marked as failed, with no record link."""
+    message = build_zenodo_release_zulip_message(
+        env=SANDBOX,
+        publish=True,
+        succeeded=False,
+        record_url=None,
+    )
+
+    assert ":x: PUDL Zenodo Release Failed" in message
+    assert "record" not in message.lower()

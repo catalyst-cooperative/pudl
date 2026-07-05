@@ -137,7 +137,7 @@ def _compress_sqlite_file(sqlite_file: Path) -> None:
     """
     logger.info(f"Compressing {sqlite_file.name}")
     zip_path = sqlite_file.parent / f"{sqlite_file.name}.zip"
-    with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED, compresslevel=9) as zf:
+    with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED, compresslevel=6) as zf:
         zf.write(sqlite_file, arcname=sqlite_file.name)
     sqlite_file.unlink()
     logger.info(f"Compressed {sqlite_file.name}")
@@ -180,11 +180,13 @@ def prepare_outputs_for_distribution(local_path: Path, build_path: UPath) -> Non
     if success_marker.exists():
         success_marker.unlink()
 
-    # Touch an empty file named after the build ID so anyone looking at the
-    # distributed outputs can trace them back to the build that produced them --
-    # this used to be implicit in the build log's filename, which we no longer
-    # distribute.
-    (local_path / build_path.name).touch()
+    # Write a file named after the build ID (containing that same build ID) so
+    # anyone looking at the distributed outputs can trace them back to the build
+    # that produced them -- this used to be implicit in the build log's filename,
+    # which we no longer distribute. The file can't be empty: Zenodo rejects
+    # zero-byte uploads.
+    build_id = build_path.name
+    (local_path / build_id).write_text(build_id)
 
     # Zip parquet files (for main pudl outputs + ferc extracted outputs)
     pudl_parquet_dir = local_path / "parquet"

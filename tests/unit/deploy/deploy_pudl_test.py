@@ -100,11 +100,13 @@ def test_prepare_outputs_for_distribution(tmp_path):
     assert not (output_dir / "pudl_dbt_tests.duckdb").exists()
     assert not (output_dir / "parquet").exists()
 
-    # An empty marker file named after the build ID gives distributed outputs
-    # provenance, now that the build log's filename is no longer distributed.
+    # A marker file named after (and containing) the build ID gives distributed
+    # outputs provenance, now that the build log's filename is no longer
+    # distributed. It can't be empty -- Zenodo rejects zero-byte uploads.
     marker = output_dir / build_id
     assert marker.exists()
-    assert marker.stat().st_size == 0
+    assert marker.stat().st_size > 0
+    assert marker.read_text() == build_id
 
 
 def test_prepare_outputs_for_distribution_excludes_internal_files(tmp_path):
