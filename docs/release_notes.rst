@@ -29,7 +29,7 @@ EIA-176
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
-EIA860
+EIA-860
 ~~~~~~~
 
 * Added early release data for EIA-860 2025. See issue :issue:`5322` and PR :pr:`5324`.
@@ -62,6 +62,19 @@ Bug Fixes & Data Cleaning
   ``total_in_place`` and ``idle_in_place``, and documented why RUS Form 7 Part B
   subcomponents do not sum to the reported total within a year. See issue
   :issue:`5262` and PR :pr:`5323`.
+* Fixed several nightly/stable/branch deployment flow-control bugs: nightly builds
+  were silently landing in staging instead of production because
+  ``DEPLOYMENT_ENVIRONMENT`` was never wired into the build container's Batch job,
+  PUDL Viewer redeploys and Zenodo releases fired for every deploy type instead of
+  being restricted to nightly builds and non-branch builds respectively, stale
+  objects from earlier deployments were never cleared from the public GCS/S3 paths
+  before new outputs were written, and a staging copy of a stable release tag was
+  incorrectly treated as an immutable path that could never be cleared. See issue
+  :issue:`5382` and PR :pr:`5384`.
+* Fixed ``pudl_deploy`` returning a plain integer exit code from its Click command,
+  which Click's standalone mode silently discards, so shell callers previously saw
+  exit code 0 even when a deployment stage failed. It now uses ``ctx.exit()`` like
+  the other scripts fixed in :pr:`5374`. See :issue:`5382` and PR :pr:`5384`.
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -85,6 +98,17 @@ Developer Experience
   ``out_ferc714__georeferenced_respondents``) now use ``parquet_io_manager``.
   Updated the DuckDB dependency to ``>=1.5,<1.6``. See issues :issue:`4061,5074` and
   PR :pr:`5347`.
+* Extended the nightly build's Zulip reporting and stage-tracking machinery (added
+  in :pr:`5374`) to the ``pudl_deploy`` side of the pipeline as well: deployments now
+  save a timestamped log under ``builds.catalyst.coop`` and send a per-stage
+  (Prepare/Upload/Eel-Hole/Git-Branch/Zenodo/GCS-Hold) Zulip status table. Centralized
+  deploy-type/environment decisions (upload paths, which follow-on steps run) into a
+  single, unit-tested ``DeploymentPlan`` in :mod:`pudl.deploy.pudl`, replaced
+  hand-rolled ``curl``/JSON GitHub Actions dispatch with the ``gh`` CLI and a shared
+  ``dispatch_github_workflow()`` helper, and added required-argument and duplicate-key
+  validation to the shared ``devtools/generate_batch_config.py`` Batch job config
+  generator used by both the PUDL and FERC EQR build workflows. See issue :issue:`5382`
+  and PR :pr:`5384`.
 
 .. _release-v2026.6.1:
 
