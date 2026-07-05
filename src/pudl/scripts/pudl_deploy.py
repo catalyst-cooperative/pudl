@@ -31,8 +31,9 @@ changes before production use.
 """
 
 import os
-import sys
 import tempfile
+import time
+from datetime import datetime
 from pathlib import Path
 from typing import Literal
 
@@ -40,35 +41,25 @@ import click
 
 from pudl.deploy.pudl import (
     DeploymentType,
+    StageResult,
+    build_deploy_zulip_message,
+    build_deployment_plan,
     get_build_from_tag,
     get_deployment_type_from_tag,
+    new_deploy_stage_results,
     prepare_outputs_for_distribution,
+    run_best_effort_stage,
+    run_stage,
+    send_zulip_message,
     set_gcs_temporary_hold,
     trigger_zenodo_release,
     update_git_branch,
     update_pudl_viewer,
     upload_outputs,
 )
-from pudl.logging_helpers import get_logger
+from pudl.logging_helpers import configure_root_logger, get_logger
 
 logger = get_logger(__name__)
-
-
-def _get_deployment_path_suffixes(
-    deploy_type: DeploymentType,
-    git_tag: str,
-    environment: Literal["staging", "production"],
-) -> tuple[list[str], str]:
-    if deploy_type in [DeploymentType.NIGHTLY, DeploymentType.BRANCH]:
-        path_suffixes = ["nightly", "eel-hole"]
-        zenodo_source_suffix = "nightly"
-    else:
-        path_suffixes = [git_tag, "stable"]
-        zenodo_source_suffix = git_tag
-    if environment == "staging":
-        path_suffixes = [f"staging/{s}" for s in path_suffixes]
-        zenodo_source_suffix = f"staging/{zenodo_source_suffix}"
-    return path_suffixes, zenodo_source_suffix
 
 
 def _deploy_outputs(
@@ -77,47 +68,72 @@ def _deploy_outputs(
     git_tag: str,
     environment: Literal["staging", "production"],
     github_token: str,
+    stage_results: dict[str, StageResult],
 ):
     """Execute stable or nightly deployment workflow.
 
-    Upload outputs to paths associated with build type, trigger zenodo release,
-    and update git branch. If ``deploy_type`` is stable, also sets GCS temporary
-    hold on versioned release.
+    Every decision about what to do -- which paths to upload to, whether to
+    redeploy Eel Hole, update git branches, trigger a Zenodo release, or set a GCS
+    temporary hold -- comes from a single ``DeploymentPlan`` resolved from
+    ``deploy_type`` and ``environment``, rather than being re-derived here.
+
+    ``stage_results`` records the status and duration of each stage for Zulip
+    reporting; "Upload outputs" is a hard prerequisite for the rest (a failure
+    there raises and aborts the remaining stages, leaving them recorded as
+    skipped), while the remaining stages are independent of one another.
     """
-    path_suffixes, zenodo_source_suffix = _get_deployment_path_suffixes(
-        deploy_type=deploy_type,
-        git_tag=git_tag,
-        environment=environment,
+    plan = build_deployment_plan(
+        deploy_type=deploy_type, git_tag=git_tag, environment=environment
     )
 
-    upload_outputs(
+    run_stage(
+        stage_fn=upload_outputs,
+        stage_name="Upload outputs",
+        stage_results=stage_results,
         source_dir=source_dir,
-        path_suffixes=path_suffixes,
+        path_suffixes=plan.path_suffixes,
+        immutable_suffixes=plan.immutable_suffixes,
     )
 
-    update_pudl_viewer(
-        token=github_token,
-        environment=environment,
-    )
+    if plan.redeploy_eel_hole:
+        run_best_effort_stage(
+            stage_fn=update_pudl_viewer,
+            stage_name="Redeploy Eel Hole",
+            stage_results=stage_results,
+            token=github_token,
+            environment=environment,
+        )
 
-    # We don't need to update any branches when doing a branch build
-    if deploy_type != DeploymentType.BRANCH:
-        update_git_branch(
+    if plan.update_git_branch:
+        run_best_effort_stage(
+            stage_fn=update_git_branch,
+            stage_name="Update Git Branch",
+            stage_results=stage_results,
             tag=git_tag,
             branch=deploy_type.value,
             environment=environment,
             github_token=github_token,
         )
 
-    trigger_zenodo_release(
-        build_ref=git_tag,
-        deploy_type=deploy_type,
-        source_suffix=zenodo_source_suffix,
-        token=github_token,
-    )
-    if (deploy_type == DeploymentType.STABLE) and (environment == "production"):
+    if plan.trigger_zenodo_release:
+        run_best_effort_stage(
+            stage_fn=trigger_zenodo_release,
+            stage_name="Trigger Zenodo Release",
+            stage_results=stage_results,
+            build_ref=git_tag,
+            deploy_type=deploy_type,
+            source_suffix=plan.zenodo_source_suffix,
+            token=github_token,
+        )
+
+    if plan.gcs_temporary_hold:
         gcs_path = f"gs://pudl.catalyst.coop/{git_tag}/"
-        set_gcs_temporary_hold(gcs_path=gcs_path)
+        run_best_effort_stage(
+            stage_fn=set_gcs_temporary_hold,
+            stage_name="GCS Temporary Hold",
+            stage_results=stage_results,
+            gcs_path=gcs_path,
+        )
 
 
 @click.command(
@@ -138,19 +154,24 @@ def _deploy_outputs(
     ),
     show_default=True,
 )
+@click.pass_context
 def main(
+    ctx: click.Context,
     git_tag: str,
     environment: str,
-) -> int:
+) -> None:
     """Deploy PUDL ETL outputs to cloud storage and external services.
 
     Orchestrates the full deployment workflow:
     1. Prepare outputs (compress SQLite, create parquet archive)
     2. Upload to cloud storage (GCS and S3)
-    3. Update git branches (if not staging)
-    4. Set GCS temporary hold for versioned releases (stable only, not staging)
-    5. Trigger Zenodo release
-    6. Update Cloud Run service (nightly only, not staging)
+    3. Redeploy the PUDL Viewer (nightly only)
+    4. Update git branches (skipped for branch builds)
+    5. Trigger Zenodo release (skipped for branch builds)
+    6. Set GCS temporary hold for versioned releases (stable + production only)
+
+    Saves a log of the deployment and a Zulip stage-status notification, mirroring
+    the nightly build's own reporting.
     """
     # Check if tag is a nightly or stable build
     deploy_type = get_deployment_type_from_tag(git_tag)
@@ -162,8 +183,15 @@ def main(
 
     # Find build associated with tag
     build_path = get_build_from_tag(git_tag)
+    build_id = build_path.name
     # Create local directory to prep clean ETL outputs
     local_copy_path = Path(tempfile.mkdtemp())
+
+    deploy_start_time = datetime.now()
+    local_logfile = (
+        Path(tempfile.mkdtemp()) / f"{build_id}-deploy-{deploy_start_time:%H%M}.log"
+    )
+    configure_root_logger(logfile=str(local_logfile))
 
     logger.info(
         f"Starting deployment for tag: {git_tag}\n"
@@ -171,19 +199,49 @@ def main(
         f"Deployment type: {deploy_type}\n"
     )
 
-    prepare_outputs_for_distribution(local_copy_path, build_path)
+    stage_results = new_deploy_stage_results()
+    total_start = time.monotonic()
+    try:
+        run_stage(
+            stage_fn=prepare_outputs_for_distribution,
+            stage_name="Prepare outputs",
+            stage_results=stage_results,
+            local_path=local_copy_path,
+            build_path=build_path,
+        )
 
-    _deploy_outputs(
-        source_dir=local_copy_path,
-        deploy_type=deploy_type,
-        git_tag=git_tag,
-        environment=environment,
-        github_token=os.environ["GITHUB_TOKEN"],
-    )
+        _deploy_outputs(
+            source_dir=local_copy_path,
+            deploy_type=deploy_type,
+            git_tag=git_tag,
+            environment=environment,
+            github_token=os.environ["GITHUB_TOKEN"],
+            stage_results=stage_results,
+        )
+    finally:
+        total_duration = time.monotonic() - total_start
+        zulip_api_key = os.environ.get("ZULIP_API_KEY")
+        if zulip_api_key:
+            message = build_deploy_zulip_message(
+                build_id=build_id,
+                git_tag=git_tag,
+                stage_results=stage_results,
+                total_duration_seconds=total_duration,
+            )
+            send_zulip_message(message, api_key=zulip_api_key)
+        else:
+            logger.warning("Skipping Zulip notification: ZULIP_API_KEY is unset.")
+
+        if local_logfile.exists():
+            build_path.fs.put_file(
+                str(local_logfile), f"{build_path}/{local_logfile.name}"
+            )
+
+    if any(result.status == "failure" for result in stage_results.values()):
+        ctx.exit(1)
 
     logger.info("Deployment completed successfully")
-    return 0
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

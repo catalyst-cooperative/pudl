@@ -4,11 +4,12 @@ This module handles distribution of completed ETL builds to public cloud storage
 (GCS and S3), git branch updates, Zenodo releases, and Cloud Run deployments.
 """
 
-import logging
 import re
 import shutil
 import subprocess
+import time
 import zipfile
+from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
@@ -19,8 +20,9 @@ import requests
 import s3fs
 from upath import UPath
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+from pudl.logging_helpers import get_logger
+
+logger = get_logger(__name__)
 
 
 class DeploymentType(Enum):
@@ -29,6 +31,69 @@ class DeploymentType(Enum):
     NIGHTLY = "nightly"
     STABLE = "stable"
     BRANCH = "branch"
+
+
+@dataclass(frozen=True)
+class DeploymentPlan:
+    """Fully resolved deployment behavior for one deploy type and environment.
+
+    This is the single source of truth for what a deployment actually does --
+    every other piece of code (path suffixes, which stages run) derives from a
+    ``DeploymentPlan`` instead of independently re-deriving the same
+    deploy-type/environment rules.
+    """
+
+    path_suffixes: list[str]
+    zenodo_source_suffix: str
+    immutable_suffixes: frozenset[str]
+    redeploy_eel_hole: bool
+    update_git_branch: bool
+    trigger_zenodo_release: bool
+    gcs_temporary_hold: bool
+
+
+def build_deployment_plan(
+    deploy_type: DeploymentType,
+    git_tag: str,
+    environment: Literal["staging", "production"],
+) -> DeploymentPlan:
+    """Resolve every deploy_type x environment decision into one plan.
+
+    - Nightly and branch builds share the same rolling "nightly"/"eel-hole" paths;
+      stable releases get their own permanent version-tagged path plus "stable".
+    - Only nightly builds redeploy the PUDL Viewer (Eel Hole).
+    - Branch builds never update git branches or trigger Zenodo releases.
+    - Only a *production* stable release gets a GCS temporary hold, protecting its
+      permanent version-tagged path -- which is also the only path that's never
+      cleared before upload (see ``immutable_suffixes``). A staging deploy of the
+      same tag is just a disposable test output and must remain clearable.
+    """
+    if deploy_type in (DeploymentType.NIGHTLY, DeploymentType.BRANCH):
+        path_suffixes = ["nightly", "eel-hole"]
+        zenodo_source_suffix = "nightly"
+    else:
+        path_suffixes = [git_tag, "stable"]
+        zenodo_source_suffix = git_tag
+
+    if environment == "staging":
+        path_suffixes = [f"staging/{s}" for s in path_suffixes]
+        zenodo_source_suffix = f"staging/{zenodo_source_suffix}"
+
+    gcs_temporary_hold = (
+        deploy_type == DeploymentType.STABLE and environment == "production"
+    )
+
+    return DeploymentPlan(
+        path_suffixes=path_suffixes,
+        zenodo_source_suffix=zenodo_source_suffix,
+        immutable_suffixes=(
+            frozenset({git_tag}) if gcs_temporary_hold else frozenset()
+        ),
+        redeploy_eel_hole=(deploy_type == DeploymentType.NIGHTLY),
+        update_git_branch=(deploy_type != DeploymentType.BRANCH),
+        trigger_zenodo_release=(deploy_type != DeploymentType.BRANCH),
+        gcs_temporary_hold=gcs_temporary_hold,
+    )
 
 
 def _zip_parquet_files(parquet_path: Path, output_path: Path) -> None:
@@ -85,14 +150,26 @@ def prepare_outputs_for_distribution(local_path: Path, build_path: UPath) -> Non
 
     logger.info(f"Preparing outputs in {local_path} for distribution")
 
+    # Build and deploy logs live under builds.catalyst.coop for operators to
+    # review, but must never be distributed publicly -- they can contain stack
+    # traces or other details we don't want to expose.
+    for log_file in local_path.glob("*.log"):
+        logger.info(f"Excluding {log_file.name} from public distribution.")
+        log_file.unlink()
+
     # Zip parquet files (for main pudl outputs + ferc extracted outputs)
     pudl_parquet_dir = local_path / "parquet"
     _zip_parquet_files(pudl_parquet_dir, local_path / "pudl_parquet.zip")
-    _zip_parquet_files(local_path / "ferc1_xbrl", local_path / "ferc1_xbrl.zip")
-    _zip_parquet_files(local_path / "ferc2_xbrl", local_path / "ferc2_xbrl.zip")
-    _zip_parquet_files(local_path / "ferc6_xbrl", local_path / "ferc6_xbrl.zip")
-    _zip_parquet_files(local_path / "ferc60_xbrl", local_path / "ferc60_xbrl.zip")
-    _zip_parquet_files(local_path / "ferc714_xbrl", local_path / "ferc714_xbrl.zip")
+    for ferc_db in ["ferc1", "ferc2", "ferc6", "ferc60", "ferc714"]:
+        if ferc_db != "ferc714":
+            _zip_parquet_files(
+                local_path / f"{ferc_db}_dbf",
+                local_path / f"{ferc_db}_dbf.zip",
+            )
+        _zip_parquet_files(
+            local_path / f"{ferc_db}_xbrl",
+            local_path / f"{ferc_db}_xbrl.zip",
+        )
 
     # Move parquet files to base directory
     for parquet_file in pudl_parquet_dir.glob("*.parquet"):
@@ -128,19 +205,38 @@ def _run(cmd: list[str]) -> str | None:
     return subprocess.run(cmd, check=True, capture_output=True, text=True).stdout  # noqa: S603
 
 
+def clear_deployment_path(fs, path: str) -> None:
+    """Empty a cloud storage prefix before writing fresh deployment outputs.
+
+    Cloud storage (GCS, S3) uses virtual prefixes rather than real directories, so we
+    use ``fs.rm(path, recursive=True)`` instead of ``rmdir()``, which would raise
+    ``NotADirectoryError`` -- the same pattern used for FERC EQR staging cleanup in
+    ``pudl.dagster.assets.deploy.ferceqr``.
+    """
+    if fs.exists(path):
+        fs.rm(path, recursive=True)
+
+
 def upload_outputs(
     source_dir: Path,
     path_suffixes: list[str],
+    immutable_suffixes: frozenset[str] = frozenset(),
 ) -> None:
     """Upload outputs to cloud storage paths.
 
     Uploads all files from source directory to GCS and S3 using the provided path
     suffixes. Each suffix is uploaded to both gs://pudl.catalyst.coop/{suffix}/ and
-    s3://pudl.catalyst.coop/{suffix}/.
+    s3://pudl.catalyst.coop/{suffix}/. Any existing objects at a suffix are removed
+    first, unless that suffix is listed in ``immutable_suffixes`` -- this keeps stale
+    files from earlier deployments (e.g. removed or renamed tables) from lingering
+    alongside fresh outputs, while never touching a permanent, hold-protected
+    versioned release path.
 
     Args:
         source_dir: Local directory containing prepared outputs to upload.
         path_suffixes: Path suffixes to upload to (e.g., ["nightly", "eel-hole"]).
+        immutable_suffixes: Path suffixes that should never be cleared before upload
+            (e.g. a permanent stable-version path like "v2026.7.0").
     """
     logger.info("Uploading outputs to cloud storage")
 
@@ -156,11 +252,18 @@ def upload_outputs(
     # actually upload
     for suffix in path_suffixes:
         gcs_path = f"gs://pudl.catalyst.coop/{suffix}/"
+        s3_path = f"s3://pudl.catalyst.coop/{suffix}/"
+
+        if suffix not in immutable_suffixes:
+            logger.info(f"Clearing existing outputs at {gcs_path}")
+            clear_deployment_path(gcs_fs, gcs_path)
+            logger.info(f"Clearing existing outputs at {s3_path}")
+            clear_deployment_path(s3_fs, s3_path)
+
         logger.info(f"Uploading outputs to {gcs_path}")
         gcs_fs.mkdirs(gcs_path, exist_ok=True)
         gcs_fs.put(f"{source_dir}/*", gcs_path, recursive=True)
 
-        s3_path = f"s3://pudl.catalyst.coop/{suffix}/"
         logger.info(f"Uploading outputs to {s3_path}")
         s3_fs.mkdirs(s3_path, exist_ok=True)
         s3_fs.put(f"{source_dir}/*", s3_path, recursive=True)
@@ -217,6 +320,38 @@ def update_git_branch(
     logger.info(f"Git branch {branch} updated successfully")
 
 
+def dispatch_github_workflow(
+    repo: str,
+    workflow_file: str,
+    ref: str,
+    token: str,
+    inputs: dict[str, str] | None = None,
+) -> None:
+    """Trigger a workflow_dispatch event on a GitHub Actions workflow.
+
+    Args:
+        repo: GitHub repo in "owner/name" form (e.g. "catalyst-cooperative/pudl").
+        workflow_file: Workflow filename (e.g. "zenodo-data-release.yml").
+        ref: Git branch or tag to run the workflow from.
+        token: Bearer token to authenticate to GitHub.
+        inputs: workflow_dispatch inputs, if the workflow takes any.
+    """
+    payload: dict[str, str | dict[str, str]] = {"ref": ref}
+    if inputs:
+        payload["inputs"] = inputs
+
+    response = requests.post(
+        f"https://api.github.com/repos/{repo}/actions/workflows/{workflow_file}/dispatches",
+        headers={
+            "Accept": "application/vnd.github+json",
+            "Authorization": f"Bearer {token}",
+        },
+        json=payload,
+        timeout=10,
+    )
+    response.raise_for_status()
+
+
 def trigger_zenodo_release(
     build_ref: str,
     deploy_type: DeploymentType,
@@ -245,24 +380,18 @@ def trigger_zenodo_release(
 
     logger.info(f"Triggering Zenodo release: env={env}, publish={publish_flag}")
 
-    response = requests.post(
-        "https://api.github.com/repos/catalyst-cooperative/pudl/actions/workflows/zenodo-data-release.yml/dispatches",
-        headers={
-            "Accept": "application/vnd.github+json",
-            "Authorization": f"Bearer {token}",
+    dispatch_github_workflow(
+        repo="catalyst-cooperative/pudl",
+        workflow_file="zenodo-data-release.yml",
+        ref=build_ref,
+        token=token,
+        inputs={
+            "env": env,
+            "source_dir": f"s3://pudl.catalyst.coop/{source_suffix}",
+            "ignore_regex": ignore_regex,
+            "publish": publish_flag,
         },
-        json={
-            "ref": build_ref,
-            "inputs": {
-                "env": env,
-                "source_dir": f"s3://pudl.catalyst.coop/{source_suffix}",
-                "ignore_regex": ignore_regex,
-                "publish": publish_flag,
-            },
-        },
-        timeout=10,
     )
-    response.raise_for_status()
 
     logger.info("Zenodo release workflow triggered")
 
@@ -279,23 +408,16 @@ def update_pudl_viewer(
     """
     logger.info("Updating PUDL Viewer Cloud Run service")
 
-    if environment == "staging":
-        deploy_workflow_url = "https://api.github.com/repos/catalyst-cooperative/eel-hole/actions/workflows/build-deploy-staging.yml/dispatches"
-    else:
-        deploy_workflow_url = "https://api.github.com/repos/catalyst-cooperative/eel-hole/actions/workflows/build-deploy.yml/dispatches"
-
-    response = requests.post(
-        deploy_workflow_url,
-        headers={
-            "Accept": "application/vnd.github+json",
-            "Authorization": f"Bearer {token}",
-        },
-        json={
-            "ref": "main",
-        },
-        timeout=10,
+    workflow_file = (
+        "build-deploy-staging.yml" if environment == "staging" else "build-deploy.yml"
     )
-    response.raise_for_status()
+
+    dispatch_github_workflow(
+        repo="catalyst-cooperative/eel-hole",
+        workflow_file=workflow_file,
+        ref="main",
+        token=token,
+    )
 
     logger.info("PUDL Viewer Cloud Run service updated")
 
@@ -381,3 +503,145 @@ def get_deployment_type_from_tag(git_tag: str) -> DeploymentType:
             f"Git tag does not look like a stable or nightly tag. Input tag: {git_tag}"
         )
     return deploy_type
+
+
+STAGE_SKIPPED = "skipped"
+STAGE_SUCCESS = "success"
+STAGE_FAILURE = "failure"
+
+#: Deploy stages, in the order they should appear in the Zulip notification table.
+DEPLOY_STAGE_NAMES = [
+    "Prepare outputs",
+    "Upload outputs",
+    "Redeploy Eel Hole",
+    "Update Git Branch",
+    "Trigger Zenodo Release",
+    "GCS Temporary Hold",
+]
+
+ZULIP_API_URL = "https://catalyst-cooperative.zulipchat.com/api/v1/messages"
+ZULIP_BOT_EMAIL = "build-status-bot@catalyst-cooperative.zulipchat.com"
+ZULIP_STREAM = "pudl-deployments"
+ZULIP_TOPIC = "build-deploy-pudl"
+
+
+@dataclass
+class StageResult:
+    """Outcome of a single deployment stage, for Zulip stage-table reporting."""
+
+    status: str = STAGE_SKIPPED
+    duration_seconds: float = 0.0
+
+
+def new_deploy_stage_results() -> dict[str, StageResult]:
+    """Initialize every tracked deploy stage as skipped, in table display order."""
+    return {name: StageResult() for name in DEPLOY_STAGE_NAMES}
+
+
+def run_stage(
+    stage_fn, stage_name: str, stage_results: dict[str, StageResult], *args, **kwargs
+) -> None:
+    """Run a deploy stage, recording its status and duration in ``stage_results``.
+
+    If ``stage_fn`` raises, the exception propagates to the caller after the stage
+    is recorded as failed -- callers that want to continue with subsequent
+    independent stages despite a failure should catch the exception around this
+    call (see ``run_best_effort_stage``).
+    """
+    start = time.monotonic()
+    status = STAGE_FAILURE
+    try:
+        stage_fn(*args, **kwargs)
+        status = STAGE_SUCCESS
+    finally:
+        stage_results[stage_name] = StageResult(
+            status=status, duration_seconds=time.monotonic() - start
+        )
+
+
+def run_best_effort_stage(
+    stage_fn, stage_name: str, stage_results: dict[str, StageResult], *args, **kwargs
+) -> None:
+    """Run an independent deploy stage, logging (not raising) on failure.
+
+    Used for stages that shouldn't block their siblings -- e.g. a failed Zenodo
+    release shouldn't prevent the GCS temporary hold from being attempted.
+    """
+    try:
+        run_stage(stage_fn, stage_name, stage_results, *args, **kwargs)
+    except Exception:
+        logger.exception(f"Deploy stage {stage_name!r} failed; continuing.")
+
+
+def format_stage_duration(elapsed_seconds: float) -> str:
+    """Format a duration in seconds as ``HH:MM:SS``."""
+    elapsed_seconds = int(elapsed_seconds)
+    hours, remainder = divmod(elapsed_seconds, 3600)
+    minutes, seconds = divmod(remainder, 60)
+    return f"{hours:02d}:{minutes:02d}:{seconds:02d}"
+
+
+def stage_emoji(status: str) -> str:
+    """Return the Zulip emoji corresponding to a stage status."""
+    if status == STAGE_SKIPPED:
+        return ":ghost:"
+    if status == STAGE_SUCCESS:
+        return ":check:"
+    return ":x:"
+
+
+def build_deploy_zulip_message(
+    build_id: str,
+    git_tag: str,
+    stage_results: dict[str, StageResult],
+    total_duration_seconds: float,
+) -> str:
+    """Build a markdown Zulip message summarizing deployment stage statuses."""
+    succeeded = all(
+        result.status in (STAGE_SUCCESS, STAGE_SKIPPED)
+        for result in stage_results.values()
+    )
+    nl = "\n"
+
+    if succeeded:
+        message = f"{nl}# :check: PUDL Deployment Succeeded!! :partygritty:{nl}{nl}"
+    else:
+        message = f"{nl}# :x: PUDL Deployment Failed :sob:{nl}{nl}"
+
+    message += f"- Build ID: `{build_id}`{nl}"
+    message += f"- Git Tag: `{git_tag}`{nl}"
+    message += (
+        f"## :time: Total Deploy Duration: "
+        f"`[{format_stage_duration(total_duration_seconds)}]`{nl}{nl}"
+    )
+    message += f"## Deploy Stage Status{nl}{nl}"
+    message += f":check: = SUCCESS; :x: = FAILURE; :ghost: = SKIPPED{nl}{nl}"
+    message += f"| Stage | Status | Duration |{nl}"
+    message += f"|:---|:---:|:---:|{nl}"
+    for name in DEPLOY_STAGE_NAMES:
+        result = stage_results[name]
+        message += (
+            f"| {name} | {stage_emoji(result.status)} | "
+            f"`[{format_stage_duration(result.duration_seconds)}]` |{nl}"
+        )
+
+    return message
+
+
+def send_zulip_message(message: str, api_key: str) -> None:
+    """Post a message to the pudl-deployments Zulip stream."""
+    try:
+        response = requests.post(
+            ZULIP_API_URL,
+            auth=(ZULIP_BOT_EMAIL, api_key),
+            data={
+                "type": "stream",
+                "to": ZULIP_STREAM,
+                "topic": ZULIP_TOPIC,
+                "content": message,
+            },
+            timeout=10,
+        )
+        response.raise_for_status()
+    except requests.RequestException:
+        logger.warning("Zulip notification failed.", exc_info=True)
