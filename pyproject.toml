@@ -385,8 +385,8 @@ cmd = "prek install"
 description = "Install pre-commit hooks"
 
 # Dependency Update tasks
-[tool.pixi.tasks.prek-autoupdate]
-cmd = "prek autoupdate"
+[tool.pixi.tasks.prek-update]
+cmd = "prek update"
 description = "Update pre-commit hook versions"
 
 [tool.pixi.tasks.dbt-deps-upgrade]
