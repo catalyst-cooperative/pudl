@@ -1,6 +1,7 @@
 """Test distribution logic for ETL outputs."""
 
 import hashlib
+import threading
 import zipfile
 from pathlib import Path
 from unittest.mock import MagicMock, call, patch
@@ -12,6 +13,7 @@ from upath import UPath
 from pudl.deploy.pudl import (
     DeploymentType,
     StageResult,
+    build_deploy_logfile_links,
     build_deploy_zulip_message,
     build_deployment_plan,
     clear_deployment_path,
@@ -35,7 +37,8 @@ from pudl.deploy.pudl import (
 def test_prepare_outputs_for_distribution(tmp_path):
     """Test complete output preparation workflow."""
     output_dir = tmp_path / "output"
-    build_path = tmp_path / "build_path"
+    build_id = "2026-07-04-0600-abc123456-main"
+    build_path = tmp_path / build_id
     output_dir.mkdir()
     build_path.mkdir()
     parquet_dirs = [
@@ -97,13 +100,21 @@ def test_prepare_outputs_for_distribution(tmp_path):
     assert not (output_dir / "pudl_dbt_tests.duckdb").exists()
     assert not (output_dir / "parquet").exists()
 
+    # An empty marker file named after the build ID gives distributed outputs
+    # provenance, now that the build log's filename is no longer distributed.
+    marker = output_dir / build_id
+    assert marker.exists()
+    assert marker.stat().st_size == 0
 
-def test_prepare_outputs_for_distribution_excludes_log_files(tmp_path):
-    """Build and deploy logs must never end up in the public distribution.
 
-    They live alongside the real outputs under builds.catalyst.coop (so a
-    ``fs.get(..., recursive=True)`` pulls them down too), but they can contain
-    stack traces or other details we don't want to expose publicly.
+def test_prepare_outputs_for_distribution_excludes_internal_files(tmp_path):
+    """Build/deploy logs and the "success" sentinel must never be distributed.
+
+    Build and deploy logs live alongside the real outputs under
+    builds.catalyst.coop (so a ``fs.get(..., recursive=True)`` pulls them down
+    too), but they can contain stack traces or other details we don't want to
+    expose publicly. The "success" sentinel is internal build-completion
+    plumbing with no meaning for consumers of the distributed outputs.
     """
     output_dir = tmp_path / "output"
     build_path = tmp_path / "build_path"
@@ -113,9 +124,9 @@ def test_prepare_outputs_for_distribution_excludes_log_files(tmp_path):
     (build_path / "pudl.sqlite").write_text("db content")
     (build_path / "pudl_dbt_tests.duckdb").write_text("test db")
     (build_path / "2026-07-04-0600-abc123456-main.log").write_text("build log")
-    (build_path / "2026-07-04-0600-abc123456-main-deploy-0700.log").write_text(
-        "deploy log"
-    )
+    (
+        build_path / "2026-07-04-0600-abc123456-main-deploy-2026-07-04-0700.log"
+    ).write_text("deploy log")
     (build_path / "success").write_text("")
 
     for name in ["parquet", "ferc1_dbf", "ferc2_dbf", "ferc6_dbf", "ferc60_dbf"]:
@@ -138,6 +149,7 @@ def test_prepare_outputs_for_distribution_excludes_log_files(tmp_path):
     prepare_outputs_for_distribution(output_dir, UPath(build_path))
 
     assert list(output_dir.glob("*.log")) == []
+    assert not (output_dir / "success").exists()
     # Everything else should still have made it through.
     assert (output_dir / "pudl.sqlite.zip").exists()
 
@@ -164,29 +176,68 @@ def test_upload_outputs_nightly(tmp_path):
 
         upload_outputs(source_dir, path_suffixes)
 
+        # Suffixes now upload concurrently, so call order isn't guaranteed -- assert
+        # on the set of paths touched rather than positional call order.
         assert mock_gcs.put.call_count == 2
-        assert (
-            mock_gcs.put.call_args_list[0][0][1] == "gs://pudl.catalyst.coop/nightly/"
-        )
-        assert (
-            mock_gcs.put.call_args_list[1][0][1] == "gs://pudl.catalyst.coop/eel-hole/"
-        )
+        assert {c.args[1] for c in mock_gcs.put.call_args_list} == {
+            "gs://pudl.catalyst.coop/nightly/",
+            "gs://pudl.catalyst.coop/eel-hole/",
+        }
 
         assert mock_s3.put.call_count == 2
-        assert mock_s3.put.call_args_list[0][0][1] == "s3://pudl.catalyst.coop/nightly/"
-        assert (
-            mock_s3.put.call_args_list[1][0][1] == "s3://pudl.catalyst.coop/eel-hole/"
-        )
+        assert {c.args[1] for c in mock_s3.put.call_args_list} == {
+            "s3://pudl.catalyst.coop/nightly/",
+            "s3://pudl.catalyst.coop/eel-hole/",
+        }
 
         # Both filesystems should have been cleared before the corresponding put().
-        assert mock_gcs.rm.call_args_list == [
-            call("gs://pudl.catalyst.coop/nightly/", recursive=True),
-            call("gs://pudl.catalyst.coop/eel-hole/", recursive=True),
-        ]
-        assert mock_s3.rm.call_args_list == [
-            call("s3://pudl.catalyst.coop/nightly/", recursive=True),
-            call("s3://pudl.catalyst.coop/eel-hole/", recursive=True),
-        ]
+        # `call`/dict objects aren't hashable, so compare extracted paths and
+        # kwargs separately rather than putting the raw calls in a set.
+        assert all(c.kwargs == {"recursive": True} for c in mock_gcs.rm.call_args_list)
+        assert {c.args[0] for c in mock_gcs.rm.call_args_list} == {
+            "gs://pudl.catalyst.coop/nightly/",
+            "gs://pudl.catalyst.coop/eel-hole/",
+        }
+        assert all(c.kwargs == {"recursive": True} for c in mock_s3.rm.call_args_list)
+        assert {c.args[0] for c in mock_s3.rm.call_args_list} == {
+            "s3://pudl.catalyst.coop/nightly/",
+            "s3://pudl.catalyst.coop/eel-hole/",
+        }
+
+
+def test_upload_outputs_runs_targets_concurrently(tmp_path):
+    """The 4 (suffix x destination) uploads should run concurrently, not serially.
+
+    Uses a barrier that all 4 ``put()`` calls must reach together. If the uploads
+    actually ran one at a time, only one call would ever be in flight and the
+    barrier would time out instead of releasing.
+    """
+    source_dir = tmp_path / "output"
+    source_dir.mkdir()
+    (source_dir / "table1.parquet").write_text("p1")
+
+    barrier = threading.Barrier(4, timeout=5)
+
+    def _blocking_put(*args, **kwargs):
+        barrier.wait()
+
+    with (
+        patch("pudl.deploy.pudl.gcsfs.GCSFileSystem") as mock_gcs_cls,
+        patch("pudl.deploy.pudl.s3fs.S3FileSystem") as mock_s3_cls,
+    ):
+        mock_gcs = MagicMock()
+        mock_s3 = MagicMock()
+        mock_gcs.exists.return_value = False
+        mock_s3.exists.return_value = False
+        mock_gcs.put.side_effect = _blocking_put
+        mock_s3.put.side_effect = _blocking_put
+        mock_gcs_cls.return_value = mock_gcs
+        mock_s3_cls.return_value = mock_s3
+
+        upload_outputs(source_dir, ["nightly", "eel-hole"])
+
+        assert mock_gcs.put.call_count == 2
+        assert mock_s3.put.call_count == 2
 
 
 def test_upload_outputs_skips_clearing_immutable_suffix(tmp_path):
@@ -768,6 +819,7 @@ def test_build_deploy_zulip_message_reports_success_and_all_stage_rows():
         git_tag="nightly-2026-07-05",
         stage_results=stage_results,
         total_duration_seconds=30,
+        deploy_logfile_name="2026-07-05-0600-abc123456-main-deploy-2026-07-05-0700.log",
     )
 
     assert ":check: PUDL Deployment Succeeded" in message
@@ -779,6 +831,8 @@ def test_build_deploy_zulip_message_reports_success_and_all_stage_rows():
     assert "| Update Git Branch | :ghost: |" in message
     assert "| Trigger Zenodo Release | :ghost: |" in message
     assert "| GCS Temporary Hold | :ghost: |" in message
+    assert "## Review PUDL Deploy Logs" in message
+    assert "2026-07-05-0600-abc123456-main-deploy-2026-07-05-0700.log" in message
 
 
 def test_build_deploy_zulip_message_reports_failure():
@@ -791,9 +845,51 @@ def test_build_deploy_zulip_message_reports_failure():
         git_tag="nightly-2026-07-05",
         stage_results=stage_results,
         total_duration_seconds=5,
+        deploy_logfile_name="2026-07-05-0600-abc123456-main-deploy-2026-07-05-0700.log",
     )
 
     assert ":x: PUDL Deployment Failed" in message
+
+
+def test_build_deploy_logfile_links_includes_batch_job_console_link_when_known():
+    """The console job link should appear when a batch job name is provided."""
+    message = build_deploy_logfile_links(
+        build_id="2026-07-05-0600-abc123456-main",
+        deploy_logfile_name="2026-07-05-0600-abc123456-main-deploy-2026-07-05-0700.log",
+        batch_job_name="deploy-outputs-12345-1",
+    )
+
+    assert "## Review PUDL Deploy Logs" in message
+    assert (
+        "gs://builds.catalyst.coop/2026-07-05-0600-abc123456-main/"
+        "2026-07-05-0600-abc123456-main-deploy-2026-07-05-0700.log" in message
+    )
+    assert (
+        "https://storage.cloud.google.com/builds.catalyst.coop/"
+        "2026-07-05-0600-abc123456-main/"
+        "2026-07-05-0600-abc123456-main-deploy-2026-07-05-0700.log" in message
+    )
+    assert (
+        "https://console.cloud.google.com/batch/jobsDetail/regions/us-east1/"
+        "jobs/deploy-outputs-12345-1/logs?project=catalyst-cooperative-pudl" in message
+    )
+    assert (
+        "https://console.cloud.google.com/storage/browser/builds.catalyst.coop/"
+        "2026-07-05-0600-abc123456-main" in message
+    )
+
+
+def test_build_deploy_logfile_links_omits_console_link_when_job_name_unknown():
+    """No batch job name should mean no (broken) console job link."""
+    message = build_deploy_logfile_links(
+        build_id="2026-07-05-0600-abc123456-main",
+        deploy_logfile_name="2026-07-05-0600-abc123456-main-deploy-2026-07-05-0700.log",
+        batch_job_name=None,
+    )
+
+    assert "jobsDetail" not in message
+    assert "## Review PUDL Deploy Logs" in message
+    assert "gs://builds.catalyst.coop" in message
 
 
 def test_send_zulip_message_posts_expected_payload():

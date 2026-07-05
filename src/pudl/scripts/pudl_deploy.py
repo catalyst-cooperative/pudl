@@ -189,7 +189,8 @@ def main(
 
     deploy_start_time = datetime.now()
     local_logfile = (
-        Path(tempfile.mkdtemp()) / f"{build_id}-deploy-{deploy_start_time:%H%M}.log"
+        Path(tempfile.mkdtemp())
+        / f"{build_id}-deploy-{deploy_start_time:%Y-%m-%d-%H%M}.log"
     )
     configure_root_logger(logfile=str(local_logfile))
 
@@ -227,6 +228,8 @@ def main(
                 git_tag=git_tag,
                 stage_results=stage_results,
                 total_duration_seconds=total_duration,
+                deploy_logfile_name=local_logfile.name,
+                batch_job_name=os.environ.get("BATCH_JOB_NAME"),
             )
             send_zulip_message(message, api_key=zulip_api_key)
         else:

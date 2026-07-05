@@ -28,6 +28,9 @@ jobs:
       # (either by a human via the UI, or by pudl_batch.sh's automated dispatch).
       GIT_TAG: ${{ inputs.git_tag }}
       DEPLOYMENT_ENVIRONMENT: ${{ inputs.deployment_environment }}
+      # Computed once and reused for both the container-env (so pudl_deploy can
+      # link to this job's own logs) and the actual job submission below.
+      BATCH_JOB_NAME: deploy-outputs-${{ github.run_id }}-${{ github.run_attempt }}
     steps:
       - name: Check out repository
         uses: actions/checkout@v7
@@ -75,6 +78,23 @@ jobs:
               exit 1
             fi
           fi
+
+      - name: Compile notification content
+        if: ${{ always() }}
+        run: |
+          echo "notification_content=:rocket: Launching PUDL deployment for ${{ env.GIT_TAG }} (${{ env.DEPLOYMENT_ENVIRONMENT }})" >> "$GITHUB_ENV"
+
+      - name: Notify Zulip of deployment start
+        if: ${{ always() }}
+        uses: zulip/github-actions-zulip/send-message@v2
+        with:
+          api-key: ${{ secrets.ZULIP_API_KEY }}
+          email: "build-status-bot@catalyst-cooperative.zulipchat.com"
+          organization-url: "https://catalyst-cooperative.zulipchat.com"
+          type: "stream"
+          to: "pudl-deployments"
+          topic: "build-deploy-pudl"
+          content: "${{ env.notification_content }}"
 
       - name: Docker Metadata
         id: docker_metadata
@@ -136,30 +156,14 @@ jobs:
             --container-env AWS_DEFAULT_REGION=${{ secrets.AWS_DEFAULT_REGION }} \
             --container-env AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
             --container-env ZULIP_API_KEY=${{ secrets.ZULIP_API_KEY }} \
+            --container-env BATCH_JOB_NAME=${{ env.BATCH_JOB_NAME }} \
             --mem-gb=16 \
             --disk-gb=100 \
             --output batch_job.json
 
-      - name: Compile notification content
-        if: ${{ always() }}
-        run: |
-          echo "notification_content=:rocket: Launching PUDL deployment for ${{ env.GIT_TAG }} (${{ env.DEPLOYMENT_ENVIRONMENT }})" >> "$GITHUB_ENV"
-
-      - name: Notify Zulip of deployment start
-        if: ${{ always() }}
-        uses: zulip/github-actions-zulip/send-message@v2
-        with:
-          api-key: ${{ secrets.ZULIP_API_KEY }}
-          email: "build-status-bot@catalyst-cooperative.zulipchat.com"
-          organization-url: "https://catalyst-cooperative.zulipchat.com"
-          type: "stream"
-          to: "pudl-deployments"
-          topic: "build-deploy-pudl"
-          content: "${{ env.notification_content }}"
-
       - name: Kick off batch job
         if: ${{ env.SKIP_BUILD != 'true' }}
-        run: gcloud batch jobs submit deploy-outputs-${{ github.run_id }}-${{ github.run_attempt }} --config batch_job.json --location us-east1
+        run: gcloud batch jobs submit ${{ env.BATCH_JOB_NAME }} --config batch_job.json --location us-east1
 
       - name: Status emoji
         if: ${{ always() }}

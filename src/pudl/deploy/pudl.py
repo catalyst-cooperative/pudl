@@ -4,11 +4,13 @@ This module handles distribution of completed ETL builds to public cloud storage
 (GCS and S3), git branch updates, Zenodo releases, and Cloud Run deployments.
 """
 
+import os
 import re
 import shutil
 import subprocess
 import time
 import zipfile
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
@@ -127,6 +129,20 @@ def _zip_parquet_files(parquet_path: Path, output_path: Path) -> None:
     logger.info(f"Created parquet archive: {output_path}")
 
 
+def _compress_sqlite_file(sqlite_file: Path) -> None:
+    """Compress a SQLite database into a zip file and remove the original.
+
+    Safe to call concurrently across different files -- each call only touches
+    its own independent ``ZipFile`` and path.
+    """
+    logger.info(f"Compressing {sqlite_file.name}")
+    zip_path = sqlite_file.parent / f"{sqlite_file.name}.zip"
+    with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED, compresslevel=9) as zf:
+        zf.write(sqlite_file, arcname=sqlite_file.name)
+    sqlite_file.unlink()
+    logger.info(f"Compressed {sqlite_file.name}")
+
+
 def prepare_outputs_for_distribution(local_path: Path, build_path: UPath) -> None:
     """Prepare ETL outputs for distribution.
 
@@ -157,6 +173,19 @@ def prepare_outputs_for_distribution(local_path: Path, build_path: UPath) -> Non
         logger.info(f"Excluding {log_file.name} from public distribution.")
         log_file.unlink()
 
+    # The "success" sentinel is internal build-completion plumbing (see
+    # check_build_success/get_build_from_tag) with no meaning for consumers of the
+    # distributed outputs.
+    success_marker = local_path / "success"
+    if success_marker.exists():
+        success_marker.unlink()
+
+    # Touch an empty file named after the build ID so anyone looking at the
+    # distributed outputs can trace them back to the build that produced them --
+    # this used to be implicit in the build log's filename, which we no longer
+    # distribute.
+    (local_path / build_path.name).touch()
+
     # Zip parquet files (for main pudl outputs + ferc extracted outputs)
     pudl_parquet_dir = local_path / "parquet"
     _zip_parquet_files(pudl_parquet_dir, local_path / "pudl_parquet.zip")
@@ -182,16 +211,15 @@ def prepare_outputs_for_distribution(local_path: Path, build_path: UPath) -> Non
     # Remove parquet directory
     shutil.rmtree(pudl_parquet_dir)
 
-    # Compress SQLite databases
+    # Compress SQLite databases in parallel. zlib (used by ZIP_DEFLATED) releases
+    # the GIL during actual compression, and each file is fully independent, so a
+    # thread pool gives real wall-clock speedup for this otherwise-serial,
+    # CPU/IO-heavy step without the complexity of multiprocessing.
     sqlite_files = list(local_path.glob("*.sqlite"))
-    for sqlite_file in sqlite_files:
-        zip_path = local_path / f"{sqlite_file.name}.zip"
-        with zipfile.ZipFile(
-            zip_path, "w", zipfile.ZIP_DEFLATED, compresslevel=9
-        ) as zf:
-            zf.write(sqlite_file, arcname=sqlite_file.name)
-        sqlite_file.unlink()
-        logger.info(f"Compressed {sqlite_file.name}")
+    if sqlite_files:
+        max_workers = min(len(sqlite_files), os.cpu_count() or 1)
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            list(executor.map(_compress_sqlite_file, sqlite_files))
 
     logger.info("Removing dbt database.")
     test_db = local_path / "pudl_dbt_tests.duckdb"
@@ -217,6 +245,22 @@ def clear_deployment_path(fs, path: str) -> None:
         fs.rm(path, recursive=True)
 
 
+def _upload_to_path(fs, path: str, source_dir: Path, clear_first: bool) -> None:
+    """Clear (if requested) and upload all outputs to one destination path.
+
+    Safe to call concurrently for different ``(fs, path)`` combinations -- gcsfs
+    and s3fs are both designed to support concurrent use from multiple threads,
+    and each call here only touches its own independent bucket/path.
+    """
+    if clear_first:
+        logger.info(f"Clearing existing outputs at {path}")
+        clear_deployment_path(fs, path)
+
+    logger.info(f"Uploading outputs to {path}")
+    fs.mkdirs(path, exist_ok=True)
+    fs.put(f"{source_dir}/*", path, recursive=True)
+
+
 def upload_outputs(
     source_dir: Path,
     path_suffixes: list[str],
@@ -231,6 +275,13 @@ def upload_outputs(
     files from earlier deployments (e.g. removed or renamed tables) from lingering
     alongside fresh outputs, while never touching a permanent, hold-protected
     versioned release path.
+
+    Each (suffix, destination) pair is uploaded concurrently: GCS and S3 are
+    separate network destinations, and this is I/O-bound work that releases the
+    GIL, so a thread pool gives real wall-clock speedup over uploading one path
+    at a time, without risking the kind of oversubscription that can hurt
+    CPU-bound work -- concurrent network transfers just share bandwidth via
+    normal TCP congestion control.
 
     Args:
         source_dir: Local directory containing prepared outputs to upload.
@@ -249,24 +300,23 @@ def upload_outputs(
     gcs_fs = gcsfs.GCSFileSystem(requester_pays=True)
     s3_fs = s3fs.S3FileSystem()
 
-    # actually upload
+    upload_targets = []
     for suffix in path_suffixes:
-        gcs_path = f"gs://pudl.catalyst.coop/{suffix}/"
-        s3_path = f"s3://pudl.catalyst.coop/{suffix}/"
+        clear_first = suffix not in immutable_suffixes
+        upload_targets.append(
+            (gcs_fs, f"gs://pudl.catalyst.coop/{suffix}/", clear_first)
+        )
+        upload_targets.append(
+            (s3_fs, f"s3://pudl.catalyst.coop/{suffix}/", clear_first)
+        )
 
-        if suffix not in immutable_suffixes:
-            logger.info(f"Clearing existing outputs at {gcs_path}")
-            clear_deployment_path(gcs_fs, gcs_path)
-            logger.info(f"Clearing existing outputs at {s3_path}")
-            clear_deployment_path(s3_fs, s3_path)
-
-        logger.info(f"Uploading outputs to {gcs_path}")
-        gcs_fs.mkdirs(gcs_path, exist_ok=True)
-        gcs_fs.put(f"{source_dir}/*", gcs_path, recursive=True)
-
-        logger.info(f"Uploading outputs to {s3_path}")
-        s3_fs.mkdirs(s3_path, exist_ok=True)
-        s3_fs.put(f"{source_dir}/*", s3_path, recursive=True)
+    with ThreadPoolExecutor(max_workers=len(upload_targets)) as executor:
+        futures = [
+            executor.submit(_upload_to_path, fs, path, source_dir, clear_first)
+            for fs, path, clear_first in upload_targets
+        ]
+        for future in futures:
+            future.result()
 
     logger.info(f"Upload complete for {len(path_suffixes)} path(s)")
 
@@ -590,11 +640,58 @@ def stage_emoji(status: str) -> str:
     return ":x:"
 
 
+def build_deploy_logfile_links(
+    build_id: str,
+    deploy_logfile_name: str,
+    batch_job_name: str | None,
+) -> str:
+    """Build markdown links for reviewing a deployment's logs and outputs.
+
+    Mirrors the "Review PUDL Build Logs" section ``pudl_batch.sh`` appends to the
+    nightly build's own Zulip notification (see ``pudl_logfile_links``).
+
+    Args:
+        build_id: The build directory name under gs://builds.catalyst.coop.
+        deploy_logfile_name: Filename of this deployment's logfile within that
+            build directory.
+        batch_job_name: Name of the Google Batch job running this deployment, if
+            known -- omitted from the message (rather than producing a broken
+            link) when unset, e.g. when testing outside of an actual Batch job.
+    """
+    nl = "\n"
+    gcs_relative_path = f"builds.catalyst.coop/{build_id}/{deploy_logfile_name}"
+    download_url = f"https://storage.cloud.google.com/{gcs_relative_path}"
+    browser_url = (
+        "https://console.cloud.google.com/storage/browser/"
+        f"builds.catalyst.coop/{build_id}"
+    )
+
+    message = f"## Review PUDL Deploy Logs{nl}{nl}"
+    message += f"* GCS URL: `gs://{gcs_relative_path}`{nl}"
+    message += f"* [Download PUDL deploy logs to review locally]({download_url}){nl}"
+    if batch_job_name:
+        console_url = (
+            "https://console.cloud.google.com/batch/jobsDetail/regions/us-east1/"
+            f"jobs/{batch_job_name}/logs?project=catalyst-cooperative-pudl"
+        )
+        message += (
+            "* [Review PUDL deploy logs in the Google Cloud "
+            f"Console]({console_url}){nl}"
+        )
+    message += (
+        f"* [Browse full build outputs in the Google Cloud Console]({browser_url}){nl}"
+    )
+
+    return message
+
+
 def build_deploy_zulip_message(
     build_id: str,
     git_tag: str,
     stage_results: dict[str, StageResult],
     total_duration_seconds: float,
+    deploy_logfile_name: str,
+    batch_job_name: str | None = None,
 ) -> str:
     """Build a markdown Zulip message summarizing deployment stage statuses."""
     succeeded = all(
@@ -624,6 +721,12 @@ def build_deploy_zulip_message(
             f"| {name} | {stage_emoji(result.status)} | "
             f"`[{format_stage_duration(result.duration_seconds)}]` |{nl}"
         )
+    message += nl
+    message += build_deploy_logfile_links(
+        build_id=build_id,
+        deploy_logfile_name=deploy_logfile_name,
+        batch_job_name=batch_job_name,
+    )
 
     return message
 
