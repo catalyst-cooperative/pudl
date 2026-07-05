@@ -17569,6 +17569,15 @@ Usage Warnings
 
 * Borrower name data has been drawn from reported values over multiple years and tables of data which are not always consistent with each other. PUDL chooses the most consistent borrower name to facilitate cross-referencing even if that means some values will differ from the raw sources.
 
+
+
+
+
+Additional Details
+^^^^^^^^^^^^^^^^^^
+
+Per RUS Form 7 Part B, ``total_in_place`` (Total Services in Place) is a cumulative stock, while ``connected_this_year`` (New Services Connected) and ``retired_this_year`` (Services Retired) are annual flows. The form defines no sum relationship among these line items, so the subcomponents do not sum to the total within a year; ``idle_in_place`` is a subset of the total rather than a summand. The underlying relationship is year-over-year: total(y) = total(y-1) + connected(y) - retired(y).
+
 Access methods
 ^^^^^^^^^^^^^^^
 
@@ -17628,15 +17637,12 @@ Columns
   * - borrower_name_rus
     - string
     - The name of the RUS (Rural Utilities Service) borrower.
-  * - is_total
-    - boolean
-    - Whether or not this record represents a total.
   * - report_date
     - date
     - Date reported.
   * - service_status
     - string
-    - Status of services (e.g., idle, retired) in report period. Idle services exclude seasonals.
+    - Status of services (e.g., idle_in_place, retired_this_year) in report period. Idle services exclude seasonals.
   * - services
     - number
     - Number of services in system at end of year.
@@ -44713,6 +44719,15 @@ Usage Warnings
 
 * Some columns contain subtotals; use caution when choosing columns to aggregate.
 
+
+
+
+
+Additional Details
+^^^^^^^^^^^^^^^^^^
+
+Per RUS Form 7 Part B, ``total_in_place`` (Total Services in Place) is a cumulative stock, while ``connected_this_year`` (New Services Connected) and ``retired_this_year`` (Services Retired) are annual flows. The form defines no sum relationship among these line items, so the subcomponents do not sum to the total within a year; ``idle_in_place`` is a subset of the total rather than a summand. The underlying relationship is year-over-year: total(y) = total(y-1) + connected(y) - retired(y).
+
 Access methods
 ^^^^^^^^^^^^^^^
 
@@ -44769,15 +44784,12 @@ Columns
   * - borrower_id_rus
     - string
     - Unique identifier of RUS (Rural Utilities Service) borrower. These ID's are structured as: two character state acronyms followed by four digits.
-  * - is_total
-    - boolean
-    - Whether or not this record represents a total.
   * - report_date
     - date
     - Date reported.
   * - service_status
     - string
-    - Status of services (e.g., idle, retired) in report period. Idle services exclude seasonals.
+    - Status of services (e.g., idle_in_place, retired_this_year) in report period. Idle services exclude seasonals.
   * - services
     - number
     - Number of services in system at end of year.

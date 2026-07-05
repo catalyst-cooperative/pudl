@@ -388,7 +388,7 @@ Module Contents
 
 
 .. py:data:: SERVICE_STATUS_RUS7
-   :value: ['connected', 'idle', 'retired', 'total']
+   :value: ['connected_this_year', 'retired_this_year', 'total_in_place', 'idle_in_place']
 
 
 .. py:data:: TRANSMISSION_DISTRIBUTION_TYPES_RUS7

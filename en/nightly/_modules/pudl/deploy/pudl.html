@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.deploy.pudl &#8212; PUDL 2026.6.2.dev18 documentation</title>
+    <title>pudl.deploy.pudl &#8212; PUDL 2026.6.2.dev25 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5" />
 
-    <script src="../../../_static/documentation_options.js?v=095d20d1"></script>
+    <script src="../../../_static/documentation_options.js?v=1523b571"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -574,8 +574,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.6.2.dev18 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.6.2.dev18 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.6.2.dev25 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.6.2.dev25 documentation - Home"/>
   
   
 </a></div>
@@ -1060,7 +1060,10 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="update_git_branch">
 <a class="viewcode-back" href="../../../autoapi/pudl/deploy/pudl/index.html#pudl.deploy.pudl.update_git_branch">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">update_git_branch</span><span class="p">(</span>
-    <span class="n">tag</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">branch</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">environment</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;staging&quot;</span><span class="p">,</span> <span class="s2">&quot;production&quot;</span><span class="p">]</span>
+    <span class="n">tag</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">branch</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">environment</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;staging&quot;</span><span class="p">,</span> <span class="s2">&quot;production&quot;</span><span class="p">],</span>
+    <span class="n">github_token</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Merge git tag into branch and push to origin.</span>
 
@@ -1084,6 +1087,19 @@ window.runMermaid = runMermaid;</script>
         <span class="p">)</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Updating git branch </span><span class="si">{</span><span class="n">branch</span><span class="si">}</span><span class="s2"> to tag </span><span class="si">{</span><span class="n">tag</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
+    <span class="n">_run</span><span class="p">([</span><span class="s2">&quot;git&quot;</span><span class="p">,</span> <span class="s2">&quot;config&quot;</span><span class="p">,</span> <span class="s2">&quot;user.email&quot;</span><span class="p">,</span> <span class="s2">&quot;pudl@catalyst.coop&quot;</span><span class="p">])</span>
+    <span class="n">_run</span><span class="p">([</span><span class="s2">&quot;git&quot;</span><span class="p">,</span> <span class="s2">&quot;config&quot;</span><span class="p">,</span> <span class="s2">&quot;user.name&quot;</span><span class="p">,</span> <span class="s2">&quot;pudlbot&quot;</span><span class="p">])</span>
+    <span class="n">_run</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="s2">&quot;git&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;remote&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;set-url&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;origin&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;https://pudlbot:</span><span class="si">{</span><span class="n">github_token</span><span class="si">}</span><span class="s2">@github.com/catalyst-cooperative/pudl.git&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+    <span class="n">_run</span><span class="p">([</span><span class="s2">&quot;git&quot;</span><span class="p">,</span> <span class="s2">&quot;fetch&quot;</span><span class="p">,</span> <span class="s2">&quot;--force&quot;</span><span class="p">,</span> <span class="s2">&quot;--tags&quot;</span><span class="p">,</span> <span class="s2">&quot;origin&quot;</span><span class="p">,</span> <span class="n">tag</span><span class="p">])</span>
+    <span class="n">_run</span><span class="p">([</span><span class="s2">&quot;git&quot;</span><span class="p">,</span> <span class="s2">&quot;fetch&quot;</span><span class="p">,</span> <span class="s2">&quot;origin&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">branch</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">branch</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">])</span>
     <span class="n">_run</span><span class="p">([</span><span class="s2">&quot;git&quot;</span><span class="p">,</span> <span class="s2">&quot;checkout&quot;</span><span class="p">,</span> <span class="n">branch</span><span class="p">])</span>
     <span class="n">_run</span><span class="p">([</span><span class="s2">&quot;git&quot;</span><span class="p">,</span> <span class="s2">&quot;merge&quot;</span><span class="p">,</span> <span class="s2">&quot;--ff-only&quot;</span><span class="p">,</span> <span class="n">tag</span><span class="p">])</span>
     <span class="k">if</span> <span class="n">environment</span> <span class="o">!=</span> <span class="s2">&quot;staging&quot;</span><span class="p">:</span>
@@ -1097,10 +1113,8 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../../autoapi/pudl/deploy/pudl/index.html#pudl.deploy.pudl.trigger_zenodo_release">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">trigger_zenodo_release</span><span class="p">(</span>
     <span class="n">build_ref</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">env</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">deploy_type</span><span class="p">:</span> <span class="n">DeploymentType</span><span class="p">,</span>
     <span class="n">source_suffix</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">ignore_regex</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">publish</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
     <span class="n">token</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Trigger Zenodo data release GitHub Actions workflow.</span>
@@ -1110,22 +1124,20 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">    Args:</span>
 <span class="sd">        build_ref: The git reference for the workflow. The reference can be a branch or tag name.</span>
-<span class="sd">        env: Zenodo environment - &quot;sandbox&quot; or &quot;production&quot;.</span>
+<span class="sd">        deploy_type: Deployment type.</span>
 <span class="sd">        source_suffix: Suffix appended to s3 path (s3://pudl.catalyst.coop) to get</span>
 <span class="sd">            path to data outputs which will populate zenodo deposition.</span>
-<span class="sd">        ignore_regex: Regex pattern for files to exclude from upload.</span>
-<span class="sd">        publish: If True, automatically publish the Zenodo record.</span>
 <span class="sd">        token: the bearer token to authenticate to GitHub.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Triggering Zenodo release: env=</span><span class="si">{</span><span class="n">env</span><span class="si">}</span><span class="s2">, publish=</span><span class="si">{</span><span class="n">publish</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">ignore_regex</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;^.*\.parquet$&quot;</span>
+    <span class="k">if</span> <span class="n">deploy_type</span> <span class="o">==</span> <span class="n">DeploymentType</span><span class="o">.</span><span class="n">STABLE</span><span class="p">:</span>
+        <span class="n">publish_flag</span> <span class="o">=</span> <span class="s2">&quot;no-publish&quot;</span>
+        <span class="n">env</span> <span class="o">=</span> <span class="s2">&quot;production&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">publish_flag</span> <span class="o">=</span> <span class="s2">&quot;publish&quot;</span>
+        <span class="n">env</span> <span class="o">=</span> <span class="s2">&quot;sandbox&quot;</span>
 
-    <span class="k">if</span> <span class="n">env</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;sandbox&quot;</span><span class="p">,</span> <span class="s2">&quot;production&quot;</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Invalid Zenodo environment: </span><span class="si">{</span><span class="n">env</span><span class="si">}</span><span class="s2">. Must be &#39;sandbox&#39; or &#39;production&#39;.&quot;</span>
-        <span class="p">)</span>
-
-    <span class="c1"># convert bool to string option that the workflow takes</span>
-    <span class="n">publish_flag</span> <span class="o">=</span> <span class="s2">&quot;publish&quot;</span> <span class="k">if</span> <span class="n">publish</span> <span class="k">else</span> <span class="s2">&quot;no-publish&quot;</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Triggering Zenodo release: env=</span><span class="si">{</span><span class="n">env</span><span class="si">}</span><span class="s2">, publish=</span><span class="si">{</span><span class="n">publish_flag</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
     <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span>
         <span class="s2">&quot;https://api.github.com/repos/catalyst-cooperative/pudl/actions/workflows/zenodo-data-release.yml/dispatches&quot;</span><span class="p">,</span>

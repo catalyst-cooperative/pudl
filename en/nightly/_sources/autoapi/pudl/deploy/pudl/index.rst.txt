@@ -120,7 +120,7 @@ Module Contents
    :param path_suffixes: Path suffixes to upload to (e.g., ["nightly", "eel-hole"]).
 
 
-.. py:function:: update_git_branch(tag: str, branch: str, environment: Literal['staging', 'production']) -> None
+.. py:function:: update_git_branch(tag: str, branch: str, environment: Literal['staging', 'production'], github_token: str) -> None
 
    Merge git tag into branch and push to origin.
 
@@ -137,7 +137,7 @@ Module Contents
    :raises subprocess.CalledProcessError: If git commands fail.
 
 
-.. py:function:: trigger_zenodo_release(build_ref: str, env: str, source_suffix: str, ignore_regex: str, publish: bool, token: str) -> None
+.. py:function:: trigger_zenodo_release(build_ref: str, deploy_type: DeploymentType, source_suffix: str, token: str) -> None
 
    Trigger Zenodo data release GitHub Actions workflow.
 
@@ -145,11 +145,9 @@ Module Contents
    deposition with PUDL data outputs.
 
    :param build_ref: The git reference for the workflow. The reference can be a branch or tag name.
-   :param env: Zenodo environment - "sandbox" or "production".
+   :param deploy_type: Deployment type.
    :param source_suffix: Suffix appended to s3 path (s3://pudl.catalyst.coop) to get
                          path to data outputs which will populate zenodo deposition.
-   :param ignore_regex: Regex pattern for files to exclude from upload.
-   :param publish: If True, automatically publish the Zenodo record.
    :param token: the bearer token to authenticate to GitHub.
 
 

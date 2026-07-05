@@ -45,7 +45,6 @@ Attributes
 .. autoapisummary::
 
    pudl.scripts.pudl_deploy.logger
-   pudl.scripts.pudl_deploy.DEPLOYMENT_TYPE_STATIC_SETTINGS
 
 
 Functions
@@ -62,8 +61,6 @@ Module Contents
 ---------------
 
 .. py:data:: logger
-
-.. py:data:: DEPLOYMENT_TYPE_STATIC_SETTINGS
 
 .. py:function:: _get_deployment_path_suffixes(deploy_type: pudl.deploy.pudl.DeploymentType, git_tag: str, environment: Literal['staging', 'production']) -> tuple[list[str], str]
 
