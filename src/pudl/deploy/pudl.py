@@ -181,8 +181,24 @@ def _compress_sqlite_file(sqlite_file: Path) -> None:
     logger.info(f"Compressed {sqlite_file.name}")
 
 
+def download_build_outputs(local_path: Path, build_path: UPath) -> None:
+    """Download raw ETL build outputs from builds.catalyst.coop to local disk.
+
+    Split out from ``prepare_outputs_for_distribution`` so the network-bound
+    download and the CPU-bound preparation work (zipping, compression) can be
+    timed and reported as separate deploy stages.
+
+    Args:
+        local_path: Path on local filesystem to download outputs into.
+        build_path: Remote path containing raw build outputs.
+    """
+    logger.info(f"Downloading build outputs from {build_path} to {local_path}")
+    fs = build_path.fs
+    fs.get(f"{build_path.as_uri()}/", str(local_path), recursive=True)
+
+
 def prepare_outputs_for_distribution(local_path: Path, build_path: UPath) -> None:
-    """Prepare ETL outputs for distribution.
+    """Prepare already-downloaded ETL outputs for distribution.
 
     Takes raw ETL output structure and produces distribution-ready outputs:
     - Moves parquet files from parquet/ subdirectory to root
@@ -195,13 +211,11 @@ def prepare_outputs_for_distribution(local_path: Path, build_path: UPath) -> Non
     them.
 
     Args:
-        local_path: Path on local filesystem where we will prep outputs for distribution.
-        build_path: Remote path containing raw build outputs.
+        local_path: Path on local filesystem containing raw outputs downloaded by
+            ``download_build_outputs``, which this prepares for distribution in place.
+        build_path: Remote path the raw build outputs came from -- only used here to
+            derive the build ID for the provenance marker file.
     """
-    # Copy raw build outputs to local path
-    fs = build_path.fs
-    fs.get(f"{build_path.as_uri()}/", str(local_path), recursive=True)
-
     logger.info(f"Preparing outputs in {local_path} for distribution")
 
     # Build and deploy logs live under builds.catalyst.coop for operators to
@@ -651,6 +665,7 @@ class DeployStage(Enum):
     between call sites. ``.value`` gives the human-readable name shown in messages.
     """
 
+    DOWNLOAD_BUILD_OUTPUTS = "Download build outputs"
     PREPARE_OUTPUTS = "Prepare outputs"
     UPLOAD_OUTPUTS = "Upload outputs"
     REDEPLOY_EEL_HOLE = "Redeploy Eel Hole"

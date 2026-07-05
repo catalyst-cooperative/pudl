@@ -21,6 +21,7 @@ from pudl.deploy.pudl import (
     build_deploy_zulip_message,
     clear_deployment_path,
     dispatch_github_workflow,
+    download_build_outputs,
     get_build_from_tag,
     get_deployment_type_from_tag,
     new_deploy_stage_results,
@@ -35,32 +36,55 @@ from pudl.deploy.pudl import (
 )
 
 
+def test_download_build_outputs_copies_raw_files(tmp_path):
+    """download_build_outputs should copy every file from build_path to local_path."""
+    build_path = tmp_path / "2026-07-04-0600-abc123456-main"
+    build_path.mkdir()
+    (build_path / "pudl.sqlite").write_text("db content")
+    nested = build_path / "parquet"
+    nested.mkdir()
+    (nested / "table1.parquet").write_text("p1")
+
+    local_path = tmp_path / "local"
+    local_path.mkdir()
+
+    download_build_outputs(local_path, UPath(build_path))
+
+    assert (local_path / "pudl.sqlite").read_text() == "db content"
+    assert (local_path / "parquet" / "table1.parquet").read_text() == "p1"
+
+
 def test_prepare_outputs_for_distribution(tmp_path):
-    """Test complete output preparation workflow."""
+    """Test complete output preparation workflow.
+
+    Operates directly on ``output_dir`` -- ``prepare_outputs_for_distribution``
+    assumes ``download_build_outputs`` has already populated it and no longer does
+    any downloading itself. ``build_path`` is only used to derive the build ID, so
+    it doesn't need to exist on disk.
+    """
     output_dir = tmp_path / "output"
     build_id = "2026-07-04-0600-abc123456-main"
-    build_path = tmp_path / build_id
+    build_path = UPath(tmp_path / build_id)
     output_dir.mkdir()
-    build_path.mkdir()
     parquet_dirs = [
-        build_path / "parquet",
-        build_path / "ferc1_dbf",
-        build_path / "ferc2_dbf",
-        build_path / "ferc6_dbf",
-        build_path / "ferc60_dbf",
-        build_path / "ferc1_xbrl",
-        build_path / "ferc2_xbrl",
-        build_path / "ferc6_xbrl",
-        build_path / "ferc60_xbrl",
-        build_path / "ferc714_xbrl",
+        output_dir / "parquet",
+        output_dir / "ferc1_dbf",
+        output_dir / "ferc2_dbf",
+        output_dir / "ferc6_dbf",
+        output_dir / "ferc60_dbf",
+        output_dir / "ferc1_xbrl",
+        output_dir / "ferc2_xbrl",
+        output_dir / "ferc6_xbrl",
+        output_dir / "ferc60_xbrl",
+        output_dir / "ferc714_xbrl",
     ]
 
-    (build_path / "pudl.sqlite").write_text("db content")
-    (build_path / "ferc1.sqlite").write_text("ferc db")
-    (build_path / "pudl_dbt_tests.duckdb").write_text("test db")
-    (build_path / f"{build_id}.log").write_text("build log")
-    (build_path / f"{build_id}-deploy-2026-07-04-0700.log").write_text("deploy log")
-    (build_path / "success").write_text("")
+    (output_dir / "pudl.sqlite").write_text("db content")
+    (output_dir / "ferc1.sqlite").write_text("ferc db")
+    (output_dir / "pudl_dbt_tests.duckdb").write_text("test db")
+    (output_dir / f"{build_id}.log").write_text("build log")
+    (output_dir / f"{build_id}-deploy-2026-07-04-0700.log").write_text("deploy log")
+    (output_dir / "success").write_text("")
 
     for parquet_dir in parquet_dirs:
         parquet_dir.mkdir()
@@ -68,7 +92,7 @@ def test_prepare_outputs_for_distribution(tmp_path):
         (parquet_dir / "table2.parquet").write_text("p2")
         (parquet_dir / "datapackage.json").write_text("{}")
 
-    prepare_outputs_for_distribution(output_dir, UPath(build_path))
+    prepare_outputs_for_distribution(output_dir, build_path)
 
     # SQLite files compressed and originals removed
     assert (output_dir / "pudl.sqlite.zip").exists()
@@ -779,8 +803,9 @@ def test_build_deploy_zulip_message_reports_success_and_all_stage_rows():
     stage_results[DeployStage.UPLOAD_OUTPUTS] = StageResult(
         status=StageStatus.SUCCESS, duration_seconds=20
     )
-    # "Redeploy Eel Hole", "Update Git Branch", "Trigger Zenodo Release", and
-    # "GCS Temporary Hold" are left at their default skipped status.
+    # "Download build outputs", "Redeploy Eel Hole", "Update Git Branch", "Trigger
+    # Zenodo Release", and "GCS Temporary Hold" are left at their default skipped
+    # status.
 
     message = build_deploy_zulip_message(
         build_id="2026-07-05-0600-abc123456-main",
@@ -793,6 +818,7 @@ def test_build_deploy_zulip_message_reports_success_and_all_stage_rows():
     assert ":check: PUDL Deployment Succeeded" in message
     assert "2026-07-05-0600-abc123456-main" in message
     assert "nightly-2026-07-05" in message
+    assert "| Download build outputs | :ghost: |" in message
     assert "| Prepare outputs | :check: |" in message
     assert "| Upload outputs | :check: |" in message
     assert "| Redeploy Eel Hole | :ghost: |" in message

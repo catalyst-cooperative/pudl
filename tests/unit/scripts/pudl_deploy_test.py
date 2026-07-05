@@ -87,6 +87,7 @@ def mock_deploy_dependencies(mocker):
         "pudl.scripts.pudl_deploy.get_build_from_tag", return_value=fake_build_path
     )
     mocker.patch("pudl.scripts.pudl_deploy.configure_root_logger")
+    mocker.patch("pudl.scripts.pudl_deploy.download_build_outputs")
     mocker.patch("pudl.scripts.pudl_deploy.prepare_outputs_for_distribution")
     mocker.patch("pudl.scripts.pudl_deploy.upload_outputs")
     mocker.patch("pudl.scripts.pudl_deploy.update_pudl_viewer")

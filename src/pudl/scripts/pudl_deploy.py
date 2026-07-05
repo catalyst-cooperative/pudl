@@ -45,6 +45,7 @@ from pudl.deploy.pudl import (
     StageResult,
     StageStatus,
     build_deploy_zulip_message,
+    download_build_outputs,
     get_build_from_tag,
     new_deploy_stage_results,
     prepare_outputs_for_distribution,
@@ -193,6 +194,14 @@ def main(
     stage_results = new_deploy_stage_results()
     total_start = time.monotonic()
     try:
+        run_stage(
+            stage_fn=download_build_outputs,
+            stage_name=DeployStage.DOWNLOAD_BUILD_OUTPUTS,
+            stage_results=stage_results,
+            local_path=local_copy_path,
+            build_path=build_path,
+        )
+
         run_stage(
             stage_fn=prepare_outputs_for_distribution,
             stage_name=DeployStage.PREPARE_OUTPUTS,
