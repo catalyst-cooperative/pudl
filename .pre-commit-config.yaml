@@ -98,7 +98,7 @@ repos:
 
   # Scan for secrets and credentials
   - repo: https://github.com/trufflesecurity/trufflehog
-    rev: v3.95.7
+    rev: v3.95.8
     hooks:
       - id: trufflehog
         name: TruffleHog
