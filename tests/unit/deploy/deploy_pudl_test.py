@@ -25,7 +25,6 @@ from pudl.deploy.pudl import (
     get_deployment_type_from_tag,
     new_deploy_stage_results,
     prepare_outputs_for_distribution,
-    run_best_effort_stage,
     run_stage,
     send_zulip_message,
     trigger_zenodo_release,
@@ -797,8 +796,8 @@ def test_run_stage_records_failure_and_reraises():
     assert stage_results[DeployStage.UPLOAD_OUTPUTS].status == StageStatus.FAILURE
 
 
-def test_run_best_effort_stage_does_not_raise_on_failure():
-    """A best-effort stage failure should be recorded but not propagate."""
+def test_run_stage_does_not_raise_on_failure_when_not_fail_hard():
+    """A fail_hard=False stage failure should be recorded but not propagate."""
     stage_results = new_deploy_stage_results()
 
     def _boom():
@@ -807,10 +806,11 @@ def test_run_best_effort_stage_does_not_raise_on_failure():
     # This deliberately triggers an expected logger.exception() call; patch the
     # logger so the traceback doesn't clutter test output.
     with patch("pudl.deploy.pudl.logger"):
-        run_best_effort_stage(
+        run_stage(
             stage_fn=_boom,
             stage_name=DeployStage.TRIGGER_ZENODO_RELEASE,
             stage_results=stage_results,
+            fail_hard=False,
         )
 
     assert stage_results[DeployStage.TRIGGER_ZENODO_RELEASE].status == (

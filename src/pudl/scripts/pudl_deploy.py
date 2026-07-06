@@ -49,7 +49,6 @@ from pudl.deploy.pudl import (
     get_build_from_tag,
     new_deploy_stage_results,
     prepare_outputs_for_distribution,
-    run_best_effort_stage,
     run_stage,
     send_zulip_message,
     set_gcs_temporary_hold,
@@ -90,19 +89,21 @@ def _deploy_outputs(
     )
 
     if plan.redeploy_eel_hole:
-        run_best_effort_stage(
+        run_stage(
             stage_fn=update_pudl_viewer,
             stage_name=DeployStage.REDEPLOY_EEL_HOLE,
             stage_results=stage_results,
+            fail_hard=False,
             token=github_token,
             environment=plan.environment,
         )
 
     if plan.update_git_branch:
-        run_best_effort_stage(
+        run_stage(
             stage_fn=update_git_branch,
             stage_name=DeployStage.UPDATE_GIT_BRANCH,
             stage_results=stage_results,
+            fail_hard=False,
             tag=plan.git_tag,
             branch=plan.deploy_type.value,
             environment=plan.environment,
@@ -110,10 +111,11 @@ def _deploy_outputs(
         )
 
     if plan.trigger_zenodo_release:
-        run_best_effort_stage(
+        run_stage(
             stage_fn=trigger_zenodo_release,
             stage_name=DeployStage.TRIGGER_ZENODO_RELEASE,
             stage_results=stage_results,
+            fail_hard=False,
             build_ref=plan.git_tag,
             deploy_type=plan.deploy_type,
             source_suffix=plan.zenodo_source_suffix,
@@ -122,10 +124,11 @@ def _deploy_outputs(
 
     if plan.gcs_temporary_hold:
         gcs_path = f"gs://pudl.catalyst.coop/{plan.git_tag}/"
-        run_best_effort_stage(
+        run_stage(
             stage_fn=set_gcs_temporary_hold,
             stage_name=DeployStage.GCS_TEMPORARY_HOLD,
             stage_results=stage_results,
+            fail_hard=False,
             gcs_path=gcs_path,
         )
 

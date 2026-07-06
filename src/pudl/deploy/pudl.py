@@ -656,8 +656,8 @@ class DeployStage(Enum):
     Members are declared in the order they should appear in the Zulip notification
     table, and ``DeployStage`` iteration preserves that order -- so this is the
     single source of truth for both the valid stage identifiers (used as dict keys
-    and passed to ``run_stage``/``run_best_effort_stage``) and their display order,
-    rather than an unconstrained string that's only coincidentally consistent
+    and passed to ``run_stage``) and their display order, rather than an
+    unconstrained string that's only coincidentally consistent
     between call sites. ``.value`` gives the human-readable name shown in messages.
     """
 
@@ -694,42 +694,30 @@ def run_stage(
     stage_name: DeployStage,
     stage_results: dict[DeployStage, StageResult],
     *args,
+    fail_hard: bool = True,
     **kwargs,
 ) -> None:
     """Run a deploy stage, recording its status and duration in ``stage_results``.
 
-    If ``stage_fn`` raises, the exception propagates to the caller after the stage
-    is recorded as failed -- callers that want to continue with subsequent
-    independent stages despite a failure should catch the exception around this
-    call (see ``run_best_effort_stage``).
+    If ``stage_fn`` raises and ``fail_hard`` is True (the default), the exception
+    propagates to the caller after the stage is recorded as failed. Pass
+    ``fail_hard=False`` for stages that shouldn't block their siblings -- e.g. a
+    failed Zenodo release shouldn't prevent the GCS temporary hold from being
+    attempted -- in which case the failure is logged instead of raised.
     """
     start = time.monotonic()
     status = StageStatus.FAILURE
     try:
         stage_fn(*args, **kwargs)
         status = StageStatus.SUCCESS
+    except Exception:
+        if fail_hard:
+            raise
+        logger.exception(f"Deploy stage {stage_name.value!r} failed; continuing.")
     finally:
         stage_results[stage_name] = StageResult(
             status=status, duration_seconds=time.monotonic() - start
         )
-
-
-def run_best_effort_stage(
-    stage_fn,
-    stage_name: DeployStage,
-    stage_results: dict[DeployStage, StageResult],
-    *args,
-    **kwargs,
-) -> None:
-    """Run an independent deploy stage, logging (not raising) on failure.
-
-    Used for stages that shouldn't block their siblings -- e.g. a failed Zenodo
-    release shouldn't prevent the GCS temporary hold from being attempted.
-    """
-    try:
-        run_stage(stage_fn, stage_name, stage_results, *args, **kwargs)
-    except Exception:
-        logger.exception(f"Deploy stage {stage_name.value!r} failed; continuing.")
 
 
 def format_stage_duration(elapsed_seconds: float) -> str:
