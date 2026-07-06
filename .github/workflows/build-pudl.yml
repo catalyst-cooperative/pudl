@@ -55,7 +55,7 @@ jobs:
               echo "GIT_TAG=nightly-$(date +%Y-%m-%d)" >> "$GITHUB_ENV"
               echo "DEPLOYMENT_ENVIRONMENT=production" >> "$GITHUB_ENV"
           elif [[ ${{ github.event_name }} == "workflow_dispatch" ]]; then
-              echo "GIT_TAG=$BUILD_ID" >> "$GITHUB_ENV"
+              echo "GIT_TAG=branch-$BUILD_ID" >> "$GITHUB_ENV"
               echo "DEPLOYMENT_ENVIRONMENT=staging" >> "$GITHUB_ENV"
           elif [[ ${{ github.event_name }} == "push" ]]; then
               echo "GIT_TAG=${{ github.ref_name }}" >>  "$GITHUB_ENV"
