@@ -58,7 +58,7 @@ def test_deploy_outputs_gates_side_effects_by_deploy_type(
     git_tags = {
         DeploymentType.NIGHTLY: "nightly-2026-07-05",
         DeploymentType.STABLE: "v2026.7.0",
-        DeploymentType.BRANCH: "branch-my-branch-2026-07-05",
+        DeploymentType.BRANCH: "branch-2026-07-05-0600-abc123456-my-branch",
     }
     git_tag = git_tags[deploy_type]
 

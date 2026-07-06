@@ -633,7 +633,7 @@ def get_deployment_type_from_tag(git_tag: str) -> DeploymentType:
         deploy_type = DeploymentType.STABLE
     elif re.match(r"nightly-\d{4}-\d{2}-\d{2}", git_tag):
         deploy_type = DeploymentType.NIGHTLY
-    elif re.match(r"branch-.+-\d{4}-\d{2}-\d{2}", git_tag):
+    elif re.match(r"branch-\d{4}-\d{2}-\d{2}-\d{4}-.*-.*", git_tag):
         deploy_type = DeploymentType.BRANCH
     else:
         raise RuntimeError(

@@ -7,10 +7,10 @@ The script takes a git tag, and an environment option to switch between 'staging
 'production' deployments. It will use the git tag to identify builds associated with
 the tag, and determine whether the deployment is intended to be a nightly, stable, or
 branch deployment. It expects nightly deployments to have tags conforming to the pattern
-'nightly-YYYY-MM-DD', 'branch-{MY_BRANCH_NAME}-YYYY-MM-DD', or 'vYYYY.M.D'. If doing
-a staging deployment, outputs will be deployed to the same distribution paths as a
-production deployment, but with a 'staging' prefix added to the path (i.e.
-'s3://pudl.catalyst.coop/staging/nightly').
+'nightly-YYYY-MM-DD', 'branch-YYYY-MM-DD-HHMM-{GIT_HASH}-{MY_BRANCH_NAME}', or
+'vYYYY.M.D'. If doing a staging deployment, outputs will be deployed to the same
+distribution paths as a production deployment, but with a 'staging' prefix added to
+the path (i.e. 's3://pudl.catalyst.coop/staging/nightly').
 
 Examples:
     Deploy nightly build to production:
@@ -23,7 +23,7 @@ Examples:
         pudl_deploy nightly-2025-02-05 --environment staging
 
     Deploy branch build outputs to staging area for review:
-        pudl_deploy branch-my-branch-2025-02-05 --environment staging
+        pudl_deploy branch-2025-02-05-0600-abc123456-my-branch --environment staging
 
 Staging mode uploads to staging/ prefixed paths and skips git operations, Zenodo
 triggers, and Cloud Run deployments. This allows safe validation of deployment

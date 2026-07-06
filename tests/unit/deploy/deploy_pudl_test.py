@@ -625,8 +625,11 @@ def test_get_build_from_tag(
         ("v2026.7.0", DeploymentType.STABLE),
         ("v2026.7.10", DeploymentType.STABLE),
         ("nightly-2026-07-05", DeploymentType.NIGHTLY),
-        ("branch-my-branch-2026-07-05", DeploymentType.BRANCH),
-        ("branch-my-branch-with-dashes-2026-07-05", DeploymentType.BRANCH),
+        ("branch-2026-07-05-0600-abc123456-my-branch", DeploymentType.BRANCH),
+        (
+            "branch-2026-07-05-0600-abc123456-my-branch-with-dashes",
+            DeploymentType.BRANCH,
+        ),
     ],
 )
 def test_get_deployment_type_from_tag(git_tag, expected_type):
@@ -698,7 +701,7 @@ def test_get_deployment_type_from_tag_rejects_unrecognized_tags(git_tag):
             False,
         ),
         (
-            "branch-my-branch-2026-07-05",
+            "branch-2026-07-05-0600-abc123456-my-branch",
             "staging",
             DeploymentType.BRANCH,
             ["staging/nightly", "staging/eel-hole"],
@@ -742,7 +745,10 @@ def test_deployment_plan(
 def test_deployment_plan_rejects_branch_deploy_to_production():
     """A branch deployment must never be allowed to target production."""
     with pytest.raises(ValidationError, match="Branch deployments can only target"):
-        DeploymentPlan(git_tag="branch-my-branch-2026-07-05", environment="production")
+        DeploymentPlan(
+            git_tag="branch-2026-07-05-0600-abc123456-my-branch",
+            environment="production",
+        )
 
 
 def test_deployment_plan_rejects_unrecognized_tag():

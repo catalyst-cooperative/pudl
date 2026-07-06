@@ -76,8 +76,8 @@ the Nightly Data Builds. The action is triggered every night so any code changes
 tested nightly. During a nightly build, the action will automatically tag the current
 commit on ``main`` with a tag that looks like ``nightly-YYYY-MM-DD``. If the action is
 manually triggered, it will instead tag the build with a "branch" tag, that looks like
-``branch-[BRANCH-BUILD-WAS-TRIGGERED-FROM]-YYYY-MM-DD``. A push of a stable release tag
-(``vYYYY.M.D``) also triggers ``build-pudl`` directly.
+``branch-YYYY-MM-DD-HHMM-[GIT-HASH]-[BRANCH-BUILD-WAS-TRIGGERED-FROM]``. A push of a
+stable release tag (``vYYYY.M.D``) also triggers ``build-pudl`` directly.
 
 ``build-pudl`` also determines the deployment environment for the build: nightly and
 stable-tag-push builds deploy to ``production``, while manually dispatched branch
