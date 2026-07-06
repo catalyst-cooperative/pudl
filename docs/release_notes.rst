@@ -75,9 +75,19 @@ Bug Fixes & Data Cleaning
   which Click's standalone mode silently discards, so shell callers previously saw
   exit code 0 even when a deployment stage failed. It now uses ``ctx.exit()`` like
   the other scripts fixed in :pr:`5374`. See :issue:`5382` and PR :pr:`5384`.
+* Fixed the longstanding issue with ``zenodo_data_release`` sandbox release failures
+  happening even when the publication actually succeeded succeeded, because a
+  client-side timeout on the publish request triggered a retry that legitimately 404s
+  once a deposit is already published, and that raw 404 body was then parsed as if it
+  were a real deposition. See PR :pr:`5384`.
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Sped up PUDL deploys by compressing SQLite databases concurrently in a thread
+  pool and uploading to all four GCS/S3 targets concurrently instead of one at a time.
+  Also reduced the SQLite ``compresslevel`` from 9 to 6, trading a little archive size
+  for much faster compression step. See :issue:`5382` and PR :pr:`5384`.
 
 Developer Experience
 ^^^^^^^^^^^^^^^^^^^^
@@ -99,16 +109,19 @@ Developer Experience
   Updated the DuckDB dependency to ``>=1.5,<1.6``. See issues :issue:`4061,5074` and
   PR :pr:`5347`.
 * Extended the nightly build's Zulip reporting and stage-tracking machinery (added
-  in :pr:`5374`) to the ``pudl_deploy`` side of the pipeline as well: deployments now
-  save a timestamped log under ``builds.catalyst.coop`` and send a per-stage
-  (Prepare/Upload/Eel-Hole/Git-Branch/Zenodo/GCS-Hold) Zulip status table. Centralized
-  deploy-type/environment decisions (upload paths, which follow-on steps run) into a
-  single, unit-tested ``DeploymentPlan`` in :mod:`pudl.deploy.pudl`, replaced
-  hand-rolled ``curl``/JSON GitHub Actions dispatch with the ``gh`` CLI and a shared
-  ``dispatch_github_workflow()`` helper, and added required-argument and duplicate-key
-  validation to the shared ``devtools/generate_batch_config.py`` Batch job config
-  generator used by both the PUDL and FERC EQR build workflows. See issue :issue:`5382`
-  and PR :pr:`5384`.
+  in :pr:`5374`) to ``pudl_deploy``. Deployments now save logs to
+  ``builds.catalyst.coop`` and send a per-stage duration + outcome report to Zulip.
+  Centralized deployment logic and validation in a ``DeploymentPlan`` Pydantic model in
+  :mod:`pudl.deploy.pudl`. Replaced some ad-hoc ``curl``/JSON GitHub Actions dispatch
+  with the ``gh`` CLI and a shared ``dispatch_github_workflow()`` helper. Added
+  required-argument & duplicate-key validation to ``devtools/generate_batch_config.py``
+  Batch job config generator used by both the PUDL and FERC EQR build workflows. See
+  issue :issue:`5382` and PR :pr:`5384`.
+* Added a guard so that deploying to a permanent, version-tagged stable-release
+  path that already has content raises immediately instead of silently uploading
+  over it, and updated the Zenodo data release Zulip notification to state plainly
+  whether a release was sandbox or production and publish or draft, with a link to
+  the resulting record. See issue :issue:`5382` and PR :pr:`5384`.
 
 .. _release-v2026.6.1:
 
