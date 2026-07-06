@@ -53,6 +53,13 @@ jobs:
             exit 1
           fi
 
+          # Branch builds are only ever disposable test outputs and must never reach
+          # production (mirrors DeploymentPlan's own validation on the Python side).
+          if [[ "$TAG" == branch-* && "$ENVIRONMENT" == "production" ]]; then
+            echo "::error::Branch deployments ('$TAG') can only target staging, not production."
+            exit 1
+          fi
+
           git fetch --tags
           if git rev-parse "refs/tags/$TAG" >/dev/null 2>&1; then
             echo "Tag '$TAG' exists."
@@ -82,7 +89,14 @@ jobs:
       - name: Compile notification content
         if: ${{ always() }}
         run: |
-          echo "notification_content=:rocket: Launching PUDL deployment for ${{ env.GIT_TAG }} (${{ env.DEPLOYMENT_ENVIRONMENT }})" >> "$GITHUB_ENV"
+          RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          {
+            echo "notification_content<<EOF"
+            echo "## :rocket: Launching PUDL deployment for ${{ env.GIT_TAG }} (${{ env.DEPLOYMENT_ENVIRONMENT }})"
+            echo ""
+            echo "* [View this deploy-pudl.yml run]($RUN_URL)"
+            echo "EOF"
+          } >> "$GITHUB_ENV"
 
       - name: Notify Zulip of deployment start
         if: ${{ always() }}
