@@ -1,6 +1,6 @@
 # PUDL
 
-> PUDL 2026.6.2.dev27 documentation
+> PUDL 2026.6.2.dev28 documentation
 
 
 2016-2026, Catalyst Cooperative, CC-BY-4.0
