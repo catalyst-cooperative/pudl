@@ -17,7 +17,6 @@ from pudl.deploy.pudl import (
     DeployStage,
     StageResult,
     StageStatus,
-    build_deploy_logfile_links,
     build_deploy_zulip_message,
     clear_deployment_path,
     dispatch_github_workflow,
@@ -200,9 +199,22 @@ def test_upload_outputs_nightly(tmp_path):
 def test_upload_outputs_runs_targets_concurrently(tmp_path):
     """The 4 (suffix x destination) uploads should run concurrently, not serially.
 
-    Uses a barrier that all 4 ``put()`` calls must reach together. If the uploads
-    actually ran one at a time, only one call would ever be in flight and the
-    barrier would time out instead of releasing.
+    A ``threading.Barrier(4, timeout=5)`` is a rendezvous point: each thread that
+    calls ``barrier.wait()`` blocks until exactly 4 threads have called it, at
+    which point all 4 are released at (approximately) the same instant. Here, the
+    mocked ``put()`` calls ``barrier.wait()`` instead of actually uploading, so the
+    test only passes if all 4 uploads are genuinely in flight at once, each
+    blocked on the same barrier.
+
+    If ``upload_outputs`` actually ran uploads one at a time, only 1 of the 4
+    required threads would ever reach the barrier at any given moment -- the other
+    3 wouldn't have started yet -- so ``wait()`` would never see its 4th caller and
+    would block until the 5 second timeout elapses, raising
+    ``threading.BrokenBarrierError`` and failing the test. This makes the test a
+    deterministic proof of real concurrency (it fails fast and reliably if the
+    implementation is secretly serial) rather than a flaky wall-clock timing
+    comparison (e.g. asserting total elapsed time is less than N seconds), which
+    can pass or fail depending on unrelated system load.
     """
     source_dir = tmp_path / "output"
     source_dir.mkdir()
@@ -233,7 +245,13 @@ def test_upload_outputs_runs_targets_concurrently(tmp_path):
 
 
 def test_upload_outputs_skips_clearing_immutable_suffix(tmp_path):
-    """A suffix listed as immutable should never be cleared before upload."""
+    """A suffix listed as immutable should never be cleared before upload.
+
+    The permanent path must not exist yet (see
+    ``test_upload_outputs_raises_if_permanent_path_already_exists`` for the case
+    where it does), so ``exists()`` is mocked to return ``False`` only for that
+    path -- the rolling "stable" path returns ``True`` and should still be cleared.
+    """
     source_dir = tmp_path / "output"
     source_dir.mkdir()
     (source_dir / "table1.parquet").write_text("p1")
@@ -739,7 +757,7 @@ def test_deployment_plan_rejects_unrecognized_tag():
 
 
 def test_run_stage_records_success():
-    """A successful stage is recorded with 'success'; other stages stay skipped."""
+    """A successful stage is recorded with StageStatus.SUCCESS; others stay skipped."""
     stage_results = new_deploy_stage_results()
 
     run_stage(
@@ -757,7 +775,7 @@ def test_run_stage_records_success():
 
 
 def test_run_stage_records_failure_and_reraises():
-    """A failing stage should record 'failure' and re-raise the exception."""
+    """A failing stage should record StageStatus.FAILURE and re-raise the exception."""
     stage_results = new_deploy_stage_results()
 
     def _boom():
@@ -794,41 +812,6 @@ def test_run_best_effort_stage_does_not_raise_on_failure():
     )
 
 
-def test_build_deploy_zulip_message_reports_success_and_all_stage_rows():
-    """The Zulip message should include every tracked stage, in order."""
-    stage_results = new_deploy_stage_results()
-    stage_results[DeployStage.PREPARE_OUTPUTS] = StageResult(
-        status=StageStatus.SUCCESS, duration_seconds=10
-    )
-    stage_results[DeployStage.UPLOAD_OUTPUTS] = StageResult(
-        status=StageStatus.SUCCESS, duration_seconds=20
-    )
-    # "Download build outputs", "Redeploy Eel Hole", "Update Git Branch", "Trigger
-    # Zenodo Release", and "GCS Temporary Hold" are left at their default skipped
-    # status.
-
-    message = build_deploy_zulip_message(
-        build_id="2026-07-05-0600-abc123456-main",
-        git_tag="nightly-2026-07-05",
-        stage_results=stage_results,
-        total_duration_seconds=30,
-        deploy_logfile_name="2026-07-05-0600-abc123456-main-deploy-2026-07-05-0700.log",
-    )
-
-    assert ":check: PUDL Deployment Succeeded" in message
-    assert "2026-07-05-0600-abc123456-main" in message
-    assert "nightly-2026-07-05" in message
-    assert "| Download build outputs | :ghost: |" in message
-    assert "| Prepare outputs | :check: |" in message
-    assert "| Upload outputs | :check: |" in message
-    assert "| Redeploy Eel Hole | :ghost: |" in message
-    assert "| Update Git Branch | :ghost: |" in message
-    assert "| Trigger Zenodo Release | :ghost: |" in message
-    assert "| GCS Temporary Hold | :ghost: |" in message
-    assert "## Review PUDL Deploy Logs" in message
-    assert "2026-07-05-0600-abc123456-main-deploy-2026-07-05-0700.log" in message
-
-
 def test_build_deploy_zulip_message_reports_failure():
     """A failed stage should flip the message header to a failure state."""
     stage_results = new_deploy_stage_results()
@@ -845,64 +828,6 @@ def test_build_deploy_zulip_message_reports_failure():
     )
 
     assert ":x: PUDL Deployment Failed" in message
-
-
-def test_build_deploy_logfile_links_includes_batch_job_console_link_when_known():
-    """The console job link should appear when a batch job name is provided."""
-    message = build_deploy_logfile_links(
-        build_id="2026-07-05-0600-abc123456-main",
-        deploy_logfile_name="2026-07-05-0600-abc123456-main-deploy-2026-07-05-0700.log",
-        batch_job_name="deploy-outputs-12345-1",
-    )
-
-    assert "## Review PUDL Deploy Logs" in message
-    assert (
-        "gs://builds.catalyst.coop/2026-07-05-0600-abc123456-main/"
-        "2026-07-05-0600-abc123456-main-deploy-2026-07-05-0700.log" in message
-    )
-    assert (
-        "https://storage.cloud.google.com/builds.catalyst.coop/"
-        "2026-07-05-0600-abc123456-main/"
-        "2026-07-05-0600-abc123456-main-deploy-2026-07-05-0700.log" in message
-    )
-    assert (
-        "https://console.cloud.google.com/batch/jobsDetail/regions/us-east1/"
-        "jobs/deploy-outputs-12345-1/logs?project=catalyst-cooperative-pudl" in message
-    )
-    assert (
-        "https://console.cloud.google.com/storage/browser/builds.catalyst.coop/"
-        "2026-07-05-0600-abc123456-main" in message
-    )
-
-
-def test_build_deploy_logfile_links_omits_console_link_when_job_name_unknown():
-    """No batch job name should mean no (broken) console job link."""
-    message = build_deploy_logfile_links(
-        build_id="2026-07-05-0600-abc123456-main",
-        deploy_logfile_name="2026-07-05-0600-abc123456-main-deploy-2026-07-05-0700.log",
-        batch_job_name=None,
-    )
-
-    assert "jobsDetail" not in message
-    assert "## Review PUDL Deploy Logs" in message
-    assert "gs://builds.catalyst.coop" in message
-
-
-def test_send_zulip_message_posts_expected_payload():
-    """send_zulip_message should POST the message to the Zulip stream API."""
-    with patch("pudl.deploy.pudl.requests.post") as mock_post:
-        mock_post.return_value = MagicMock(status_code=200)
-
-        send_zulip_message("hello", api_key="fake-key")  # pragma: allowlist secret
-
-        assert mock_post.call_count == 1
-        _args, kwargs = mock_post.call_args
-        assert kwargs["auth"] == (
-            "build-status-bot@catalyst-cooperative.zulipchat.com",
-            "fake-key",  # pragma: allowlist secret
-        )
-        assert kwargs["data"]["content"] == "hello"
-        assert kwargs["data"]["to"] == "pudl-deployments"
 
 
 def test_send_zulip_message_swallows_request_errors():

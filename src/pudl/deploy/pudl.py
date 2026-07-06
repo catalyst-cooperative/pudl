@@ -361,12 +361,8 @@ def upload_outputs(
     hold-protected versioned release path is never cleared, and instead must not
     exist at all yet (see ``_assert_permanent_paths_are_empty``).
 
-    Each (suffix, destination) pair is uploaded concurrently: GCS and S3 are
-    separate network destinations, and this is I/O-bound work that releases the
-    GIL, so a thread pool gives real wall-clock speedup over uploading one path
-    at a time, without risking the kind of oversubscription that can hurt
-    CPU-bound work -- concurrent network transfers just share bandwidth via
-    normal TCP congestion control.
+    Each (suffix, destination) pair is uploaded concurrently: GCS and S3 are separate
+    network destinations, and this is I/O-bound work that releases the GIL.
 
     Args:
         source_dir: Local directory containing prepared outputs to upload.

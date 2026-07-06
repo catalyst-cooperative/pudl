@@ -55,11 +55,12 @@ def test_deploy_outputs_gates_side_effects_by_deploy_type(
     - Zenodo release: everything except branch builds.
     - GCS temporary hold: stable + production only.
     """
-    git_tag = (
-        "v2026.7.0" if deploy_type == DeploymentType.STABLE else "nightly-2026-07-05"
-    )
-    if deploy_type == DeploymentType.BRANCH:
-        git_tag = "branch-my-branch-2026-07-05"
+    git_tags = {
+        DeploymentType.NIGHTLY: "nightly-2026-07-05",
+        DeploymentType.STABLE: "v2026.7.0",
+        DeploymentType.BRANCH: "branch-my-branch-2026-07-05",
+    }
+    git_tag = git_tags[deploy_type]
 
     plan = DeploymentPlan(git_tag=git_tag, environment=environment)
 

@@ -157,6 +157,8 @@ def main(
     """Deploy PUDL ETL outputs to cloud storage and external services.
 
     Orchestrates the full deployment workflow:
+
+    0. Download build outputs from the builds bucket
     1. Prepare outputs (compress SQLite, create parquet archive)
     2. Upload to cloud storage (GCS and S3)
     3. Redeploy the PUDL Viewer (nightly only)
