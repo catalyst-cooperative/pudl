@@ -8,8 +8,10 @@ import os
 import re
 import shutil
 import subprocess
+import tempfile
 import time
 import zipfile
+from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from datetime import datetime
@@ -23,7 +25,7 @@ import s3fs
 from pydantic import BaseModel, ConfigDict, model_validator
 from upath import UPath
 
-from pudl.logging_helpers import get_logger
+from pudl.logging_helpers import configure_root_logger, get_logger
 
 logger = get_logger(__name__)
 
@@ -642,6 +644,48 @@ def get_deployment_type_from_tag(git_tag: str) -> DeploymentType:
     return deploy_type
 
 
+@dataclass(frozen=True)
+class ResolvedBuild:
+    """Everything ``pudl_deploy``'s ``main()`` needs after resolving a deployment."""
+
+    plan: DeploymentPlan
+    build_path: UPath
+    build_id: str
+    local_copy_path: Path
+    local_logfile: Path
+
+
+def resolve_build(
+    git_tag: str, environment: Literal["staging", "production"]
+) -> ResolvedBuild:
+    """Resolve the deployment plan, locate the build, and set up local logging.
+
+    Raises if ``git_tag`` doesn't look like a nightly/stable/branch tag, if a
+    branch tag is being deployed to production, or if no successful build exists
+    for the tag yet.
+    """
+    plan = DeploymentPlan(git_tag=git_tag, environment=environment)
+
+    build_path = get_build_from_tag(git_tag)
+    build_id = build_path.name
+    local_copy_path = Path(tempfile.mkdtemp())
+
+    deploy_start_time = datetime.now()
+    local_logfile = (
+        Path(tempfile.mkdtemp())
+        / f"{build_id}-deploy-{deploy_start_time:%Y-%m-%d-%H%M}.log"
+    )
+    configure_root_logger(logfile=str(local_logfile))
+
+    return ResolvedBuild(
+        plan=plan,
+        build_path=build_path,
+        build_id=build_id,
+        local_copy_path=local_copy_path,
+        local_logfile=local_logfile,
+    )
+
+
 class StageStatus(Enum):
     """Possible outcomes of a single deployment stage."""
 
@@ -661,6 +705,7 @@ class DeployStage(Enum):
     between call sites. ``.value`` gives the human-readable name shown in messages.
     """
 
+    RESOLVE_BUILD = "Resolve build"
     DOWNLOAD_BUILD_OUTPUTS = "Download build outputs"
     PREPARE_OUTPUTS = "Prepare outputs"
     UPLOAD_OUTPUTS = "Upload outputs"
@@ -689,14 +734,14 @@ def new_deploy_stage_results() -> dict[DeployStage, StageResult]:
     return {stage: StageResult() for stage in DeployStage}
 
 
-def run_stage(
-    stage_fn,
+def run_stage[T](
+    stage_fn: Callable[..., T],
     stage_name: DeployStage,
     stage_results: dict[DeployStage, StageResult],
     *args,
     fail_hard: bool = True,
     **kwargs,
-) -> None:
+) -> T | None:
     """Run a deploy stage, recording its status and duration in ``stage_results``.
 
     If ``stage_fn`` raises and ``fail_hard`` is True (the default), the exception
@@ -704,11 +749,17 @@ def run_stage(
     ``fail_hard=False`` for stages that shouldn't block their siblings -- e.g. a
     failed Zenodo release shouldn't prevent the GCS temporary hold from being
     attempted -- in which case the failure is logged instead of raised.
+
+    Returns whatever ``stage_fn`` returns (``None`` if it failed with
+    ``fail_hard=False``), so stages that produce a result -- e.g. ``resolve_build``
+    -- can be run through the same tracking/reporting machinery as side-effect-only
+    stages.
     """
     start = time.monotonic()
     status = StageStatus.FAILURE
+    result = None
     try:
-        stage_fn(*args, **kwargs)
+        result = stage_fn(*args, **kwargs)
         status = StageStatus.SUCCESS
     except Exception:
         if fail_hard:
@@ -718,6 +769,7 @@ def run_stage(
         stage_results[stage_name] = StageResult(
             status=status, duration_seconds=time.monotonic() - start
         )
+    return result
 
 
 def format_stage_duration(elapsed_seconds: float) -> str:

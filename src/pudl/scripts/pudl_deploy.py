@@ -31,9 +31,7 @@ changes before production use.
 """
 
 import os
-import tempfile
 import time
-from datetime import datetime
 from pathlib import Path
 from typing import Literal
 
@@ -46,9 +44,9 @@ from pudl.deploy.pudl import (
     StageStatus,
     build_deploy_zulip_message,
     download_build_outputs,
-    get_build_from_tag,
     new_deploy_stage_results,
     prepare_outputs_for_distribution,
+    resolve_build,
     run_stage,
     send_zulip_message,
     set_gcs_temporary_hold,
@@ -57,7 +55,7 @@ from pudl.deploy.pudl import (
     update_pudl_viewer,
     upload_outputs,
 )
-from pudl.logging_helpers import configure_root_logger, get_logger
+from pudl.logging_helpers import get_logger
 
 logger = get_logger(__name__)
 
@@ -161,44 +159,59 @@ def main(
 
     Orchestrates the full deployment workflow:
 
-    0. Download build outputs from the builds bucket
-    1. Prepare outputs (compress SQLite, create parquet archive)
-    2. Upload to cloud storage (GCS and S3)
-    3. Redeploy the PUDL Viewer (nightly only)
-    4. Update git branches (skipped for branch builds)
-    5. Trigger Zenodo release (skipped for branch builds)
-    6. Set GCS temporary hold for versioned releases (stable + production only)
+    0. Resolve the deployment plan and find the build associated with git_tag
+    1. Download build outputs from the builds bucket
+    2. Prepare outputs (compress SQLite, create parquet archive)
+    3. Upload to cloud storage (GCS and S3)
+    4. Redeploy the PUDL Viewer (nightly only)
+    5. Update git branches (skipped for branch builds)
+    6. Trigger Zenodo release (skipped for branch builds)
+    7. Set GCS temporary hold for versioned releases (stable + production only)
 
     Saves a log of the deployment and a Zulip stage-status notification, mirroring
-    the nightly build's own reporting.
+    the nightly build's own reporting -- including if step 0 itself fails, e.g. due
+    to an invalid tag or a missing/failed build.
     """
-    # Resolve and validate the full deployment plan up front -- e.g. this raises if
-    # git_tag doesn't look like a nightly/stable/branch tag, or if a branch tag is
-    # being deployed to production.
-    plan = DeploymentPlan(git_tag=git_tag, environment=environment)
-
-    # Find build associated with tag
-    build_path = get_build_from_tag(git_tag)
-    build_id = build_path.name
-    # Create local directory to prep clean ETL outputs
-    local_copy_path = Path(tempfile.mkdtemp())
-
-    deploy_start_time = datetime.now()
-    local_logfile = (
-        Path(tempfile.mkdtemp())
-        / f"{build_id}-deploy-{deploy_start_time:%Y-%m-%d-%H%M}.log"
-    )
-    configure_root_logger(logfile=str(local_logfile))
-
-    logger.info(
-        f"Starting deployment for tag: {git_tag}\n"
-        f"Build path: {build_path}\n"
-        f"Deployment type: {plan.deploy_type}\n"
-    )
-
     stage_results = new_deploy_stage_results()
     total_start = time.monotonic()
+    zulip_api_key = os.environ.get("ZULIP_API_KEY")
+    # Best-effort identifiers for the Zulip notification/log-upload in `finally`,
+    # in case we fail to resolve a real build below -- e.g. an invalid tag, or (far
+    # more likely in practice) a manually-dispatched tag with no matching
+    # successful build yet. Without this fallback, a resolve failure would crash
+    # before any of these are ever assigned.
+    build_id = git_tag
+    build_path = None
+    local_logfile = None
+
     try:
+        # Resolving the plan and build runs before any other tracked deploy stage,
+        # so running it through run_stage (rather than as plain, untracked code)
+        # ensures a failure here is recorded as an actual failure -- without that,
+        # every stage would be left at its default "skipped" status, which
+        # build_deploy_zulip_message reads as an overall success.
+        resolved = run_stage(
+            stage_fn=resolve_build,
+            stage_name=DeployStage.RESOLVE_BUILD,
+            stage_results=stage_results,
+            git_tag=git_tag,
+            environment=environment,
+        )
+        # run_stage's default fail_hard=True re-raises on failure instead of
+        # returning, so reaching this line means resolve_build succeeded.
+        assert resolved is not None  # noqa: S101
+        plan = resolved.plan
+        build_path = resolved.build_path
+        build_id = resolved.build_id
+        local_copy_path = resolved.local_copy_path
+        local_logfile = resolved.local_logfile
+
+        logger.info(
+            f"Starting deployment for tag: {git_tag}\n"
+            f"Build path: {build_path}\n"
+            f"Deployment type: {plan.deploy_type}\n"
+        )
+
         run_stage(
             stage_fn=download_build_outputs,
             stage_name=DeployStage.DOWNLOAD_BUILD_OUTPUTS,
@@ -223,21 +236,26 @@ def main(
         )
     finally:
         total_duration = time.monotonic() - total_start
-        zulip_api_key = os.environ.get("ZULIP_API_KEY")
         if zulip_api_key:
             message = build_deploy_zulip_message(
                 build_id=build_id,
                 git_tag=git_tag,
                 stage_results=stage_results,
                 total_duration_seconds=total_duration,
-                deploy_logfile_name=local_logfile.name,
+                deploy_logfile_name=(
+                    local_logfile.name if local_logfile is not None else "n/a"
+                ),
                 batch_job_name=os.environ.get("BATCH_JOB_NAME"),
             )
             send_zulip_message(message, api_key=zulip_api_key)
         else:
             logger.warning("Skipping Zulip notification: ZULIP_API_KEY is unset.")
 
-        if local_logfile.exists():
+        if (
+            build_path is not None
+            and local_logfile is not None
+            and local_logfile.exists()
+        ):
             build_path.fs.put_file(
                 str(local_logfile), f"{build_path}/{local_logfile.name}"
             )

@@ -5,7 +5,12 @@ import os
 import pytest
 from click.testing import CliRunner
 
-from pudl.deploy.pudl import DeploymentPlan, DeploymentType, new_deploy_stage_results
+from pudl.deploy.pudl import (
+    DeploymentPlan,
+    DeploymentType,
+    ResolvedBuild,
+    new_deploy_stage_results,
+)
 from pudl.scripts import pudl_deploy
 from pudl.scripts.pudl_deploy import _deploy_outputs
 
@@ -79,15 +84,22 @@ def test_deploy_outputs_gates_side_effects_by_deploy_type(
 
 
 @pytest.fixture
-def mock_deploy_dependencies(mocker):
+def mock_deploy_dependencies(mocker, tmp_path):
     """Patch every external call ``main()`` makes, to exercise its exit code."""
     fake_build_path = mocker.MagicMock()
     fake_build_path.name = "2026-07-04-0600-abc123456-main"
 
     mocker.patch(
-        "pudl.scripts.pudl_deploy.get_build_from_tag", return_value=fake_build_path
+        "pudl.scripts.pudl_deploy.resolve_build",
+        return_value=ResolvedBuild(
+            plan=DeploymentPlan(git_tag="nightly-2026-07-04", environment="staging"),
+            build_path=fake_build_path,
+            build_id=fake_build_path.name,
+            local_copy_path=tmp_path,
+            local_logfile=tmp_path
+            / f"{fake_build_path.name}-deploy-2026-07-04-0600.log",
+        ),
     )
-    mocker.patch("pudl.scripts.pudl_deploy.configure_root_logger")
     mocker.patch("pudl.scripts.pudl_deploy.download_build_outputs")
     mocker.patch("pudl.scripts.pudl_deploy.prepare_outputs_for_distribution")
     mocker.patch("pudl.scripts.pudl_deploy.upload_outputs")
@@ -125,3 +137,34 @@ def test_main_exits_nonzero_when_a_best_effort_stage_fails(
     result = CliRunner().invoke(pudl_deploy.main, ["nightly-2026-07-04"])
 
     assert result.exit_code == 1
+
+
+def test_main_sends_zulip_notification_when_build_resolution_fails(mocker):
+    """A failure to resolve the build must still notify Zulip and exit nonzero.
+
+    Regression test: ``resolve_build()`` used to run as plain code before the
+    ``try/finally`` that sends the Zulip notification, so a failure there (e.g.
+    no successful build yet for the given tag -- easy to hit with a hand-picked
+    ``workflow_dispatch`` tag) crashed with only a bare traceback and no
+    notification at all.
+    """
+    mocker.patch(
+        "pudl.scripts.pudl_deploy.resolve_build",
+        side_effect=RuntimeError("no build found for tag"),
+    )
+    mock_send_zulip = mocker.patch("pudl.scripts.pudl_deploy.send_zulip_message")
+    mocker.patch.dict(
+        os.environ,
+        {
+            "GITHUB_TOKEN": "fake-token",  # noqa: S106  # pragma: allowlist secret
+            "ZULIP_API_KEY": "fake-key",  # pragma: allowlist secret
+        },
+    )
+
+    result = CliRunner().invoke(pudl_deploy.main, ["nightly-2026-07-04"])
+
+    assert result.exit_code == 1
+    mock_send_zulip.assert_called_once()
+    message = mock_send_zulip.call_args.args[0]
+    assert ":x: PUDL Deployment Failed" in message
+    assert "| Resolve build | :x: |" in message
