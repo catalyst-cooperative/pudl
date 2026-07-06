@@ -169,7 +169,10 @@ def upload_outputs(
 
 
 def update_git_branch(
-    tag: str, branch: str, environment: Literal["staging", "production"]
+    tag: str,
+    branch: str,
+    environment: Literal["staging", "production"],
+    github_token: str,
 ) -> None:
     """Merge git tag into branch and push to origin.
 
@@ -193,6 +196,19 @@ def update_git_branch(
         )
     logger.info(f"Updating git branch {branch} to tag {tag}")
 
+    _run(["git", "config", "user.email", "pudl@catalyst.coop"])
+    _run(["git", "config", "user.name", "pudlbot"])
+    _run(
+        [
+            "git",
+            "remote",
+            "set-url",
+            "origin",
+            f"https://pudlbot:{github_token}@github.com/catalyst-cooperative/pudl.git",
+        ]
+    )
+    _run(["git", "fetch", "--force", "--tags", "origin", tag])
+    _run(["git", "fetch", "origin", f"{branch}:{branch}"])
     _run(["git", "checkout", branch])
     _run(["git", "merge", "--ff-only", tag])
     if environment != "staging":
@@ -203,10 +219,8 @@ def update_git_branch(
 
 def trigger_zenodo_release(
     build_ref: str,
-    env: str,
+    deploy_type: DeploymentType,
     source_suffix: str,
-    ignore_regex: str,
-    publish: bool,
     token: str,
 ) -> None:
     """Trigger Zenodo data release GitHub Actions workflow.
@@ -216,22 +230,20 @@ def trigger_zenodo_release(
 
     Args:
         build_ref: The git reference for the workflow. The reference can be a branch or tag name.
-        env: Zenodo environment - "sandbox" or "production".
+        deploy_type: Deployment type.
         source_suffix: Suffix appended to s3 path (s3://pudl.catalyst.coop) to get
             path to data outputs which will populate zenodo deposition.
-        ignore_regex: Regex pattern for files to exclude from upload.
-        publish: If True, automatically publish the Zenodo record.
         token: the bearer token to authenticate to GitHub.
     """
-    logger.info(f"Triggering Zenodo release: env={env}, publish={publish}")
+    ignore_regex = r"^.*\.parquet$"
+    if deploy_type == DeploymentType.STABLE:
+        publish_flag = "no-publish"
+        env = "production"
+    else:
+        publish_flag = "publish"
+        env = "sandbox"
 
-    if env not in ("sandbox", "production"):
-        raise ValueError(
-            f"Invalid Zenodo environment: {env}. Must be 'sandbox' or 'production'."
-        )
-
-    # convert bool to string option that the workflow takes
-    publish_flag = "publish" if publish else "no-publish"
+    logger.info(f"Triggering Zenodo release: env={env}, publish={publish_flag}")
 
     response = requests.post(
         "https://api.github.com/repos/catalyst-cooperative/pudl/actions/workflows/zenodo-data-release.yml/dispatches",

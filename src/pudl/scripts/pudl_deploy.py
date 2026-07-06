@@ -54,20 +54,6 @@ from pudl.logging_helpers import get_logger
 logger = get_logger(__name__)
 
 
-DEPLOYMENT_TYPE_STATIC_SETTINGS = {
-    "staging": {
-        "zenodo_env": "sandbox",
-        "ignore_regex": r"^.*\.parquet$",
-        "publish": True,
-    },
-    "production": {
-        "zenodo_env": "production",
-        "ignore_regex": r"^.*\.parquet$",
-        "publish": False,
-    },
-}
-
-
 def _get_deployment_path_suffixes(
     deploy_type: DeploymentType,
     git_tag: str,
@@ -114,13 +100,19 @@ def _deploy_outputs(
         environment=environment,
     )
 
-    update_git_branch(tag=git_tag, branch=deploy_type.value, environment=environment)
+    # We don't need to update any branches when doing a branch build
+    if deploy_type != DeploymentType.BRANCH:
+        update_git_branch(
+            tag=git_tag,
+            branch=deploy_type.value,
+            environment=environment,
+            github_token=github_token,
+        )
+
     trigger_zenodo_release(
         build_ref=git_tag,
-        env=DEPLOYMENT_TYPE_STATIC_SETTINGS[environment]["zenodo_env"],
+        deploy_type=deploy_type,
         source_suffix=zenodo_source_suffix,
-        ignore_regex=DEPLOYMENT_TYPE_STATIC_SETTINGS[environment]["ignore_regex"],
-        publish=DEPLOYMENT_TYPE_STATIC_SETTINGS[environment]["publish"],
         token=github_token,
     )
     if (deploy_type == DeploymentType.STABLE) and (environment == "production"):

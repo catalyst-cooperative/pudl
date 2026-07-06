@@ -61,6 +61,13 @@ Bug Fixes & Data Cleaning
   was loaded. Switching to native :func:`geopandas.GeoDataFrame.to_parquet` produces
   spec-compliant GeoParquet 1.0.0 metadata. See issues :issue:`4061,5074` and PR
   :pr:`5347`.
+* Dropped the uninformative ``is_total`` column from
+  :ref:`core_rus7__yearly_distribution_services` and
+  :ref:`out_rus7__yearly_distribution_services`, renamed the ``service_status``
+  values to the self-explanatory ``connected_this_year``, ``retired_this_year``,
+  ``total_in_place`` and ``idle_in_place``, and documented why RUS Form 7 Part B
+  subcomponents do not sum to the reported total within a year. See issue
+  :issue:`5262` and PR :pr:`5323`.
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -68,6 +75,7 @@ Performance Improvements
 Developer Experience
 ^^^^^^^^^^^^^^^^^^^^
 
+* Reduced spurious logging and error output from our unit tests. See PR :pr:`5362`.
 * Reworked the nightly PUDL build and deployment automation to send start and
   status notifications to the ``pudl-deployments`` Zulip stream directly from
   GitHub Actions and the batch build script, with per-stage timing summaries and
@@ -209,6 +217,9 @@ Bug Fixes & Data Cleaning
   top-level directories when deciding what to upload to Zenodo, which caused release
   failures once we started leaving the ``ferc*_xbrl`` directories on the filesystem. See
   PR :pr:`5254`.
+
+Performance Improvements
+^^^^^^^^^^^^^^^^^^^^^^^^
 
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^

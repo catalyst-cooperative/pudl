@@ -630,19 +630,10 @@ def test_flatten_mix_types():
     assert list(flatten_list(list1a)) == ["1", 22, "333", 4, "5", 666]
 
 
-@pytest.mark.parametrize(
-    "df",
-    [
-        pytest.param(pd.DataFrame({"col1": ["A", "B"], "col2": [1, 2]})),
-        pytest.param(
-            pd.DataFrame({"col1": ["A", "B", "C"], "col2": [1, 2, 3]}),
-            marks=pytest.mark.xfail,
-        ),
-    ],
-)
-def test_convert_col_to_bool(df):
+def test_convert_col_to_bool():
     true_values = ["A"]
     false_values = ["B"]
+    df = pd.DataFrame({"col1": ["A", "B"], "col2": [1, 2]})
     df_bool = convert_col_to_bool(
         df, col_name="col1", true_values=true_values, false_values=false_values
     )
@@ -659,6 +650,13 @@ def test_convert_col_to_bool(df):
         .isin([False, np.nan])
         .all()
     )
+
+
+def test_convert_col_to_bool_unspecified_value_raises():
+    """Values not in true_values or false_values should raise AssertionError."""
+    df = pd.DataFrame({"col1": ["A", "B", "C"], "col2": [1, 2, 3]})
+    with pytest.raises(AssertionError, match="not categorized as True or False"):
+        convert_col_to_bool(df, col_name="col1", true_values=["A"], false_values=["B"])
 
 
 def test_diff_wide_tables():
@@ -802,8 +800,8 @@ def test_standardize_percentages_ratio():
 def test_retry(mocker):
     func = mocker.MagicMock(side_effect=[RuntimeError, RuntimeError, RuntimeError, 1])
     sleep_mock = mocker.MagicMock()
-    with mocker.patch("time.sleep", sleep_mock):
-        assert retry(func=func, retry_on=(RuntimeError,)) == 1
+    mocker.patch("time.sleep", sleep_mock)
+    assert retry(func=func, retry_on=(RuntimeError,)) == 1
 
     assert sleep_mock.call_count == 3
     sleep_mock.assert_has_calls([mocker.call(2**x) for x in range(3)])
