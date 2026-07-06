@@ -1,0 +1,71 @@
+# pudl.scripts.pudl_deploy
+
+Deploy PUDL ETL outputs to cloud storage and update git branches.
+
+This CLI orchestrates deployment of completed PUDL ETL builds to public cloud
+storage (GCS and S3), git branch updates, Zenodo releases, and Cloud Run deployments.
+
+The script takes a git tag, and an environment option to switch between ‘staging’ and
+‘production’ deployments. It will use the git tag to identify builds associated with
+the tag, and determine whether the deployment is intended to be a nightly, stable, or
+branch deployment. It expects nightly deployments to have tags conforming to the pattern
+‘nightly-YYYY-MM-DD’, ‘branch-{MY_BRANCH_NAME}-YYYY-MM-DD’, or ‘vYYYY.M.D’. If doing
+a staging deployment, outputs will be deployed to the same distribution paths as a
+production deployment, but with a ‘staging’ prefix added to the path (i.e.
+‘s3://pudl.catalyst.coop/staging/nightly’).
+
+### Examples
+
+Deploy nightly build to production:
+: pudl_deploy nightly-2025-02-05
+
+Deploy stable release to production:
+: pudl_deploy v2025.2.3
+
+Test deployment changes with staging mode:
+: pudl_deploy nightly-2025-02-05 –environment staging
+
+Deploy branch build outputs to staging area for review:
+: pudl_deploy branch-my-branch-2025-02-05 –environment staging
+
+Staging mode uploads to staging/ prefixed paths and skips git operations, Zenodo
+triggers, and Cloud Run deployments. This allows safe validation of deployment
+changes before production use.
+
+## Attributes
+
+| [`logger`](#pudl.scripts.pudl_deploy.logger)   |    |
+|------------------------------------------------|----|
+
+## Functions
+
+| [`_get_deployment_path_suffixes`](#pudl.scripts.pudl_deploy._get_deployment_path_suffixes)(→ tuple[list[str], str])   |                                                                 |
+|-----------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------|
+| [`_deploy_outputs`](#pudl.scripts.pudl_deploy._deploy_outputs)(source_dir, deploy_type, git_tag, ...)                 | Execute stable or nightly deployment workflow.                  |
+| [`main`](#pudl.scripts.pudl_deploy.main)(→ int)                                                                       | Deploy PUDL ETL outputs to cloud storage and external services. |
+
+## Module Contents
+
+### pudl.scripts.pudl_deploy.logger
+
+### pudl.scripts.pudl_deploy.\_get_deployment_path_suffixes(deploy_type: [pudl.deploy.pudl.DeploymentType](../../deploy/pudl/index.md#pudl.deploy.pudl.DeploymentType), git_tag: [str](https://docs.python.org/3/library/stdtypes.html#str), environment: Literal['staging', 'production']) → [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], [str](https://docs.python.org/3/library/stdtypes.html#str)]
+
+### pudl.scripts.pudl_deploy.\_deploy_outputs(source_dir: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path), deploy_type: [pudl.deploy.pudl.DeploymentType](../../deploy/pudl/index.md#pudl.deploy.pudl.DeploymentType), git_tag: [str](https://docs.python.org/3/library/stdtypes.html#str), environment: Literal['staging', 'production'], github_token: [str](https://docs.python.org/3/library/stdtypes.html#str))
+
+Execute stable or nightly deployment workflow.
+
+Upload outputs to paths associated with build type, trigger zenodo release,
+and update git branch. If `deploy_type` is stable, also sets GCS temporary
+hold on versioned release.
+
+### pudl.scripts.pudl_deploy.main(git_tag: [str](https://docs.python.org/3/library/stdtypes.html#str), environment: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [int](https://docs.python.org/3/library/functions.html#int)
+
+Deploy PUDL ETL outputs to cloud storage and external services.
+
+Orchestrates the full deployment workflow:
+1. Prepare outputs (compress SQLite, create parquet archive)
+2. Upload to cloud storage (GCS and S3)
+3. Update git branches (if not staging)
+4. Set GCS temporary hold for versioned releases (stable only, not staging)
+5. Trigger Zenodo release
+6. Update Cloud Run service (nightly only, not staging)
