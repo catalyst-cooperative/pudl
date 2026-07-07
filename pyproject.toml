@@ -171,6 +171,7 @@ usaddress = ">=0.5.16,<0.6"
 uv = ">=0.11"
 xlsxwriter = ">=3.2"
 zip = ">=3.0"
+gh = ">=2.96.0,<3"
 
 [tool.pixi.pypi-dependencies]
 # Install the local package in editable mode. Assume dependencies are specified either
@@ -180,7 +181,6 @@ zip = ">=3.0"
 detect-secrets = ">=1.5"
 
 [tool.pixi.feature.dev.dependencies]
-gh = ">=2" # GitHub CLI
 jq = ">=1.8" # Primarily for agent skills use
 marimo = ">=0.13"
 matplotx = ">=0.3.10"
