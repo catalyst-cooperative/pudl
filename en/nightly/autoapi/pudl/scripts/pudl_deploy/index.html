@@ -17,7 +17,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.scripts.pudl_deploy &#8212; PUDL 2026.6.2.dev26 documentation</title>
+    <title>pudl.scripts.pudl_deploy &#8212; PUDL 2026.6.2.dev30 documentation</title>
   
   
   
@@ -50,7 +50,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5" />
 
-    <script src="../../../../_static/documentation_options.js?v=35922f9a"></script>
+    <script src="../../../../_static/documentation_options.js?v=d0899e55"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -141,8 +141,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.6.2.dev26 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.6.2.dev26 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.6.2.dev30 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.6.2.dev30 documentation - Home"/>
   
   
 </a></div>
@@ -769,10 +769,10 @@ storage (GCS and S3), git branch updates, Zenodo releases, and Cloud Run deploym
 ‘production’ deployments. It will use the git tag to identify builds associated with
 the tag, and determine whether the deployment is intended to be a nightly, stable, or
 branch deployment. It expects nightly deployments to have tags conforming to the pattern
-‘nightly-YYYY-MM-DD’, ‘branch-{MY_BRANCH_NAME}-YYYY-MM-DD’, or ‘vYYYY.M.D’. If doing
-a staging deployment, outputs will be deployed to the same distribution paths as a
-production deployment, but with a ‘staging’ prefix added to the path (i.e.
-‘s3://pudl.catalyst.coop/staging/nightly’).</p>
+‘nightly-YYYY-MM-DD’, ‘branch-YYYY-MM-DD-HHMM-{GIT_HASH}-{MY_BRANCH_NAME}’, or
+‘vYYYY.M.D’. If doing a staging deployment, outputs will be deployed to the same
+distribution paths as a production deployment, but with a ‘staging’ prefix added to
+the path (i.e. ‘s3://pudl.catalyst.coop/staging/nightly’).</p>
 <p class="rubric">Examples</p>
 <dl class="simple">
 <dt>Deploy nightly build to production:</dt><dd><p>pudl_deploy nightly-2025-02-05</p>
@@ -781,7 +781,7 @@ production deployment, but with a ‘staging’ prefix added to the path (i.e.
 </dd>
 <dt>Test deployment changes with staging mode:</dt><dd><p>pudl_deploy nightly-2025-02-05 –environment staging</p>
 </dd>
-<dt>Deploy branch build outputs to staging area for review:</dt><dd><p>pudl_deploy branch-my-branch-2025-02-05 –environment staging</p>
+<dt>Deploy branch build outputs to staging area for review:</dt><dd><p>pudl_deploy branch-2025-02-05-0600-abc123456-my-branch –environment staging</p>
 </dd>
 </dl>
 <p>Staging mode uploads to staging/ prefixed paths and skips git operations, Zenodo
@@ -802,13 +802,10 @@ changes before production use.</p>
 <h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.scripts.pudl_deploy._get_deployment_path_suffixes" title="pudl.scripts.pudl_deploy._get_deployment_path_suffixes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_get_deployment_path_suffixes</span></code></a>(→ tuple[list[str], str])</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.scripts.pudl_deploy._deploy_outputs" title="pudl.scripts.pudl_deploy._deploy_outputs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_deploy_outputs</span></code></a>(source_dir, deploy_type, git_tag, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.scripts.pudl_deploy._deploy_outputs" title="pudl.scripts.pudl_deploy._deploy_outputs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_deploy_outputs</span></code></a>(source_dir, plan, github_token, ...)</p></td>
 <td><p>Execute stable or nightly deployment workflow.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.scripts.pudl_deploy.main" title="pudl.scripts.pudl_deploy.main"><code class="xref py py-obj docutils literal notranslate"><span class="pre">main</span></code></a>(→ int)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.scripts.pudl_deploy.main" title="pudl.scripts.pudl_deploy.main"><code class="xref py py-obj docutils literal notranslate"><span class="pre">main</span></code></a>(→ None)</p></td>
 <td><p>Deploy PUDL ETL outputs to cloud storage and external services.</p></td>
 </tr>
 </tbody>
@@ -823,30 +820,36 @@ changes before production use.</p>
 <dd></dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="pudl.scripts.pudl_deploy._get_deployment_path_suffixes">
-<span class="sig-prename descclassname"><span class="pre">pudl.scripts.pudl_deploy.</span></span><span class="sig-name descname"><span class="pre">_get_deployment_path_suffixes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">deploy_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../deploy/pudl/index.html#pudl.deploy.pudl.DeploymentType" title="pudl.deploy.pudl.DeploymentType"><span class="pre">pudl.deploy.pudl.DeploymentType</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">git_tag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">environment</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'staging'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'production'</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/pudl/scripts/pudl_deploy.html#_get_deployment_path_suffixes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.scripts.pudl_deploy._get_deployment_path_suffixes" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
 <dt class="sig sig-object py" id="pudl.scripts.pudl_deploy._deploy_outputs">
-<span class="sig-prename descclassname"><span class="pre">pudl.scripts.pudl_deploy.</span></span><span class="sig-name descname"><span class="pre">_deploy_outputs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><span class="pre">pathlib.Path</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">deploy_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../deploy/pudl/index.html#pudl.deploy.pudl.DeploymentType" title="pudl.deploy.pudl.DeploymentType"><span class="pre">pudl.deploy.pudl.DeploymentType</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">git_tag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">environment</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'staging'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'production'</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">github_token</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pudl/scripts/pudl_deploy.html#_deploy_outputs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.scripts.pudl_deploy._deploy_outputs" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">pudl.scripts.pudl_deploy.</span></span><span class="sig-name descname"><span class="pre">_deploy_outputs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><span class="pre">pathlib.Path</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">plan</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../deploy/pudl/index.html#pudl.deploy.pudl.DeploymentPlan" title="pudl.deploy.pudl.DeploymentPlan"><span class="pre">pudl.deploy.pudl.DeploymentPlan</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">github_token</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">stage_results</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../../deploy/pudl/index.html#pudl.deploy.pudl.DeployStage" title="pudl.deploy.pudl.DeployStage"><span class="pre">pudl.deploy.pudl.DeployStage</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="../../deploy/pudl/index.html#pudl.deploy.pudl.StageResult" title="pudl.deploy.pudl.StageResult"><span class="pre">pudl.deploy.pudl.StageResult</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pudl/scripts/pudl_deploy.html#_deploy_outputs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.scripts.pudl_deploy._deploy_outputs" title="Link to this definition">#</a></dt>
 <dd><p>Execute stable or nightly deployment workflow.</p>
-<p>Upload outputs to paths associated with build type, trigger zenodo release,
-and update git branch. If <code class="docutils literal notranslate"><span class="pre">deploy_type</span></code> is stable, also sets GCS temporary
-hold on versioned release.</p>
+<p>Every decision about what to do – which paths to upload to, whether to
+redeploy Eel Hole, update git branches, trigger a Zenodo release, or set a GCS
+temporary hold – comes from <code class="docutils literal notranslate"><span class="pre">plan</span></code> rather than being re-derived here.</p>
+<p><code class="docutils literal notranslate"><span class="pre">stage_results</span></code> records the status and duration of each stage for Zulip
+reporting; “Upload outputs” is a hard prerequisite for the rest (a failure
+there raises and aborts the remaining stages, leaving them recorded as
+skipped), while the remaining stages are independent of one another.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pudl.scripts.pudl_deploy.main">
-<span class="sig-prename descclassname"><span class="pre">pudl.scripts.pudl_deploy.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">git_tag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">environment</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/scripts/pudl_deploy.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.scripts.pudl_deploy.main" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">pudl.scripts.pudl_deploy.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">click.Context</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">git_tag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">environment</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'staging'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'production'</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/scripts/pudl_deploy.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.scripts.pudl_deploy.main" title="Link to this definition">#</a></dt>
 <dd><p>Deploy PUDL ETL outputs to cloud storage and external services.</p>
-<p>Orchestrates the full deployment workflow:
-1. Prepare outputs (compress SQLite, create parquet archive)
-2. Upload to cloud storage (GCS and S3)
-3. Update git branches (if not staging)
-4. Set GCS temporary hold for versioned releases (stable only, not staging)
-5. Trigger Zenodo release
-6. Update Cloud Run service (nightly only, not staging)</p>
+<p>Orchestrates the full deployment workflow:</p>
+<ol class="arabic simple" start="0">
+<li><p>Resolve the deployment plan and find the build associated with git_tag</p></li>
+<li><p>Download build outputs from the builds bucket</p></li>
+<li><p>Prepare outputs (compress SQLite, create parquet archive)</p></li>
+<li><p>Upload to cloud storage (GCS and S3)</p></li>
+<li><p>Redeploy the PUDL Viewer (nightly only)</p></li>
+<li><p>Update git branches (skipped for branch builds)</p></li>
+<li><p>Trigger Zenodo release (skipped for branch builds)</p></li>
+<li><p>Set GCS temporary hold for versioned releases (stable + production only)</p></li>
+</ol>
+<p>Saves a log of the deployment and a Zulip stage-status notification, mirroring
+the nightly build’s own reporting – including if step 0 itself fails, e.g. due
+to an invalid tag or a missing/failed build.</p>
 </dd></dl>
 
 </section>
@@ -903,7 +906,6 @@ hold on versioned release.</p>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.scripts.pudl_deploy.logger"><code class="docutils literal notranslate"><span class="pre">logger</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.scripts.pudl_deploy._get_deployment_path_suffixes"><code class="docutils literal notranslate"><span class="pre">_get_deployment_path_suffixes()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.scripts.pudl_deploy._deploy_outputs"><code class="docutils literal notranslate"><span class="pre">_deploy_outputs()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.scripts.pudl_deploy.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
 </ul>

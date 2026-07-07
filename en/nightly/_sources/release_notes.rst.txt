@@ -29,13 +29,17 @@ EIA-176
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
-EIA860
+EIA-860
 ~~~~~~~
 
 * Added early release data for EIA-860 2025. See issue :issue:`5322` and PR :pr:`5324`.
 
 Documentation
 ^^^^^^^^^^^^^
+
+* Set up the `sphinx_llm <https://github.com/NVIDIA/sphinx-llm>`__ Sphinx extension to
+  generate a Markdown version of the PUDL documentation, suitable for consumption by
+  LLMs, based on the `llms.txt <https://llmstxt.org/>`__ convention. See PR :pr:`5381`.
 
 New Data Tests & Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -62,9 +66,33 @@ Bug Fixes & Data Cleaning
   ``total_in_place`` and ``idle_in_place``, and documented why RUS Form 7 Part B
   subcomponents do not sum to the reported total within a year. See issue
   :issue:`5262` and PR :pr:`5323`.
+* Fixed several nightly/stable/branch deployment flow-control bugs: nightly builds
+  were silently landing in staging instead of production because
+  ``DEPLOYMENT_ENVIRONMENT`` was never wired into the build container's Batch job,
+  PUDL Viewer redeploys and Zenodo releases fired for every deploy type instead of
+  being restricted to nightly builds and non-branch builds respectively, stale
+  objects from earlier deployments were never cleared from the public GCS/S3 paths
+  before new outputs were written, and a staging copy of a stable release tag was
+  incorrectly treated as an immutable path that could never be cleared. See issue
+  :issue:`5382` and PR :pr:`5384`.
+* Fixed ``pudl_deploy`` returning a plain integer exit code from its Click command,
+  which Click's standalone mode silently discards, so shell callers previously saw
+  exit code 0 even when a deployment stage failed. It now uses ``ctx.exit()`` like
+  the other scripts fixed in :pr:`5374`. See :issue:`5382` and PR :pr:`5384`.
+* Fixed the longstanding issue with ``zenodo_data_release`` sandbox release failures
+  happening even when the publication actually succeeded, because a client-side
+  timeout on the publish request triggered a retry that legitimately 404s once a
+  deposit is already published, and that raw 404 body was then parsed as if it were
+  a real deposition. Also fixed the build-ID provenance marker file being a
+  zero-byte upload, which Zenodo rejects outright. See PR :pr:`5384`.
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Sped up PUDL deploys by compressing SQLite databases concurrently in a thread
+  pool and uploading to all four GCS/S3 targets concurrently instead of one at a time.
+  Also reduced the SQLite ``compresslevel`` from 9 to 6, trading a little archive size
+  for much faster compression step. See :issue:`5382` and PR :pr:`5384`.
 
 Developer Experience
 ^^^^^^^^^^^^^^^^^^^^
@@ -85,6 +113,20 @@ Developer Experience
   ``out_ferc714__georeferenced_respondents``) now use ``parquet_io_manager``.
   Updated the DuckDB dependency to ``>=1.5,<1.6``. See issues :issue:`4061,5074` and
   PR :pr:`5347`.
+* Extended the nightly build's Zulip reporting and stage-tracking machinery (added
+  in :pr:`5374`) to ``pudl_deploy``. Deployments now save logs to
+  ``builds.catalyst.coop`` and send a per-stage duration + outcome report to Zulip.
+  Centralized deployment logic and validation in a ``DeploymentPlan`` Pydantic model in
+  :mod:`pudl.deploy.pudl`. Replaced some ad-hoc ``curl``/JSON GitHub Actions dispatch
+  with the ``gh`` CLI and a shared ``dispatch_github_workflow()`` helper. Added
+  required-argument & duplicate-key validation to ``devtools/generate_batch_config.py``
+  Batch job config generator used by both the PUDL and FERC EQR build workflows. See
+  issue :issue:`5382` and PR :pr:`5384`.
+* Added a guard so that deploying to a permanent, version-tagged stable-release
+  path that already has content raises immediately instead of silently uploading
+  over it, and updated the Zenodo data release Zulip notification to state plainly
+  whether a release was sandbox or production and publish or draft, with a link to
+  the resulting record. See issue :issue:`5382` and PR :pr:`5384`.
 
 .. _release-v2026.6.1:
 

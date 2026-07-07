@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.deploy.pudl &#8212; PUDL 2026.6.2.dev26 documentation</title>
+    <title>pudl.deploy.pudl &#8212; PUDL 2026.6.2.dev30 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5" />
 
-    <script src="../../../_static/documentation_options.js?v=35922f9a"></script>
+    <script src="../../../_static/documentation_options.js?v=d0899e55"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -574,8 +574,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.6.2.dev26 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.6.2.dev26 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.6.2.dev30 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.6.2.dev30 documentation - Home"/>
   
   
 </a></div>
@@ -866,11 +866,16 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">(GCS and S3), git branch updates, Zenodo releases, and Cloud Run deployments.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">zipfile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">concurrent.futures</span><span class="w"> </span><span class="kn">import</span> <span class="n">ThreadPoolExecutor</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
@@ -879,12 +884,14 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">import</span><span class="w"> </span><span class="nn">gcsfs</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">requests</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">s3fs</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span><span class="p">,</span> <span class="n">ConfigDict</span><span class="p">,</span> <span class="n">model_validator</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">upath</span><span class="w"> </span><span class="kn">import</span> <span class="n">UPath</span>
 
-<span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.logging_helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">configure_root_logger</span><span class="p">,</span> <span class="n">get_logger</span>
+
 <div class="viewcode-block" id="logger">
 <a class="viewcode-back" href="../../../autoapi/pudl/deploy/pudl/index.html#pudl.deploy.pudl.logger">[docs]</a>
-<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span></div>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span></div>
 
 
 
@@ -904,6 +911,145 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="DeploymentType.BRANCH">
 <a class="viewcode-back" href="../../../autoapi/pudl/deploy/pudl/index.html#pudl.deploy.pudl.DeploymentType.BRANCH">[docs]</a>
     <span class="n">BRANCH</span> <span class="o">=</span> <span class="s2">&quot;branch&quot;</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="DeploymentPlan">
+<a class="viewcode-back" href="../../../autoapi/pudl/deploy/pudl/index.html#pudl.deploy.pudl.DeploymentPlan">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">DeploymentPlan</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fully resolved, validated deployment behavior for one git tag and environment.</span>
+
+<span class="sd">    This is the single source of truth both for what a deployment actually does --</span>
+<span class="sd">    every other piece of code (path suffixes, which stages run) derives from a</span>
+<span class="sd">    ``DeploymentPlan`` instead of independently re-deriving the same rules -- and for</span>
+<span class="sd">    which ``git_tag``/``environment`` combinations are valid in the first place.</span>
+
+<span class="sd">    ``deploy_type`` is derived from ``git_tag`` (see ``get_deployment_type_from_tag``)</span>
+<span class="sd">    rather than accepted as a separate input, so a plan can never be constructed with</span>
+<span class="sd">    a ``deploy_type`` that doesn&#39;t match its own ``git_tag``.</span>
+
+<span class="sd">    This intentionally only validates what&#39;s knowable from ``git_tag`` and</span>
+<span class="sd">    ``environment`` alone -- e.g. it does NOT check that a nightly/stable tag is</span>
+<span class="sd">    actually reachable from ``main``, since that requires a git checkout the deploy</span>
+<span class="sd">    container doesn&#39;t have (that check lives in the GHA workflow instead).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="DeploymentPlan.model_config">
+<a class="viewcode-back" href="../../../autoapi/pudl/deploy/pudl/index.html#pudl.deploy.pudl.DeploymentPlan.model_config">[docs]</a>
+    <span class="n">model_config</span> <span class="o">=</span> <span class="n">ConfigDict</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DeploymentPlan.git_tag">
+<a class="viewcode-back" href="../../../autoapi/pudl/deploy/pudl/index.html#pudl.deploy.pudl.DeploymentPlan.git_tag">[docs]</a>
+    <span class="n">git_tag</span><span class="p">:</span> <span class="nb">str</span></div>
+
+<div class="viewcode-block" id="DeploymentPlan.environment">
+<a class="viewcode-back" href="../../../autoapi/pudl/deploy/pudl/index.html#pudl.deploy.pudl.DeploymentPlan.environment">[docs]</a>
+    <span class="n">environment</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;staging&quot;</span><span class="p">,</span> <span class="s2">&quot;production&quot;</span><span class="p">]</span></div>
+
+
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="DeploymentPlan.deploy_type">
+<a class="viewcode-back" href="../../../autoapi/pudl/deploy/pudl/index.html#pudl.deploy.pudl.DeploymentPlan.deploy_type">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">deploy_type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DeploymentType</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The deploy type implied by ``git_tag``&#39;s shape.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">get_deployment_type_from_tag</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">git_tag</span><span class="p">)</span></div>
+
+
+    <span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;after&quot;</span><span class="p">)</span>
+<div class="viewcode-block" id="DeploymentPlan._validate_branch_only_targets_staging">
+<a class="viewcode-back" href="../../../autoapi/pudl/deploy/pudl/index.html#pudl.deploy.pudl.DeploymentPlan._validate_branch_only_targets_staging">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_validate_branch_only_targets_staging</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;DeploymentPlan&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">deploy_type</span> <span class="o">==</span> <span class="n">DeploymentType</span><span class="o">.</span><span class="n">BRANCH</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment</span> <span class="o">!=</span> <span class="s2">&quot;staging&quot;</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Branch deployments can only target staging, got &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;environment=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="si">!r}</span><span class="s2"> for git_tag=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">git_tag</span><span class="si">!r}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="DeploymentPlan.path_suffixes">
+<a class="viewcode-back" href="../../../autoapi/pudl/deploy/pudl/index.html#pudl.deploy.pudl.DeploymentPlan.path_suffixes">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">path_suffixes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Cloud storage path suffixes this deployment uploads to.</span>
+
+<span class="sd">        Nightly and branch builds share the same rolling &quot;nightly&quot;/&quot;eel-hole&quot;</span>
+<span class="sd">        paths; stable releases get their own permanent version-tagged path plus</span>
+<span class="sd">        &quot;stable&quot;.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">deploy_type</span> <span class="ow">in</span> <span class="p">(</span><span class="n">DeploymentType</span><span class="o">.</span><span class="n">NIGHTLY</span><span class="p">,</span> <span class="n">DeploymentType</span><span class="o">.</span><span class="n">BRANCH</span><span class="p">):</span>
+            <span class="n">suffixes</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;nightly&quot;</span><span class="p">,</span> <span class="s2">&quot;eel-hole&quot;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">suffixes</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">git_tag</span><span class="p">,</span> <span class="s2">&quot;stable&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment</span> <span class="o">==</span> <span class="s2">&quot;staging&quot;</span><span class="p">:</span>
+            <span class="n">suffixes</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;staging/</span><span class="si">{</span><span class="n">s</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">suffixes</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">suffixes</span></div>
+
+
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="DeploymentPlan.zenodo_source_suffix">
+<a class="viewcode-back" href="../../../autoapi/pudl/deploy/pudl/index.html#pudl.deploy.pudl.DeploymentPlan.zenodo_source_suffix">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">zenodo_source_suffix</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The single path suffix Zenodo should pull outputs from.&quot;&quot;&quot;</span>
+        <span class="n">suffix</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">git_tag</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">deploy_type</span> <span class="o">==</span> <span class="n">DeploymentType</span><span class="o">.</span><span class="n">STABLE</span> <span class="k">else</span> <span class="s2">&quot;nightly&quot;</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment</span> <span class="o">==</span> <span class="s2">&quot;staging&quot;</span><span class="p">:</span>
+            <span class="n">suffix</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;staging/</span><span class="si">{</span><span class="n">suffix</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">return</span> <span class="n">suffix</span></div>
+
+
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="DeploymentPlan.gcs_temporary_hold">
+<a class="viewcode-back" href="../../../autoapi/pudl/deploy/pudl/index.html#pudl.deploy.pudl.DeploymentPlan.gcs_temporary_hold">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">gcs_temporary_hold</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Whether this deployment&#39;s permanent path should get a GCS temporary hold.</span>
+
+<span class="sd">        Only a *production* stable release gets a hold, protecting its permanent</span>
+<span class="sd">        version-tagged path. A staging deploy of the same tag is just a disposable</span>
+<span class="sd">        test output and must remain clearable.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">deploy_type</span> <span class="o">==</span> <span class="n">DeploymentType</span><span class="o">.</span><span class="n">STABLE</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment</span> <span class="o">==</span> <span class="s2">&quot;production&quot;</span>
+        <span class="p">)</span></div>
+
+
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="DeploymentPlan.immutable_suffixes">
+<a class="viewcode-back" href="../../../autoapi/pudl/deploy/pudl/index.html#pudl.deploy.pudl.DeploymentPlan.immutable_suffixes">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">immutable_suffixes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">frozenset</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Path suffixes that are permanent and must never be cleared before upload.</span>
+
+<span class="sd">        This is also the only path that&#39;s protected by ``gcs_temporary_hold``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">frozenset</span><span class="p">({</span><span class="bp">self</span><span class="o">.</span><span class="n">git_tag</span><span class="p">})</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">gcs_temporary_hold</span> <span class="k">else</span> <span class="nb">frozenset</span><span class="p">()</span></div>
+
+
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="DeploymentPlan.redeploy_eel_hole">
+<a class="viewcode-back" href="../../../autoapi/pudl/deploy/pudl/index.html#pudl.deploy.pudl.DeploymentPlan.redeploy_eel_hole">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">redeploy_eel_hole</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Whether this deployment should redeploy the PUDL Viewer (Eel Hole).&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">deploy_type</span> <span class="o">==</span> <span class="n">DeploymentType</span><span class="o">.</span><span class="n">NIGHTLY</span></div>
+
+
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="DeploymentPlan.update_git_branch">
+<a class="viewcode-back" href="../../../autoapi/pudl/deploy/pudl/index.html#pudl.deploy.pudl.DeploymentPlan.update_git_branch">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update_git_branch</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Whether this deployment should fast-forward a git branch to its tag.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">deploy_type</span> <span class="o">!=</span> <span class="n">DeploymentType</span><span class="o">.</span><span class="n">BRANCH</span></div>
+
+
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="DeploymentPlan.trigger_zenodo_release">
+<a class="viewcode-back" href="../../../autoapi/pudl/deploy/pudl/index.html#pudl.deploy.pudl.DeploymentPlan.trigger_zenodo_release">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">trigger_zenodo_release</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Whether this deployment should trigger a Zenodo release.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">deploy_type</span> <span class="o">!=</span> <span class="n">DeploymentType</span><span class="o">.</span><span class="n">BRANCH</span></div>
 </div>
 
 
@@ -942,10 +1088,46 @@ window.runMermaid = runMermaid;</script>
 
 
 
+<div class="viewcode-block" id="_compress_sqlite_file">
+<a class="viewcode-back" href="../../../autoapi/pudl/deploy/pudl/index.html#pudl.deploy.pudl._compress_sqlite_file">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_compress_sqlite_file</span><span class="p">(</span><span class="n">sqlite_file</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compress a SQLite database into a zip file and remove the original.</span>
+
+<span class="sd">    Safe to call concurrently across different files -- each call only touches</span>
+<span class="sd">    its own independent ``ZipFile`` and path.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Compressing </span><span class="si">{</span><span class="n">sqlite_file</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">zip_path</span> <span class="o">=</span> <span class="n">sqlite_file</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">sqlite_file</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">.zip&quot;</span>
+    <span class="k">with</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="n">zip_path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZIP_DEFLATED</span><span class="p">,</span> <span class="n">compresslevel</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span> <span class="k">as</span> <span class="n">zf</span><span class="p">:</span>
+        <span class="n">zf</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">sqlite_file</span><span class="p">,</span> <span class="n">arcname</span><span class="o">=</span><span class="n">sqlite_file</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+    <span class="n">sqlite_file</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Compressed </span><span class="si">{</span><span class="n">sqlite_file</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="download_build_outputs">
+<a class="viewcode-back" href="../../../autoapi/pudl/deploy/pudl/index.html#pudl.deploy.pudl.download_build_outputs">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">download_build_outputs</span><span class="p">(</span><span class="n">local_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">build_path</span><span class="p">:</span> <span class="n">UPath</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Download raw ETL build outputs from builds.catalyst.coop to local disk.</span>
+
+<span class="sd">    Split out from ``prepare_outputs_for_distribution`` so the network-bound</span>
+<span class="sd">    download and the CPU-bound preparation work (zipping, compression) can be</span>
+<span class="sd">    timed and reported as separate deploy stages.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        local_path: Path on local filesystem to download outputs into.</span>
+<span class="sd">        build_path: Remote path containing raw build outputs.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Downloading build outputs from </span><span class="si">{</span><span class="n">build_path</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">local_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">fs</span> <span class="o">=</span> <span class="n">build_path</span><span class="o">.</span><span class="n">fs</span>
+    <span class="n">fs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">build_path</span><span class="o">.</span><span class="n">as_uri</span><span class="p">()</span><span class="si">}</span><span class="s2">/&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">local_path</span><span class="p">),</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+
 <div class="viewcode-block" id="prepare_outputs_for_distribution">
 <a class="viewcode-back" href="../../../autoapi/pudl/deploy/pudl/index.html#pudl.deploy.pudl.prepare_outputs_for_distribution">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">prepare_outputs_for_distribution</span><span class="p">(</span><span class="n">local_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">build_path</span><span class="p">:</span> <span class="n">UPath</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Prepare ETL outputs for distribution.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Prepare already-downloaded ETL outputs for distribution.</span>
 
 <span class="sd">    Takes raw ETL output structure and produces distribution-ready outputs:</span>
 <span class="sd">    - Moves parquet files from parquet/ subdirectory to root</span>
@@ -958,23 +1140,48 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    them.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        local_path: Path on local filesystem where we will prep outputs for distribution.</span>
-<span class="sd">        build_path: Remote path containing raw build outputs.</span>
+<span class="sd">        local_path: Path on local filesystem containing raw outputs downloaded by</span>
+<span class="sd">            ``download_build_outputs``, which this prepares for distribution in place.</span>
+<span class="sd">        build_path: Remote path the raw build outputs came from -- only used here to</span>
+<span class="sd">            derive the build ID for the provenance marker file.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># Copy raw build outputs to local path</span>
-    <span class="n">fs</span> <span class="o">=</span> <span class="n">build_path</span><span class="o">.</span><span class="n">fs</span>
-    <span class="n">fs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">build_path</span><span class="o">.</span><span class="n">as_uri</span><span class="p">()</span><span class="si">}</span><span class="s2">/&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">local_path</span><span class="p">),</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Preparing outputs in </span><span class="si">{</span><span class="n">local_path</span><span class="si">}</span><span class="s2"> for distribution&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Build and deploy logs live under builds.catalyst.coop for operators to</span>
+    <span class="c1"># review, but must never be distributed publicly -- they can contain stack</span>
+    <span class="c1"># traces or other details we don&#39;t want to expose.</span>
+    <span class="k">for</span> <span class="n">log_file</span> <span class="ow">in</span> <span class="n">local_path</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;*.log&quot;</span><span class="p">):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Excluding </span><span class="si">{</span><span class="n">log_file</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> from public distribution.&quot;</span><span class="p">)</span>
+        <span class="n">log_file</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
+
+    <span class="c1"># The &quot;success&quot; sentinel is internal build-completion plumbing (see</span>
+    <span class="c1"># check_build_success/get_build_from_tag) with no meaning for consumers of the</span>
+    <span class="c1"># distributed outputs.</span>
+    <span class="n">success_marker</span> <span class="o">=</span> <span class="n">local_path</span> <span class="o">/</span> <span class="s2">&quot;success&quot;</span>
+    <span class="k">if</span> <span class="n">success_marker</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="n">success_marker</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
+
+    <span class="c1"># Write a file named after the build ID (containing that same build ID) so</span>
+    <span class="c1"># anyone looking at the distributed outputs can trace them back to the build</span>
+    <span class="c1"># that produced them -- this used to be implicit in the build log&#39;s filename,</span>
+    <span class="c1"># which we no longer distribute. The file can&#39;t be empty: Zenodo rejects</span>
+    <span class="c1"># zero-byte uploads.</span>
+    <span class="n">build_id</span> <span class="o">=</span> <span class="n">build_path</span><span class="o">.</span><span class="n">name</span>
+    <span class="p">(</span><span class="n">local_path</span> <span class="o">/</span> <span class="n">build_id</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">build_id</span><span class="p">)</span>
 
     <span class="c1"># Zip parquet files (for main pudl outputs + ferc extracted outputs)</span>
     <span class="n">pudl_parquet_dir</span> <span class="o">=</span> <span class="n">local_path</span> <span class="o">/</span> <span class="s2">&quot;parquet&quot;</span>
     <span class="n">_zip_parquet_files</span><span class="p">(</span><span class="n">pudl_parquet_dir</span><span class="p">,</span> <span class="n">local_path</span> <span class="o">/</span> <span class="s2">&quot;pudl_parquet.zip&quot;</span><span class="p">)</span>
-    <span class="n">_zip_parquet_files</span><span class="p">(</span><span class="n">local_path</span> <span class="o">/</span> <span class="s2">&quot;ferc1_xbrl&quot;</span><span class="p">,</span> <span class="n">local_path</span> <span class="o">/</span> <span class="s2">&quot;ferc1_xbrl.zip&quot;</span><span class="p">)</span>
-    <span class="n">_zip_parquet_files</span><span class="p">(</span><span class="n">local_path</span> <span class="o">/</span> <span class="s2">&quot;ferc2_xbrl&quot;</span><span class="p">,</span> <span class="n">local_path</span> <span class="o">/</span> <span class="s2">&quot;ferc2_xbrl.zip&quot;</span><span class="p">)</span>
-    <span class="n">_zip_parquet_files</span><span class="p">(</span><span class="n">local_path</span> <span class="o">/</span> <span class="s2">&quot;ferc6_xbrl&quot;</span><span class="p">,</span> <span class="n">local_path</span> <span class="o">/</span> <span class="s2">&quot;ferc6_xbrl.zip&quot;</span><span class="p">)</span>
-    <span class="n">_zip_parquet_files</span><span class="p">(</span><span class="n">local_path</span> <span class="o">/</span> <span class="s2">&quot;ferc60_xbrl&quot;</span><span class="p">,</span> <span class="n">local_path</span> <span class="o">/</span> <span class="s2">&quot;ferc60_xbrl.zip&quot;</span><span class="p">)</span>
-    <span class="n">_zip_parquet_files</span><span class="p">(</span><span class="n">local_path</span> <span class="o">/</span> <span class="s2">&quot;ferc714_xbrl&quot;</span><span class="p">,</span> <span class="n">local_path</span> <span class="o">/</span> <span class="s2">&quot;ferc714_xbrl.zip&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">ferc_db</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;ferc1&quot;</span><span class="p">,</span> <span class="s2">&quot;ferc2&quot;</span><span class="p">,</span> <span class="s2">&quot;ferc6&quot;</span><span class="p">,</span> <span class="s2">&quot;ferc60&quot;</span><span class="p">,</span> <span class="s2">&quot;ferc714&quot;</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">ferc_db</span> <span class="o">!=</span> <span class="s2">&quot;ferc714&quot;</span><span class="p">:</span>
+            <span class="n">_zip_parquet_files</span><span class="p">(</span>
+                <span class="n">local_path</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ferc_db</span><span class="si">}</span><span class="s2">_dbf&quot;</span><span class="p">,</span>
+                <span class="n">local_path</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ferc_db</span><span class="si">}</span><span class="s2">_dbf.zip&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="n">_zip_parquet_files</span><span class="p">(</span>
+            <span class="n">local_path</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ferc_db</span><span class="si">}</span><span class="s2">_xbrl&quot;</span><span class="p">,</span>
+            <span class="n">local_path</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ferc_db</span><span class="si">}</span><span class="s2">_xbrl.zip&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
 
     <span class="c1"># Move parquet files to base directory</span>
     <span class="k">for</span> <span class="n">parquet_file</span> <span class="ow">in</span> <span class="n">pudl_parquet_dir</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;*.parquet&quot;</span><span class="p">):</span>
@@ -987,16 +1194,15 @@ window.runMermaid = runMermaid;</script>
     <span class="c1"># Remove parquet directory</span>
     <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">pudl_parquet_dir</span><span class="p">)</span>
 
-    <span class="c1"># Compress SQLite databases</span>
+    <span class="c1"># Compress SQLite databases in parallel. zlib (used by ZIP_DEFLATED) releases</span>
+    <span class="c1"># the GIL during actual compression, and each file is fully independent, so a</span>
+    <span class="c1"># thread pool gives real wall-clock speedup for this otherwise-serial,</span>
+    <span class="c1"># CPU/IO-heavy step without the complexity of multiprocessing.</span>
     <span class="n">sqlite_files</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">local_path</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;*.sqlite&quot;</span><span class="p">))</span>
-    <span class="k">for</span> <span class="n">sqlite_file</span> <span class="ow">in</span> <span class="n">sqlite_files</span><span class="p">:</span>
-        <span class="n">zip_path</span> <span class="o">=</span> <span class="n">local_path</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">sqlite_file</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">.zip&quot;</span>
-        <span class="k">with</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span>
-            <span class="n">zip_path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZIP_DEFLATED</span><span class="p">,</span> <span class="n">compresslevel</span><span class="o">=</span><span class="mi">9</span>
-        <span class="p">)</span> <span class="k">as</span> <span class="n">zf</span><span class="p">:</span>
-            <span class="n">zf</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">sqlite_file</span><span class="p">,</span> <span class="n">arcname</span><span class="o">=</span><span class="n">sqlite_file</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-        <span class="n">sqlite_file</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Compressed </span><span class="si">{</span><span class="n">sqlite_file</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">sqlite_files</span><span class="p">:</span>
+        <span class="n">max_workers</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">sqlite_files</span><span class="p">),</span> <span class="n">os</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span> <span class="ow">or</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">ThreadPoolExecutor</span><span class="p">(</span><span class="n">max_workers</span><span class="o">=</span><span class="n">max_workers</span><span class="p">)</span> <span class="k">as</span> <span class="n">executor</span><span class="p">:</span>
+            <span class="nb">list</span><span class="p">(</span><span class="n">executor</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">_compress_sqlite_file</span><span class="p">,</span> <span class="n">sqlite_files</span><span class="p">))</span>
 
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Removing dbt database.&quot;</span><span class="p">)</span>
     <span class="n">test_db</span> <span class="o">=</span> <span class="n">local_path</span> <span class="o">/</span> <span class="s2">&quot;pudl_dbt_tests.duckdb&quot;</span>
@@ -1014,21 +1220,103 @@ window.runMermaid = runMermaid;</script>
 
 
 
+<div class="viewcode-block" id="clear_deployment_path">
+<a class="viewcode-back" href="../../../autoapi/pudl/deploy/pudl/index.html#pudl.deploy.pudl.clear_deployment_path">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">clear_deployment_path</span><span class="p">(</span><span class="n">fs</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Empty a cloud storage prefix before writing fresh deployment outputs.</span>
+
+<span class="sd">    Cloud storage (GCS, S3) uses virtual prefixes rather than real directories, so we</span>
+<span class="sd">    use ``fs.rm(path, recursive=True)`` instead of ``rmdir()``, which would raise</span>
+<span class="sd">    ``NotADirectoryError`` -- the same pattern used for FERC EQR staging cleanup in</span>
+<span class="sd">    ``pudl.dagster.assets.deploy.ferceqr``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">fs</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+        <span class="n">fs</span><span class="o">.</span><span class="n">rm</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="_upload_to_path">
+<a class="viewcode-back" href="../../../autoapi/pudl/deploy/pudl/index.html#pudl.deploy.pudl._upload_to_path">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_upload_to_path</span><span class="p">(</span><span class="n">fs</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">source_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">clear_first</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Clear (if requested) and upload all outputs to one destination path.</span>
+
+<span class="sd">    Safe to call concurrently for different ``(fs, path)`` combinations -- gcsfs</span>
+<span class="sd">    and s3fs are both designed to support concurrent use from multiple threads,</span>
+<span class="sd">    and each call here only touches its own independent bucket/path.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">clear_first</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Clearing existing outputs at </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">clear_deployment_path</span><span class="p">(</span><span class="n">fs</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Uploading outputs to </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">fs</span><span class="o">.</span><span class="n">mkdirs</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">fs</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">source_dir</span><span class="si">}</span><span class="s2">/*&quot;</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="_assert_permanent_paths_are_empty">
+<a class="viewcode-back" href="../../../autoapi/pudl/deploy/pudl/index.html#pudl.deploy.pudl._assert_permanent_paths_are_empty">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_assert_permanent_paths_are_empty</span><span class="p">(</span>
+    <span class="n">gcs_fs</span><span class="p">:</span> <span class="n">gcsfs</span><span class="o">.</span><span class="n">GCSFileSystem</span><span class="p">,</span>
+    <span class="n">s3_fs</span><span class="p">:</span> <span class="n">s3fs</span><span class="o">.</span><span class="n">S3FileSystem</span><span class="p">,</span>
+    <span class="n">path_suffixes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">immutable_suffixes</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Refuse to deploy to a permanent, version-tagged path that already has content.</span>
+
+<span class="sd">    Rolling paths (nightly/stable/eel-hole) are cleared before every upload, but a</span>
+<span class="sd">    permanent path like ``gs://pudl.catalyst.coop/v2026.7.0/`` deliberately never is</span>
+<span class="sd">    -- it&#39;s meant to be written exactly once. If it already has content, deploying</span>
+<span class="sd">    again would silently mix old and new files instead of cleanly replacing them,</span>
+<span class="sd">    which almost always means the same version tag is being deployed a second time.</span>
+<span class="sd">    That&#39;s an invalid request, so we check and raise up front rather than silently</span>
+<span class="sd">    uploading over the top of it.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">suffix</span> <span class="ow">in</span> <span class="n">path_suffixes</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">suffix</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">immutable_suffixes</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">for</span> <span class="n">fs</span><span class="p">,</span> <span class="n">path</span> <span class="ow">in</span> <span class="p">(</span>
+            <span class="p">(</span><span class="n">gcs_fs</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;gs://pudl.catalyst.coop/</span><span class="si">{</span><span class="n">suffix</span><span class="si">}</span><span class="s2">/&quot;</span><span class="p">),</span>
+            <span class="p">(</span><span class="n">s3_fs</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;s3://pudl.catalyst.coop/</span><span class="si">{</span><span class="n">suffix</span><span class="si">}</span><span class="s2">/&quot;</span><span class="p">),</span>
+        <span class="p">):</span>
+            <span class="k">if</span> <span class="n">fs</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Refusing to deploy to </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">: it&#39;s a permanent, &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;version-tagged path that must never be overwritten, and it &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;already has content. This usually means version </span><span class="si">{</span><span class="n">suffix</span><span class="si">!r}</span><span class="s2"> &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;has already been deployed.&quot;</span>
+                <span class="p">)</span></div>
+
+
+
 <div class="viewcode-block" id="upload_outputs">
 <a class="viewcode-back" href="../../../autoapi/pudl/deploy/pudl/index.html#pudl.deploy.pudl.upload_outputs">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">upload_outputs</span><span class="p">(</span>
     <span class="n">source_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
     <span class="n">path_suffixes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">immutable_suffixes</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(),</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Upload outputs to cloud storage paths.</span>
 
 <span class="sd">    Uploads all files from source directory to GCS and S3 using the provided path</span>
 <span class="sd">    suffixes. Each suffix is uploaded to both gs://pudl.catalyst.coop/{suffix}/ and</span>
-<span class="sd">    s3://pudl.catalyst.coop/{suffix}/.</span>
+<span class="sd">    s3://pudl.catalyst.coop/{suffix}/. Any existing objects at a suffix are removed</span>
+<span class="sd">    first, unless that suffix is listed in ``immutable_suffixes`` -- a permanent,</span>
+<span class="sd">    hold-protected versioned release path is never cleared, and instead must not</span>
+<span class="sd">    exist at all yet (see ``_assert_permanent_paths_are_empty``).</span>
+
+<span class="sd">    Each (suffix, destination) pair is uploaded concurrently: GCS and S3 are separate</span>
+<span class="sd">    network destinations, and this is I/O-bound work that releases the GIL.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        source_dir: Local directory containing prepared outputs to upload.</span>
 <span class="sd">        path_suffixes: Path suffixes to upload to (e.g., [&quot;nightly&quot;, &quot;eel-hole&quot;]).</span>
+<span class="sd">        immutable_suffixes: Path suffixes that should never be cleared before upload</span>
+<span class="sd">            (e.g. a permanent stable-version path like &quot;v2026.7.0&quot;). It&#39;s an error</span>
+<span class="sd">            for one of these paths to already exist.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        RuntimeError: If a permanent, immutable path already has content.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Uploading outputs to cloud storage&quot;</span><span class="p">)</span>
 
@@ -1041,17 +1329,25 @@ window.runMermaid = runMermaid;</script>
     <span class="n">gcs_fs</span> <span class="o">=</span> <span class="n">gcsfs</span><span class="o">.</span><span class="n">GCSFileSystem</span><span class="p">(</span><span class="n">requester_pays</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">s3_fs</span> <span class="o">=</span> <span class="n">s3fs</span><span class="o">.</span><span class="n">S3FileSystem</span><span class="p">()</span>
 
-    <span class="c1"># actually upload</span>
-    <span class="k">for</span> <span class="n">suffix</span> <span class="ow">in</span> <span class="n">path_suffixes</span><span class="p">:</span>
-        <span class="n">gcs_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;gs://pudl.catalyst.coop/</span><span class="si">{</span><span class="n">suffix</span><span class="si">}</span><span class="s2">/&quot;</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Uploading outputs to </span><span class="si">{</span><span class="n">gcs_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="n">gcs_fs</span><span class="o">.</span><span class="n">mkdirs</span><span class="p">(</span><span class="n">gcs_path</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">gcs_fs</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">source_dir</span><span class="si">}</span><span class="s2">/*&quot;</span><span class="p">,</span> <span class="n">gcs_path</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">_assert_permanent_paths_are_empty</span><span class="p">(</span><span class="n">gcs_fs</span><span class="p">,</span> <span class="n">s3_fs</span><span class="p">,</span> <span class="n">path_suffixes</span><span class="p">,</span> <span class="n">immutable_suffixes</span><span class="p">)</span>
 
-        <span class="n">s3_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;s3://pudl.catalyst.coop/</span><span class="si">{</span><span class="n">suffix</span><span class="si">}</span><span class="s2">/&quot;</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Uploading outputs to </span><span class="si">{</span><span class="n">s3_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="n">s3_fs</span><span class="o">.</span><span class="n">mkdirs</span><span class="p">(</span><span class="n">s3_path</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">s3_fs</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">source_dir</span><span class="si">}</span><span class="s2">/*&quot;</span><span class="p">,</span> <span class="n">s3_path</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">upload_targets</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">suffix</span> <span class="ow">in</span> <span class="n">path_suffixes</span><span class="p">:</span>
+        <span class="n">clear_first</span> <span class="o">=</span> <span class="n">suffix</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">immutable_suffixes</span>
+        <span class="n">upload_targets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">gcs_fs</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;gs://pudl.catalyst.coop/</span><span class="si">{</span><span class="n">suffix</span><span class="si">}</span><span class="s2">/&quot;</span><span class="p">,</span> <span class="n">clear_first</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">upload_targets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">s3_fs</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;s3://pudl.catalyst.coop/</span><span class="si">{</span><span class="n">suffix</span><span class="si">}</span><span class="s2">/&quot;</span><span class="p">,</span> <span class="n">clear_first</span><span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="k">with</span> <span class="n">ThreadPoolExecutor</span><span class="p">(</span><span class="n">max_workers</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">upload_targets</span><span class="p">))</span> <span class="k">as</span> <span class="n">executor</span><span class="p">:</span>
+        <span class="n">futures</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">executor</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">_upload_to_path</span><span class="p">,</span> <span class="n">fs</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">source_dir</span><span class="p">,</span> <span class="n">clear_first</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">fs</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">clear_first</span> <span class="ow">in</span> <span class="n">upload_targets</span>
+        <span class="p">]</span>
+        <span class="k">for</span> <span class="n">future</span> <span class="ow">in</span> <span class="n">futures</span><span class="p">:</span>
+            <span class="n">future</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
 
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Upload complete for </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">path_suffixes</span><span class="p">)</span><span class="si">}</span><span class="s2"> path(s)&quot;</span><span class="p">)</span></div>
 
@@ -1109,6 +1405,41 @@ window.runMermaid = runMermaid;</script>
 
 
 
+<div class="viewcode-block" id="dispatch_github_workflow">
+<a class="viewcode-back" href="../../../autoapi/pudl/deploy/pudl/index.html#pudl.deploy.pudl.dispatch_github_workflow">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">dispatch_github_workflow</span><span class="p">(</span>
+    <span class="n">repo</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">workflow_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">ref</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">token</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">inputs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Trigger a workflow_dispatch event on a GitHub Actions workflow.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        repo: GitHub repo in &quot;owner/name&quot; form (e.g. &quot;catalyst-cooperative/pudl&quot;).</span>
+<span class="sd">        workflow_file: Workflow filename (e.g. &quot;zenodo-data-release.yml&quot;).</span>
+<span class="sd">        ref: Git branch or tag to run the workflow from.</span>
+<span class="sd">        token: Bearer token to authenticate to GitHub.</span>
+<span class="sd">        inputs: workflow_dispatch inputs, if the workflow takes any.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">payload</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;ref&quot;</span><span class="p">:</span> <span class="n">ref</span><span class="p">}</span>
+    <span class="k">if</span> <span class="n">inputs</span><span class="p">:</span>
+        <span class="n">payload</span><span class="p">[</span><span class="s2">&quot;inputs&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">inputs</span>
+
+    <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;https://api.github.com/repos/</span><span class="si">{</span><span class="n">repo</span><span class="si">}</span><span class="s2">/actions/workflows/</span><span class="si">{</span><span class="n">workflow_file</span><span class="si">}</span><span class="s2">/dispatches&quot;</span><span class="p">,</span>
+        <span class="n">headers</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;Accept&quot;</span><span class="p">:</span> <span class="s2">&quot;application/vnd.github+json&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Authorization&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Bearer </span><span class="si">{</span><span class="n">token</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="n">json</span><span class="o">=</span><span class="n">payload</span><span class="p">,</span>
+        <span class="n">timeout</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span></div>
+
+
+
 <div class="viewcode-block" id="trigger_zenodo_release">
 <a class="viewcode-back" href="../../../autoapi/pudl/deploy/pudl/index.html#pudl.deploy.pudl.trigger_zenodo_release">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">trigger_zenodo_release</span><span class="p">(</span>
@@ -1139,24 +1470,18 @@ window.runMermaid = runMermaid;</script>
 
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Triggering Zenodo release: env=</span><span class="si">{</span><span class="n">env</span><span class="si">}</span><span class="s2">, publish=</span><span class="si">{</span><span class="n">publish_flag</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-    <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span>
-        <span class="s2">&quot;https://api.github.com/repos/catalyst-cooperative/pudl/actions/workflows/zenodo-data-release.yml/dispatches&quot;</span><span class="p">,</span>
-        <span class="n">headers</span><span class="o">=</span><span class="p">{</span>
-            <span class="s2">&quot;Accept&quot;</span><span class="p">:</span> <span class="s2">&quot;application/vnd.github+json&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;Authorization&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Bearer </span><span class="si">{</span><span class="n">token</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+    <span class="n">dispatch_github_workflow</span><span class="p">(</span>
+        <span class="n">repo</span><span class="o">=</span><span class="s2">&quot;catalyst-cooperative/pudl&quot;</span><span class="p">,</span>
+        <span class="n">workflow_file</span><span class="o">=</span><span class="s2">&quot;zenodo-data-release.yml&quot;</span><span class="p">,</span>
+        <span class="n">ref</span><span class="o">=</span><span class="n">build_ref</span><span class="p">,</span>
+        <span class="n">token</span><span class="o">=</span><span class="n">token</span><span class="p">,</span>
+        <span class="n">inputs</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;env&quot;</span><span class="p">:</span> <span class="n">env</span><span class="p">,</span>
+            <span class="s2">&quot;source_dir&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;s3://pudl.catalyst.coop/</span><span class="si">{</span><span class="n">source_suffix</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;ignore_regex&quot;</span><span class="p">:</span> <span class="n">ignore_regex</span><span class="p">,</span>
+            <span class="s2">&quot;publish&quot;</span><span class="p">:</span> <span class="n">publish_flag</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="n">json</span><span class="o">=</span><span class="p">{</span>
-            <span class="s2">&quot;ref&quot;</span><span class="p">:</span> <span class="n">build_ref</span><span class="p">,</span>
-            <span class="s2">&quot;inputs&quot;</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s2">&quot;env&quot;</span><span class="p">:</span> <span class="n">env</span><span class="p">,</span>
-                <span class="s2">&quot;source_dir&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;s3://pudl.catalyst.coop/</span><span class="si">{</span><span class="n">source_suffix</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;ignore_regex&quot;</span><span class="p">:</span> <span class="n">ignore_regex</span><span class="p">,</span>
-                <span class="s2">&quot;publish&quot;</span><span class="p">:</span> <span class="n">publish_flag</span><span class="p">,</span>
-            <span class="p">},</span>
-        <span class="p">},</span>
-        <span class="n">timeout</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
 
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Zenodo release workflow triggered&quot;</span><span class="p">)</span></div>
 
@@ -1176,23 +1501,16 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Updating PUDL Viewer Cloud Run service&quot;</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">environment</span> <span class="o">==</span> <span class="s2">&quot;staging&quot;</span><span class="p">:</span>
-        <span class="n">deploy_workflow_url</span> <span class="o">=</span> <span class="s2">&quot;https://api.github.com/repos/catalyst-cooperative/eel-hole/actions/workflows/build-deploy-staging.yml/dispatches&quot;</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">deploy_workflow_url</span> <span class="o">=</span> <span class="s2">&quot;https://api.github.com/repos/catalyst-cooperative/eel-hole/actions/workflows/build-deploy.yml/dispatches&quot;</span>
-
-    <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span>
-        <span class="n">deploy_workflow_url</span><span class="p">,</span>
-        <span class="n">headers</span><span class="o">=</span><span class="p">{</span>
-            <span class="s2">&quot;Accept&quot;</span><span class="p">:</span> <span class="s2">&quot;application/vnd.github+json&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;Authorization&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Bearer </span><span class="si">{</span><span class="n">token</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-        <span class="p">},</span>
-        <span class="n">json</span><span class="o">=</span><span class="p">{</span>
-            <span class="s2">&quot;ref&quot;</span><span class="p">:</span> <span class="s2">&quot;main&quot;</span><span class="p">,</span>
-        <span class="p">},</span>
-        <span class="n">timeout</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+    <span class="n">workflow_file</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">&quot;build-deploy-staging.yml&quot;</span> <span class="k">if</span> <span class="n">environment</span> <span class="o">==</span> <span class="s2">&quot;staging&quot;</span> <span class="k">else</span> <span class="s2">&quot;build-deploy.yml&quot;</span>
     <span class="p">)</span>
-    <span class="n">response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
+
+    <span class="n">dispatch_github_workflow</span><span class="p">(</span>
+        <span class="n">repo</span><span class="o">=</span><span class="s2">&quot;catalyst-cooperative/eel-hole&quot;</span><span class="p">,</span>
+        <span class="n">workflow_file</span><span class="o">=</span><span class="n">workflow_file</span><span class="p">,</span>
+        <span class="n">ref</span><span class="o">=</span><span class="s2">&quot;main&quot;</span><span class="p">,</span>
+        <span class="n">token</span><span class="o">=</span><span class="n">token</span><span class="p">,</span>
+    <span class="p">)</span>
 
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;PUDL Viewer Cloud Run service updated&quot;</span><span class="p">)</span></div>
 
@@ -1283,13 +1601,370 @@ window.runMermaid = runMermaid;</script>
         <span class="n">deploy_type</span> <span class="o">=</span> <span class="n">DeploymentType</span><span class="o">.</span><span class="n">STABLE</span>
     <span class="k">elif</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;nightly-\d</span><span class="si">{4}</span><span class="s2">-\d</span><span class="si">{2}</span><span class="s2">-\d</span><span class="si">{2}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">git_tag</span><span class="p">):</span>
         <span class="n">deploy_type</span> <span class="o">=</span> <span class="n">DeploymentType</span><span class="o">.</span><span class="n">NIGHTLY</span>
-    <span class="k">elif</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;branch-.+-\d</span><span class="si">{4}</span><span class="s2">-\d</span><span class="si">{2}</span><span class="s2">-\d</span><span class="si">{2}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">git_tag</span><span class="p">):</span>
+    <span class="k">elif</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;branch-\d</span><span class="si">{4}</span><span class="s2">-\d</span><span class="si">{2}</span><span class="s2">-\d</span><span class="si">{2}</span><span class="s2">-\d</span><span class="si">{4}</span><span class="s2">-.*-.*&quot;</span><span class="p">,</span> <span class="n">git_tag</span><span class="p">):</span>
         <span class="n">deploy_type</span> <span class="o">=</span> <span class="n">DeploymentType</span><span class="o">.</span><span class="n">BRANCH</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;Git tag does not look like a stable or nightly tag. Input tag: </span><span class="si">{</span><span class="n">git_tag</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="p">)</span>
     <span class="k">return</span> <span class="n">deploy_type</span></div>
+
+
+
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="viewcode-block" id="ResolvedBuild">
+<a class="viewcode-back" href="../../../autoapi/pudl/deploy/pudl/index.html#pudl.deploy.pudl.ResolvedBuild">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ResolvedBuild</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Everything ``pudl_deploy``&#39;s ``main()`` needs after resolving a deployment.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="ResolvedBuild.plan">
+<a class="viewcode-back" href="../../../autoapi/pudl/deploy/pudl/index.html#pudl.deploy.pudl.ResolvedBuild.plan">[docs]</a>
+    <span class="n">plan</span><span class="p">:</span> <span class="n">DeploymentPlan</span></div>
+
+<div class="viewcode-block" id="ResolvedBuild.build_path">
+<a class="viewcode-back" href="../../../autoapi/pudl/deploy/pudl/index.html#pudl.deploy.pudl.ResolvedBuild.build_path">[docs]</a>
+    <span class="n">build_path</span><span class="p">:</span> <span class="n">UPath</span></div>
+
+<div class="viewcode-block" id="ResolvedBuild.build_id">
+<a class="viewcode-back" href="../../../autoapi/pudl/deploy/pudl/index.html#pudl.deploy.pudl.ResolvedBuild.build_id">[docs]</a>
+    <span class="n">build_id</span><span class="p">:</span> <span class="nb">str</span></div>
+
+<div class="viewcode-block" id="ResolvedBuild.local_copy_path">
+<a class="viewcode-back" href="../../../autoapi/pudl/deploy/pudl/index.html#pudl.deploy.pudl.ResolvedBuild.local_copy_path">[docs]</a>
+    <span class="n">local_copy_path</span><span class="p">:</span> <span class="n">Path</span></div>
+
+<div class="viewcode-block" id="ResolvedBuild.local_logfile">
+<a class="viewcode-back" href="../../../autoapi/pudl/deploy/pudl/index.html#pudl.deploy.pudl.ResolvedBuild.local_logfile">[docs]</a>
+    <span class="n">local_logfile</span><span class="p">:</span> <span class="n">Path</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="resolve_build">
+<a class="viewcode-back" href="../../../autoapi/pudl/deploy/pudl/index.html#pudl.deploy.pudl.resolve_build">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">resolve_build</span><span class="p">(</span>
+    <span class="n">git_tag</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">environment</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;staging&quot;</span><span class="p">,</span> <span class="s2">&quot;production&quot;</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ResolvedBuild</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Resolve the deployment plan, locate the build, and set up local logging.</span>
+
+<span class="sd">    Raises if ``git_tag`` doesn&#39;t look like a nightly/stable/branch tag, if a</span>
+<span class="sd">    branch tag is being deployed to production, or if no successful build exists</span>
+<span class="sd">    for the tag yet.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">plan</span> <span class="o">=</span> <span class="n">DeploymentPlan</span><span class="p">(</span><span class="n">git_tag</span><span class="o">=</span><span class="n">git_tag</span><span class="p">,</span> <span class="n">environment</span><span class="o">=</span><span class="n">environment</span><span class="p">)</span>
+
+    <span class="n">build_path</span> <span class="o">=</span> <span class="n">get_build_from_tag</span><span class="p">(</span><span class="n">git_tag</span><span class="p">)</span>
+    <span class="n">build_id</span> <span class="o">=</span> <span class="n">build_path</span><span class="o">.</span><span class="n">name</span>
+    <span class="n">local_copy_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tempfile</span><span class="o">.</span><span class="n">mkdtemp</span><span class="p">())</span>
+
+    <span class="n">deploy_start_time</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+    <span class="n">local_logfile</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">Path</span><span class="p">(</span><span class="n">tempfile</span><span class="o">.</span><span class="n">mkdtemp</span><span class="p">())</span>
+        <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">build_id</span><span class="si">}</span><span class="s2">-deploy-</span><span class="si">{</span><span class="n">deploy_start_time</span><span class="si">:</span><span class="s2">%Y-%m-%d-%H%M</span><span class="si">}</span><span class="s2">.log&quot;</span>
+    <span class="p">)</span>
+    <span class="n">configure_root_logger</span><span class="p">(</span><span class="n">logfile</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">local_logfile</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">ResolvedBuild</span><span class="p">(</span>
+        <span class="n">plan</span><span class="o">=</span><span class="n">plan</span><span class="p">,</span>
+        <span class="n">build_path</span><span class="o">=</span><span class="n">build_path</span><span class="p">,</span>
+        <span class="n">build_id</span><span class="o">=</span><span class="n">build_id</span><span class="p">,</span>
+        <span class="n">local_copy_path</span><span class="o">=</span><span class="n">local_copy_path</span><span class="p">,</span>
+        <span class="n">local_logfile</span><span class="o">=</span><span class="n">local_logfile</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="StageStatus">
+<a class="viewcode-back" href="../../../autoapi/pudl/deploy/pudl/index.html#pudl.deploy.pudl.StageStatus">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">StageStatus</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Possible outcomes of a single deployment stage.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="StageStatus.SKIPPED">
+<a class="viewcode-back" href="../../../autoapi/pudl/deploy/pudl/index.html#pudl.deploy.pudl.StageStatus.SKIPPED">[docs]</a>
+    <span class="n">SKIPPED</span> <span class="o">=</span> <span class="s2">&quot;skipped&quot;</span></div>
+
+<div class="viewcode-block" id="StageStatus.SUCCESS">
+<a class="viewcode-back" href="../../../autoapi/pudl/deploy/pudl/index.html#pudl.deploy.pudl.StageStatus.SUCCESS">[docs]</a>
+    <span class="n">SUCCESS</span> <span class="o">=</span> <span class="s2">&quot;success&quot;</span></div>
+
+<div class="viewcode-block" id="StageStatus.FAILURE">
+<a class="viewcode-back" href="../../../autoapi/pudl/deploy/pudl/index.html#pudl.deploy.pudl.StageStatus.FAILURE">[docs]</a>
+    <span class="n">FAILURE</span> <span class="o">=</span> <span class="s2">&quot;failure&quot;</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="DeployStage">
+<a class="viewcode-back" href="../../../autoapi/pudl/deploy/pudl/index.html#pudl.deploy.pudl.DeployStage">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">DeployStage</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The fixed set of tracked deployment stages.</span>
+
+<span class="sd">    Members are declared in the order they should appear in the Zulip notification</span>
+<span class="sd">    table, and ``DeployStage`` iteration preserves that order -- so this is the</span>
+<span class="sd">    single source of truth for both the valid stage identifiers (used as dict keys</span>
+<span class="sd">    and passed to ``run_stage``) and their display order, rather than an</span>
+<span class="sd">    unconstrained string that&#39;s only coincidentally consistent</span>
+<span class="sd">    between call sites. ``.value`` gives the human-readable name shown in messages.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="DeployStage.RESOLVE_BUILD">
+<a class="viewcode-back" href="../../../autoapi/pudl/deploy/pudl/index.html#pudl.deploy.pudl.DeployStage.RESOLVE_BUILD">[docs]</a>
+    <span class="n">RESOLVE_BUILD</span> <span class="o">=</span> <span class="s2">&quot;Resolve build&quot;</span></div>
+
+<div class="viewcode-block" id="DeployStage.DOWNLOAD_BUILD_OUTPUTS">
+<a class="viewcode-back" href="../../../autoapi/pudl/deploy/pudl/index.html#pudl.deploy.pudl.DeployStage.DOWNLOAD_BUILD_OUTPUTS">[docs]</a>
+    <span class="n">DOWNLOAD_BUILD_OUTPUTS</span> <span class="o">=</span> <span class="s2">&quot;Download build outputs&quot;</span></div>
+
+<div class="viewcode-block" id="DeployStage.PREPARE_OUTPUTS">
+<a class="viewcode-back" href="../../../autoapi/pudl/deploy/pudl/index.html#pudl.deploy.pudl.DeployStage.PREPARE_OUTPUTS">[docs]</a>
+    <span class="n">PREPARE_OUTPUTS</span> <span class="o">=</span> <span class="s2">&quot;Prepare outputs&quot;</span></div>
+
+<div class="viewcode-block" id="DeployStage.UPLOAD_OUTPUTS">
+<a class="viewcode-back" href="../../../autoapi/pudl/deploy/pudl/index.html#pudl.deploy.pudl.DeployStage.UPLOAD_OUTPUTS">[docs]</a>
+    <span class="n">UPLOAD_OUTPUTS</span> <span class="o">=</span> <span class="s2">&quot;Upload outputs&quot;</span></div>
+
+<div class="viewcode-block" id="DeployStage.REDEPLOY_EEL_HOLE">
+<a class="viewcode-back" href="../../../autoapi/pudl/deploy/pudl/index.html#pudl.deploy.pudl.DeployStage.REDEPLOY_EEL_HOLE">[docs]</a>
+    <span class="n">REDEPLOY_EEL_HOLE</span> <span class="o">=</span> <span class="s2">&quot;Redeploy Eel Hole&quot;</span></div>
+
+<div class="viewcode-block" id="DeployStage.UPDATE_GIT_BRANCH">
+<a class="viewcode-back" href="../../../autoapi/pudl/deploy/pudl/index.html#pudl.deploy.pudl.DeployStage.UPDATE_GIT_BRANCH">[docs]</a>
+    <span class="n">UPDATE_GIT_BRANCH</span> <span class="o">=</span> <span class="s2">&quot;Update Git Branch&quot;</span></div>
+
+<div class="viewcode-block" id="DeployStage.TRIGGER_ZENODO_RELEASE">
+<a class="viewcode-back" href="../../../autoapi/pudl/deploy/pudl/index.html#pudl.deploy.pudl.DeployStage.TRIGGER_ZENODO_RELEASE">[docs]</a>
+    <span class="n">TRIGGER_ZENODO_RELEASE</span> <span class="o">=</span> <span class="s2">&quot;Trigger Zenodo Release&quot;</span></div>
+
+<div class="viewcode-block" id="DeployStage.GCS_TEMPORARY_HOLD">
+<a class="viewcode-back" href="../../../autoapi/pudl/deploy/pudl/index.html#pudl.deploy.pudl.DeployStage.GCS_TEMPORARY_HOLD">[docs]</a>
+    <span class="n">GCS_TEMPORARY_HOLD</span> <span class="o">=</span> <span class="s2">&quot;GCS Temporary Hold&quot;</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="ZULIP_API_URL">
+<a class="viewcode-back" href="../../../autoapi/pudl/deploy/pudl/index.html#pudl.deploy.pudl.ZULIP_API_URL">[docs]</a>
+<span class="n">ZULIP_API_URL</span> <span class="o">=</span> <span class="s2">&quot;https://catalyst-cooperative.zulipchat.com/api/v1/messages&quot;</span></div>
+
+<div class="viewcode-block" id="ZULIP_BOT_EMAIL">
+<a class="viewcode-back" href="../../../autoapi/pudl/deploy/pudl/index.html#pudl.deploy.pudl.ZULIP_BOT_EMAIL">[docs]</a>
+<span class="n">ZULIP_BOT_EMAIL</span> <span class="o">=</span> <span class="s2">&quot;build-status-bot@catalyst-cooperative.zulipchat.com&quot;</span></div>
+
+<div class="viewcode-block" id="ZULIP_STREAM">
+<a class="viewcode-back" href="../../../autoapi/pudl/deploy/pudl/index.html#pudl.deploy.pudl.ZULIP_STREAM">[docs]</a>
+<span class="n">ZULIP_STREAM</span> <span class="o">=</span> <span class="s2">&quot;pudl-deployments&quot;</span></div>
+
+<div class="viewcode-block" id="ZULIP_TOPIC">
+<a class="viewcode-back" href="../../../autoapi/pudl/deploy/pudl/index.html#pudl.deploy.pudl.ZULIP_TOPIC">[docs]</a>
+<span class="n">ZULIP_TOPIC</span> <span class="o">=</span> <span class="s2">&quot;build-deploy-pudl&quot;</span></div>
+
+
+
+<span class="nd">@dataclass</span>
+<div class="viewcode-block" id="StageResult">
+<a class="viewcode-back" href="../../../autoapi/pudl/deploy/pudl/index.html#pudl.deploy.pudl.StageResult">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">StageResult</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Outcome of a single deployment stage, for Zulip stage-table reporting.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="StageResult.status">
+<a class="viewcode-back" href="../../../autoapi/pudl/deploy/pudl/index.html#pudl.deploy.pudl.StageResult.status">[docs]</a>
+    <span class="n">status</span><span class="p">:</span> <span class="n">StageStatus</span> <span class="o">=</span> <span class="n">StageStatus</span><span class="o">.</span><span class="n">SKIPPED</span></div>
+
+<div class="viewcode-block" id="StageResult.duration_seconds">
+<a class="viewcode-back" href="../../../autoapi/pudl/deploy/pudl/index.html#pudl.deploy.pudl.StageResult.duration_seconds">[docs]</a>
+    <span class="n">duration_seconds</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="new_deploy_stage_results">
+<a class="viewcode-back" href="../../../autoapi/pudl/deploy/pudl/index.html#pudl.deploy.pudl.new_deploy_stage_results">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">new_deploy_stage_results</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="n">DeployStage</span><span class="p">,</span> <span class="n">StageResult</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Initialize every tracked deploy stage as skipped, in table display order.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">{</span><span class="n">stage</span><span class="p">:</span> <span class="n">StageResult</span><span class="p">()</span> <span class="k">for</span> <span class="n">stage</span> <span class="ow">in</span> <span class="n">DeployStage</span><span class="p">}</span></div>
+
+
+
+<div class="viewcode-block" id="run_stage">
+<a class="viewcode-back" href="../../../autoapi/pudl/deploy/pudl/index.html#pudl.deploy.pudl.run_stage">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">run_stage</span><span class="p">[</span><span class="n">T</span><span class="p">](</span>
+    <span class="n">stage_fn</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">T</span><span class="p">],</span>
+    <span class="n">stage_name</span><span class="p">:</span> <span class="n">DeployStage</span><span class="p">,</span>
+    <span class="n">stage_results</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">DeployStage</span><span class="p">,</span> <span class="n">StageResult</span><span class="p">],</span>
+    <span class="o">*</span><span class="n">args</span><span class="p">,</span>
+    <span class="n">fail_hard</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Run a deploy stage, recording its status and duration in ``stage_results``.</span>
+
+<span class="sd">    If ``stage_fn`` raises and ``fail_hard`` is True (the default), the exception</span>
+<span class="sd">    propagates to the caller after the stage is recorded as failed. Pass</span>
+<span class="sd">    ``fail_hard=False`` for stages that shouldn&#39;t block their siblings -- e.g. a</span>
+<span class="sd">    failed Zenodo release shouldn&#39;t prevent the GCS temporary hold from being</span>
+<span class="sd">    attempted -- in which case the failure is logged instead of raised.</span>
+
+<span class="sd">    Returns whatever ``stage_fn`` returns (``None`` if it failed with</span>
+<span class="sd">    ``fail_hard=False``), so stages that produce a result -- e.g. ``resolve_build``</span>
+<span class="sd">    -- can be run through the same tracking/reporting machinery as side-effect-only</span>
+<span class="sd">    stages.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">monotonic</span><span class="p">()</span>
+    <span class="n">status</span> <span class="o">=</span> <span class="n">StageStatus</span><span class="o">.</span><span class="n">FAILURE</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">stage_fn</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="n">StageStatus</span><span class="o">.</span><span class="n">SUCCESS</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">fail_hard</span><span class="p">:</span>
+            <span class="k">raise</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Deploy stage </span><span class="si">{</span><span class="n">stage_name</span><span class="o">.</span><span class="n">value</span><span class="si">!r}</span><span class="s2"> failed; continuing.&quot;</span><span class="p">)</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="n">stage_results</span><span class="p">[</span><span class="n">stage_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">StageResult</span><span class="p">(</span>
+            <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="p">,</span> <span class="n">duration_seconds</span><span class="o">=</span><span class="n">time</span><span class="o">.</span><span class="n">monotonic</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+
+<div class="viewcode-block" id="format_stage_duration">
+<a class="viewcode-back" href="../../../autoapi/pudl/deploy/pudl/index.html#pudl.deploy.pudl.format_stage_duration">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">format_stage_duration</span><span class="p">(</span><span class="n">elapsed_seconds</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Format a duration in seconds as ``HH:MM:SS``.&quot;&quot;&quot;</span>
+    <span class="n">elapsed_seconds</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">elapsed_seconds</span><span class="p">)</span>
+    <span class="n">hours</span><span class="p">,</span> <span class="n">remainder</span> <span class="o">=</span> <span class="nb">divmod</span><span class="p">(</span><span class="n">elapsed_seconds</span><span class="p">,</span> <span class="mi">3600</span><span class="p">)</span>
+    <span class="n">minutes</span><span class="p">,</span> <span class="n">seconds</span> <span class="o">=</span> <span class="nb">divmod</span><span class="p">(</span><span class="n">remainder</span><span class="p">,</span> <span class="mi">60</span><span class="p">)</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">hours</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">minutes</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">seconds</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="stage_emoji">
+<a class="viewcode-back" href="../../../autoapi/pudl/deploy/pudl/index.html#pudl.deploy.pudl.stage_emoji">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">stage_emoji</span><span class="p">(</span><span class="n">status</span><span class="p">:</span> <span class="n">StageStatus</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the Zulip emoji corresponding to a stage status.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">status</span> <span class="o">==</span> <span class="n">StageStatus</span><span class="o">.</span><span class="n">SKIPPED</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;:ghost:&quot;</span>
+    <span class="k">if</span> <span class="n">status</span> <span class="o">==</span> <span class="n">StageStatus</span><span class="o">.</span><span class="n">SUCCESS</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;:check:&quot;</span>
+    <span class="k">return</span> <span class="s2">&quot;:x:&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="build_deploy_logfile_links">
+<a class="viewcode-back" href="../../../autoapi/pudl/deploy/pudl/index.html#pudl.deploy.pudl.build_deploy_logfile_links">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">build_deploy_logfile_links</span><span class="p">(</span>
+    <span class="n">build_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">deploy_logfile_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">batch_job_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Build markdown links for reviewing a deployment&#39;s logs and outputs.</span>
+
+<span class="sd">    Mirrors the &quot;Review PUDL Build Logs&quot; section ``pudl_batch.sh`` appends to the</span>
+<span class="sd">    nightly build&#39;s own Zulip notification (see ``pudl_logfile_links``).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        build_id: The build directory name under gs://builds.catalyst.coop.</span>
+<span class="sd">        deploy_logfile_name: Filename of this deployment&#39;s logfile within that</span>
+<span class="sd">            build directory.</span>
+<span class="sd">        batch_job_name: Name of the Google Batch job running this deployment, if</span>
+<span class="sd">            known -- omitted from the message (rather than producing a broken</span>
+<span class="sd">            link) when unset, e.g. when testing outside of an actual Batch job.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">nl</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="n">gcs_relative_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;builds.catalyst.coop/</span><span class="si">{</span><span class="n">build_id</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">deploy_logfile_name</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">download_url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;https://storage.cloud.google.com/</span><span class="si">{</span><span class="n">gcs_relative_path</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">browser_url</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">&quot;https://console.cloud.google.com/storage/browser/&quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;builds.catalyst.coop/</span><span class="si">{</span><span class="n">build_id</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="p">)</span>
+
+    <span class="n">message</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;## Review PUDL Deploy Logs</span><span class="si">{</span><span class="n">nl</span><span class="si">}{</span><span class="n">nl</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">message</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;* GCS URL: `gs://</span><span class="si">{</span><span class="n">gcs_relative_path</span><span class="si">}</span><span class="s2">`</span><span class="si">{</span><span class="n">nl</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">message</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;* [Download PUDL deploy logs to review locally](</span><span class="si">{</span><span class="n">download_url</span><span class="si">}</span><span class="s2">)</span><span class="si">{</span><span class="n">nl</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="k">if</span> <span class="n">batch_job_name</span><span class="p">:</span>
+        <span class="n">console_url</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;https://console.cloud.google.com/batch/jobsDetail/regions/us-east1/&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;jobs/</span><span class="si">{</span><span class="n">batch_job_name</span><span class="si">}</span><span class="s2">/logs?project=catalyst-cooperative-pudl&quot;</span>
+        <span class="p">)</span>
+        <span class="n">message</span> <span class="o">+=</span> <span class="p">(</span>
+            <span class="s2">&quot;* [Review PUDL deploy logs in the Google Cloud &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;Console](</span><span class="si">{</span><span class="n">console_url</span><span class="si">}</span><span class="s2">)</span><span class="si">{</span><span class="n">nl</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+    <span class="n">message</span> <span class="o">+=</span> <span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;* [Browse full build outputs in the Google Cloud Console](</span><span class="si">{</span><span class="n">browser_url</span><span class="si">}</span><span class="s2">)</span><span class="si">{</span><span class="n">nl</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">message</span></div>
+
+
+
+<div class="viewcode-block" id="build_deploy_zulip_message">
+<a class="viewcode-back" href="../../../autoapi/pudl/deploy/pudl/index.html#pudl.deploy.pudl.build_deploy_zulip_message">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">build_deploy_zulip_message</span><span class="p">(</span>
+    <span class="n">build_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">git_tag</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">stage_results</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">DeployStage</span><span class="p">,</span> <span class="n">StageResult</span><span class="p">],</span>
+    <span class="n">total_duration_seconds</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">deploy_logfile_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">batch_job_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Build a markdown Zulip message summarizing deployment stage statuses.&quot;&quot;&quot;</span>
+    <span class="n">succeeded</span> <span class="o">=</span> <span class="nb">all</span><span class="p">(</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">status</span> <span class="ow">in</span> <span class="p">(</span><span class="n">StageStatus</span><span class="o">.</span><span class="n">SUCCESS</span><span class="p">,</span> <span class="n">StageStatus</span><span class="o">.</span><span class="n">SKIPPED</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">stage_results</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+    <span class="p">)</span>
+    <span class="n">nl</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+    <span class="k">if</span> <span class="n">succeeded</span><span class="p">:</span>
+        <span class="n">message</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">nl</span><span class="si">}</span><span class="s2"># :check: PUDL Deployment Succeeded!! :partygritty:</span><span class="si">{</span><span class="n">nl</span><span class="si">}{</span><span class="n">nl</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">message</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">nl</span><span class="si">}</span><span class="s2"># :x: PUDL Deployment Failed :sob:</span><span class="si">{</span><span class="n">nl</span><span class="si">}{</span><span class="n">nl</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="n">message</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;- Build ID: `</span><span class="si">{</span><span class="n">build_id</span><span class="si">}</span><span class="s2">`</span><span class="si">{</span><span class="n">nl</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">message</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;- Git Tag: `</span><span class="si">{</span><span class="n">git_tag</span><span class="si">}</span><span class="s2">`</span><span class="si">{</span><span class="n">nl</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">message</span> <span class="o">+=</span> <span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;## :time: Total Deploy Duration: &quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;`[</span><span class="si">{</span><span class="n">format_stage_duration</span><span class="p">(</span><span class="n">total_duration_seconds</span><span class="p">)</span><span class="si">}</span><span class="s2">]`</span><span class="si">{</span><span class="n">nl</span><span class="si">}{</span><span class="n">nl</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="p">)</span>
+    <span class="n">message</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;## Deploy Stage Status</span><span class="si">{</span><span class="n">nl</span><span class="si">}{</span><span class="n">nl</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">message</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;:check: = SUCCESS; :x: = FAILURE; :ghost: = SKIPPED</span><span class="si">{</span><span class="n">nl</span><span class="si">}{</span><span class="n">nl</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">message</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;| Stage | Status | Duration |</span><span class="si">{</span><span class="n">nl</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">message</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;|:---|:---:|:---:|</span><span class="si">{</span><span class="n">nl</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="k">for</span> <span class="n">stage</span> <span class="ow">in</span> <span class="n">DeployStage</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">stage_results</span><span class="p">[</span><span class="n">stage</span><span class="p">]</span>
+        <span class="n">message</span> <span class="o">+=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;| </span><span class="si">{</span><span class="n">stage</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2"> | </span><span class="si">{</span><span class="n">stage_emoji</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">status</span><span class="p">)</span><span class="si">}</span><span class="s2"> | &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;`[</span><span class="si">{</span><span class="n">format_stage_duration</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">duration_seconds</span><span class="p">)</span><span class="si">}</span><span class="s2">]` |</span><span class="si">{</span><span class="n">nl</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+    <span class="n">message</span> <span class="o">+=</span> <span class="n">nl</span>
+    <span class="n">message</span> <span class="o">+=</span> <span class="n">build_deploy_logfile_links</span><span class="p">(</span>
+        <span class="n">build_id</span><span class="o">=</span><span class="n">build_id</span><span class="p">,</span>
+        <span class="n">deploy_logfile_name</span><span class="o">=</span><span class="n">deploy_logfile_name</span><span class="p">,</span>
+        <span class="n">batch_job_name</span><span class="o">=</span><span class="n">batch_job_name</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">message</span></div>
+
+
+
+<div class="viewcode-block" id="send_zulip_message">
+<a class="viewcode-back" href="../../../autoapi/pudl/deploy/pudl/index.html#pudl.deploy.pudl.send_zulip_message">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">send_zulip_message</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">api_key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Post a message to the pudl-deployments Zulip stream.&quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span>
+            <span class="n">ZULIP_API_URL</span><span class="p">,</span>
+            <span class="n">auth</span><span class="o">=</span><span class="p">(</span><span class="n">ZULIP_BOT_EMAIL</span><span class="p">,</span> <span class="n">api_key</span><span class="p">),</span>
+            <span class="n">data</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;stream&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;to&quot;</span><span class="p">:</span> <span class="n">ZULIP_STREAM</span><span class="p">,</span>
+                <span class="s2">&quot;topic&quot;</span><span class="p">:</span> <span class="n">ZULIP_TOPIC</span><span class="p">,</span>
+                <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">message</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="n">timeout</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
+    <span class="k">except</span> <span class="n">requests</span><span class="o">.</span><span class="n">RequestException</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Zulip notification failed.&quot;</span><span class="p">,</span> <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
 </pre></div>
 
