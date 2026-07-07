@@ -130,8 +130,7 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.docker_metadata.outputs.tags }}
           labels: ${{ steps.docker_metadata.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          # Docker caching disabled -- see docker-build-test.yml.
 
       - id: "auth"
         if: ${{ env.SKIP_BUILD != 'true' }}
