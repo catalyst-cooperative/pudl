@@ -176,7 +176,6 @@ jobs:
             --output batch_job.json
 
       - name: Kick off batch job
-        if: ${{ env.SKIP_BUILD != 'true' }}
         run: gcloud batch jobs submit ${{ env.BATCH_JOB_NAME }} --config batch_job.json --location us-east1
 
       - name: Status emoji

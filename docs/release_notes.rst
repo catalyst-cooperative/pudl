@@ -80,10 +80,11 @@ Bug Fixes & Data Cleaning
   exit code 0 even when a deployment stage failed. It now uses ``ctx.exit()`` like
   the other scripts fixed in :pr:`5374`. See :issue:`5382` and PR :pr:`5384`.
 * Fixed the longstanding issue with ``zenodo_data_release`` sandbox release failures
-  happening even when the publication actually succeeded succeeded, because a
-  client-side timeout on the publish request triggered a retry that legitimately 404s
-  once a deposit is already published, and that raw 404 body was then parsed as if it
-  were a real deposition. See PR :pr:`5384`.
+  happening even when the publication actually succeeded, because a client-side
+  timeout on the publish request triggered a retry that legitimately 404s once a
+  deposit is already published, and that raw 404 body was then parsed as if it were
+  a real deposition. Also fixed the build-ID provenance marker file being a
+  zero-byte upload, which Zenodo rejects outright. See PR :pr:`5384`.
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^

@@ -119,7 +119,7 @@ a legitimate retry of an already-``main`` tag. It then runs ``pudl_deploy``
   release path -- stable, production deployments only.
 
 Exactly which of these run, and which upload paths are used, is determined by a
-single ``DeploymentPlan`` (see :func:`pudl.deploy.pudl.build_deployment_plan`).
+single ``DeploymentPlan`` (see :class:`pudl.deploy.pudl.DeploymentPlan`).
 
 A ``staging`` deployment uploads to a dedicated staging area that mirrors the
 ``production`` paths with a ``staging/`` prefix, and triggers a sandbox Zenodo release
