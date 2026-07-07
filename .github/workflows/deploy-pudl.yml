@@ -138,8 +138,7 @@ jobs:
           push: true
           tags: ${{ steps.docker_metadata.outputs.tags }}
           labels: ${{ steps.docker_metadata.outputs.labels }}
-          cache-from: type=registry,ref=catalystcoop/pudl-etl:buildcache
-          cache-to: type=registry,ref=catalystcoop/pudl-etl:buildcache,mode=max
+          # Docker caching temporarily disabled -- see docker-build-test.yml.
 
       - name: Determine container image to use
         id: container-image

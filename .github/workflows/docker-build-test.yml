@@ -35,11 +35,11 @@ jobs:
           context: .
           file: builds/Dockerfile
           push: false
-          # Read-only: this job never logs in to Docker Hub (it runs on
-          # pull_request, including from forks, which don't get secrets), so it
-          # can't write to the registry cache -- but pulling the public
-          # catalystcoop/pudl-etl cache manifest works fine anonymously.
-          cache-from: type=registry,ref=catalystcoop/pudl-etl:buildcache
+          # Docker caching temporarily disabled entirely (all cache-from/
+          # cache-to removed across build-pudl.yml, deploy-pudl.yml,
+          # build-deploy-ferceqr.yml, and here) to verify the Zenodo/FERC
+          # caches work correctly once they aren't competing for the shared
+          # 10GB Actions cache quota. Re-add type=registry caching afterward.
 
   pudl_devcontainer_smoke_test:
     name: Test building and running the PUDL devcontainer
@@ -73,3 +73,10 @@ jobs:
           # build identifier in CI and is never pushed to GHCR.
           imageName: ghcr.io/catalyst-cooperative/pudl-devcontainer
           runCmd: pixi run --frozen pytest-unit
+          # This action writes its BuildKit cache to the GitHub Actions cache
+          # backend by default. It runs on every PR push and was consuming the
+          # majority of the repo's shared 10GB cache quota (8.2 of 12.8GB
+          # measured on 2026-07-07), evicting the Zenodo/FERC caches
+          # ci-integration depends on. This is a correctness smoke test, not
+          # a performance-sensitive build, so disable caching entirely.
+          noCache: true
