@@ -35,11 +35,11 @@ jobs:
           context: .
           file: builds/Dockerfile
           push: false
-          # Docker caching temporarily disabled entirely (all cache-from/
-          # cache-to removed across build-pudl.yml, deploy-pudl.yml,
-          # build-deploy-ferceqr.yml, and here) to verify the Zenodo/FERC
-          # caches work correctly once they aren't competing for the shared
-          # 10GB Actions cache quota. Re-add type=registry caching afterward.
+          # Docker caching disabled entirely (all cache-from/ cache-to removed across
+          # build-pudl.yml, deploy-pudl.yml, build-deploy-ferceqr.yml, and here) to
+          # avoid it taking up all available GitHub Actions cache quota and evicting the
+          # Zenodo/FERC caches. Because of the way we are installing pixi dependencies
+          # in the Dockerfile, this does not significantly increase build time.
 
   pudl_devcontainer_smoke_test:
     name: Test building and running the PUDL devcontainer

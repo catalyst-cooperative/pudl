@@ -138,7 +138,7 @@ jobs:
           push: true
           tags: ${{ steps.docker_metadata.outputs.tags }}
           labels: ${{ steps.docker_metadata.outputs.labels }}
-          # Docker caching temporarily disabled -- see docker-build-test.yml.
+          # Docker temporarily disabled -- see docker-build-test.yml.
 
       - name: Determine container image to use
         id: container-image
