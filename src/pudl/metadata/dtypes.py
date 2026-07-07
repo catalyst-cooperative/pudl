@@ -165,7 +165,7 @@ def _get_applicable_dtypes(
     return {column: dtypes[column] for column in columns if column in dtypes}
 
 
-def get_pudl_dtypes(  # noqa: C901
+def get_pudl_dtypes(
     field_namespace: str | None = None,
     resource: str | None = None,
     dtype_backend: PudlDtypeBackend = "pandas",
@@ -183,41 +183,46 @@ def get_pudl_dtypes(  # noqa: C901
     Returns:
         A mapping of PUDL field names to their associated data types.
     """
-    dtype_map = _DTYPE_MAPS_BY_BACKEND[dtype_backend]
-
-    if field_namespace is not None and resource is not None:
+    if (field_namespace is not None) and (resource is not None):
         raise ValueError(
             "field_namespace and resource are mutually exclusive when selecting "
-            "PUDL dtypes."
+            "PUDL dtypes. Suggestion: if you know the resource name use only "
+            "that. resource is more authoritative."
         )
 
-    if field_namespace is not None:
-        from pudl.metadata.classes import FIELD_NAMESPACES
-
-        if field_namespace not in FIELD_NAMESPACES:
-            raise ValueError(f"Unknown PUDL field namespace: {field_namespace!r}.")
-
     if resource is not None:
-        from pudl.metadata.classes import PUDL_PACKAGE
+        return _get_pudl_resource_dtypes(resource=resource, dtype_backend=dtype_backend)
+    return _get_pudl_namespace_dtypes(
+        field_namespace=field_namespace, dtype_backend=dtype_backend
+    )
 
-        try:
-            resource_metadata = PUDL_PACKAGE.get_resource(resource)
-        except ValueError as exc:
-            raise ValueError(f"Unknown PUDL resource: {resource!r}.") from exc
-        if dtype_backend == "pandas":
-            return resource_metadata.to_pandas_dtypes()
-        if dtype_backend == "polars":
-            return {
-                field.name: field.to_polars_dtype()
-                for field in resource_metadata.schema.fields
-                if field.type in FIELD_DTYPES_POLARS
-            }
-        return {
-            field.name: dtype_map[field.type]
-            for field in resource_metadata.schema.fields
-            if field.type in dtype_map
-        }
 
+def _get_pudl_namespace_dtypes(
+    field_namespace: str | None = None,
+    dtype_backend: PudlDtypeBackend = "pandas",
+) -> dict[str, Any]:
+    """Compile a dictionary of field dtypes based on the namespace-level field metadata.
+
+    If no field_namespace is provided, the global PUDL field metadata is used.
+
+    Args:
+        field_namespace: The field namespace (e.g. ferc1, eia) whose schema should
+            define the field types. If None, no namespace overrides are applied.
+        dtype_backend: Named dtype backend to compile. Supported values are
+            ``"pandas"``, ``"polars"``, ``"sqlite"``, ``"duckdb"``, and ``"pyarrow"``.
+
+    Returns:
+        A mapping of PUDL field names to their associated data types.
+    """
+    # This is here to avoid circular imports.
+    from pudl.metadata.classes import FIELD_NAMESPACES
+
+    if (field_namespace is not None) and (field_namespace not in FIELD_NAMESPACES):
+        raise ValueError(
+            f"Unknown PUDL field namespace: {field_namespace!r}. "
+            f"Valid namespaces are: {list(FIELD_NAMESPACES)}"
+        )
+    dtype_map = _DTYPE_MAPS_BY_BACKEND[dtype_backend]
     field_meta = deepcopy(FIELD_METADATA)
     field_namespace_overrides = (
         FIELD_METADATA_BY_NAMESPACE.get(field_namespace, {})
@@ -230,6 +235,65 @@ def get_pudl_dtypes(  # noqa: C901
             field_meta[field_name].update(field_namespace_overrides[field_name])
         if field_meta[field_name]["type"] in dtype_map:
             dtypes[field_name] = dtype_map[field_meta[field_name]["type"]]
+    return dtypes
+
+
+def _get_pudl_resource_dtypes(
+    resource: str,
+    dtype_backend: PudlDtypeBackend = "pandas",
+) -> dict[str, Any]:
+    """Compile a dictionary of field dtypes for a specific PUDL resource.
+
+    Args:
+        resource: The resource (table) name whose schema should define the field
+            types. If provided, resource field types are authoritative.
+        dtype_backend: Named dtype backend to compile. Supported values are
+            ``"pandas"``, ``"polars"``, ``"sqlite"``, ``"duckdb"``, and ``"pyarrow"``.
+
+    Returns:
+        A mapping of PUDL field names to their associated data types.
+    """
+    # This is here to avoid circular imports.
+    from pudl.metadata.classes import PUDL_PACKAGE
+
+    # We need to build up resource-specific dtypes
+    resource_metadata = PUDL_PACKAGE.get_resource(resource)
+    if dtype_backend == "pandas":
+        # Pandas is easy, because it defines all dtypes and we have a
+        # resource-level helper method to get them all at once.
+        dtypes = resource_metadata.to_pandas_dtypes()
+    elif dtype_backend == "pyarrow":
+        # pyarrow has the geometry dtype, but no resource-level helper method.
+        dtypes = {
+            field.name: field.to_pyarrow_dtype()
+            for field in resource_metadata.schema.fields
+        }
+    elif dtype_backend == "polars":
+        # For polars we need to build a mapping of only the fields which have
+        # dtypes defined, because it is missing the geometry dtype.
+        dtypes = {
+            field.name: field.to_polars_dtype()
+            for field in resource_metadata.schema.fields
+            if field.type in FIELD_DTYPES_POLARS
+        }
+    elif dtype_backend == "sqlite":
+        # Similarly SQLite is also missing the geometry dtype.
+        dtypes = {
+            field.name: field.to_sql_dtype()
+            for field in resource_metadata.schema.fields
+            if field.type in FIELD_DTYPES_SQLITE
+        }
+    else:
+        assert dtype_backend == "duckdb", f"Unknown dtype backend: {dtype_backend}"
+        # We can't do the same field specific typing for DuckDB because it requires
+        # a database connection to define a custom ENUM type, so it just gets the
+        # more generic mapping
+        dtype_map = _DTYPE_MAPS_BY_BACKEND[dtype_backend]
+        dtypes = {
+            field.name: dtype_map[field.type]
+            for field in resource_metadata.schema.fields
+            if field.type in dtype_map
+        }
     return dtypes
 
 

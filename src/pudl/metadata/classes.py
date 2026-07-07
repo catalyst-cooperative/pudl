@@ -2473,6 +2473,10 @@ class Package(PudlMeta):
     def get_resource(self, name: str) -> Resource:
         """Return the resource with the given name if it is in the Package."""
         names = [resource.name for resource in self.resources]
+        if name not in names:
+            raise ValueError(
+                f"Unknown resource {name!r} is not part of the {self.name!r} data package."
+            )
         return self.resources[names.index(name)]
 
     def to_rst(self, docs_dir: DirectoryPath, path: str) -> None:

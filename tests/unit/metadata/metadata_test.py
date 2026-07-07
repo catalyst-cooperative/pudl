@@ -841,7 +841,7 @@ def test_get_pudl_dtypes_rejects_field_namespace_and_resource() -> None:
 
 def test_get_pudl_dtypes_invalid_resource() -> None:
     """Unknown resources should fail with a clear error."""
-    with pytest.raises(ValueError, match="Unknown PUDL resource"):
+    with pytest.raises(ValueError, match="Unknown resource"):
         get_pudl_dtypes(resource="not_a_real_resource")
 
 
