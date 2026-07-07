@@ -18,6 +18,7 @@ app = marimo.App(width="medium")
 
 @app.cell
 def imports():
+    import math
     import os
     import marimo as mo
     import polars as pl
@@ -31,7 +32,7 @@ def imports():
 
     matplotlib.style.use(matplotx.styles.onedark)
     plt.rcParams.update({"font.size": 16, "axes.titlesize": 22, "axes.labelsize": 18})
-    return Path, UPath, mo, mticker, np, os, pl, plt
+    return Path, UPath, math, mo, mticker, np, os, pl, plt
 
 
 @app.cell
@@ -97,7 +98,8 @@ def gats_registrations(Path, pl, selected_state):
             pl.col("Date Online").str.to_date("%m/%d/%Y").alias("date_online"),
         )
     )
-    return (gats_registrations,)
+    has_gats_data = gats_registrations.height > 0
+    return gats_registrations, has_gats_data
 
 
 @app.cell
@@ -189,7 +191,7 @@ def tech_labels():
 
 @app.cell
 def size_bin_helpers(pl):
-    capacity_bin_edges = [
+    all_capacity_bin_edges = [
         (-4.0, -3.5, "0.1–0.3 kW"),
         (-3.5, -3.0, "0.3–1 kW"),
         (-3.0, -2.5, "1–3 kW"),
@@ -203,9 +205,10 @@ def size_bin_helpers(pl):
         ( 1.0,  1.5, "10–32 MW"),
         ( 1.5,  2.0, "32–100 MW"),
         ( 2.0,  2.5, "100–316 MW"),
+        ( 2.5,  3.0, "316 MW–1 GW"),
+        ( 3.0,  3.5, "1–3 GW"),
+        ( 3.5,  4.0, "3–10 GW"),
     ]
-    capacity_bin_order = [e[2] for e in capacity_bin_edges]
-    capacity_bin_breaks = [e[1] for e in capacity_bin_edges[:-1]]
 
 
     def capacity_hist(
@@ -238,7 +241,7 @@ def size_bin_helpers(pl):
             .sort("bin")
         )
 
-    return capacity_bin_breaks, capacity_bin_order, capacity_hist
+    return all_capacity_bin_edges, capacity_hist
 
 
 @app.cell
@@ -742,24 +745,43 @@ def _(mo):
 def chart_storage(
     FIGSIZE,
     YEAR_XLIM,
+    count_formatter,
+    count_tick_formatter,
+    math,
+    metric_formatter,
+    metric_tick_formatter,
     mticker,
     net_metering_data,
     pl,
     plt,
+    prefixed_unit,
     state_name,
     style_ax,
 ):
-    _pa_s = net_metering_data.filter(pl.col("technology") == "PV + Battery Storage").sort(
-        "year"
-    )
+    _pa_s = net_metering_data.filter(pl.col("technology") == "PV + Battery Storage").sort("year")
     _years = _pa_s["year"].to_list()
 
-    import math
+    def _nice_step(max_val: float, target_ticks: int = 5) -> float:
+        if max_val <= 0:
+            return 1.0
+        rough = max_val / target_ticks
+        mag = 10 ** math.floor(math.log10(rough))
+        n = rough / mag
+        return (1 if n < 1.5 else 2 if n < 3.5 else 5 if n < 7.5 else 10) * mag
+
     _cap_max = float(_pa_s["capacity_mw"].max() or 0)
-    # Round up to the next even integer for clean tick alignment with step=2.
-    _cap_step = 2
-    _y_cap = math.ceil((_cap_max + 1) / _cap_step) * _cap_step
-    _y_cust = _y_cap * 100
+    _cust_max = float(_pa_s["customers"].max() or 0)
+
+    _cap_step = _nice_step(_cap_max)
+    _cust_step = _nice_step(_cust_max)
+
+    # Same number of tick intervals on both axes so gridlines align.
+    _n = max(math.ceil(_cap_max / _cap_step), math.ceil(_cust_max / _cust_step)) + 1
+    _cap_ymax = _n * _cap_step
+    _cust_ymax = _n * _cust_step
+
+    _pfx, _div = metric_formatter(_cap_ymax, base_unit="M")
+    _csfx, _cdiv, _ = count_formatter(_cust_max)
 
     _fig, _ax1 = plt.subplots(figsize=FIGSIZE)
     _ax2 = _ax1.twinx()
@@ -771,7 +793,7 @@ def chart_storage(
         linewidth=5,
         marker="o",
         markersize=10,
-        label="Inverter Capacity (MW)",
+        label="Inverter Capacity",
     )
     (_l2,) = _ax2.plot(
         _years,
@@ -783,12 +805,14 @@ def chart_storage(
         label="Customers",
     )
 
-    _ax1.set_ylim(0, _y_cap)
-    _ax2.set_ylim(0, _y_cust)
+    _ax1.set_ylim(0, _cap_ymax)
+    _ax2.set_ylim(0, _cust_ymax)
     _ax1.yaxis.set_major_locator(mticker.MultipleLocator(_cap_step))
-    _ax2.yaxis.set_major_locator(mticker.MultipleLocator(_cap_step * 100))
+    _ax2.yaxis.set_major_locator(mticker.MultipleLocator(_cust_step))
+    _ax1.yaxis.set_major_formatter(metric_tick_formatter(_pfx, _div))
+    _ax2.yaxis.set_major_formatter(count_tick_formatter(_csfx, _cdiv))
     _ax1.set_xlabel("Year")
-    _ax1.set_ylabel("Inverter Capacity (MW)", color="#2166ac")
+    _ax1.set_ylabel(f"Inverter Capacity ({prefixed_unit(_pfx, 'W')})", color="#2166ac")
     _ax2.set_ylabel("Customers", color="#74add1")
     _ax1.tick_params(axis="y", labelcolor="#2166ac")
     _ax2.tick_params(axis="y", labelcolor="#74add1")
@@ -833,8 +857,10 @@ def chart_gats_solar(
     FIGSIZE,
     YEAR_XLIM,
     gats_solar_annual,
+    has_gats_data,
     metric_formatter,
     metric_tick_formatter,
+    mo,
     net_metering_by_tech,
     non_net_metering_by_tech,
     pl,
@@ -843,6 +869,7 @@ def chart_gats_solar(
     state_name,
     style_ax,
 ):
+    mo.stop(not has_gats_data, mo.md(f"*GATS data is not available for {state_name}.*"))
     _eia_nm = (
         net_metering_by_tech.filter(pl.col("tech_class") == "pv")
         .select([pl.col("year").cast(pl.Int64), pl.col("capacity_mw").cast(pl.Float64)])
@@ -904,7 +931,8 @@ def chart_gats_solar(
 
 
 @app.cell(hide_code=True)
-def _(mo):
+def _(has_gats_data, mo):
+    mo.stop(not has_gats_data)
     mo.md(r"""
     ## Reported GATS Solar PV is much larger than EIA-861
     * The two are nearly identical up through 2018.
@@ -920,14 +948,17 @@ def chart_gats_additions(
     FIGSIZE,
     YEAR_XLIM,
     gats_solar_annual,
+    has_gats_data,
     metric_formatter,
     metric_tick_formatter,
+    mo,
     pl,
     plt,
     prefixed_unit,
     state_name,
     style_ax,
 ):
+    mo.stop(not has_gats_data, mo.md(f"*GATS data is not available for {state_name}.*"))
     _gadd = gats_solar_annual.filter(pl.col("added_mw").is_not_null()).sort("year")
     _gcum = gats_solar_annual.sort("year")
 
@@ -976,8 +1007,10 @@ def chart_gats_size_hist(
     count_formatter,
     count_tick_formatter,
     gats_registrations,
+    has_gats_data,
     metric_formatter,
     metric_tick_formatter,
+    mo,
     np,
     pl,
     plt,
@@ -985,6 +1018,7 @@ def chart_gats_size_hist(
     state_name,
     style_ax,
 ):
+    mo.stop(not has_gats_data, mo.md(f"*GATS data is not available for {state_name}.*"))
     _sun_all = gats_registrations.filter(pl.col("Primary Fuel Type") == "SUN")
     _hist_sun = capacity_hist(_sun_all, 'nameplate_mw', capacity_bin_breaks, capacity_bin_order)
     _n_sun = _sun_all.height
@@ -1027,7 +1061,8 @@ def chart_gats_size_hist(
 
 
 @app.cell(hide_code=True)
-def _(mo):
+def _(has_gats_data, mo):
+    mo.stop(not has_gats_data)
     mo.md(r"""
     ## GATS Solar PV includes and is dominated by larger systems
     * The number of PV systems reported in GATS is similar to those in EIA-861, with a big peak between 3-30kW likely corresponding to residential rooftop systems.
@@ -1046,8 +1081,10 @@ def chart_ee_size_hist(
     count_formatter,
     count_tick_formatter,
     gats_registrations,
+    has_gats_data,
     metric_formatter,
     metric_tick_formatter,
+    mo,
     np,
     pl,
     plt,
@@ -1055,6 +1092,7 @@ def chart_ee_size_hist(
     state_name,
     style_ax,
 ):
+    mo.stop(not has_gats_data, mo.md(f"*GATS data is not available for {state_name}.*"))
     _ee_all = gats_registrations.filter(
         pl.col("Primary Fuel Type").str.strip_chars() == "EE"
     )
@@ -1103,14 +1141,17 @@ def chart_ee_cumulative(
     FIGSIZE,
     YEAR_XLIM,
     gats_ee_annual,
+    has_gats_data,
     metric_formatter,
     metric_tick_formatter,
+    mo,
     pl,
     plt,
     prefixed_unit,
     state_name,
     style_ax,
 ):
+    mo.stop(not has_gats_data, mo.md(f"*GATS data is not available for {state_name}.*"))
     _ee_add = gats_ee_annual.filter(pl.col("added_mw").is_not_null()).sort("year")
     _ee_cum = gats_ee_annual.sort("year")
 
@@ -1155,7 +1196,8 @@ def chart_ee_cumulative(
 
 
 @app.cell(hide_code=True)
-def _(mo):
+def _(has_gats_data, mo):
+    mo.stop(not has_gats_data)
     mo.md(r"""
     ## GATS energy efficiency is modest, dominated by large projects
     * Like the Solar PV, the GATS EE projects show a large number of small systems, but a small number or large systems end up dominating the overall capacity.
@@ -1928,11 +1970,20 @@ def _tbl_peco_2024(ami_eia861, pl):
 
 @app.cell
 def _(mo):
-    # State selector — appears in a persistent left sidebar.
-    # Add more entries here as pjm_gats.csv grows to cover more PJM states.
     _state_options = {
-        "Pennsylvania": "PA",
-        "New Jersey": "NJ",
+        "Alabama": "AL", "Alaska": "AK", "Arizona": "AZ", "Arkansas": "AR",
+        "California": "CA", "Colorado": "CO", "Connecticut": "CT", "Delaware": "DE",
+        "District of Columbia": "DC", "Florida": "FL", "Georgia": "GA", "Hawaii": "HI",
+        "Idaho": "ID", "Illinois": "IL", "Indiana": "IN", "Iowa": "IA",
+        "Kansas": "KS", "Kentucky": "KY", "Louisiana": "LA", "Maine": "ME",
+        "Maryland": "MD", "Massachusetts": "MA", "Michigan": "MI", "Minnesota": "MN",
+        "Mississippi": "MS", "Missouri": "MO", "Montana": "MT", "Nebraska": "NE",
+        "Nevada": "NV", "New Hampshire": "NH", "New Jersey": "NJ", "New Mexico": "NM",
+        "New York": "NY", "North Carolina": "NC", "North Dakota": "ND", "Ohio": "OH",
+        "Oklahoma": "OK", "Oregon": "OR", "Pennsylvania": "PA", "Rhode Island": "RI",
+        "South Carolina": "SC", "South Dakota": "SD", "Tennessee": "TN", "Texas": "TX",
+        "Utah": "UT", "Vermont": "VT", "Virginia": "VA", "Washington": "WA",
+        "West Virginia": "WV", "Wisconsin": "WI", "Wyoming": "WY",
     }
 
     state_selector = mo.ui.dropdown(
@@ -1949,13 +2000,47 @@ def _(mo):
 @app.cell
 def _(state_selector):
     selected_state = state_selector.value
-
-    STATE_NAMES = {
-        "PA": "Pennsylvania",
-        "NJ": "New Jersey",
-    }
-    state_name = STATE_NAMES.get(selected_state, selected_state)
+    state_name = {v: k for k, v in state_selector.options.items()}.get(selected_state, selected_state)
     return selected_state, state_name
+
+
+@app.cell
+def capacity_bins(
+    all_capacity_bin_edges,
+    battery_generators_eia860,
+    capacity_hist,
+    gats_registrations,
+    has_gats_data,
+    pl,
+    solar_generators_eia860,
+):
+    _all_breaks = [e[1] for e in all_capacity_bin_edges[:-1]]
+    _all_order = [e[2] for e in all_capacity_bin_edges]
+
+    _hist_inputs = [
+        (solar_generators_eia860, "capacity_mw"),
+        (battery_generators_eia860, "capacity_mw"),
+    ]
+    if has_gats_data:
+        _hist_inputs += [
+            (gats_registrations.filter(pl.col("Primary Fuel Type") == "SUN"), "nameplate_mw"),
+            (gats_registrations.filter(pl.col("Primary Fuel Type").str.strip_chars() == "EE"), "nameplate_mw"),
+        ]
+
+    _used = set()
+    for _df, _col in _hist_inputs:
+        _binned = capacity_hist(_df, _col, _all_breaks, _all_order)
+        _used.update(str(b) for b in _binned.filter(pl.col("count") > 0)["bin"].to_list())
+
+    _used_indices = [i for i, label in enumerate(_all_order) if label in _used]
+    if _used_indices:
+        _lo, _hi = _used_indices[0], _used_indices[-1]
+    else:
+        _lo, _hi = 0, len(_all_order) - 1
+
+    capacity_bin_order = _all_order[_lo:_hi + 1]
+    capacity_bin_breaks = [e[1] for e in all_capacity_bin_edges[_lo:_hi]]
+    return capacity_bin_breaks, capacity_bin_order
 
 
 if __name__ == "__main__":
