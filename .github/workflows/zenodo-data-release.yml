@@ -66,6 +66,7 @@ jobs:
         env:
           ZENODO_SANDBOX_TOKEN_PUBLISH: ${{ secrets.ZENODO_SANDBOX_TOKEN_PUBLISH }}
           ZENODO_TOKEN_UPLOAD: ${{ secrets.ZENODO_TOKEN_UPLOAD }}
+          ZULIP_API_KEY: ${{ secrets.ZULIP_API_KEY }}
         run: |
           pixi run zenodo_data_release \
             --env "${{ inputs.env }}" \
