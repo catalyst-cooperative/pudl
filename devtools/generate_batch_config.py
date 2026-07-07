@@ -26,6 +26,23 @@ def _flat(ls: list[list]) -> list:
     return list(itertools.chain.from_iterable(ls))
 
 
+def _parse_container_env(container_env: list[list[str]]) -> "OrderedDict[str, str]":
+    """Parse --container-env KEY=VALUE pairs into an ordered dict.
+
+    Raises if the same key is given more than once. A repeated key almost always
+    means a bug in the calling workflow (e.g. two steps setting the same envvar)
+    rather than an intentional override -- silently keeping only the last value
+    previously made that kind of bug invisible.
+    """
+    env_dict: OrderedDict[str, str] = OrderedDict()
+    for pair in sorted(_flat(container_env)):
+        name, value = pair.split("=", maxsplit=1)
+        if name in env_dict:
+            raise ValueError(f"Duplicate --container-env key: {name!r}")
+        env_dict[name] = value.strip('"')
+    return env_dict
+
+
 def to_config(
     *,
     container_image: str,
@@ -37,11 +54,12 @@ def to_config(
     disk_gb: int,
 ) -> dict:
     """Munge arguments into a configuration dictionary."""
-    complete_env = sorted(_flat(container_env))
-    env_dict = OrderedDict(
-        (name, value.strip('"'))
-        for name, value in (pair.split("=", maxsplit=1) for pair in complete_env)
-    )
+    if not container_image:
+        raise ValueError("container_image is required")
+    if not container_command:
+        raise ValueError("container_command is required")
+
+    env_dict = _parse_container_env(container_env)
 
     # NOTE (daz): the best documentation of the actual data structure I've found is at
     # https://cloud.google.com/python/docs/reference/batch/latest/google.cloud.batch_v1.types.Job
@@ -87,8 +105,8 @@ def generate_batch_config():
     update-container`, but output a Batch configuration json instead.
     """
     parser = argparse.ArgumentParser()
-    parser.add_argument("--container-image")
-    parser.add_argument("--container-command")
+    parser.add_argument("--container-image", required=True)
+    parser.add_argument("--container-command", required=True)
     parser.add_argument("--container-env", action="append", nargs="*", default=[])
     parser.add_argument("--container-arg", action="append", nargs="*", default=[])
     parser.add_argument(
@@ -100,7 +118,7 @@ def generate_batch_config():
     parser.add_argument(
         "--disk-gb", default=200, type=int, help="Size of disk in GB to attach to VM"
     )
-    parser.add_argument("--output", type=Path)
+    parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
 
     config = to_config(

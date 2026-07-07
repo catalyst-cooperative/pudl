@@ -29,7 +29,10 @@ jobs:
         with:
           locked: true
           cache: true
-          cache-write: ${{ github.event_name == 'push' && github.ref_name == 'main' }}
+          # This workflow only triggers on schedule/workflow_dispatch, never
+          # push, so it never writes. warm-gha-caches.yml and
+          # build-deploy-docs.yml keep the main-branch copy fresh.
+          cache-write: false
 
       - name: Run Zenodo DOI updater
         id: update
