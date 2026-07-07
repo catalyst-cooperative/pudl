@@ -63,21 +63,12 @@ New Data Tests & Validations
   the registry after each ETL run. About a dozen fields in PHMSA gas and EIA-860 FGD
   data that were typed as ``number`` but contain integer counts have been corrected to
   ``"type": "integer"``. A bug where ``convert_cols_dtypes`` and ``get_parquet_table``
-  did not propagate the table name to the dtype helpers, silently ignoring per-table
-  overrides in ``FIELD_METADATA_BY_RESOURCE``, has been fixed. The dtype helper API is
-  now backend-aware, validates field namespaces and resources more explicitly, and has
-  focused unit coverage for backend-specific geometry handling. See :issue:`5078` and
-  :pr:`5361`.
+  overrides in ``FIELD_METADATA_BY_RESOURCE``, were sometimes ignored has been fixed.
 * Added ``dbt`` ``expect_column_values_to_be_between`` tests to codify range
-  expectations for percent columns (``[0, 100]``: ``sulfur_content_pct``,
-  ``ash_content_pct``, ``moisture_content_pct`` in EIA-923 fuel receipts and monthly
-  boiler fuel) and fraction columns (``[0, 1]``: ``efficiency_100pct_load``,
-  ``efficiency_50pct_load``, ``standard_so2_fraction_scrubbed``, ``max_oil_heat_input``,
-  ``dry_cooling_fraction``, ``fraction_owned``,
-  ``balancing_authority_code_eia_consistent_rate``, and all five FERC1 steam fuel
-  ``*_fraction_cost`` columns). FERC1 fraction tests use ``error_if`` thresholds to
-  accommodate a known small number of out-of-range values caused by rounding or negative
-  costs in the underlying Form 1 data. See :pr:`5361`.
+  expectations for columns stated as percentages (0, 100) vs those that represent
+  fractional values (0, 1). Column naming still needs to be standardized. FERC Form 1
+  fraction tests use ``error_if`` thresholds to accommodate a known small number of
+  out-of-range values. See :pr:`5361`.
 
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -120,10 +111,12 @@ Bug Fixes & Data Cleaning
   before new outputs were written, and a staging copy of a stable release tag was
   incorrectly treated as an immutable path that could never be cleared. See issue
   :issue:`5382` and PR :pr:`5384`.
-* Fixed ``pudl_deploy`` returning a plain integer exit code from its Click command,
-  which Click's standalone mode silently discards, so shell callers previously saw
-  exit code 0 even when a deployment stage failed. It now uses ``ctx.exit()`` like
-  the other scripts fixed in :pr:`5374`. See :issue:`5382` and PR :pr:`5384`.
+* Added two new optional arguments to ``get_pudl_dtypes`` and ``apply_pudl_dtypes``.
+  ``resource`` (aka table) name will now return all of the authoritative
+  resource-specific dtypes instead of the generic or source-specific types.
+  ``dtype_backend`` will now return the types for the specific file type, which extends
+  the previous behavior of returning pandas dtypes. The dtype management now lives in
+  :mod:`pudl.metadata.dtypes`. See :pr:`5361`.
 * Fixed the longstanding issue with ``zenodo_data_release`` sandbox release failures
   happening even when the publication actually succeeded, because a client-side
   timeout on the publish request triggered a retry that legitimately 404s once a
