@@ -36,7 +36,7 @@ sources:
                   boiler_fuel_code_3: EXTRACT(year FROM report_date) >= 2009
                   boiler_fuel_code_4: EXTRACT(year FROM report_date) >= 2009
                   waste_heat_input_mmbtu_per_hour: EXTRACT(year FROM report_date) >= 2009
-                  wet_dry_bottom: EXTRACT(year FROM report_date) >= 2009
+                  wet_dry_bottom_code: EXTRACT(year FROM report_date) >= 2009
                   fly_ash_reinjection: EXTRACT(year FROM report_date) >= 2009
                   hrsg: EXTRACT(year FROM report_date) >= 2016
                   max_steam_flow_lbs_per_hour: EXTRACT(year FROM report_date) >= 2009

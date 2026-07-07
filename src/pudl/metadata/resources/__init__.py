@@ -207,7 +207,7 @@ ENTITIES: dict[str, dict[str, list[str] | dict[str, str]]] = {
             "boiler_fuel_code_3",
             "boiler_fuel_code_4",
             "waste_heat_input_mmbtu_per_hour",
-            "wet_dry_bottom",
+            "wet_dry_bottom_code",
             "fly_ash_reinjection",
             "hrsg",
             "max_steam_flow_lbs_per_hour",

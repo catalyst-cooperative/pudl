@@ -8633,7 +8633,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "efficiency programs."
         ),
     },
-    "wet_dry_bottom": {
+    "wet_dry_bottom_code": {
         "type": "string",
         "description": (
             "Wet or Dry Bottom where Wet Bottom is defined as slag tanks that are "

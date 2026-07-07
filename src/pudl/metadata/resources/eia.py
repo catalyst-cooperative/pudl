@@ -431,7 +431,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "schema": {
             "fields": ["code", "label", "description"],
             "primary_key": ["code"],
-            "foreign_key_rules": {"fields": [["wet_dry_bottom"]]},
+            "foreign_key_rules": {"fields": [["wet_dry_bottom_code"]]},
         },
         "encoder": CODE_METADATA["core_eia__codes_wet_dry_bottom"],
         "sources": ["eia860"],
@@ -1111,7 +1111,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "unit_particulate",
                 "unit_so2",
                 "waste_heat_input_mmbtu_per_hour",
-                "wet_dry_bottom",
+                "wet_dry_bottom_code",
                 "zip_code",
             ],
             "primary_key": ["plant_id_eia", "boiler_id", "report_date"],

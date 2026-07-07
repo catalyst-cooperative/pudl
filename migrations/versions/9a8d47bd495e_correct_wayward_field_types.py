@@ -1,8 +1,8 @@
 """Correct wayward field types.
 
-Revision ID: fb27cb669517
+Revision ID: 9a8d47bd495e
 Revises: 19af112f7eb6
-Create Date: 2026-07-02 17:24:38.205481
+Create Date: 2026-07-07 03:03:18.097312
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'fb27cb669517'
+revision = '9a8d47bd495e'
 down_revision = '19af112f7eb6'
 branch_labels = None
 depends_on = None
@@ -77,7 +77,11 @@ def upgrade() -> None:
                existing_nullable=True)
 
     with op.batch_alter_table('core_eia860__scd_boilers', schema=None) as batch_op:
+        batch_op.add_column(sa.Column('wet_dry_bottom_code', sa.Text(), nullable=True, comment='Wet or Dry Bottom where Wet Bottom is defined as slag tanks that are installed at furnace throat to contain and remove molten ash from the furnace, and Dry Bottom is defined as having no slag tanks at furnace throat area, throat area is clear, and bottom ash drops through throat to bottom ash water hoppers.'))
         batch_op.add_column(sa.Column('standard_so2_scrubbed_fraction', sa.Float(), nullable=True, comment='The fraction of sulfur dioxide to be scrubbed specified by the most stringent sulfur dioxide regulation.'))
+        batch_op.drop_constraint(batch_op.f('fk_core_eia860__scd_boilers_wet_dry_bottom_core_eia__codes_wet_dry_bottom'), type_='foreignkey')
+        batch_op.create_foreign_key(batch_op.f('fk_core_eia860__scd_boilers_wet_dry_bottom_code_core_eia__codes_wet_dry_bottom'), 'core_eia__codes_wet_dry_bottom', ['wet_dry_bottom_code'], ['code'])
+        batch_op.drop_column('wet_dry_bottom')
         batch_op.drop_column('standard_so2_percent_scrubbed')
 
     with op.batch_alter_table('core_eia861__yearly_demand_response', schema=None) as batch_op:
@@ -170,6 +174,10 @@ def upgrade() -> None:
 
     with op.batch_alter_table('out_eia__yearly_boilers', schema=None) as batch_op:
         batch_op.add_column(sa.Column('standard_so2_scrubbed_fraction', sa.Float(), nullable=True, comment='The fraction of sulfur dioxide to be scrubbed specified by the most stringent sulfur dioxide regulation.'))
+        batch_op.add_column(sa.Column('wet_dry_bottom_code', sa.Text(), nullable=True, comment='Wet or Dry Bottom where Wet Bottom is defined as slag tanks that are installed at furnace throat to contain and remove molten ash from the furnace, and Dry Bottom is defined as having no slag tanks at furnace throat area, throat area is clear, and bottom ash drops through throat to bottom ash water hoppers.'))
+        batch_op.drop_constraint(batch_op.f('fk_out_eia__yearly_boilers_wet_dry_bottom_core_eia__codes_wet_dry_bottom'), type_='foreignkey')
+        batch_op.create_foreign_key(batch_op.f('fk_out_eia__yearly_boilers_wet_dry_bottom_code_core_eia__codes_wet_dry_bottom'), 'core_eia__codes_wet_dry_bottom', ['wet_dry_bottom_code'], ['code'])
+        batch_op.drop_column('wet_dry_bottom')
         batch_op.drop_column('standard_so2_percent_scrubbed')
 
     with op.batch_alter_table('out_ferc714__summarized_demand', schema=None) as batch_op:
@@ -271,6 +279,10 @@ def downgrade() -> None:
 
     with op.batch_alter_table('out_eia__yearly_boilers', schema=None) as batch_op:
         batch_op.add_column(sa.Column('standard_so2_percent_scrubbed', sa.FLOAT(), nullable=True))
+        batch_op.add_column(sa.Column('wet_dry_bottom', sa.TEXT(), nullable=True))
+        batch_op.drop_constraint(batch_op.f('fk_out_eia__yearly_boilers_wet_dry_bottom_code_core_eia__codes_wet_dry_bottom'), type_='foreignkey')
+        batch_op.create_foreign_key(batch_op.f('fk_out_eia__yearly_boilers_wet_dry_bottom_core_eia__codes_wet_dry_bottom'), 'core_eia__codes_wet_dry_bottom', ['wet_dry_bottom'], ['code'])
+        batch_op.drop_column('wet_dry_bottom_code')
         batch_op.drop_column('standard_so2_scrubbed_fraction')
 
     with op.batch_alter_table('out_eia861__yearly_utility_service_territory', schema=None) as batch_op:
@@ -363,7 +375,11 @@ def downgrade() -> None:
 
     with op.batch_alter_table('core_eia860__scd_boilers', schema=None) as batch_op:
         batch_op.add_column(sa.Column('standard_so2_percent_scrubbed', sa.FLOAT(), nullable=True))
+        batch_op.add_column(sa.Column('wet_dry_bottom', sa.TEXT(), nullable=True))
+        batch_op.drop_constraint(batch_op.f('fk_core_eia860__scd_boilers_wet_dry_bottom_code_core_eia__codes_wet_dry_bottom'), type_='foreignkey')
+        batch_op.create_foreign_key(batch_op.f('fk_core_eia860__scd_boilers_wet_dry_bottom_core_eia__codes_wet_dry_bottom'), 'core_eia__codes_wet_dry_bottom', ['wet_dry_bottom'], ['code'])
         batch_op.drop_column('standard_so2_scrubbed_fraction')
+        batch_op.drop_column('wet_dry_bottom_code')
 
     with op.batch_alter_table('_core_phmsagas__yearly_distribution_misc', schema=None) as batch_op:
         batch_op.alter_column('hazardous_leaks_mechanical_joint_failure',
