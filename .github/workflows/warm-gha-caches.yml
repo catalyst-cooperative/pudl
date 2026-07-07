@@ -46,7 +46,11 @@ jobs:
         with:
           locked: true
           cache: true
-          cache-write: true
+          # Only write when this is reachable as the main-branch fallback for
+          # other branches. The daily schedule always runs on main, so this
+          # doesn't affect that path -- it only stops a manual test dispatch
+          # on a feature branch from writing a dead-end branch-scoped copy.
+          cache-write: ${{ github.ref_name == 'main' }}
 
       # The steps below intentionally mirror pytest.yml's ci-integration job:
       # they must use identical cache keys and paths so the entries this job

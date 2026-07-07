@@ -170,6 +170,7 @@ usaddress = ">=0.5.16,<0.6"
 uv = ">=0.11"
 xlsxwriter = ">=3.2"
 zip = ">=3.0"
+gh = ">=2.96.0,<3"
 
 [tool.pixi.pypi-dependencies]
 # Install the local package in editable mode. Assume dependencies are specified either
@@ -181,7 +182,7 @@ detect-secrets = ">=1.5"
 [tool.pixi.feature.dev.dependencies]
 anthropic = ">=0.111.0,<0.112" # For use with claude and marimo
 duckdb = ">=1.5.4"
-gh = ">=2" # GitHub CLI
+duckdb-cli = ">=1.5.4"
 jq = ">=1.8" # Primarily for agent skills use
 marimo = ">=0.13"
 matplotx = ">=0.3.10"
