@@ -170,8 +170,8 @@ jobs:
             --container-env AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
             --container-env ZULIP_API_KEY=${{ secrets.ZULIP_API_KEY }} \
             --container-env BATCH_JOB_NAME=${{ env.BATCH_JOB_NAME }} \
-            --vcpu=4 \
-            --mem-gb=16 \
+            --vcpu=8 \
+            --mem-gb=31 \
             --disk-gb=100 \
             --output batch_job.json
 
