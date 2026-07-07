@@ -48,8 +48,9 @@ Run `zenodo_data_release --help` for CLI usage instructions.
 
 ## Functions
 
-| [`main`](#pudl.scripts.zenodo_data_release.main)(→ int)   | Publish a new PUDL data release to Zenodo.   |
-|-----------------------------------------------------------|----------------------------------------------|
+| [`build_zenodo_release_zulip_message`](#pudl.scripts.zenodo_data_release.build_zenodo_release_zulip_message)(→ str)   | Build a markdown Zulip message summarizing a Zenodo release attempt.   |
+|-----------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------|
+| [`main`](#pudl.scripts.zenodo_data_release.main)(→ int)                                                               | Publish a new PUDL data release to Zenodo.                             |
 
 ## Module Contents
 
@@ -345,6 +346,8 @@ Values of private attributes set on the model instance.
 
 #### metadata *: [\_LegacyMetadata](#pudl.scripts.zenodo_data_release._LegacyMetadata)*
 
+#### submitted *: [bool](https://docs.python.org/3/library/functions.html#bool)* *= False*
+
 ### *class* pudl.scripts.zenodo_data_release.\_NewFile(/, \*\*data: Any)
 
 Bases: [`pydantic.BaseModel`](https://pydantic.dev/docs/validation/latest/api/pydantic/base_model/#pydantic.BaseModel)
@@ -609,6 +612,13 @@ because it allows for files >100MB.
 
 LEGACY API: publish deposition.
 
+The publish action isn’t safely retriable: if a request times out after
+Zenodo already processed it server-side, a retried POST to the same
+`actions/publish` URL 404s, since a deposition that’s already published no
+longer has a pending publish action – even though the publish itself
+succeeded. Rather than fail on that specific 404, check whether the
+deposition is actually already published before giving up.
+
 ### *class* pudl.scripts.zenodo_data_release.State
 
 Parent class for dataset states.
@@ -714,6 +724,15 @@ Publish the draft.
 #### get_html_url()
 
 A URL for viewing this draft.
+
+### pudl.scripts.zenodo_data_release.build_zenodo_release_zulip_message(env: [str](https://docs.python.org/3/library/stdtypes.html#str), publish: [bool](https://docs.python.org/3/library/functions.html#bool), succeeded: [bool](https://docs.python.org/3/library/functions.html#bool), record_url: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None)) → [str](https://docs.python.org/3/library/stdtypes.html#str)
+
+Build a markdown Zulip message summarizing a Zenodo release attempt.
+
+Makes the sandbox/production environment and publish/draft mode immediately
+visible, so a misconfigured run is obvious at a glance, and links to the
+resulting record when the release succeeded – the live record if `publish`
+was requested, otherwise the draft awaiting manual review.
 
 ### pudl.scripts.zenodo_data_release.main(env: [str](https://docs.python.org/3/library/stdtypes.html#str), source_dir: [str](https://docs.python.org/3/library/stdtypes.html#str), publish: [bool](https://docs.python.org/3/library/functions.html#bool), ignore: [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[str](https://docs.python.org/3/library/stdtypes.html#str)]) → [int](https://docs.python.org/3/library/functions.html#int)
 

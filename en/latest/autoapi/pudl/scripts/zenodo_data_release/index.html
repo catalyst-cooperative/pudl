@@ -17,7 +17,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.scripts.zenodo_data_release &#8212; PUDL 2026.6.2.dev28 documentation</title>
+    <title>pudl.scripts.zenodo_data_release &#8212; PUDL 2026.6.2.dev29 documentation</title>
   
   
   
@@ -50,7 +50,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5" />
 
-    <script src="../../../../_static/documentation_options.js?v=3ea5aabb"></script>
+    <script src="../../../../_static/documentation_options.js?v=97e5dedd"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -141,8 +141,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.6.2.dev28 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.6.2.dev28 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.6.2.dev29 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.6.2.dev29 documentation - Home"/>
   
   
 </a></div>
@@ -843,7 +843,10 @@ check what files should actually be distributed before running the script.</p>
 <h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.scripts.zenodo_data_release.main" title="pudl.scripts.zenodo_data_release.main"><code class="xref py py-obj docutils literal notranslate"><span class="pre">main</span></code></a>(→ int)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.scripts.zenodo_data_release.build_zenodo_release_zulip_message" title="pudl.scripts.zenodo_data_release.build_zenodo_release_zulip_message"><code class="xref py py-obj docutils literal notranslate"><span class="pre">build_zenodo_release_zulip_message</span></code></a>(→ str)</p></td>
+<td><p>Build a markdown Zulip message summarizing a Zenodo release attempt.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.scripts.zenodo_data_release.main" title="pudl.scripts.zenodo_data_release.main"><code class="xref py py-obj docutils literal notranslate"><span class="pre">main</span></code></a>(→ int)</p></td>
 <td><p>Publish a new PUDL data release to Zenodo.</p></td>
 </tr>
 </tbody>
@@ -1307,6 +1310,11 @@ is set to <cite>‘allow’</cite>.</p>
 <span class="sig-name descname"><span class="pre">metadata</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#pudl.scripts.zenodo_data_release._LegacyMetadata" title="pudl.scripts.zenodo_data_release._LegacyMetadata"><span class="pre">_LegacyMetadata</span></a></span><a class="reference internal" href="../../../../_modules/pudl/scripts/zenodo_data_release.html#_LegacyDeposition.metadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.scripts.zenodo_data_release._LegacyDeposition.metadata" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.scripts.zenodo_data_release._LegacyDeposition.submitted">
+<span class="sig-name descname"><span class="pre">submitted</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></span><a class="reference internal" href="../../../../_modules/pudl/scripts/zenodo_data_release.html#_LegacyDeposition.submitted"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.scripts.zenodo_data_release._LegacyDeposition.submitted" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
@@ -1684,6 +1692,12 @@ because it allows for files &gt;100MB.</p>
 <dt class="sig sig-object py" id="pudl.scripts.zenodo_data_release.ZenodoClient.publish_deposition">
 <span class="sig-name descname"><span class="pre">publish_deposition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">deposition_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pudl.scripts.zenodo_data_release._LegacyDeposition" title="pudl.scripts.zenodo_data_release._LegacyDeposition"><span class="pre">_LegacyDeposition</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/scripts/zenodo_data_release.html#ZenodoClient.publish_deposition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.scripts.zenodo_data_release.ZenodoClient.publish_deposition" title="Link to this definition">#</a></dt>
 <dd><p>LEGACY API: publish deposition.</p>
+<p>The publish action isn’t safely retriable: if a request times out after
+Zenodo already processed it server-side, a retried POST to the same
+<code class="docutils literal notranslate"><span class="pre">actions/publish</span></code> URL 404s, since a deposition that’s already published no
+longer has a pending publish action – even though the publish itself
+succeeded. Rather than fail on that specific 404, check whether the
+deposition is actually already published before giving up.</p>
 </dd></dl>
 
 </dd></dl>
@@ -1818,6 +1832,16 @@ is broken, so we have to take a detour through the new API.</p>
 <dd><p>A URL for viewing this draft.</p>
 </dd></dl>
 
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pudl.scripts.zenodo_data_release.build_zenodo_release_zulip_message">
+<span class="sig-prename descclassname"><span class="pre">pudl.scripts.zenodo_data_release.</span></span><span class="sig-name descname"><span class="pre">build_zenodo_release_zulip_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">publish</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">succeeded</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">record_url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/scripts/zenodo_data_release.html#build_zenodo_release_zulip_message"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.scripts.zenodo_data_release.build_zenodo_release_zulip_message" title="Link to this definition">#</a></dt>
+<dd><p>Build a markdown Zulip message summarizing a Zenodo release attempt.</p>
+<p>Makes the sandbox/production environment and publish/draft mode immediately
+visible, so a misconfigured run is obvious at a glance, and links to the
+resulting record when the release succeeded – the live record if <code class="docutils literal notranslate"><span class="pre">publish</span></code>
+was requested, otherwise the draft awaiting manual review.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -1958,6 +1982,7 @@ is broken, so we have to take a detour through the new API.</p>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.scripts.zenodo_data_release._LegacyDeposition.conceptrecid"><code class="docutils literal notranslate"><span class="pre">_LegacyDeposition.conceptrecid</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.scripts.zenodo_data_release._LegacyDeposition.links"><code class="docutils literal notranslate"><span class="pre">_LegacyDeposition.links</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.scripts.zenodo_data_release._LegacyDeposition.metadata"><code class="docutils literal notranslate"><span class="pre">_LegacyDeposition.metadata</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.scripts.zenodo_data_release._LegacyDeposition.submitted"><code class="docutils literal notranslate"><span class="pre">_LegacyDeposition.submitted</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.scripts.zenodo_data_release._NewFile"><code class="docutils literal notranslate"><span class="pre">_NewFile</span></code></a><ul class="nav section-nav flex-column">
@@ -2040,6 +2065,7 @@ is broken, so we have to take a detour through the new API.</p>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.scripts.zenodo_data_release.CompleteDraft.get_html_url"><code class="docutils literal notranslate"><span class="pre">CompleteDraft.get_html_url()</span></code></a></li>
 </ul>
 </li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.scripts.zenodo_data_release.build_zenodo_release_zulip_message"><code class="docutils literal notranslate"><span class="pre">build_zenodo_release_zulip_message()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.scripts.zenodo_data_release.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
 </ul>
 </li>

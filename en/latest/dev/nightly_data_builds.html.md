@@ -10,10 +10,12 @@ merged into `main` since the last time the builds ran, the builds are skipped.
 The builds are kicked off by the `build-pudl` GitHub Action, which builds and
 pushes a Docker image with PUDL installed to [Docker Hub](https://hub.docker.com/r/catalystcoop/pudl-etl)
 and then launches a Google Batch job using that image. Inside the container,
-`builds/pudl_batch.sh` runs the ETL and tests, saves the raw build outputs to
-`gs://builds.catalyst.coop`. If the `build-pudl` action completes successfully,
-it will kickoff the `deploy-pudl` action, which uses the same Docker image as the
-builds, but will run the script `src/pudl/scripts/deploy.py`.
+`builds/pudl_batch.sh` runs the ETL and tests and saves the raw build outputs to
+`gs://builds.catalyst.coop` – a private bucket, not the public data distribution.
+If the build succeeds, `pudl_batch.sh` triggers the separate `deploy-pudl` action,
+which builds its own Docker image from the same commit and runs the `pudl_deploy`
+script (`src/pudl/scripts/pudl_deploy.py`) to actually publish the outputs. See
+[Build Action]() and [Deployment Action]() below for details on each.
 
 ## Breaking the Builds
 
@@ -48,7 +50,7 @@ if the builds are failing to avoid ambiguity and facilitate debugging.
 
 Therefore, we’ve adopted the following etiquette regarding build breakage: On the
 morning after you merge a PR into `main`, you should check whether the nightly builds
-succeeded by looking in the `pudl-deployments` Slack channel (which all team members
+succeeded by looking in the `pudl-deployments` Zulip stream (which all team members
 should be subscribed to). If the builds failed, look at the logging output (which is
 included as an attachment to the notification) and figure out what kind of failure
 occurred:
@@ -72,9 +74,18 @@ the Nightly Data Builds. The action is triggered every night so any code changes
 tested nightly. During a nightly build, the action will automatically tag the current
 commit on `main` with a tag that looks like `nightly-YYYY-MM-DD`. If the action is
 manually triggered, it will instead tag the build with a “branch” tag, that looks like
-`branch-[BRANCH-BUILD-WAS-TRIGGERED-FROM]-YYYY-MM-DD`. Upon a successful build, the
-action will trigger the `deploy-pudl` action, passing the tag associated with the
-build as an input.
+`branch-YYYY-MM-DD-HHMM-[GIT-HASH]-[BRANCH-BUILD-WAS-TRIGGERED-FROM]`. A push of a
+stable release tag (`vYYYY.M.D`) also triggers `build-pudl` directly.
+
+`build-pudl` also determines the deployment environment for the build: nightly and
+stable-tag-push builds deploy to `production`, while manually dispatched branch
+builds deploy to `staging`. This is passed into the Batch container as the
+`DEPLOYMENT_ENVIRONMENT` environment variable.
+
+Upon a successful build (or if a successful build for the tagged commit already
+exists – see [Run a Versioned Release](run_a_release.md)), `pudl_batch.sh` uses the `gh` CLI to trigger
+the `deploy-pudl` action via `workflow_dispatch`, passing the git tag and
+deployment environment as inputs.
 
 The `gcloud` command in `build-pudl` requires certain Google Cloud
 Platform (GCP) permissions to start and update the Google Batch VM. We use Workflow
@@ -83,18 +94,34 @@ workflow.
 
 ## Deployment Action
 
-The `deploy-pudl` action separates deployment from the build process.
-This action takes a git tag, which should already have an associated build, and it uses
-it to determine the deployment type (`stable`, `branch`, or `nightly`). It will
-then find outputs associated with the build and upload them to GCS and S3,
-update the git branch associated with the deployment type, and trigger a zenodo release.
+The `deploy-pudl` action separates deployment from the build process. It’s
+`workflow_dispatch`-only: it never triggers on its own, it’s always either
+dispatched automatically by `build-pudl`/`pudl_batch.sh` after a successful build,
+or dispatched manually (e.g. to redeploy an existing build, or to test deployment
+changes on a branch – see [Run a Versioned Release](run_a_release.md)).
 
-This action also takes a `deployment_environment` option, which can be used to switch
-between `production` and `staging` deployments. During a `staging` deployment,
-outputs will be uploaded to a dedicated staging area, and will trigger a sandbox
-Zenodo release. The staging area for outputs will mirror the paths used during a
-`production` deployment, but they will include a ‘staging’ prefix. This looks like
-the following:
+The action takes a git tag, which should already have an associated successful build,
+and a `deployment_environment` (`staging` or `production`). It validates the tag
+format and, for nightly/stable tags (not branch tags), confirms the tagged commit is
+actually an ancestor of `main` before proceeding – this stops a manually mistagged
+commit from being pushed to production via `workflow_dispatch`, while still allowing
+a legitimate retry of an already-`main` tag. It then runs `pudl_deploy`
+(`src/pudl/scripts/pudl_deploy.py`), which:
+
+* Finds the outputs associated with the tag’s build and uploads them to GCS and S3,
+  clearing any stale objects at the destination first.
+* Redeploys the PUDL Data Viewer (“Eel Hole”) – nightly deployments only.
+* Updates the `nightly`/`stable` git branch and triggers a Zenodo release
+  (unless it’s a branch deployment).
+* Sets a GCS temporary hold (deletion and overwrite protections) on the versioned
+  release path – stable, production deployments only.
+
+Exactly which of these run, and which upload paths are used, is determined by a
+single `DeploymentPlan` (see [`pudl.deploy.pudl.DeploymentPlan`](../autoapi/pudl/deploy/pudl/index.md#pudl.deploy.pudl.DeploymentPlan)).
+
+A `staging` deployment uploads to a dedicated staging area that mirrors the
+`production` paths with a `staging/` prefix, and triggers a sandbox Zenodo release
+instead of a production one. For example:
 
 *Nightly production deployment paths:*
 - s3://pudl.catalyst.coop/nightly
@@ -104,10 +131,9 @@ the following:
 - s3://pudl.catalyst.coop/staging/nightly
 - s3://pudl.catalyst.coop/staging/eel-hole
 
-The `deploy-pudl` action will be automatically triggered upon a successful build,
-or when a stable tag is pushed, which should look like `vYYYY.DD.MM`. This means
-we can tag an existing, successful build with a stable tag and produce a stable
-deployment without requiring a new build.
+Like the nightly build, each deployment saves a timestamped log to the build’s
+directory in `gs://builds.catalyst.coop` and sends a per-stage status notification
+to the `pudl-deployments` Zulip stream.
 
 ## Google Compute Engine
 
@@ -140,17 +166,18 @@ automatically.
 The Docker image the VMs pull installs the PUDL pixi environment. The VMs
 are configured to run the `builds/pudl_batch.sh` script. This script:
 
-1. Notifies the `pudl-deployments` Slack channel that a deployment has started.
-   Note: if the container is manually stopped, slack will not be notified.
+1. Notifies the `pudl-deployments` Zulip stream that a build has started.
+   Note: if the container is manually stopped, Zulip will not be notified.
 2. Runs `pixi run pudl-with-ferc-to-sqlite-nightly`.
 3. Runs `pixi run pytest-unit-nightly`, `pixi run pytest-integration-nightly`,
    and `pixi run pytest-data-validation-nightly` as separate stages.
 4. Copies the outputs and logs to a directory in the `gs://builds.catalyst.coop`
-   bucket. The directory is named using the git SHA of the commit that launched the
-   build.
-5. Copies the outputs to the `gs://pudl.catalyst.coop` and `s3://pudl.catalyst.coop`
-   buckets if the ETL and test suite run successfully.
-6. Notifies the `pudl-deployments` Slack channel with the final build status,
+   bucket, named `<YYYY-MM-DD-HHMM>-<short git SHA>-<git ref>`, and writes a
+   `success` marker file there if every stage passed.
+5. Triggers the `deploy-pudl` action via `gh workflow run` (see [Deployment
+   Action]()) – `pudl_batch.sh` itself never writes to the public
+   `gs://pudl.catalyst.coop`/`s3://pudl.catalyst.coop` distribution buckets.
+6. Notifies the `pudl-deployments` Zulip stream with the final build status,
    including per-stage status and durations.
 
 The `pudl_batch.sh script` is only intended to run on a Google Batch VM with
