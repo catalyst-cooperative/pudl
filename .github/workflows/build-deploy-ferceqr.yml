@@ -112,8 +112,8 @@ jobs:
           push: true
           tags: ${{ steps.docker_metadata.outputs.tags }}
           labels: ${{ steps.docker_metadata.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=registry,ref=catalystcoop/pudl-etl:buildcache
+          cache-to: type=registry,ref=catalystcoop/pudl-etl:buildcache,mode=max
 
       - name: Authenticate with Google Cloud
         id: "gcloud-auth"

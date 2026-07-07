@@ -35,8 +35,11 @@ jobs:
           context: .
           file: builds/Dockerfile
           push: false
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          # Read-only: this job never logs in to Docker Hub (it runs on
+          # pull_request, including from forks, which don't get secrets), so it
+          # can't write to the registry cache -- but pulling the public
+          # catalystcoop/pudl-etl cache manifest works fine anonymously.
+          cache-from: type=registry,ref=catalystcoop/pudl-etl:buildcache
 
   pudl_devcontainer_smoke_test:
     name: Test building and running the PUDL devcontainer
