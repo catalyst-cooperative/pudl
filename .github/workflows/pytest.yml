@@ -104,7 +104,13 @@ jobs:
         with:
           locked: true
           cache: true
-          cache-write: ${{ github.event_name == 'push' && github.ref_name == 'main' }}
+          # This workflow never writes the pixi env cache: it runs on every
+          # PR/merge_group push, so writing here would refill the shared 10GB
+          # Actions cache quota with branch-scoped copies that mostly never
+          # get reused. build-deploy-docs.yml (push to main) and
+          # warm-gha-caches.yml are responsible for keeping the main-branch
+          # copy fresh.
+          cache-write: false
 
       - name: Make input, output and dagster dirs
         run: mkdir -p ${{ env.PUDL_OUTPUT }} ${{ env.PUDL_INPUT}} ${{ env.DAGSTER_HOME }}
@@ -141,7 +147,8 @@ jobs:
         with:
           locked: true
           cache: true
-          cache-write: ${{ github.event_name == 'push' && github.ref_name == 'main' }}
+          # See ci-docs above for why this is always false.
+          cache-write: false
 
       - name: Make input, output and dagster dirs
         run: mkdir -p ${{ env.PUDL_OUTPUT }} ${{ env.PUDL_INPUT}} ${{ env.DAGSTER_HOME }}
@@ -178,7 +185,8 @@ jobs:
         with:
           locked: true
           cache: true
-          cache-write: ${{ github.event_name == 'push' && github.ref_name == 'main' }}
+          # See ci-docs above for why this is always false.
+          cache-write: false
 
       - name: Make input, output and dagster dirs
         run: |
@@ -223,7 +231,8 @@ jobs:
         with:
           locked: true
           cache: true
-          cache-write: ${{ github.event_name == 'push' && github.ref_name == 'main' }}
+          # See ci-docs above for why this is always false.
+          cache-write: false
 
       - name: Restore Zenodo datastore from cache if possible
         uses: actions/cache@v5
@@ -320,6 +329,8 @@ jobs:
         with:
           locked: true
           cache: true
+          # See ci-docs above for why this is always false.
+          cache-write: false
       - name: Combine coverage data, output XML, and report
         run: |
           pixi run coverage combine coverage/*/.coverage
