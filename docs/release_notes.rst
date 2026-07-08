@@ -117,6 +117,10 @@ Bug Fixes & Data Cleaning
   ``dtype_backend`` will now return the types for the specific file type, which extends
   the previous behavior of returning pandas dtypes. The dtype management now lives in
   :mod:`pudl.metadata.dtypes`. See :pr:`5361`.
+* Fixed ``pudl_deploy`` returning a plain integer exit code from its Click command,
+  which Click's standalone mode silently discards, so shell callers previously saw
+  exit code 0 even when a deployment stage failed. It now uses ``ctx.exit()`` like
+  the other scripts fixed in :pr:`5374`. See :issue:`5382` and PR :pr:`5384`.
 * Fixed the longstanding issue with ``zenodo_data_release`` sandbox release failures
   happening even when the publication actually succeeded, because a client-side
   timeout on the publish request triggered a retry that legitimately 404s once a
@@ -136,10 +140,12 @@ Developer Experience
 ^^^^^^^^^^^^^^^^^^^^
 
 * Reduced spurious logging and error output from our unit tests. See PR :pr:`5362`.
-* Refactored the contributor-facing dtype helper API so it now lives in
-  :mod:`pudl.metadata.dtypes`, uses explicit ``dtype_backend`` selection, and separates
-  field-namespace-based dtype resolution from resource-authoritative table schemas. Also
-  updated helper function calls and tests to be less pandas-centric. See :pr:`5361`.
+* Added two new optional arguments to ``get_pudl_dtypes`` and ``apply_pudl_dtypes``:
+  ``resource`` (aka table) name will now return all of the authoritative
+  resource-specific dtypes instead of the generic or source-specific types.
+  ``dtype_backend`` will now return the types for the specific file type, which extends
+  the previous behavior of returning pandas dtypes. The dtype management now lives in
+  :mod:`pudl.metadata.dtypes`. See :pr:`5361`.
 * Reworked the nightly PUDL build and deployment automation to send start and
   status notifications to the ``pudl-deployments`` Zulip stream directly from
   GitHub Actions and the batch build script, with per-stage timing summaries and

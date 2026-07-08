@@ -191,10 +191,16 @@ def get_pudl_dtypes(
         )
 
     if resource is not None:
-        return _get_pudl_resource_dtypes(resource=resource, dtype_backend=dtype_backend)
-    return _get_pudl_namespace_dtypes(
-        field_namespace=field_namespace, dtype_backend=dtype_backend
-    )
+        dtypes = _get_pudl_resource_dtypes(
+            resource=resource, dtype_backend=dtype_backend
+        )
+    else:
+        # This also covers the generic case in which field_namespace is None
+        dtypes = _get_pudl_namespace_dtypes(
+            field_namespace=field_namespace, dtype_backend=dtype_backend
+        )
+
+    return dtypes
 
 
 def _get_pudl_namespace_dtypes(
