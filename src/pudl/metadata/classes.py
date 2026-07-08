@@ -11,9 +11,10 @@ from hashlib import sha1
 from importlib.metadata import version as _get_version
 from pathlib import Path
 from re import Pattern
-from typing import Annotated, Any, Literal, Self, TypeVar
+from typing import Annotated, Any, Literal, Self, TypeVar, get_args
 
 import duckdb
+import duckdb.sqltypes
 import frictionless
 import geopandas as gpd  # noqa: ICN002
 import jinja2
@@ -47,19 +48,21 @@ import pudl.logging_helpers
 from pudl.metadata import descriptions
 from pudl.metadata.codes import CODE_METADATA
 from pudl.metadata.constants import (
-    CONSTRAINT_DTYPES,
     CONTRIBUTORS,
+    LICENSES,
+)
+from pudl.metadata.dtypes import (
+    CONSTRAINT_DTYPES,
     FIELD_DTYPES_DUCKDB,
     FIELD_DTYPES_PANDAS,
     FIELD_DTYPES_POLARS,
     FIELD_DTYPES_PYARROW,
-    FIELD_DTYPES_SQL,
-    LICENSES,
+    FIELD_DTYPES_SQLITE,
     PERIODS,
 )
 from pudl.metadata.fields import (
     FIELD_METADATA,
-    FIELD_METADATA_BY_GROUP,
+    FIELD_METADATA_BY_NAMESPACE,
     FIELD_METADATA_BY_RESOURCE,
 )
 from pudl.metadata.helpers import (
@@ -71,6 +74,7 @@ from pudl.metadata.helpers import (
 )
 from pudl.metadata.resources import FOREIGN_KEYS, RESOURCE_METADATA
 from pudl.metadata.sources import SOURCES
+from pudl.metadata.units import unit_registry_to_frictionless
 from pudl.workspace.datastore import Datastore, ZenodoDoi
 from pudl.workspace.setup import PudlPaths
 
@@ -210,6 +214,72 @@ StrictList = Annotated[list[T], pydantic.Field(min_length=1)]
 Allows :class:`list`, :class:`tuple`, :class:`set`, :class:`frozenset`,
 :class:`collections.deque`, or generators and casts to a :class:`list`.
 """
+
+
+FieldNamespace = Literal[
+    "censusdp1tract",
+    "eia",
+    "eiaaeo",
+    "eiaapi",
+    "epacems",
+    "ferc",
+    "ferc1",
+    "ferc714",
+    "ferceqr",
+    "glue",
+    "gridpathratoolkit",
+    "ppe",
+    "pudl",
+    "nrelatb",
+    "vcerare",
+    "phmsagas",
+    "sec",
+    "rus",
+]
+"""Canonical field namespace identifiers used by PUDL resources."""
+
+FIELD_NAMESPACES: tuple[FieldNamespace, ...] = get_args(FieldNamespace)
+"""All valid PUDL field namespace identifiers."""
+
+EtlGroup = Literal[
+    "censusdp1tract",
+    "eia176",
+    "eia191",
+    "eia860",
+    "eia861",
+    "eia861_disabled",
+    "eia923",
+    "eia930",
+    "eiaaeo",
+    "entity_eia",
+    "epacems",
+    "entity_ferc",
+    "ferc1",
+    "ferc1_disabled",
+    "ferc714",
+    "ferceqr",
+    "glue",
+    "gridpathratoolkit",
+    "outputs",
+    "static_ferc1",
+    "static_eia",
+    "static_eia_disabled",
+    "eiaapi",
+    "state_demand",
+    "static_pudl",
+    "service_territories",
+    "nrelatb",
+    "vcerare",
+    "phmsagas",
+    "sec10k",
+    "rus7",
+    "static_rus",
+    "rus12",
+]
+"""Canonical ETL group identifiers used by PUDL resources."""
+
+ETL_GROUPS: tuple[EtlGroup, ...] = get_args(EtlGroup)
+"""All valid PUDL ETL group identifiers."""
 
 
 # ---- Class attribute validators ---- #
@@ -670,7 +740,7 @@ class Field(PudlMeta):
         """Return SQLAlchemy data type."""
         if self.constraints.enum and self.type == "string":
             return sa.Enum(*self.constraints.enum)
-        return FIELD_DTYPES_SQL[self.type]
+        return FIELD_DTYPES_SQLITE[self.type]
 
     def to_pyarrow_dtype(self) -> pa.DataType:
         """Return PyArrow data type."""
@@ -1590,67 +1660,8 @@ class Resource(PudlMeta):
     encoder: Encoder | None = None
     path: str = pydantic.Field(default_factory=lambda data: f"{data['name']}.parquet")
     extrapaths: list[str] | None = None
-    field_namespace: (
-        Literal[
-            "censusdp1tract",
-            "eia",
-            "eiaaeo",
-            "eiaapi",
-            "epacems",
-            "ferc",
-            "ferc1",
-            "ferc714",
-            "ferceqr",
-            "glue",
-            "gridpathratoolkit",
-            "ppe",
-            "pudl",
-            "nrelatb",
-            "vcerare",
-            "phmsagas",
-            "sec",
-            "rus",
-        ]
-        | None
-    ) = None
-    etl_group: (
-        Literal[
-            "censusdp1tract",
-            "eia176",
-            "eia191",
-            "eia860",
-            "eia861",
-            "eia861_disabled",
-            "eia923",
-            "eia930",
-            "eiaaeo",
-            "entity_eia",
-            "epacems",
-            "entity_ferc",
-            "ferc1",
-            "ferc1_disabled",
-            "ferc714",
-            "ferceqr",
-            "glue",
-            "gridpathratoolkit",
-            "outputs",
-            "static_ferc1",
-            "static_eia",
-            "static_eia_disabled",
-            "eiaapi",
-            "state_demand",
-            "static_pudl",
-            "service_territories",
-            "nrelatb",
-            "vcerare",
-            "phmsagas",
-            "sec10k",
-            "rus7",
-            "static_rus",
-            "rus12",
-        ]
-        | None
-    ) = None
+    field_namespace: FieldNamespace | None = None
+    etl_group: EtlGroup | None = None
     create_database_schema: bool = True
 
     _check_unique = _validator(
@@ -1721,8 +1732,8 @@ class Resource(PudlMeta):
                 value = Field.dict_from_id(name)
                 # Update with any custom group-level metadata
                 namespace = obj.get("field_namespace")
-                if name in FIELD_METADATA_BY_GROUP.get(namespace, {}):
-                    value = {**value, **FIELD_METADATA_BY_GROUP[namespace][name]}
+                if name in FIELD_METADATA_BY_NAMESPACE.get(namespace, {}):
+                    value = {**value, **FIELD_METADATA_BY_NAMESPACE[namespace][name]}
                 # Update with any custom resource-level metadata
                 if name in FIELD_METADATA_BY_RESOURCE.get(resource_id, {}):
                     value = {**value, **FIELD_METADATA_BY_RESOURCE[resource_id][name]}
@@ -2448,6 +2459,10 @@ class Package(PudlMeta):
     def get_resource(self, name: str) -> Resource:
         """Return the resource with the given name if it is in the Package."""
         names = [resource.name for resource in self.resources]
+        if name not in names:
+            raise ValueError(
+                f"Unknown resource {name!r} is not part of the {self.name!r} data package."
+            )
         return self.resources[names.index(name)]
 
     def to_rst(self, docs_dir: DirectoryPath, path: str) -> None:
@@ -2610,6 +2625,7 @@ class Package(PudlMeta):
         package.custom["$schema"] = (
             "https://datapackage.org/profiles/2.0/datapackage.json"
         )
+        package.custom["unit_registry"] = unit_registry_to_frictionless()
         return package
 
 
