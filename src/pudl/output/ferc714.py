@@ -19,7 +19,7 @@ from pudl.analysis.timeseries_cleaning import (
     ImputeTimeseriesSettings,
     impute_timeseries_asset_factory,
 )
-from pudl.metadata.fields import apply_pudl_dtypes
+from pudl.metadata.dtypes import apply_pudl_dtypes
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -427,11 +427,19 @@ def filled_core_eia861__yearly_balancing_authority(
 
     if new_rows:
         df = pd.concat(
-            [df, apply_pudl_dtypes(pd.DataFrame(new_rows), group="eia")],
+            [
+                df,
+                apply_pudl_dtypes(
+                    pd.DataFrame(new_rows),
+                    resource="core_eia861__yearly_balancing_authority",
+                ),
+            ],
             axis="index",
         )
     mask = df["balancing_authority_id_eia"].isin([util["id"] for util in UTILITIES])
-    return apply_pudl_dtypes(df[~mask], group="eia")
+    return apply_pudl_dtypes(
+        df[~mask], resource="core_eia861__yearly_balancing_authority"
+    )
 
 
 def filled_core_eia861__assn_balancing_authority(  # noqa: C901
@@ -498,7 +506,10 @@ def filled_core_eia861__assn_balancing_authority(  # noqa: C901
             new_tables.append(ref.assign(report_date=target_date))
 
     if new_tables:
-        new_rows = apply_pudl_dtypes(pd.concat(new_tables), group="eia")
+        new_rows = apply_pudl_dtypes(
+            pd.concat(new_tables),
+            resource="core_eia861__assn_balancing_authority",
+        )
         df = pd.concat([df[~replaced], new_rows], axis="index")
     else:
         if replaced.any():
@@ -545,7 +556,10 @@ def filled_core_eia861__assn_balancing_authority(  # noqa: C901
     return (
         pd.concat([df[~removal_mask]] + reassignment_tables)
         .drop_duplicates()
-        .pipe(apply_pudl_dtypes, group="eia")
+        .pipe(
+            apply_pudl_dtypes,
+            resource="core_eia861__assn_balancing_authority",
+        )
     )
 
 
@@ -622,7 +636,7 @@ def filled_core_eia861__yearly_service_territory(
         mask &= mdf["report_date"].eq(years[idx])
         fill_tables.append(mdf[mask].assign(report_date=row["report_date"]))
     return pd.concat([core_eia861__yearly_service_territory] + fill_tables).pipe(
-        apply_pudl_dtypes, group="eia"
+        apply_pudl_dtypes, resource="core_eia861__yearly_service_territory"
     )
 
 
@@ -767,7 +781,7 @@ def _out_ferc714__categorized_respondents(
             categorized[categorized.respondent_type.isnull()],
         ]
     )
-    categorized = apply_pudl_dtypes(categorized)
+    categorized = apply_pudl_dtypes(categorized, field_namespace="ferc714")
     return categorized
 
 
@@ -856,7 +870,10 @@ def out_ferc714__respondents_with_fips(
                 _out_ferc714__categorized_respondents.respondent_type.isnull()
             ],
         ]
-    ).pipe(apply_pudl_dtypes)
+    ).pipe(
+        apply_pudl_dtypes,
+        resource="out_ferc714__respondents_with_fips",
+    )
     return fipsified
 
 
@@ -880,7 +897,7 @@ def _out_ferc714__georeferenced_counties(
         pudl.analysis.service_territory.add_geometries(
             out_ferc714__respondents_with_fips,
             census_gdf=out_censusdp1tract__counties,
-        ).pipe(apply_pudl_dtypes)
+        ).pipe(apply_pudl_dtypes, field_namespace="ferc714")
     )
 
 
@@ -915,7 +932,10 @@ def out_ferc714__georeferenced_respondents(
                 ["report_date", "respondent_id_ferc714", "demand_annual_mwh"]
             ]
         )
-        .pipe(apply_pudl_dtypes)
+        .pipe(
+            apply_pudl_dtypes,
+            resource="out_ferc714__georeferenced_respondents",
+        )
     )
 
 
@@ -971,7 +991,7 @@ def out_ferc714__summarized_demand(
     # Merge respondent categorizations into the annual demand
     demand_summary = pd.merge(
         demand_annual, _out_ferc714__categorized_respondents, how="left"
-    ).pipe(apply_pudl_dtypes)
+    ).pipe(apply_pudl_dtypes, resource="out_ferc714__summarized_demand")
     return demand_summary
 
 

@@ -17,6 +17,7 @@ from pudl.helpers import (
     standardize_na_values,
 )
 from pudl.metadata.classes import PUDL_PACKAGE
+from pudl.metadata.dtypes import apply_pudl_dtypes
 from pudl.metadata.enums import (
     CUSTOMER_CLASSES,
     FUEL_CLASSES,
@@ -26,7 +27,6 @@ from pudl.metadata.enums import (
     RTO_CLASSES,
     TECH_CLASSES,
 )
-from pudl.metadata.fields import apply_pudl_dtypes
 from pudl.metadata.labels import ESTIMATED_OR_ACTUAL
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -250,7 +250,7 @@ BA_ID_NAME_FIXES: pd.DataFrame = (
         ],
     )
     .assign(report_date=lambda x: pd.to_datetime(x.report_date))
-    .pipe(apply_pudl_dtypes, group="eia")
+    .pipe(apply_pudl_dtypes, field_namespace="eia")
     .dropna(subset=["report_date", "balancing_authority_name_eia", "utility_id_eia"])
     .set_index(["report_date", "balancing_authority_name_eia", "utility_id_eia"])
 )
@@ -558,9 +558,9 @@ def _pre_process(df: pd.DataFrame, idx_cols: list[str]) -> pd.DataFrame:
     )
 
 
-def _post_process(df: pd.DataFrame) -> pd.DataFrame:
+def _post_process(df: pd.DataFrame, name: str | None = None) -> pd.DataFrame:
     """Post-processing applied to all EIA-861 dataframes."""
-    return convert_cols_dtypes(df, data_source="eia")
+    return convert_cols_dtypes(df, data_source="eia", name=name)
 
 
 def _filter_class_cols(df, class_list):
@@ -1148,7 +1148,7 @@ def core_eia861__yearly_service_territory(
         # Add FIPS IDs based on county & state names:
         .pipe(add_fips_ids, _core_censuspep__yearly_geocodes)
         .assign(short_form=lambda x: _make_yn_bool(x.short_form))
-        .pipe(_post_process)
+        .pipe(_post_process, name="core_eia861__yearly_service_territory")
     )
 
     pk = PUDL_PACKAGE.get_resource(
@@ -1187,7 +1187,7 @@ def _core_eia861__balancing_authority(
     idx_cols = ["report_date", "balancing_authority_id_eia", "utility_id_eia", "state"]
     df = (
         _pre_process(raw_eia861__balancing_authority, idx_cols)
-        .pipe(apply_pudl_dtypes, "eia")
+        .pipe(apply_pudl_dtypes, field_namespace="eia")
         .set_index(["report_date", "balancing_authority_name_eia", "utility_id_eia"])
     )
     # Fill in BA IDs based on date, utility ID, and BA Name:
@@ -1308,7 +1308,7 @@ def core_eia861__yearly_sales(raw_eia861__sales: pd.DataFrame) -> pd.DataFrame:
         short_form=lambda x: _make_yn_bool(x.short_form),
     )
 
-    return _post_process(transformed_sales)
+    return _post_process(transformed_sales, name="core_eia861__yearly_sales")
 
 
 @asset(io_manager_key="pudl_io_manager")
@@ -1362,7 +1362,7 @@ def core_eia861__yearly_short_form(
             "in the database. If non-null values are found, consider adding this column "
             "into the database table and removing this assertion."
         )
-    return _post_process(deduped_sf)
+    return _post_process(deduped_sf, name="core_eia861__yearly_short_form")
 
 
 @asset(io_manager_key="pudl_io_manager")
@@ -1403,7 +1403,9 @@ def core_eia861__yearly_advanced_metering_infrastructure(
             subset=idx_cols,
         )
         .drop(columns=["total_meters"])
-        .pipe(_post_process)
+        .pipe(
+            _post_process, name="core_eia861__yearly_advanced_metering_infrastructure"
+        )
     )
 
     return df
@@ -1485,11 +1487,15 @@ def core_eia861__yearly_demand_response(raw_eia861__demand_response: pd.DataFram
     return (
         Output(
             output_name="core_eia861__yearly_demand_response",
-            value=_post_process(transformed_dr),
+            value=_post_process(
+                transformed_dr, name="core_eia861__yearly_demand_response"
+            ),
         ),
         Output(
             output_name="core_eia861__yearly_demand_response_water_heater",
-            value=_post_process(dr_water),
+            value=_post_process(
+                dr_water, name="core_eia861__yearly_demand_response_water_heater"
+            ),
         ),
     )
 
@@ -1645,15 +1651,21 @@ def core_demand_side_management_eia861(
     return (
         Output(
             output_name="core_eia861__yearly_demand_side_management_sales",
-            value=_post_process(dsm_sales),
+            value=_post_process(
+                dsm_sales, name="core_eia861__yearly_demand_side_management_sales"
+            ),
         ),
         Output(
             output_name="core_eia861__yearly_demand_side_management_ee_dr",
-            value=_post_process(dsm_ee_dr),
+            value=_post_process(
+                dsm_ee_dr, name="core_eia861__yearly_demand_side_management_ee_dr"
+            ),
         ),
         Output(
             output_name="core_eia861__yearly_demand_side_management_misc",
-            value=_post_process(dsm_misc),
+            value=_post_process(
+                dsm_misc, name="core_eia861__yearly_demand_side_management_misc"
+            ),
         ),
     )
 
@@ -1836,15 +1848,21 @@ def core_distributed_generation_eia861(
     return (
         Output(
             output_name="core_eia861__yearly_distributed_generation_tech",
-            value=_post_process(tidy_dg_tech),
+            value=_post_process(
+                tidy_dg_tech, name="core_eia861__yearly_distributed_generation_tech"
+            ),
         ),
         Output(
             output_name="core_eia861__yearly_distributed_generation_fuel",
-            value=_post_process(tidy_dg_fuel),
+            value=_post_process(
+                tidy_dg_fuel, name="core_eia861__yearly_distributed_generation_fuel"
+            ),
         ),
         Output(
             output_name="core_eia861__yearly_distributed_generation_misc",
-            value=_post_process(dg_misc),
+            value=_post_process(
+                dg_misc, name="core_eia861__yearly_distributed_generation_misc"
+            ),
         ),
     )
 
@@ -1868,7 +1886,7 @@ def core_eia861__yearly_distribution_systems(
             subset=["utility_id_eia", "state", "report_date"],
         )
         .drop(columns=["index"])
-        .pipe(_post_process)
+        .pipe(_post_process, name="core_eia861__yearly_distribution_systems")
     )
     return df
 
@@ -1939,7 +1957,7 @@ def core_eia861__yearly_dynamic_pricing(
             .apply(lambda x: x if x in [True, False] else pd.NA)
         )
 
-    return _post_process(tidy_dp)
+    return _post_process(tidy_dp, name="core_eia861__yearly_dynamic_pricing")
 
 
 @asset(io_manager_key="pudl_io_manager")
@@ -2006,7 +2024,7 @@ def core_eia861__yearly_energy_efficiency(
         ),
     ).drop(columns=["website"])
 
-    return _post_process(transformed_ee)
+    return _post_process(transformed_ee, name="core_eia861__yearly_energy_efficiency")
 
 
 @asset(io_manager_key="pudl_io_manager")
@@ -2050,7 +2068,7 @@ def core_eia861__yearly_green_pricing(
         rec_revenue=lambda x: _thousand_to_one(x.rec_revenue),
     )
 
-    return _post_process(transformed_gp)
+    return _post_process(transformed_gp, name="core_eia861__yearly_green_pricing")
 
 
 @asset(io_manager_key="pudl_io_manager")
@@ -2066,7 +2084,7 @@ def core_eia861__yearly_mergers(raw_eia861__mergers: pd.DataFrame) -> pd.DataFra
             subset=["utility_id_eia", "state", "report_date"],
         )
         .drop(columns=["index"])
-        .pipe(_post_process)
+        .pipe(_post_process, name="core_eia861__yearly_mergers")
     )
     return df
 
@@ -2148,11 +2166,16 @@ def core_net_metering_eia861(raw_eia861__net_metering: pd.DataFrame):
     return (
         Output(
             output_name="core_eia861__yearly_net_metering_customer_fuel_class",
-            value=_post_process(tidy_nm_customer_fuel_class),
+            value=_post_process(
+                tidy_nm_customer_fuel_class,
+                name="core_eia861__yearly_net_metering_customer_fuel_class",
+            ),
         ),
         Output(
             output_name="core_eia861__yearly_net_metering_misc",
-            value=_post_process(raw_nm_misc),
+            value=_post_process(
+                raw_nm_misc, name="core_eia861__yearly_net_metering_misc"
+            ),
         ),
     )
 
@@ -2255,11 +2278,16 @@ def core_non_net_metering_eia861(raw_eia861__non_net_metering: pd.DataFrame):
     return (
         Output(
             output_name="core_eia861__yearly_non_net_metering_customer_fuel_class",
-            value=_post_process(tidy_nnm_customer_fuel_class),
+            value=_post_process(
+                tidy_nnm_customer_fuel_class,
+                name="core_eia861__yearly_non_net_metering_customer_fuel_class",
+            ),
         ),
         Output(
             output_name="core_eia861__yearly_non_net_metering_misc",
-            value=_post_process(raw_nnm_misc),
+            value=_post_process(
+                raw_nnm_misc, name="core_eia861__yearly_non_net_metering_misc"
+            ),
         ),
     )
 
@@ -2348,11 +2376,15 @@ def core_operational_data_eia861(raw_eia861__operational_data: pd.DataFrame):
     return (
         Output(
             output_name="core_eia861__yearly_operational_data_revenue",
-            value=_post_process(transformed_od_rev),
+            value=_post_process(
+                transformed_od_rev, name="core_eia861__yearly_operational_data_revenue"
+            ),
         ),
         Output(
             output_name="core_eia861__yearly_operational_data_misc",
-            value=_post_process(transformed_od_misc),
+            value=_post_process(
+                transformed_od_misc, name="core_eia861__yearly_operational_data_misc"
+            ),
         ),
     )
 
@@ -2412,7 +2444,7 @@ def core_eia861__yearly_reliability(
         )
         # Drop duplicate entries for utilities 13027, 3408 and 9697
         .pipe(_drop_dupes, df_name="Reliability", subset=idx_cols)
-        .pipe(_post_process)
+        .pipe(_post_process, name="core_eia861__yearly_reliability")
         .pipe(PUDL_PACKAGE.encode)
     )
 
@@ -2549,15 +2581,21 @@ def core_utility_data_eia861(raw_eia861__utility_data: pd.DataFrame):
     return (
         Output(
             output_name="core_eia861__yearly_utility_data_nerc",
-            value=_post_process(transformed_ud_nerc),
+            value=_post_process(
+                transformed_ud_nerc, name="core_eia861__yearly_utility_data_nerc"
+            ),
         ),
         Output(
             output_name="core_eia861__yearly_utility_data_rto",
-            value=_post_process(transformed_ud_rto),
+            value=_post_process(
+                transformed_ud_rto, name="core_eia861__yearly_utility_data_rto"
+            ),
         ),
         Output(
             output_name="core_eia861__yearly_utility_data_misc",
-            value=_post_process(transformed_ud_misc),
+            value=_post_process(
+                transformed_ud_misc, name="core_eia861__yearly_utility_data_misc"
+            ),
         ),
     )
 
@@ -2601,7 +2639,7 @@ def core_eia861__assn_utility(**data_dfs: dict[str, pd.DataFrame]) -> pd.DataFra
     logger.info("Building an EIA 861 Util-State-Date association table.")
     df = _harvest_associations(
         dfs=list(data_dfs.values()), cols=["report_date", "utility_id_eia", "state"]
-    ).pipe(_post_process)
+    ).pipe(_post_process, name="core_eia861__assn_utility")
     return df
 
 
@@ -2719,7 +2757,7 @@ def core_eia861__assn_balancing_authority(
         pd.concat([early_date_ba_util_state, late_date_ba_util_state])
         # If there's no BA ID, the record is not useful:
         .dropna(subset=["balancing_authority_id_eia"])
-        .pipe(apply_pudl_dtypes, group="eia")
+        .pipe(apply_pudl_dtypes, field_namespace="eia")
     )
     ba_assn_eia861 = ba_assn_eia861[
         # Without both Utility ID and State, there's no association information:
@@ -2797,4 +2835,6 @@ def core_eia861__yearly_balancing_authority(
             f"{len_before} total)."
         )
 
-    return _post_process(ba_eia861_normed)
+    return _post_process(
+        ba_eia861_normed, name="core_eia861__yearly_balancing_authority"
+    )

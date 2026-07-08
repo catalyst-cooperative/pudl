@@ -39,7 +39,7 @@ from pudl.helpers import (
 )
 from pudl.metadata.classes import PUDL_PACKAGE
 from pudl.metadata.dfs import POLITICAL_SUBDIVISIONS
-from pudl.metadata.fields import apply_pudl_dtypes
+from pudl.metadata.dtypes import apply_pudl_dtypes
 from pudl.settings import Ferc1DataConfig
 from pudl.transform.classes import (
     AbstractTableTransformer,
@@ -5299,7 +5299,7 @@ class UtilityPlantSummaryTableTransformer(Ferc1AbstractTableTransformer):
                 raise AssertionError("None of these spot fixes should be negative")
             df = df.reset_index()
 
-        return apply_pudl_dtypes(df, group="ferc1")
+        return apply_pudl_dtypes(df, resource=self.table_id.value)
 
 
 class BalanceSheetLiabilitiesTableTransformer(Ferc1AbstractTableTransformer):
@@ -5536,7 +5536,7 @@ class IncomeStatementsTableTransformer(Ferc1AbstractTableTransformer):
                 & (df.income_type == "net_utility_operating_income")
             )
         ]
-        return apply_pudl_dtypes(df, group="ferc1")
+        return apply_pudl_dtypes(df, resource=self.table_id.value)
 
 
 class RetainedEarningsTableTransformer(Ferc1AbstractTableTransformer):
