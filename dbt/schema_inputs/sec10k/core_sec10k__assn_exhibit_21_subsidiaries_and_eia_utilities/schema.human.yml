@@ -10,11 +10,17 @@ sources:
                 enabled: "{{ target.name == 'etl-full'}}"
               arguments:
                 # local builds
-                min_value: 5708
+                # 2026-07-08: dropped from 5708 to 5705 when 39004
+                # changed its EIA name from Reliant to NorAm (-4 entries)
+                # and 61185 changed from Cycle Power Partners to Cycle Holdings (+1 entry)
+                min_value: 5705
+                # remote builds
                 # As of 2026-06-24 the only extra entry in remote is
                 # great bay power marketing, inc
-                # remote builds
-                max_value: 5709
+                # 2026-07-08: 5971 changed its EIA name from
+                # Great Bay Power Marketing to Great Bay Power Corporation,
+                # which may eliminate this discrepancy
+                max_value: 5706
         columns:
           - name: subsidiary_company_id_sec10k
             data_tests:
