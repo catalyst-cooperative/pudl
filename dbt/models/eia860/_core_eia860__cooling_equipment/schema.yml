@@ -5,22 +5,23 @@ sources:
       - name: _core_eia860__cooling_equipment
         data_tests:
           - expect_columns_not_all_null:
-              description: >
-                Excluded columns are 3rd and 4th tier categories that are very
-                infrequently used. It's fine for them to be null.
+              description:
+                "Excluded columns are 3rd and 4th tier categories that are very infrequently used. It's fine for them to be null.
+
+                "
               arguments:
                 exclude_columns:
                   - tower_type_3
                   - tower_type_4
                   - cooling_type_4
                 row_conditions:
-                  county: "extract(year from report_date) <= 2010"
-                  plant_summer_capacity_mw: "extract(year from report_date) <= 2010"
-                  water_source: "extract(year from report_date) <= 2010"
+                  county: extract(year from report_date) <= 2010
+                  plant_summer_capacity_mw: extract(year from report_date) <= 2010
+                  water_source: extract(year from report_date) <= 2010
           - check_row_counts_per_partition:
               arguments:
                 table_name: _core_eia860__cooling_equipment
-                partition_expr: "EXTRACT(YEAR FROM report_date)"
+                partition_expr: EXTRACT(YEAR FROM report_date)
         columns:
           - name: report_date
           - name: plant_id_eia
@@ -46,7 +47,12 @@ sources:
           - name: intake_rate_100pct_gallons_per_minute
           - name: outlet_distance_shore_feet
           - name: outlet_distance_surface_feet
-          - name: percent_dry_cooling
+          - name: dry_cooling_fraction
+            data_tests:
+              - dbt_expectations.expect_column_values_to_be_between:
+                  arguments:
+                    min_value: 0.0
+                    max_value: 1.0
           - name: plant_summer_capacity_mw
           - name: pond_cost
           - name: pond_operating_date

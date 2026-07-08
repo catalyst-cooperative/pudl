@@ -63,6 +63,7 @@ extensions = [
     "sphinx_issues",
     "sphinx_reredirects",
     "sphinx_design",
+    "sphinx_llm.txt",
     "sphinxcontrib.bibtex",
     "sphinxcontrib.googleanalytics",
     "sphinxcontrib.mermaid",

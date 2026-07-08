@@ -35,8 +35,11 @@ jobs:
           context: .
           file: builds/Dockerfile
           push: false
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          # Docker caching disabled entirely (all cache-from/ cache-to removed across
+          # build-pudl.yml, deploy-pudl.yml, build-deploy-ferceqr.yml, and here) to
+          # avoid it taking up all available GitHub Actions cache quota and evicting the
+          # Zenodo/FERC caches. Because of the way we are installing pixi dependencies
+          # in the Dockerfile, this does not significantly increase build time.
 
   pudl_devcontainer_smoke_test:
     name: Test building and running the PUDL devcontainer
@@ -70,3 +73,10 @@ jobs:
           # build identifier in CI and is never pushed to GHCR.
           imageName: ghcr.io/catalyst-cooperative/pudl-devcontainer
           runCmd: pixi run --frozen pytest-unit
+          # This action writes its BuildKit cache to the GitHub Actions cache
+          # backend by default. It runs on every PR push and was consuming the
+          # majority of the repo's shared 10GB cache quota (8.2 of 12.8GB
+          # measured on 2026-07-07), evicting the Zenodo/FERC caches
+          # ci-integration depends on. This is a correctness smoke test, not
+          # a performance-sensitive build, so disable caching entirely.
+          noCache: true

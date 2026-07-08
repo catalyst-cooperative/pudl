@@ -28,6 +28,10 @@ jobs:
         with:
           locked: true
           cache: true
+          # Manual-dispatch-only workflow: writing here would create a
+          # branch-scoped cache that's never reused. build-deploy-docs.yml
+          # and warm-gha-caches.yml keep the main-branch copy fresh.
+          cache-write: false
 
       - name: Make input, output and dagster dirs
         run: mkdir -p ${{ env.PUDL_OUTPUT }} ${{ env.PUDL_INPUT }} ${{ env.DAGSTER_HOME }}

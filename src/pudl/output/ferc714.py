@@ -18,7 +18,7 @@ from pudl.analysis.timeseries_cleaning import (
     ImputeTimeseriesSettings,
     impute_timeseries_asset_factory,
 )
-from pudl.metadata.fields import apply_pudl_dtypes
+from pudl.metadata.dtypes import apply_pudl_dtypes
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -207,11 +207,20 @@ def filled_core_eia861__yearly_balancing_authority(
             if key not in dfi.index:
                 rows.append({**ref, "report_date": key[1]})
     df = pd.concat(
-        [df, apply_pudl_dtypes(pd.DataFrame(rows), group="eia")], axis="index"
+        [
+            df,
+            apply_pudl_dtypes(
+                pd.DataFrame(rows),
+                resource="core_eia861__yearly_balancing_authority",
+            ),
+        ],
+        axis="index",
     )
     # Remove balancing authorities treated as utilities
     mask = df["balancing_authority_id_eia"].isin([util["id"] for util in UTILITIES])
-    return apply_pudl_dtypes(df[~mask], group="eia")
+    return apply_pudl_dtypes(
+        df[~mask], resource="core_eia861__yearly_balancing_authority"
+    )
 
 
 def filled_core_eia861__assn_balancing_authority(
@@ -250,7 +259,15 @@ def filled_core_eia861__assn_balancing_authority(
             tables.append(ref.assign(report_date=key[1]))
             replaced |= mask
     # Append to original table with matching rows removed
-    df = pd.concat([df[~replaced], apply_pudl_dtypes(pd.concat(tables), group="eia")])
+    df = pd.concat(
+        [
+            df[~replaced],
+            apply_pudl_dtypes(
+                pd.concat(tables),
+                resource="core_eia861__assn_balancing_authority",
+            ),
+        ]
+    )
     # Remove balancing authorities treated as utilities
     mask = np.zeros(df.shape[0], dtype=bool)
     tables = []
@@ -290,7 +307,10 @@ def filled_core_eia861__assn_balancing_authority(
     return (
         pd.concat([df[~mask]] + tables)
         .drop_duplicates()
-        .pipe(apply_pudl_dtypes, group="eia")
+        .pipe(
+            apply_pudl_dtypes,
+            resource="core_eia861__assn_balancing_authority",
+        )
     )
 
 
@@ -342,7 +362,7 @@ def filled_service_territory_eia861(
         mask &= mdf["report_date"].eq(years[idx])
         tables.append(mdf[mask].assign(report_date=row["report_date"]))
     return pd.concat([core_eia861__yearly_service_territory] + tables).pipe(
-        apply_pudl_dtypes, group="eia"
+        apply_pudl_dtypes, resource="core_eia861__yearly_service_territory"
     )
 
 
@@ -482,7 +502,7 @@ def _out_ferc714__categorized_respondents(
             categorized[categorized.respondent_type.isnull()],
         ]
     )
-    categorized = apply_pudl_dtypes(categorized)
+    categorized = apply_pudl_dtypes(categorized, field_namespace="ferc714")
     return categorized
 
 
@@ -571,7 +591,10 @@ def out_ferc714__respondents_with_fips(
                 _out_ferc714__categorized_respondents.respondent_type.isnull()
             ],
         ]
-    ).pipe(apply_pudl_dtypes)
+    ).pipe(
+        apply_pudl_dtypes,
+        resource="out_ferc714__respondents_with_fips",
+    )
     return fipsified
 
 
@@ -594,7 +617,7 @@ def _out_ferc714__georeferenced_counties(
     counties_gdf = pudl.analysis.service_territory.add_geometries(
         out_ferc714__respondents_with_fips,
         census_gdf=out_censusdp1tract__counties,
-    ).pipe(apply_pudl_dtypes)
+    ).pipe(apply_pudl_dtypes, field_namespace="ferc714")
     return counties_gdf
 
 
@@ -629,7 +652,10 @@ def out_ferc714__georeferenced_respondents(
                 ["report_date", "respondent_id_ferc714", "demand_annual_mwh"]
             ]
         )
-        .pipe(apply_pudl_dtypes)
+        .pipe(
+            apply_pudl_dtypes,
+            resource="out_ferc714__georeferenced_respondents",
+        )
     )
     return respondents_gdf
 
@@ -686,7 +712,7 @@ def out_ferc714__summarized_demand(
     # Merge respondent categorizations into the annual demand
     demand_summary = pd.merge(
         demand_annual, _out_ferc714__categorized_respondents, how="left"
-    ).pipe(apply_pudl_dtypes)
+    ).pipe(apply_pudl_dtypes, resource="out_ferc714__summarized_demand")
     return demand_summary
 
 

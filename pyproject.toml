@@ -118,6 +118,7 @@ pandas = ">=2.3"
 pandoc = ">=3.7"
 pandera-polars = ">=0.31"
 parallel = ">=20250822"
+pint = ">=0.25.3"
 polars = ">=1.42" # v1.41.2 fixed a big memory leak
 prek = ">=0.4"
 # potentially unresolveable breaking changes in prettier 4.x
@@ -152,6 +153,7 @@ sphinx = ">=9"
 sphinx-autoapi = ">=3.8"
 sphinx-design = ">=0.7.0"
 sphinx-issues = ">=5"
+sphinx-llm = ">=0.4.1"
 sphinx-reredirects = ">=1"
 sphinxcontrib-bibtex = ">=2.6"
 sphinxcontrib-googleanalytics = ">=0.4"
@@ -169,6 +171,7 @@ usaddress = ">=0.5.16,<0.6"
 uv = ">=0.11"
 xlsxwriter = ">=3.2"
 zip = ">=3.0"
+gh = ">=2.96.0,<3"
 
 [tool.pixi.pypi-dependencies]
 # Install the local package in editable mode. Assume dependencies are specified either
@@ -178,7 +181,6 @@ zip = ">=3.0"
 detect-secrets = ">=1.5"
 
 [tool.pixi.feature.dev.dependencies]
-gh = ">=2" # GitHub CLI
 jq = ">=1.8" # Primarily for agent skills use
 marimo = ">=0.13"
 matplotx = ">=0.3.10"
