@@ -36,11 +36,8 @@ authors = [{ name = "Catalyst Cooperative", email = "pudl@catalyst.coop" }]
 requires-python = ">=3.13,<3.14.0a0"
 dynamic = ["version"]
 license = "MIT"
-# All dependencies are managed through pixi, ensuring they're always installed from
-# conda-forge if available. See tool.pixi.dependencies, tool.pixi.pypi-dependencies,
-# and tool.pixi.package.run-dependencies below. This means that the package cannot be
-# installed with pip or uv, but it is set up to be built with pixi into a conda package
-# which can be installed with conda, mamba, micromamba, pixi, etc.
+# Dependencies are managed via pixi, so they're installed from conda-forge if available.
+# See tool.pixi.dependencies and tool.pixi.pypi-dependencies below.
 dependencies = []
 
 [project.urls]
