@@ -14,6 +14,17 @@ Enhancements
 * Added experimental Parquet outputs derived from the FERC DBF databases, and basic
   ``datpackage.json`` metadata describing their schemas to support querying and preview
   through the `PUDL Data Viewer <https://data.catalyst.coop>`__. See PR :pr:`5339`.
+* Standardized all unit strings in :mod:`pudl.metadata.fields` to
+  `Pint expression syntax <https://pint.readthedocs.io/>`__, replacing ad-hoc
+  abbreviations (``gpm``, ``min``, ``F``, ``cfm``), underscore-separated
+  compound units (``lb_per_MMBTU``, ``USD_per_MWh``), and inconsistent
+  capitalization. A new :mod:`pudl.metadata.units` module defines
+  ``PUDL_UNIT_REGISTRY``, a ``pint.UnitRegistry`` extended with energy-industry
+  units (``MMBtu``, ``Mcf``, ``MMcf``, ``TBtu``, ``VAr``, ``USD``). Added extensive
+  new per-column units annotations. These changes should facilitate programmatic unit
+  parsing, display, and conversion, and they are now surfaced in the PUDL metadata and
+  datapackage outputs as machine-readable Pint-compatible unit definitions. See
+  :issue:`5078` and :pr:`5361`.
 
 New Data
 ^^^^^^^^
@@ -42,6 +53,9 @@ EIA-860M
 
 Documentation
 ^^^^^^^^^^^^^
+* Expanded the developer docs around metadata naming, typing, and updates to explain
+  how unit annotations, field namespaces, and namespace/table-specific metadata
+  overrides should be defined and maintained. See :pr:`5361`.
 
 * Set up the `sphinx_llm <https://github.com/NVIDIA/sphinx-llm>`__ Sphinx extension to
   generate a Markdown version of the PUDL documentation, suitable for consumption by
@@ -50,9 +64,31 @@ Documentation
 New Data Tests & Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* A new :func:`~pudl.dagster.asset_checks.valid_datapackage_unit_strings_check` asset
+  check factory validates all unit strings in the PUDL datapackage descriptor against
+  the registry after each ETL run. About a dozen fields in PHMSA gas and EIA-860 FGD
+  data that were typed as ``number`` but contain integer counts have been corrected to
+  ``"type": "integer"``. A bug where ``convert_cols_dtypes`` and ``get_parquet_table``
+  overrides in ``FIELD_METADATA_BY_RESOURCE``, were sometimes ignored has been fixed.
+* Added ``dbt`` ``expect_column_values_to_be_between`` tests to codify range
+  expectations for columns stated as percentages (0, 100) vs those that represent
+  fractional values (0, 1). Column naming still needs to be standardized. FERC Form 1
+  fraction tests use ``error_if`` thresholds to accommodate a known small number of
+  out-of-range values. See :pr:`5361`.
+
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* Three EIA-860 columns that EIA reports as percentages but PUDL describes as
+  fractions have been corrected. ``standard_so2_percent_scrubbed`` (boilers) was
+  already stored as a fraction but misnamed; it is now renamed
+  ``standard_so2_fraction_scrubbed``. ``max_oil_heat_input`` (multi-fuel generators)
+  and ``dry_cooling_pct`` (cooling equipment) were extracted as percentages; both are
+  now divided by 100 in the transform step and the cooling column is renamed
+  ``dry_cooling_fraction``. Field descriptions for the FERC1 ``*_fraction_cost``
+  columns have been updated to say "fraction (0-1)" instead of "percentage".
+  All true ``_pct`` columns now carry an explicit ``"unit": "percent"`` annotation.
+  See :pr:`5361`.
 * Fixed several Click-based console scripts so shell callers now receive correct
   non-zero exit codes on failure. The script-entry conventions in
   :mod:`pudl.scripts` now use Click-native exits and call ``main()`` directly in
@@ -81,6 +117,12 @@ Bug Fixes & Data Cleaning
   before new outputs were written, and a staging copy of a stable release tag was
   incorrectly treated as an immutable path that could never be cleared. See issue
   :issue:`5382` and PR :pr:`5384`.
+* Added two new optional arguments to ``get_pudl_dtypes`` and ``apply_pudl_dtypes``.
+  ``resource`` (aka table) name will now return all of the authoritative
+  resource-specific dtypes instead of the generic or source-specific types.
+  ``dtype_backend`` will now return the types for the specific file type, which extends
+  the previous behavior of returning pandas dtypes. The dtype management now lives in
+  :mod:`pudl.metadata.dtypes`. See :pr:`5361`.
 * Fixed ``pudl_deploy`` returning a plain integer exit code from its Click command,
   which Click's standalone mode silently discards, so shell callers previously saw
   exit code 0 even when a deployment stage failed. It now uses ``ctx.exit()`` like
@@ -104,6 +146,12 @@ Developer Experience
 ^^^^^^^^^^^^^^^^^^^^
 
 * Reduced spurious logging and error output from our unit tests. See PR :pr:`5362`.
+* Added two new optional arguments to ``get_pudl_dtypes`` and ``apply_pudl_dtypes``:
+  ``resource`` (aka table) name will now return all of the authoritative
+  resource-specific dtypes instead of the generic or source-specific types.
+  ``dtype_backend`` will now return the types for the specific file type, which extends
+  the previous behavior of returning pandas dtypes. The dtype management now lives in
+  :mod:`pudl.metadata.dtypes`. See :pr:`5361`.
 * Reworked the nightly PUDL build and deployment automation to send start and
   status notifications to the ``pudl-deployments`` Zulip stream directly from
   GitHub Actions and the batch build script, with per-stage timing summaries and

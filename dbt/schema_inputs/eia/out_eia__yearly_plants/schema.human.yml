@@ -54,3 +54,10 @@ sources:
                 compare_model: source("pudl", "out_eia__yearly_generators")
                 multiplier: 1
                 date_column: report_date
+        columns:
+          - name: balancing_authority_code_eia_consistent_rate
+            data_tests:
+              - dbt_expectations.expect_column_values_to_be_between:
+                  arguments:
+                    min_value: 0.0
+                    max_value: 1.0
