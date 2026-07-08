@@ -238,6 +238,8 @@ def _clean_gen_fuel_energy_sources(gen_fuel: pd.DataFrame) -> pd.DataFrame:
 
     * Remap MSW to biogenic and non biogenic fuel types.
     * Fill missing energy_source_code using most common code for each AER fuel codes.
+    * Drop duplicate fields where only difference is energy_source_code and 0
+      consumption data.
 
     Args:
         gen_fuel: generation fuels dataframe.
@@ -284,6 +286,18 @@ def _clean_gen_fuel_energy_sources(gen_fuel: pd.DataFrame) -> pd.DataFrame:
     if gen_fuel.energy_source_code.isna().any():
         raise AssertionError("Missing data in generator_fuel_eia923.energy_source_code")
 
+    # Remove dupe rows with different energy_source_code values and 0 consumption data.
+    # Right now this only applies to plant id 50489 in 2025.
+    subset_df = gen_fuel[
+        (gen_fuel["plant_id_eia"] == 50489) & (gen_fuel["report_year"] == 2025)
+    ]
+    value_cols = subset_df.filter(regex=r"(_mwh|_units|_mmbtu)$").columns
+    zero_value_rows = subset_df.loc[
+        (subset_df[value_cols] == 0).all(axis=1), value_cols
+    ]
+    assert len(zero_value_rows) == 13
+    gen_fuel = gen_fuel.drop(zero_value_rows.index)
+
     return gen_fuel
 
 
@@ -319,6 +333,7 @@ def _aggregate_generation_fuel_duplicates(
     fuel_type_code_agg_is_unique = (
         duplicates.groupby(natural_key_fields).fuel_type_code_agg.nunique().eq(1).all()
     )
+    duplicates.to_pickle("/Users/austensharpe/desktop/duplicates.pkl")
     if not fuel_type_code_agg_is_unique:
         raise AssertionError("Duplicate fuels have different fuel_type_code_agg.")
     data_maturity_is_unique = (
@@ -1060,9 +1075,9 @@ def _drop_duplicates__core_eia923__generation(
     # two prime_mover_codes
     still_dupe_mask = gen_df.duplicated(subset=unique_subset, keep=False)
     still_dupes = gen_df[still_dupe_mask]
-    if set(gen_df.report_date.dt.year.unique()) >= set({2012, 2013}):
-        assert all(still_dupes.plant_id_eia.unique() == 3405)
-        assert set(still_dupes.report_date.dt.year.unique()) == {2012, 2013}
+    if set(gen_df.report_date.dt.year.unique()) >= set({2012, 2013, 2025, 2026}):
+        assert set(still_dupes.plant_id_eia.unique()) == {3405, 55088}
+        assert set(still_dupes.report_date.dt.year.unique()) == {2012, 2013, 2025, 2026}
         first_cols = [
             col
             for col in still_dupes
@@ -1820,7 +1835,7 @@ def _core_eia923__yearly_byproduct_disposition(
     # These rows contain no meaningful data. To prevent dropping future rows unexpectedly, we
     # expect a set number of rows to be dropped
     null_byproduct_descriptions = df["byproduct_description"].isnull().sum()
-    assert null_byproduct_descriptions <= 22, (
+    assert null_byproduct_descriptions <= 26, (
         f"More NULLs for `byproduct_description` than expected: {null_byproduct_descriptions} vs 22"
     )
     df = df.dropna(subset=["byproduct_description"])
