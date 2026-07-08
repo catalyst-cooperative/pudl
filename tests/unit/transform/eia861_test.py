@@ -5,7 +5,7 @@ from io import StringIO
 import pandas as pd
 import pytest
 
-from pudl.metadata.fields import apply_pudl_dtypes
+from pudl.metadata.dtypes import apply_pudl_dtypes
 from pudl.transform import eia861
 
 # Test that rows with the same primary key are combined correctly
@@ -17,7 +17,7 @@ actual_1 = pd.read_csv(
 2019-01-01,88888,,ERCOT,800
 """
     ),
-).pipe(apply_pudl_dtypes, group="eia")
+).pipe(apply_pudl_dtypes, field_namespace="eia")
 
 expected_1 = pd.read_csv(
     StringIO(
@@ -26,7 +26,7 @@ expected_1 = pd.read_csv(
 2019-01-01,88888,,ERCOT,800
 """
     ),
-).pipe(apply_pudl_dtypes, group="eia")
+).pipe(apply_pudl_dtypes, field_namespace="eia")
 
 # Test that rows without 88888 values are not affected
 actual_2 = pd.read_csv(
@@ -37,7 +37,7 @@ actual_2 = pd.read_csv(
 2019-01-01,10000,,ERCOT,800
 """
     ),
-).pipe(apply_pudl_dtypes, group="eia")
+).pipe(apply_pudl_dtypes, field_namespace="eia")
 
 expected_2 = pd.read_csv(
     StringIO(
@@ -47,7 +47,7 @@ expected_2 = pd.read_csv(
 2019-01-01,10000,,ERCOT,800
 """
     ),
-).pipe(apply_pudl_dtypes, group="eia")
+).pipe(apply_pudl_dtypes, field_namespace="eia")
 
 # Test that duplicate rows get dropped when non numeric values don't match
 actual_3 = pd.read_csv(
@@ -58,7 +58,7 @@ actual_3 = pd.read_csv(
 2019-01-01,88888,,ERCOT,800
 """
     ),
-).pipe(apply_pudl_dtypes, group="eia")
+).pipe(apply_pudl_dtypes, field_namespace="eia")
 
 expected_3 = pd.read_csv(
     StringIO(
@@ -67,7 +67,7 @@ expected_3 = pd.read_csv(
     2019-01-01,88888,,ERCOT,800
 """
     ),
-).pipe(apply_pudl_dtypes, group="eia")
+).pipe(apply_pudl_dtypes, field_namespace="eia")
 
 # Test that NA values in the index cols aren't converted into two rows
 actual_4 = pd.read_csv(
@@ -78,7 +78,7 @@ actual_4 = pd.read_csv(
 2019-01-01,88888,,ERCOT,800
 """
     ),
-).pipe(apply_pudl_dtypes, group="eia")
+).pipe(apply_pudl_dtypes, field_namespace="eia")
 
 expected_4 = pd.read_csv(
     StringIO(
@@ -87,7 +87,7 @@ expected_4 = pd.read_csv(
 2019-01-01,88888,,ERCOT,1100
 """
     ),
-).pipe(apply_pudl_dtypes, group="eia")
+).pipe(apply_pudl_dtypes, field_namespace="eia")
 
 
 @pytest.mark.parametrize(

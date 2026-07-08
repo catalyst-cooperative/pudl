@@ -6,7 +6,7 @@ import pandas as pd
 import pytest
 
 from pudl.analysis import allocate_gen_fuel
-from pudl.metadata.fields import apply_pudl_dtypes
+from pudl.metadata.dtypes import apply_pudl_dtypes
 
 # Reusable input files...
 
@@ -71,7 +71,7 @@ def test_distribute_annually_reported_data_to_months_if_annual():
     200,2020-11-01,B1,BIT,ST,0.0
     200,2020-12-01,B1,BIT,ST,{annual_2020}"""
         )
-    ).pipe(apply_pudl_dtypes, group="eia")
+    ).pipe(apply_pudl_dtypes, field_namespace="eia")
 
     out = allocate_gen_fuel.distribute_annually_reported_data_to_months_if_annual(
         df=bf_with_monthly_annual_mix,
@@ -111,7 +111,7 @@ GENS_EIA860_BASE = pd.read_csv(
 2019-01-01,8023,2,ST,2,556.0,1,existing,nan,SUB,SUB,BIT,nan,nan,nan,nan,DFO,nan,nan,nan
 """
     ),
-).pipe(apply_pudl_dtypes, group="eia")
+).pipe(apply_pudl_dtypes, field_namespace="eia")
 
 # Base boiler fuel EIA923 data
 BOILER_FUEL_EIA923_BASE = pd.read_csv(
@@ -123,7 +123,7 @@ BOILER_FUEL_EIA923_BASE = pd.read_csv(
 2019-01-01,8023,2,RC,ST,29096935.279
 """
     ),
-).pipe(apply_pudl_dtypes, group="eia")
+).pipe(apply_pudl_dtypes, field_namespace="eia")
 
 # Base generation EIA923 data
 GEN_EIA923_BASE = pd.read_csv(
@@ -133,7 +133,7 @@ GEN_EIA923_BASE = pd.read_csv(
 2019-01-01,8023,2,2759826.0
 """
     ),
-).pipe(apply_pudl_dtypes, group="eia")
+).pipe(apply_pudl_dtypes, field_namespace="eia")
 
 # Base boiler generator association EIA860 data
 BOILER_GENERATOR_ASSN_EIA860_BASE = pd.read_csv(
@@ -143,7 +143,7 @@ BOILER_GENERATOR_ASSN_EIA860_BASE = pd.read_csv(
 8023,2,2,2019-01-01
 """
     ),
-).pipe(apply_pudl_dtypes, group="eia")
+).pipe(apply_pudl_dtypes, field_namespace="eia")
 
 # Base generation fuel EIA923 data
 GENERATION_FUEL_EIA923_BASE = pd.read_csv(
@@ -154,7 +154,7 @@ GENERATION_FUEL_EIA923_BASE = pd.read_csv(
 2019-01-01,8023,SUB,ST,10000.0, 100000.0,100000.0
 """
     ),
-).pipe(apply_pudl_dtypes, group="eia")
+).pipe(apply_pudl_dtypes, field_namespace="eia")
 
 # Generation fuel EIA923 data with extra energy source code
 GENERATION_FUEL_EIA923_EXTRA_ESC = pd.read_csv(
@@ -165,7 +165,7 @@ GENERATION_FUEL_EIA923_EXTRA_ESC = pd.read_csv(
 2019-01-01,8023,SUB,ST,10000.0, 100000.0,100000.0
 """
     ),
-).pipe(apply_pudl_dtypes, group="eia")
+).pipe(apply_pudl_dtypes, field_namespace="eia")
 
 # Boiler fuel EIA923 data with extra prime mover
 BOILER_FUEL_EIA923_EXTRA_PM = BOILER_FUEL_EIA923_BASE.copy()
