@@ -1835,7 +1835,7 @@ def _core_eia923__yearly_byproduct_disposition(
     # expect a set number of rows to be dropped
     null_byproduct_descriptions = df["byproduct_description"].isnull().sum()
     assert null_byproduct_descriptions <= 26, (
-        f"More NULLs for `byproduct_description` than expected: {null_byproduct_descriptions} vs 22"
+        f"More NULLs for `byproduct_description` than expected: {null_byproduct_descriptions} vs 26"
     )
     df = df.dropna(subset=["byproduct_description"])
 
