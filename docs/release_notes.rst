@@ -29,6 +29,12 @@ EIA-176
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
+EIA-923
+~~~~~~~
+
+* Added early release data for EIA-923 2025. See issue :issue:`5372` and PR :pr:`5391`.
+* Added 2026 data through April for EIA-923. See :pr:`5391`.
+
 EIA-860
 ~~~~~~~
 
