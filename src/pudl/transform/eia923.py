@@ -333,7 +333,6 @@ def _aggregate_generation_fuel_duplicates(
     fuel_type_code_agg_is_unique = (
         duplicates.groupby(natural_key_fields).fuel_type_code_agg.nunique().eq(1).all()
     )
-    duplicates.to_pickle("/Users/austensharpe/desktop/duplicates.pkl")
     if not fuel_type_code_agg_is_unique:
         raise AssertionError("Duplicate fuels have different fuel_type_code_agg.")
     data_maturity_is_unique = (
