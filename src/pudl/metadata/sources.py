@@ -512,6 +512,50 @@ SOURCES: dict[str, Any] = {
         "license_raw": LICENSES["us-govt"],
         "license_pudl": LICENSES["cc-by-4.0"],
     },
+    "epamats": {
+        "title": "EPA MATS -- Mercury and Air Toxics Standards",
+        "path": "https://www.epa.gov/stationary-sources-air-pollution/mercury-and-air-toxics-standards",
+        "description": (
+            "The EPA Mercury and Air Toxics Standards (MATS) dataset provides "
+            "detailed information on emissions of hazardous air pollutants, "
+            "specifically mercury and other toxic substances, from power plants in "
+            "the United States. Established by the U.S. Environmental Protection "
+            "Agency (EPA) under the Clean Air Act, MATS aims to reduce air "
+            "pollution and its associated health risks by setting limits on the "
+            "emissions of mercury, arsenic, acid gases, and other pollutants from "
+            "coal- and oil-fired power plants. The dataset typically includes "
+            "metrics such as emission levels, compliance testing results, facility "
+            "locations, and operational data. It serves as a critical resource for "
+            "policymakers, researchers, and environmental organizations to assess "
+            "the effectiveness of pollution control measures, monitor compliance, "
+            "and evaluate the environmental and public health impacts of power "
+            "plant emissions."
+        ),
+        "concept_doi": "10.5281/zenodo.21204535",
+        "source_file_dict": {
+            "respondents": "Power plants over 25MW",
+            "source_format": "Comma Separated Value (.csv)",
+        },
+        "working_partitions": {
+            "year_quarters": _year_quarter_range(
+                start_quarter="2015q1", end_quarter="2026q1"
+            )
+        },
+        "contributors": [
+            CONTRIBUTORS["catalyst-cooperative"],
+        ],
+        "keywords": sorted(
+            set(
+                ["mercury", "toxics", "standards", "air", "environment", "epa"]
+                + KEYWORDS["epa"]
+                + KEYWORDS["us_govt"]
+                + KEYWORDS["electricity"]
+                + KEYWORDS["environment"]
+            )
+        ),
+        "license_raw": LICENSES["us-govt"],
+        "license_pudl": LICENSES["cc-by-4.0"],
+    },
     "epacamd_eia": {
         "title": "EPA CAMD to EIA Power Sector Data Crosswalk",
         "path": "https://github.com/USEPA/camd-eia-crosswalk",
