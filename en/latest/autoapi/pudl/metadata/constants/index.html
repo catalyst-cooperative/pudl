@@ -17,7 +17,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.metadata.constants &#8212; PUDL 2026.6.2.dev30 documentation</title>
+    <title>pudl.metadata.constants &#8212; PUDL 2026.6.2.dev32 documentation</title>
   
   
   
@@ -50,7 +50,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5" />
 
-    <script src="../../../../_static/documentation_options.js?v=d0899e55"></script>
+    <script src="../../../../_static/documentation_options.js?v=597870d8"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -141,8 +141,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.6.2.dev30 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.6.2.dev30 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.6.2.dev32 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.6.2.dev32 documentation - Home"/>
   
   
 </a></div>
@@ -487,6 +487,7 @@
 <li class="toctree-l3 current active"><a class="current reference internal" href="#">pudl.metadata.constants</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../descriptions/index.html">pudl.metadata.descriptions</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../dfs/index.html">pudl.metadata.dfs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../dtypes/index.html">pudl.metadata.dtypes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../enums/index.html">pudl.metadata.enums</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../fields/index.html">pudl.metadata.fields</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../helpers/index.html">pudl.metadata.helpers</a></li>
@@ -525,6 +526,7 @@
 </ul>
 </details></li>
 <li class="toctree-l3"><a class="reference internal" href="../sources/index.html">pudl.metadata.sources</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../units/index.html">pudl.metadata.units</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../warnings/index.html">pudl.metadata.warnings</a></li>
 </ul>
 </details></li>
@@ -767,37 +769,16 @@
 <h2>Attributes<a class="headerlink" href="#attributes" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.constants.FIELD_DTYPES_POLARS" title="pudl.metadata.constants.FIELD_DTYPES_POLARS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FIELD_DTYPES_POLARS</span></code></a></p></td>
-<td><p>Polars data type by simplified PUDL field type.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.constants.FIELD_DTYPES_DUCKDB" title="pudl.metadata.constants.FIELD_DTYPES_DUCKDB"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FIELD_DTYPES_DUCKDB</span></code></a></p></td>
-<td><p>DuckDB data type by simplified PUDL field type.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.constants.FIELD_DTYPES_PANDAS" title="pudl.metadata.constants.FIELD_DTYPES_PANDAS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FIELD_DTYPES_PANDAS</span></code></a></p></td>
-<td><p>Pandas data type by simplified PUDL field type.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.constants.FIELD_DTYPES_PYARROW" title="pudl.metadata.constants.FIELD_DTYPES_PYARROW"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FIELD_DTYPES_PYARROW</span></code></a></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.constants.FIELD_DTYPES_SQL" title="pudl.metadata.constants.FIELD_DTYPES_SQL"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FIELD_DTYPES_SQL</span></code></a></p></td>
-<td><p>SQLAlchemy column types by simplified PUDL field type.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.constants.CONSTRAINT_DTYPES" title="pudl.metadata.constants.CONSTRAINT_DTYPES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CONSTRAINT_DTYPES</span></code></a></p></td>
-<td><p>Python types for field constraints by simplified PUDL field type.</p></td>
-</tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.constants.LICENSES" title="pudl.metadata.constants.LICENSES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LICENSES</span></code></a></p></td>
 <td><p>License attributes.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.constants.PERIODS" title="pudl.metadata.constants.PERIODS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PERIODS</span></code></a></p></td>
-<td><p>Functions converting datetimes to period start times, by time period.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.constants.CONTRIBUTORS" title="pudl.metadata.constants.CONTRIBUTORS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CONTRIBUTORS</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.constants.CONTRIBUTORS" title="pudl.metadata.constants.CONTRIBUTORS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CONTRIBUTORS</span></code></a></p></td>
 <td><p>PUDL Contributors for attribution.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.constants.KEYWORDS" title="pudl.metadata.constants.KEYWORDS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">KEYWORDS</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.constants.KEYWORDS" title="pudl.metadata.constants.KEYWORDS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">KEYWORDS</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.constants.XBRL_TABLES" title="pudl.metadata.constants.XBRL_TABLES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">XBRL_TABLES</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.constants.XBRL_TABLES" title="pudl.metadata.constants.XBRL_TABLES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">XBRL_TABLES</span></code></a></p></td>
 <td><p>List of all known to be valid FERC Form 1 XBRL tables.</p></td>
 </tr>
 </tbody>
@@ -807,50 +788,9 @@
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <dl class="py data">
-<dt class="sig sig-object py" id="pudl.metadata.constants.FIELD_DTYPES_POLARS">
-<span class="sig-prename descclassname"><span class="pre">pudl.metadata.constants.</span></span><span class="sig-name descname"><span class="pre">FIELD_DTYPES_POLARS</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/constants.html#FIELD_DTYPES_POLARS"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.constants.FIELD_DTYPES_POLARS" title="Link to this definition">#</a></dt>
-<dd><p>Polars data type by simplified PUDL field type.</p>
-</dd></dl>
-
-<dl class="py data">
-<dt class="sig sig-object py" id="pudl.metadata.constants.FIELD_DTYPES_DUCKDB">
-<span class="sig-prename descclassname"><span class="pre">pudl.metadata.constants.</span></span><span class="sig-name descname"><span class="pre">FIELD_DTYPES_DUCKDB</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/constants.html#FIELD_DTYPES_DUCKDB"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.constants.FIELD_DTYPES_DUCKDB" title="Link to this definition">#</a></dt>
-<dd><p>DuckDB data type by simplified PUDL field type.</p>
-</dd></dl>
-
-<dl class="py data">
-<dt class="sig sig-object py" id="pudl.metadata.constants.FIELD_DTYPES_PANDAS">
-<span class="sig-prename descclassname"><span class="pre">pudl.metadata.constants.</span></span><span class="sig-name descname"><span class="pre">FIELD_DTYPES_PANDAS</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/constants.html#FIELD_DTYPES_PANDAS"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.constants.FIELD_DTYPES_PANDAS" title="Link to this definition">#</a></dt>
-<dd><p>Pandas data type by simplified PUDL field type.</p>
-</dd></dl>
-
-<dl class="py data">
-<dt class="sig sig-object py" id="pudl.metadata.constants.FIELD_DTYPES_PYARROW">
-<span class="sig-prename descclassname"><span class="pre">pudl.metadata.constants.</span></span><span class="sig-name descname"><span class="pre">FIELD_DTYPES_PYARROW</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://arrow.apache.org/docs/python/generated/pyarrow.DataType.html#pyarrow.DataType" title="(in Apache Arrow v24.0.0)"><span class="pre">pyarrow.DataType</span></a><span class="p"><span class="pre">]</span></span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/constants.html#FIELD_DTYPES_PYARROW"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.constants.FIELD_DTYPES_PYARROW" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py data">
-<dt class="sig sig-object py" id="pudl.metadata.constants.FIELD_DTYPES_SQL">
-<span class="sig-prename descclassname"><span class="pre">pudl.metadata.constants.</span></span><span class="sig-name descname"><span class="pre">FIELD_DTYPES_SQL</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="../classes/index.html#pudl.metadata.classes.Field.type" title="pudl.metadata.classes.Field.type"><span class="pre">type</span></a><span class="p"><span class="pre">]</span></span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/constants.html#FIELD_DTYPES_SQL"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.constants.FIELD_DTYPES_SQL" title="Link to this definition">#</a></dt>
-<dd><p>SQLAlchemy column types by simplified PUDL field type.</p>
-</dd></dl>
-
-<dl class="py data">
-<dt class="sig sig-object py" id="pudl.metadata.constants.CONSTRAINT_DTYPES">
-<span class="sig-prename descclassname"><span class="pre">pudl.metadata.constants.</span></span><span class="sig-name descname"><span class="pre">CONSTRAINT_DTYPES</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="../classes/index.html#pudl.metadata.classes.Field.type" title="pudl.metadata.classes.Field.type"><span class="pre">type</span></a><span class="p"><span class="pre">]</span></span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/constants.html#CONSTRAINT_DTYPES"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.constants.CONSTRAINT_DTYPES" title="Link to this definition">#</a></dt>
-<dd><p>Python types for field constraints by simplified PUDL field type.</p>
-</dd></dl>
-
-<dl class="py data">
 <dt class="sig sig-object py" id="pudl.metadata.constants.LICENSES">
 <span class="sig-prename descclassname"><span class="pre">pudl.metadata.constants.</span></span><span class="sig-name descname"><span class="pre">LICENSES</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/constants.html#LICENSES"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.constants.LICENSES" title="Link to this definition">#</a></dt>
 <dd><p>License attributes.</p>
-</dd></dl>
-
-<dl class="py data">
-<dt class="sig sig-object py" id="pudl.metadata.constants.PERIODS">
-<span class="sig-prename descclassname"><span class="pre">pudl.metadata.constants.</span></span><span class="sig-name descname"><span class="pre">PERIODS</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable" title="(in Python v3.14)"><span class="pre">collections.abc.Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series" title="(in pandas v3.0.4)"><span class="pre">pandas.Series</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series" title="(in pandas v3.0.4)"><span class="pre">pandas.Series</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/constants.html#PERIODS"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.constants.PERIODS" title="Link to this definition">#</a></dt>
-<dd><p>Functions converting datetimes to period start times, by time period.</p>
 </dd></dl>
 
 <dl class="py data">
@@ -925,14 +865,7 @@ For <code class="docutils literal notranslate"><span class="pre">zenodo_role</sp
     <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#attributes">Attributes</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.constants.FIELD_DTYPES_POLARS"><code class="docutils literal notranslate"><span class="pre">FIELD_DTYPES_POLARS</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.constants.FIELD_DTYPES_DUCKDB"><code class="docutils literal notranslate"><span class="pre">FIELD_DTYPES_DUCKDB</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.constants.FIELD_DTYPES_PANDAS"><code class="docutils literal notranslate"><span class="pre">FIELD_DTYPES_PANDAS</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.constants.FIELD_DTYPES_PYARROW"><code class="docutils literal notranslate"><span class="pre">FIELD_DTYPES_PYARROW</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.constants.FIELD_DTYPES_SQL"><code class="docutils literal notranslate"><span class="pre">FIELD_DTYPES_SQL</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.constants.CONSTRAINT_DTYPES"><code class="docutils literal notranslate"><span class="pre">CONSTRAINT_DTYPES</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.constants.LICENSES"><code class="docutils literal notranslate"><span class="pre">LICENSES</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.constants.PERIODS"><code class="docutils literal notranslate"><span class="pre">PERIODS</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.constants.CONTRIBUTORS"><code class="docutils literal notranslate"><span class="pre">CONTRIBUTORS</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.constants.KEYWORDS"><code class="docutils literal notranslate"><span class="pre">KEYWORDS</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.constants.XBRL_TABLES"><code class="docutils literal notranslate"><span class="pre">XBRL_TABLES</span></code></a></li>

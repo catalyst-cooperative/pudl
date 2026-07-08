@@ -30,10 +30,11 @@ should go in dbt.
 
 ## Functions
 
-| [`group_mean_continuity_check`](#pudl.dagster.asset_checks.group_mean_continuity_check)(→ dagster.AssetCheckResult)   | Check that certain variables don't vary too much on average between groups.        |
-|-----------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------|
-| [`asset_check_from_schema`](#pudl.dagster.asset_checks.asset_check_from_schema)(...)                                  | Create a Dagster asset check based on the resource schema, if defined.             |
-| [`valid_datapackage_check`](#pudl.dagster.asset_checks.valid_datapackage_check)(→ dagster.AssetChecksDefinition)      | Return a Dagster asset check that validates a frictionless datapackage descriptor. |
+| [`group_mean_continuity_check`](#pudl.dagster.asset_checks.group_mean_continuity_check)(→ dagster.AssetCheckResult)   | Check that certain variables don't vary too much on average between groups.           |
+|-----------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------|
+| [`asset_check_from_schema`](#pudl.dagster.asset_checks.asset_check_from_schema)(...)                                  | Create a Dagster asset check based on the resource schema, if defined.                |
+| [`valid_datapackage_check`](#pudl.dagster.asset_checks.valid_datapackage_check)(→ dagster.AssetChecksDefinition)      | Return a Dagster asset check that validates a frictionless datapackage descriptor.    |
+| [`valid_datapackage_unit_strings_check`](#pudl.dagster.asset_checks.valid_datapackage_unit_strings_check)(...)        | Return a Dagster asset check that validates unit strings in a datapackage descriptor. |
 
 ## Module Contents
 
@@ -67,7 +68,7 @@ return `ParquetData` objects, which are handled by the default io-manager. In
 this case, the resulting parquet file(s) will be scanned with Polars to produce
 a LazyFrame, then handled exactly the same as a typical asset.
 
-### pudl.dagster.asset_checks.valid_datapackage_check(asset_key: [dagster.AssetKey](https://docs.dagster.io/api/dagster/assets/#dagster.AssetKey) | [str](https://docs.python.org/3/library/stdtypes.html#str), , description: [str](https://docs.python.org/3/library/stdtypes.html#str) = 'Validate a frictionless datapackage descriptor against the spec.', blocking: [bool](https://docs.python.org/3/library/functions.html#bool) = True) → [dagster.AssetChecksDefinition](https://docs.dagster.io/api/dagster/asset-checks/#dagster.AssetChecksDefinition)
+### pudl.dagster.asset_checks.valid_datapackage_check(asset_key: [dagster.AssetKey](https://docs.dagster.io/api/dagster/assets/#dagster.AssetKey) | [str](https://docs.python.org/3/library/stdtypes.html#str), , description: [str](https://docs.python.org/3/library/stdtypes.html#str), blocking: [bool](https://docs.python.org/3/library/functions.html#bool) = True) → [dagster.AssetChecksDefinition](https://docs.dagster.io/api/dagster/asset-checks/#dagster.AssetChecksDefinition)
 
 Return a Dagster asset check that validates a frictionless datapackage descriptor.
 
@@ -87,3 +88,19 @@ resources, schemas, and fields against the frictionless spec using
 ### pudl.dagster.asset_checks.duckdb_assets *= ['core_ferceqr_\_quarterly_identity', 'core_ferceqr_\_contracts',...*
 
 ### pudl.dagster.asset_checks.high_memory_assets *= ['out_vcerare_\_hourly_available_capacity_factor', 'core_epacems_\_hourly_emissions',...*
+
+### pudl.dagster.asset_checks.valid_datapackage_unit_strings_check(asset_key: [dagster.AssetKey](https://docs.dagster.io/api/dagster/assets/#dagster.AssetKey) | [str](https://docs.python.org/3/library/stdtypes.html#str), , description: [str](https://docs.python.org/3/library/stdtypes.html#str), blocking: [bool](https://docs.python.org/3/library/functions.html#bool) = True) → [dagster.AssetChecksDefinition](https://docs.dagster.io/api/dagster/asset-checks/#dagster.AssetChecksDefinition)
+
+Return a Dagster asset check that validates unit strings in a datapackage descriptor.
+
+Reads the descriptor from `$PUDL_OUTPUT/parquet/datapackage.json`, builds a
+Pint unit registry from the `unit_registry` field embedded in the descriptor,
+and attempts to parse every `unit` field value with that registry.  All
+failures are collected before the check reports so a single run surfaces every
+bad unit string.
+
+* **Parameters:**
+  * **asset_key** – Key of the asset that produces the datapackage descriptor.
+  * **description** – Human-readable description attached to the check in the
+    Dagster UI.
+  * **blocking** – Whether the check is blocking (default `True`).

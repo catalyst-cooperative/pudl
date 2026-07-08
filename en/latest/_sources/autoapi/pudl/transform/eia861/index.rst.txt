@@ -99,7 +99,7 @@ Module Contents
      for details.
 
 
-.. py:function:: _post_process(df: pandas.DataFrame) -> pandas.DataFrame
+.. py:function:: _post_process(df: pandas.DataFrame, name: str | None = None) -> pandas.DataFrame
 
    Post-processing applied to all EIA-861 dataframes.
 

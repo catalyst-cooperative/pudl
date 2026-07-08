@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.transform.eia860 &#8212; PUDL 2026.6.2.dev30 documentation</title>
+    <title>pudl.transform.eia860 &#8212; PUDL 2026.6.2.dev32 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5" />
 
-    <script src="../../../_static/documentation_options.js?v=d0899e55"></script>
+    <script src="../../../_static/documentation_options.js?v=597870d8"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -574,8 +574,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.6.2.dev30 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.6.2.dev30 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.6.2.dev32 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.6.2.dev32 documentation - Home"/>
   
   
 </a></div>
@@ -872,7 +872,7 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.classes</span><span class="w"> </span><span class="kn">import</span> <span class="n">PUDL_PACKAGE</span><span class="p">,</span> <span class="n">DataSource</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.codes</span><span class="w"> </span><span class="kn">import</span> <span class="n">CODE_METADATA</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.dfs</span><span class="w"> </span><span class="kn">import</span> <span class="n">POLITICAL_SUBDIVISIONS</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.fields</span><span class="w"> </span><span class="kn">import</span> <span class="n">apply_pudl_dtypes</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.dtypes</span><span class="w"> </span><span class="kn">import</span> <span class="n">apply_pudl_dtypes</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.settings</span><span class="w"> </span><span class="kn">import</span> <span class="n">Eia860DataConfig</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.transform.eia861</span><span class="w"> </span><span class="kn">import</span> <span class="n">clean_nerc</span>
 
@@ -925,7 +925,7 @@ window.runMermaid = runMermaid;</script>
 
     <span class="c1"># This has to come before the fancy indexing below, otherwise the plant_id_eia</span>
     <span class="c1"># is still a float.</span>
-    <span class="n">own_df</span> <span class="o">=</span> <span class="n">apply_pudl_dtypes</span><span class="p">(</span><span class="n">own_df</span><span class="p">,</span> <span class="n">group</span><span class="o">=</span><span class="s2">&quot;eia&quot;</span><span class="p">)</span>
+    <span class="n">own_df</span> <span class="o">=</span> <span class="n">apply_pudl_dtypes</span><span class="p">(</span><span class="n">own_df</span><span class="p">,</span> <span class="n">field_namespace</span><span class="o">=</span><span class="s2">&quot;eia&quot;</span><span class="p">)</span>
 
     <span class="c1"># A small number of generators are reported multiple times in the ownership</span>
     <span class="c1"># table due to the use of leading zeroes in their integer generator_id values</span>
@@ -1517,6 +1517,7 @@ window.runMermaid = runMermaid;</script>
         <span class="o">&amp;</span> <span class="p">(</span><span class="n">multifuel_df</span><span class="p">[</span><span class="s2">&quot;plant_id_eia&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">56032</span><span class="p">)</span>
     <span class="p">]</span>
     <span class="n">multifuel_df</span> <span class="o">=</span> <span class="n">multifuel_df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">dupe_pk_rows_to_drop</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+    <span class="n">multifuel_df</span><span class="p">[</span><span class="s2">&quot;max_oil_heat_input&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">multifuel_df</span><span class="p">[</span><span class="s2">&quot;max_oil_heat_input&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="mi">100</span>
     <span class="k">return</span> <span class="n">multifuel_df</span></div>
 
 
@@ -2290,8 +2291,13 @@ window.runMermaid = runMermaid;</script>
     <span class="n">ce_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">ce_df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;_thousand_dollars&quot;</span><span class="p">)]</span> <span class="o">*=</span> <span class="mi">1000</span>
     <span class="n">ce_df</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">ce_df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_thousand_dollars&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
 
+    <span class="n">ce_df</span><span class="p">[</span><span class="s2">&quot;dry_cooling_pct&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ce_df</span><span class="p">[</span><span class="s2">&quot;dry_cooling_pct&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="mi">100</span>
+    <span class="n">ce_df</span> <span class="o">=</span> <span class="n">ce_df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;dry_cooling_pct&quot;</span><span class="p">:</span> <span class="s2">&quot;dry_cooling_fraction&quot;</span><span class="p">})</span>
+
     <span class="c1"># Encoding is required here because this table is not yet getting harvested.</span>
-    <span class="k">return</span> <span class="n">apply_pudl_dtypes</span><span class="p">(</span><span class="n">ce_df</span><span class="p">,</span> <span class="n">group</span><span class="o">=</span><span class="s2">&quot;eia&quot;</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">PUDL_PACKAGE</span><span class="o">.</span><span class="n">encode</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">apply_pudl_dtypes</span><span class="p">(</span>
+        <span class="n">ce_df</span><span class="p">,</span> <span class="n">resource</span><span class="o">=</span><span class="s2">&quot;_core_eia860__cooling_equipment&quot;</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">PUDL_PACKAGE</span><span class="o">.</span><span class="n">encode</span><span class="p">)</span></div>
 
 
 
@@ -2426,7 +2432,9 @@ window.runMermaid = runMermaid;</script>
     <span class="p">)</span>
 
     <span class="c1"># Encoding required because this isn&#39;t fed into harvesting yet.</span>
-    <span class="k">return</span> <span class="n">PUDL_PACKAGE</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">fgd_df</span><span class="p">)</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">apply_pudl_dtypes</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">PUDL_PACKAGE</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">fgd_df</span><span class="p">)</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span>
+        <span class="n">apply_pudl_dtypes</span><span class="p">,</span> <span class="n">resource</span><span class="o">=</span><span class="s2">&quot;_core_eia860__fgd_equipment&quot;</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">)</span></div>
 
 
 

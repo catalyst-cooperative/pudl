@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.dagster.assets.core.glue &#8212; PUDL 2026.6.2.dev30 documentation</title>
+    <title>pudl.dagster.assets.core.glue &#8212; PUDL 2026.6.2.dev32 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../../../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5" />
 <link rel="preload" as="script" href="../../../../../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5" />
 
-    <script src="../../../../../_static/documentation_options.js?v=d0899e55"></script>
+    <script src="../../../../../_static/documentation_options.js?v=597870d8"></script>
     <script src="../../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -574,8 +574,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.6.2.dev30 documentation - Home"/>
-    <img src="../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.6.2.dev30 documentation - Home"/>
+    <img src="../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.6.2.dev32 documentation - Home"/>
+    <img src="../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.6.2.dev32 documentation - Home"/>
   
   
 </a></div>
@@ -879,8 +879,8 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pudl.glue.ferc714</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pudl.helpers</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pudl.logging_helpers</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">pudl.metadata.fields</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.classes</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataSource</span><span class="p">,</span> <span class="n">Package</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.dtypes</span><span class="w"> </span><span class="kn">import</span> <span class="n">apply_pudl_dtypes</span>
 
 <div class="viewcode-block" id="logger">
 <a class="viewcode-back" href="../../../../../autoapi/pudl/dagster/assets/core/glue/index.html#pudl.dagster.assets.core.glue.logger">[docs]</a>
@@ -1070,7 +1070,7 @@ window.runMermaid = runMermaid;</script>
             <span class="n">pudl</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">remove_leading_zeros_from_numeric_strings</span><span class="p">,</span>
             <span class="n">col_name</span><span class="o">=</span><span class="s2">&quot;emissions_unit_id_epa&quot;</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">pudl</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">apply_pudl_dtypes</span><span class="p">,</span> <span class="s2">&quot;eia&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">apply_pudl_dtypes</span><span class="p">,</span> <span class="n">field_namespace</span><span class="o">=</span><span class="s2">&quot;eia&quot;</span><span class="p">)</span>
         <span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;plant_id_eia&quot;</span><span class="p">])</span>
         <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">correct_epa_eia_plant_id_mapping</span><span class="p">)</span>
     <span class="p">)</span>
@@ -1227,7 +1227,7 @@ window.runMermaid = runMermaid;</script>
     <span class="p">)</span>
     <span class="c1"># use graph analysis to identify subplants</span>
     <span class="n">subplant_ids</span> <span class="o">=</span> <span class="n">make_subplant_ids</span><span class="p">(</span><span class="n">epacamd_eia_complete</span><span class="p">)</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span>
-        <span class="n">pudl</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">apply_pudl_dtypes</span><span class="p">,</span> <span class="s2">&quot;glue&quot;</span>
+        <span class="n">apply_pudl_dtypes</span><span class="p">,</span> <span class="s2">&quot;glue&quot;</span>
     <span class="p">)</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
         <span class="s2">&quot;After making the networkx generateds subplant_ids, &quot;</span>

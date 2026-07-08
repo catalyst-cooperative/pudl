@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.output.ferc714 &#8212; PUDL 2026.6.2.dev30 documentation</title>
+    <title>pudl.output.ferc714 &#8212; PUDL 2026.6.2.dev32 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5" />
 
-    <script src="../../../_static/documentation_options.js?v=d0899e55"></script>
+    <script src="../../../_static/documentation_options.js?v=597870d8"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -574,8 +574,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.6.2.dev30 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.6.2.dev30 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.6.2.dev32 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.6.2.dev32 documentation - Home"/>
   
   
 </a></div>
@@ -880,7 +880,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">ImputeTimeseriesSettings</span><span class="p">,</span>
     <span class="n">impute_timeseries_asset_factory</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.fields</span><span class="w"> </span><span class="kn">import</span> <span class="n">apply_pudl_dtypes</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.dtypes</span><span class="w"> </span><span class="kn">import</span> <span class="n">apply_pudl_dtypes</span>
 
 <div class="viewcode-block" id="logger">
 <a class="viewcode-back" href="../../../autoapi/pudl/output/ferc714/index.html#pudl.output.ferc714.logger">[docs]</a>
@@ -1083,11 +1083,20 @@ window.runMermaid = runMermaid;</script>
             <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dfi</span><span class="o">.</span><span class="n">index</span><span class="p">:</span>
                 <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="o">**</span><span class="n">ref</span><span class="p">,</span> <span class="s2">&quot;report_date&quot;</span><span class="p">:</span> <span class="n">key</span><span class="p">[</span><span class="mi">1</span><span class="p">]})</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
-        <span class="p">[</span><span class="n">df</span><span class="p">,</span> <span class="n">apply_pudl_dtypes</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">rows</span><span class="p">),</span> <span class="n">group</span><span class="o">=</span><span class="s2">&quot;eia&quot;</span><span class="p">)],</span> <span class="n">axis</span><span class="o">=</span><span class="s2">&quot;index&quot;</span>
+        <span class="p">[</span>
+            <span class="n">df</span><span class="p">,</span>
+            <span class="n">apply_pudl_dtypes</span><span class="p">(</span>
+                <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">rows</span><span class="p">),</span>
+                <span class="n">resource</span><span class="o">=</span><span class="s2">&quot;core_eia861__yearly_balancing_authority&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+        <span class="p">],</span>
+        <span class="n">axis</span><span class="o">=</span><span class="s2">&quot;index&quot;</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="c1"># Remove balancing authorities treated as utilities</span>
     <span class="n">mask</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;balancing_authority_id_eia&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="n">util</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">util</span> <span class="ow">in</span> <span class="n">UTILITIES</span><span class="p">])</span>
-    <span class="k">return</span> <span class="n">apply_pudl_dtypes</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="o">~</span><span class="n">mask</span><span class="p">],</span> <span class="n">group</span><span class="o">=</span><span class="s2">&quot;eia&quot;</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">apply_pudl_dtypes</span><span class="p">(</span>
+        <span class="n">df</span><span class="p">[</span><span class="o">~</span><span class="n">mask</span><span class="p">],</span> <span class="n">resource</span><span class="o">=</span><span class="s2">&quot;core_eia861__yearly_balancing_authority&quot;</span>
+    <span class="p">)</span></div>
 
 
 
@@ -1129,7 +1138,15 @@ window.runMermaid = runMermaid;</script>
             <span class="n">tables</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ref</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">report_date</span><span class="o">=</span><span class="n">key</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
             <span class="n">replaced</span> <span class="o">|=</span> <span class="n">mask</span>
     <span class="c1"># Append to original table with matching rows removed</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df</span><span class="p">[</span><span class="o">~</span><span class="n">replaced</span><span class="p">],</span> <span class="n">apply_pudl_dtypes</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">tables</span><span class="p">),</span> <span class="n">group</span><span class="o">=</span><span class="s2">&quot;eia&quot;</span><span class="p">)])</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="n">df</span><span class="p">[</span><span class="o">~</span><span class="n">replaced</span><span class="p">],</span>
+            <span class="n">apply_pudl_dtypes</span><span class="p">(</span>
+                <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">tables</span><span class="p">),</span>
+                <span class="n">resource</span><span class="o">=</span><span class="s2">&quot;core_eia861__assn_balancing_authority&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
     <span class="c1"># Remove balancing authorities treated as utilities</span>
     <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
     <span class="n">tables</span> <span class="o">=</span> <span class="p">[]</span>
@@ -1169,7 +1186,10 @@ window.runMermaid = runMermaid;</script>
     <span class="k">return</span> <span class="p">(</span>
         <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df</span><span class="p">[</span><span class="o">~</span><span class="n">mask</span><span class="p">]]</span> <span class="o">+</span> <span class="n">tables</span><span class="p">)</span>
         <span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span>
-        <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">apply_pudl_dtypes</span><span class="p">,</span> <span class="n">group</span><span class="o">=</span><span class="s2">&quot;eia&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">pipe</span><span class="p">(</span>
+            <span class="n">apply_pudl_dtypes</span><span class="p">,</span>
+            <span class="n">resource</span><span class="o">=</span><span class="s2">&quot;core_eia861__assn_balancing_authority&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
     <span class="p">)</span></div>
 
 
@@ -1224,7 +1244,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">mask</span> <span class="o">&amp;=</span> <span class="n">mdf</span><span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="n">years</span><span class="p">[</span><span class="n">idx</span><span class="p">])</span>
         <span class="n">tables</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mdf</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">report_date</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">]))</span>
     <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">core_eia861__yearly_service_territory</span><span class="p">]</span> <span class="o">+</span> <span class="n">tables</span><span class="p">)</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span>
-        <span class="n">apply_pudl_dtypes</span><span class="p">,</span> <span class="n">group</span><span class="o">=</span><span class="s2">&quot;eia&quot;</span>
+        <span class="n">apply_pudl_dtypes</span><span class="p">,</span> <span class="n">resource</span><span class="o">=</span><span class="s2">&quot;core_eia861__yearly_service_territory&quot;</span>
     <span class="p">)</span></div>
 
 
@@ -1370,7 +1390,7 @@ window.runMermaid = runMermaid;</script>
             <span class="n">categorized</span><span class="p">[</span><span class="n">categorized</span><span class="o">.</span><span class="n">respondent_type</span><span class="o">.</span><span class="n">isnull</span><span class="p">()],</span>
         <span class="p">]</span>
     <span class="p">)</span>
-    <span class="n">categorized</span> <span class="o">=</span> <span class="n">apply_pudl_dtypes</span><span class="p">(</span><span class="n">categorized</span><span class="p">)</span>
+    <span class="n">categorized</span> <span class="o">=</span> <span class="n">apply_pudl_dtypes</span><span class="p">(</span><span class="n">categorized</span><span class="p">,</span> <span class="n">field_namespace</span><span class="o">=</span><span class="s2">&quot;ferc714&quot;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">categorized</span></div>
 
 
@@ -1462,7 +1482,10 @@ window.runMermaid = runMermaid;</script>
                 <span class="n">_out_ferc714__categorized_respondents</span><span class="o">.</span><span class="n">respondent_type</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span>
             <span class="p">],</span>
         <span class="p">]</span>
-    <span class="p">)</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">apply_pudl_dtypes</span><span class="p">)</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span>
+        <span class="n">apply_pudl_dtypes</span><span class="p">,</span>
+        <span class="n">resource</span><span class="o">=</span><span class="s2">&quot;out_ferc714__respondents_with_fips&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
     <span class="k">return</span> <span class="n">fipsified</span></div>
 
 
@@ -1488,7 +1511,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">counties_gdf</span> <span class="o">=</span> <span class="n">pudl</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">service_territory</span><span class="o">.</span><span class="n">add_geometries</span><span class="p">(</span>
         <span class="n">out_ferc714__respondents_with_fips</span><span class="p">,</span>
         <span class="n">census_gdf</span><span class="o">=</span><span class="n">out_censusdp1tract__counties</span><span class="p">,</span>
-    <span class="p">)</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">apply_pudl_dtypes</span><span class="p">)</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">apply_pudl_dtypes</span><span class="p">,</span> <span class="n">field_namespace</span><span class="o">=</span><span class="s2">&quot;ferc714&quot;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">counties_gdf</span></div>
 
 
@@ -1526,7 +1549,10 @@ window.runMermaid = runMermaid;</script>
                 <span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">,</span> <span class="s2">&quot;respondent_id_ferc714&quot;</span><span class="p">,</span> <span class="s2">&quot;demand_annual_mwh&quot;</span><span class="p">]</span>
             <span class="p">]</span>
         <span class="p">)</span>
-        <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">apply_pudl_dtypes</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">pipe</span><span class="p">(</span>
+            <span class="n">apply_pudl_dtypes</span><span class="p">,</span>
+            <span class="n">resource</span><span class="o">=</span><span class="s2">&quot;out_ferc714__georeferenced_respondents&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">respondents_gdf</span></div>
 
@@ -1586,7 +1612,7 @@ window.runMermaid = runMermaid;</script>
     <span class="c1"># Merge respondent categorizations into the annual demand</span>
     <span class="n">demand_summary</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
         <span class="n">demand_annual</span><span class="p">,</span> <span class="n">_out_ferc714__categorized_respondents</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span>
-    <span class="p">)</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">apply_pudl_dtypes</span><span class="p">)</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">apply_pudl_dtypes</span><span class="p">,</span> <span class="n">resource</span><span class="o">=</span><span class="s2">&quot;out_ferc714__summarized_demand&quot;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">demand_summary</span></div>
 
 

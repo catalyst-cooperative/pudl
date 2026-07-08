@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.transform.eia861 &#8212; PUDL 2026.6.2.dev30 documentation</title>
+    <title>pudl.transform.eia861 &#8212; PUDL 2026.6.2.dev32 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5" />
 
-    <script src="../../../_static/documentation_options.js?v=d0899e55"></script>
+    <script src="../../../_static/documentation_options.js?v=597870d8"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -574,8 +574,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.6.2.dev30 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.6.2.dev30 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.6.2.dev32 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.6.2.dev32 documentation - Home"/>
   
   
 </a></div>
@@ -879,6 +879,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">standardize_na_values</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.classes</span><span class="w"> </span><span class="kn">import</span> <span class="n">PUDL_PACKAGE</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.dtypes</span><span class="w"> </span><span class="kn">import</span> <span class="n">apply_pudl_dtypes</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.enums</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">CUSTOMER_CLASSES</span><span class="p">,</span>
     <span class="n">FUEL_CLASSES</span><span class="p">,</span>
@@ -888,7 +889,6 @@ window.runMermaid = runMermaid;</script>
     <span class="n">RTO_CLASSES</span><span class="p">,</span>
     <span class="n">TECH_CLASSES</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.fields</span><span class="w"> </span><span class="kn">import</span> <span class="n">apply_pudl_dtypes</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.labels</span><span class="w"> </span><span class="kn">import</span> <span class="n">ESTIMATED_OR_ACTUAL</span>
 
 <div class="viewcode-block" id="logger">
@@ -1117,7 +1117,7 @@ window.runMermaid = runMermaid;</script>
         <span class="p">],</span>
     <span class="p">)</span>
     <span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">report_date</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">report_date</span><span class="p">))</span>
-    <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">apply_pudl_dtypes</span><span class="p">,</span> <span class="n">group</span><span class="o">=</span><span class="s2">&quot;eia&quot;</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">apply_pudl_dtypes</span><span class="p">,</span> <span class="n">field_namespace</span><span class="o">=</span><span class="s2">&quot;eia&quot;</span><span class="p">)</span>
     <span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">,</span> <span class="s2">&quot;balancing_authority_name_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">])</span>
     <span class="o">.</span><span class="n">set_index</span><span class="p">([</span><span class="s2">&quot;report_date&quot;</span><span class="p">,</span> <span class="s2">&quot;balancing_authority_name_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">])</span>
 <span class="p">)</span></div>
@@ -1438,9 +1438,9 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="_post_process">
 <a class="viewcode-back" href="../../../autoapi/pudl/transform/eia861/index.html#pudl.transform.eia861._post_process">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">_post_process</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_post_process</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Post-processing applied to all EIA-861 dataframes.&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">convert_cols_dtypes</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">data_source</span><span class="o">=</span><span class="s2">&quot;eia&quot;</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">convert_cols_dtypes</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">data_source</span><span class="o">=</span><span class="s2">&quot;eia&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span></div>
 
 
 
@@ -2071,7 +2071,7 @@ window.runMermaid = runMermaid;</script>
         <span class="c1"># Add FIPS IDs based on county &amp; state names:</span>
         <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">add_fips_ids</span><span class="p">,</span> <span class="n">_core_censuspep__yearly_geocodes</span><span class="p">)</span>
         <span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">short_form</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">_make_yn_bool</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">short_form</span><span class="p">))</span>
-        <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">_post_process</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">_post_process</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;core_eia861__yearly_service_territory&quot;</span><span class="p">)</span>
     <span class="p">)</span>
 
     <span class="n">pk</span> <span class="o">=</span> <span class="n">PUDL_PACKAGE</span><span class="o">.</span><span class="n">get_resource</span><span class="p">(</span>
@@ -2113,7 +2113,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">idx_cols</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">,</span> <span class="s2">&quot;balancing_authority_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;state&quot;</span><span class="p">]</span>
     <span class="n">df</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">_pre_process</span><span class="p">(</span><span class="n">raw_eia861__balancing_authority</span><span class="p">,</span> <span class="n">idx_cols</span><span class="p">)</span>
-        <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">apply_pudl_dtypes</span><span class="p">,</span> <span class="s2">&quot;eia&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">apply_pudl_dtypes</span><span class="p">,</span> <span class="n">field_namespace</span><span class="o">=</span><span class="s2">&quot;eia&quot;</span><span class="p">)</span>
         <span class="o">.</span><span class="n">set_index</span><span class="p">([</span><span class="s2">&quot;report_date&quot;</span><span class="p">,</span> <span class="s2">&quot;balancing_authority_name_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">])</span>
     <span class="p">)</span>
     <span class="c1"># Fill in BA IDs based on date, utility ID, and BA Name:</span>
@@ -2237,7 +2237,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">short_form</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">_make_yn_bool</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">short_form</span><span class="p">),</span>
     <span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">_post_process</span><span class="p">(</span><span class="n">transformed_sales</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">_post_process</span><span class="p">(</span><span class="n">transformed_sales</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;core_eia861__yearly_sales&quot;</span><span class="p">)</span></div>
 
 
 
@@ -2294,7 +2294,7 @@ window.runMermaid = runMermaid;</script>
             <span class="s2">&quot;in the database. If non-null values are found, consider adding this column &quot;</span>
             <span class="s2">&quot;into the database table and removing this assertion.&quot;</span>
         <span class="p">)</span>
-    <span class="k">return</span> <span class="n">_post_process</span><span class="p">(</span><span class="n">deduped_sf</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">_post_process</span><span class="p">(</span><span class="n">deduped_sf</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;core_eia861__yearly_short_form&quot;</span><span class="p">)</span></div>
 
 
 
@@ -2338,7 +2338,9 @@ window.runMermaid = runMermaid;</script>
             <span class="n">subset</span><span class="o">=</span><span class="n">idx_cols</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;total_meters&quot;</span><span class="p">])</span>
-        <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">_post_process</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">pipe</span><span class="p">(</span>
+            <span class="n">_post_process</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;core_eia861__yearly_advanced_metering_infrastructure&quot;</span>
+        <span class="p">)</span>
     <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">df</span></div>
@@ -2423,11 +2425,15 @@ window.runMermaid = runMermaid;</script>
     <span class="k">return</span> <span class="p">(</span>
         <span class="n">Output</span><span class="p">(</span>
             <span class="n">output_name</span><span class="o">=</span><span class="s2">&quot;core_eia861__yearly_demand_response&quot;</span><span class="p">,</span>
-            <span class="n">value</span><span class="o">=</span><span class="n">_post_process</span><span class="p">(</span><span class="n">transformed_dr</span><span class="p">),</span>
+            <span class="n">value</span><span class="o">=</span><span class="n">_post_process</span><span class="p">(</span>
+                <span class="n">transformed_dr</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;core_eia861__yearly_demand_response&quot;</span>
+            <span class="p">),</span>
         <span class="p">),</span>
         <span class="n">Output</span><span class="p">(</span>
             <span class="n">output_name</span><span class="o">=</span><span class="s2">&quot;core_eia861__yearly_demand_response_water_heater&quot;</span><span class="p">,</span>
-            <span class="n">value</span><span class="o">=</span><span class="n">_post_process</span><span class="p">(</span><span class="n">dr_water</span><span class="p">),</span>
+            <span class="n">value</span><span class="o">=</span><span class="n">_post_process</span><span class="p">(</span>
+                <span class="n">dr_water</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;core_eia861__yearly_demand_response_water_heater&quot;</span>
+            <span class="p">),</span>
         <span class="p">),</span>
     <span class="p">)</span></div>
 
@@ -2586,15 +2592,21 @@ window.runMermaid = runMermaid;</script>
     <span class="k">return</span> <span class="p">(</span>
         <span class="n">Output</span><span class="p">(</span>
             <span class="n">output_name</span><span class="o">=</span><span class="s2">&quot;core_eia861__yearly_demand_side_management_sales&quot;</span><span class="p">,</span>
-            <span class="n">value</span><span class="o">=</span><span class="n">_post_process</span><span class="p">(</span><span class="n">dsm_sales</span><span class="p">),</span>
+            <span class="n">value</span><span class="o">=</span><span class="n">_post_process</span><span class="p">(</span>
+                <span class="n">dsm_sales</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;core_eia861__yearly_demand_side_management_sales&quot;</span>
+            <span class="p">),</span>
         <span class="p">),</span>
         <span class="n">Output</span><span class="p">(</span>
             <span class="n">output_name</span><span class="o">=</span><span class="s2">&quot;core_eia861__yearly_demand_side_management_ee_dr&quot;</span><span class="p">,</span>
-            <span class="n">value</span><span class="o">=</span><span class="n">_post_process</span><span class="p">(</span><span class="n">dsm_ee_dr</span><span class="p">),</span>
+            <span class="n">value</span><span class="o">=</span><span class="n">_post_process</span><span class="p">(</span>
+                <span class="n">dsm_ee_dr</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;core_eia861__yearly_demand_side_management_ee_dr&quot;</span>
+            <span class="p">),</span>
         <span class="p">),</span>
         <span class="n">Output</span><span class="p">(</span>
             <span class="n">output_name</span><span class="o">=</span><span class="s2">&quot;core_eia861__yearly_demand_side_management_misc&quot;</span><span class="p">,</span>
-            <span class="n">value</span><span class="o">=</span><span class="n">_post_process</span><span class="p">(</span><span class="n">dsm_misc</span><span class="p">),</span>
+            <span class="n">value</span><span class="o">=</span><span class="n">_post_process</span><span class="p">(</span>
+                <span class="n">dsm_misc</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;core_eia861__yearly_demand_side_management_misc&quot;</span>
+            <span class="p">),</span>
         <span class="p">),</span>
     <span class="p">)</span></div>
 
@@ -2780,15 +2792,21 @@ window.runMermaid = runMermaid;</script>
     <span class="k">return</span> <span class="p">(</span>
         <span class="n">Output</span><span class="p">(</span>
             <span class="n">output_name</span><span class="o">=</span><span class="s2">&quot;core_eia861__yearly_distributed_generation_tech&quot;</span><span class="p">,</span>
-            <span class="n">value</span><span class="o">=</span><span class="n">_post_process</span><span class="p">(</span><span class="n">tidy_dg_tech</span><span class="p">),</span>
+            <span class="n">value</span><span class="o">=</span><span class="n">_post_process</span><span class="p">(</span>
+                <span class="n">tidy_dg_tech</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;core_eia861__yearly_distributed_generation_tech&quot;</span>
+            <span class="p">),</span>
         <span class="p">),</span>
         <span class="n">Output</span><span class="p">(</span>
             <span class="n">output_name</span><span class="o">=</span><span class="s2">&quot;core_eia861__yearly_distributed_generation_fuel&quot;</span><span class="p">,</span>
-            <span class="n">value</span><span class="o">=</span><span class="n">_post_process</span><span class="p">(</span><span class="n">tidy_dg_fuel</span><span class="p">),</span>
+            <span class="n">value</span><span class="o">=</span><span class="n">_post_process</span><span class="p">(</span>
+                <span class="n">tidy_dg_fuel</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;core_eia861__yearly_distributed_generation_fuel&quot;</span>
+            <span class="p">),</span>
         <span class="p">),</span>
         <span class="n">Output</span><span class="p">(</span>
             <span class="n">output_name</span><span class="o">=</span><span class="s2">&quot;core_eia861__yearly_distributed_generation_misc&quot;</span><span class="p">,</span>
-            <span class="n">value</span><span class="o">=</span><span class="n">_post_process</span><span class="p">(</span><span class="n">dg_misc</span><span class="p">),</span>
+            <span class="n">value</span><span class="o">=</span><span class="n">_post_process</span><span class="p">(</span>
+                <span class="n">dg_misc</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;core_eia861__yearly_distributed_generation_misc&quot;</span>
+            <span class="p">),</span>
         <span class="p">),</span>
     <span class="p">)</span></div>
 
@@ -2815,7 +2833,7 @@ window.runMermaid = runMermaid;</script>
             <span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;state&quot;</span><span class="p">,</span> <span class="s2">&quot;report_date&quot;</span><span class="p">],</span>
         <span class="p">)</span>
         <span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;index&quot;</span><span class="p">])</span>
-        <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">_post_process</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">_post_process</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;core_eia861__yearly_distribution_systems&quot;</span><span class="p">)</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">df</span></div>
 
@@ -2889,7 +2907,7 @@ window.runMermaid = runMermaid;</script>
             <span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="k">if</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">[</span><span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">]</span> <span class="k">else</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span><span class="p">)</span>
         <span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">_post_process</span><span class="p">(</span><span class="n">tidy_dp</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">_post_process</span><span class="p">(</span><span class="n">tidy_dp</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;core_eia861__yearly_dynamic_pricing&quot;</span><span class="p">)</span></div>
 
 
 
@@ -2959,7 +2977,7 @@ window.runMermaid = runMermaid;</script>
         <span class="p">),</span>
     <span class="p">)</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;website&quot;</span><span class="p">])</span>
 
-    <span class="k">return</span> <span class="n">_post_process</span><span class="p">(</span><span class="n">transformed_ee</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">_post_process</span><span class="p">(</span><span class="n">transformed_ee</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;core_eia861__yearly_energy_efficiency&quot;</span><span class="p">)</span></div>
 
 
 
@@ -3006,7 +3024,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">rec_revenue</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">_thousand_to_one</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">rec_revenue</span><span class="p">),</span>
     <span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">_post_process</span><span class="p">(</span><span class="n">transformed_gp</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">_post_process</span><span class="p">(</span><span class="n">transformed_gp</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;core_eia861__yearly_green_pricing&quot;</span><span class="p">)</span></div>
 
 
 
@@ -3025,7 +3043,7 @@ window.runMermaid = runMermaid;</script>
             <span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;state&quot;</span><span class="p">,</span> <span class="s2">&quot;report_date&quot;</span><span class="p">],</span>
         <span class="p">)</span>
         <span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;index&quot;</span><span class="p">])</span>
-        <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">_post_process</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">_post_process</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;core_eia861__yearly_mergers&quot;</span><span class="p">)</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">df</span></div>
 
@@ -3110,11 +3128,16 @@ window.runMermaid = runMermaid;</script>
     <span class="k">return</span> <span class="p">(</span>
         <span class="n">Output</span><span class="p">(</span>
             <span class="n">output_name</span><span class="o">=</span><span class="s2">&quot;core_eia861__yearly_net_metering_customer_fuel_class&quot;</span><span class="p">,</span>
-            <span class="n">value</span><span class="o">=</span><span class="n">_post_process</span><span class="p">(</span><span class="n">tidy_nm_customer_fuel_class</span><span class="p">),</span>
+            <span class="n">value</span><span class="o">=</span><span class="n">_post_process</span><span class="p">(</span>
+                <span class="n">tidy_nm_customer_fuel_class</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;core_eia861__yearly_net_metering_customer_fuel_class&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
         <span class="p">),</span>
         <span class="n">Output</span><span class="p">(</span>
             <span class="n">output_name</span><span class="o">=</span><span class="s2">&quot;core_eia861__yearly_net_metering_misc&quot;</span><span class="p">,</span>
-            <span class="n">value</span><span class="o">=</span><span class="n">_post_process</span><span class="p">(</span><span class="n">raw_nm_misc</span><span class="p">),</span>
+            <span class="n">value</span><span class="o">=</span><span class="n">_post_process</span><span class="p">(</span>
+                <span class="n">raw_nm_misc</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;core_eia861__yearly_net_metering_misc&quot;</span>
+            <span class="p">),</span>
         <span class="p">),</span>
     <span class="p">)</span></div>
 
@@ -3220,11 +3243,16 @@ window.runMermaid = runMermaid;</script>
     <span class="k">return</span> <span class="p">(</span>
         <span class="n">Output</span><span class="p">(</span>
             <span class="n">output_name</span><span class="o">=</span><span class="s2">&quot;core_eia861__yearly_non_net_metering_customer_fuel_class&quot;</span><span class="p">,</span>
-            <span class="n">value</span><span class="o">=</span><span class="n">_post_process</span><span class="p">(</span><span class="n">tidy_nnm_customer_fuel_class</span><span class="p">),</span>
+            <span class="n">value</span><span class="o">=</span><span class="n">_post_process</span><span class="p">(</span>
+                <span class="n">tidy_nnm_customer_fuel_class</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;core_eia861__yearly_non_net_metering_customer_fuel_class&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
         <span class="p">),</span>
         <span class="n">Output</span><span class="p">(</span>
             <span class="n">output_name</span><span class="o">=</span><span class="s2">&quot;core_eia861__yearly_non_net_metering_misc&quot;</span><span class="p">,</span>
-            <span class="n">value</span><span class="o">=</span><span class="n">_post_process</span><span class="p">(</span><span class="n">raw_nnm_misc</span><span class="p">),</span>
+            <span class="n">value</span><span class="o">=</span><span class="n">_post_process</span><span class="p">(</span>
+                <span class="n">raw_nnm_misc</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;core_eia861__yearly_non_net_metering_misc&quot;</span>
+            <span class="p">),</span>
         <span class="p">),</span>
     <span class="p">)</span></div>
 
@@ -3316,11 +3344,15 @@ window.runMermaid = runMermaid;</script>
     <span class="k">return</span> <span class="p">(</span>
         <span class="n">Output</span><span class="p">(</span>
             <span class="n">output_name</span><span class="o">=</span><span class="s2">&quot;core_eia861__yearly_operational_data_revenue&quot;</span><span class="p">,</span>
-            <span class="n">value</span><span class="o">=</span><span class="n">_post_process</span><span class="p">(</span><span class="n">transformed_od_rev</span><span class="p">),</span>
+            <span class="n">value</span><span class="o">=</span><span class="n">_post_process</span><span class="p">(</span>
+                <span class="n">transformed_od_rev</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;core_eia861__yearly_operational_data_revenue&quot;</span>
+            <span class="p">),</span>
         <span class="p">),</span>
         <span class="n">Output</span><span class="p">(</span>
             <span class="n">output_name</span><span class="o">=</span><span class="s2">&quot;core_eia861__yearly_operational_data_misc&quot;</span><span class="p">,</span>
-            <span class="n">value</span><span class="o">=</span><span class="n">_post_process</span><span class="p">(</span><span class="n">transformed_od_misc</span><span class="p">),</span>
+            <span class="n">value</span><span class="o">=</span><span class="n">_post_process</span><span class="p">(</span>
+                <span class="n">transformed_od_misc</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;core_eia861__yearly_operational_data_misc&quot;</span>
+            <span class="p">),</span>
         <span class="p">),</span>
     <span class="p">)</span></div>
 
@@ -3383,7 +3415,7 @@ window.runMermaid = runMermaid;</script>
         <span class="p">)</span>
         <span class="c1"># Drop duplicate entries for utilities 13027, 3408 and 9697</span>
         <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">_drop_dupes</span><span class="p">,</span> <span class="n">df_name</span><span class="o">=</span><span class="s2">&quot;Reliability&quot;</span><span class="p">,</span> <span class="n">subset</span><span class="o">=</span><span class="n">idx_cols</span><span class="p">)</span>
-        <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">_post_process</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">_post_process</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;core_eia861__yearly_reliability&quot;</span><span class="p">)</span>
         <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">PUDL_PACKAGE</span><span class="o">.</span><span class="n">encode</span><span class="p">)</span>
     <span class="p">)</span>
 
@@ -3523,15 +3555,21 @@ window.runMermaid = runMermaid;</script>
     <span class="k">return</span> <span class="p">(</span>
         <span class="n">Output</span><span class="p">(</span>
             <span class="n">output_name</span><span class="o">=</span><span class="s2">&quot;core_eia861__yearly_utility_data_nerc&quot;</span><span class="p">,</span>
-            <span class="n">value</span><span class="o">=</span><span class="n">_post_process</span><span class="p">(</span><span class="n">transformed_ud_nerc</span><span class="p">),</span>
+            <span class="n">value</span><span class="o">=</span><span class="n">_post_process</span><span class="p">(</span>
+                <span class="n">transformed_ud_nerc</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;core_eia861__yearly_utility_data_nerc&quot;</span>
+            <span class="p">),</span>
         <span class="p">),</span>
         <span class="n">Output</span><span class="p">(</span>
             <span class="n">output_name</span><span class="o">=</span><span class="s2">&quot;core_eia861__yearly_utility_data_rto&quot;</span><span class="p">,</span>
-            <span class="n">value</span><span class="o">=</span><span class="n">_post_process</span><span class="p">(</span><span class="n">transformed_ud_rto</span><span class="p">),</span>
+            <span class="n">value</span><span class="o">=</span><span class="n">_post_process</span><span class="p">(</span>
+                <span class="n">transformed_ud_rto</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;core_eia861__yearly_utility_data_rto&quot;</span>
+            <span class="p">),</span>
         <span class="p">),</span>
         <span class="n">Output</span><span class="p">(</span>
             <span class="n">output_name</span><span class="o">=</span><span class="s2">&quot;core_eia861__yearly_utility_data_misc&quot;</span><span class="p">,</span>
-            <span class="n">value</span><span class="o">=</span><span class="n">_post_process</span><span class="p">(</span><span class="n">transformed_ud_misc</span><span class="p">),</span>
+            <span class="n">value</span><span class="o">=</span><span class="n">_post_process</span><span class="p">(</span>
+                <span class="n">transformed_ud_misc</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;core_eia861__yearly_utility_data_misc&quot;</span>
+            <span class="p">),</span>
         <span class="p">),</span>
     <span class="p">)</span></div>
 
@@ -3578,7 +3616,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Building an EIA 861 Util-State-Date association table.&quot;</span><span class="p">)</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">_harvest_associations</span><span class="p">(</span>
         <span class="n">dfs</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">data_dfs</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span> <span class="n">cols</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">,</span> <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;state&quot;</span><span class="p">]</span>
-    <span class="p">)</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">_post_process</span><span class="p">)</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">_post_process</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;core_eia861__assn_utility&quot;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">df</span></div>
 
 
@@ -3699,7 +3737,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">early_date_ba_util_state</span><span class="p">,</span> <span class="n">late_date_ba_util_state</span><span class="p">])</span>
         <span class="c1"># If there&#39;s no BA ID, the record is not useful:</span>
         <span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;balancing_authority_id_eia&quot;</span><span class="p">])</span>
-        <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">apply_pudl_dtypes</span><span class="p">,</span> <span class="n">group</span><span class="o">=</span><span class="s2">&quot;eia&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">apply_pudl_dtypes</span><span class="p">,</span> <span class="n">field_namespace</span><span class="o">=</span><span class="s2">&quot;eia&quot;</span><span class="p">)</span>
     <span class="p">)</span>
     <span class="n">ba_assn_eia861</span> <span class="o">=</span> <span class="n">ba_assn_eia861</span><span class="p">[</span>
         <span class="c1"># Without both Utility ID and State, there&#39;s no association information:</span>
@@ -3780,7 +3818,9 @@ window.runMermaid = runMermaid;</script>
             <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">len_before</span><span class="si">}</span><span class="s2"> total).&quot;</span>
         <span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">_post_process</span><span class="p">(</span><span class="n">ba_eia861_normed</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">_post_process</span><span class="p">(</span>
+        <span class="n">ba_eia861_normed</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;core_eia861__yearly_balancing_authority&quot;</span>
+    <span class="p">)</span></div>
 
 </pre></div>
 

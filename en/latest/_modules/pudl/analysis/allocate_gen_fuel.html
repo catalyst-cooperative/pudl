@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.analysis.allocate_gen_fuel &#8212; PUDL 2026.6.2.dev30 documentation</title>
+    <title>pudl.analysis.allocate_gen_fuel &#8212; PUDL 2026.6.2.dev32 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5" />
 
-    <script src="../../../_static/documentation_options.js?v=d0899e55"></script>
+    <script src="../../../_static/documentation_options.js?v=597870d8"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -574,8 +574,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.6.2.dev30 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.6.2.dev30 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.6.2.dev32 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.6.2.dev32 documentation - Home"/>
   
   
 </a></div>
@@ -1006,7 +1006,7 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pudl.helpers</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pudl.logging_helpers</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pudl.output.eia923</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.fields</span><span class="w"> </span><span class="kn">import</span> <span class="n">apply_pudl_dtypes</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.dtypes</span><span class="w"> </span><span class="kn">import</span> <span class="n">apply_pudl_dtypes</span>
 
 <div class="viewcode-block" id="logger">
 <a class="viewcode-back" href="../../../autoapi/pudl/analysis/allocate_gen_fuel/index.html#pudl.analysis.allocate_gen_fuel.logger">[docs]</a>
@@ -1516,7 +1516,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">net_gen_fuel_alloc</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="n">by_cols</span><span class="p">)[</span><span class="n">sum_cols</span><span class="p">]</span>
         <span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">min_count</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
-        <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">apply_pudl_dtypes</span><span class="p">,</span> <span class="n">group</span><span class="o">=</span><span class="s2">&quot;eia&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">apply_pudl_dtypes</span><span class="p">,</span> <span class="n">field_namespace</span><span class="o">=</span><span class="s2">&quot;eia&quot;</span><span class="p">)</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">gen</span></div>
 
@@ -1550,7 +1550,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">gens</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">IDX_GENS</span><span class="p">)[</span><span class="n">esc</span><span class="p">]</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
         <span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
         <span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;level_3&quot;</span><span class="p">:</span> <span class="n">cat_col</span><span class="p">,</span> <span class="mi">0</span><span class="p">:</span> <span class="n">stacked_col</span><span class="p">})</span>
-        <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">apply_pudl_dtypes</span><span class="p">,</span> <span class="n">group</span><span class="o">=</span><span class="s2">&quot;eia&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">apply_pudl_dtypes</span><span class="p">,</span> <span class="n">field_namespace</span><span class="o">=</span><span class="s2">&quot;eia&quot;</span><span class="p">)</span>
     <span class="p">)</span>
     <span class="c1"># arrange energy source codes by number and type (start with energy_source_code, then planned_, then startup_)</span>
     <span class="n">gens_stack_prep</span> <span class="o">=</span> <span class="n">gens_stack_prep</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span>
@@ -1636,20 +1636,20 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">stack_gens</span> <span class="o">=</span> <span class="n">stack_generators</span><span class="p">(</span>
         <span class="n">gens_at_freq</span><span class="p">,</span> <span class="n">cat_col</span><span class="o">=</span><span class="s2">&quot;energy_source_code_num&quot;</span><span class="p">,</span> <span class="n">stacked_col</span><span class="o">=</span><span class="s2">&quot;energy_source_code&quot;</span>
-    <span class="p">)</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">apply_pudl_dtypes</span><span class="p">,</span> <span class="n">group</span><span class="o">=</span><span class="s2">&quot;eia&quot;</span><span class="p">)</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">apply_pudl_dtypes</span><span class="p">,</span> <span class="n">field_namespace</span><span class="o">=</span><span class="s2">&quot;eia&quot;</span><span class="p">)</span>
     <span class="c1"># allocate the boiler fuel data to generators</span>
     <span class="n">bf_by_gens</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">allocate_bf_data_to_gens</span><span class="p">(</span><span class="n">bf</span><span class="p">,</span> <span class="n">gens_at_freq</span><span class="p">,</span> <span class="n">bga</span><span class="p">)</span>
         <span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">IDX_GENS_PM_ESC</span><span class="p">)</span>
         <span class="o">.</span><span class="n">add_suffix</span><span class="p">(</span><span class="s2">&quot;_bf_tbl&quot;</span><span class="p">)</span>
         <span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
-        <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">apply_pudl_dtypes</span><span class="p">,</span> <span class="n">group</span><span class="o">=</span><span class="s2">&quot;eia&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">apply_pudl_dtypes</span><span class="p">,</span> <span class="n">field_namespace</span><span class="o">=</span><span class="s2">&quot;eia&quot;</span><span class="p">)</span>
     <span class="p">)</span>
     <span class="n">gf</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">gf</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">IDX_PM_ESC</span><span class="p">)[</span><span class="n">DATA_COLUMNS</span><span class="p">]</span>
         <span class="o">.</span><span class="n">add_suffix</span><span class="p">(</span><span class="s2">&quot;_gf_tbl&quot;</span><span class="p">)</span>
         <span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
-        <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">apply_pudl_dtypes</span><span class="p">,</span> <span class="n">group</span><span class="o">=</span><span class="s2">&quot;eia&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">apply_pudl_dtypes</span><span class="p">,</span> <span class="n">field_namespace</span><span class="o">=</span><span class="s2">&quot;eia&quot;</span><span class="p">)</span>
     <span class="p">)</span>
 
     <span class="n">gen_assoc</span> <span class="o">=</span> <span class="p">(</span>
@@ -1699,7 +1699,7 @@ window.runMermaid = runMermaid;</script>
         <span class="o">.</span><span class="n">reset_index</span><span class="p">(),</span>
         <span class="n">on</span><span class="o">=</span><span class="n">IDX_ESC</span><span class="p">,</span>
         <span class="n">how</span><span class="o">=</span><span class="s2">&quot;outer&quot;</span><span class="p">,</span>
-    <span class="p">)</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">apply_pudl_dtypes</span><span class="p">,</span> <span class="n">group</span><span class="o">=</span><span class="s2">&quot;eia&quot;</span><span class="p">)</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">apply_pudl_dtypes</span><span class="p">,</span> <span class="n">field_namespace</span><span class="o">=</span><span class="s2">&quot;eia&quot;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">gen_assoc</span></div>
 
 
@@ -2325,7 +2325,7 @@ window.runMermaid = runMermaid;</script>
             <span class="c1"># take the net gen</span>
             <span class="n">net_generation_mwh</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">net_generation_mwh_gf_tbl</span> <span class="o">*</span> <span class="n">x</span><span class="o">.</span><span class="n">frac</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">apply_pudl_dtypes</span><span class="p">,</span> <span class="n">group</span><span class="o">=</span><span class="s2">&quot;eia&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">apply_pudl_dtypes</span><span class="p">,</span> <span class="n">field_namespace</span><span class="o">=</span><span class="s2">&quot;eia&quot;</span><span class="p">)</span>
         <span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">how</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">)</span>
     <span class="p">)</span>
 
@@ -2450,7 +2450,7 @@ window.runMermaid = runMermaid;</script>
                 <span class="n">x</span><span class="o">.</span><span class="n">fuel_consumed_for_electricity_mmbtu_gf_tbl</span> <span class="o">*</span> <span class="n">x</span><span class="o">.</span><span class="n">frac</span>
             <span class="p">),</span>
         <span class="p">)</span>
-        <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">apply_pudl_dtypes</span><span class="p">,</span> <span class="n">group</span><span class="o">=</span><span class="s2">&quot;eia&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">apply_pudl_dtypes</span><span class="p">,</span> <span class="n">field_namespace</span><span class="o">=</span><span class="s2">&quot;eia&quot;</span><span class="p">)</span>
         <span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">how</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">)</span>
     <span class="p">)</span>
 
@@ -2622,7 +2622,7 @@ window.runMermaid = runMermaid;</script>
             <span class="p">)</span>
             <span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="o">**</span><span class="p">{</span><span class="n">data_column_name</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="n">data_column_name</span><span class="p">]</span> <span class="o">/</span> <span class="mi">12</span><span class="p">})</span>
             <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">assign_plant_year</span><span class="p">)</span>
-            <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">apply_pudl_dtypes</span><span class="p">,</span> <span class="n">group</span><span class="o">=</span><span class="s2">&quot;eia&quot;</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">apply_pudl_dtypes</span><span class="p">,</span> <span class="n">field_namespace</span><span class="o">=</span><span class="s2">&quot;eia&quot;</span><span class="p">)</span>
             <span class="o">.</span><span class="n">set_index</span><span class="p">([</span><span class="s2">&quot;plant_year&quot;</span><span class="p">])</span>
         <span class="p">)</span>
         <span class="c1"># sometimes a plant oscillates btwn annual and monthly reporting. when it does</span>

@@ -17,7 +17,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.metadata.classes &#8212; PUDL 2026.6.2.dev30 documentation</title>
+    <title>pudl.metadata.classes &#8212; PUDL 2026.6.2.dev32 documentation</title>
   
   
   
@@ -50,7 +50,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5" />
 
-    <script src="../../../../_static/documentation_options.js?v=d0899e55"></script>
+    <script src="../../../../_static/documentation_options.js?v=597870d8"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -141,8 +141,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.6.2.dev30 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.6.2.dev30 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.6.2.dev32 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.6.2.dev32 documentation - Home"/>
   
   
 </a></div>
@@ -487,6 +487,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../constants/index.html">pudl.metadata.constants</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../descriptions/index.html">pudl.metadata.descriptions</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../dfs/index.html">pudl.metadata.dfs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../dtypes/index.html">pudl.metadata.dtypes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../enums/index.html">pudl.metadata.enums</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../fields/index.html">pudl.metadata.fields</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../helpers/index.html">pudl.metadata.helpers</a></li>
@@ -525,6 +526,7 @@
 </ul>
 </details></li>
 <li class="toctree-l3"><a class="reference internal" href="../sources/index.html">pudl.metadata.sources</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../units/index.html">pudl.metadata.units</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../warnings/index.html">pudl.metadata.warnings</a></li>
 </ul>
 </details></li>
@@ -788,6 +790,18 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.classes.StrictList" title="pudl.metadata.classes.StrictList"><code class="xref py py-obj docutils literal notranslate"><span class="pre">StrictList</span></code></a></p></td>
 <td><p>Non-empty <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>.</p></td>
 </tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.classes.FieldNamespace" title="pudl.metadata.classes.FieldNamespace"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FieldNamespace</span></code></a></p></td>
+<td><p>Canonical field namespace identifiers used by PUDL resources.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.classes.FIELD_NAMESPACES" title="pudl.metadata.classes.FIELD_NAMESPACES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FIELD_NAMESPACES</span></code></a></p></td>
+<td><p>All valid PUDL field namespace identifiers.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.classes.EtlGroup" title="pudl.metadata.classes.EtlGroup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">EtlGroup</span></code></a></p></td>
+<td><p>Canonical ETL group identifiers used by PUDL resources.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.classes.ETL_GROUPS" title="pudl.metadata.classes.ETL_GROUPS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ETL_GROUPS</span></code></a></p></td>
+<td><p>All valid PUDL ETL group identifiers.</p></td>
+</tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.classes.PUDL_PACKAGE" title="pudl.metadata.classes.PUDL_PACKAGE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PUDL_PACKAGE</span></code></a></p></td>
 <td><p>Define a global PUDL package object for use across the entire codebase.</p></td>
 </tr>
@@ -977,6 +991,30 @@
 <dd><p>Non-empty <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>.</p>
 <p>Allows <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#set" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">set</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#frozenset" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">frozenset</span></code></a>,
 <a class="reference external" href="https://docs.python.org/3/library/collections.html#collections.deque" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">collections.deque</span></code></a>, or generators and casts to a <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pudl.metadata.classes.FieldNamespace">
+<span class="sig-prename descclassname"><span class="pre">pudl.metadata.classes.</span></span><span class="sig-name descname"><span class="pre">FieldNamespace</span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/classes.html#FieldNamespace"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.classes.FieldNamespace" title="Link to this definition">#</a></dt>
+<dd><p>Canonical field namespace identifiers used by PUDL resources.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pudl.metadata.classes.FIELD_NAMESPACES">
+<span class="sig-prename descclassname"><span class="pre">pudl.metadata.classes.</span></span><span class="sig-name descname"><span class="pre">FIELD_NAMESPACES</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#pudl.metadata.classes.FieldNamespace" title="pudl.metadata.classes.FieldNamespace"><span class="pre">FieldNamespace</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Ellipsis</span><span class="p"><span class="pre">]</span></span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/classes.html#FIELD_NAMESPACES"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.classes.FIELD_NAMESPACES" title="Link to this definition">#</a></dt>
+<dd><p>All valid PUDL field namespace identifiers.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pudl.metadata.classes.EtlGroup">
+<span class="sig-prename descclassname"><span class="pre">pudl.metadata.classes.</span></span><span class="sig-name descname"><span class="pre">EtlGroup</span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/classes.html#EtlGroup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.classes.EtlGroup" title="Link to this definition">#</a></dt>
+<dd><p>Canonical ETL group identifiers used by PUDL resources.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pudl.metadata.classes.ETL_GROUPS">
+<span class="sig-prename descclassname"><span class="pre">pudl.metadata.classes.</span></span><span class="sig-name descname"><span class="pre">ETL_GROUPS</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#pudl.metadata.classes.EtlGroup" title="pudl.metadata.classes.EtlGroup"><span class="pre">EtlGroup</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Ellipsis</span><span class="p"><span class="pre">]</span></span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/classes.html#ETL_GROUPS"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.classes.ETL_GROUPS" title="Link to this definition">#</a></dt>
+<dd><p>All valid PUDL ETL group identifiers.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -2339,12 +2377,12 @@ except for <code class="docutils literal notranslate"><span class="pre">year</sp
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pudl.metadata.classes.Resource.field_namespace">
-<span class="sig-name descname"><span class="pre">field_namespace</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'censusdp1tract'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'eia'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'eiaaeo'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'eiaapi'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'epacems'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'ferc'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'ferc1'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'ferc714'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'ferceqr'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'glue'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'gridpathratoolkit'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'ppe'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'pudl'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'nrelatb'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'vcerare'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'phmsagas'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'sec'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'rus'</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/classes.html#Resource.field_namespace"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.classes.Resource.field_namespace" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">field_namespace</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#pudl.metadata.classes.FieldNamespace" title="pudl.metadata.classes.FieldNamespace"><span class="pre">FieldNamespace</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/classes.html#Resource.field_namespace"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.classes.Resource.field_namespace" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pudl.metadata.classes.Resource.etl_group">
-<span class="sig-name descname"><span class="pre">etl_group</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'censusdp1tract'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'eia176'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'eia191'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'eia860'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'eia861'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'eia861_disabled'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'eia923'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'eia930'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'eiaaeo'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'entity_eia'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'epacems'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'entity_ferc'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'ferc1'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'ferc1_disabled'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'ferc714'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'ferceqr'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'glue'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'gridpathratoolkit'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'outputs'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'static_ferc1'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'static_eia'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'static_eia_disabled'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'eiaapi'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'state_demand'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'static_pudl'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'service_territories'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'nrelatb'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'vcerare'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'phmsagas'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'sec10k'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'rus7'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'static_rus'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'rus12'</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/classes.html#Resource.etl_group"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.classes.Resource.etl_group" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">etl_group</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#pudl.metadata.classes.EtlGroup" title="pudl.metadata.classes.EtlGroup"><span class="pre">EtlGroup</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/classes.html#Resource.etl_group"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.classes.Resource.etl_group" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -3033,6 +3071,10 @@ CODE_METADATA dictionary.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.classes.PositiveFloat"><code class="docutils literal notranslate"><span class="pre">PositiveFloat</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.classes.T"><code class="docutils literal notranslate"><span class="pre">T</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.classes.StrictList"><code class="docutils literal notranslate"><span class="pre">StrictList</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.classes.FieldNamespace"><code class="docutils literal notranslate"><span class="pre">FieldNamespace</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.classes.FIELD_NAMESPACES"><code class="docutils literal notranslate"><span class="pre">FIELD_NAMESPACES</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.classes.EtlGroup"><code class="docutils literal notranslate"><span class="pre">EtlGroup</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.classes.ETL_GROUPS"><code class="docutils literal notranslate"><span class="pre">ETL_GROUPS</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.classes._check_unique"><code class="docutils literal notranslate"><span class="pre">_check_unique()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.classes._validator"><code class="docutils literal notranslate"><span class="pre">_validator()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.classes.PudlMeta"><code class="docutils literal notranslate"><span class="pre">PudlMeta</span></code></a><ul class="nav section-nav flex-column">

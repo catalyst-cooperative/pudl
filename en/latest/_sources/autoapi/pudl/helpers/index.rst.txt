@@ -702,7 +702,8 @@ Module Contents
 
    :param df: dataframe with columns that appear in the PUDL tables.
    :param data_source: the name of the datasource (eia, ferc1, etc.)
-   :param name: name of the table (for logging only!)
+   :param name: name of the table; used for logging and for looking up the table's
+                schema-defined field types.
 
    :returns: Input dataframe, but with column types as specified by
              :py:const:`pudl.metadata.fields.FIELD_METADATA`

@@ -1,0 +1,1343 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-EXWBBTVMWK"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-EXWBBTVMWK');
+    </script>
+    
+    <title>pudl.metadata.dtypes &#8212; PUDL 2026.6.2.dev32 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=a95f357e85573c9b56d5" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=a95f357e85573c9b56d5" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=7e24c9f5" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../../_static/scripts/fontawesome.js?digest=a95f357e85573c9b56d5"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5" />
+
+    <script src="../../../_static/documentation_options.js?v=597870d8"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";
+
+
+
+
+
+const initStyles = () => {
+    const defaultStyle = document.createElement('style');
+    defaultStyle.textContent = `pre.mermaid {
+    /* Same as .mermaid-container > pre */
+    display: block;
+    width: 100%;
+}
+
+pre.mermaid > svg {
+    /* Same as .mermaid-container > pre > svg */
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}`;
+    document.head.appendChild(defaultStyle);
+
+    const fullscreenStyle = document.createElement('style');
+    fullscreenStyle.textContent = `.mermaid-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+.mermaid-container > pre {
+    display: block;
+    width: 100%;
+}
+
+.mermaid-container > pre > svg {
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}
+
+.mermaid-fullscreen-btn {
+    width: 28px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    font-size: 14px;
+    line-height: 1;
+    padding: 0;
+    color: #333;
+}
+
+.mermaid-fullscreen-btn:hover {
+    opacity: 100% !important;
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-btn.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-btn.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal {
+    display: none;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 95vw;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.98);
+    z-index: 9999;
+    padding: 20px;
+    overflow: auto;
+}
+
+.mermaid-fullscreen-modal.dark-theme {
+    background: rgba(0, 0, 0, 0.98);
+}
+
+.mermaid-fullscreen-modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen {
+    position: relative;
+    width: 95vw;
+    height: 90vh;
+    max-width: 95vw;
+    max-height: 90vh;
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    overflow: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen.dark-theme {
+    background: #1a1a1a;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+}
+
+.mermaid-container-fullscreen pre.mermaid {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen .mermaid svg {
+    height: 100% !important;
+    width: 100% !important;
+    cursor: grab;
+}
+
+.mermaid-fullscreen-close {
+    position: fixed !important;
+    top: 20px !important;
+    right: 20px !important;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s;
+    font-size: 24px;
+    line-height: 1;
+    color: #333;
+}
+
+.mermaid-fullscreen-close:hover {
+    background: white;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-close.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-close.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal .mermaid-fullscreen-btn {
+    display: none !important;
+}`;
+    document.head.appendChild(fullscreenStyle);
+}
+
+// Detect if page has dark background
+const isDarkTheme = () => {
+    // We use a set of heuristics:
+    // 1. Check for common dark mode classes or attributes
+    // 2. Check computed background color brightness
+    if (document.documentElement.classList.contains('dark') ||
+        document.documentElement.getAttribute('data-theme') === 'dark' ||
+        document.body.classList.contains('dark') ||
+        document.body.getAttribute('data-theme') === 'dark') {
+        // console.log("Dark theme detected via class/attribute");
+        return true;
+    }
+    if (document.documentElement.classList.contains('light') ||
+        document.documentElement.getAttribute('data-theme') === 'light' ||
+        document.body.classList.contains('light') ||
+        document.body.getAttribute('data-theme') === 'light') {
+        // console.log("Light theme detected via class/attribute");
+        return false;
+    }
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        // console.log("Dark theme detected via prefers-color-scheme");
+        return true;
+    }
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
+    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        // console.log("Background color brightness:", brightness);
+        return brightness < 128;
+    }
+    // console.log("No dark or light theme detected, defaulting to light theme");
+    return false;
+};
+
+let darkTheme = isDarkTheme();
+let modal = null;
+let modalContent = null;
+let previousScrollOffset = [window.scrollX, window.scrollY];
+
+const runMermaid = async (rerun) => {
+    console.log("Running mermaid diagrams, rerun =", rerun);
+    // clear all existing mermaid charts
+    let all_mermaids = document.querySelectorAll(".mermaid");
+
+    if (rerun) {
+        all_mermaids.forEach((el) => {
+            if(!el.hasAttribute("data-original-code")) {
+                // store original code
+                // console.log(`Storing original code for first run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+            if(el.getAttribute("data-processed") === "true") {
+                // remove and restore original
+                el.removeAttribute("data-processed");
+                // console.log(`Restoring original code for re-run: `, el.getAttribute('data-original-code'));
+                el.innerHTML = el.getAttribute('data-original-code');
+            } else {
+                // store original code
+                // console.log(`Storing original code for re-run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+        });
+        await mermaid.run();
+    }
+
+    all_mermaids = document.querySelectorAll(".mermaid");
+    const mermaids_processed = document.querySelectorAll(".mermaid[data-processed='true']");
+
+    if ("False" === "True") {
+        const mermaids_to_add_zoom = -1 === -1 ? all_mermaids.length : -1;
+        if(mermaids_to_add_zoom > 0) {
+            var svgs = d3.selectAll("");
+            if(all_mermaids.length !== mermaids_processed.length) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            } else if(svgs.size() !== mermaids_to_add_zoom) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            } else {
+                svgs.each(function() {
+                    var svg = d3.select(this);
+                    svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+                    var inner = svg.select("g");
+                    var zoom = d3.zoom().on("zoom", function(event) {
+                        inner.attr("transform", event.transform);
+                    });
+                    svg.call(zoom);
+                });
+            }
+        }
+    } else if(all_mermaids.length !== mermaids_processed.length) {
+        // Wait for mermaid to process all diagrams
+        setTimeout(() => runMermaid(false), 200);
+        return;
+    }
+
+    // Stop here if not adding fullscreen capability
+    if ("True" !== "True") return;
+
+    if (modal !== null ) {
+        // Destroy existing modal
+        modal.remove();
+        modal = null;
+        modalContent = null;
+    }
+
+    modal = document.createElement('div');
+    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
+    modal.innerHTML = `
+        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
+        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
+    `;
+    document.body.appendChild(modal);
+
+    modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
+
+    const closeModal = () => {
+        modal.classList.remove('active');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = ''
+        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            closeModal();
+        }
+    });
+
+    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
+        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
+            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            // Already processed, adjust button class if needed
+            const existingBtn = mermaidDiv.parentNode.querySelector('.mermaid-fullscreen-btn');
+            if (existingBtn) {
+                existingBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+            }
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-container';
+        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
+        container.appendChild(mermaidDiv);
+
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
+        fullscreenBtn.textContent = '⛶';
+        fullscreenBtn.style.opacity = '50%';
+
+        // Calculate dynamic position based on diagram's margin and padding
+        const diagramStyle = window.getComputedStyle(mermaidDiv);
+        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
+        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
+        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
+        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
+        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
+        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
+
+        fullscreenBtn.addEventListener('click', () => {
+            previousScrollOffset = [window.scroll, window.scrollY];
+            const clone = mermaidDiv.cloneNode(true);
+            modalContent.innerHTML = '';
+            modalContent.appendChild(clone);
+
+            const svg = clone.querySelector('svg');
+            if (svg) {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.width = '100%';
+                svg.style.height = 'auto';
+                svg.style.maxWidth = '100%';
+                svg.style.sdisplay = 'block';
+
+                if ("False" === "True") {
+                    setTimeout(() => {
+                        const g = svg.querySelector('g');
+                        if (g) {
+                            var svgD3 = d3.select(svg);
+                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
+                            var inner = svgD3.select("g");
+                            var zoom = d3.zoom().on("zoom", function(event) {
+                                inner.attr("transform", event.transform);
+                            });
+                            svgD3.call(zoom);
+                        }
+                    }, 100);
+                }
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+        container.appendChild(fullscreenBtn);
+    });
+};
+
+const load = async () => {
+    initStyles();
+
+    await runMermaid(true);
+
+    const reRunIfThemeChanges = async () => {
+        const newDarkTheme = isDarkTheme();
+        if (newDarkTheme !== darkTheme) {
+            darkTheme = newDarkTheme;
+            console.log("Theme change detected, re-running mermaid with", darkTheme ? "dark" : "default", "theme");
+            await mermaid.initialize(
+                {...JSON.parse(
+                    `{"startOnLoad": false}`
+                ),
+                ...{ darkMode: darkTheme, theme: darkTheme ? 'dark' : 'default' },
+                }
+            );
+            await runMermaid(true);
+        }
+    };
+
+    // Update theme classes when theme changes
+    const themeObserver = new MutationObserver(reRunIfThemeChanges);
+    themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    themeObserver.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+};
+
+
+
+
+
+console.log("Initializing mermaid with", darkTheme ? "dark" : "default", "theme");
+mermaid.initialize(
+    {...JSON.parse(
+        `{"startOnLoad": false}`
+    ),
+    ...{ darkMode: darkTheme, theme: darkTheme ? 'dark' : 'default' },
+    }
+);
+
+window.addEventListener("load", load);
+window.runMermaid = runMermaid;</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/pudl/metadata/dtypes';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://docs.catalyst.coop/pudl/available_versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'latest';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  
+    
+    <script src="../../../_static/searchtools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script src="../../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.6.2.dev32 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.6.2.dev32 documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://data.catalyst.coop">
+    PUDL Data Viewer
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../data.html">
+    Data Documentation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../code.html">
+    Development
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://data.catalyst.coop">
+    PUDL Data Viewer
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../data.html">
+    Data Documentation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../code.html">
+    Development
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../release_notes.html">
+    Release Notes
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="../../pudl.html" class="nav-link">pudl</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">pudl.metadata.dtypes</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for pudl.metadata.dtypes</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Canonical PUDL dtype mappings and dtype-application helpers.</span>
+
+<span class="sd">This module serves two related purposes:</span>
+
+<span class="sd">1. Define the canonical mapping from PUDL&#39;s simplified field types</span>
+<span class="sd">    (``string``, ``integer``, ``geometry``, etc.) to the concrete dtype objects used</span>
+<span class="sd">    by supported tabular backends like pandas, Polars, SQLite, DuckDB, and PyArrow.</span>
+<span class="sd">2. Expose helper functions that resolve those backend dtypes for either the global</span>
+<span class="sd">    field metadata or a concrete PUDL resource schema, and apply them to pandas or</span>
+<span class="sd">    Polars dataframes.</span>
+
+<span class="sd">When a concrete ``resource`` is provided to :func:`get_pudl_dtypes`, the resource</span>
+<span class="sd">schema is authoritative. That means resource-specific field typing and enum/category</span>
+<span class="sd">information already encoded in ``PUDL_PACKAGE`` will be used directly where possible.</span>
+
+<span class="sd">Not every backend supports every canonical PUDL field type. In particular, some</span>
+<span class="sd">backends do not yet support PUDL&#39;s ``geometry`` fields. In those cases the dtype</span>
+<span class="sd">helpers intentionally omit unsupported fields rather than returning an incompatible</span>
+<span class="sd">dtype mapping.</span>
+
+<span class="sd">This module intentionally keeps the import of ``PUDL_PACKAGE`` local to the helper</span>
+<span class="sd">functions that need it, so the metadata class graph does not introduce a module import</span>
+<span class="sd">cycle.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">copy</span><span class="w"> </span><span class="kn">import</span> <span class="n">deepcopy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Literal</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">duckdb.sqltypes</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">geoarrow.pyarrow</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ga</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">geopandas</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">polars</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pl</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">polars.datatypes</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">polars_datatypes</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pyarrow</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pa</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sqlalchemy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sa</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sqlalchemy.dialects.sqlite</span><span class="w"> </span><span class="kn">import</span> <span class="n">DATETIME</span> <span class="k">as</span> <span class="n">SQLITE_DATETIME</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sqlalchemy.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">TypeEngine</span> <span class="k">as</span> <span class="n">SATypeEngine</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.fields</span><span class="w"> </span><span class="kn">import</span> <span class="n">FIELD_METADATA</span><span class="p">,</span> <span class="n">FIELD_METADATA_BY_NAMESPACE</span>
+
+<div class="viewcode-block" id="FIELD_DTYPES_POLARS">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/dtypes/index.html#pudl.metadata.dtypes.FIELD_DTYPES_POLARS">[docs]</a>
+<span class="n">FIELD_DTYPES_POLARS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">type</span><span class="p">[</span><span class="n">pl</span><span class="o">.</span><span class="n">DataType</span><span class="p">]</span> <span class="o">|</span> <span class="n">pl</span><span class="o">.</span><span class="n">DataType</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;boolean&quot;</span><span class="p">:</span> <span class="n">polars_datatypes</span><span class="o">.</span><span class="n">Boolean</span><span class="p">,</span>
+    <span class="s2">&quot;date&quot;</span><span class="p">:</span> <span class="n">polars_datatypes</span><span class="o">.</span><span class="n">Date</span><span class="p">,</span>
+    <span class="s2">&quot;datetime&quot;</span><span class="p">:</span> <span class="n">polars_datatypes</span><span class="o">.</span><span class="n">Datetime</span><span class="p">(</span><span class="n">time_unit</span><span class="o">=</span><span class="s2">&quot;ms&quot;</span><span class="p">),</span>
+    <span class="s2">&quot;integer&quot;</span><span class="p">:</span> <span class="n">polars_datatypes</span><span class="o">.</span><span class="n">Int64</span><span class="p">,</span>
+    <span class="s2">&quot;number&quot;</span><span class="p">:</span> <span class="n">polars_datatypes</span><span class="o">.</span><span class="n">Float64</span><span class="p">,</span>
+    <span class="s2">&quot;string&quot;</span><span class="p">:</span> <span class="n">polars_datatypes</span><span class="o">.</span><span class="n">String</span><span class="p">,</span>
+    <span class="s2">&quot;year&quot;</span><span class="p">:</span> <span class="n">polars_datatypes</span><span class="o">.</span><span class="n">Datetime</span><span class="p">,</span>
+<span class="p">}</span></div>
+
+<span class="sd">&quot;&quot;&quot;Polars data type by simplified PUDL field type.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="FIELD_DTYPES_DUCKDB">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/dtypes/index.html#pudl.metadata.dtypes.FIELD_DTYPES_DUCKDB">[docs]</a>
+<span class="n">FIELD_DTYPES_DUCKDB</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">sqltypes</span><span class="o">.</span><span class="n">DuckDBPyType</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;boolean&quot;</span><span class="p">:</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">sqltypes</span><span class="o">.</span><span class="n">BOOLEAN</span><span class="p">,</span>
+    <span class="s2">&quot;date&quot;</span><span class="p">:</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">sqltypes</span><span class="o">.</span><span class="n">DATE</span><span class="p">,</span>
+    <span class="s2">&quot;datetime&quot;</span><span class="p">:</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">sqltypes</span><span class="o">.</span><span class="n">TIMESTAMP_MS</span><span class="p">,</span>
+    <span class="s2">&quot;integer&quot;</span><span class="p">:</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">sqltypes</span><span class="o">.</span><span class="n">INTEGER</span><span class="p">,</span>
+    <span class="s2">&quot;number&quot;</span><span class="p">:</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">sqltypes</span><span class="o">.</span><span class="n">DOUBLE</span><span class="p">,</span>
+    <span class="s2">&quot;string&quot;</span><span class="p">:</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">sqltypes</span><span class="o">.</span><span class="n">VARCHAR</span><span class="p">,</span>
+    <span class="s2">&quot;year&quot;</span><span class="p">:</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">sqltypes</span><span class="o">.</span><span class="n">TIMESTAMP_MS</span><span class="p">,</span>
+<span class="p">}</span></div>
+
+<span class="sd">&quot;&quot;&quot;DuckDB data type by simplified PUDL field type.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="FIELD_DTYPES_PANDAS">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/dtypes/index.html#pudl.metadata.dtypes.FIELD_DTYPES_PANDAS">[docs]</a>
+<span class="n">FIELD_DTYPES_PANDAS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;boolean&quot;</span><span class="p">:</span> <span class="s2">&quot;boolean&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;date&quot;</span><span class="p">:</span> <span class="s2">&quot;datetime64[s]&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;datetime&quot;</span><span class="p">:</span> <span class="s2">&quot;datetime64[s]&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;geometry&quot;</span><span class="p">:</span> <span class="s2">&quot;geometry&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;integer&quot;</span><span class="p">:</span> <span class="s2">&quot;Int64&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;number&quot;</span><span class="p">:</span> <span class="s2">&quot;float64&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;string&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;year&quot;</span><span class="p">:</span> <span class="s2">&quot;datetime64[s]&quot;</span><span class="p">,</span>
+<span class="p">}</span></div>
+
+<span class="sd">&quot;&quot;&quot;Pandas data type by simplified PUDL field type.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="FIELD_DTYPES_PYARROW">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/dtypes/index.html#pudl.metadata.dtypes.FIELD_DTYPES_PYARROW">[docs]</a>
+<span class="n">FIELD_DTYPES_PYARROW</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pa</span><span class="o">.</span><span class="n">DataType</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;boolean&quot;</span><span class="p">:</span> <span class="n">pa</span><span class="o">.</span><span class="n">bool_</span><span class="p">(),</span>
+    <span class="s2">&quot;date&quot;</span><span class="p">:</span> <span class="n">pa</span><span class="o">.</span><span class="n">date32</span><span class="p">(),</span>
+    <span class="s2">&quot;datetime&quot;</span><span class="p">:</span> <span class="n">pa</span><span class="o">.</span><span class="n">timestamp</span><span class="p">(</span><span class="s2">&quot;ms&quot;</span><span class="p">),</span>
+    <span class="s2">&quot;geometry&quot;</span><span class="p">:</span> <span class="n">ga</span><span class="o">.</span><span class="n">wkb</span><span class="p">(),</span>
+    <span class="s2">&quot;integer&quot;</span><span class="p">:</span> <span class="n">pa</span><span class="o">.</span><span class="n">int32</span><span class="p">(),</span>
+    <span class="s2">&quot;number&quot;</span><span class="p">:</span> <span class="n">pa</span><span class="o">.</span><span class="n">float32</span><span class="p">(),</span>
+    <span class="s2">&quot;string&quot;</span><span class="p">:</span> <span class="n">pa</span><span class="o">.</span><span class="n">string</span><span class="p">(),</span>
+    <span class="s2">&quot;year&quot;</span><span class="p">:</span> <span class="n">pa</span><span class="o">.</span><span class="n">int32</span><span class="p">(),</span>
+<span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="FIELD_DTYPES_SQLITE">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/dtypes/index.html#pudl.metadata.dtypes.FIELD_DTYPES_SQLITE">[docs]</a>
+<span class="n">FIELD_DTYPES_SQLITE</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">type</span><span class="p">[</span><span class="n">SATypeEngine</span><span class="p">]</span> <span class="o">|</span> <span class="n">SATypeEngine</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;boolean&quot;</span><span class="p">:</span> <span class="n">sa</span><span class="o">.</span><span class="n">Boolean</span><span class="p">,</span>
+    <span class="s2">&quot;date&quot;</span><span class="p">:</span> <span class="n">sa</span><span class="o">.</span><span class="n">Date</span><span class="p">,</span>
+    <span class="c1"># Ensure SQLite&#39;s string representation of datetime uses only whole seconds:</span>
+    <span class="s2">&quot;datetime&quot;</span><span class="p">:</span> <span class="n">SQLITE_DATETIME</span><span class="p">(</span>
+        <span class="n">storage_format</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%(year)04d</span><span class="s2">-</span><span class="si">%(month)02d</span><span class="s2">-</span><span class="si">%(day)02d</span><span class="s2"> </span><span class="si">%(hour)02d</span><span class="s2">:</span><span class="si">%(minute)02d</span><span class="s2">:</span><span class="si">%(second)02d</span><span class="s2">&quot;</span>
+    <span class="p">),</span>
+    <span class="s2">&quot;integer&quot;</span><span class="p">:</span> <span class="n">sa</span><span class="o">.</span><span class="n">Integer</span><span class="p">,</span>
+    <span class="s2">&quot;number&quot;</span><span class="p">:</span> <span class="n">sa</span><span class="o">.</span><span class="n">Float</span><span class="p">,</span>
+    <span class="s2">&quot;string&quot;</span><span class="p">:</span> <span class="n">sa</span><span class="o">.</span><span class="n">Text</span><span class="p">,</span>
+    <span class="s2">&quot;year&quot;</span><span class="p">:</span> <span class="n">sa</span><span class="o">.</span><span class="n">Integer</span><span class="p">,</span>
+<span class="p">}</span></div>
+
+<span class="sd">&quot;&quot;&quot;SQLAlchemy column types by simplified PUDL field type.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="CONSTRAINT_DTYPES">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/dtypes/index.html#pudl.metadata.dtypes.CONSTRAINT_DTYPES">[docs]</a>
+<span class="n">CONSTRAINT_DTYPES</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">type</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;boolean&quot;</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="s2">&quot;date&quot;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">,</span>
+    <span class="s2">&quot;datetime&quot;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">,</span>
+    <span class="s2">&quot;geometry&quot;</span><span class="p">:</span> <span class="n">geopandas</span><span class="o">.</span><span class="n">array</span><span class="o">.</span><span class="n">GeometryDtype</span><span class="p">,</span>
+    <span class="s2">&quot;integer&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="s2">&quot;number&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="s2">&quot;string&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="s2">&quot;year&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+<span class="p">}</span></div>
+
+<span class="sd">&quot;&quot;&quot;Python types for field constraints by simplified PUDL field type.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="PERIODS">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/dtypes/index.html#pudl.metadata.dtypes.PERIODS">[docs]</a>
+<span class="n">PERIODS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">],</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;year&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;datetime64[Y]&quot;</span><span class="p">)),</span>
+    <span class="s2">&quot;quarter&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">tseries</span><span class="o">.</span><span class="n">offsets</span><span class="o">.</span><span class="n">QuarterBegin</span><span class="p">(</span><span class="n">startingMonth</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">rollback</span>
+    <span class="p">),</span>
+    <span class="s2">&quot;month&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;datetime64[M]&quot;</span><span class="p">)),</span>
+    <span class="s2">&quot;date&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;datetime64[D]&quot;</span><span class="p">)),</span>
+<span class="p">}</span></div>
+
+<span class="sd">&quot;&quot;&quot;Functions converting datetimes to period start times, by time period.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="PudlDtypeBackend">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/dtypes/index.html#pudl.metadata.dtypes.PudlDtypeBackend">[docs]</a>
+<span class="n">PudlDtypeBackend</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;pandas&quot;</span><span class="p">,</span> <span class="s2">&quot;polars&quot;</span><span class="p">,</span> <span class="s2">&quot;sqlite&quot;</span><span class="p">,</span> <span class="s2">&quot;duckdb&quot;</span><span class="p">,</span> <span class="s2">&quot;pyarrow&quot;</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="_DTYPE_MAPS_BY_BACKEND">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/dtypes/index.html#pudl.metadata.dtypes._DTYPE_MAPS_BY_BACKEND">[docs]</a>
+<span class="n">_DTYPE_MAPS_BY_BACKEND</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">PudlDtypeBackend</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;pandas&quot;</span><span class="p">:</span> <span class="n">FIELD_DTYPES_PANDAS</span><span class="p">,</span>
+    <span class="s2">&quot;polars&quot;</span><span class="p">:</span> <span class="n">FIELD_DTYPES_POLARS</span><span class="p">,</span>
+    <span class="s2">&quot;sqlite&quot;</span><span class="p">:</span> <span class="n">FIELD_DTYPES_SQLITE</span><span class="p">,</span>
+    <span class="s2">&quot;duckdb&quot;</span><span class="p">:</span> <span class="n">FIELD_DTYPES_DUCKDB</span><span class="p">,</span>
+    <span class="s2">&quot;pyarrow&quot;</span><span class="p">:</span> <span class="n">FIELD_DTYPES_PYARROW</span><span class="p">,</span>
+<span class="p">}</span></div>
+
+
+
+<div class="viewcode-block" id="_get_applicable_dtypes">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/dtypes/index.html#pudl.metadata.dtypes._get_applicable_dtypes">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_applicable_dtypes</span><span class="p">(</span>
+    <span class="n">columns</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">field_namespace</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">resource</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">dtype_backend</span><span class="p">:</span> <span class="n">PudlDtypeBackend</span><span class="p">,</span>
+    <span class="n">strict</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the subset of resolved dtypes needed to cast the given columns.&quot;&quot;&quot;</span>
+    <span class="n">dtypes</span> <span class="o">=</span> <span class="n">get_pudl_dtypes</span><span class="p">(</span>
+        <span class="n">field_namespace</span><span class="o">=</span><span class="n">field_namespace</span><span class="p">,</span>
+        <span class="n">resource</span><span class="o">=</span><span class="n">resource</span><span class="p">,</span>
+        <span class="n">dtype_backend</span><span class="o">=</span><span class="n">dtype_backend</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">resource</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">known_fields</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">dtypes</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">field_namespace_overrides</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">FIELD_METADATA_BY_NAMESPACE</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">field_namespace</span><span class="p">,</span> <span class="p">{})</span>
+            <span class="k">if</span> <span class="n">field_namespace</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="k">else</span> <span class="p">{}</span>
+        <span class="p">)</span>
+        <span class="n">known_fields</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">FIELD_METADATA</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">|</span> <span class="nb">set</span><span class="p">(</span>
+            <span class="n">field_namespace_overrides</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+        <span class="p">)</span>
+
+    <span class="n">unspecified_fields</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">columns</span><span class="p">)</span> <span class="o">-</span> <span class="n">known_fields</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">strict</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">unspecified_fields</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Found unspecified fields: </span><span class="si">{</span><span class="n">unspecified_fields</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">{</span><span class="n">column</span><span class="p">:</span> <span class="n">dtypes</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">columns</span> <span class="k">if</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">dtypes</span><span class="p">}</span></div>
+
+
+
+<div class="viewcode-block" id="get_pudl_dtypes">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/dtypes/index.html#pudl.metadata.dtypes.get_pudl_dtypes">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_pudl_dtypes</span><span class="p">(</span>
+    <span class="n">field_namespace</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">resource</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">dtype_backend</span><span class="p">:</span> <span class="n">PudlDtypeBackend</span> <span class="o">=</span> <span class="s2">&quot;pandas&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compile a dictionary of field dtypes.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        field_namespace: The field namespace (e.g. ferc1, eia) to use for overriding</span>
+<span class="sd">            the default field types. If None, no namespace overrides are applied.</span>
+<span class="sd">        resource: The resource (table) name whose schema should define the field</span>
+<span class="sd">            types. If provided, resource field types are authoritative.</span>
+<span class="sd">        dtype_backend: Named dtype backend to compile. Supported values are</span>
+<span class="sd">            ``&quot;pandas&quot;``, ``&quot;polars&quot;``, ``&quot;sqlite&quot;``, ``&quot;duckdb&quot;``, and ``&quot;pyarrow&quot;``.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A mapping of PUDL field names to their associated data types.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">field_namespace</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">resource</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;field_namespace and resource are mutually exclusive when selecting &quot;</span>
+            <span class="s2">&quot;PUDL dtypes. Suggestion: if you know the resource name use only &quot;</span>
+            <span class="s2">&quot;that. resource is more authoritative.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">resource</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">dtypes</span> <span class="o">=</span> <span class="n">_get_pudl_resource_dtypes</span><span class="p">(</span>
+            <span class="n">resource</span><span class="o">=</span><span class="n">resource</span><span class="p">,</span> <span class="n">dtype_backend</span><span class="o">=</span><span class="n">dtype_backend</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># This also covers the generic case in which field_namespace is None</span>
+        <span class="n">dtypes</span> <span class="o">=</span> <span class="n">_get_pudl_namespace_dtypes</span><span class="p">(</span>
+            <span class="n">field_namespace</span><span class="o">=</span><span class="n">field_namespace</span><span class="p">,</span> <span class="n">dtype_backend</span><span class="o">=</span><span class="n">dtype_backend</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">dtypes</span></div>
+
+
+
+<div class="viewcode-block" id="_get_pudl_namespace_dtypes">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/dtypes/index.html#pudl.metadata.dtypes._get_pudl_namespace_dtypes">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_pudl_namespace_dtypes</span><span class="p">(</span>
+    <span class="n">field_namespace</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">dtype_backend</span><span class="p">:</span> <span class="n">PudlDtypeBackend</span> <span class="o">=</span> <span class="s2">&quot;pandas&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compile a dictionary of field dtypes based on the namespace-level field metadata.</span>
+
+<span class="sd">    If no field_namespace is provided, the global PUDL field metadata is used.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        field_namespace: The field namespace (e.g. ferc1, eia) whose schema should</span>
+<span class="sd">            define the field types. If None, no namespace overrides are applied.</span>
+<span class="sd">        dtype_backend: Named dtype backend to compile. Supported values are</span>
+<span class="sd">            ``&quot;pandas&quot;``, ``&quot;polars&quot;``, ``&quot;sqlite&quot;``, ``&quot;duckdb&quot;``, and ``&quot;pyarrow&quot;``.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A mapping of PUDL field names to their associated data types.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># This is here to avoid circular imports.</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.classes</span><span class="w"> </span><span class="kn">import</span> <span class="n">FIELD_NAMESPACES</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">field_namespace</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">field_namespace</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">FIELD_NAMESPACES</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Unknown PUDL field namespace: </span><span class="si">{</span><span class="n">field_namespace</span><span class="si">!r}</span><span class="s2">. &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;Valid namespaces are: </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">FIELD_NAMESPACES</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+    <span class="n">dtype_map</span> <span class="o">=</span> <span class="n">_DTYPE_MAPS_BY_BACKEND</span><span class="p">[</span><span class="n">dtype_backend</span><span class="p">]</span>
+    <span class="n">field_meta</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">FIELD_METADATA</span><span class="p">)</span>
+    <span class="n">field_namespace_overrides</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">FIELD_METADATA_BY_NAMESPACE</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">field_namespace</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="k">if</span> <span class="n">field_namespace</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="k">else</span> <span class="p">{}</span>
+    <span class="p">)</span>
+    <span class="n">dtypes</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">field_name</span> <span class="ow">in</span> <span class="n">field_meta</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">field_name</span> <span class="ow">in</span> <span class="n">field_namespace_overrides</span><span class="p">:</span>
+            <span class="n">field_meta</span><span class="p">[</span><span class="n">field_name</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">field_namespace_overrides</span><span class="p">[</span><span class="n">field_name</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">field_meta</span><span class="p">[</span><span class="n">field_name</span><span class="p">][</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">dtype_map</span><span class="p">:</span>
+            <span class="n">dtypes</span><span class="p">[</span><span class="n">field_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">dtype_map</span><span class="p">[</span><span class="n">field_meta</span><span class="p">[</span><span class="n">field_name</span><span class="p">][</span><span class="s2">&quot;type&quot;</span><span class="p">]]</span>
+    <span class="k">return</span> <span class="n">dtypes</span></div>
+
+
+
+<div class="viewcode-block" id="_get_pudl_resource_dtypes">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/dtypes/index.html#pudl.metadata.dtypes._get_pudl_resource_dtypes">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_pudl_resource_dtypes</span><span class="p">(</span>
+    <span class="n">resource</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">dtype_backend</span><span class="p">:</span> <span class="n">PudlDtypeBackend</span> <span class="o">=</span> <span class="s2">&quot;pandas&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compile a dictionary of field dtypes for a specific PUDL resource.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        resource: The resource (table) name whose schema should define the field</span>
+<span class="sd">            types. If provided, resource field types are authoritative.</span>
+<span class="sd">        dtype_backend: Named dtype backend to compile. Supported values are</span>
+<span class="sd">            ``&quot;pandas&quot;``, ``&quot;polars&quot;``, ``&quot;sqlite&quot;``, ``&quot;duckdb&quot;``, and ``&quot;pyarrow&quot;``.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A mapping of PUDL field names to their associated data types.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># This is here to avoid circular imports.</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.classes</span><span class="w"> </span><span class="kn">import</span> <span class="n">PUDL_PACKAGE</span>
+
+    <span class="c1"># We need to build up resource-specific dtypes</span>
+    <span class="n">resource_metadata</span> <span class="o">=</span> <span class="n">PUDL_PACKAGE</span><span class="o">.</span><span class="n">get_resource</span><span class="p">(</span><span class="n">resource</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">dtype_backend</span> <span class="o">==</span> <span class="s2">&quot;pandas&quot;</span><span class="p">:</span>
+        <span class="c1"># Pandas is easy, because it defines all dtypes and we have a</span>
+        <span class="c1"># resource-level helper method to get them all at once.</span>
+        <span class="n">dtypes</span> <span class="o">=</span> <span class="n">resource_metadata</span><span class="o">.</span><span class="n">to_pandas_dtypes</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">dtype_backend</span> <span class="o">==</span> <span class="s2">&quot;pyarrow&quot;</span><span class="p">:</span>
+        <span class="c1"># pyarrow has the geometry dtype, but no resource-level helper method.</span>
+        <span class="n">dtypes</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">field</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">field</span><span class="o">.</span><span class="n">to_pyarrow_dtype</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">resource_metadata</span><span class="o">.</span><span class="n">schema</span><span class="o">.</span><span class="n">fields</span>
+        <span class="p">}</span>
+    <span class="k">elif</span> <span class="n">dtype_backend</span> <span class="o">==</span> <span class="s2">&quot;polars&quot;</span><span class="p">:</span>
+        <span class="c1"># For polars we need to build a mapping of only the fields which have</span>
+        <span class="c1"># dtypes defined, because it is missing the geometry dtype.</span>
+        <span class="n">dtypes</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">field</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">field</span><span class="o">.</span><span class="n">to_polars_dtype</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">resource_metadata</span><span class="o">.</span><span class="n">schema</span><span class="o">.</span><span class="n">fields</span>
+            <span class="k">if</span> <span class="n">field</span><span class="o">.</span><span class="n">type</span> <span class="ow">in</span> <span class="n">FIELD_DTYPES_POLARS</span>
+        <span class="p">}</span>
+    <span class="k">elif</span> <span class="n">dtype_backend</span> <span class="o">==</span> <span class="s2">&quot;sqlite&quot;</span><span class="p">:</span>
+        <span class="c1"># Similarly SQLite is also missing the geometry dtype.</span>
+        <span class="n">dtypes</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">field</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">field</span><span class="o">.</span><span class="n">to_sql_dtype</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">resource_metadata</span><span class="o">.</span><span class="n">schema</span><span class="o">.</span><span class="n">fields</span>
+            <span class="k">if</span> <span class="n">field</span><span class="o">.</span><span class="n">type</span> <span class="ow">in</span> <span class="n">FIELD_DTYPES_SQLITE</span>
+        <span class="p">}</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="n">dtype_backend</span> <span class="o">==</span> <span class="s2">&quot;duckdb&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Unknown dtype backend: </span><span class="si">{</span><span class="n">dtype_backend</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="c1"># We can&#39;t do the same field specific typing for DuckDB because it requires</span>
+        <span class="c1"># a database connection to define a custom ENUM type, so it just gets the</span>
+        <span class="c1"># more generic mapping</span>
+        <span class="n">dtype_map</span> <span class="o">=</span> <span class="n">_DTYPE_MAPS_BY_BACKEND</span><span class="p">[</span><span class="n">dtype_backend</span><span class="p">]</span>
+        <span class="n">dtypes</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">field</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">dtype_map</span><span class="p">[</span><span class="n">field</span><span class="o">.</span><span class="n">type</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">resource_metadata</span><span class="o">.</span><span class="n">schema</span><span class="o">.</span><span class="n">fields</span>
+            <span class="k">if</span> <span class="n">field</span><span class="o">.</span><span class="n">type</span> <span class="ow">in</span> <span class="n">dtype_map</span>
+        <span class="p">}</span>
+    <span class="k">return</span> <span class="n">dtypes</span></div>
+
+
+
+<div class="viewcode-block" id="apply_pudl_dtypes">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/dtypes/index.html#pudl.metadata.dtypes.apply_pudl_dtypes">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">apply_pudl_dtypes</span><span class="p">(</span>
+    <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="n">geopandas</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span>
+    <span class="n">field_namespace</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">resource</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">strict</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="n">geopandas</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Apply dtypes to those columns in a dataframe that have PUDL types defined.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        df: The dataframe to apply types to. Not all columns need to have types</span>
+<span class="sd">            defined in the PUDL metadata unless you pass ``strict=True``.</span>
+<span class="sd">        field_namespace: The field namespace to use for overrides, if any.</span>
+<span class="sd">        resource: The resource (table) name whose schema should define the field</span>
+<span class="sd">            types. If provided, resource field types are authoritative.</span>
+<span class="sd">        strict: whether or not all columns need a corresponding field.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The input dataframe, but with standard PUDL types applied.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">dtypes</span> <span class="o">=</span> <span class="n">_get_applicable_dtypes</span><span class="p">(</span>
+        <span class="n">columns</span><span class="o">=</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+        <span class="n">field_namespace</span><span class="o">=</span><span class="n">field_namespace</span><span class="p">,</span>
+        <span class="n">resource</span><span class="o">=</span><span class="n">resource</span><span class="p">,</span>
+        <span class="n">dtype_backend</span><span class="o">=</span><span class="s2">&quot;pandas&quot;</span><span class="p">,</span>
+        <span class="n">strict</span><span class="o">=</span><span class="n">strict</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">astype</span><span class="p">({</span><span class="n">col</span><span class="p">:</span> <span class="n">dtypes</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">dtypes</span><span class="p">})</span></div>
+
+
+
+<div class="viewcode-block" id="apply_pudl_dtypes_polars">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/dtypes/index.html#pudl.metadata.dtypes.apply_pudl_dtypes_polars">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">apply_pudl_dtypes_polars</span><span class="p">(</span>
+    <span class="n">lf</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">LazyFrame</span><span class="p">,</span>
+    <span class="n">field_namespace</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">resource</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">strict</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">LazyFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Apply dtypes to those columns in a dataframe that have PUDL types defined.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        lf: The LazyFrame to apply types to. Not all columns need to have types</span>
+<span class="sd">            defined in the PUDL metadata unless you pass ``strict=True``.</span>
+<span class="sd">        field_namespace: The field namespace to use for overrides, if any.</span>
+<span class="sd">        resource: The resource (table) name whose schema should define the field</span>
+<span class="sd">            types. If provided, resource field types are authoritative.</span>
+<span class="sd">        strict: whether or not all columns need a corresponding field.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The input LazyFrame, but with standard PUDL types applied.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">columns</span> <span class="o">=</span> <span class="n">lf</span><span class="o">.</span><span class="n">collect_schema</span><span class="p">()</span><span class="o">.</span><span class="n">names</span><span class="p">()</span>
+    <span class="n">dtypes</span> <span class="o">=</span> <span class="n">_get_applicable_dtypes</span><span class="p">(</span>
+        <span class="n">columns</span><span class="o">=</span><span class="n">columns</span><span class="p">,</span>
+        <span class="n">field_namespace</span><span class="o">=</span><span class="n">field_namespace</span><span class="p">,</span>
+        <span class="n">resource</span><span class="o">=</span><span class="n">resource</span><span class="p">,</span>
+        <span class="n">dtype_backend</span><span class="o">=</span><span class="s2">&quot;polars&quot;</span><span class="p">,</span>
+        <span class="n">strict</span><span class="o">=</span><span class="n">strict</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">lf</span><span class="o">.</span><span class="n">cast</span><span class="p">({</span><span class="n">key</span><span class="p">:</span> <span class="n">value</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">dtypes</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">})</span></div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2016-2026, Catalyst Cooperative, CC-BY-4.0.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.19.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

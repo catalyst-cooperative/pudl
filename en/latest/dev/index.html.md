@@ -49,6 +49,7 @@
   * [Dataset-level metadata](metadata.md#dataset-level-metadata)
   * [Table-level metadata](metadata.md#table-level-metadata)
   * [Field metadata](metadata.md#field-metadata)
+  * [Machine-readable units with pint](metadata.md#machine-readable-units-with-pint)
 * [Building the Documentation](build_docs.md)
 * [Working with the Datastore](datastore.md)
   * [Adding a new Dataset to the Datastore](datastore.md#adding-a-new-dataset-to-the-datastore)
