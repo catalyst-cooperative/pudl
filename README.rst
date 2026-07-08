@@ -163,7 +163,7 @@ PUDL currently integrates data from:
   - `Source Docs <https://www.ferc.gov/general-information-1/oil-industry-forms/form-6-6q-historical-vfp-data>`__
 * **FERC Form 60** (raw data converted to SQLite):
   - `Source Docs <https://www.ferc.gov/form-60-annual-report-centralized-service-companies>`__
-* **PHMSA Natural Gas Annual Reports** (work in progress by :user:`switchbox-data`):
+* **PHMSA Natural Gas Annual Reports**:
   - `Source Docs <https://www.phmsa.dot.gov/data-and-statistics/pipeline/gas-distribution-gas-gathering-gas-transmission-hazardous-liquids>`__
   - `PUDL Docs <https://docs.catalyst.coop/pudl/en/nightly/data_sources/phmsagas.html>`__
 * **USDA Rural Utilities Service Form 7** (via FOIA requests):

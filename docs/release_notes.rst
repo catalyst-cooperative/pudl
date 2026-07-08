@@ -54,6 +54,10 @@ Documentation
 * Set up the `sphinx_llm <https://github.com/NVIDIA/sphinx-llm>`__ Sphinx extension to
   generate a Markdown version of the PUDL documentation, suitable for consumption by
   LLMs, based on the `llms.txt <https://llmstxt.org/>`__ convention. See PR :pr:`5381`.
+  Each page now advertises its Markdown counterpart via a
+  ``<link rel="alternate" type="text/markdown">`` tag, and the site footer links
+  directly to ``llms.txt``, so that agents browsing the rendered HTML docs can discover
+  and prefer the Markdown versions.
 
 New Data Tests & Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
