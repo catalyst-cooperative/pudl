@@ -260,7 +260,10 @@ html_theme_options = {
     # add a link to the sphinx_llm.txt generated llms.txt index, so agents
     # exploring the rendered site (rather than landing on a specific page)
     # can discover the markdown-friendly docs.
-    "footer_end": ["theme-version", "llms-txt-link"],
+    "footer_end": [
+        "theme-version",
+        *(["llms-txt-link"] if "sphinx_llm.txt" in extensions else []),
+    ],
 }
 html_sidebars = {
     "release_notes": [],
