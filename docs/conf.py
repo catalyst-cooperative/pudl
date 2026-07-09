@@ -11,6 +11,7 @@
 import datetime
 import importlib.metadata
 import os
+import pathlib
 import shutil
 
 from pybtex.plugin import register_plugin
@@ -185,7 +186,7 @@ templates_path = ["_templates"]
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = ["_build"]
+exclude_patterns = ["_build", "docs"]
 
 # This is necessary because Sphinx 9.0+ is getting confused about class
 # attributes named type, and type[SomeClass] annotations in factory functions
@@ -405,9 +406,24 @@ def add_markdown_alternate_link(app, pagename, templatename, context, doctree):
     context["metatags"] = context.get("metatags", "") + link_tag
 
 
+def _create_readme_image_symlink(app):
+    """Create docs/docs/images symlink so README.rst image paths resolve.
+
+    README.rst uses 'docs/images/logos/...' paths (relative to repo root). When
+    included in docs/index.rst, Sphinx resolves those paths relative to docs/,
+    looking for docs/docs/images/logos/... — this symlink satisfies that lookup.
+    """
+    inner = pathlib.Path(app.srcdir) / "docs"
+    inner.mkdir(exist_ok=True)
+    images = inner / "images"
+    if not images.exists():
+        images.symlink_to("../images")
+
+
 def setup(app):
     """Add custom CSS defined in _static/custom.css."""
     app.add_css_file("custom.css")
+    app.connect("builder-inited", _create_readme_image_symlink)
     app.connect("builder-inited", data_dictionary_metadata_to_rst)
     app.connect("builder-inited", data_sources_metadata_to_rst)
     app.connect("builder-inited", static_dfs_to_rst)
