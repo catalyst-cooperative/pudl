@@ -382,7 +382,7 @@ def cleanup_csv_dir(app, exception):
 
 
 def cleanup_docs_img_hack_dir(app, exception):
-    """Remove generated CSV files when the build is finished."""
+    """Remove symlink to images dir when the build is finished."""
     docs_img_hack_dir = PUDL_DOCS_PATH / "docs"
     if docs_img_hack_dir.exists() and docs_img_hack_dir.is_dir():
         shutil.rmtree(docs_img_hack_dir)
