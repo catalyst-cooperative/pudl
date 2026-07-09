@@ -218,7 +218,31 @@ html_theme_options = {
             "url": "https://github.com/catalyst-cooperative/pudl",
             "icon": "fa-brands fa-square-github",
             "type": "fontawesome",
-        }
+        },
+        {
+            "name": "Mastodon",
+            "url": "https://mastodon.energy/@catalystcoop",
+            "icon": "fa-brands fa-mastodon",
+            "type": "fontawesome",
+        },
+        {
+            "name": "Bluesky",
+            "url": "https://bsky.app/profile/catalyst.coop",
+            "icon": "fa-brands fa-bluesky",
+            "type": "fontawesome",
+        },
+        {
+            "name": "LinkedIn",
+            "url": "https://www.linkedin.com/company/catalyst-cooperative/",
+            "icon": "fa-brands fa-linkedin",
+            "type": "fontawesome",
+        },
+        {
+            "name": "Support PUDL",
+            "url": "https://opencollective.com/pudl",
+            "icon": "fa-solid fa-donate",
+            "type": "fontawesome",
+        },
     ],
     "switcher": {
         "json_url": "https://docs.catalyst.coop/pudl/available_versions.json",
