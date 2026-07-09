@@ -8,7 +8,7 @@ sources:
           - check_row_counts_per_partition:
               arguments:
                 table_name: core_eia923__fuel_receipts_costs
-                partition_expr: "EXTRACT(YEAR FROM report_date)"
+                partition_expr: EXTRACT(YEAR FROM report_date)
         columns:
           - name: plant_id_eia
           - name: report_date
@@ -22,7 +22,17 @@ sources:
           - name: fuel_received_units
           - name: fuel_mmbtu_per_unit
           - name: sulfur_content_pct
+            data_tests:
+              - dbt_expectations.expect_column_values_to_be_between:
+                  arguments:
+                    min_value: 0
+                    max_value: 100
           - name: ash_content_pct
+            data_tests:
+              - dbt_expectations.expect_column_values_to_be_between:
+                  arguments:
+                    min_value: 0
+                    max_value: 100
           - name: mercury_content_ppm
           - name: fuel_cost_per_mmbtu
           - name: primary_transportation_mode_code
@@ -30,5 +40,13 @@ sources:
           - name: natural_gas_transport_code
           - name: natural_gas_delivery_contract_type_code
           - name: moisture_content_pct
+            data_tests:
+              - dbt_expectations.expect_column_values_to_be_between:
+                  arguments:
+                    min_value: 0
+                    max_value: 100
+                  config:
+                    error_if: ">12"
+                  description: 12 coal receipts from plant 10860 in 2015 report moisture content of 247%, which is physically impossible and appears to be a data entry error in the EIA-923 source data.
           - name: chlorine_content_ppm
           - name: data_maturity

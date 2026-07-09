@@ -17499,3 +17499,26 @@ utility_id_pudl,utility_id_ferc1,utility_name_ferc1,utility_id_eia,utility_name_
 17957,,,67846,Drennan Energy Storage LLC,EIA860 ER 2025
 17958,,,67847,Kearsarge Grissom LLC,EIA860 ER 2025
 17959,,,56571,,"EIA860 ER 2025 -- comes from owner_utility_id_eia and operator_utility_id_eia columns in _core_eia860__utilities table. Doesn't show up anywhere else, but necessary for foreign key mapping."
+17960,,,67848,"South Platte Storage, LLC",EIA860M May 2026
+17961,,,67865,"Murch Solar, LLC",EIA860M May 2026
+17962,,,67864,"Alligator Creek Solar, LLC",EIA860M May 2026
+17963,,,67868,"Two Blues Solar, LLC",EIA860M May 2026
+17964,,,67869,"Delaware Ranch Solar, LLC",EIA860M May 2026
+17965,,,67867,"Snapdragon Solar, LLC",EIA860M May 2026
+17966,,,67872,Crosswind Holdco LLC,EIA860M May 2026
+17967,,,67866,"Pike Solar, LLC",EIA860M May 2026
+17968,,,67873,Hardin Holdco LLC,EIA860M May 2026
+17969,,,67851,"SREOG IL Partnership 2, LLC",EIA860M May 2026
+17970,,,67902,"Ka Ie Ie Waho Company, LLC",EIA860M May 2026
+17971,,,67852,"SREOG IL Partnership 3, LLC",EIA860M May 2026
+17972,,,67853,"Kewanee Renewables, LLC",EIA860M May 2026
+17973,,,67850,"SREOG IL Partnership 1, LLC",EIA860M May 2026
+17974,,,67855,CVE US PA Bigler 409 LLC,EIA860M May 2026
+17975,,,67856,CVE US PA Bigler 436 LLC,EIA860M May 2026
+17976,,,67859,CVE US PA BUCKINGHAM 151 LLC,EIA860M May 2026
+17977,,,67861,CVE US PA Dayton 379 LLC,EIA860M May 2026
+17978,,,67860,CVE US PA Burrell 396 LLC,EIA860M May 2026
+17979,,,67857,CVE US PA Bigler 437 LLC,EIA860M May 2026
+17980,,,67863,CVE US PA Jones 399 LLC,EIA860M May 2026
+17981,,,67862,CVE US PA Dayton 404 LLC,EIA860M May 2026
+17982,,,67858,CVE US PA Bigler 438 LLC,EIA860M May 2026

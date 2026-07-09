@@ -288,19 +288,22 @@ the same name share the same general definition, no matter where you find them.
 Field names should:
 
 * Be written as snake case (e.g., ``report_date``.)
-* Include units at the end where not implied (e.g., ``volume_mcf``)
-* Otherwise follow our established :doc:`naming_conventions`.
+* Include an intelligible units string as a suffix if applicable (e.g., ``volume_mcf``)
+* Follow our established :doc:`naming_conventions`.
 
 To define metadata for a new field:
 
 * First, search to make sure it doesn't already exist. Often there's an almost
-  identical field from a different table.
+  identical field from a different table. We don't want a proliferation of
+  semantically identical but textually slightly different fields.
 * To define a new field, add an entry to the dictionary with the following keys:
 
   * ``type``: The data type - integer, string, number, or boolean.
-  * ``description``: No more than a few sentences describing what the field
-    contains.
-  * ``unit``: The unit of the column (when applicable).
+  * ``description``: No more than a few sentences describing what the field contains.
+  * ``unit``: The unit of the column (when applicable). Unit strings must be
+    parseable by :data:`pudl.metadata.units.PUDL_UNIT_REGISTRY` — a
+    ``pint.UnitRegistry`` that extends Pint's defaults with esoteric US energy-industry
+    units (``MMBtu``, ``Mcf``, ``MMcf``, ``MVAr``, etc.). See below for more on Pint.
   * ``constraints``: Categorical columns should largely be encoded by coding tables,
     but you can use this field to constrain a field to a short list of items
     using the ``enum`` key, or a regex pattern using the ``pattern`` key.
@@ -309,3 +312,34 @@ There are times when a table or source needs a more specific field definition
 than the one already existing in fields.py. In those cases, we can override the field
 description for just one resource by adding the resource and the field definition into
 :py:const:`pudl.metadata.fields.FIELD_METADATA_BY_RESOURCE`.
+
+.. _pint_units:
+
+Machine-readable units with pint
+--------------------------------
+
+The `Pint package <https://pint.readthedocs.io/>`__ provides a syntax for parsing units
+and defining new units. We use it to ensure that the ``unit`` annotations on our fields
+are valid and parsable so that quantities with different units can be programmatically
+converted for comparison and analysis, and to help guard against inappropriate
+combinations, for example, summing values that are a mix of MWh (energy) and MW (power).
+
+Some guidelines:
+
+* When defining compound units in field metadata, use slash-with-spaces — e.g. ``MMBtu /
+  MWh``, ``USD / MWh``, ``gallon / minute``.
+* Use Pint's built-in ``count`` unit for fields that enumerate discrete items
+  (customers, employees, meters, generators, etc.).
+* Do **not** conflate "percent" with fractional values. In most cases data reported as a
+  percentage (value between 0 and 100) it should be converted to a fraction (value
+  between 0 and 1) when it is processed in PUDL. If a column truly is a percentage, give
+  it the unit ``percent``
+
+If you want to see the full repertoire of defined base unit strings Pint understands,
+you can do something like:
+
+.. code-block::python
+
+   from pudl.metadata.units import PUDL_UNIT_REGISTRY as pudl_units
+
+   [unit for unit in dir(pudl_units) if not str(unit).startswith("_")]

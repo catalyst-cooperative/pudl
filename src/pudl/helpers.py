@@ -36,7 +36,7 @@ from pandas._libs.missing import NAType
 from pydantic import BaseModel, Field
 
 import pudl.logging_helpers
-from pudl.metadata.fields import apply_pudl_dtypes, get_pudl_dtypes
+from pudl.metadata.dtypes import apply_pudl_dtypes, get_pudl_dtypes
 from pudl.workspace.setup import PudlPaths
 
 sum_na = partial(pd.Series.sum, skipna=False)
@@ -1300,7 +1300,8 @@ def convert_cols_dtypes(
     Args:
         df: dataframe with columns that appear in the PUDL tables.
         data_source: the name of the datasource (eia, ferc1, etc.)
-        name: name of the table (for logging only!)
+        name: name of the table; used for logging and for looking up the table's
+            schema-defined field types.
 
     Returns:
         Input dataframe, but with column types as specified by
@@ -1309,7 +1310,7 @@ def convert_cols_dtypes(
     # get me all of the columns for the table in the constants dtype dict
     dtypes = {
         col: dtype
-        for col, dtype in get_pudl_dtypes(group=data_source).items()
+        for col, dtype in get_pudl_dtypes(resource=name).items()
         if col in df.columns
     }
 
@@ -2307,8 +2308,8 @@ def get_parquet_table(
     # Only enforce schema if we're reading all columns
     if set(columns) == set(resource.get_field_names()):
         return resource.enforce_schema(df)
-    # For specific columns, apply PUDL dtypes for the columns we have
-    return apply_pudl_dtypes(df, group=resource.field_namespace)
+    # For specific columns, apply PUDL dtypes including resource-level overrides
+    return apply_pudl_dtypes(df, resource=resource.name)
 
 
 def standardize_phone_column(df: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
