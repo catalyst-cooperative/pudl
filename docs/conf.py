@@ -216,7 +216,7 @@ html_theme_options = {
         {
             "name": "GitHub",
             "url": "https://github.com/catalyst-cooperative/pudl",
-            "icon": "fa-brands fa-square-github",
+            "icon": "fa-brands fa-github",
             "type": "fontawesome",
         },
         {
