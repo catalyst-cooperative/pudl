@@ -381,6 +381,13 @@ def cleanup_csv_dir(app, exception):
         shutil.rmtree(csv_dir)
 
 
+def cleanup_docs_img_hack_dir(app, exception):
+    """Remove generated CSV files when the build is finished."""
+    docs_img_hack_dir = PUDL_DOCS_PATH / "docs"
+    if docs_img_hack_dir.exists() and docs_img_hack_dir.is_dir():
+        shutil.rmtree(docs_img_hack_dir)
+
+
 def add_markdown_alternate_link(app, pagename, templatename, context, doctree):
     """Advertise the sphinx_llm.txt markdown twin of each page via <link rel="alternate">.
 
@@ -439,3 +446,4 @@ def setup(app):
     if not keep_generated_files:
         app.connect("build-finished", cleanup_rsts)
         app.connect("build-finished", cleanup_csv_dir)
+        app.connect("build-finished", cleanup_docs_img_hack_dir)
