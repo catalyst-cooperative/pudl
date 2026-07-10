@@ -45,6 +45,12 @@ EIA-860
 
 * Added early release data for EIA-860 2025. See issue :issue:`5322` and PR :pr:`5324`.
 
+EIA-860M
+~~~~~~~~
+
+* Added :doc:`EIA-860M <data_sources/eia860>` data through May 2026. See
+  issue :issue:`5369` and PR :pr:`5371`.
+
 Documentation
 ^^^^^^^^^^^^^
 * Expanded the developer docs around metadata naming, typing, and updates to explain
