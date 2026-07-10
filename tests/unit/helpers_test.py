@@ -22,6 +22,7 @@ from pudl.helpers import (
     env_var_is_true,
     expand_timeseries,
     flatten_list,
+    get_parquet_table,
     normalize_year_fragments,
     remove_leading_zeros_from_numeric_strings,
     retry,
@@ -392,14 +393,14 @@ def test_timeseries_fillin(test_dir):
             "generator_id": [1, 2, 1, 1, 3, 3],
             "data": [2.0, 1.0, 2.0, 3.0, 10.0, 2.0],
         }
-    ).pipe(apply_pudl_dtypes, group="eia")
+    ).pipe(apply_pudl_dtypes, field_namespace="eia")
 
     expected_out_path = (
         test_dir / "data/date_merge_unit_test/timeseries_fillin_expected_out.csv"
     )
     expected_out = (
         pd.read_csv(expected_out_path)
-        .pipe(apply_pudl_dtypes, group="eia")
+        .pipe(apply_pudl_dtypes, field_namespace="eia")
         .astype({"data": "float64"})
     )
 
@@ -424,7 +425,7 @@ def test_timeseries_fillin_through_month(test_dir):
             "generator_id": [1, 1, 2, 1, 1],
             "data": [1.0, 2.0, 1.0, 3.0, 4.0],
         }
-    ).pipe(apply_pudl_dtypes, group="eia")
+    ).pipe(apply_pudl_dtypes, field_namespace="eia")
 
     expected_out_path = (
         test_dir
@@ -432,7 +433,7 @@ def test_timeseries_fillin_through_month(test_dir):
     )
     expected_out = (
         pd.read_csv(expected_out_path)
-        .pipe(apply_pudl_dtypes, group="eia")
+        .pipe(apply_pudl_dtypes, field_namespace="eia")
         .astype({"data": "float64"})
     )
     out = expand_timeseries(
@@ -1114,3 +1115,50 @@ def test_env_var_is_true(mocker, value: str, should_pass: bool):
     """Test env_var_is_true."""
     mocker.patch("pudl.helpers.os.getenv", return_value=value)
     assert env_var_is_true(value) == should_pass
+
+
+# ---------------------------------------------------------------------------
+# Tests for get_parquet_table resource-level dtype overrides
+# ---------------------------------------------------------------------------
+
+
+def _make_mock_resource(mocker, resource_name: str, field_names: list[str]):
+    """Build a minimal mock Resource object for get_parquet_table testing."""
+    mock_resource = mocker.MagicMock()
+    mock_resource.name = resource_name
+    mock_resource.field_namespace = "eia"
+    mock_resource.get_field_names.return_value = field_names
+    mock_resource.to_pyarrow.return_value = None
+    mock_resource.get_field.return_value = mocker.MagicMock(type="number")
+    return mock_resource
+
+
+def test_get_parquet_table_subset_applies_resource_override(mocker, tmp_path):
+    """get_parquet_table passes resource name to apply_pudl_dtypes for subset reads.
+
+    When only a subset of columns is requested, get_parquet_table must call
+    apply_pudl_dtypes with both group and resource so that FIELD_METADATA_BY_RESOURCE
+    overrides are applied.  Regression test for the bug where only group was passed.
+    """
+    resource_name = "core_eia861__yearly_reliability"
+    all_fields = ["report_date", "utility_id_eia", "customers"]
+    subset = ["report_date", "customers"]
+
+    # Raw parquet data: customers has fractional values that can't cast to Int64
+    raw_df = pd.DataFrame({"report_date": ["2020-01-01"], "customers": [1.5]})
+
+    mock_resource = _make_mock_resource(mocker, resource_name, all_fields)
+
+    # Resource is imported locally inside get_parquet_table, so patch at source
+    mocker.patch("pudl.metadata.classes.Resource.from_id", return_value=mock_resource)
+    mocker.patch("pudl.helpers.pd.read_parquet", return_value=raw_df)
+    mocker.patch(
+        "pudl.helpers.PudlPaths.parquet_path", return_value=tmp_path / "fake.parquet"
+    )
+
+    # Requesting a subset → goes through apply_pudl_dtypes path.
+    # The resource override keeps customers as float64; without it the cast to
+    # Int64 would raise TypeError.
+    result = get_parquet_table(resource_name, columns=subset)
+    assert str(result["customers"].dtype) == "float64"
+    assert result["customers"].tolist() == [1.5]

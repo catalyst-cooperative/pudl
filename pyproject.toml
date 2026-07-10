@@ -118,6 +118,7 @@ pandas = ">=2.3"
 pandoc = ">=3.7"
 pandera-polars = ">=0.31"
 parallel = ">=20250822"
+pint = ">=0.25.3"
 polars = ">=1.42" # v1.41.2 fixed a big memory leak
 prek = ">=0.4"
 # potentially unresolveable breaking changes in prettier 4.x

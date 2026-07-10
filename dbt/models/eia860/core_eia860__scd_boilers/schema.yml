@@ -5,11 +5,10 @@ sources:
       - name: core_eia860__scd_boilers
         data_tests:
           - expect_columns_not_all_null:
-              description: >
-                This table has a lot of row_conditions because it has a few columns that
-                are found in the EIA-860M generators table (and so appear in the most
-                recent monthly data) but most of the columns are specific to boilers,
-                which are not reported in the EIA-860M.
+              description:
+                "This table has a lot of row_conditions because it has a few columns that are found in the EIA-860M generators table (and so appear in the most recent monthly data) but most of the columns are specific to boilers, which are not reported in the EIA-860M.
+
+                "
               arguments:
                 ignore_eia860m_nulls: true
                 row_conditions:
@@ -29,7 +28,7 @@ sources:
                   boiler_fuel_code_3: EXTRACT(year FROM report_date) >= 2009
                   boiler_fuel_code_4: EXTRACT(year FROM report_date) >= 2009
                   waste_heat_input_mmbtu_per_hour: EXTRACT(year FROM report_date) >= 2009
-                  wet_dry_bottom: EXTRACT(year FROM report_date) >= 2009
+                  wet_dry_bottom_code: EXTRACT(year FROM report_date) >= 2009
                   fly_ash_reinjection: EXTRACT(year FROM report_date) >= 2009
                   hrsg: EXTRACT(year FROM report_date) >= 2016
                   max_steam_flow_lbs_per_hour: EXTRACT(year FROM report_date) >= 2009
@@ -99,11 +98,11 @@ sources:
                   so2_control_proposed_strategy_1: EXTRACT(year FROM report_date) >= 2013
                   so2_control_proposed_strategy_2: EXTRACT(year FROM report_date) >= 2013
                   so2_control_proposed_strategy_3: EXTRACT(year FROM report_date) >= 2013
-                  standard_so2_percent_scrubbed: EXTRACT(year FROM report_date) >= 2013
+                  standard_so2_scrubbed_fraction: EXTRACT(year FROM report_date) >= 2013
           - check_row_counts_per_partition:
               arguments:
                 table_name: core_eia860__scd_boilers
-                partition_expr: "EXTRACT(YEAR FROM report_date)"
+                partition_expr: EXTRACT(YEAR FROM report_date)
         columns:
           - name: plant_id_eia
           - name: boiler_id
@@ -124,13 +123,23 @@ sources:
           - name: boiler_fuel_code_3
           - name: boiler_fuel_code_4
           - name: waste_heat_input_mmbtu_per_hour
-          - name: wet_dry_bottom
+          - name: wet_dry_bottom_code
           - name: fly_ash_reinjection
           - name: hrsg
           - name: max_steam_flow_lbs_per_hour
           - name: turndown_ratio
           - name: efficiency_100pct_load
+            data_tests:
+              - dbt_expectations.expect_column_values_to_be_between:
+                  arguments:
+                    min_value: 0.0
+                    max_value: 1.0
           - name: efficiency_50pct_load
+            data_tests:
+              - dbt_expectations.expect_column_values_to_be_between:
+                  arguments:
+                    min_value: 0.0
+                    max_value: 1.0
           - name: air_flow_100pct_load_cubic_feet_per_minute
           - name: new_source_review
           - name: new_source_review_date
@@ -194,5 +203,10 @@ sources:
           - name: so2_control_proposed_strategy_1
           - name: so2_control_proposed_strategy_2
           - name: so2_control_proposed_strategy_3
-          - name: standard_so2_percent_scrubbed
+          - name: standard_so2_scrubbed_fraction
+            data_tests:
+              - dbt_expectations.expect_column_values_to_be_between:
+                  arguments:
+                    min_value: 0.0
+                    max_value: 1.0
           - name: data_maturity
