@@ -58,7 +58,12 @@ multiple-fuel (using multiple fuels simultaneously) generators under the actual 
 To maintain generator confidentiality, generation may sometimes be reported in the Other category if too few generators are reported for a particular energy source category.
 
 In theory, the sum of net generation across all energy sources should equal the total net generation reported in the balancing authority operations table. In practice,
-there are many cases in which these values diverge significantly, which require further investigation.""",
+there are many cases in which these values diverge significantly, which require further investigation.
+
+In 2024Q3 EIA started using different and more granular energy source categories, particularly for renewable energy sources.
+The new categories differentiate between wind and solar plants that do and don't have energy storage, and split out pumped hydro from hydro without storage.
+They also added new battery storage and geothermal categories.
+""",
         },
         "schema": {
             "fields": [

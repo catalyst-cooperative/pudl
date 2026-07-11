@@ -148,7 +148,7 @@ additional information about FIPS state codes.
         "create_database_schema": False,
     },
 }
-"""PUDL-specifiic resource attributes by PUDL identifier (``resource.name``).
+"""PUDL-specific resource attributes by PUDL identifier (``resource.name``).
 
 Keys are in alphabetical order.
 

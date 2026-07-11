@@ -8,9 +8,7 @@ from pudl import PUDL_ROOT_PATH
 _SRC_PUDL = PUDL_ROOT_PATH / "src" / "pudl"
 _SCRIPTS_DIR = _SRC_PUDL / "scripts"
 _CLICK_ENTRY_POINT = re.compile(r"@click\.(command|group)\s*[\(\n]")
-_MAIN_BLOCK = re.compile(
-    r'if __name__ == "__main__":.*?sys\.exit\(main\(\)\)', re.DOTALL
-)
+_MAIN_BLOCK = re.compile(r'if __name__ == "__main__":.*?main\(\)', re.DOTALL)
 
 
 def _files_with_click_entry_points(root: Path) -> list[Path]:
@@ -44,8 +42,8 @@ def test_no_click_commands_outside_scripts():
     )
 
 
-def test_scripts_use_sys_exit_main():
-    """All CLI scripts must use ``if __name__ == "__main__": sys.exit(main())``.
+def test_scripts_call_main_in_module_launcher():
+    """All CLI scripts must use ``if __name__ == "__main__": main()``.
 
     See src/pudl/scripts/__init__.py for the conventions that govern this subpackage.
     """
@@ -53,6 +51,6 @@ def test_scripts_use_sys_exit_main():
         path for path in _script_files() if not _MAIN_BLOCK.search(path.read_text())
     ]
     assert not violations, (
-        'CLI scripts missing ``if __name__ == "__main__": sys.exit(main())``:\n'
+        'CLI scripts missing ``if __name__ == "__main__": main()``:\n'
         + "\n".join(f"  {v.relative_to(_SRC_PUDL.parent.parent)}" for v in violations)
     )

@@ -1,9 +1,11 @@
 ---
-name: build-deploy-pudl
+name: build-pudl
 on:
   workflow_dispatch:
   push:
     tags:
+      # Run a build when a stable tag is pushed. If a build has already been run
+      # successfully from the tagged commit, it will skip the build and trigger a deployment
       - "v20*"
   schedule:
     # 6am UTC daily (11pm PDT, 2am EDT)
@@ -15,20 +17,19 @@ env:
   GCS_OUTPUT_BUCKET: gs://builds.catalyst.coop
   BATCH_JOB_JSON: batch_job.json
   SKIP_BUILD: "false"
-  NIGHTLY_TAG: ""
+  GIT_TAG: ""
   BUILD_ID: ""
-  BATCH_JOB_ID: ""
 
 jobs:
   build_and_deploy_pudl:
-    name: Build Docker image, push to Docker Hub and deploy to Google Batch
+    name: Kick off a PUDL build and deployment with Google Batch
     runs-on: ubuntu-latest
     permissions:
       contents: write
       id-token: write
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -43,29 +44,58 @@ jobs:
             exit 0
           fi
 
-      - name: Set action environment variables
+      - name: Set git tag and deployment type based on build type
         if: ${{ env.SKIP_BUILD != 'true' }}
+        # Nightly builds and builds triggered by stable tag pushes trigger production
+        # deployments. Branch builds trigger staging deployments
         run: |
-          {
-              echo "NIGHTLY_TAG=nightly-$(date +%Y-%m-%d)";
-              echo "BUILD_ID=$(date +%Y-%m-%d-%H%M)-$(git rev-parse --short HEAD)-${{ github.ref_name }}";
-              echo "BATCH_JOB_ID=$(date +%Y-%m-%d-%H%M)-$(git rev-parse --short HEAD)";
-          } >> "$GITHUB_ENV"
+          BUILD_ID="$(date +%Y-%m-%d-%H%M)-$(git rev-parse --short=9 HEAD)-${{ github.ref_name }}"
+          echo "BUILD_ID=$BUILD_ID" >> "$GITHUB_ENV"
+          if [[ ${{ github.event_name }} == "schedule" ]]; then
+              echo "GIT_TAG=nightly-$(date +%Y-%m-%d)" >> "$GITHUB_ENV"
+              echo "DEPLOYMENT_ENVIRONMENT=production" >> "$GITHUB_ENV"
+          elif [[ ${{ github.event_name }} == "workflow_dispatch" ]]; then
+              echo "GIT_TAG=branch-$BUILD_ID" >> "$GITHUB_ENV"
+              echo "DEPLOYMENT_ENVIRONMENT=staging" >> "$GITHUB_ENV"
+          elif [[ ${{ github.event_name }} == "push" ]]; then
+              echo "GIT_TAG=${{ github.ref_name }}" >>  "$GITHUB_ENV"
+              echo "DEPLOYMENT_ENVIRONMENT=production" >> "$GITHUB_ENV"
+          fi
 
       - name: Show freshly set envvars
         if: ${{ env.SKIP_BUILD != 'true' }}
         run: |
-          echo "NIGHTLY_TAG: $NIGHTLY_TAG"
+          echo "GIT_TAG: $GIT_TAG"
           echo "BUILD_ID: $BUILD_ID"
-          echo "BATCH_JOB_ID: $BATCH_JOB_ID"
+          echo "DEPLOYMENT_ENVIRONMENT: $DEPLOYMENT_ENVIRONMENT"
 
-      - name: Tag nightly build
-        if: ${{ (github.event_name == 'schedule') && (env.SKIP_BUILD != 'true') }}
+      - name: Tag build
+        if: ${{ (env.SKIP_BUILD != 'true') && (github.event_name != 'push') }}
         run: |
           git config user.email "pudl@catalyst.coop"
           git config user.name "pudlbot"
-          git tag -a -m "$NIGHTLY_TAG" "$NIGHTLY_TAG" ${{ github.ref_name }}
-          git push origin "$NIGHTLY_TAG"
+          git tag -a -m "$GIT_TAG" "$GIT_TAG" ${{ github.ref_name }}
+          git push origin "$GIT_TAG"
+
+      - name: Compile notification content
+        run: |
+          if [[ "${{ env.SKIP_BUILD }}" == 'true' ]]; then
+            echo "notification_content=:ghost: Skipping nightly build for $(date +%Y-%m-%d)" >> "$GITHUB_ENV"
+          else
+            echo "notification_content=:rocket: Launching PUDL Build: ${{ env.BUILD_ID }}" >> "$GITHUB_ENV"
+          fi
+
+      - name: Notify Zulip of build start or skip
+        if: ${{ always() }}
+        uses: zulip/github-actions-zulip/send-message@v2
+        with:
+          api-key: ${{ secrets.ZULIP_API_KEY }}
+          email: "build-status-bot@catalyst-cooperative.zulipchat.com"
+          organization-url: "https://catalyst-cooperative.zulipchat.com"
+          type: "stream"
+          to: "pudl-deployments"
+          topic: "build-deploy-pudl"
+          content: "${{ env.notification_content }}"
 
       - name: Docker Metadata
         id: docker_metadata
@@ -100,8 +130,7 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.docker_metadata.outputs.tags }}
           labels: ${{ steps.docker_metadata.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          # Docker caching disabled -- see docker-build-test.yml.
 
       - id: "auth"
         if: ${{ env.SKIP_BUILD != 'true' }}
@@ -133,31 +162,45 @@ jobs:
             --container-env AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
             --container-env BUILD_ID=${{ env.BUILD_ID }} \
             --container-env BUILD_REF=${{ github.ref_name }} \
+            --container-env DEPLOYMENT_ENVIRONMENT=${{ env.DEPLOYMENT_ENVIRONMENT }} \
             --container-env GCP_BILLING_PROJECT=${{ secrets.GCP_BILLING_PROJECT }} \
             --container-env GITHUB_ACTION_TRIGGER=${{ github.event_name }} \
-            --container-env NIGHTLY_TAG=${{ env.NIGHTLY_TAG }} \
+            --container-env GIT_TAG=${{ env.GIT_TAG }} \
             --container-env OMP_NUM_THREADS=4 \
             --container-env PUDL_BOT_PAT=${{ secrets.PUDL_BOT_PAT }} \
             --container-env PUDL_GCS_OUTPUT=${{ env.PUDL_GCS_OUTPUT }} \
             --container-env DG_NIGHTLY_CONFIG="src/pudl/package_data/settings/dg_nightly.yml" \
-            --container-env SLACK_TOKEN=${{ secrets.PUDL_DEPLOY_SLACK_TOKEN }} \
+            --container-env ZULIP_API_KEY=${{ secrets.ZULIP_API_KEY }} \
             --container-env ZENODO_SANDBOX_TOKEN_PUBLISH=${{ secrets.ZENODO_SANDBOX_TOKEN_PUBLISH }} \
             --container-env ZENODO_TARGET_ENV=${{ (startsWith(github.ref_name, 'v20') && 'production') || 'sandbox' }} \
             --container-env ZENODO_TOKEN_UPLOAD=${{ secrets.ZENODO_TOKEN_UPLOAD }} \
+            --container-env PUDL_FORCE_FERC_TO_SQLITE="true" \
             --output ${{ env.BATCH_JOB_JSON }}
 
       # Start the batch job
       - name: Kick off batch job
         if: ${{ env.SKIP_BUILD != 'true' }}
-        run: gcloud batch jobs submit run-etl-${{ env.BATCH_JOB_ID }} --config ${{ env.BATCH_JOB_JSON }} --location us-west1
+        run: gcloud batch jobs submit run-etl-${{ env.BUILD_ID }} --config ${{ env.BATCH_JOB_JSON }} --location us-west1
 
-      - name: Post to pudl-deployments channel
-        if: always()
-        id: slack
-        uses: slackapi/slack-github-action@v3
+      - name: Status emoji
+        if: ${{ env.SKIP_BUILD != 'true' }}
+        run: |
+          if [[ "${{ job.status }}" == "success" ]]; then
+            echo "emoji=:check:" >> "$GITHUB_ENV"
+          elif [[ "${{ job.status }}" == "failure" ]]; then
+            echo "emoji=:x:" >> "$GITHUB_ENV"
+          else
+            echo "emoji=:warning:" >> "$GITHUB_ENV"
+          fi
+      - name: Notify Zulip of build launch status
+        if: ${{ env.SKIP_BUILD != 'true' }}
+        uses: zulip/github-actions-zulip/send-message@v2
         with:
-          method: chat.postMessage
-          token: ${{ secrets.PUDL_DEPLOY_SLACK_TOKEN }}
-          payload: |
-            text: "`${{ env.BUILD_ID }}` build-deploy-pudl status: ${{ (env.SKIP_BUILD == 'true') && 'skipped' || job.status }}\n${{ env.GCS_OUTPUT_BUCKET }}/${{ env.BUILD_ID }}"
-            channel: "C03FHB9N0PQ"
+          api-key: ${{ secrets.ZULIP_API_KEY }}
+          email: "build-status-bot@catalyst-cooperative.zulipchat.com"
+          organization-url: "https://catalyst-cooperative.zulipchat.com"
+          type: "stream"
+          to: "pudl-deployments"
+          topic: "build-deploy-pudl"
+          content: >
+            ${{ env.emoji }} Google Batch job for ${{ env.BUILD_ID }} launched with status: ${{ job.status }}.

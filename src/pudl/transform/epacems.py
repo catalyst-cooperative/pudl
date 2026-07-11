@@ -10,7 +10,7 @@ import pytz
 
 import pudl.logging_helpers
 from pudl.extract.epacems import extract_quarter
-from pudl.metadata.fields import apply_pudl_dtypes_polars
+from pudl.metadata.dtypes import apply_pudl_dtypes_polars
 from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -199,16 +199,22 @@ def transform_epacems(
         "so2_mass_measurement_code",
         "co2_mass_measurement_code",
     ]
-    null_measurement_codes = ["Unknown Code", "Not Applicable", "Undetermined"]
+    mapped_measurement_codes = {
+        "CALC": "Calculated",
+        "OTHER": "Other",
+        "MEASSUB": "Measured and Substitute",
+        "MEASURE": "Measured",
+        "SUB": "Substitute",
+        "Unknown Code": None,
+        "Not Applicable": None,
+        "Undetermined": None,
+    }
     return (
         raw_lf.with_columns(
-            pl.when(pl.col(col).is_in(null_measurement_codes))
-            .then(None)
-            .otherwise(pl.col(col))
-            .alias(col)
+            pl.col(col).replace(mapped_measurement_codes).alias(col)
             for col in measurement_cols
         )
-        .pipe(apply_pudl_dtypes_polars, group="epacems")
+        .pipe(apply_pudl_dtypes_polars, resource="core_epacems__hourly_emissions")
         .with_columns(
             # Strip leading zeros from strings
             # TODO: Update method in helpers.py with polars implementation from here.
@@ -229,20 +235,20 @@ def transform_epacems(
             steam_load_lbs=(pl.col("steam_load_1000_lbs") * 1000),
         )
         .drop("steam_load_1000_lbs")  # drop original
-        .pipe(apply_pudl_dtypes_polars, group="epacems")
+        .pipe(apply_pudl_dtypes_polars, resource="core_epacems__hourly_emissions")
     )
 
 
-def _partitioned_path() -> Path:
+def _partitioned_path(pudl_paths: PudlPaths) -> Path:
     partitioned_path = (
-        PudlPaths().output_dir / "parquet" / "raw_epacems__hourly_emissions"
+        pudl_paths.pudl_output / "parquet" / "raw_epacems__hourly_emissions"
     )
     partitioned_path.mkdir(exist_ok=True)
     return partitioned_path
 
 
 @dg.asset(
-    required_resource_keys={"datastore", "global_data_config"},
+    required_resource_keys={"datastore", "global_data_config", "pudl_paths"},
     io_manager_key="parquet_io_manager",
     op_tags={"memory-use": "high"},
 )
@@ -256,7 +262,7 @@ def core_epacems__hourly_emissions(
     unique_crosswalk = pl.DataFrame(_core_epa__assn_eia_epacamd_unique)
     _validate_crosswalk_uniqueness(unique_crosswalk)
     plant_utc_offset = _load_plant_utc_offset(pl.DataFrame(core_eia__entity_plants))
-    partitioned_path = _partitioned_path()
+    partitioned_path = _partitioned_path(context.resources.pudl_paths)
 
     # Iterate over all the partitions we are processing, since polars is parallelized
     # internally and this will save us significant dagster process startup overhead and

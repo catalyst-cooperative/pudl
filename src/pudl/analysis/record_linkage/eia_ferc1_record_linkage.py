@@ -186,8 +186,7 @@ def prepare_for_matching(df, transformed_df):
 
     # replace old cols with transformed cols
     for col in transformed_df.columns:
-        orig_col_name = col.split("__")[1]
-        df[orig_col_name] = transformed_df[col]
+        df[col] = transformed_df[col]
     df["installation_year"] = pd.to_datetime(df["installation_year"], format="%Y")
     df["construction_year"] = pd.to_datetime(df["construction_year"], format="%Y")
     df["plant_name_mphone"] = df.apply(_get_metaphone, axis=1, args=("plant_name",))

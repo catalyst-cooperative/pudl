@@ -42,12 +42,13 @@ from pudl.dagster.io_managers import (
 )
 from pudl.dagster.resources import (
     global_data_config_resource,
+    pudl_paths_resource,
     zenodo_doi_settings_resource,
 )
 from pudl.extract.ferc1 import raw_ferc1_assets, raw_ferc1_xbrl__metadata_json
 from pudl.helpers import get_parquet_table, simplify_strings
 from pudl.metadata.classes import Package
-from pudl.metadata.fields import apply_pudl_dtypes
+from pudl.metadata.dtypes import apply_pudl_dtypes
 from pudl.transform.classes import StringNormalization, normalize_strings_multicol
 from pudl.transform.ferc1 import (
     Ferc1AbstractTableTransformer,
@@ -329,7 +330,7 @@ def get_plants_ferc1_raw_job() -> JobDefinition:
         for table_name in plant_tables
     ]
 
-    return Definitions(
+    defs = Definitions(
         assets=transform_assets
         + raw_ferc1_assets
         + [
@@ -341,10 +342,12 @@ def get_plants_ferc1_raw_job() -> JobDefinition:
             "ferc1_dbf_sqlite_io_manager": ferc1_dbf_sqlite_io_manager,
             "ferc1_xbrl_sqlite_io_manager": ferc1_xbrl_sqlite_io_manager,
             "global_data_config": global_data_config_resource,
+            "pudl_paths": pudl_paths_resource,
             "zenodo_dois": zenodo_doi_settings_resource,
         },
         jobs=[define_asset_job(name="get_plants_ferc1_raw")],
-    ).get_job_def("get_plants_ferc1_raw")
+    )
+    return defs.resolve_job_def("get_plants_ferc1_raw")
 
 
 ###############################
@@ -390,7 +393,7 @@ def label_plants_eia(
             ["plant_id_eia", "report_date"], as_index=False
         )[["capacity_mw"]]
         .sum(min_count=1)
-        .pipe(apply_pudl_dtypes, group="eia")
+        .pipe(apply_pudl_dtypes, field_namespace="eia")
     )
     plants_w_capacity = (
         out_eia__yearly_plants.merge(

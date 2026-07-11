@@ -374,9 +374,9 @@ columns.
 **5.1)** Check whether new columns exist in
 :py:const:`pudl.metadata.fields.FIELD_METADATA`. If they do, make sure the descriptions
 and data types match. If the descriptions don't match, you may need to define that
-column by source: :py:const:`pudl.metadata.fields.FIELD_METADATA_BY_GROUP` or by table:
-:py:const:`pudl.metadata.fields.FIELD_METADATA_BY_RESOURCE`. If the column is not in
-:py:const:`pudl.metadata.fields.FIELD_METADATA`, add it.
+column by source: :py:const:`pudl.metadata.fields.FIELD_METADATA_BY_NAMESPACE` or by
+table: :py:const:`pudl.metadata.fields.FIELD_METADATA_BY_RESOURCE`. If the column is not
+in :py:const:`pudl.metadata.fields.FIELD_METADATA`, add it.
 
 **5.2)** Add new columns and tables to the ``RESOURCE_METADATA`` dictionaries in the
 appropriate :mod:`pudl.metadata.resources` modules.
@@ -400,13 +400,7 @@ alembic if you used Dagster to materialize the raw and clean assets.
 
 A. FERC 1 & EIA Plants & Utilities
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-**6.A.1)** Run the following command in the terminal, and refer to the
-:doc:`pudl_id_mapping` page for further instructions.
-
-
-.. code-block:: console
-
-    $ make unmapped-ids
+**6.A.1)** Refer to the :doc:`pudl_id_mapping` page for further instructions.
 
 .. note::
 

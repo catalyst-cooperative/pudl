@@ -30,11 +30,11 @@ jobs:
         with:
           app-id: ${{ secrets.WORKFLOW_TRIGGERER_APP_ID }}
           private-key: ${{ secrets.WORKFLOW_TRIGGERER_PRIVATE_KEY }}
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           token: ${{ steps.generate-token.outputs.token }}
           fetch-depth: 0 # Fetch all history and tags for hatch-vcs version detection
-      - uses: prefix-dev/setup-pixi@v0.9.5
+      - uses: prefix-dev/setup-pixi@v0.10.0
         with:
           run-install: false
       - name: Update pixi lockfile, pre-commit hooks, and dbt deps
@@ -42,7 +42,7 @@ jobs:
           set -o pipefail
           pixi update --json | pixi exec pixi-diff-to-markdown >> diff.md
           pixi install --locked
-          pixi run prek-autoupdate
+          pixi run prek-update
           PUDL_OUTPUT="/home/runner/pudl-work/output/" pixi run dbt-deps-upgrade
       - name: Make a PR to merge updated lockfiles
         # If we are relocking dependencies on a schedule or workflow_dispatch, we need

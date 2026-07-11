@@ -105,27 +105,34 @@ the Zenodo DOI and the years extracted.
 Before downstream ``pudl`` assets use those databases,
 PUDL checks the metadata to make sure they are compatible with the current run.
 This helps avoid scenarios where the FERC databases were built with old inputs
-or don't have all the years needed by the current run.
+or don't have all the years needed by the current run. This metadata is also stored
+in the datapackage corresponding to the FERC SQLite outputs, so we can use outputs
+produced in the nightly builds as a cache for local development and CI runs.
 
 Incompatible provenance metadata
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The provenance check looks at two things:
+The provenance check looks at three things:
 
 * Whether the Zenodo DOI changed for a FERC dataset. This would mean that the
   raw input data used to build the existing SQLite DB is different from what is
   expected.
 * Whether the current ETL config requests years of FERC data that are not present in the
   existing SQLite DB.
+* The version of ``catalystcoop.ferc_xbrl_extractor`` that was used to perform the
+  conversion when considering XBRL outputs.
 
-When either of these criteria aren't met, Dagster raises an error telling you to refresh
+When any of these criteria aren't met, Dagster raises an error telling you to refresh
 the FERC SQLite assets.
 
 Regenerating FERC SQLite assets
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 To rebuild FERC SQLite databases so they match the current input data and configuration,
-rerun the raw FERC conversion step:
+you will need to rerun the ``ferc_to_sqlite`` job. By default, this job will download
+the corresponding datapckage from nightly builds to check if the build outputs are
+compatible with your current run. If so, it will download the nightly outputs rather
+than running extraction from scratch.
 
 .. code-block:: console
 
@@ -144,20 +151,15 @@ either in the Dagster UI or using the command line:
 After the FERC databases are refreshed, rerun the ``pudl`` job or selected downstream
 assets.
 
-Bypassing provenance checks for development
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Forcing ``ferc_to_sqlite`` conversion
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-If you need to use externally-downloaded FERC SQLite databases (for example, from
-nightly build outputs), you can bypass compatibility checks by setting:
+If you want to force the full conversion process to be run, then you can set the
+following environment variable:
 
 .. code-block:: console
 
-  $ export PUDL_SKIP_FERC_SQLITE_PROVENANCE=1
+  $ export PUDL_FORCE_FERC_TO_SQLITE=true
 
-Truthy values ``1``, ``true``, and ``yes`` are accepted.
-
-.. warning::
-
-  Skipping provenance checks is a development escape hatch. It can cause runtime
-  failures or incorrect results if your local prerequisites do not actually match the
-  current ETL configuration.
+This is set for nightly builds, so we always run the full ``ferc_to_sqlite`` process
+during builds.

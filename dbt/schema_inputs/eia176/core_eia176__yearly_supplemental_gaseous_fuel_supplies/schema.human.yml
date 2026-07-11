@@ -1,0 +1,19 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_eia176__yearly_supplemental_gaseous_fuel_supplies
+
+        data_tests:
+          - expect_columns_not_all_null
+          - check_row_counts_per_partition:
+              arguments:
+                table_name: core_eia176__yearly_supplemental_gaseous_fuel_supplies
+                partition_expr: "report_year"
+
+        columns:
+          - name: volume_mcf
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0

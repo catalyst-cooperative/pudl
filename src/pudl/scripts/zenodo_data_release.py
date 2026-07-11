@@ -42,6 +42,7 @@ import fsspec
 import requests
 from pydantic import AnyHttpUrl, BaseModel, Field
 
+from pudl.deploy.pudl import send_zulip_message
 from pudl.logging_helpers import get_logger
 
 SANDBOX = "sandbox"
@@ -85,6 +86,7 @@ class _LegacyDeposition(BaseModel):
     conceptrecid: int
     links: _LegacyLinks
     metadata: _LegacyMetadata
+    submitted: bool = False
 
 
 class _NewFile(BaseModel):
@@ -315,12 +317,30 @@ class ZenodoClient:
         )
 
     def publish_deposition(self, deposition_id: int) -> _LegacyDeposition:
-        """LEGACY API: publish deposition."""
+        """LEGACY API: publish deposition.
+
+        The publish action isn't safely retriable: if a request times out after
+        Zenodo already processed it server-side, a retried POST to the same
+        ``actions/publish`` URL 404s, since a deposition that's already published no
+        longer has a pending publish action -- even though the publish itself
+        succeeded. Rather than fail on that specific 404, check whether the
+        deposition is actually already published before giving up.
+        """
         response = self.retry_request(
             method="POST",
             url=f"{self.base_url}/deposit/depositions/{deposition_id}/actions/publish",
             headers=self.auth_headers,
         )
+        if response.status_code == 404:
+            logger.warning(
+                f"Publish action for {deposition_id} returned 404 -- an earlier "
+                f"attempt's response may have been lost (e.g. to a timeout) after "
+                f"the publish actually succeeded. Checking current deposition state..."
+            )
+            deposition = self.get_deposition(deposition_id)
+            if deposition.submitted:
+                return deposition
+        response.raise_for_status()
         return _LegacyDeposition(**response.json())
 
 
@@ -517,6 +537,40 @@ class CompleteDraft(State):
         return self.zenodo_client.get_deposition(self.record_id).links.html
 
 
+def build_zenodo_release_zulip_message(
+    env: str,
+    publish: bool,
+    succeeded: bool,
+    record_url: str | None,
+) -> str:
+    """Build a markdown Zulip message summarizing a Zenodo release attempt.
+
+    Makes the sandbox/production environment and publish/draft mode immediately
+    visible, so a misconfigured run is obvious at a glance, and links to the
+    resulting record when the release succeeded -- the live record if ``publish``
+    was requested, otherwise the draft awaiting manual review.
+    """
+    nl = "\n"
+    env_label = "PRODUCTION" if env == PRODUCTION else "SANDBOX"
+    mode_label = "publish" if publish else "draft, no-publish"
+
+    if succeeded:
+        message = (
+            f"{nl}# :check: PUDL Zenodo Release Succeeded "
+            f"({env_label}, {mode_label}){nl}{nl}"
+        )
+    else:
+        message = (
+            f"{nl}# :x: PUDL Zenodo Release Failed ({env_label}, {mode_label}){nl}{nl}"
+        )
+
+    if record_url:
+        record_label = "Published record" if publish else "Draft record"
+        message += f"- {record_label}: {record_url}{nl}"
+
+    return message
+
+
 @click.command(
     help=__doc__,
     context_settings={"help_option_names": ["-h", "--help"]},
@@ -557,18 +611,38 @@ def main(env: str, source_dir: str, publish: bool, ignore: tuple[str]) -> int:
         rec_id = 3653158
     else:
         raise ValueError(f"{env=}, expected {SANDBOX} or {PRODUCTION}")
-    completed_draft = (
-        InitialDataset(zenodo_client=zenodo_client, record_id=rec_id)
-        .get_empty_draft()
-        .sync_directory(source_dir, ignore)
-        .update_metadata()
-    )
 
-    if publish:
-        completed_draft.publish()
-        logger.info(f"Published at {completed_draft.get_html_url()}")
-    else:
-        logger.info(f"Completed draft at {completed_draft.get_html_url()}")
+    zulip_api_key = os.environ.get("ZULIP_API_KEY")
+    record_url: str | None = None
+    succeeded = False
+    try:
+        completed_draft = (
+            InitialDataset(zenodo_client=zenodo_client, record_id=rec_id)
+            .get_empty_draft()
+            .sync_directory(source_dir, ignore)
+            .update_metadata()
+        )
+
+        if publish:
+            completed_draft.publish()
+            logger.info(f"Published at {completed_draft.get_html_url()}")
+        else:
+            logger.info(f"Completed draft at {completed_draft.get_html_url()}")
+        record_url = str(completed_draft.get_html_url())
+        succeeded = True
+    finally:
+        if zulip_api_key:
+            send_zulip_message(
+                build_zenodo_release_zulip_message(
+                    env=env,
+                    publish=publish,
+                    succeeded=succeeded,
+                    record_url=record_url,
+                ),
+                api_key=zulip_api_key,
+            )
+        else:
+            logger.warning("Skipping Zulip notification: ZULIP_API_KEY is unset.")
 
     return 0
 

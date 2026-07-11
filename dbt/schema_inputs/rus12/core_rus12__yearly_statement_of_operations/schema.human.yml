@@ -11,7 +11,7 @@ sources:
                 min_ratio: 0.05
                 max_ratio: 0.2
               config:
-                error_if: ">4300"
+                error_if: ">4300" # ~20% of records
               description:
                 Monthly spending should roughly equal 1/12 of the YTD budget
                 (5-20% range).
@@ -22,7 +22,7 @@ sources:
                 min_ratio: 0.75
                 max_ratio: 1.25
               config:
-                error_if: ">3667"
+                error_if: ">3667" # ~15% of records
               description: Budgeted spending and YTD spending should be roughly equivalent.
           - check_row_counts_per_partition:
               arguments:
@@ -49,7 +49,7 @@ sources:
                 tolerance: 10
               row_condition: opex_group == 'operation_revenue_and_patronage_capital'
               config:
-                error_if: ">201"
+                error_if: ">201" # About 25% of data
           - subcomponents_sum_to_total:
               arguments:
                 group_by_columns:
@@ -61,7 +61,7 @@ sources:
                 tolerance: 10
               row_condition: opex_group == 'operation_revenue_and_patronage_capital'
               config:
-                error_if: ">184"
+                error_if: ">184" # About 25% of data
           - subcomponents_sum_to_total:
               arguments:
                 group_by_columns:
@@ -167,7 +167,7 @@ sources:
                 total_label: total_cost_of_electric_service
                 tolerance: 10
               config:
-                error_if: ">202"
+                error_if: ">202" #~25% of records
           - subcomponents_sum_to_total:
               arguments:
                 group_by_columns:
@@ -188,7 +188,7 @@ sources:
                 total_label: total_cost_of_electric_service
                 tolerance: 10
               config:
-                error_if: ">160"
+                error_if: ">160" #~20% of records
           - subcomponents_sum_to_total:
               arguments:
                 group_by_columns:
@@ -216,7 +216,7 @@ sources:
                 total_label: operating_margins
                 tolerance: 10
               config:
-                error_if: ">204"
+                error_if: ">204" # ~26% of records
           - subcomponents_sum_to_total:
               arguments:
                 group_by_columns:
@@ -231,7 +231,7 @@ sources:
                 total_label: operating_margins
                 tolerance: 10
               config:
-                error_if: ">155"
+                error_if: ">155" # ~20% of records
           - subcomponents_sum_to_total:
               arguments:
                 group_by_columns:

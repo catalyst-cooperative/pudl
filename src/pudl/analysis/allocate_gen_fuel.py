@@ -144,7 +144,7 @@ from dagster import AssetIn, AssetsDefinition, Field, asset
 import pudl.helpers
 import pudl.logging_helpers
 import pudl.output.eia923
-from pudl.metadata.fields import apply_pudl_dtypes
+from pudl.metadata.dtypes import apply_pudl_dtypes
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -607,7 +607,7 @@ def agg_by_generator(
         net_gen_fuel_alloc.groupby(by=by_cols)[sum_cols]
         .sum(min_count=1)
         .reset_index()
-        .pipe(apply_pudl_dtypes, group="eia")
+        .pipe(apply_pudl_dtypes, field_namespace="eia")
     )
     return gen
 
@@ -638,7 +638,7 @@ def stack_generators(
         pd.DataFrame(gens.set_index(IDX_GENS)[esc].stack(level=0))
         .reset_index()
         .rename(columns={"level_3": cat_col, 0: stacked_col})
-        .pipe(apply_pudl_dtypes, group="eia")
+        .pipe(apply_pudl_dtypes, field_namespace="eia")
     )
     # arrange energy source codes by number and type (start with energy_source_code, then planned_, then startup_)
     gens_stack_prep = gens_stack_prep.sort_values(
@@ -721,20 +721,20 @@ def associate_generator_tables(
     """
     stack_gens = stack_generators(
         gens_at_freq, cat_col="energy_source_code_num", stacked_col="energy_source_code"
-    ).pipe(apply_pudl_dtypes, group="eia")
+    ).pipe(apply_pudl_dtypes, field_namespace="eia")
     # allocate the boiler fuel data to generators
     bf_by_gens = (
         allocate_bf_data_to_gens(bf, gens_at_freq, bga)
         .set_index(IDX_GENS_PM_ESC)
         .add_suffix("_bf_tbl")
         .reset_index()
-        .pipe(apply_pudl_dtypes, group="eia")
+        .pipe(apply_pudl_dtypes, field_namespace="eia")
     )
     gf = (
         gf.set_index(IDX_PM_ESC)[DATA_COLUMNS]
         .add_suffix("_gf_tbl")
         .reset_index()
-        .pipe(apply_pudl_dtypes, group="eia")
+        .pipe(apply_pudl_dtypes, field_namespace="eia")
     )
 
     gen_assoc = (
@@ -784,7 +784,7 @@ def associate_generator_tables(
         .reset_index(),
         on=IDX_ESC,
         how="outer",
-    ).pipe(apply_pudl_dtypes, group="eia")
+    ).pipe(apply_pudl_dtypes, field_namespace="eia")
     return gen_assoc
 
 
@@ -1383,7 +1383,7 @@ def allocate_gen_fuel_by_gen_esc(gen_pm_fuel: pd.DataFrame) -> pd.DataFrame:
             # take the net gen
             net_generation_mwh=lambda x: x.net_generation_mwh_gf_tbl * x.frac,
         )
-        .pipe(apply_pudl_dtypes, group="eia")
+        .pipe(apply_pudl_dtypes, field_namespace="eia")
         .dropna(how="all")
     )
 
@@ -1505,7 +1505,7 @@ def allocate_fuel_by_gen_esc(gen_pm_fuel: pd.DataFrame) -> pd.DataFrame:
                 x.fuel_consumed_for_electricity_mmbtu_gf_tbl * x.frac
             ),
         )
-        .pipe(apply_pudl_dtypes, group="eia")
+        .pipe(apply_pudl_dtypes, field_namespace="eia")
         .dropna(how="all")
     )
 
@@ -1668,7 +1668,7 @@ def distribute_annually_reported_data_to_months_if_annual(
             )
             .assign(**{data_column_name: lambda x: x[data_column_name] / 12})
             .pipe(assign_plant_year)
-            .pipe(apply_pudl_dtypes, group="eia")
+            .pipe(apply_pudl_dtypes, field_namespace="eia")
             .set_index(["plant_year"])
         )
         # sometimes a plant oscillates btwn annual and monthly reporting. when it does

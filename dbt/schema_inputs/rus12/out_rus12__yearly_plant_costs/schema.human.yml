@@ -14,7 +14,8 @@ sources:
                 denominator_column: cost_per_mmbtu
                 min_ratio: 3.412142
               config:
-                error_if: ">96"
+                error_if: ">96" # ~6% of the data
+          # CALCULATE FUEL COST SUBTOTALS BY PLANT TYPE
           - subcomponents_sum_to_total:
               arguments:
                 group_by_columns:
@@ -127,7 +128,7 @@ sources:
               row_condition: plant_type IN ('steam', 'internal_combustion', 'combined_cycle')
               description: Check that steam, IC and CC operation subcomponents sum to total.
               config:
-                error_if: ">2300"
+                error_if: ">2300" # This is almost all of them, INVESTIGATE!
           - subcomponents_sum_to_total:
               arguments:
                 group_by_columns:
@@ -172,7 +173,7 @@ sources:
               row_condition: plant_type == 'nuclear'
               description: Check that nuclear operation subcomponents sum to total.
               config:
-                error_if: ">129"
+                error_if: ">129" # This is almost all of them, INVESTIGATE!
         columns:
           - name: cost
             data_tests:
@@ -180,14 +181,14 @@ sources:
                   arguments:
                     min_value: 0.0
                   config:
-                    error_if: ">213"
+                    error_if: ">213" # 0.4% of the data
           - name: cost_per_mwh
             data_tests:
               - dbt_expectations.expect_column_min_to_be_between:
                   arguments:
                     min_value: 0.0
                   config:
-                    error_if: ">381"
+                    error_if: ">381" # 0.7% of the data
           - name: cost_per_mmbtu
             data_tests:
               - dbt_expectations.expect_column_min_to_be_between:

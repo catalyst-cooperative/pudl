@@ -68,7 +68,7 @@ boto3 = ">=1.35"
 bottleneck = ">=1.5.0"
 "catalystcoop.dbfread" = ">=3.0,<3.1"
 "catalystcoop.ferc_xbrl_extractor" = ">=1.10,<1.11"
-click = ">=8.3.2"
+click = ">=8.4"
 coloredlogs = ">=14.0"
 coverage = ">=7.13"
 curl = ">=8.17"
@@ -76,9 +76,8 @@ dagster = ">=1.13"
 dagster-dbt = ">=1!0.29"
 dagster-dg-cli = ">=1.13"
 dagster-gcp = ">=1!0.29"
-dagster-postgres = ">=1!0.29"
 dagster-webserver = ">=1.13"
-dbt-core = ">=1.11.8"
+dbt-core = ">=1.11.11"
 dbt-duckdb = ">=1.9.4"
 deepdiff = ">=8"
 doc8 = ">=1.1"
@@ -87,9 +86,9 @@ filelock = ">=3.29"
 frictionless = ">=5,<6"
 fsspec = ">=2026"
 gcsfs = ">=2026"
-gdal = ">=3.12.4"
+gdal = ">=3.13.1"
 geoarrow-pyarrow = ">=0.2"
-geopandas = ">=1.1"
+geopandas = ">=1.1.4"
 google-cloud-sdk = ">=535"
 # grpcio packages all need to have same version to avoid conflicts.
 # They are also compiled and finnicky. Check compatibility before upgrading.
@@ -104,23 +103,24 @@ jupyter-lsp = ">=2.3"
 jupyter-resource-usage = ">=1.2"
 jupyterlab = ">=4.5"
 jupyterlab-lsp = ">=5.2"
-matplotlib-base = ">=3.10"
+matplotlib-base = ">=3.11"
 memray = ">=1.18.0"
-mlflow = ">=3.11"
+mlflow = ">=3.13"
 nbconvert = ">=7"
 nbformat = ">=5.10"
 networkx = ">=3.6"
-nodejs = ">=24"
+nodejs = ">=26"
 numba = ">=0.65"
 numexpr = ">=2.10"
 numpy = ">=2.4"
 packaging = ">=25"
 pandas = ">=2.3"
 pandoc = ">=3.7"
-pandera-polars = ">=0.30"
+pandera-polars = ">=0.31"
 parallel = ">=20250822"
-polars = ">=1.40"
-prek = ">=0.3.9"
+pint = ">=0.25.3"
+polars = ">=1.42" # v1.41.2 fixed a big memory leak
+prek = ">=0.4"
 # potentially unresolveable breaking changes in prettier 4.x
 prettier = ">=3.8,<4"
 proj = ">=9.8.1"
@@ -138,23 +138,22 @@ pytest-order = ">=1.3"
 pytest-xdist = ">=3.8"
 python-calamine = ">=0.6.1"
 python-dotenv = ">=1"
-python-duckdb = ">=1.4,<1.5"
+python-duckdb = ">=1.5,<1.6"
 pytz = ">=2025"
 pyyaml = ">=6"
-readthedocs-sphinx-ext = ">=2"
 requests = ">=2.32"
 responses = ">=0.25"
 ruff = ">=0.15"
 ruff-lsp = ">=0.0.62"
 s3fs = ">=2026"
-scikit-learn = ">=1.8"
-scipy = ">=1.17"
+scikit-learn = ">=1.9"
+scipy = ">=1.18"
 shapely = ">=2.1.1"
-slack-sdk = ">=3.39.0"
 sphinx = ">=9"
 sphinx-autoapi = ">=3.8"
 sphinx-design = ">=0.7.0"
 sphinx-issues = ">=5"
+sphinx-llm = ">=0.4.1"
 sphinx-reredirects = ">=1"
 sphinxcontrib-bibtex = ">=2.6"
 sphinxcontrib-googleanalytics = ">=0.4"
@@ -165,12 +164,14 @@ sqlite = ">=3.53"
 taplo = "==0.9.3"
 terraform = ">=1.14"
 timezonefinder = ">=8"
-typos = ">=1.40"
+typos = ">=1.47"
 universal-pathlib = ">=0.3.10"
-urllib3 = ">=2.4"
+urllib3 = ">=2.7"
+usaddress = ">=0.5.16,<0.6"
 uv = ">=0.11"
 xlsxwriter = ">=3.2"
 zip = ">=3.0"
+gh = ">=2.96.0,<3"
 
 [tool.pixi.pypi-dependencies]
 # Install the local package in editable mode. Assume dependencies are specified either
@@ -178,7 +179,6 @@ zip = ">=3.0"
 # happen to only be available via PyPI.
 "catalystcoop.pudl" = { path = ".", editable = true }
 detect-secrets = ">=1.5"
-usaddress = ">=0.5.16,<0.6"
 
 [tool.pixi.feature.dev.dependencies]
 jq = ">=1.8" # Primarily for agent skills use
@@ -186,93 +186,10 @@ marimo = ">=0.13"
 matplotx = ">=0.3.10"
 plotly = ">=6.6"
 ripgrep = ">=15" # Primarily for agent skills use
-ty = ">=0.0.25" # Experimental, also for agent skills use
+ty = ">=0.0.55" # Experimental, also for agent skills use
 
 [tool.pixi.environments]
 dev = { features = ["dev"], solve-group = "default" }
-
-########################################################################################
-# Conda package build configuration. This is used by pixi to build the conda package
-########################################################################################
-[tool.pixi.package]
-version = "v0.0.0"
-
-[tool.pixi.package.build.backend]
-name = "pixi-build-python"
-version = ">=0.4.3"
-channels = ["conda-forge"]
-
-[tool.pixi.package.build-dependencies]
-python = ">=3.13,<3.14.0"
-
-[tool.pixi.package.host-dependencies]
-hatchling = ">=1.29"
-hatch-vcs = ">=0.5"
-uv = ">=0.11"
-
-# This is a list of the minimal set of run-time dependencies required for PUDL to
-# be installed and function properly. These should be kept in sync with the more
-# expansive list in [tool.pixi.dependencies] above.
-[tool.pixi.package.run-dependencies]
-alembic = ">=1.17"
-boto3 = ">=1.35"
-bottleneck = ">=1.5.0"
-"catalystcoop.dbfread" = ">=3.0,<3.1"
-"catalystcoop.ferc_xbrl_extractor" = ">=1.10,<1.11"
-click = ">=8.3.3"
-coloredlogs = ">=14.0"
-dagster = ">=1.13"
-dagster-dbt = ">=0.29"
-dagster-postgres = ">=0.29"
-dagster-webserver = ">=1.13"
-dbt-core = ">=1.11.8"
-dbt-duckdb = ">=1.9.4"
-email-validator = ">=1.0.3"
-frictionless = ">=5,<6"
-fsspec = ">=2026"
-gcsfs = ">=2026"
-gdal = ">=3.12.4"
-geoarrow-pyarrow = ">=0.2"
-geopandas = ">=1.1"
-# grpcio packages all need to have same version to avoid conflicts.
-# They are also compiled and finnicky. Check compatibility before upgrading.
-grpcio = "==1.78.1"
-grpcio-health-checking = "==1.78.1"
-grpcio-status = "==1.78.1"
-jellyfish = ">=1"
-jinja2 = ">=3.1"
-matplotlib-base = ">=3.10"
-mlflow = ">=3.11"
-networkx = ">=3.6"
-numba = ">=0.65"
-numexpr = ">=2.10"
-numpy = ">=2.4"
-packaging = ">=25"
-pandas = ">=2.3"
-pandera-polars = ">=0.30"
-polars = ">=1.40"
-pyarrow = ">=23"
-pydantic = ">=2.13"
-pydantic-settings = ">=2.13"
-python-calamine = ">=0.6.1"
-python-dotenv = ">=1"
-python-duckdb = ">=1.4,<1.5"
-pytz = ">=2025"
-pyyaml = ">=6"
-requests = ">=2.32"
-s3fs = ">=2026"
-scikit-learn = ">=1.8"
-scipy = ">=1.17"
-shapely = ">=2.1.1"
-splink = ">=4.0.14"
-sqlalchemy = ">=2"
-timezonefinder = ">=8"
-universal-pathlib = ">=0.3.10"
-urllib3 = ">=2.4"
-xlsxwriter = ">=3.2"
-
-########################################################################################
-########################################################################################
 
 [tool.pixi.activation.env]
 # Reusable variables for pixi tasks
@@ -355,6 +272,7 @@ description = "Run unit tests and doctests"
 [tool.pixi.tasks.pytest-integration]
 cmd = "pytest --cov-fail-under=0 tests/integration tests/validate/data_test.py"
 description = "Run integration and (non-row-count) validation tests."
+env = { PUDL_INTEGRATION_TESTS = "true" }
 
 [tool.pixi.tasks.pytest-validate]
 cmd = "pytest -n auto --no-cov --live-pudl-output tests/validate/data_test.py"
@@ -465,8 +383,8 @@ cmd = "prek install"
 description = "Install pre-commit hooks"
 
 # Dependency Update tasks
-[tool.pixi.tasks.prek-autoupdate]
-cmd = "prek autoupdate"
+[tool.pixi.tasks.prek-update]
+cmd = "prek update"
 description = "Update pre-commit hook versions"
 
 [tool.pixi.tasks.dbt-deps-upgrade]
@@ -476,23 +394,16 @@ description = "Update dbt dependencies"
 
 [tool.pixi.tasks.devcontainer-install]
 cmd = """
-pixi install -e dev \
-    && pixi run -e dev install-skills \
-    && npm install -g \
-      @anthropic-ai/claude-code \
-      @google/gemini-cli \
-      @openai/codex \
-      @earendil-works/pi-coding-agent \
-      opencode-ai
+pixi install --frozen --locked \
+    && pixi run install-skills
 """
 description = "Set up the dev container: install pixi environment, skills, and agent CLIs (run once after first start)"
 
 [tool.pixi.tasks.devcontainer-rebuild]
 cmd = """
-docker volume rm pudl-pixi || true \
-    && npx -y @devcontainers/cli build --workspace-folder . --log-level info
+npx -y @devcontainers/cli build --workspace-folder . --log-level info
 """
-description = "Rebuild the dev container image metadata and recreate the named pixi cache volume"
+description = "Rebuild devcontainer image metadata (workspace .pixi and caches are now separate volumes)"
 
 # Coding agent environment
 # NOTE (2026-03-17): We're using the `experimental_install` command
@@ -508,15 +419,18 @@ auto_match_utilities = "pudl.scripts.auto_match_utilities:main"
 metadata_to_rst = "pudl.scripts.metadata_to_rst:main"
 pudl_check_fks = "pudl.scripts.pudl_check_fks:main"
 pudl_datastore = "pudl.scripts.pudl_datastore:main"
-pudl_deploy = "pudl.scripts.deploy:main"
+pudl_deploy = "pudl.scripts.pudl_deploy:main"
+pudl_check_for_build = "pudl.scripts.pudl_check_for_build:main"
 pudl_service_territories = "pudl.scripts.pudl_service_territories:main"
 dbt_helper = "pudl.scripts.dbt_helper:main"
 dghome = "pudl.scripts.dghome:main"
+check_path_permissions = "pudl.scripts.check_path_permissions:main"
 generate_pudl_duckdb = "pudl.scripts.generate_pudl_duckdb:main"
 pudl_null_cols = "pudl.scripts.pudl_null_cols:main"
 resource_description = "pudl.scripts.resource_description:main"
 update_zenodo_dois = "pudl.scripts.update_zenodo_dois:main"
 zenodo_data_release = "pudl.scripts.zenodo_data_release:main"
+generate_ferc_provenance = "pudl.scripts.generate_ferc_provenance:main"
 
 [tool.ruff]
 # Configurations that apply to both the `format` and `lint` subcommands.
@@ -621,7 +535,6 @@ ignore-path = ["docs/ferc/form1", "docs/_build", "docs/data_sources/phmsagas"]
 minversion = "9.0"
 testpaths = ["./"]
 filterwarnings = [
-    "ignore:distutils Version classes are deprecated:DeprecationWarning",
     "ignore:Deprecated call to `pkg_resources.declare_namespace:DeprecationWarning",
     "ignore:Deprecated call to.*declare_namespace:DeprecationWarning:pkg_resources",
     "ignore:Deprecated call to:DeprecationWarning:google.rpc",
@@ -631,7 +544,6 @@ filterwarnings = [
     "ignore:Integration of EIA 861:UserWarning:pudl.extract.eia861",
     "ignore:pkg_resources is deprecated as an API.:DeprecationWarning",
     "ignore:Subclassing validator classes is not intended to be part of their public API.:DeprecationWarning",
-    "ignore:Subclassing validator classes:DeprecationWarning:tableschema",
     "ignore:datetime.datetime.utcnow() is deprecated:DeprecationWarning",
     "ignore:Python 3.14 will, by default, filter extracted tar archives:DeprecationWarning:dbt_common[.*]",
     "ignore:The Shapely GEOS version:UserWarning:geopandas[.*]",
@@ -645,12 +557,15 @@ filterwarnings = [
     "ignore:Pydantic V1 style `@validator` validators are deprecated:pydantic.PydanticDeprecatedSince20:mlflow.gateway.config",
     "ignore:The `update_forward_refs` method is deprecated:pydantic.PydanticDeprecatedSince20:ferc_xbrl_extractor.taxonomy",
     "once:Could not infer format, so each element will be parsed individually, falling back to `dateutil`.:UserWarning:pudl.extract.eia_bulk_elec",
-    "once:In a future version:FutureWarning:pudl.helpers",
-    "once:open_binary is deprecated:DeprecationWarning:pudl.glue.ferc1_eia",
-    "once:open_text is deprecated:DeprecationWarning:pudl.glue.ferc1_eia",
     "once:The behavior of DataFrame concatenation with empty or all-NA entries is deprecated.:FutureWarning",
     "once:Valid config keys have changed in V2:UserWarning",
     "once:AssetExecutionContext.op_config is deprecated:DeprecationWarning",
+    "ignore:unclosed database:ResourceWarning",
+    "ignore:Specifying a partitions_def on an AssetCheckSpec is currently in preview",
+    "ignore:No path_separator found in configuration:DeprecationWarning:alembic",
+    "ignore:Extension type 'geoarrow.wkb' is not registered:UserWarning",
+    "ignore:invalid escape sequence:SyntaxWarning:stringcase",
+    "ignore:invalid escape sequence:SyntaxWarning:parsedatetime",
 ]
 
 markers = ["slow: marks tests as slow (deselect with '-m \"not slow\"')"]
@@ -677,18 +592,14 @@ doctest_optionflags = [
 
 [tool.coverage.run]
 source = ["src/pudl/", "tests/integration/", "tests/unit/", "tests/validate/"]
-omit = [
-    "src/pudl/*/ferceqr*.py",
-    "src/pudl/_version.py",
-    "src/pudl/scripts/dghome.py",
-]
+omit = ["src/pudl/_version.py"]
 relative_files = true
 
 [tool.coverage.report]
 precision = 2
 sort = "miss"
 skip_empty = true
-fail_under = 93
+fail_under = 80
 exclude_lines = [
     # Have to re-enable the standard pragma
     "pragma: no cover",

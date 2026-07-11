@@ -181,9 +181,12 @@ sources:
             data_tests:
               - expect_quantile_constraints:
                   description:
-                    Quantile 0.05 dropped from 6.4 to 6.39 in June 2025. Keep an
-                    eye on it, and investigate if it gets worse. Historical note, EIA natural
-                    gas reporting really only becomes usable in 2015.
+                    Quantile 0.05 has gradually been dropping as combined-cycle turbines become more efficient
+                    and come to dominate gas generation, while open cycle combustion turbines (peakers) are
+                    gradually displaced by battery storage. The best combined-cycle gas turbines have a heat
+                    rate of around 5.33 MMBtu / MWh (64% thermal efficiency) while simple-cycle combustion
+                    turbines have heat rates of 9-11.5 MMBtu/ MWh. Historical note, EIA natural gas
+                    reporting really only becomes usable in 2015.
                   arguments:
                     row_condition:
                       fuel_type_code_pudl='gas' and report_date>=CAST('2015-01-01'
@@ -193,7 +196,7 @@ sources:
                         min_value: 7.0
                         max_value: 7.5
                       - quantile: 0.05
-                        min_value: 6.35
+                        min_value: 6.25
                       - quantile: 0.95
                         max_value: 13.0
                     weight_column: net_generation_mwh

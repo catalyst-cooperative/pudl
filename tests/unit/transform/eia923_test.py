@@ -65,6 +65,22 @@ def test__yearly_to_monthly_records__empty_frame():
     pd.testing.assert_frame_equal(expected, actual, check_dtype=False)
 
 
+def test__yearly_to_monthly_records__drops_all_null_months():
+    """Test that fully null reshaped months are not emitted as rows."""
+    test_df = pd.DataFrame(
+        [[0, 1, None], [3, None, 5]],
+        columns=["other_col", "value_january", "value_june"],
+        index=[100, 101],
+    )
+    actual = eia923._yearly_to_monthly_records(test_df)
+    expected = pd.DataFrame(
+        [[0, 1, 1.0], [3, 6, 5.0]],
+        columns=["other_col", "report_month", "value"],
+        index=[100, 101],
+    )
+    pd.testing.assert_frame_equal(expected, actual)
+
+
 def test___drop_duplicates__core_eia923__generation():
     """Test whether this bespoke de-duper actually preserves one of the records.
 

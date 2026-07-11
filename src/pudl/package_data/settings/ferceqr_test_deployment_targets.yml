@@ -1,0 +1,5 @@
+---
+deployment_targets:
+  - path: gs://test.catalyst.coop
+    storage_options: {}
+    append_build_id: true

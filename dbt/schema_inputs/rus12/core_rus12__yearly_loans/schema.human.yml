@@ -10,7 +10,7 @@ sources:
                 column_B: loan_balance
                 or_equal: true
               config:
-                error_if: ">1"
+                error_if: ">1" #TODO: Investigate 1 case where loan balance exceeds original amount.
               description:
                 The original amount of the loan should be greater than or equal
                 to the current balance of the loan.

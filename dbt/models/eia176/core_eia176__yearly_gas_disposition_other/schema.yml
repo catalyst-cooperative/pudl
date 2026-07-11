@@ -1,0 +1,21 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_eia176__yearly_gas_disposition_other
+        data_tests:
+          - expect_columns_not_all_null
+          - check_row_counts_per_partition:
+              arguments:
+                table_name: core_eia176__yearly_gas_disposition_other
+                partition_expr: report_year
+        columns:
+          - name: operator_id_eia
+          - name: report_year
+          - name: operating_state
+          - name: disposition_type
+          - name: volume_mcf
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0

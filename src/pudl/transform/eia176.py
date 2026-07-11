@@ -11,16 +11,153 @@ from dagster import (
     multi_asset,
 )
 
-from pudl.helpers import simplify_columns
+from pudl.analysis.record_linkage.name_cleaner import CompanyNameCleaner
+from pudl.helpers import cleanstrings_series, multi_index_stack, simplify_columns
 from pudl.logging_helpers import get_logger
 
 logger = get_logger(__name__)
+name_cleaner = CompanyNameCleaner()
 
 DROP_OPERATING_STATES = (
     "fed. gulf of mexico",
     "mexico",
     "other",
 )
+
+CONTINUATION_LINES_ALLOWED_NON_SUBDIVISION_CODES = {
+    # EIA's query-system user guide describes the raw REF_CODE field as the code
+    # associated with continuation cells, but does not publish a complete list of
+    # country/reference codes. These are non-state/province/territory REF_CODE
+    # values observed in the raw EIA-176 continuation lines. They are not normalized
+    # to ISO-3166: some match ISO alpha-2 country codes, while others are
+    # EIA-specific codes like CN for Canada, C2 for China, I2 for India, and JA for
+    # Japan.
+    "operating_state": {"FX", "MX"},
+    "reference_state": {
+        "AC",
+        "AG",
+        "AT",
+        "AU",
+        "BB",
+        "BE",
+        "BF",
+        "BG",
+        "BL",
+        "C2",
+        "C4",
+        "CN",
+        "CL",
+        "DR",
+        "EG",
+        "EL",
+        "ES",
+        "FI",
+        "FR",
+        "FX",
+        "GM",
+        "GQ",
+        "GR",
+        "HA",
+        "HR",
+        "I2",
+        "II",
+        "IS",
+        "IT",
+        "JA",
+        "JD",
+        "JM",
+        "KR",
+        "KU",
+        "LH",
+        "M6",
+        "MR",
+        "MX",
+        "MY",
+        "NG",
+        "NO",
+        "OM",
+        "OO",
+        "PK",
+        "PL",
+        "PM",
+        "PT",
+        "QR",
+        "RP",
+        "RU",
+        "SG",
+        "SN",
+        "TH",
+        "TD",
+        "TU",
+        "TW",
+        "UA",
+        "UK",
+        "XX",
+        "YE",
+    },
+}
+
+UNKNOWN_TYPES = (
+    "",
+    ".",
+    "0",
+    "na",
+    "nan",
+    "n/a",
+    "n.a.",
+    "none",
+    "not applicable",
+    "not available",
+)
+
+SUPPLEMENTAL_GASEOUS_FUEL_TYPE_MAP = {
+    "air_injection": ["air injection", "air injections"],
+    "biomass": ["biomass"],
+    "biomass_gas": ["biomass gas"],
+    "blast_furnace_gas": ["blast furnance"],
+    "coke_oven_gas": ["coke oven", "coke oven gas"],
+    "gas_holders": ["gas holders"],
+    "leaks_condensate": ["leaks condensate"],
+    "line_pressure": ["line pressure", "line pressure chan"],
+    "manufactured_gas": ["manufactured gas"],
+    "natural_gas": ["natural gas"],
+    "other": ["other"],
+    "propane_air": ["propane air"],
+    "refinery_gas": ["refinery gas"],
+    "truck": ["truck"],
+    "unknown": [
+        "no label - bad cod",
+        "no label - bad code 9004",
+        "no label - bad code 9090",
+        *UNKNOWN_TYPES,
+    ],
+    "vented_flared": ["vented flared"],
+}
+
+OTHER_DISPOSITION_TYPE_MAP = {
+    "del_items_from_2001_form": ["del items from 2001 form"],
+    "franchise_gas": ["franchise gas"],
+    "gas_holders": ["gas holders"],
+    "leaks_condensate": ["leaks condensate"],
+    "line_pressure": ["line pressure"],
+    "lost_leaks_condensate": ["lost leaks condensate"],
+    "migration": ["migration"],
+    "natural_gas": ["natural gas"],
+    "other": ["other"],
+    "plant_fuel": ["plant fuel"],
+    "plant_thermal_reduction": ["plant ptr (extraction los"],
+    "propane_air": ["propane air"],
+    "rail_or_barge": ["rail or barge"],
+    "refinery_gas": ["refinery gas"],
+    "truck": ["truck"],
+    "unknown": [
+        "no label - bad code",
+        "no label - bad code 9001",
+        "no label - bad code 9006",
+        *UNKNOWN_TYPES,
+    ],
+    "vented_flared": ["vented flared"],
+}
 
 
 @multi_asset(
@@ -92,6 +229,99 @@ def get_wide_table(long_table: pd.DataFrame, primary_key: list[str]) -> pd.DataF
     unstacked = simplify_columns(unstacked)  # Clean up column names
     unstacked.columns.name = None  # gets rid of "item" name of columns index
     return unstacked.reset_index()
+
+
+def _subdivision_code_map(
+    core_pudl__codes_subdivisions: pd.DataFrame,
+) -> pd.Series:
+    """Map subdivision names and codes to canonical two-letter codes."""
+    code_map = pd.concat(
+        [
+            core_pudl__codes_subdivisions.assign(
+                key=lambda x: x["subdivision_name"].str.strip().str.casefold()
+            ),
+            core_pudl__codes_subdivisions.assign(
+                key=lambda x: x["subdivision_code"].str.strip().str.casefold()
+            ),
+        ],
+        ignore_index=True,
+    )
+    return code_map.drop_duplicates("key").set_index("key")["subdivision_code"]
+
+
+def normalize_continuation_line_location_codes(
+    df: pd.DataFrame,
+    core_pudl__codes_subdivisions: pd.DataFrame,
+    column: str,
+) -> pd.DataFrame:
+    """Validate and normalize EIA-176 continuation line location codes.
+
+    Values matching ``core_pudl__codes_subdivisions`` by name or code are converted
+    to canonical two-letter state, province, or territory codes. Known EIA
+    continuation line codes that are not state, province, or territory codes are
+    allowed through unchanged so unexpected values still fail loudly. These allowed
+    values are raw EIA ``REF_CODE`` values, not standardized ISO country codes.
+    """
+    df = df.copy()
+    code_map = _subdivision_code_map(core_pudl__codes_subdivisions)
+    allowed_codes = CONTINUATION_LINES_ALLOWED_NON_SUBDIVISION_CODES.get(column, set())
+
+    norm = df[column].astype("string").str.strip().str.casefold()
+    converted = norm.map(code_map).astype("string")
+    allowed = norm.str.upper().isin(allowed_codes)
+    invalid = df.loc[converted.isna() & ~allowed & df[column].notna(), column]
+    if not invalid.empty:
+        raise ValueError(
+            f"Unknown {column} values: {sorted(invalid.unique().tolist())!r}"
+        )
+
+    df[column] = converted.fillna(norm.str.upper())
+    return df
+
+
+def _get_continuation_code_type(
+    continuation_code: pd.Series,
+    core_pudl__codes_subdivisions: pd.DataFrame,
+) -> pd.Series:
+    """Classify EIA-176 continuation codes as subnational or national/other codes."""
+    subdivision_codes = set(core_pudl__codes_subdivisions["subdivision_code"])
+    continuation_code = continuation_code.astype("string").str.strip().str.upper()
+    code_type = pd.Series(
+        "national_or_other",
+        index=continuation_code.index,
+        dtype="string",
+    )
+    code_type = code_type.mask(continuation_code.isin(subdivision_codes), "subnational")
+    return code_type.mask(continuation_code.isna(), pd.NA)
+
+
+def _find_continuation_line_total_mismatches(
+    detail_records: pd.DataFrame,
+    _core_eia176__yearly_company_data: pd.DataFrame,
+    company_total_column: str,
+) -> pd.DataFrame:
+    """Compare detailed continuation line totals with reported company-level totals."""
+    primary_key = ["operator_id_eia", "report_year"]
+    company_totals = _core_eia176__yearly_company_data[
+        [
+            *primary_key,
+            company_total_column,
+        ]
+    ]
+    company_totals = company_totals[company_totals[company_total_column].notna()]
+    continuation_totals = detail_records.groupby(primary_key, as_index=False).agg(
+        {"volume_mcf": "sum"}
+    )
+    comparison = company_totals.merge(
+        continuation_totals,
+        how="outer",
+        on=primary_key,
+        validate="1:1",
+    )
+    return comparison[
+        (comparison[company_total_column] != comparison["volume_mcf"])
+        & (comparison[company_total_column].notna() | comparison["volume_mcf"].notna())
+    ]
 
 
 @asset_check(
@@ -357,6 +587,410 @@ def core_eia176__yearly_gas_disposition_by_consumer(
 
 
 @asset(io_manager_key="pudl_io_manager")
+def core_eia176__yearly_gas_imports(
+    raw_eia176__continuation_text_lines: pd.DataFrame,
+    core_pudl__codes_subdivisions: pd.DataFrame,
+    _core_eia176__yearly_company_data: pd.DataFrame,
+) -> pd.DataFrame:
+    """Produce company-level detailed annual gas imports (EIA-176, Line 3.0)."""
+    keep = [
+        "operator_id_eia",
+        "report_year",
+        "operating_state",
+        "reference_state",
+        "reference_company_or_line_description",
+        "volume_mcf",
+        "mode_of_transportation",
+    ]
+    df = raw_eia176__continuation_text_lines[
+        raw_eia176__continuation_text_lines["line"] == 300
+    ].filter(keep)
+
+    # Clean up the existing codes
+    df = normalize_continuation_line_location_codes(
+        df,
+        core_pudl__codes_subdivisions,
+        column="operating_state",
+    )
+    df = normalize_continuation_line_location_codes(
+        df,
+        core_pudl__codes_subdivisions,
+        column="reference_state",
+    )
+
+    # Clean up the supplier location
+    df["supplier_location"] = (
+        df["reference_state"].astype("string").str.strip().str.upper()
+    )
+    # Create a categorical column noting whether data is a state code
+    # or something else.
+    df["supplier_location_type"] = _get_continuation_code_type(
+        df["supplier_location"],
+        core_pudl__codes_subdivisions,
+    )
+
+    df = df.rename(
+        columns={
+            "reference_company_or_line_description": "supplier_name",
+        }
+    ).drop(columns="reference_state")
+
+    df["mode_of_transportation"] = (
+        df["mode_of_transportation"]
+        .astype("string")
+        .str.strip()
+        .replace({".": pd.NA, "0": pd.NA})
+        .str.casefold()
+    )
+    df = df[
+        [
+            "operator_id_eia",
+            "report_year",
+            "operating_state",
+            "supplier_location",
+            "supplier_location_type",
+            "supplier_name",
+            "mode_of_transportation",
+            "volume_mcf",
+        ]
+    ]
+
+    # check that data isn't too far off from the EIA aggregated data
+    mismatches = _find_continuation_line_total_mismatches(
+        detail_records=df,
+        _core_eia176__yearly_company_data=_core_eia176__yearly_company_data,
+        company_total_column="receipts_from_state_or_us_border_volume",
+    )
+    assert len(mismatches) <= 2, "More than 2 line 300 total mismatches"
+
+    # Clean supplier name and map a few values to N/A
+    df["supplier_name"] = name_cleaner.get_clean_data(df["supplier_name"])
+    df["supplier_name"] = df["supplier_name"].replace(list(UNKNOWN_TYPES), pd.NA)
+
+    return df.sort_values(
+        [
+            "report_year",
+            "operator_id_eia",
+            "operating_state",
+            "supplier_location",
+            "supplier_location_type",
+            "supplier_name",
+            "mode_of_transportation",
+        ]
+    ).reset_index(drop=True)
+
+
+@asset(io_manager_key="pudl_io_manager")
+def core_eia176__yearly_supplemental_gaseous_fuel_supplies(
+    raw_eia176__continuation_text_lines: pd.DataFrame,
+    core_pudl__codes_subdivisions: pd.DataFrame,
+    _core_eia176__yearly_company_data: pd.DataFrame,
+) -> pd.DataFrame:
+    """Produce detailed annual supplemental gaseous fuel supplies (EIA-176, Line 6.0)."""
+    primary_key = ["operator_id_eia", "report_year", "fuel_type"]
+    keep = [
+        "operator_id_eia",
+        "report_year",
+        "operating_state",
+        "reference_company_or_line_description",
+        "volume_mcf",
+    ]
+    df = raw_eia176__continuation_text_lines[
+        raw_eia176__continuation_text_lines["line"] == 600
+    ].filter(keep)
+    df = normalize_continuation_line_location_codes(
+        df,
+        core_pudl__codes_subdivisions,
+        column="operating_state",
+    )
+    df["fuel_type"] = cleanstrings_series(
+        df["reference_company_or_line_description"], SUPPLEMENTAL_GASEOUS_FUEL_TYPE_MAP
+    ).drop(columns=["reference_company_or_line_description"])
+
+    # We combine two pairs of duplicate rows here, one set of which are zero values.
+    assert df.duplicated(subset=primary_key).any().sum() <= 2, (
+        f"{df.duplicated(subset=primary_key).any()}"
+    )
+    df = df.groupby(
+        [*primary_key, "operating_state"], dropna=False, as_index=False
+    ).agg({"volume_mcf": "sum"})
+    df = df[
+        ["operator_id_eia", "report_year", "operating_state", "fuel_type", "volume_mcf"]
+    ]
+    assert not df.duplicated(subset=primary_key).any()
+
+    mismatches = _find_continuation_line_total_mismatches(
+        detail_records=df,
+        _core_eia176__yearly_company_data=_core_eia176__yearly_company_data,
+        company_total_column="supplemental_gaseous_fuels_volume",
+    )
+    assert mismatches.empty, "Found line 600 total mismatches"
+
+    return df.sort_values(
+        ["report_year", "operator_id_eia", "operating_state", "fuel_type"]
+    ).reset_index(drop=True)
+
+
+@asset(io_manager_key="pudl_io_manager")
+def core_eia176__yearly_gas_exports(
+    raw_eia176__continuation_text_lines: pd.DataFrame,
+    core_pudl__codes_subdivisions: pd.DataFrame,
+    _core_eia176__yearly_company_data: pd.DataFrame,
+) -> pd.DataFrame:
+    """Produce detailed annual out-of-state gas deliveries (EIA-176, Line 14.0)."""
+    keep = [
+        "operator_id_eia",
+        "report_year",
+        "operating_state",
+        "reference_state",
+        "reference_company_or_line_description",
+        "volume_mcf",
+        "mode_of_transportation",
+    ]
+    df = raw_eia176__continuation_text_lines[
+        raw_eia176__continuation_text_lines["line"] == 1400
+    ].filter(keep)
+
+    # Clean up location codes
+    df = normalize_continuation_line_location_codes(
+        df,
+        core_pudl__codes_subdivisions,
+        column="operating_state",
+    )
+    df = normalize_continuation_line_location_codes(
+        df,
+        core_pudl__codes_subdivisions,
+        column="reference_state",
+    )
+
+    # Clean and categorize destination
+    df["recipient_location"] = (
+        df["reference_state"].astype("string").str.strip().str.upper()
+    )
+    df["recipient_location_type"] = _get_continuation_code_type(
+        df["recipient_location"],
+        core_pudl__codes_subdivisions,
+    )
+    df = df.rename(
+        columns={
+            "reference_company_or_line_description": "recipient_name",
+        }
+    ).drop(columns="reference_state")
+    df["mode_of_transportation"] = (
+        df["mode_of_transportation"]
+        .astype("string")
+        .str.strip()
+        .replace({".": pd.NA, "0": pd.NA})
+        .str.casefold()
+    )
+    df = df[
+        [
+            "operator_id_eia",
+            "report_year",
+            "operating_state",
+            "recipient_location",
+            "recipient_location_type",
+            "recipient_name",
+            "mode_of_transportation",
+            "volume_mcf",
+        ]
+    ]
+
+    mismatches = _find_continuation_line_total_mismatches(
+        detail_records=df,
+        _core_eia176__yearly_company_data=_core_eia176__yearly_company_data,
+        company_total_column="deliveries_out_of_state_volume",
+    )
+    assert len(mismatches) <= 4, "More than 4 line 1400 total mismatches"
+
+    df["recipient_name"] = name_cleaner.get_clean_data(df["recipient_name"])
+    df["recipient_name"] = df["recipient_name"].replace(list(UNKNOWN_TYPES), pd.NA)
+
+    return df.sort_values(
+        [
+            "report_year",
+            "operator_id_eia",
+            "operating_state",
+            "recipient_location",
+            "recipient_location_type",
+            "recipient_name",
+            "mode_of_transportation",
+        ]
+    ).reset_index(drop=True)
+
+
+@asset(io_manager_key="pudl_io_manager")
+def core_eia176__yearly_gas_disposition_other(
+    raw_eia176__continuation_text_lines: pd.DataFrame,
+    core_pudl__codes_subdivisions: pd.DataFrame,
+    _core_eia176__yearly_company_data: pd.DataFrame,
+) -> pd.DataFrame:
+    """Produce detailed annual gas disposition to other uses (EIA-176, Line 18.4)."""
+    primary_key = [
+        "operator_id_eia",
+        "report_year",
+        "operating_state",
+        "disposition_type",
+    ]
+    keep = [
+        "operator_id_eia",
+        "report_year",
+        "operating_state",
+        "reference_company_or_line_description",
+        "volume_mcf",
+    ]
+    df = raw_eia176__continuation_text_lines[
+        raw_eia176__continuation_text_lines["line"] == 1840
+    ].filter(keep)
+    df = normalize_continuation_line_location_codes(
+        df,
+        core_pudl__codes_subdivisions,
+        column="operating_state",
+    )
+    df["disposition_type"] = cleanstrings_series(
+        df["reference_company_or_line_description"], OTHER_DISPOSITION_TYPE_MAP
+    )
+    df = df.drop(columns=["reference_company_or_line_description"])
+    df["report_year"] = df["report_year"].astype("int64")
+
+    # Several hundred records have duplicated values by fuel type. We combine them here.
+    df = df.groupby(primary_key, dropna=False, as_index=False).agg(
+        {"volume_mcf": "sum"}
+    )
+    assert not df.duplicated(subset=primary_key).any()
+
+    mismatches = _find_continuation_line_total_mismatches(
+        detail_records=df,
+        _core_eia176__yearly_company_data=_core_eia176__yearly_company_data,
+        company_total_column="disposition_to_other_volume",
+    )
+    assert len(mismatches) <= 6, "More than 6 line 1840 total mismatches"
+
+    return df.sort_values(
+        ["report_year", "operator_id_eia", "operating_state", "disposition_type"]
+    ).reset_index(drop=True)
+
+
+@asset(io_manager_key="pudl_io_manager")
+def core_eia176__yearly_gas_supply(
+    _core_eia176__yearly_company_data: pd.DataFrame,
+    core_pudl__codes_subdivisions: pd.DataFrame,
+    raw_eia176__continuation_text_lines: pd.DataFrame,
+) -> pd.DataFrame:
+    """Produce company-level natural and supplemental gas supply (EIA176, Lines 1.0-7.0)."""
+    primary_key = ["operator_id_eia", "report_year"]
+    extras = ["operating_state"]
+    supply_type_map = {
+        # 1.0
+        "production_volume": "natural_gas_production",
+        "synthetic_production_volume": "synthetic_gas_production",
+        # 2.0
+        "underground_storage_withdrawals_volume": "underground_storage_withdrawals",
+        "lng_storage_withdrawals_volume": "lng_storage_withdrawals",
+        "above_ground_storage_withdrawals_volume": "above_ground_storage_withdrawals",
+        # 3.0
+        "receipts_from_state_or_us_border_volume": "receipts_from_state_or_us_border",
+        # 4.0
+        "receipts_at_citygate_volume": "citygate_receipts_total",
+        "receipts_at_citygate_delivered_to_sales_customers_volume": (
+            "citygate_receipts_sales_customers"
+        ),
+        "receipts_at_citygate_delivered_to_transportation_customers_volume": (
+            "citygate_receipts_transportation_customers"
+        ),
+        # 5.0
+        "other_receipts_volume": "other_receipts",
+        # 6.0
+        "supplemental_gaseous_fuels_volume": "supplemental_gaseous_fuels",
+        # 7.0
+        "total_supply_volume": "total",
+    }
+
+    df = _core_eia176__yearly_company_data.filter(
+        [*primary_key, *extras, *supply_type_map]
+    )
+
+    df = _normalize_operating_states(core_pudl__codes_subdivisions, df)
+    df = df.dropna(subset=["operating_state"])
+    df = df.rename(columns=supply_type_map)
+
+    supply_cols = list(supply_type_map.values())
+    df = df.dropna(
+        subset=[col for col in supply_cols if col in df.columns], how="all"
+    )  # Handle fast ETL edge case
+
+    # This compares the total values reported in this table with the
+    # disaggregated values reported in the continuation lines data
+    # for lines 3.0 and 6.0.
+    # We expect these records to be near-identical.
+    line_3_mismatches = _compare_eia176_continuation_line_total(
+        df=df,
+        raw_eia176__continuation_text_lines=raw_eia176__continuation_text_lines,
+        line=300,
+        value_col="receipts_from_state_or_us_border",
+        continuation_col="continuation_receipts_from_state_or_us_border_mcf",
+    )
+    assert len(line_3_mismatches) <= 2, "More than 2 line 3.0 receipts mismatches"
+
+    line_6_mismatches = _compare_eia176_continuation_line_total(
+        df=df,
+        raw_eia176__continuation_text_lines=raw_eia176__continuation_text_lines,
+        line=600,
+        value_col="supplemental_gaseous_fuels",
+        continuation_col="continuation_supplemental_gaseous_fuels_mcf",
+    )
+    assert line_6_mismatches.empty, (
+        "Found line 6.0 supplemental gaseous fuels mismatches"
+    )
+
+    return df.melt(
+        id_vars=[*primary_key, *extras],
+        value_vars=[
+            col for col in supply_cols if col in df.columns
+        ],  # Handle fast ETL edge case
+        var_name="supply_type",
+        value_name="volume_mcf",
+    ).dropna(subset=["volume_mcf"])
+
+
+def _compare_eia176_continuation_line_total(
+    df: pd.DataFrame,
+    raw_eia176__continuation_text_lines: pd.DataFrame,
+    *,
+    line: int,
+    value_col: str,
+    continuation_col: str,
+) -> pd.DataFrame:
+    """Compare a wide EIA-176 value column against summed continuation-line values."""
+    primary_key = ["operator_id_eia", "report_year"]
+    continuation_values = (
+        raw_eia176__continuation_text_lines.groupby([*primary_key, "line"])
+        .agg({"volume_mcf": "sum"})
+        .reset_index()
+    )
+    continuation_values = (
+        continuation_values.pivot(
+            index=primary_key,
+            columns="line",
+            values="volume_mcf",
+        )
+        .reset_index()
+        .filter([*primary_key, line])
+        .rename(columns={line: continuation_col})
+    )
+
+    comparison = df.filter([*primary_key, "operating_state", value_col]).merge(
+        continuation_values,
+        how="left",
+        validate="1:1",
+    )
+    mismatch = (comparison[value_col] != comparison[continuation_col]) & (
+        comparison[value_col].notna() | comparison[continuation_col].notna()
+    )
+    return comparison.loc[mismatch]
+
+
+@asset(io_manager_key="pudl_io_manager")
 def core_eia176__yearly_gas_disposition(
     _core_eia176__yearly_company_data: pd.DataFrame,
     core_pudl__codes_subdivisions: pd.DataFrame,
@@ -439,14 +1073,14 @@ def core_eia176__yearly_gas_disposition(
     )
 
     # 2001: 2
-    # 2024: 3
+    # 2024: 4
     # [km feb 2026] - keep an eye on this. Two of these mismatches (1 2001, 1 2024) happen
     # bc disposition_to_other_volume is NA while line 1840 has valid data, which suggests
     # we should continue to prefer line 1840. But for the other three mismatches (1 2001,
     # 2 2024) disposition_to_other_volume always exceeds the value from 1840. If this pattern
     # continues, we may want to switch to only using 1840 when disposition_to_other_volume
     # is not available.
-    max_disposition_mismatch = 5
+    max_disposition_mismatch = 6
     disposition_to_other_mismatch = (
         (df["disposition_to_other_volume"] != df[1840])
         & (df["disposition_to_other_volume"].notna() | df[1840].notna())
@@ -532,7 +1166,78 @@ def core_eia176__yearly_gas_disposition(
     return df
 
 
-def _normalize_operating_states(core_pudl__codes_subdivisions, df):
+@asset(io_manager_key="pudl_io_manager")
+def core_eia176__yearly_liquefied_natural_gas_inventory(
+    _core_eia176__yearly_company_data: pd.DataFrame,
+    core_pudl__codes_subdivisions: pd.DataFrame,
+):
+    """Operator's LNG storage volume and capacity (EIA176, lines 8.0-8.2)."""
+    pk = ["operator_id_eia", "report_year"]
+    other = ["operating_state"]
+    keep = [
+        "lng_inventory_at_end_of_year_volume",
+        "lng_facility_year_end_capacity",
+        "lng_facility_year_end_volume",
+        "marine_terminal_facility_year_end_capacity",
+        "marine_terminal_facility_year_end_volume",
+    ]
+    df = _core_eia176__yearly_company_data.filter(pk + other + keep)
+    # ensure uniqueness
+    assert not df.duplicated(pk, keep=False).any()
+
+    # lng_inventory_at_end_of_year_volume is used prior to 2010
+    # we combine the two columns, checking that neither
+    # is reported in both years before using fillna.
+
+    # For the fast CI, we need to construct the inventory
+    # column first as it is not reported in newer data.
+    if "lng_inventory_at_end_of_year_volume" not in df.columns:
+        df["lng_inventory_at_end_of_year_volume"] = pd.Series(pd.NA, dtype="Int64")
+
+    assert not (
+        df["lng_inventory_at_end_of_year_volume"].notna()
+        & df["lng_facility_year_end_volume"].notna()
+    ).any()
+    df["lng_facility_year_end_volume"] = df["lng_facility_year_end_volume"].fillna(
+        df["lng_inventory_at_end_of_year_volume"]
+    )
+
+    df = df.set_index(pk).reset_index().dropna(subset=keep, how="all")
+    df = _normalize_operating_states(core_pudl__codes_subdivisions, df)
+    df = df.dropna(subset=["operating_state"])
+
+    id_cols = pk + other
+
+    data_cols = ["year_end_volume", "year_end_capacity"]
+    df = multi_index_stack(
+        df,
+        idx_ish=id_cols,
+        data_cols=data_cols,
+        pattern=rf"^(marine_terminal_facility|lng_facility)_({'|'.join(data_cols)})$",
+        match_names=["facility_type", "data_cols"],
+        unstack_level=["facility_type"],
+        expected_dropped_cols=1,  # lng_inventory_at_end_of_year_volume
+    )
+    df["facility_type"] = df["facility_type"].replace(
+        {
+            "lng_facility": "lng_terminal",
+            "marine_terminal_facility": "marine_terminal",
+        }
+    )
+    df = df.rename(
+        columns={
+            "year_end_volume": "volume_mcf",
+            "year_end_capacity": "capacity_mmcfd",
+        }
+    )
+    df = df.dropna(subset=["volume_mcf", "capacity_mmcfd"], how="all")
+
+    return df
+
+
+def _normalize_operating_states(
+    core_pudl__codes_subdivisions, df, column: str = "operating_state"
+):
     """Map full state names to their postal abbreviations.
 
     This uses the latest year of Census PEP data as the reference. If a full state name is not included in this data, it is set to NA.
@@ -545,7 +1250,7 @@ def _normalize_operating_states(core_pudl__codes_subdivisions, df):
         .drop_duplicates("key")
         .set_index("key")["subdivision_code"]
     )
-    norm = df["operating_state"].astype(str).str.strip().str.casefold()
+    norm = df[column].astype(str).str.strip().str.casefold()
     mask_valid = norm.isin(codes.index)
     mask_safe_drop = norm.isin(DROP_OPERATING_STATES)
 
@@ -553,5 +1258,5 @@ def _normalize_operating_states(core_pudl__codes_subdivisions, df):
     if len(invalid) > 0:
         raise ValueError(f"Unknown operating_state values: {invalid!r}")
 
-    df["operating_state"] = norm.map(codes)
+    df[column] = norm.map(codes)
     return df

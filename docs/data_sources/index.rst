@@ -13,6 +13,7 @@ The following data sources serve as the foundation for our data pipeline.
    censuspep
    eiaapi
    eia176
+   eia191
    eia860
    eia861
    eia923

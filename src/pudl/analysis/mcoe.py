@@ -15,7 +15,7 @@ from dagster import (
 )
 
 import pudl.helpers
-from pudl.metadata.fields import apply_pudl_dtypes
+from pudl.metadata.dtypes import apply_pudl_dtypes
 from pudl.validate import quality as pv
 
 DEFAULT_GENS_COLS = [
@@ -502,7 +502,7 @@ def fuel_cost(
                 "fuel_cost_per_mmbtu",
                 "fuel_type_code_pudl",
                 "total_fuel_cost",
-                "fuel_consumed_mmbtu",
+                "fuel_received_mmbtu",
                 "fuel_cost_per_mmbtu_source",
             ],
         ],
@@ -557,12 +557,12 @@ def fuel_cost(
     one_fuel_agg = one_fuel_gb.agg(
         {
             "total_fuel_cost": pudl.helpers.sum_na,
-            "fuel_consumed_mmbtu": pudl.helpers.sum_na,
+            "fuel_received_mmbtu": pudl.helpers.sum_na,
             "fuel_cost_per_mmbtu_source": pudl.helpers.groupby_agg_label_unique_source_or_mixed,
         }
     )
     one_fuel_agg["fuel_cost_per_mmbtu"] = (
-        one_fuel_agg["total_fuel_cost"] / one_fuel_agg["fuel_consumed_mmbtu"]
+        one_fuel_agg["total_fuel_cost"] / one_fuel_agg["fuel_received_mmbtu"]
     )
     one_fuel_agg = one_fuel_agg.reset_index()
     one_fuel = pd.merge(
@@ -644,7 +644,7 @@ def capacity_factor(
         cf, min_cap_fact=min_cap_fact, max_cap_fact=max_cap_fact, freq=freq
     )
 
-    return apply_pudl_dtypes(cf, group="eia")
+    return apply_pudl_dtypes(cf, field_namespace="eia")
 
 
 def mcoe(
@@ -797,7 +797,7 @@ def mcoe_generators(
                 "report_date",
             ]
         )
-        .pipe(apply_pudl_dtypes, group="eia")
+        .pipe(apply_pudl_dtypes, field_namespace="eia")
     )
 
     return mcoe_gens_out

@@ -501,6 +501,15 @@ RESOURCE_METADATA_BASE: dict[str, dict[str, Any]] = {
             "additional_summary_text": ("distribution services."),
             "usage_warnings": ["aggregation_hazard"],
             "additional_source_text": "(Part B)",
+            "additional_details_text": (
+                "Per RUS Form 7 Part B, ``total_in_place`` (Total Services in Place) is a "
+                "cumulative stock, while ``connected_this_year`` (New Services Connected) and "
+                "``retired_this_year`` (Services Retired) are annual flows. The form defines no "
+                "sum relationship among these line items, so the subcomponents do not sum to the "
+                "total within a year; ``idle_in_place`` is a subset of the total rather than a "
+                "summand. The underlying relationship is year-over-year: "
+                "total(y) = total(y-1) + connected(y) - retired(y)."
+            ),
         },
         "schema": {
             "fields": [
@@ -508,7 +517,6 @@ RESOURCE_METADATA_BASE: dict[str, dict[str, Any]] = {
                 "borrower_id_rus",
                 "service_status",
                 "services",
-                "is_total",
             ],
             "primary_key": ["report_date", "borrower_id_rus", "service_status"],
         },
