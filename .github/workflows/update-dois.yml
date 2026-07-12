@@ -74,7 +74,7 @@ jobs:
             ---
 
             🤖 *This PR was created automatically by GitHub Actions*
-          branch: update-dois
+          branch: update-dois-${{ github.run_number }}
           base: main
           labels: >
             data-update${{ steps.format-datasets.outputs.dataset_labels && format(', {0}', steps.format-datasets.outputs.dataset_labels) || '' }}
