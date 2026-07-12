@@ -186,6 +186,7 @@ jq = ">=1.8" # Primarily for agent skills use
 marimo = ">=0.13"
 matplotx = ">=0.3.10"
 plotly = ">=6.6"
+python-lsp-server = ">=1.14" # pylsp, for editor support
 ripgrep = ">=15" # Primarily for agent skills use
 ty = ">=0.0.55" # Experimental, also for agent skills use
 

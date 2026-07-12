@@ -1,0 +1,26 @@
+{
+  "lsp": {
+    "pylsp": {
+      "binary": {
+        "path": "/workspaces/pudl/.pixi/envs/dev/bin/pylsp"
+      }
+    }
+  },
+  "languages": {
+    "reST": {
+      "language_servers": ["!esbonio"]
+    },
+    "Python": {
+      "format_on_save": "on",
+      "formatter": {
+        "language_server": {
+          "name": "ruff"
+        }
+      },
+      "code_actions_on_format": {
+        "source.organizeImports.ruff": true,
+        "source.fixAll.ruff": true
+      }
+    }
+  }
+}

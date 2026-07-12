@@ -46,9 +46,15 @@ repos:
   - repo: https://github.com/ComPWA/taplo-pre-commit
     rev: v0.9.3
     hooks:
+      # Use the taplo binary already installed via `pixi global install` in the
+      # devcontainer Dockerfile, instead of letting the hook pip-install its own
+      # copy from PyPI, which requires building from source (Rust + a C linker)
+      # on platforms without a prebuilt wheel, e.g. linux-aarch64.
       - id: taplo-format
+        language: system
         args: []
       - id: taplo-lint
+        language: system
         args: []
 
   - repo: https://github.com/shellcheck-py/shellcheck-py

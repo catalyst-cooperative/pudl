@@ -34,7 +34,7 @@
         "PATH": "/home/ubuntu/.pixi/bin:${containerEnv:PATH}"
     },
     "waitFor": "postCreateCommand",
-    "postCreateCommand": "sudo mkdir -p ${containerWorkspaceFolder}/.pixi /home/ubuntu/.cache/rattler /home/ubuntu/.cache/pip /home/ubuntu/.cache/npm && sudo chown ubuntu:ubuntu ${containerWorkspaceFolder}/.pixi /home/ubuntu/.cache/rattler /home/ubuntu/.cache/pip /home/ubuntu/.cache/npm && pixi run -e dev devcontainer-install",
+    "postCreateCommand": "sudo mkdir -p ${containerWorkspaceFolder}/.pixi /home/ubuntu/.cache/rattler /home/ubuntu/.cache/pip /home/ubuntu/.cache/npm && sudo chown ubuntu:ubuntu ${containerWorkspaceFolder}/.pixi /home/ubuntu/.cache/rattler /home/ubuntu/.cache/pip /home/ubuntu/.cache/npm && mkdir -p ${containerWorkspaceFolder}/.zed && cp ${containerWorkspaceFolder}/.devcontainer/zed-settings.json ${containerWorkspaceFolder}/.zed/settings.json && pixi run -e dev devcontainer-install",
     "remoteUser": "ubuntu",
     "customizations": {
         "vscode": {
@@ -63,6 +63,15 @@
                     "editor.formatOnSave": true
                 }
             }
+        },
+        "zed": {
+            "extensions": [
+              "dockerfile",
+              "rst",
+              "ruff",
+              "toml",
+              "ty"
+            ]
         }
     }
 }
