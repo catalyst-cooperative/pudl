@@ -1,8 +1,8 @@
 # PUDL Release Notes
 
-<a id="release-v2026-7-0"></a>
+<a id="release-v2026-7-1"></a>
 
-## v2026.7.0 (2026-07-14)
+## v2026.7.1 (2026-07-14)
 
 This is a monthly PUDL data release, primarily motivated by updating
 the EIA-860M monthly data through May 2026. As usual, it also includes
