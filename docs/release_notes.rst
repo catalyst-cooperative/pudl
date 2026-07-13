@@ -5,7 +5,7 @@ PUDL Release Notes
 .. _release-v2026.7.0:
 
 ---------------------------------------------------------------------------------------
-v2026.7.0 (2026-07-XX)
+v2026.7.0 (2026-07-14)
 ---------------------------------------------------------------------------------------
 
 This is a monthly PUDL data release, primarily motivated by updating
@@ -41,8 +41,9 @@ New Data
 EIA-176
 ~~~~~~~
 
-* Added detailed core EIA-176 continuation-line tables for natural gas imports,
-  supplemental gaseous fuel supplies, gas exports, and other gas disposition. See
+* Added detailed core :doc:`EIA-176 <data_sources/eia176>`
+  continuation-line tables for natural gas imports, supplemental
+  gaseous fuel supplies, gas exports, and other gas disposition. See
   :issue:`5240` and :pr:`5245`.
 
 
@@ -76,7 +77,9 @@ EPA CEMS
 EIA-860
 ~~~~~~~
 
-* Added early release data for EIA-860 2025. See issue :issue:`5322` and PR :pr:`5324`.
+* Added early release data for :doc:`EIA-860
+  <data_sources/eia860>` 2025. See issue :issue:`5322` and PR
+  :pr:`5324`.
 
 EIA-860M
 ~~~~~~~~
