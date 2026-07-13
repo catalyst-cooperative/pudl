@@ -1,0 +1,137 @@
+===========================================================================================
+EIA Form 191 -- Monthly Underground Natural Gas Storage Report
+===========================================================================================
+
+.. list-table::
+   :widths: auto
+   :header-rows: 0
+   :stub-columns: 1
+
+   * - Source URL
+     - https://www.eia.gov/naturalgas/ngqs/
+   * - Source Description
+     - The EIA Form 191, also known as the Monthly Underground Natural Gas Storage Report, describes the working and base gas in reservoirs, injections, withdrawals, and location of reservoirs by field monthly.
+   * - Respondents
+     - All companies that operate underground natural gas storage fields in the United States.
+   * - Source Format
+     - Comma Separated Value (.csv)
+   * - Download Size
+     - 0 MB
+   * - Temporal Coverage
+     - 2014-2026
+   * - PUDL Code
+     - ``eia191``
+   * - Unprocessed Source Data Archive
+     - `10.5281/zenodo.10607836 <https://doi.org/10.5281/zenodo.10607836>`__
+   * - Issues
+     - `Open EIA Form 191 -- Monthly Underground Natural Gas Storage Report issues <https://github.com/catalyst-cooperative/pudl/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3Aeia191>`__
+
+PUDL Database Tables
+^^^^^^^^^^^^^^^^^^^^
+
+
+
+.. list-table::
+   :header-rows: 1
+   :widths: auto
+
+   * - Data Dictionary
+     - Browse Online
+   * - :ref:`core_eia191__monthly_gas_storage`
+     - https://data.catalyst.coop/preview/pudl/core_eia191__monthly_gas_storage
+   
+
+
+Background
+^^^^^^^^^^
+
+EIA Form 191, also known as the **Monthly Underground Gas Storage Report**,
+describes the working and base gas in natural gas reservoirs, as well as injections,
+withdrawals, and reservoir locations on a monthly basis.
+
+The EIA-191 Form is organized into the following parts:
+
+* **Part 1:** Identification
+* **Part 3:** Field characteristics
+* **Part 4:** Monthly gas storage
+
+
+
+
+Download additional documentation
+---------------------------------
+
+
+* :download:`Eia191 Blank 2027-07-31 (PDF) <eia191/eia191_blank_2027-07-31.pdf>`
+* :download:`Eia191 Instructions 2011-12-31 (PDF) <eia191/eia191_instructions_2011-12-31.pdf>`
+* :download:`Eia191 Instructions 2024-01-31 (PDF) <eia191/eia191_instructions_2024-01-31.pdf>`
+* :download:`Eia191 Instructions 2024-06-30 (PDF) <eia191/eia191_instructions_2024-06-30.pdf>`
+* :download:`Eia191 Instructions 2027-07-31 (PDF) <eia191/eia191_instructions_2027-07-31.pdf>`
+
+
+
+
+What data is available through PUDL?
+------------------------------------
+
+
+All EIA 191 data published by the EIA through the
+`Natural Gas Query System <https://www.eia.gov/naturalgas/ngqs/#?report=RP8>`__ is integrated
+into PUDL.
+
+Information collected in Part 3 and base gas data in Part 4 is
+considered public information, and is included in publicly available data. Information
+collected in Parts 1 (including company contact information) and the rest of Part 4
+(including working gas and total gas in storage data) is considered to be
+protected information and is not published at the company-level by the EIA.
+
+
+
+
+Who is required to fill out the form?
+-------------------------------------
+
+
+According to the EIA, the Form EIA‐191 must be completed by all companies that operate
+underground natural gas storage fields or liquefied natural gas (LNG) storage facilities
+in the United States.
+
+
+
+
+What does the original data look like?
+--------------------------------------
+
+
+
+We archive EIA-191 data from CSV files that are exported from the `EIA
+Natural Gas Query System <https://www.eia.gov/naturalgas/ngqs>`__ by iterating through
+all predefined reports related to Form 191. These include all data fields that are
+publicly available (i.e., excluding protected information from Parts 1 and 4).
+
+Previously, two Forms were used for reporting underground natural gas storage data. One
+was a “Monthly” report, and one was an “Annual” report providing a snapshot of the field
+status on December 31st of the given reporting year. These monthly and annual reports for
+“Underground Gas Storage” were known as Forms EIA-191M and EIA-191A, respectively.
+
+The EIA-191A was discontinued in 2013, and the monthly version of the report was
+renamed to EIA-191. While the Natural Gas Query System provides both monthly and annual
+(December snapshot) data, we currently only process the monthly data (2014 - present)
+to provide the most granular data available.
+
+
+
+Notable Irregularities
+^^^^^^^^^^^^^^^^^^^^^^
+
+* **Storage field identifiers:** Storage field IDs are assigned per company and state.
+  This means that the same physical reservoir may have different IDs over time if
+  ownership changes.
+
+
+PUDL Data Transformations
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+To see the transformations applied to the data in each table, you can read the
+docstrings for :mod:`pudl.transform.eia191` created for each table's
+respective transform function.

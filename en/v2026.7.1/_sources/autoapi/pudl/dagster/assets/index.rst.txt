@@ -1,0 +1,80 @@
+pudl.dagster.assets
+===================
+
+.. py:module:: pudl.dagster.assets
+
+.. autoapi-nested-parse::
+
+   Dagster asset loading and grouping for PUDL.
+
+   This module is responsible for collecting asset-definition modules into the grouped
+   asset sets that the PUDL code location exposes. Define group registries, package-level
+   asset lists, and helper utilities for working with loaded asset definitions here. Keep
+   individual asset implementations in the submodules that own them so this file remains a
+   thin registry and assembly layer.
+
+   Submodules in this package should define only assets that don't fit well into the
+   pre-existing categorization of assets that PUDL uses, mostly oriented around the
+   layer of processing being applied in the ETL (raw, core, output) or the source dataset
+   (e.g. eia860, ferc714). If an asset doesn't fit neatly into those categories, add it
+   to this package.
+
+   For the underlying Dagster concept, see https://docs.dagster.io/guides/build/assets
+
+
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 1
+
+   /autoapi/pudl/dagster/assets/core/index
+   /autoapi/pudl/dagster/assets/deploy/index
+   /autoapi/pudl/dagster/assets/raw/index
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.dagster.assets.raw_module_groups
+   pudl.dagster.assets.core_module_groups
+   pudl.dagster.assets.out_module_groups
+   pudl.dagster.assets.ferceqr_deployment_assets
+   pudl.dagster.assets.all_asset_modules
+   pudl.dagster.assets.default_assets
+   pudl.dagster.assets.asset_keys
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.dagster.assets.get_keys_from_assets
+
+
+Package Contents
+----------------
+
+.. py:data:: raw_module_groups
+
+.. py:data:: core_module_groups
+
+.. py:data:: out_module_groups
+
+.. py:data:: ferceqr_deployment_assets
+
+.. py:data:: all_asset_modules
+
+.. py:data:: default_assets
+
+.. py:function:: get_keys_from_assets(asset_def) -> list[dagster.AssetKey]
+
+   Get a list of asset keys for an asset definition or spec.
+
+
+.. py:data:: asset_keys
+

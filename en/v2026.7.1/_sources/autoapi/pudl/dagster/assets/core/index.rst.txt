@@ -1,0 +1,23 @@
+pudl.dagster.assets.core
+========================
+
+.. py:module:: pudl.dagster.assets.core
+
+.. autoapi-nested-parse::
+
+   Core Dagster asset-definition modules for PUDL.
+
+
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 1
+
+   /autoapi/pudl/dagster/assets/core/datapackage/index
+   /autoapi/pudl/dagster/assets/core/eiaapi_electricity/index
+   /autoapi/pudl/dagster/assets/core/glue/index
+   /autoapi/pudl/dagster/assets/core/static/index
+
+

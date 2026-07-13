@@ -1,0 +1,38 @@
+pudl.dagster.config
+===================
+
+.. py:module:: pudl.dagster.config
+
+.. autoapi-nested-parse::
+
+   Dagster run configuration helpers for PUDL.
+
+   This module collects reusable run-configuration fragments and helpers that jobs,
+   automation, and tests can share. Define execution settings, concurrency controls, and
+   resource-config loaders here when they are meant to be combined into Dagster job or
+   launch configuration, rather than hard-coding them in individual jobs or scripts.
+
+   For the underlying Dagster concept, see
+   https://docs.dagster.io/guides/operate/configuration/run-configuration
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.dagster.config.default_tag_concurrency_limits
+   pudl.dagster.config.default_execution_config
+   pudl.dagster.config.default_pudl_job_config
+
+
+Module Contents
+---------------
+
+.. py:data:: default_tag_concurrency_limits
+
+.. py:data:: default_execution_config
+
+.. py:data:: default_pudl_job_config
+
