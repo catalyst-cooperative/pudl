@@ -149,7 +149,7 @@ jobs:
       - name: Make GCP Batch config file
         if: ${{ env.SKIP_BUILD != 'true' }}
         env:
-          PUDL_GCS_OUTPUT: ${{ env.GCS_OUTPUT_BUCKET }}/${{ env.BUILD_ID }}-${{ env.GIT_TAG }}
+          PUDL_GCS_OUTPUT: ${{ env.GCS_OUTPUT_BUCKET }}/${{ env.BUILD_ID }}
         run: |-
           ./devtools/generate_batch_config.py \
             --container-image "docker.io/catalystcoop/pudl-etl@${{ steps.docker-build.outputs.digest }}" \
