@@ -30,7 +30,7 @@ jobs:
       DEPLOYMENT_ENVIRONMENT: ${{ inputs.deployment_environment }}
       # Computed once and reused for both the container-env (so pudl_deploy can
       # link to this job's own logs) and the actual job submission below.
-      BATCH_JOB_NAME: deploy-outputs-${{ github.run_id }}-${{ github.run_attempt }}
+      BATCH_JOB_NAME: deploy-pudl-${{ github.run_id }}-${{ github.run_attempt }}
     steps:
       - name: Check out repository
         uses: actions/checkout@v7
