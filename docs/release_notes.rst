@@ -8,6 +8,15 @@ PUDL Release Notes
 v2026.7.0 (2026-07-XX)
 ---------------------------------------------------------------------------------------
 
+This is a monthly PUDL data release, primarily motivated by updating
+the EIA-860M monthly data through May 2026. As usual, it also includes
+all of the other changes that have accumulated on ``main`` since our
+last release.
+
+This month, we have new EIA-176 tables, the EIA-860 early release,
+Parquet outputs for DBF assets, improved units handling, GeoParquet
+bugfixes, and better signal:noise ratio in unit test logging outputs.
+
 Enhancements
 ^^^^^^^^^^^^
 
@@ -40,6 +49,30 @@ EIA-176
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
+EIA-191
+~~~~~~~
+
+* Added :doc:`EIA-191 <data_sources/eia191>` data through end of
+  March 2026. See PR :pr:`5396`.
+
+EIA-930
+~~~~~~~
+
+* Added :doc:`EIA-930 <data_sources/eia930>` data through end of
+  June 2026. See PR :pr:`5396`
+
+EIA Electricity API
+~~~~~~~~~~~~~~~~~~~
+
+* Updated the bulk :doc:`EIA Electricity API <data_sources/eiaapi>` data
+  used to fill in redacted fuel prices. See PR :pr:`5396`.
+
+EPA CEMS
+~~~~~~~~
+
+* Added :doc:`EPA CEMS <data_sources/epacems>` data through end of
+  March 2026. See PR :pr:`5396`
+
 EIA-860
 ~~~~~~~
 
@@ -50,6 +83,20 @@ EIA-860M
 
 * Added :doc:`EIA-860M <data_sources/eia860>` data through May 2026. See
   issue :issue:`5369` and PR :pr:`5371`.
+
+FERC Forms 2 and 6
+~~~~~~~~~~~~~~~~~~
+
+* Updated the raw FERC Form 2 and 6 archives to include additional
+  2025 data. This data is converted to SQLite, but not deeply
+  integrated into PUDL. See PR :pr:`5396`.
+
+FERC CID
+~~~~~~~~
+
+* Updated the FERC company identifiers with data through end of
+  June 2026. See PR :pr:`5396`.
+
 
 Documentation
 ^^^^^^^^^^^^^
