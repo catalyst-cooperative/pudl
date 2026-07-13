@@ -20,6 +20,7 @@ Submodules
    /autoapi/pudl/metadata/constants/index
    /autoapi/pudl/metadata/descriptions/index
    /autoapi/pudl/metadata/dfs/index
+   /autoapi/pudl/metadata/dtypes/index
    /autoapi/pudl/metadata/enums/index
    /autoapi/pudl/metadata/fields/index
    /autoapi/pudl/metadata/helpers/index
@@ -28,6 +29,7 @@ Submodules
    /autoapi/pudl/metadata/resource_helpers/index
    /autoapi/pudl/metadata/resources/index
    /autoapi/pudl/metadata/sources/index
+   /autoapi/pudl/metadata/units/index
    /autoapi/pudl/metadata/warnings/index
 
 

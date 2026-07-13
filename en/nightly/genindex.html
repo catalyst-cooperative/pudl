@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>Index &#8212; PUDL 2026.6.2.dev30 documentation</title>
+    <title>Index &#8212; PUDL 2026.6.2.dev35 documentation</title>
   
   
   
@@ -35,8 +35,8 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="_static/styles/theme.css?digest=a95f357e85573c9b56d5" rel="stylesheet" />
-<link href="_static/styles/pydata-sphinx-theme.css?digest=a95f357e85573c9b56d5" rel="stylesheet" />
+  <link href="_static/styles/theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
@@ -44,12 +44,12 @@
     <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="_static/scripts/fontawesome.js?digest=a95f357e85573c9b56d5"></script>
+  <script defer src="_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5" />
-<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5" />
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="_static/documentation_options.js?v=d0899e55"></script>
+    <script src="_static/documentation_options.js?v=b15b3168"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/design-tabs.js?v=f930bc37"></script>
@@ -273,6 +273,25 @@ let darkTheme = isDarkTheme();
 let modal = null;
 let modalContent = null;
 let previousScrollOffset = [window.scrollX, window.scrollY];
+let _lazyObserver = null;
+let _renderQueue = Promise.resolve();
+
+// Apply d3 zoom to each SVG. Idempotent: an SVG already wrapped is skipped,
+// so this is safe to call both for the initial batch and for diagrams that
+// render lazily once they become visible.
+const addZoomToSvgs = (svgs) => {
+    svgs.each(function() {
+        if (this.getAttribute('data-zoom-applied') === 'true') return;
+        var svg = d3.select(this);
+        svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+        var inner = svg.select("g");
+        var zoom = d3.zoom().on("zoom", function(event) {
+            inner.attr("transform", event.transform);
+        });
+        svg.call(zoom);
+        this.setAttribute('data-zoom-applied', 'true');
+    });
+};
 
 const runMermaid = async (rerun) => {
     console.log("Running mermaid diagrams, rerun =", rerun);
@@ -280,7 +299,15 @@ const runMermaid = async (rerun) => {
     let all_mermaids = document.querySelectorAll(".mermaid");
 
     if (rerun) {
+        // Disconnect any previous lazy rendering observer
+        if (_lazyObserver) {
+            _lazyObserver.disconnect();
+            _lazyObserver = null;
+        }
+
         all_mermaids.forEach((el) => {
+            el.removeAttribute('data-mermaid-deferred');
+            el.removeAttribute('data-mermaid-render-failed');
             if(!el.hasAttribute("data-original-code")) {
                 // store original code
                 // console.log(`Storing original code for first run: `, el.innerHTML);
@@ -297,35 +324,89 @@ const runMermaid = async (rerun) => {
                 el.setAttribute('data-original-code', el.innerHTML);
             }
         });
-        await mermaid.run();
+
+        // Separate visible and hidden elements. Mermaid's layout engine measures
+        // text dimensions via the DOM, which fails for elements hidden by a parent
+        // (e.g., Reveal.js non-active slides, sphinx-design unopened tabs),
+        // producing broken SVGs. Render visible elements now, defer hidden ones.
+        const visible = [];
+        const hidden = [];
+        all_mermaids.forEach((el) => {
+            // offsetParent is null for display:none ancestors.
+            // getClientRects().length > 0 catches position:fixed elements
+            // (which also have null offsetParent but are still visible).
+            if (el.offsetParent !== null || el.getClientRects().length > 0) {
+                visible.push(el);
+            } else {
+                hidden.push(el);
+                el.setAttribute('data-mermaid-deferred', 'true');
+            }
+        });
+
+        if (visible.length > 0) {
+            try {
+                await mermaid.run({ nodes: visible });
+            } catch (e) {
+                console.error("Mermaid rendering failed:", e);
+            }
+        }
+
+        // Lazily render hidden elements when they become visible.
+        // Uses a promise chain (_renderQueue) to serialize rendering,
+        // since IntersectionObserver may report multiple entries at once
+        // and mermaid.run() is not safe to call concurrently.
+        if (hidden.length > 0) {
+            if (typeof IntersectionObserver === 'undefined') {
+                console.warn("IntersectionObserver not available; hidden mermaid diagrams will not render.");
+            } else {
+                _renderQueue = Promise.resolve();
+                _lazyObserver = new IntersectionObserver((entries) => {
+                    for (const entry of entries) {
+                        if (entry.isIntersecting && entry.target.getAttribute("data-processed") !== "true") {
+                            _lazyObserver.unobserve(entry.target);
+                            const el = entry.target;
+                            _renderQueue = _renderQueue.then(async () => {
+                                try {
+                                    await mermaid.run({ nodes: [el] });
+                                    el.removeAttribute('data-mermaid-deferred');
+                                    // Apply zoom to the now-rendered diagram, matching
+                                    // the decoration visible diagrams receive.
+                                    if ("False" === "True") {
+                                        addZoomToSvgs(d3.selectAll(""));
+                                    }
+                                } catch (e) {
+                                    console.error("Mermaid deferred rendering failed:", e);
+                                    el.removeAttribute('data-mermaid-deferred');
+                                    el.setAttribute('data-mermaid-render-failed', 'true');
+                                }
+                            });
+                        }
+                    }
+                });
+                hidden.forEach((el) => _lazyObserver.observe(el));
+            }
+        }
     }
 
     all_mermaids = document.querySelectorAll(".mermaid");
-    const mermaids_processed = document.querySelectorAll(".mermaid[data-processed='true']");
+    // Exclude deferred (hidden) and render-failed elements from completion checks
+    const mermaids_active = document.querySelectorAll(".mermaid:not([data-mermaid-deferred]):not([data-mermaid-render-failed])");
+    const mermaids_processed = document.querySelectorAll(".mermaid:not([data-mermaid-deferred]):not([data-mermaid-render-failed])[data-processed='true']");
 
     if ("False" === "True") {
-        const mermaids_to_add_zoom = -1 === -1 ? all_mermaids.length : -1;
+        const mermaids_to_add_zoom = -1 === -1 ? mermaids_active.length : -1;
         if(mermaids_to_add_zoom > 0) {
             var svgs = d3.selectAll("");
-            if(all_mermaids.length !== mermaids_processed.length) {
+            // Wait until every active (visible) diagram has rendered. Deferred
+            // diagrams are excluded, so a fixed d3_node_count that counts a
+            // hidden diagram no longer loops forever waiting for its SVG.
+            if(mermaids_active.length !== mermaids_processed.length) {
                 setTimeout(() => runMermaid(false), 200);
                 return;
-            } else if(svgs.size() !== mermaids_to_add_zoom) {
-                setTimeout(() => runMermaid(false), 200);
-                return;
-            } else {
-                svgs.each(function() {
-                    var svg = d3.select(this);
-                    svg.html("<g class='wrapper'>" + svg.html() + "</g>");
-                    var inner = svg.select("g");
-                    var zoom = d3.zoom().on("zoom", function(event) {
-                        inner.attr("transform", event.transform);
-                    });
-                    svg.call(zoom);
-                });
             }
+            addZoomToSvgs(svgs);
         }
-    } else if(all_mermaids.length !== mermaids_processed.length) {
+    } else if(mermaids_active.length !== mermaids_processed.length) {
         // Wait for mermaid to process all diagrams
         setTimeout(() => runMermaid(false), 200);
         return;
@@ -491,7 +572,7 @@ window.addEventListener("load", load);
 window.runMermaid = runMermaid;</script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'genindex';</script>
     <script>
-        DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
+        DOCUMENTATION_OPTIONS.theme_version = '0.20.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://docs.catalyst.coop/pudl/available_versions.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'nightly';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
@@ -574,8 +655,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.6.2.dev30 documentation - Home"/>
-    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.6.2.dev30 documentation - Home"/>
+    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.6.2.dev35 documentation - Home"/>
+    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.6.2.dev35 documentation - Home"/>
   
   
 </a></div>
@@ -1487,12 +1568,12 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="autoapi/pudl/transform/rus12/index.html#pudl.transform.rus12._core_rus12__yearly_plant_costs">_core_rus12__yearly_plant_costs() (in module pudl.transform.rus12)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="autoapi/pudl/transform/rus12/index.html#pudl.transform.rus12._core_rus12__yearly_plant_factors_and_maximum_demand">_core_rus12__yearly_plant_factors_and_maximum_demand() (in module pudl.transform.rus12)</a>
 </li>
       <li><a href="autoapi/pudl/transform/rus12/index.html#pudl.transform.rus12._core_rus12__yearly_plant_labor">_core_rus12__yearly_plant_labor() (in module pudl.transform.rus12)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="autoapi/pudl/transform/rus12/index.html#pudl.transform.rus12._core_rus12__yearly_plant_operations">_core_rus12__yearly_plant_operations() (in module pudl.transform.rus12)</a>
 </li>
       <li><a href="autoapi/pudl/transform/rus12/index.html#pudl.transform.rus12._core_rus12__yearly_renewable_plants">_core_rus12__yearly_renewable_plants() (in module pudl.transform.rus12)</a>
@@ -1593,6 +1674,8 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="autoapi/pudl/extract/xbrl/index.html#pudl.extract.xbrl._FilteringStream._dropped_previous_line">_dropped_previous_line (pudl.extract.xbrl._FilteringStream attribute)</a>
 </li>
+      <li><a href="autoapi/pudl/metadata/dtypes/index.html#pudl.metadata.dtypes._DTYPE_MAPS_BY_BACKEND">_DTYPE_MAPS_BY_BACKEND (in module pudl.metadata.dtypes)</a>
+</li>
       <li><a href="autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercSqliteIOManagerBase._engine">_engine (pudl.dagster.io_managers.FercSqliteIOManagerBase attribute)</a>
 </li>
       <li><a href="autoapi/pudl/scripts/check_path_permissions/index.html#pudl.scripts.check_path_permissions._ensure_directory_like_path">_ensure_directory_like_path() (in module pudl.scripts.check_path_permissions)</a>
@@ -1667,6 +1750,8 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="autoapi/pudl/metadata/descriptions/index.html#pudl.metadata.descriptions.ResourceDescriptionBuilder._generic_component">_generic_component() (pudl.metadata.descriptions.ResourceDescriptionBuilder method)</a>
 </li>
+      <li><a href="autoapi/pudl/metadata/dtypes/index.html#pudl.metadata.dtypes._get_applicable_dtypes">_get_applicable_dtypes() (in module pudl.metadata.dtypes)</a>
+</li>
       <li><a href="autoapi/pudl/transform/eia176/index.html#pudl.transform.eia176._get_continuation_code_type">_get_continuation_code_type() (in module pudl.transform.eia176)</a>
 </li>
       <li><a href="autoapi/pudl/extract/ferceqr/index.html#pudl.extract.ferceqr._get_csv">_get_csv() (in module pudl.extract.ferceqr)</a>
@@ -1694,6 +1779,10 @@ window.runMermaid = runMermaid;</script>
       <li><a href="autoapi/pudl/transform/eia923/index.html#pudl.transform.eia923._get_plant_nuclear_unit_id_map">_get_plant_nuclear_unit_id_map() (in module pudl.transform.eia923)</a>
 </li>
       <li><a href="autoapi/pudl/transform/eia923/index.html#pudl.transform.eia923._get_plant_prime_mover_map">_get_plant_prime_mover_map() (in module pudl.transform.eia923)</a>
+</li>
+      <li><a href="autoapi/pudl/metadata/dtypes/index.html#pudl.metadata.dtypes._get_pudl_namespace_dtypes">_get_pudl_namespace_dtypes() (in module pudl.metadata.dtypes)</a>
+</li>
+      <li><a href="autoapi/pudl/metadata/dtypes/index.html#pudl.metadata.dtypes._get_pudl_resource_dtypes">_get_pudl_resource_dtypes() (in module pudl.metadata.dtypes)</a>
 </li>
       <li><a href="autoapi/pudl/workspace/datastore/index.html#pudl.workspace.datastore.DatapackageDescriptor._get_resource_metadata">_get_resource_metadata() (pudl.workspace.datastore.DatapackageDescriptor method)</a>
 </li>
@@ -2343,9 +2432,9 @@ window.runMermaid = runMermaid;</script>
       </ul></li>
       <li><a href="autoapi/pudl/analysis/record_linkage/name_cleaner/index.html#pudl.analysis.record_linkage.name_cleaner.CompanyNameCleaner.apply_name_cleaning">apply_name_cleaning() (pudl.analysis.record_linkage.name_cleaner.CompanyNameCleaner method)</a>
 </li>
-      <li><a href="autoapi/pudl/metadata/fields/index.html#pudl.metadata.fields.apply_pudl_dtypes">apply_pudl_dtypes() (in module pudl.metadata.fields)</a>
+      <li><a href="autoapi/pudl/metadata/dtypes/index.html#pudl.metadata.dtypes.apply_pudl_dtypes">apply_pudl_dtypes() (in module pudl.metadata.dtypes)</a>
 </li>
-      <li><a href="autoapi/pudl/metadata/fields/index.html#pudl.metadata.fields.apply_pudl_dtypes_polars">apply_pudl_dtypes_polars() (in module pudl.metadata.fields)</a>
+      <li><a href="autoapi/pudl/metadata/dtypes/index.html#pudl.metadata.dtypes.apply_pudl_dtypes_polars">apply_pudl_dtypes_polars() (in module pudl.metadata.dtypes)</a>
 </li>
       <li><a href="autoapi/pudl/transform/ferc1/index.html#pudl.transform.ferc1.PlantInServiceTableTransformer.apply_sign_conventions">apply_sign_conventions() (pudl.transform.ferc1.PlantInServiceTableTransformer method)</a>
 </li>
@@ -2927,7 +3016,7 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="autoapi/pudl/analysis/plant_parts_eia/index.html#pudl.analysis.plant_parts_eia.CONSISTENT_ATTRIBUTE_COLS">CONSISTENT_ATTRIBUTE_COLS (in module pudl.analysis.plant_parts_eia)</a>
 </li>
-      <li><a href="autoapi/pudl/metadata/constants/index.html#pudl.metadata.constants.CONSTRAINT_DTYPES">CONSTRAINT_DTYPES (in module pudl.metadata.constants)</a>
+      <li><a href="autoapi/pudl/metadata/dtypes/index.html#pudl.metadata.dtypes.CONSTRAINT_DTYPES">CONSTRAINT_DTYPES (in module pudl.metadata.dtypes)</a>
 </li>
       <li><a href="autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.Field.constraints">constraints (pudl.metadata.classes.Field attribute)</a>
 </li>
@@ -3979,10 +4068,10 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="autoapi/pudl/deploy/pudl/index.html#pudl.deploy.pudl.DeploymentPlan.environment">environment (pudl.deploy.pudl.DeploymentPlan attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="autoapi/pudl/workspace/datastore/index.html#pudl.workspace.datastore.ZenodoDoiSettings.epacamd_eia">epacamd_eia (pudl.workspace.datastore.ZenodoDoiSettings attribute)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="autoapi/pudl/settings/index.html#pudl.settings.PudlDataConfig.epacems">epacems (pudl.settings.PudlDataConfig attribute)</a>
 
       <ul>
@@ -4018,6 +4107,10 @@ window.runMermaid = runMermaid;</script>
       <li><a href="autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.Resource.etl_group">etl_group (pudl.metadata.classes.Resource attribute)</a>
 </li>
       <li><a href="autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.PudlResourceDescriptor.etl_group_id">etl_group_id (pudl.metadata.classes.PudlResourceDescriptor attribute)</a>
+</li>
+      <li><a href="autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.ETL_GROUPS">ETL_GROUPS (in module pudl.metadata.classes)</a>
+</li>
+      <li><a href="autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.EtlGroup">EtlGroup (in module pudl.metadata.classes)</a>
 </li>
       <li><a href="autoapi/pudl/extract/excel/index.html#pudl.extract.excel.ExcelExtractor">ExcelExtractor (class in pudl.extract.excel)</a>
 </li>
@@ -4373,15 +4466,15 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.Field">Field (class in pudl.metadata.classes)</a>
 </li>
-      <li><a href="autoapi/pudl/metadata/constants/index.html#pudl.metadata.constants.FIELD_DTYPES_DUCKDB">FIELD_DTYPES_DUCKDB (in module pudl.metadata.constants)</a>
+      <li><a href="autoapi/pudl/metadata/dtypes/index.html#pudl.metadata.dtypes.FIELD_DTYPES_DUCKDB">FIELD_DTYPES_DUCKDB (in module pudl.metadata.dtypes)</a>
 </li>
-      <li><a href="autoapi/pudl/metadata/constants/index.html#pudl.metadata.constants.FIELD_DTYPES_PANDAS">FIELD_DTYPES_PANDAS (in module pudl.metadata.constants)</a>
+      <li><a href="autoapi/pudl/metadata/dtypes/index.html#pudl.metadata.dtypes.FIELD_DTYPES_PANDAS">FIELD_DTYPES_PANDAS (in module pudl.metadata.dtypes)</a>
 </li>
-      <li><a href="autoapi/pudl/metadata/constants/index.html#pudl.metadata.constants.FIELD_DTYPES_POLARS">FIELD_DTYPES_POLARS (in module pudl.metadata.constants)</a>
+      <li><a href="autoapi/pudl/metadata/dtypes/index.html#pudl.metadata.dtypes.FIELD_DTYPES_POLARS">FIELD_DTYPES_POLARS (in module pudl.metadata.dtypes)</a>
 </li>
-      <li><a href="autoapi/pudl/metadata/constants/index.html#pudl.metadata.constants.FIELD_DTYPES_PYARROW">FIELD_DTYPES_PYARROW (in module pudl.metadata.constants)</a>
+      <li><a href="autoapi/pudl/metadata/dtypes/index.html#pudl.metadata.dtypes.FIELD_DTYPES_PYARROW">FIELD_DTYPES_PYARROW (in module pudl.metadata.dtypes)</a>
 </li>
-      <li><a href="autoapi/pudl/metadata/constants/index.html#pudl.metadata.constants.FIELD_DTYPES_SQL">FIELD_DTYPES_SQL (in module pudl.metadata.constants)</a>
+      <li><a href="autoapi/pudl/metadata/dtypes/index.html#pudl.metadata.dtypes.FIELD_DTYPES_SQLITE">FIELD_DTYPES_SQLITE (in module pudl.metadata.dtypes)</a>
 </li>
       <li><a href="autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.PudlResourceDescriptor.PudlSchemaDescriptor.PudlForeignKeyRules.field_id_lists">field_id_lists (pudl.metadata.classes.PudlResourceDescriptor.PudlSchemaDescriptor.PudlForeignKeyRules attribute)</a>
 </li>
@@ -4389,13 +4482,15 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="autoapi/pudl/metadata/fields/index.html#pudl.metadata.fields.FIELD_METADATA">FIELD_METADATA (in module pudl.metadata.fields)</a>
 </li>
-      <li><a href="autoapi/pudl/metadata/fields/index.html#pudl.metadata.fields.FIELD_METADATA_BY_GROUP">FIELD_METADATA_BY_GROUP (in module pudl.metadata.fields)</a>
+      <li><a href="autoapi/pudl/metadata/fields/index.html#pudl.metadata.fields.FIELD_METADATA_BY_NAMESPACE">FIELD_METADATA_BY_NAMESPACE (in module pudl.metadata.fields)</a>
 </li>
       <li><a href="autoapi/pudl/metadata/fields/index.html#pudl.metadata.fields.FIELD_METADATA_BY_RESOURCE">FIELD_METADATA_BY_RESOURCE (in module pudl.metadata.fields)</a>
 </li>
       <li><a href="autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.Resource.field_namespace">field_namespace (pudl.metadata.classes.Resource attribute)</a>
 </li>
       <li><a href="autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.PudlResourceDescriptor.field_namespace_id">field_namespace_id (pudl.metadata.classes.PudlResourceDescriptor attribute)</a>
+</li>
+      <li><a href="autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.FIELD_NAMESPACES">FIELD_NAMESPACES (in module pudl.metadata.classes)</a>
 </li>
       <li><a href="autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.FercDbfArchive.field_parser">field_parser (pudl.extract.dbf.FercDbfArchive attribute)</a>
 
@@ -4406,6 +4501,8 @@ window.runMermaid = runMermaid;</script>
       <li><a href="autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.FieldConstraints">FieldConstraints (class in pudl.metadata.classes)</a>
 </li>
       <li><a href="autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.FieldHarvest">FieldHarvest (class in pudl.metadata.classes)</a>
+</li>
+      <li><a href="autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.FieldNamespace">FieldNamespace (in module pudl.metadata.classes)</a>
 </li>
       <li><a href="autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.ForeignKey.fields">fields (pudl.metadata.classes.ForeignKey attribute)</a>
 
@@ -4935,7 +5032,7 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="autoapi/pudl/scripts/generate_ferc_provenance/index.html#pudl.scripts.generate_ferc_provenance.get_provenance">get_provenance() (in module pudl.scripts.generate_ferc_provenance)</a>
 </li>
-      <li><a href="autoapi/pudl/metadata/fields/index.html#pudl.metadata.fields.get_pudl_dtypes">get_pudl_dtypes() (in module pudl.metadata.fields)</a>
+      <li><a href="autoapi/pudl/metadata/dtypes/index.html#pudl.metadata.dtypes.get_pudl_dtypes">get_pudl_dtypes() (in module pudl.metadata.dtypes)</a>
 </li>
       <li><a href="autoapi/pudl/extract/epacems/index.html#pudl.extract.epacems.EpaCemsPartition.get_quarterly_file">get_quarterly_file() (pudl.extract.epacems.EpaCemsPartition method)</a>
 </li>
@@ -6347,6 +6444,8 @@ window.runMermaid = runMermaid;</script>
 </li>
         <li><a href="autoapi/pudl/metadata/dfs/index.html#module-pudl.metadata.dfs">pudl.metadata.dfs</a>
 </li>
+        <li><a href="autoapi/pudl/metadata/dtypes/index.html#module-pudl.metadata.dtypes">pudl.metadata.dtypes</a>
+</li>
         <li><a href="autoapi/pudl/metadata/enums/index.html#module-pudl.metadata.enums">pudl.metadata.enums</a>
 </li>
         <li><a href="autoapi/pudl/metadata/fields/index.html#module-pudl.metadata.fields">pudl.metadata.fields</a>
@@ -6418,6 +6517,8 @@ window.runMermaid = runMermaid;</script>
         <li><a href="autoapi/pudl/metadata/resources/vcerare/index.html#module-pudl.metadata.resources.vcerare">pudl.metadata.resources.vcerare</a>
 </li>
         <li><a href="autoapi/pudl/metadata/sources/index.html#module-pudl.metadata.sources">pudl.metadata.sources</a>
+</li>
+        <li><a href="autoapi/pudl/metadata/units/index.html#module-pudl.metadata.units">pudl.metadata.units</a>
 </li>
         <li><a href="autoapi/pudl/metadata/warnings/index.html#module-pudl.metadata.warnings">pudl.metadata.warnings</a>
 </li>
@@ -7128,7 +7229,7 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="autoapi/pudl/transform/params/ferc1/index.html#pudl.transform.params.ferc1.PERGALLON_TO_PERBARREL">PERGALLON_TO_PERBARREL (in module pudl.transform.params.ferc1)</a>
 </li>
-      <li><a href="autoapi/pudl/metadata/constants/index.html#pudl.metadata.constants.PERIODS">PERIODS (in module pudl.metadata.constants)</a>
+      <li><a href="autoapi/pudl/metadata/dtypes/index.html#pudl.metadata.dtypes.PERIODS">PERIODS (in module pudl.metadata.dtypes)</a>
 </li>
       <li><a href="autoapi/pudl/analysis/timeseries_cleaning/index.html#pudl.analysis.timeseries_cleaning.ImputeTimeseriesSettings.periods">periods (pudl.analysis.timeseries_cleaning.ImputeTimeseriesSettings attribute)</a>
 </li>
@@ -7984,8 +8085,6 @@ window.runMermaid = runMermaid;</script>
         <li><a href="autoapi/pudl/extract/rus7/index.html#module-pudl.extract.rus7">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     pudl.extract.sec10k
 
@@ -7993,6 +8092,8 @@ window.runMermaid = runMermaid;</script>
         <li><a href="autoapi/pudl/extract/sec10k/index.html#module-pudl.extract.sec10k">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     pudl.extract.vcerare
 
@@ -8082,6 +8183,13 @@ window.runMermaid = runMermaid;</script>
 
       <ul>
         <li><a href="autoapi/pudl/metadata/dfs/index.html#module-pudl.metadata.dfs">module</a>
+</li>
+      </ul></li>
+      <li>
+    pudl.metadata.dtypes
+
+      <ul>
+        <li><a href="autoapi/pudl/metadata/dtypes/index.html#module-pudl.metadata.dtypes">module</a>
 </li>
       </ul></li>
       <li>
@@ -8334,6 +8442,13 @@ window.runMermaid = runMermaid;</script>
 
       <ul>
         <li><a href="autoapi/pudl/metadata/sources/index.html#module-pudl.metadata.sources">module</a>
+</li>
+      </ul></li>
+      <li>
+    pudl.metadata.units
+
+      <ul>
+        <li><a href="autoapi/pudl/metadata/units/index.html#module-pudl.metadata.units">module</a>
 </li>
       </ul></li>
       <li>
@@ -9083,9 +9198,15 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="autoapi/pudl/index.html#pudl.PUDL_SETTINGS_PATH">PUDL_SETTINGS_PATH (in module pudl)</a>
 </li>
+      <li><a href="autoapi/pudl/metadata/units/index.html#pudl.metadata.units.PUDL_UNIT_DEFINITIONS">PUDL_UNIT_DEFINITIONS (in module pudl.metadata.units)</a>
+</li>
+      <li><a href="autoapi/pudl/metadata/units/index.html#pudl.metadata.units.PUDL_UNIT_REGISTRY">PUDL_UNIT_REGISTRY (in module pudl.metadata.units)</a>
+</li>
       <li><a href="autoapi/pudl/dagster/jobs/index.html#pudl.dagster.jobs.pudl_with_ferc_to_sqlite_job">pudl_with_ferc_to_sqlite_job (in module pudl.dagster.jobs)</a>
 </li>
       <li><a href="autoapi/pudl/settings/index.html#pudl.settings.PudlDataConfig">PudlDataConfig (class in pudl.settings)</a>
+</li>
+      <li><a href="autoapi/pudl/metadata/dtypes/index.html#pudl.metadata.dtypes.PudlDtypeBackend">PudlDtypeBackend (in module pudl.metadata.dtypes)</a>
 </li>
       <li><a href="autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.PudlMeta">PudlMeta (class in pudl.metadata.classes)</a>
 </li>
@@ -10504,6 +10625,8 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="autoapi/pudl/transform/classes/index.html#pudl.transform.classes.UnitCorrections.unit_conversions">unit_conversions (pudl.transform.classes.UnitCorrections attribute)</a>
 </li>
+      <li><a href="autoapi/pudl/metadata/units/index.html#pudl.metadata.units.unit_registry_to_frictionless">unit_registry_to_frictionless() (in module pudl.metadata.units)</a>
+</li>
       <li><a href="autoapi/pudl/transform/classes/index.html#pudl.transform.classes.UnitConversion">UnitConversion (class in pudl.transform.classes)</a>
 </li>
       <li><a href="autoapi/pudl/transform/classes/index.html#pudl.transform.classes.UnitCorrections">UnitCorrections (class in pudl.transform.classes)</a>
@@ -10658,6 +10781,8 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="autoapi/pudl/dagster/asset_checks/index.html#pudl.dagster.asset_checks.valid_datapackage_check">valid_datapackage_check() (in module pudl.dagster.asset_checks)</a>
 </li>
+      <li><a href="autoapi/pudl/dagster/asset_checks/index.html#pudl.dagster.asset_checks.valid_datapackage_unit_strings_check">valid_datapackage_unit_strings_check() (in module pudl.dagster.asset_checks)</a>
+</li>
       <li><a href="autoapi/pudl/transform/params/ferc1/index.html#pudl.transform.params.ferc1.VALID_GAS_MMBTU_PER_MCF">VALID_GAS_MMBTU_PER_MCF (in module pudl.transform.params.ferc1)</a>
 </li>
       <li><a href="autoapi/pudl/transform/params/ferc1/index.html#pudl.transform.params.ferc1.VALID_GAS_USD_PER_MMBTU">VALID_GAS_USD_PER_MMBTU (in module pudl.transform.params.ferc1)</a>
@@ -10692,10 +10817,10 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.PudlMixedFormatIOManager.validate_parquet_settings">validate_parquet_settings() (pudl.dagster.io_managers.PudlMixedFormatIOManager method)</a>
 </li>
-      <li><a href="autoapi/pudl/settings/index.html#pudl.settings.GenericDataConfig.validate_partitions">validate_partitions() (pudl.settings.GenericDataConfig method)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/pudl/settings/index.html#pudl.settings.GenericDataConfig.validate_partitions">validate_partitions() (pudl.settings.GenericDataConfig method)</a>
+</li>
       <li><a href="autoapi/pudl/dagster/resources/index.html#pudl.dagster.resources.FercEqrDeploymentTargetConfig.validate_path">validate_path() (pudl.dagster.resources.FercEqrDeploymentTargetConfig class method)</a>
 </li>
       <li><a href="autoapi/pudl/transform/ferc1/index.html#pudl.transform.ferc1.CashFlowsTableTransformer.validate_start_end_balance">validate_start_end_balance() (pudl.transform.ferc1.CashFlowsTableTransformer method)</a>
@@ -11028,8 +11153,8 @@ window.runMermaid = runMermaid;</script>
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5"></script>
-<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5"></script>
+  <script defer src="_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -11063,7 +11188,7 @@ window.runMermaid = runMermaid;</script>
         <div class="footer-item">
 <p class="theme-version">
   <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.19.0.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.20.0.
 </p></div>
       
     </div>

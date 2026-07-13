@@ -361,9 +361,9 @@ columns.
 **5.1)** Check whether new columns exist in
 [`pudl.metadata.fields.FIELD_METADATA`](../autoapi/pudl/metadata/fields/index.md#pudl.metadata.fields.FIELD_METADATA). If they do, make sure the descriptions
 and data types match. If the descriptions don’t match, you may need to define that
-column by source: [`pudl.metadata.fields.FIELD_METADATA_BY_GROUP`](../autoapi/pudl/metadata/fields/index.md#pudl.metadata.fields.FIELD_METADATA_BY_GROUP) or by table:
-[`pudl.metadata.fields.FIELD_METADATA_BY_RESOURCE`](../autoapi/pudl/metadata/fields/index.md#pudl.metadata.fields.FIELD_METADATA_BY_RESOURCE). If the column is not in
-[`pudl.metadata.fields.FIELD_METADATA`](../autoapi/pudl/metadata/fields/index.md#pudl.metadata.fields.FIELD_METADATA), add it.
+column by source: [`pudl.metadata.fields.FIELD_METADATA_BY_NAMESPACE`](../autoapi/pudl/metadata/fields/index.md#pudl.metadata.fields.FIELD_METADATA_BY_NAMESPACE) or by
+table: [`pudl.metadata.fields.FIELD_METADATA_BY_RESOURCE`](../autoapi/pudl/metadata/fields/index.md#pudl.metadata.fields.FIELD_METADATA_BY_RESOURCE). If the column is not
+in [`pudl.metadata.fields.FIELD_METADATA`](../autoapi/pudl/metadata/fields/index.md#pudl.metadata.fields.FIELD_METADATA), add it.
 
 **5.2)** Add new columns and tables to the `RESOURCE_METADATA` dictionaries in the
 appropriate [`pudl.metadata.resources`](../autoapi/pudl/metadata/resources/index.md#module-pudl.metadata.resources) modules.

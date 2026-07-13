@@ -168,12 +168,16 @@ quantities are actually different.
   `net_generation_mwh`). This includes “per unit” signifiers (e.g. `_pct`
   for percent, `_ppm` for parts per million, or a generic `_per_unit` when
   the type of unit varies, as in columns containing a heterogeneous collection
-  of fuels)
+  of fuels). For more detail see [Machine-readable units with pint](metadata.md#pint-units).
 * If a column contains a percentage, denoted by the `_pct` suffix, then the
   values should in general lie between 0 and 100 **not** between 0.0 and 1.0.
   E.g. a value of 50 indicates 50% or a decimal value of 0.5. Often “percent”
   columns create confusion and data entry errors because some respondents use
-  one interpretation and some the other. Always check the data!
+  one interpretation and some the other. Always check the data! Often it is a
+  messy mix of fractions and percentages. If you clean it up, define a data
+  validation in `dbt` that continues to work as expected.
+* Columns that contain dimensionless fractional values should end in
+  `_fraction`.
 * Financial values are assumed to be in nominal US dollars (i.e., the suffix
   \_usd is implied.)If they are not reported in USD, convert them to USD. If
   they must be kept in their original form for some reason, append a suffix

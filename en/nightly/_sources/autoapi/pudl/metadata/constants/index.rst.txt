@@ -14,14 +14,7 @@ Attributes
 
 .. autoapisummary::
 
-   pudl.metadata.constants.FIELD_DTYPES_POLARS
-   pudl.metadata.constants.FIELD_DTYPES_DUCKDB
-   pudl.metadata.constants.FIELD_DTYPES_PANDAS
-   pudl.metadata.constants.FIELD_DTYPES_PYARROW
-   pudl.metadata.constants.FIELD_DTYPES_SQL
-   pudl.metadata.constants.CONSTRAINT_DTYPES
    pudl.metadata.constants.LICENSES
-   pudl.metadata.constants.PERIODS
    pudl.metadata.constants.CONTRIBUTORS
    pudl.metadata.constants.KEYWORDS
    pudl.metadata.constants.XBRL_TABLES
@@ -30,43 +23,10 @@ Attributes
 Module Contents
 ---------------
 
-.. py:data:: FIELD_DTYPES_POLARS
-   :type:  dict[str, str]
-
-   Polars data type by simplified PUDL field type.
-
-.. py:data:: FIELD_DTYPES_DUCKDB
-   :type:  dict[str, str]
-
-   DuckDB data type by simplified PUDL field type.
-
-.. py:data:: FIELD_DTYPES_PANDAS
-   :type:  dict[str, str]
-
-   Pandas data type by simplified PUDL field type.
-
-.. py:data:: FIELD_DTYPES_PYARROW
-   :type:  dict[str, pyarrow.DataType]
-
-.. py:data:: FIELD_DTYPES_SQL
-   :type:  dict[str, type]
-
-   SQLAlchemy column types by simplified PUDL field type.
-
-.. py:data:: CONSTRAINT_DTYPES
-   :type:  dict[str, type]
-
-   Python types for field constraints by simplified PUDL field type.
-
 .. py:data:: LICENSES
    :type:  dict[str, dict[str, str]]
 
    License attributes.
-
-.. py:data:: PERIODS
-   :type:  dict[str, collections.abc.Callable[[pandas.Series], pandas.Series]]
-
-   Functions converting datetimes to period start times, by time period.
 
 .. py:data:: CONTRIBUTORS
    :type:  dict[str, dict]

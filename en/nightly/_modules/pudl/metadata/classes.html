@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.metadata.classes &#8212; PUDL 2026.6.2.dev30 documentation</title>
+    <title>pudl.metadata.classes &#8212; PUDL 2026.6.2.dev35 documentation</title>
   
   
   
@@ -35,8 +35,8 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../../_static/styles/theme.css?digest=a95f357e85573c9b56d5" rel="stylesheet" />
-<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=a95f357e85573c9b56d5" rel="stylesheet" />
+  <link href="../../../_static/styles/theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
@@ -44,12 +44,12 @@
     <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="../../../_static/scripts/fontawesome.js?digest=a95f357e85573c9b56d5"></script>
+  <script defer src="../../../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5" />
-<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5" />
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=d0899e55"></script>
+    <script src="../../../_static/documentation_options.js?v=b15b3168"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -273,6 +273,25 @@ let darkTheme = isDarkTheme();
 let modal = null;
 let modalContent = null;
 let previousScrollOffset = [window.scrollX, window.scrollY];
+let _lazyObserver = null;
+let _renderQueue = Promise.resolve();
+
+// Apply d3 zoom to each SVG. Idempotent: an SVG already wrapped is skipped,
+// so this is safe to call both for the initial batch and for diagrams that
+// render lazily once they become visible.
+const addZoomToSvgs = (svgs) => {
+    svgs.each(function() {
+        if (this.getAttribute('data-zoom-applied') === 'true') return;
+        var svg = d3.select(this);
+        svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+        var inner = svg.select("g");
+        var zoom = d3.zoom().on("zoom", function(event) {
+            inner.attr("transform", event.transform);
+        });
+        svg.call(zoom);
+        this.setAttribute('data-zoom-applied', 'true');
+    });
+};
 
 const runMermaid = async (rerun) => {
     console.log("Running mermaid diagrams, rerun =", rerun);
@@ -280,7 +299,15 @@ const runMermaid = async (rerun) => {
     let all_mermaids = document.querySelectorAll(".mermaid");
 
     if (rerun) {
+        // Disconnect any previous lazy rendering observer
+        if (_lazyObserver) {
+            _lazyObserver.disconnect();
+            _lazyObserver = null;
+        }
+
         all_mermaids.forEach((el) => {
+            el.removeAttribute('data-mermaid-deferred');
+            el.removeAttribute('data-mermaid-render-failed');
             if(!el.hasAttribute("data-original-code")) {
                 // store original code
                 // console.log(`Storing original code for first run: `, el.innerHTML);
@@ -297,35 +324,89 @@ const runMermaid = async (rerun) => {
                 el.setAttribute('data-original-code', el.innerHTML);
             }
         });
-        await mermaid.run();
+
+        // Separate visible and hidden elements. Mermaid's layout engine measures
+        // text dimensions via the DOM, which fails for elements hidden by a parent
+        // (e.g., Reveal.js non-active slides, sphinx-design unopened tabs),
+        // producing broken SVGs. Render visible elements now, defer hidden ones.
+        const visible = [];
+        const hidden = [];
+        all_mermaids.forEach((el) => {
+            // offsetParent is null for display:none ancestors.
+            // getClientRects().length > 0 catches position:fixed elements
+            // (which also have null offsetParent but are still visible).
+            if (el.offsetParent !== null || el.getClientRects().length > 0) {
+                visible.push(el);
+            } else {
+                hidden.push(el);
+                el.setAttribute('data-mermaid-deferred', 'true');
+            }
+        });
+
+        if (visible.length > 0) {
+            try {
+                await mermaid.run({ nodes: visible });
+            } catch (e) {
+                console.error("Mermaid rendering failed:", e);
+            }
+        }
+
+        // Lazily render hidden elements when they become visible.
+        // Uses a promise chain (_renderQueue) to serialize rendering,
+        // since IntersectionObserver may report multiple entries at once
+        // and mermaid.run() is not safe to call concurrently.
+        if (hidden.length > 0) {
+            if (typeof IntersectionObserver === 'undefined') {
+                console.warn("IntersectionObserver not available; hidden mermaid diagrams will not render.");
+            } else {
+                _renderQueue = Promise.resolve();
+                _lazyObserver = new IntersectionObserver((entries) => {
+                    for (const entry of entries) {
+                        if (entry.isIntersecting && entry.target.getAttribute("data-processed") !== "true") {
+                            _lazyObserver.unobserve(entry.target);
+                            const el = entry.target;
+                            _renderQueue = _renderQueue.then(async () => {
+                                try {
+                                    await mermaid.run({ nodes: [el] });
+                                    el.removeAttribute('data-mermaid-deferred');
+                                    // Apply zoom to the now-rendered diagram, matching
+                                    // the decoration visible diagrams receive.
+                                    if ("False" === "True") {
+                                        addZoomToSvgs(d3.selectAll(""));
+                                    }
+                                } catch (e) {
+                                    console.error("Mermaid deferred rendering failed:", e);
+                                    el.removeAttribute('data-mermaid-deferred');
+                                    el.setAttribute('data-mermaid-render-failed', 'true');
+                                }
+                            });
+                        }
+                    }
+                });
+                hidden.forEach((el) => _lazyObserver.observe(el));
+            }
+        }
     }
 
     all_mermaids = document.querySelectorAll(".mermaid");
-    const mermaids_processed = document.querySelectorAll(".mermaid[data-processed='true']");
+    // Exclude deferred (hidden) and render-failed elements from completion checks
+    const mermaids_active = document.querySelectorAll(".mermaid:not([data-mermaid-deferred]):not([data-mermaid-render-failed])");
+    const mermaids_processed = document.querySelectorAll(".mermaid:not([data-mermaid-deferred]):not([data-mermaid-render-failed])[data-processed='true']");
 
     if ("False" === "True") {
-        const mermaids_to_add_zoom = -1 === -1 ? all_mermaids.length : -1;
+        const mermaids_to_add_zoom = -1 === -1 ? mermaids_active.length : -1;
         if(mermaids_to_add_zoom > 0) {
             var svgs = d3.selectAll("");
-            if(all_mermaids.length !== mermaids_processed.length) {
+            // Wait until every active (visible) diagram has rendered. Deferred
+            // diagrams are excluded, so a fixed d3_node_count that counts a
+            // hidden diagram no longer loops forever waiting for its SVG.
+            if(mermaids_active.length !== mermaids_processed.length) {
                 setTimeout(() => runMermaid(false), 200);
                 return;
-            } else if(svgs.size() !== mermaids_to_add_zoom) {
-                setTimeout(() => runMermaid(false), 200);
-                return;
-            } else {
-                svgs.each(function() {
-                    var svg = d3.select(this);
-                    svg.html("<g class='wrapper'>" + svg.html() + "</g>");
-                    var inner = svg.select("g");
-                    var zoom = d3.zoom().on("zoom", function(event) {
-                        inner.attr("transform", event.transform);
-                    });
-                    svg.call(zoom);
-                });
             }
+            addZoomToSvgs(svgs);
         }
-    } else if(all_mermaids.length !== mermaids_processed.length) {
+    } else if(mermaids_active.length !== mermaids_processed.length) {
         // Wait for mermaid to process all diagrams
         setTimeout(() => runMermaid(false), 200);
         return;
@@ -491,7 +572,7 @@ window.addEventListener("load", load);
 window.runMermaid = runMermaid;</script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/pudl/metadata/classes';</script>
     <script>
-        DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
+        DOCUMENTATION_OPTIONS.theme_version = '0.20.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://docs.catalyst.coop/pudl/available_versions.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'nightly';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
@@ -574,8 +655,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.6.2.dev30 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.6.2.dev30 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.6.2.dev35 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.6.2.dev35 documentation - Home"/>
   
   
 </a></div>
@@ -873,9 +954,10 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">from</span><span class="w"> </span><span class="nn">importlib.metadata</span><span class="w"> </span><span class="kn">import</span> <span class="n">version</span> <span class="k">as</span> <span class="n">_get_version</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">re</span><span class="w"> </span><span class="kn">import</span> <span class="n">Pattern</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Annotated</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Self</span><span class="p">,</span> <span class="n">TypeVar</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Annotated</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Self</span><span class="p">,</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">get_args</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">duckdb</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">duckdb.sqltypes</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">frictionless</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">geopandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gpd</span>  <span class="c1"># noqa: ICN002</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">jinja2</span>
@@ -909,19 +991,21 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata</span><span class="w"> </span><span class="kn">import</span> <span class="n">descriptions</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.codes</span><span class="w"> </span><span class="kn">import</span> <span class="n">CODE_METADATA</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.constants</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">CONSTRAINT_DTYPES</span><span class="p">,</span>
     <span class="n">CONTRIBUTORS</span><span class="p">,</span>
+    <span class="n">LICENSES</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.dtypes</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">CONSTRAINT_DTYPES</span><span class="p">,</span>
     <span class="n">FIELD_DTYPES_DUCKDB</span><span class="p">,</span>
     <span class="n">FIELD_DTYPES_PANDAS</span><span class="p">,</span>
     <span class="n">FIELD_DTYPES_POLARS</span><span class="p">,</span>
     <span class="n">FIELD_DTYPES_PYARROW</span><span class="p">,</span>
-    <span class="n">FIELD_DTYPES_SQL</span><span class="p">,</span>
-    <span class="n">LICENSES</span><span class="p">,</span>
+    <span class="n">FIELD_DTYPES_SQLITE</span><span class="p">,</span>
     <span class="n">PERIODS</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.fields</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">FIELD_METADATA</span><span class="p">,</span>
-    <span class="n">FIELD_METADATA_BY_GROUP</span><span class="p">,</span>
+    <span class="n">FIELD_METADATA_BY_NAMESPACE</span><span class="p">,</span>
     <span class="n">FIELD_METADATA_BY_RESOURCE</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.helpers</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
@@ -933,6 +1017,7 @@ window.runMermaid = runMermaid;</script>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.resources</span><span class="w"> </span><span class="kn">import</span> <span class="n">FOREIGN_KEYS</span><span class="p">,</span> <span class="n">RESOURCE_METADATA</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.sources</span><span class="w"> </span><span class="kn">import</span> <span class="n">SOURCES</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.units</span><span class="w"> </span><span class="kn">import</span> <span class="n">unit_registry_to_frictionless</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.workspace.datastore</span><span class="w"> </span><span class="kn">import</span> <span class="n">Datastore</span><span class="p">,</span> <span class="n">ZenodoDoi</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.workspace.setup</span><span class="w"> </span><span class="kn">import</span> <span class="n">PudlPaths</span>
 
@@ -1102,6 +1187,84 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">Allows :class:`list`, :class:`tuple`, :class:`set`, :class:`frozenset`,</span>
 <span class="sd">:class:`collections.deque`, or generators and casts to a :class:`list`.</span>
 <span class="sd">&quot;&quot;&quot;</span>
+
+
+<div class="viewcode-block" id="FieldNamespace">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.FieldNamespace">[docs]</a>
+<span class="n">FieldNamespace</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span>
+    <span class="s2">&quot;censusdp1tract&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;eia&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;eiaaeo&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;eiaapi&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;epacems&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ferc&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ferc1&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ferc714&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ferceqr&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;glue&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;gridpathratoolkit&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ppe&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;pudl&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;nrelatb&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;vcerare&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;phmsagas&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;sec&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;rus&quot;</span><span class="p">,</span>
+<span class="p">]</span></div>
+
+<span class="sd">&quot;&quot;&quot;Canonical field namespace identifiers used by PUDL resources.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="FIELD_NAMESPACES">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.FIELD_NAMESPACES">[docs]</a>
+<span class="n">FIELD_NAMESPACES</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">FieldNamespace</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="n">get_args</span><span class="p">(</span><span class="n">FieldNamespace</span><span class="p">)</span></div>
+
+<span class="sd">&quot;&quot;&quot;All valid PUDL field namespace identifiers.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="EtlGroup">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.EtlGroup">[docs]</a>
+<span class="n">EtlGroup</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span>
+    <span class="s2">&quot;censusdp1tract&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;eia176&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;eia191&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;eia860&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;eia861&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;eia861_disabled&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;eia923&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;eia930&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;eiaaeo&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;entity_eia&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;epacems&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;entity_ferc&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ferc1&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ferc1_disabled&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ferc714&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ferceqr&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;glue&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;gridpathratoolkit&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;outputs&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;static_ferc1&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;static_eia&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;static_eia_disabled&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;eiaapi&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;state_demand&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;static_pudl&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;service_territories&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;nrelatb&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;vcerare&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;phmsagas&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;sec10k&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;rus7&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;static_rus&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;rus12&quot;</span><span class="p">,</span>
+<span class="p">]</span></div>
+
+<span class="sd">&quot;&quot;&quot;Canonical ETL group identifiers used by PUDL resources.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="ETL_GROUPS">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.ETL_GROUPS">[docs]</a>
+<span class="n">ETL_GROUPS</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">EtlGroup</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="n">get_args</span><span class="p">(</span><span class="n">EtlGroup</span><span class="p">)</span></div>
+
+<span class="sd">&quot;&quot;&quot;All valid PUDL ETL group identifiers.&quot;&quot;&quot;</span>
 
 
 <span class="c1"># ---- Class attribute validators ---- #</span>
@@ -1737,7 +1900,7 @@ window.runMermaid = runMermaid;</script>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return SQLAlchemy data type.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">enum</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;string&quot;</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">sa</span><span class="o">.</span><span class="n">Enum</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">enum</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">FIELD_DTYPES_SQL</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">]</span></div>
+        <span class="k">return</span> <span class="n">FIELD_DTYPES_SQLITE</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">]</span></div>
 
 
 <div class="viewcode-block" id="Field.to_pyarrow_dtype">
@@ -3044,70 +3207,11 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="Resource.field_namespace">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.Resource.field_namespace">[docs]</a>
-    <span class="n">field_namespace</span><span class="p">:</span> <span class="p">(</span>
-        <span class="n">Literal</span><span class="p">[</span>
-            <span class="s2">&quot;censusdp1tract&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;eia&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;eiaaeo&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;eiaapi&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;epacems&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;ferc&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;ferc1&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;ferc714&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;ferceqr&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;glue&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gridpathratoolkit&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;ppe&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;pudl&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;nrelatb&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;vcerare&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;phmsagas&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;sec&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;rus&quot;</span><span class="p">,</span>
-        <span class="p">]</span>
-        <span class="o">|</span> <span class="kc">None</span>
-    <span class="p">)</span> <span class="o">=</span> <span class="kc">None</span></div>
+    <span class="n">field_namespace</span><span class="p">:</span> <span class="n">FieldNamespace</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 <div class="viewcode-block" id="Resource.etl_group">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.Resource.etl_group">[docs]</a>
-    <span class="n">etl_group</span><span class="p">:</span> <span class="p">(</span>
-        <span class="n">Literal</span><span class="p">[</span>
-            <span class="s2">&quot;censusdp1tract&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;eia176&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;eia191&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;eia860&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;eia861&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;eia861_disabled&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;eia923&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;eia930&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;eiaaeo&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;entity_eia&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;epacems&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;entity_ferc&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;ferc1&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;ferc1_disabled&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;ferc714&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;ferceqr&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;glue&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;gridpathratoolkit&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;outputs&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;static_ferc1&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;static_eia&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;static_eia_disabled&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;eiaapi&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;state_demand&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;static_pudl&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;service_territories&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;nrelatb&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;vcerare&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;phmsagas&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;sec10k&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;rus7&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;static_rus&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;rus12&quot;</span><span class="p">,</span>
-        <span class="p">]</span>
-        <span class="o">|</span> <span class="kc">None</span>
-    <span class="p">)</span> <span class="o">=</span> <span class="kc">None</span></div>
+    <span class="n">etl_group</span><span class="p">:</span> <span class="n">EtlGroup</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 <div class="viewcode-block" id="Resource.create_database_schema">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.Resource.create_database_schema">[docs]</a>
@@ -3196,8 +3300,8 @@ window.runMermaid = runMermaid;</script>
                 <span class="n">value</span> <span class="o">=</span> <span class="n">Field</span><span class="o">.</span><span class="n">dict_from_id</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
                 <span class="c1"># Update with any custom group-level metadata</span>
                 <span class="n">namespace</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;field_namespace&quot;</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">FIELD_METADATA_BY_GROUP</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">namespace</span><span class="p">,</span> <span class="p">{}):</span>
-                    <span class="n">value</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">value</span><span class="p">,</span> <span class="o">**</span><span class="n">FIELD_METADATA_BY_GROUP</span><span class="p">[</span><span class="n">namespace</span><span class="p">][</span><span class="n">name</span><span class="p">]}</span>
+                <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">FIELD_METADATA_BY_NAMESPACE</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">namespace</span><span class="p">,</span> <span class="p">{}):</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">value</span><span class="p">,</span> <span class="o">**</span><span class="n">FIELD_METADATA_BY_NAMESPACE</span><span class="p">[</span><span class="n">namespace</span><span class="p">][</span><span class="n">name</span><span class="p">]}</span>
                 <span class="c1"># Update with any custom resource-level metadata</span>
                 <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">FIELD_METADATA_BY_RESOURCE</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">resource_id</span><span class="p">,</span> <span class="p">{}):</span>
                     <span class="n">value</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">value</span><span class="p">,</span> <span class="o">**</span><span class="n">FIELD_METADATA_BY_RESOURCE</span><span class="p">[</span><span class="n">resource_id</span><span class="p">][</span><span class="n">name</span><span class="p">]}</span>
@@ -4039,6 +4143,10 @@ window.runMermaid = runMermaid;</script>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_resource</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Resource</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the resource with the given name if it is in the Package.&quot;&quot;&quot;</span>
         <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="n">resource</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">resource</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">resources</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Unknown resource </span><span class="si">{</span><span class="n">name</span><span class="si">!r}</span><span class="s2"> is not part of the </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">!r}</span><span class="s2"> data package.&quot;</span>
+            <span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">resources</span><span class="p">[</span><span class="n">names</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">name</span><span class="p">)]</span></div>
 
 
@@ -4219,6 +4327,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">package</span><span class="o">.</span><span class="n">custom</span><span class="p">[</span><span class="s2">&quot;$schema&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
             <span class="s2">&quot;https://datapackage.org/profiles/2.0/datapackage.json&quot;</span>
         <span class="p">)</span>
+        <span class="n">package</span><span class="o">.</span><span class="n">custom</span><span class="p">[</span><span class="s2">&quot;unit_registry&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">unit_registry_to_frictionless</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">package</span></div>
 </div>
 
@@ -4323,8 +4432,8 @@ window.runMermaid = runMermaid;</script>
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5"></script>
-<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5"></script>
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -4358,7 +4467,7 @@ window.runMermaid = runMermaid;</script>
         <div class="footer-item">
 <p class="theme-version">
   <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.19.0.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.20.0.
 </p></div>
       
     </div>

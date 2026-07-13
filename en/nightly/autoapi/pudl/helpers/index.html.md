@@ -672,7 +672,8 @@ direct conversion.
 * **Parameters:**
   * **df** – dataframe with columns that appear in the PUDL tables.
   * **data_source** – the name of the datasource (eia, ferc1, etc.)
-  * **name** – name of the table (for logging only!)
+  * **name** – name of the table; used for logging and for looking up the table’s
+    schema-defined field types.
 * **Returns:**
   Input dataframe, but with column types as specified by
   [`pudl.metadata.fields.FIELD_METADATA`](../metadata/fields/index.md#pudl.metadata.fields.FIELD_METADATA)

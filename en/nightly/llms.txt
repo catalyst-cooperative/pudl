@@ -1,6 +1,6 @@
 # PUDL
 
-> PUDL 2026.6.2.dev30 documentation
+> PUDL 2026.6.2.dev35 documentation
 
 
 2016-2026, Catalyst Cooperative, CC-BY-4.0
@@ -135,11 +135,13 @@
 - [pudl.metadata.dfs](autoapi/pudl/metadata/dfs/index.html.md): Static database tables.
 - [pudl.metadata.classes](autoapi/pudl/metadata/classes/index.html.md): Metadata data classes.
 - [pudl.metadata.labels](autoapi/pudl/metadata/labels/index.html.md): Descriptive labels for coded field values.
+- [pudl.metadata.dtypes](autoapi/pudl/metadata/dtypes/index.html.md): Canonical PUDL dtype mappings and dtype-application helpers.
 - [pudl.metadata.descriptions](autoapi/pudl/metadata/descriptions/index.html.md): Mechanisms and constants for setting standard resource descriptions.
 - [pudl.metadata.helpers](autoapi/pudl/metadata/helpers/index.html.md): Functions for manipulating metadata constants.
 - [pudl.metadata.patterns](autoapi/pudl/metadata/patterns/index.html.md): Reusable regex pattern constraints for fields in the PUDL metadata.
 - [pudl.metadata.warnings](autoapi/pudl/metadata/warnings/index.html.md): Standard usage warnings to reference in dynamic table descriptions.
 - [pudl.metadata.enums](autoapi/pudl/metadata/enums/index.html.md): Enumerations of valid field values.
+- [pudl.metadata.units](autoapi/pudl/metadata/units/index.html.md): PUDL unit registry built on top of Pint’s default registry.
 - [pudl.metadata.sources](autoapi/pudl/metadata/sources/index.html.md): Metadata and operational constants.
 - [pudl.metadata.fields](autoapi/pudl/metadata/fields/index.html.md): Field metadata.
 - [pudl.metadata.resource_helpers](autoapi/pudl/metadata/resource_helpers/index.html.md): Functions for resource metadata.

@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.dagster.asset_checks &#8212; PUDL 2026.6.2.dev30 documentation</title>
+    <title>pudl.dagster.asset_checks &#8212; PUDL 2026.6.2.dev35 documentation</title>
   
   
   
@@ -35,8 +35,8 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../../_static/styles/theme.css?digest=a95f357e85573c9b56d5" rel="stylesheet" />
-<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=a95f357e85573c9b56d5" rel="stylesheet" />
+  <link href="../../../_static/styles/theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
@@ -44,12 +44,12 @@
     <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="../../../_static/scripts/fontawesome.js?digest=a95f357e85573c9b56d5"></script>
+  <script defer src="../../../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5" />
-<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5" />
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=d0899e55"></script>
+    <script src="../../../_static/documentation_options.js?v=b15b3168"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -273,6 +273,25 @@ let darkTheme = isDarkTheme();
 let modal = null;
 let modalContent = null;
 let previousScrollOffset = [window.scrollX, window.scrollY];
+let _lazyObserver = null;
+let _renderQueue = Promise.resolve();
+
+// Apply d3 zoom to each SVG. Idempotent: an SVG already wrapped is skipped,
+// so this is safe to call both for the initial batch and for diagrams that
+// render lazily once they become visible.
+const addZoomToSvgs = (svgs) => {
+    svgs.each(function() {
+        if (this.getAttribute('data-zoom-applied') === 'true') return;
+        var svg = d3.select(this);
+        svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+        var inner = svg.select("g");
+        var zoom = d3.zoom().on("zoom", function(event) {
+            inner.attr("transform", event.transform);
+        });
+        svg.call(zoom);
+        this.setAttribute('data-zoom-applied', 'true');
+    });
+};
 
 const runMermaid = async (rerun) => {
     console.log("Running mermaid diagrams, rerun =", rerun);
@@ -280,7 +299,15 @@ const runMermaid = async (rerun) => {
     let all_mermaids = document.querySelectorAll(".mermaid");
 
     if (rerun) {
+        // Disconnect any previous lazy rendering observer
+        if (_lazyObserver) {
+            _lazyObserver.disconnect();
+            _lazyObserver = null;
+        }
+
         all_mermaids.forEach((el) => {
+            el.removeAttribute('data-mermaid-deferred');
+            el.removeAttribute('data-mermaid-render-failed');
             if(!el.hasAttribute("data-original-code")) {
                 // store original code
                 // console.log(`Storing original code for first run: `, el.innerHTML);
@@ -297,35 +324,89 @@ const runMermaid = async (rerun) => {
                 el.setAttribute('data-original-code', el.innerHTML);
             }
         });
-        await mermaid.run();
+
+        // Separate visible and hidden elements. Mermaid's layout engine measures
+        // text dimensions via the DOM, which fails for elements hidden by a parent
+        // (e.g., Reveal.js non-active slides, sphinx-design unopened tabs),
+        // producing broken SVGs. Render visible elements now, defer hidden ones.
+        const visible = [];
+        const hidden = [];
+        all_mermaids.forEach((el) => {
+            // offsetParent is null for display:none ancestors.
+            // getClientRects().length > 0 catches position:fixed elements
+            // (which also have null offsetParent but are still visible).
+            if (el.offsetParent !== null || el.getClientRects().length > 0) {
+                visible.push(el);
+            } else {
+                hidden.push(el);
+                el.setAttribute('data-mermaid-deferred', 'true');
+            }
+        });
+
+        if (visible.length > 0) {
+            try {
+                await mermaid.run({ nodes: visible });
+            } catch (e) {
+                console.error("Mermaid rendering failed:", e);
+            }
+        }
+
+        // Lazily render hidden elements when they become visible.
+        // Uses a promise chain (_renderQueue) to serialize rendering,
+        // since IntersectionObserver may report multiple entries at once
+        // and mermaid.run() is not safe to call concurrently.
+        if (hidden.length > 0) {
+            if (typeof IntersectionObserver === 'undefined') {
+                console.warn("IntersectionObserver not available; hidden mermaid diagrams will not render.");
+            } else {
+                _renderQueue = Promise.resolve();
+                _lazyObserver = new IntersectionObserver((entries) => {
+                    for (const entry of entries) {
+                        if (entry.isIntersecting && entry.target.getAttribute("data-processed") !== "true") {
+                            _lazyObserver.unobserve(entry.target);
+                            const el = entry.target;
+                            _renderQueue = _renderQueue.then(async () => {
+                                try {
+                                    await mermaid.run({ nodes: [el] });
+                                    el.removeAttribute('data-mermaid-deferred');
+                                    // Apply zoom to the now-rendered diagram, matching
+                                    // the decoration visible diagrams receive.
+                                    if ("False" === "True") {
+                                        addZoomToSvgs(d3.selectAll(""));
+                                    }
+                                } catch (e) {
+                                    console.error("Mermaid deferred rendering failed:", e);
+                                    el.removeAttribute('data-mermaid-deferred');
+                                    el.setAttribute('data-mermaid-render-failed', 'true');
+                                }
+                            });
+                        }
+                    }
+                });
+                hidden.forEach((el) => _lazyObserver.observe(el));
+            }
+        }
     }
 
     all_mermaids = document.querySelectorAll(".mermaid");
-    const mermaids_processed = document.querySelectorAll(".mermaid[data-processed='true']");
+    // Exclude deferred (hidden) and render-failed elements from completion checks
+    const mermaids_active = document.querySelectorAll(".mermaid:not([data-mermaid-deferred]):not([data-mermaid-render-failed])");
+    const mermaids_processed = document.querySelectorAll(".mermaid:not([data-mermaid-deferred]):not([data-mermaid-render-failed])[data-processed='true']");
 
     if ("False" === "True") {
-        const mermaids_to_add_zoom = -1 === -1 ? all_mermaids.length : -1;
+        const mermaids_to_add_zoom = -1 === -1 ? mermaids_active.length : -1;
         if(mermaids_to_add_zoom > 0) {
             var svgs = d3.selectAll("");
-            if(all_mermaids.length !== mermaids_processed.length) {
+            // Wait until every active (visible) diagram has rendered. Deferred
+            // diagrams are excluded, so a fixed d3_node_count that counts a
+            // hidden diagram no longer loops forever waiting for its SVG.
+            if(mermaids_active.length !== mermaids_processed.length) {
                 setTimeout(() => runMermaid(false), 200);
                 return;
-            } else if(svgs.size() !== mermaids_to_add_zoom) {
-                setTimeout(() => runMermaid(false), 200);
-                return;
-            } else {
-                svgs.each(function() {
-                    var svg = d3.select(this);
-                    svg.html("<g class='wrapper'>" + svg.html() + "</g>");
-                    var inner = svg.select("g");
-                    var zoom = d3.zoom().on("zoom", function(event) {
-                        inner.attr("transform", event.transform);
-                    });
-                    svg.call(zoom);
-                });
             }
+            addZoomToSvgs(svgs);
         }
-    } else if(all_mermaids.length !== mermaids_processed.length) {
+    } else if(mermaids_active.length !== mermaids_processed.length) {
         // Wait for mermaid to process all diagrams
         setTimeout(() => runMermaid(false), 200);
         return;
@@ -491,7 +572,7 @@ window.addEventListener("load", load);
 window.runMermaid = runMermaid;</script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/pudl/dagster/asset_checks';</script>
     <script>
-        DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
+        DOCUMENTATION_OPTIONS.theme_version = '0.20.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://docs.catalyst.coop/pudl/available_versions.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'nightly';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
@@ -574,8 +655,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.6.2.dev30 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.6.2.dev30 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.6.2.dev35 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.6.2.dev35 documentation - Home"/>
   
   
 </a></div>
@@ -892,6 +973,7 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandera.pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pr_pandas</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandera.polars</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pr_polars</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pint</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">polars</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pl</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pandera.errors</span><span class="w"> </span><span class="kn">import</span> <span class="n">SchemaErrors</span>
 
@@ -1230,7 +1312,7 @@ window.runMermaid = runMermaid;</script>
 <span class="k">def</span><span class="w"> </span><span class="nf">valid_datapackage_check</span><span class="p">(</span>
     <span class="n">asset_key</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">AssetKey</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
-    <span class="n">description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Validate a frictionless datapackage descriptor against the spec.&quot;</span><span class="p">,</span>
+    <span class="n">description</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">blocking</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dg</span><span class="o">.</span><span class="n">AssetChecksDefinition</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a Dagster asset check that validates a frictionless datapackage descriptor.</span>
@@ -1323,8 +1405,107 @@ window.runMermaid = runMermaid;</script>
     <span class="p">)</span>
 <span class="p">)</span>
 
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_build_registry_from_descriptor</span><span class="p">(</span><span class="n">descriptor</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pint</span><span class="o">.</span><span class="n">UnitRegistry</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Build a Pint registry from the ``unit_registry`` embedded in a datapackage descriptor.</span>
+
+<span class="sd">    Raises ``KeyError`` if the descriptor has no ``unit_registry`` field, or</span>
+<span class="sd">    ``ValueError`` if the field is missing the expected ``definitions`` list.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">unit_registry_meta</span> <span class="o">=</span> <span class="n">descriptor</span><span class="p">[</span><span class="s2">&quot;unit_registry&quot;</span><span class="p">]</span>
+    <span class="n">definitions</span> <span class="o">=</span> <span class="n">unit_registry_meta</span><span class="p">[</span><span class="s2">&quot;definitions&quot;</span><span class="p">]</span>
+    <span class="n">unit_registry</span> <span class="o">=</span> <span class="n">pint</span><span class="o">.</span><span class="n">UnitRegistry</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">definition</span> <span class="ow">in</span> <span class="n">definitions</span><span class="p">:</span>
+        <span class="n">unit_registry</span><span class="o">.</span><span class="n">define</span><span class="p">(</span><span class="n">definition</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">unit_registry</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_validate_datapackage_unit_strings</span><span class="p">(</span><span class="n">descriptor</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Walk descriptor fields and parse each ``unit`` value; return error strings.</span>
+
+<span class="sd">    Builds a Pint registry from the ``unit_registry`` field embedded in</span>
+<span class="sd">    ``descriptor`` and uses it to parse every ``unit`` value found in resource</span>
+<span class="sd">    field schemas.  Returns one error string per unparsable unit.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">errors</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">ureg</span> <span class="o">=</span> <span class="n">_build_registry_from_descriptor</span><span class="p">(</span><span class="n">descriptor</span><span class="p">)</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">KeyError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">)</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;Could not build unit registry from descriptor: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
+
+    <span class="k">for</span> <span class="n">resource</span> <span class="ow">in</span> <span class="n">descriptor</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;resources&quot;</span><span class="p">,</span> <span class="p">[]):</span>
+        <span class="n">resource_name</span> <span class="o">=</span> <span class="n">resource</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;&lt;unnamed&gt;&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">resource</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;schema&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;fields&quot;</span><span class="p">,</span> <span class="p">[]):</span>
+            <span class="n">unit</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;unit&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">unit</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">ureg</span><span class="o">.</span><span class="n">parse_units</span><span class="p">(</span><span class="n">unit</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+                <span class="n">field_name</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;&lt;unnamed&gt;&quot;</span><span class="p">)</span>
+                <span class="n">errors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">resource_name</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s2">: unit=</span><span class="si">{</span><span class="n">unit</span><span class="si">!r}</span><span class="s2"> — </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">errors</span>
+
+
+<div class="viewcode-block" id="valid_datapackage_unit_strings_check">
+<a class="viewcode-back" href="../../../autoapi/pudl/dagster/asset_checks/index.html#pudl.dagster.asset_checks.valid_datapackage_unit_strings_check">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">valid_datapackage_unit_strings_check</span><span class="p">(</span>
+    <span class="n">asset_key</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">AssetKey</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">description</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">blocking</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dg</span><span class="o">.</span><span class="n">AssetChecksDefinition</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a Dagster asset check that validates unit strings in a datapackage descriptor.</span>
+
+<span class="sd">    Reads the descriptor from ``$PUDL_OUTPUT/parquet/datapackage.json``, builds a</span>
+<span class="sd">    Pint unit registry from the ``unit_registry`` field embedded in the descriptor,</span>
+<span class="sd">    and attempts to parse every ``unit`` field value with that registry.  All</span>
+<span class="sd">    failures are collected before the check reports so a single run surfaces every</span>
+<span class="sd">    bad unit string.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        asset_key: Key of the asset that produces the datapackage descriptor.</span>
+<span class="sd">        description: Human-readable description attached to the check in the</span>
+<span class="sd">            Dagster UI.</span>
+<span class="sd">        blocking: Whether the check is blocking (default ``True``).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@dg</span><span class="o">.</span><span class="n">asset_check</span><span class="p">(</span>
+        <span class="n">asset</span><span class="o">=</span><span class="n">asset_key</span><span class="p">,</span>
+        <span class="n">blocking</span><span class="o">=</span><span class="n">blocking</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="n">description</span><span class="p">,</span>
+        <span class="n">required_resource_keys</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;pudl_paths&quot;</span><span class="p">},</span>
+    <span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_unit_strings_check</span><span class="p">(</span>
+        <span class="n">context</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">AssetCheckExecutionContext</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dg</span><span class="o">.</span><span class="n">AssetCheckResult</span><span class="p">:</span>
+        <span class="n">descriptor_path</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">context</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">pudl_paths</span><span class="o">.</span><span class="n">parquet_path</span><span class="p">()</span> <span class="o">/</span> <span class="s2">&quot;datapackage.json&quot;</span>
+        <span class="p">)</span>
+        <span class="n">descriptor</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">descriptor_path</span><span class="o">.</span><span class="n">read_text</span><span class="p">())</span>
+        <span class="n">errors</span> <span class="o">=</span> <span class="n">_validate_datapackage_unit_strings</span><span class="p">(</span><span class="n">descriptor</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">dg</span><span class="o">.</span><span class="n">AssetCheckResult</span><span class="p">(</span>
+            <span class="n">passed</span><span class="o">=</span><span class="ow">not</span> <span class="n">errors</span><span class="p">,</span>
+            <span class="n">metadata</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;errors&quot;</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">MetadataValue</span><span class="o">.</span><span class="n">json</span><span class="p">(</span><span class="n">errors</span><span class="p">)},</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">_unit_strings_check</span></div>
+
+
+
+<span class="n">default_asset_checks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+    <span class="n">valid_datapackage_unit_strings_check</span><span class="p">(</span>
+        <span class="s2">&quot;pudl_datapackage&quot;</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Validate that all unit strings in the PUDL datapackage descriptor &quot;</span>
+            <span class="s2">&quot;are parseable using the unit definitions embedded in the descriptor.&quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s2">&quot;valid_datapackage_check&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;valid_datapackage_unit_strings_check&quot;</span><span class="p">,</span>
     <span class="s2">&quot;asset_check_from_schema&quot;</span><span class="p">,</span>
     <span class="s2">&quot;group_mean_continuity_check&quot;</span><span class="p">,</span>
     <span class="s2">&quot;default_asset_checks&quot;</span><span class="p">,</span>
@@ -1360,8 +1541,8 @@ window.runMermaid = runMermaid;</script>
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5"></script>
-<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5"></script>
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -1395,7 +1576,7 @@ window.runMermaid = runMermaid;</script>
         <div class="footer-item">
 <p class="theme-version">
   <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.19.0.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.20.0.
 </p></div>
       
     </div>

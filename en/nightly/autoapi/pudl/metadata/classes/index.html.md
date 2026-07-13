@@ -4,15 +4,19 @@ Metadata data classes.
 
 ## Attributes
 
-| [`logger`](#pudl.metadata.classes.logger)               |                                                                                                                       |
-|---------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------|
-| [`String`](#pudl.metadata.classes.String)               | Non-empty [`str`](https://docs.python.org/3/library/stdtypes.html#str) with no trailing or leading whitespace.        |
-| [`SnakeCase`](#pudl.metadata.classes.SnakeCase)         | Snake-case variable name [`str`](https://docs.python.org/3/library/stdtypes.html#str) (e.g. 'pudl', 'entity_eia860'). |
-| [`PositiveInt`](#pudl.metadata.classes.PositiveInt)     | Positive [`int`](https://docs.python.org/3/library/functions.html#int).                                               |
-| [`PositiveFloat`](#pudl.metadata.classes.PositiveFloat) | Positive [`float`](https://docs.python.org/3/library/functions.html#float).                                           |
-| [`T`](#pudl.metadata.classes.T)                         |                                                                                                                       |
-| [`StrictList`](#pudl.metadata.classes.StrictList)       | Non-empty [`list`](https://docs.python.org/3/library/stdtypes.html#list).                                             |
-| [`PUDL_PACKAGE`](#pudl.metadata.classes.PUDL_PACKAGE)   | Define a global PUDL package object for use across the entire codebase.                                               |
+| [`logger`](#pudl.metadata.classes.logger)                     |                                                                                                                       |
+|---------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------|
+| [`String`](#pudl.metadata.classes.String)                     | Non-empty [`str`](https://docs.python.org/3/library/stdtypes.html#str) with no trailing or leading whitespace.        |
+| [`SnakeCase`](#pudl.metadata.classes.SnakeCase)               | Snake-case variable name [`str`](https://docs.python.org/3/library/stdtypes.html#str) (e.g. 'pudl', 'entity_eia860'). |
+| [`PositiveInt`](#pudl.metadata.classes.PositiveInt)           | Positive [`int`](https://docs.python.org/3/library/functions.html#int).                                               |
+| [`PositiveFloat`](#pudl.metadata.classes.PositiveFloat)       | Positive [`float`](https://docs.python.org/3/library/functions.html#float).                                           |
+| [`T`](#pudl.metadata.classes.T)                               |                                                                                                                       |
+| [`StrictList`](#pudl.metadata.classes.StrictList)             | Non-empty [`list`](https://docs.python.org/3/library/stdtypes.html#list).                                             |
+| [`FieldNamespace`](#pudl.metadata.classes.FieldNamespace)     | Canonical field namespace identifiers used by PUDL resources.                                                         |
+| [`FIELD_NAMESPACES`](#pudl.metadata.classes.FIELD_NAMESPACES) | All valid PUDL field namespace identifiers.                                                                           |
+| [`EtlGroup`](#pudl.metadata.classes.EtlGroup)                 | Canonical ETL group identifiers used by PUDL resources.                                                               |
+| [`ETL_GROUPS`](#pudl.metadata.classes.ETL_GROUPS)             | All valid PUDL ETL group identifiers.                                                                                 |
+| [`PUDL_PACKAGE`](#pudl.metadata.classes.PUDL_PACKAGE)         | Define a global PUDL package object for use across the entire codebase.                                               |
 
 ## Classes
 
@@ -123,6 +127,22 @@ Non-empty [`list`](https://docs.python.org/3/library/stdtypes.html#list).
 
 Allows [`list`](https://docs.python.org/3/library/stdtypes.html#list), [`tuple`](https://docs.python.org/3/library/stdtypes.html#tuple), [`set`](https://docs.python.org/3/library/stdtypes.html#set), [`frozenset`](https://docs.python.org/3/library/stdtypes.html#frozenset),
 [`collections.deque`](https://docs.python.org/3/library/collections.html#collections.deque), or generators and casts to a [`list`](https://docs.python.org/3/library/stdtypes.html#list).
+
+### pudl.metadata.classes.FieldNamespace
+
+Canonical field namespace identifiers used by PUDL resources.
+
+### pudl.metadata.classes.FIELD_NAMESPACES *: [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[FieldNamespace](#pudl.metadata.classes.FieldNamespace), Ellipsis]*
+
+All valid PUDL field namespace identifiers.
+
+### pudl.metadata.classes.EtlGroup
+
+Canonical ETL group identifiers used by PUDL resources.
+
+### pudl.metadata.classes.ETL_GROUPS *: [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[EtlGroup](#pudl.metadata.classes.EtlGroup), Ellipsis]*
+
+All valid PUDL ETL group identifiers.
 
 ### pudl.metadata.classes.\_check_unique(value: [list](https://docs.python.org/3/library/stdtypes.html#list) = None) → [list](https://docs.python.org/3/library/stdtypes.html#list) | [None](https://docs.python.org/3/library/constants.html#None)
 
@@ -1090,9 +1110,9 @@ except for `year` fields which can be integer.
 
 #### extrapaths *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)] | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
 
-#### field_namespace *: Literal['censusdp1tract', 'eia', 'eiaaeo', 'eiaapi', 'epacems', 'ferc', 'ferc1', 'ferc714', 'ferceqr', 'glue', 'gridpathratoolkit', 'ppe', 'pudl', 'nrelatb', 'vcerare', 'phmsagas', 'sec', 'rus'] | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### field_namespace *: [FieldNamespace](#pudl.metadata.classes.FieldNamespace) | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
 
-#### etl_group *: Literal['censusdp1tract', 'eia176', 'eia191', 'eia860', 'eia861', 'eia861_disabled', 'eia923', 'eia930', 'eiaaeo', 'entity_eia', 'epacems', 'entity_ferc', 'ferc1', 'ferc1_disabled', 'ferc714', 'ferceqr', 'glue', 'gridpathratoolkit', 'outputs', 'static_ferc1', 'static_eia', 'static_eia_disabled', 'eiaapi', 'state_demand', 'static_pudl', 'service_territories', 'nrelatb', 'vcerare', 'phmsagas', 'sec10k', 'rus7', 'static_rus', 'rus12'] | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### etl_group *: [EtlGroup](#pudl.metadata.classes.EtlGroup) | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
 
 #### create_database_schema *: [bool](https://docs.python.org/3/library/functions.html#bool)* *= True*
 
