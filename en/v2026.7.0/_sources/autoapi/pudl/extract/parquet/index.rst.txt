@@ -1,0 +1,71 @@
+pudl.extract.parquet
+====================
+
+.. py:module:: pudl.extract.parquet
+
+.. autoapi-nested-parse::
+
+   Extractor for Parquet data.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.extract.parquet.logger
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   pudl.extract.parquet.ParquetExtractor
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:class:: ParquetExtractor(ds: pudl.workspace.datastore.Datastore)
+
+   Bases: :py:obj:`pudl.extract.extractor.GenericExtractor`
+
+
+   Class for extracting dataframes from parquet files.
+
+   The extraction logic is invoked by calling extract() method of this class.
+
+
+   .. py:method:: source_filename(page: str, **partition: pudl.extract.extractor.PartitionSelection) -> str
+
+      Produce the source Parquet file name as it will appear in the archive.
+
+      :param page: pudl name for the dataset contents, eg "boiler_generator_assn" or
+                   "data"
+      :param partition: partition to load. Examples:
+                        {'year': 2009}
+
+      :returns: string name of the parquet file
+
+
+
+   .. py:method:: load_source(page: str, **partition: pudl.extract.extractor.PartitionSelection) -> pandas.DataFrame
+
+      Produce the dataframe object for the given partition.
+
+      This method assumes that the archive includes one unzipped file per partition.
+
+      :param page: pudl name for the dataset contents, eg "boiler_generator_assn" or
+                   "data"
+      :param partition: partition to load. Examples:
+                        {'year': 2009}
+                        {'year_month': '2020-08'}
+
+      :returns: pd.DataFrame instance containing CSV data
+
+
+

@@ -1,0 +1,34 @@
+pudl.validate
+=============
+
+.. py:module:: pudl.validate
+
+.. autoapi-nested-parse::
+
+   PUDL data validation tooling.
+
+   This subpackage provides a home for all PUDL data validation logic, organized by
+   validation framework and approach:
+
+   * :mod:`pudl.validate.dbt` -- wrappers around dbt invocations for custom behavior
+   * :mod:`pudl.validate.integrity` -- database integrity checks (foreign keys, etc.)
+   * :mod:`pudl.validate.quality` -- bespoke data quality checking utilities
+
+   Submodules are exported here so callers can use the namespace-qualified idiom::
+
+       from pudl.validate import quality as pv
+       pv.no_null_rows(df)
+
+
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 1
+
+   /autoapi/pudl/validate/dbt/index
+   /autoapi/pudl/validate/integrity/index
+   /autoapi/pudl/validate/quality/index
+
+

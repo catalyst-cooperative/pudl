@@ -1,0 +1,25 @@
+pudl.metadata.resources.ferccid
+===============================
+
+.. py:module:: pudl.metadata.resources.ferccid
+
+.. autoapi-nested-parse::
+
+   Table definitions for the FERC Company Identifier table.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.metadata.resources.ferccid.RESOURCE_METADATA
+
+
+Module Contents
+---------------
+
+.. py:data:: RESOURCE_METADATA
+   :type:  dict[str, dict[str, Any]]
+

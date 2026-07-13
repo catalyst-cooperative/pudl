@@ -1,0 +1,2365 @@
+<!doctype html>
+<html>
+
+<head>
+	<title>
+		EIA's API Technical Documentation -
+		U.S. Energy Information Administration (EIA)	</title>
+	<meta property="og:title" content="EIA's API Technical Documentation - U.S. Energy Information Administration (EIA)">
+	<meta property="og:url" content="https://www.eia.gov/opendata/documentation.php">
+	<meta name="url" content="https://www.eia.gov/opendata/documentation.php">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="Content-Language" content="en-us" />
+<meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+<meta name="robots" content="all" />
+<meta name="agency" content="EIA - Energy Information Administration" />
+<meta name="subject" content="official energy statistics, data, analysis and forecasting" />
+<meta name="Description" content="Energy Information Administration - EIA - Official Energy Statistics from the U.S. Government" />
+<link rel="shortcut icon" href="//www.eia.gov/favicon.ico" />
+<link rel="icon" href="//www.eia.gov/favicon.ico" type="image/x-icon">
+<link rel="shortcut icon" type="image/vnd.microsoft.icon" href="//www.eia.gov/favicon.ico" />
+
+<link href="/global/styles/global.min.css?v=11.7" type="text/css" media="screen, projection" rel="stylesheet" />
+<link href="/global/styles/global.print.min.css" type="text/css" media="print" rel="stylesheet" />
+
+<script src="/global/scripts/vendor/jquery/jquery.min.js"></script>
+<script src="/global/scripts/vendor/jquery-migrate/jquery.migrate.min.js"></script>
+<script src="/global/scripts/vendor/jquery-ui/jquery.ui.min.js"></script>
+<script src="/global/scripts/vendor/jquery-ui/jquery.ui.touch-punch.min.js"></script>
+
+<script type="text/javascript" src="/global/scripts/jquery/highcharts/3.0.10/js/highcharts.js"></script>		<script type="text/javascript" src="/global/scripts/jquery/highcharts/3.0.10/js/highcharts-more.js"></script>
+
+		<script type="text/javascript" src="/global/scripts/jquery/highcharts/3.0.10/js/modules/exporting.js"></script>
+
+		<script type="text/javascript" src="/global/scripts/jquery/highcharts/3.0.10/js/modules/no-data-to-display.js"></script>
+
+
+	<script src="/global/scripts/jquery/ga/ga-file-downloads.js"></script>
+
+	<!-- Global site tag (gtag.js) - Google Analytics -->
+	<script async src="https://www.googletagmanager.com/gtag/js?id=UA-25837230-1"></script>
+	<script>
+	  window.dataLayer = window.dataLayer || [];
+	  function gtag(){dataLayer.push(arguments);}
+	  gtag('js', new Date());
+
+	  gtag('config', 'UA-25837230-1');
+	</script>
+
+
+
+<script type="text/javascript" src="/global/survey/engine/js/survey_engine.js"></script>
+<link href="/global/survey/engine/css/layout.css" rel="stylesheet" type="text/css" media="screen" />
+	<meta name="keywords" content="">
+	<meta name="description" content="">
+	<link href="/global/styles/global.opendata.min.css?v=10.6" type="text/css" media="screen, projection" rel="stylesheet" />
+	<style>
+	a.top {
+		padding: 0;
+		margin: 1em 0 0 0;
+	}
+
+	hr {
+		margin-top: .5em;
+	}
+	</style>
+</head>
+
+<body>
+	<a name="top"></a>
+<div class="l-body-wrapper doc">
+<div id="sticker" class="social-fixed positionable">
+	<div class="addthis_toolbox addthis_default_style ">
+		<ul class="social">
+			<li>
+				<a href="http://x.com/eiagov/" target="_blank"><span class="ico-sticker twitter"></span></a>
+				<div class="link-social">
+					<div class="link-twitter"><a class="addthis_button_tweet"></a></div>
+				</div>
+			</li>
+			<li>
+				<a href="https://www.facebook.com/eiagov" target="_blank"><span class="ico-sticker facebook"></span></a>
+				<div class="link-social">
+					<div class="link-facebook"><a class="addthis_button_facebook_like at300b" fb:like:layout="button_count"></a></div>
+				</div>
+			</li>
+		</ul>
+	</div>
+</div><header>
+	<div class="print">
+		<img src="/global/images/logos/eia_logo_print.png" alt="U.S. Energy Information Administration logo" />
+	</div>
+	<a href="#page-sub-nav" class="eia-accessibility">Skip to sub-navigation</a>
+	<nav class="navigation">
+		<a class="logo" href="/">
+			<h1>U.S. Energy Information Administration - EIA - Independent Statistics and Analysis</h1>
+		</a>
+		<div class="nav-mobile">
+			<div class="search-menu-toggle">
+				<span class="ico-menu search-icon"></span>
+			</div>
+			<a class="nav-primary-item-link menu-toggle" href="javascript:;">
+				<div class="bars">
+					<div class="toggle-bar"></div>
+					<div class="toggle-bar"></div>
+					<div class="toggle-bar"></div>
+				</div>
+				<p>Menu</p>
+			</a>
+		</div>
+		<ul class="nav-primary">
+			<li class="nav-primary-item">
+				<a class="nav-primary-item-link plus" href="javascript:;" data-target="nav-sources">
+					Sources &amp; Uses</a>
+			</li>
+			<li class="nav-primary-item">
+				<a class="nav-primary-item-link plus" href="javascript:;" data-target="nav-topics">
+					Topics</a>
+			</li>
+			<li class="nav-primary-item">
+				<a class="nav-primary-item-link plus" href="javascript:;" data-target="nav-geography">
+					Geography</a>
+			</li>
+			<li class="nav-primary-item">
+				<a class="nav-primary-item-link plus" href="javascript:;" data-target="nav-tools">
+					Tools</a>
+			</li>
+			<li class="nav-primary-item">
+				<a class="nav-primary-item-link plus" href="javascript:;" data-target="nav-learn">
+					Education</a>
+			</li>
+			<li class="nav-primary-item">
+				<a class="nav-primary-item-link plus" href="javascript:;" data-target="nav-news">
+					News</a>
+			</li>
+			<li class="nav-primary-item search-toggle-button">
+				<div class="nav-primary-item-link search-menu-toggle">
+					<span class="ico-menu search-icon"></span>
+				</div>
+			</li>
+		</ul>
+		<div class="nav-menu" id="menu" style="display: none;">
+			<div class="section-tabs">
+				<div class="tabs-wrapper" id="thumbCarousel">
+					<ul>
+						<li class="primary-nav-active" data-target="nav-sources">
+							<a href="javascript:;" title="Sources & Uses" data-target="nav-sources">Sources &amp; Uses</a>
+						</li>
+						<li class="" data-target="nav-topics">
+							<a href="javascript:;" title="Topics" data-target="nav-topics">Topics</a>
+						</li>
+						<li class="" data-target="nav-geography">
+							<a href="javascript:;" title="Geography" data-target="nav-geography">Geography</a>
+						</li>
+						<li class="" data-target="nav-tools">
+							<a href="javascript:;" title="Tools" data-target="nav-tools">Tools</a>
+						</li>
+						<li class="" data-target="nav-learn">
+							<a href="javascript:;" title="Education" data-target="nav-learn">Education</a>
+						</li>
+						<li class="" data-target="nav-news">
+							<a href="javascript:;" title="News" data-target="nav-news">News</a>
+						</li>
+					</ul>
+				</div>
+				<div id="mainCarousel" class="carousel">
+					<!--Sources and Uses-->
+					<div id="nav-sources" class="carousel__slide">
+						<div class="sources-uses left">
+							<div class="nav-menu petroleum">
+								<span class="ico-menu petroleum-icon"></span>
+								<h3>
+									<a href="/petroleum/" title="Petroleum & Other Liquids">Petroleum &amp; Other Liquids</a>
+								</h3>
+								<p>Crude oil, gasoline, heating oil, diesel, propane, and other liquids including biofuels and natural gas liquids.</p>
+								<ul>
+									<li>
+										<a href="/petroleum/weekly/" title="This Week in Petroleum">This Week in Petroleum</a>
+									</li>
+									<li>
+										<a href="/petroleum/supply/weekly/" title="Weekly Petroleum Status Report">Weekly Petroleum Status Report</a>
+									</li>
+								</ul>
+							</div>
+							<div class="nav-menu natural-gas">
+								<span class="ico-menu natural-gas-icon"></span>
+								<h3>
+									<a href="/naturalgas/" title="Natural Gas">Natural Gas</a>
+								</h3>
+								<p>Exploration and reserves, storage, imports and exports, production, prices, sales.</p>
+								<ul>
+									<li>
+										<a href="http://ir.eia.gov/ngs/ngs.html" title="Weekly Natural Gas Storage Report">Weekly Natural Gas Storage Report</a>
+									</li>
+									<li>
+										<a href="/naturalgas/weekly/" title="Natural Gas Weekly Update">Natural Gas Weekly Update</a>
+									</li>
+								</ul>
+							</div>
+							<div class="nav-menu electricity">
+								<span class="ico-menu electricity-icon"></span>
+								<h3>
+									<a href="/electricity/" title="Electricity">Electricity</a>
+								</h3>
+								<p>Sales, revenue and prices, power plants, fuel use, stocks, generation, trade, demand &amp; emissions.
+								</p>
+								<ul>
+									<li>
+										<a href="/electricity/monthly/" title="Electric Power Monthly">Electric Power Monthly</a>
+									</li>
+									<li>
+										<a href="/electricity/data/browser/" title="Electricity Data Browser">Electricity Data Browser</a>
+									</li>
+								</ul>
+							</div>
+							<div class="nav-menu consumption">
+								<span class="ico-menu consumption-icon"></span>
+								<h3>
+									<a href="/consumption/" title="Consumption & Efficiency">Consumption &amp; Efficiency</a>
+								</h3>
+								<p>Energy use in homes, commercial buildings, manufacturing, and transportation.</p>
+								<ul>
+									<li>
+										<a href="/consumption/residential/" title="Residential Energy Consumption Survey (RECS)">Residential Energy Consumption Survey (RECS)</a>
+									</li>
+									<li>
+										<a href="/consumption/commercial/" title="Commercial Buildings Energy Consumption Survey (CBECS)">Commercial Buildings Energy Consumption Survey (CBECS)</a>
+									</li>
+								</ul>
+							</div>
+						</div>
+						<div class="sources-uses right">
+							<div class="nav-menu coal">
+								<span class="ico-menu coal-icon"></span>
+								<h3>
+									<a href="/coal/" title="Coal">Coal</a>
+								</h3>
+								<p>Reserves, production, prices, employment and productivity, distribution, stocks, imports and exports.</p>
+								<ul>
+									<li>
+										<a href="/coal/production/quarterly/" title="Quarterly Coal Report">Quarterly Coal Report</a>
+									</li>
+									<li>
+										<a href="/beta/coal/data/browser/" title="Coal Data Browser">Coal Data Browser</a>
+									</li>
+								</ul>
+							</div>
+							<div class="nav-menu renewable">
+								<span class="ico-menu renewable-icon"></span>
+								<h3>
+									<a href="/renewable/" title="Renewable & Alternative Fuels">Renewable &amp; Alternative Fuels</a>
+								</h3>
+								<p>Includes hydropower, solar, wind, geothermal, biomass and ethanol.</p>
+								<ul>
+									<li>
+										<a href="/renewable/afv/" title="Alternative Fuel Vehicle Browser">Alternative Fuel Vehicle Browser</a>
+									</li>
+								</ul>
+							</div>
+							<div class="nav-menu nuclear">
+								<span class="ico-menu nuclear-icon"></span>
+								<h3>
+									<a href="/nuclear/" title="Nuclear & Uranium">Nuclear &amp; Uranium</a>
+								</h3>
+								<p>Uranium fuel, nuclear reactors, generation, spent fuel.</p>
+								<ul>
+									<li>
+										<a href="/nuclear/outages/" title="Daily Status of Nuclear Outages">Daily Status of Nuclear Outages</a>
+									</li>
+								</ul>
+							</div>
+							<div class="nav-menu total-energy">
+								<span class="ico-menu total-energy-icon"></span>
+								<h3>
+									<a href="/totalenergy/" title="Total Energy">Total Energy</a>
+								</h3>
+								<p>Comprehensive data summaries, comparisons, analysis, and projections integrated across all energy sources.</p>
+								<ul>
+									<li>
+										<a href="/totalenergy/data/monthly/" title="Monthly Energy Review">Monthly Energy Review</a>
+									</li>
+									<li>
+										<a href="/totalenergy/data/annual/" title="Annual Energy Review">Annual Energy Review</a>
+									</li>
+								</ul>
+							</div>
+						</div>
+						<div class="a-z-bottom">
+	<div class="nav-menu a-z-index">
+		<span class="ico-menu a-z-index-icon"></span>
+		<h3>
+			<a href="/tools/a-z/" title="A-Z Index">A-Z Index</a>
+		</h3>
+		<div class="a-z-list">
+			<a href="/tools/a-z/index.php?id=a" title="A">A</a> |
+			<a href="/tools/a-z/index.php?id=b" title="B">B</a> |
+			<a href="/tools/a-z/index.php?id=c" title="C">C</a> |
+			<a href="/tools/a-z/index.php?id=d" title="D">D</a> |
+			<a href="/tools/a-z/index.php?id=e" title="E">E</a> |
+			<a href="/tools/a-z/index.php?id=f" title="F">F</a> |
+			<a href="/tools/a-z/index.php?id=g" title="G">G</a> |
+			<a href="/tools/a-z/index.php?id=h" title="H">H</a> |
+			<a href="/tools/a-z/index.php?id=i" title="I">I</a> |
+			<a href="/tools/a-z/index.php?id=j" title="J">J</a> |
+			<a href="/tools/a-z/index.php?id=k" title="K">K</a> |
+			<a href="/tools/a-z/index.php?id=l" title="L">L</a> |
+			<a href="/tools/a-z/index.php?id=m" title="M">M</a> |
+			<a href="/tools/a-z/index.php?id=n" title="N">N</a> |
+			<a href="/tools/a-z/index.php?id=o" title="O">O</a> |
+			<a href="/tools/a-z/index.php?id=p" title="P">P</a> |
+			<a href="/tools/a-z/index.php?id=q" title="Q">Q</a> |
+			<a href="/tools/a-z/index.php?id=r" title="R">R</a> |
+			<a href="/tools/a-z/index.php?id=s" title="S">S</a> |
+			<a href="/tools/a-z/index.php?id=t" title="Y">T</a> |
+			<a href="/tools/a-z/index.php?id=u" title="U">U</a> |
+			<a href="/tools/a-z/index.php?id=v" title="V">V</a> |
+			<a href="/tools/a-z/index.php?id=w" title="W">W</a> |
+			<a href="/tools/a-z/index.php?id=xyz" title="XYZ">XYZ</a>
+		</div>
+	</div>
+</div>					</div>
+					<!--Topics-->
+					<div id="nav-topics" class="carousel__slide">
+						<div class="topics left">
+							<div class="nav-menu analysis">
+								<span class="ico-menu analysis-projections-icon"></span>
+								<h3>
+									<a href="/analysis/" title="Analysis & Projections">Analysis &amp; Projections</a>
+								</h3>
+								<p>Monthly and yearly energy forecasts, analysis of energy topics, financial analysis, congressional reports.
+								</p>
+								<ul>
+									<li>
+										<a href="/outlooks/steo/" title="Short-Term Energy Outlook">Short-Term Energy Outlook</a>
+									</li>
+									<li>
+										<a href="/outlooks/aeo/" title="Annual Energy Outlook">Annual Energy Outlook</a>
+									</li>
+									<li>
+										<a href="/outlooks/ieo/" title="International Energy Outlook">International Energy Outlook</a>
+									</li>
+								</ul>
+							</div>
+							<div class="nav-menu markets-finance">
+								<span class="ico-menu markets-finance-icon"></span>
+								<h3>
+									<a href="/finance/" title="Markets & Finance">Markets &amp; Finance</a>
+								</h3>
+								<p>Financial market analysis and financial data for major energy companies.</p>
+								<ul>
+									<li>
+										<a href="/finance/data.php" title="Market Prices and Uncertainty Report">Market Prices and Uncertainty Report</a>
+									</li>
+									<li>
+										<a href="/finance/markets/crudeoil/" title="Energy & Financial Markets: What Drives Crude Oil Prices?">Energy &amp; Financial Markets: What Drives Crude Oil Prices?</a>
+									</li>
+								</ul>
+							</div>
+						</div>
+						<div class="topics right">
+							<div class="nav-menu environment">
+								<span class="ico-menu environment-icon"></span>
+								<h3>
+									<a href="/environment/" title="Environment">Environment</a>
+								</h3>
+								<p>Greenhouse gas data, voluntary reporting, electric power plant emissions.</p>
+								<ul>
+									<li><a href="/environment/emissions/carbon/" title="U.S. Energy-Related Carbon Dioxide Emissions">U.S. Energy-Related Carbon Dioxide Emissions</a></li>
+									<!-- li><a href="/environment/emissions/state/analysis/" title="Energy-Related Carbon Dioxide Emissions at the State Level, 2005-2016">Energy-Related Carbon Dioxide Emissions at the State Level, 2005-2016</a></li -->
+									<li><a href="/environment/emissions/state/" title="Energy-Related Carbon Dioxide Emissions at the State Level">Energy-Related Carbon Dioxide Emissions at the State Level</a></li>
+								</ul>
+							</div>
+							<div class="nav-menu disruptions">
+								<span class="ico-menu disruptions-icon"></span>
+								<h3>
+									<a href="/special/disruptions/" title="Energy Disruptions">Energy Disruptions</a>
+								</h3>
+								<p>Maps, tools, and resources related to energy disruptions and infrastructure.</p>
+								<ul>
+									<li><a href="/special/disruptions/" title="Energy Disruptions">Energy Disruptions</a></li>
+								</ul>
+							</div>
+						</div>
+						<div class="a-z-bottom">
+	<div class="nav-menu a-z-index">
+		<span class="ico-menu a-z-index-icon"></span>
+		<h3>
+			<a href="/tools/a-z/" title="A-Z Index">A-Z Index</a>
+		</h3>
+		<div class="a-z-list">
+			<a href="/tools/a-z/index.php?id=a" title="A">A</a> |
+			<a href="/tools/a-z/index.php?id=b" title="B">B</a> |
+			<a href="/tools/a-z/index.php?id=c" title="C">C</a> |
+			<a href="/tools/a-z/index.php?id=d" title="D">D</a> |
+			<a href="/tools/a-z/index.php?id=e" title="E">E</a> |
+			<a href="/tools/a-z/index.php?id=f" title="F">F</a> |
+			<a href="/tools/a-z/index.php?id=g" title="G">G</a> |
+			<a href="/tools/a-z/index.php?id=h" title="H">H</a> |
+			<a href="/tools/a-z/index.php?id=i" title="I">I</a> |
+			<a href="/tools/a-z/index.php?id=j" title="J">J</a> |
+			<a href="/tools/a-z/index.php?id=k" title="K">K</a> |
+			<a href="/tools/a-z/index.php?id=l" title="L">L</a> |
+			<a href="/tools/a-z/index.php?id=m" title="M">M</a> |
+			<a href="/tools/a-z/index.php?id=n" title="N">N</a> |
+			<a href="/tools/a-z/index.php?id=o" title="O">O</a> |
+			<a href="/tools/a-z/index.php?id=p" title="P">P</a> |
+			<a href="/tools/a-z/index.php?id=q" title="Q">Q</a> |
+			<a href="/tools/a-z/index.php?id=r" title="R">R</a> |
+			<a href="/tools/a-z/index.php?id=s" title="S">S</a> |
+			<a href="/tools/a-z/index.php?id=t" title="Y">T</a> |
+			<a href="/tools/a-z/index.php?id=u" title="U">U</a> |
+			<a href="/tools/a-z/index.php?id=v" title="V">V</a> |
+			<a href="/tools/a-z/index.php?id=w" title="W">W</a> |
+			<a href="/tools/a-z/index.php?id=xyz" title="XYZ">XYZ</a>
+		</div>
+	</div>
+</div>					</div>
+					<!--Geography-->
+					<div id="nav-geography" class="carousel__slide">
+						<div class="geography left">
+							<div class="nav-menu states">
+								<span class="ico-menu states-icon"></span>
+								<h3>
+									<a href="/beta/states/" title="U.S. States">U.S. States</a>
+								</h3>
+								<p>State energy information, including overviews, rankings, data, and analyses.</p>
+								<ul>
+									<li>
+										<a href="/state/seds/" title="State Energy Data System (SEDS)">State Energy Data System (SEDS)</a>
+									</li>
+								</ul>
+							</div>
+							<div class="nav-menu maps">
+								<span class="ico-menu maps-icon"></span>
+								<h3>
+									<a href="/maps/" title="Maps">Maps</a>
+								</h3>
+								<p>Maps by energy source and topic, includes forecast maps.</p>
+								<ul>
+									<li>
+										<a href="https://atlas.eia.gov/" title="U.S. Energy Atlas">U.S. Energy Atlas</a>
+									</li>
+									<li>
+										<a href="/state/maps.php" title="U.S. Energy Mapping System">U.S. Energy Mapping System</a>
+									</li>
+									<li>
+										<a href="/special/disruptions/" title="Energy Disruptions">Energy Disruptions</a>
+									</li>
+								</ul>
+							</div>
+						</div>
+						<div class="geography right">
+							<div class="nav-menu international">
+								<span class="ico-menu international-icon"></span>
+								<h3>
+									<a href="/beta/international/" title="International">International</a>
+								</h3>
+								<p>International energy information, including overviews, rankings, data, and analyses.</p>
+								<ul>
+									<li>
+										<a href="/beta/international/data/browser/" title="International Energy Statistics">International Energy Statistics</a>
+									</li>
+								</ul>
+							</div>
+							<div class="nav-menu regional">
+								<span class="ico-menu regional-icon"></span>
+								<h3>
+									<a href="/regional/" title="Regional Dashboards & Data">Regional Dashboards &amp; Data</a>
+								</h3>
+								<p>Regional energy information including dashboards, maps, data, and analyses.</p>
+								<ul>
+									<li>
+										<a href="/dashboard/newengland/overview" title="New England Dashboard">New England Dashboard</a>
+									</li>
+									<li>
+										<a href="/special/disruptions/socal/" title="Southern California Daily Energy Report">Southern California Daily Energy Report</a>
+									</li>
+									<li>
+										<a href="/special/disruptions/" title="Energy Disruptions">Energy Disruptions</a>
+									</li>
+								</ul>
+							</div>
+						</div>
+						<div class="a-z-bottom">
+	<div class="nav-menu a-z-index">
+		<span class="ico-menu a-z-index-icon"></span>
+		<h3>
+			<a href="/tools/a-z/" title="A-Z Index">A-Z Index</a>
+		</h3>
+		<div class="a-z-list">
+			<a href="/tools/a-z/index.php?id=a" title="A">A</a> |
+			<a href="/tools/a-z/index.php?id=b" title="B">B</a> |
+			<a href="/tools/a-z/index.php?id=c" title="C">C</a> |
+			<a href="/tools/a-z/index.php?id=d" title="D">D</a> |
+			<a href="/tools/a-z/index.php?id=e" title="E">E</a> |
+			<a href="/tools/a-z/index.php?id=f" title="F">F</a> |
+			<a href="/tools/a-z/index.php?id=g" title="G">G</a> |
+			<a href="/tools/a-z/index.php?id=h" title="H">H</a> |
+			<a href="/tools/a-z/index.php?id=i" title="I">I</a> |
+			<a href="/tools/a-z/index.php?id=j" title="J">J</a> |
+			<a href="/tools/a-z/index.php?id=k" title="K">K</a> |
+			<a href="/tools/a-z/index.php?id=l" title="L">L</a> |
+			<a href="/tools/a-z/index.php?id=m" title="M">M</a> |
+			<a href="/tools/a-z/index.php?id=n" title="N">N</a> |
+			<a href="/tools/a-z/index.php?id=o" title="O">O</a> |
+			<a href="/tools/a-z/index.php?id=p" title="P">P</a> |
+			<a href="/tools/a-z/index.php?id=q" title="Q">Q</a> |
+			<a href="/tools/a-z/index.php?id=r" title="R">R</a> |
+			<a href="/tools/a-z/index.php?id=s" title="S">S</a> |
+			<a href="/tools/a-z/index.php?id=t" title="Y">T</a> |
+			<a href="/tools/a-z/index.php?id=u" title="U">U</a> |
+			<a href="/tools/a-z/index.php?id=v" title="V">V</a> |
+			<a href="/tools/a-z/index.php?id=w" title="W">W</a> |
+			<a href="/tools/a-z/index.php?id=xyz" title="XYZ">XYZ</a>
+		</div>
+	</div>
+</div>					</div>
+					<!--Tools-->
+					<div id="nav-tools" class="carousel__slide">
+						<div class="tools left">
+							<div class="nav-menu eia-glossary">
+								<span class="ico-menu eia-glossary-icon"></span>
+								<h3>
+									<a href="/tools/glossary/" title="Glossary">Glossary</a>
+								</h3>
+								<div class="form-wrapper">
+    <form action="/tools/glossary/index.php" method="post" name="frmGlossary">
+        <input class="fancy-search-box" name="glossary" placeholder="Search the glossary" onfocus="this.placeholder=''" onblur="this.placeholder='Search the glossary'"
+            type="text" />
+        <button class="search-submit"></button>
+    </form>
+</div>							</div>
+							<div class="nav-menu data-tools-model">
+								<span class="ico-menu data-tools-model-icon"></span>
+								<h3>
+									<a href="/tools/" title="Data Tools, Apps, & Maps">Data Tools, Apps, &amp; Maps</a>
+								</h3>
+								<p>Tools to customize searches, view specific data sets, study detailed documentation, and access time-series data.</p>
+							</div>
+							<div class="nav-menu open-data">
+								<span class="ico-menu open-data-icon"></span>
+								<h3>
+									<a href="/opendata/" title="Open Data">Open Data</a>
+								</h3>
+								<p>EIA's free and open data available as API, Excel add-in, bulk files, and widgets</p>
+							</div>
+							<div class="nav-menu beta">
+								<span class="ico-menu beta-icon"></span>
+								<h3>
+									<a href="/beta" title="EIA Beta">EIA Beta</a>
+								</h3>
+								<p>Come test out some of the products still in development and let us know what you think!</p>
+							</div>
+							<div class="nav-menu open-source-code">
+								<span class="ico-menu open-source-code-icon"></span>
+								<h3>
+									<a href="/tools/open-source-code/" title="Open Source Code">Open Source Code</a>
+								</h3>
+								<p>EIA's open source code, available on GitHub.</p>
+							</div>
+						</div>
+						<div class="tools right">
+							<div class="nav-menu reports">
+								<span class="ico-menu reports-icon"></span>
+								<h3>
+									<a href="/reports/" title="All Reports & Publications">All Reports &amp; Publications</a>
+								</h3>
+								<div id="header-tag-search" class="reports-publication-search form-wrapper">
+	<form id="header-bookshelf-search-form">
+		<input type="text" class="fancy-search-box" value="" tabindex="-1" placeholder="Enter tags. Tags should be separated with the + character" onfocus="this.placeholder=''" onblur="this.placeholder='Enter tags. Tags should be separated with the + character'" />
+		<button class="search-submit" id="goBtn"></button>
+		<div id="header-tags-search" class="tags-search">
+			<ul class="bookshelftags"></ul>
+		</div>
+	</form>
+</div>
+
+
+
+
+
+							</div>
+							<div class="nav-menu survey-forms">
+								<span class="ico-menu survey-forms-icon"></span>
+								<h3>
+									<a href="/survey/" title="EIA Survey Forms">EIA Survey Forms</a>
+								</h3>
+								<p>Forms EIA uses to collect energy data including descriptions, links to survey instructions, and additional information.</p>
+															</div>
+							<div class="nav-menu email-complex">
+								<span class="ico-menu email-complex-icon"></span>
+								<h3>
+									<a href="/tools/emailupdates/" title="Email Updates">Email Updates</a>
+								</h3>
+								<p>Sign up for email subscriptions to receive messages about specific EIA products</p>
+							</div>
+							<div class="nav-menu rss-complex">
+								<span class="ico-menu rss-complex-icon"></span>
+								<h3>
+									<a href="/tools/rssfeeds/" title="RSS Feeds">RSS Feeds</a>
+								</h3>
+								<p>Subscribe to feeds for updates on EIA products including Today in Energy and What's New.</p>
+							</div>
+							<div class="nav-menu follow-us">
+								<span class="ico-menu follow-us-icon"></span>
+								<h3>Follow us. . .</h3>
+								<p>
+									<a href="http://facebook.com/eiagov/" title="facebook" target="_blank">
+										<span class="ico-menu facebook"></span>
+									</a>
+									<a href="http://x.com/eiagov/" title="twitter" target="_blank">
+										<span class="ico-menu twitter"></span>
+									</a>
+									<a href="http://youtube.com/eiagov/" title="youtube" target="_blank">
+										<span class="ico-menu youtube"></span>
+									</a>
+									<a href="https://www.flickr.com/photos/eiagov/" title="flickr">
+										<span class="ico-menu flickr"></span>
+									</a>
+									<a href="https://www.linkedin.com/company/u-s-energy-information-administration" title="linkedin">
+										<span class="ico-menu linkedin"></span>
+									</a>
+								</p>
+							</div>
+						</div>
+						<div class="a-z-bottom">
+	<div class="nav-menu a-z-index">
+		<span class="ico-menu a-z-index-icon"></span>
+		<h3>
+			<a href="/tools/a-z/" title="A-Z Index">A-Z Index</a>
+		</h3>
+		<div class="a-z-list">
+			<a href="/tools/a-z/index.php?id=a" title="A">A</a> |
+			<a href="/tools/a-z/index.php?id=b" title="B">B</a> |
+			<a href="/tools/a-z/index.php?id=c" title="C">C</a> |
+			<a href="/tools/a-z/index.php?id=d" title="D">D</a> |
+			<a href="/tools/a-z/index.php?id=e" title="E">E</a> |
+			<a href="/tools/a-z/index.php?id=f" title="F">F</a> |
+			<a href="/tools/a-z/index.php?id=g" title="G">G</a> |
+			<a href="/tools/a-z/index.php?id=h" title="H">H</a> |
+			<a href="/tools/a-z/index.php?id=i" title="I">I</a> |
+			<a href="/tools/a-z/index.php?id=j" title="J">J</a> |
+			<a href="/tools/a-z/index.php?id=k" title="K">K</a> |
+			<a href="/tools/a-z/index.php?id=l" title="L">L</a> |
+			<a href="/tools/a-z/index.php?id=m" title="M">M</a> |
+			<a href="/tools/a-z/index.php?id=n" title="N">N</a> |
+			<a href="/tools/a-z/index.php?id=o" title="O">O</a> |
+			<a href="/tools/a-z/index.php?id=p" title="P">P</a> |
+			<a href="/tools/a-z/index.php?id=q" title="Q">Q</a> |
+			<a href="/tools/a-z/index.php?id=r" title="R">R</a> |
+			<a href="/tools/a-z/index.php?id=s" title="S">S</a> |
+			<a href="/tools/a-z/index.php?id=t" title="Y">T</a> |
+			<a href="/tools/a-z/index.php?id=u" title="U">U</a> |
+			<a href="/tools/a-z/index.php?id=v" title="V">V</a> |
+			<a href="/tools/a-z/index.php?id=w" title="W">W</a> |
+			<a href="/tools/a-z/index.php?id=xyz" title="XYZ">XYZ</a>
+		</div>
+	</div>
+</div>					</div>
+					<!--Learn-->
+					<div id="nav-learn" class="carousel__slide">
+						<div class="learn left">
+							<div class="nav-menu today-in-energy">
+								<span class="ico-menu today-in-energy-icon"></span>
+								<h3>
+									<a href="/todayinenergy/" title="Today in Energy">Today in Energy</a>
+								</h3>
+								<p>Short, timely articles with graphics on energy, facts, issues, and trends.</p>
+							</div>
+							<div class="nav-menu energy-explained">
+								<span class="ico-menu energy-explained-icon"></span>
+								<h3>
+									<a href="/energyexplained/" title="Energy Explained">Energy Explained</a>
+								</h3>
+								<ul class="energy-explained-list left">
+									<li>
+										<a href="/energyexplained/what-is-energy/" title="What is Energy?">What is Energy?</a>
+									</li>
+									<li>
+										<a href="/energyexplained/units-and-calculators/" title="Units & Calculators">Units &amp; Calculators</a>
+									</li>
+									<li>
+										<a href="/energyexplained/us-energy-facts/" title="U.S. Energy Facts">U.S. Energy Facts</a>
+									</li>
+									<li>
+										<a href="/energyexplained/use-of-energy/" title="Use of Energy">Use of Energy</a>
+									</li>
+									<li>
+										<a href="/energyexplained/energy-and-the-environment/" title="Energy & Environment">Energy &amp; Environment</a>
+									</li>
+									<li>
+										<a href="/energyexplained/oil-and-petroleum-products/" title="Petroleum">Petroleum</a>
+									</li>
+									<li>
+										<a href="/energyexplained/hydrocarbon-gas-liquids/" title="Hydrocarbon Gas Liquids">Hydrocarbon Gas Liquids</a>
+									</li>
+									<li>
+										<a href="/energyexplained/natural-gas/" title="Natural Gas">Natural Gas</a>
+									</li>
+								</ul>
+								<ul class="energy-explained-list right">
+									<li>
+										<a href="/energyexplained/coal/" title="Coal">Coal</a>
+									</li>
+									<li>
+										<a href="/energyexplained/nuclear/" title="Nuclear">Nuclear</a>
+									</li>
+									<li>
+										<a href="/energyexplained/electricity/" title="Electricity">Electricity</a>
+									</li>
+									<li>
+										<a href="/energyexplained/hydrogen/" title="Hydrogen">Hydrogen</a>
+									</li>
+									<li>
+										<a href="/energyexplained/hydropower/" title="Hydropower">Hydropower</a>
+									</li>
+									<li>
+										<a href="/energyexplained/biofuels/" title="Biofuels">Biofuels</a>
+									</li>
+									<li>
+										<a href="/energyexplained/biomass/" title="Biomass">Biomass</a>
+									</li>
+									<li>
+										<a href="/energyexplained/wind/" title="Wind">Wind</a>
+									</li>
+									<li>
+										<a href="/energyexplained/geothermal/" title="Geothermal">Geothermal</a>
+									</li>
+									<li>
+										<a href="/energyexplained/solar/" title="Solar">Solar</a>
+									</li>
+								</ul>
+							</div>
+
+							<div class="nav-menu teachers">
+								<span class="ico-menu teachers-icon"></span>
+								<h3>
+									<a href="/kids/energy.php?page=6" title="For Teachers">For Teachers</a>
+								</h3>
+								<p>Lesson plans, science fair experiments, field trips, teacher guide, and career corner.</p>
+							</div>
+
+						</div>
+						<div class="learn right">
+							<div class="nav-menu eia-glossary">
+								<span class="ico-menu eia-glossary-icon"></span>
+								<h3>
+									<a href="/tools/glossary/" title="Glossary">Glossary</a>
+								</h3>
+								<div class="form-wrapper">
+    <form action="/tools/glossary/index.php" method="post" name="frmGlossary">
+        <input class="fancy-search-box" name="glossary" placeholder="Search the glossary" onfocus="this.placeholder=''" onblur="this.placeholder='Search the glossary'"
+            type="text" />
+        <button class="search-submit"></button>
+    </form>
+</div>							</div>
+							<div class="nav-menu faq">
+								<span class="ico-menu faq-icon"></span>
+								<h3>
+									<a href="/tools/faqs/" title="FAQs">FAQs</a>
+								</h3>
+								<ul class="faq-list left">
+									<li>
+										<a href="/tools/faqs/#coal" title="Coal">Coal</a>
+									</li>
+									<li>
+										<a href="/tools/faqs/#conversion equivalents" title="Conversion & Equivalents">Conversion &amp; Equivalents</a>
+									</li>
+									<li>
+										<a href="/tools/faqs/index.php#oil/petroleum" title="Oil/Petroleum">Oil/Petroleum</a>
+									</li>
+									<li>
+										<a href="/tools/faqs/#diesel" title="Diesel">Diesel</a>
+									</li>
+									<li>
+										<a href="/tools/faqs/#electricity" title="Electricity">Electricity</a>
+									</li>
+									<li>
+										<a href="/tools/faqs/#environment" title="Environment">Environment</a>
+									</li>
+								</ul>
+								<ul class="faq-list right">
+									<li>
+										<a href="/tools/faqs/index.php#gasoline" title="Gasoline">Gasoline</a>
+									</li>
+									<li>
+										<a href="/tools/faqs/index.php#generalenergy" title="General Energy">General Energy</a>
+									</li>
+									<li>
+										<a href="/tools/faqs/index.php#naturalgas" title="Natural Gas">Natural Gas</a>
+									</li>
+									<li>
+										<a href="/tools/faqs/index.php#nuclear" title="Nuclear">Nuclear</a>
+									</li>
+									<li>
+										<a href="/tools/faqs/index.php#prices" title="Prices">Prices</a>
+									</li>
+									<li>
+										<a href="/tools/faqs/index.php#renewables" title="Renewables">Renewables</a>
+									</li>
+								</ul>
+							</div>
+							<div class="nav-menu energy-kids">
+								<a href="/kids/" class="energy-kids" title="energy kids">
+									<svg id="nav-kids" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 431.38 105.45">
+										<polygon points="410.24 96.12 9.24 96.12 27.24 80.12 428.24 80.12 410.24 96.12" fill="#e4f6ff" />
+										<image width="373" height="332" transform="translate(176.25 11.28) scale(0.24)" xlink:href="/global/images/energy-kids/energy-ant.png" />
+										<path d="M46.38,74.79H35.65a0.59,0.59,0,0,0-.71.62,3.67,3.67,0,0,0,1.61,2.79A5.37,5.37,0,0,0,40,79.51a8.12,8.12,0,0,0,2.43-.42,7.89,7.89,0,0,0,2.2-1,2.41,2.41,0,0,1,1.23-.55,1.55,1.55,0,0,1,1.16.73,2.42,2.42,0,0,1,.57,1.51q0,1.64-2.05,3.17a13.59,13.59,0,0,1-8.37,2.71,11.89,11.89,0,0,1-8-2.78,11.4,11.4,0,0,1-2.6-3.31,11.57,11.57,0,0,1-1.35-5.43,11.08,11.08,0,0,1,2.33-6.89,12.23,12.23,0,0,1,5.11-3.95,12.84,12.84,0,0,1,5-1,11.31,11.31,0,0,1,7.37,2.46,9.85,9.85,0,0,1,2.46,2.92,7.64,7.64,0,0,1,1.07,3.74A4.38,4.38,0,0,1,48,73.84,1.84,1.84,0,0,1,46.38,74.79ZM36.25,70.52h2.3A1.24,1.24,0,0,0,40,69.18a2.86,2.86,0,0,0-.71-2,2.38,2.38,0,0,0-1.85-.78,2.35,2.35,0,0,0-2,1,3.18,3.18,0,0,0-.68,1.89,1.19,1.19,0,0,0,.33,1A1.84,1.84,0,0,0,36.25,70.52Z" class="hello" fill="@{fill-color}" />
+										<path d="M77.72,70.71l0.32,8a3.25,3.25,0,0,0,.29,1.35,11.51,11.51,0,0,0,1.4,1.67,1.44,1.44,0,0,1,.34,1,2.18,2.18,0,0,1-1.8,2.1,23.53,23.53,0,0,1-6.43.59,12.66,12.66,0,0,1-4.45-.55A1.92,1.92,0,0,1,66,83.07a1.3,1.3,0,0,1,.14-0.67,11.94,11.94,0,0,1,.91-1.06q0.91-1,.91-6.39a11.21,11.21,0,0,0-.73-4.65A2.66,2.66,0,0,0,63,70.07a7.73,7.73,0,0,0-.57,3.56v4.52A6.68,6.68,0,0,0,62.59,80a11.28,11.28,0,0,0,1.13,1.94,1.76,1.76,0,0,1,.25.94q0,1.35-1.87,2a19.52,19.52,0,0,1-5.84.64q-6.34,0-6.34-2.62a1.48,1.48,0,0,1,.2-0.83A4.15,4.15,0,0,1,51,81.22a1.89,1.89,0,0,0,.75-1,17.71,17.71,0,0,0,.3-2.75q0.16-2.6.16-5.45A5.59,5.59,0,0,0,52,70a3.76,3.76,0,0,0-1.38-1.2,1.71,1.71,0,0,1-.18-3,15,15,0,0,1,3.28-1.47q2.19-.78,4.22-1.31a13.33,13.33,0,0,1,2.78-.54,1.52,1.52,0,0,1,1.15.5,1.69,1.69,0,0,1,.47,1.19s0,0.24,0,.57a2.6,2.6,0,0,0,0,.32,0.9,0.9,0,0,0,.91,1.09,1.63,1.63,0,0,0,1.16-.87,6.51,6.51,0,0,1,5.7-2.83A8.1,8.1,0,0,1,75,63.93a5.79,5.79,0,0,1,2,2.52A14.08,14.08,0,0,1,77.72,70.71Z" class="hello" fill="@{fill-color}" />
+										<path d="M100.89,74.79H90.17a0.59,0.59,0,0,0-.71.62,3.66,3.66,0,0,0,1.61,2.79,5.37,5.37,0,0,0,3.46,1.31,8.11,8.11,0,0,0,2.43-.42,7.9,7.9,0,0,0,2.2-1,2.41,2.41,0,0,1,1.23-.55,1.55,1.55,0,0,1,1.16.73,2.42,2.42,0,0,1,.57,1.51q0,1.64-2.05,3.17a13.59,13.59,0,0,1-8.37,2.71,11.89,11.89,0,0,1-8-2.78,11.4,11.4,0,0,1-2.6-3.31,11.57,11.57,0,0,1-1.35-5.43A11.09,11.09,0,0,1,82,67.22a12.23,12.23,0,0,1,5.11-3.95,12.84,12.84,0,0,1,5-1,11.31,11.31,0,0,1,7.37,2.46A9.86,9.86,0,0,1,102,67.67a7.64,7.64,0,0,1,1.07,3.74,4.38,4.38,0,0,1-.62,2.43A1.84,1.84,0,0,1,100.89,74.79ZM90.76,70.52h2.3a1.24,1.24,0,0,0,1.46-1.35,2.86,2.86,0,0,0-.71-2A2.38,2.38,0,0,0,92,66.4a2.35,2.35,0,0,0-2,1,3.18,3.18,0,0,0-.68,1.89,1.19,1.19,0,0,0,.33,1A1.84,1.84,0,0,0,90.76,70.52Z" class="hello" fill="@{fill-color}" />
+										<path d="M114.3,62.43a2,2,0,0,1,1.47.34,6.11,6.11,0,0,1,.47,2.19q0.11,1,.71,1a1.12,1.12,0,0,0,.87-0.66,5.48,5.48,0,0,1,4.77-2.85A4.56,4.56,0,0,1,126,63.8a5.13,5.13,0,0,1,1,1.7,5.07,5.07,0,0,1-.09,4.2,5.52,5.52,0,0,1-1.3,1.86,5,5,0,0,1-3.58,1.39,4.19,4.19,0,0,1-2-.41A9.85,9.85,0,0,1,118,70.87a1.33,1.33,0,0,0-.89-0.48,0.83,0.83,0,0,0-.83.72,14.54,14.54,0,0,0-.19,3,28.58,28.58,0,0,0,.25,4.7,1.86,1.86,0,0,0,.44.95,3.4,3.4,0,0,0,1.22.54q2.05,0.62,2.05,2.14a2.29,2.29,0,0,1-.66,1.63,3.26,3.26,0,0,1-1.76.93,33.88,33.88,0,0,1-6.43.46,20.29,20.29,0,0,1-6.14-.71,2.31,2.31,0,0,1-1.87-2.21,2.61,2.61,0,0,1,1.37-2.12,3.44,3.44,0,0,0,.91-0.79,2.23,2.23,0,0,0,.34-1,52.81,52.81,0,0,0,.36-7.69,3.45,3.45,0,0,0-.23-1.47,1.65,1.65,0,0,0-.91-0.72,2.07,2.07,0,0,1-1.62-1.85,2.28,2.28,0,0,1,1.12-1.88,13.63,13.63,0,0,1,3.74-1.56A22.22,22.22,0,0,1,114.3,62.43Z" class="hello" fill="@{fill-color}" />
+										<path d="M151.94,61.06a1.22,1.22,0,0,1,1,.65,2.67,2.67,0,0,1,.43,1.52,4.93,4.93,0,0,1-.58,2.12,5.87,5.87,0,0,1-1.4,1.89,1.23,1.23,0,0,0-.52.73s0,0.23,0,.55a6.17,6.17,0,0,1,.07.87,6.24,6.24,0,0,1-1.82,4.56,11.09,11.09,0,0,1-4.23,2.55,17,17,0,0,1-5.69.91,11.94,11.94,0,0,1-1.48-.09,8.58,8.58,0,0,0-.91-0.07,1.07,1.07,0,0,0-1.21,1.21,1.36,1.36,0,0,0,.79,1.22,4.35,4.35,0,0,0,2.13.44,21,21,0,0,0,2.69-.25,44.23,44.23,0,0,1,5.52-.52,8.15,8.15,0,0,1,4.17.89,5,5,0,0,1,1.88,1.92,5.29,5.29,0,0,1,.7,2.65,7.2,7.2,0,0,1-1.69,4.47,11.75,11.75,0,0,1-5.91,3.79,23.67,23.67,0,0,1-7.07,1,18.65,18.65,0,0,1-8.21-1.55,6.32,6.32,0,0,1-2.33-1.92,4.12,4.12,0,0,1-.87-2.46,2.94,2.94,0,0,1,.49-1.64,2.75,2.75,0,0,1,1.24-1.07,0.86,0.86,0,0,0,.68-0.59,1.32,1.32,0,0,0-.57-0.73,4.24,4.24,0,0,1-1.82-3.17,3.77,3.77,0,0,1,.88-2.26,6,6,0,0,1,2.18-1.8,0.78,0.78,0,0,0,.55-0.55,1.78,1.78,0,0,0-.68-1A6.69,6.69,0,0,1,128,70.25a5.6,5.6,0,0,1,.83-2.92A7.4,7.4,0,0,1,131.18,65a14.59,14.59,0,0,1,8.14-2.4,19.62,19.62,0,0,1,4,.46,17.78,17.78,0,0,0,2.85.41,7.93,7.93,0,0,0,4.95-2A1.65,1.65,0,0,1,151.94,61.06ZM134.58,86.54a0.55,0.55,0,0,0-.57.66,2.47,2.47,0,0,0,1.46,2.18,7.59,7.59,0,0,0,3.79.83,8.42,8.42,0,0,0,3.5-.59A1.84,1.84,0,0,0,144,88a1.22,1.22,0,0,0-.48-1,1.78,1.78,0,0,0-1.19-.4,8.56,8.56,0,0,0-1,.09,18.07,18.07,0,0,1-2.85.21,21.14,21.14,0,0,1-2.24-.11,9.9,9.9,0,0,1-1.3-.18A1.92,1.92,0,0,0,134.58,86.54Zm5-20.76a2.24,2.24,0,0,0-1.84.87A3.57,3.57,0,0,0,137,69a8.77,8.77,0,0,0,.75,3.95,2.25,2.25,0,0,0,2,1.48,2.28,2.28,0,0,0,1.92-.93,4,4,0,0,0,.71-2.47,8,8,0,0,0-.74-3.8A2.39,2.39,0,0,0,139.55,65.78Z" class="hello" fill="@{fill-color}" />
+										<path d="M176.32,73.51l-3,8.28a32,32,0,0,1-2.25,5,14.76,14.76,0,0,1-2.57,3.32A10,10,0,0,1,161.36,93a8.17,8.17,0,0,1-5.47-1.78,4.37,4.37,0,0,1-1.62-3.49,4.14,4.14,0,0,1,1.13-3,3.66,3.66,0,0,1,2.77-1.2,3.42,3.42,0,0,1,2.65,1.09,3.08,3.08,0,0,1,.64.89,14.93,14.93,0,0,1,.48,1.71,1.13,1.13,0,0,0,1.14,1,1.45,1.45,0,0,0,1.19-.62,2.41,2.41,0,0,0,.48-1.53,10.09,10.09,0,0,0-1.19-3.58L158,70.82a10.66,10.66,0,0,0-1.3-2.28,6.69,6.69,0,0,0-1.92-1.12A1.67,1.67,0,0,1,154,66.7a2,2,0,0,1-.33-1q0-2,4-2.76a35.27,35.27,0,0,1,6.14-.48,11.59,11.59,0,0,1,3.81.5,2.35,2.35,0,0,1,1.87,2.26,2.53,2.53,0,0,1-.52,1.35,2.38,2.38,0,0,0-.5,1.3,3,3,0,0,0,.24,1.14,22,22,0,0,0,1,2q0.87,1.6,1.53,1.6t1.46-1.4a5.71,5.71,0,0,0,.75-2.7,2.53,2.53,0,0,0-.57-1.71A3,3,0,0,1,172.1,65a2.13,2.13,0,0,1,1.55-1.86,10.32,10.32,0,0,1,4.15-.69q4.84,0,4.84,2.33a1.89,1.89,0,0,1-.49,1.36,4.71,4.71,0,0,1-1.79,1,3.51,3.51,0,0,0-1.73,1.37A26.91,26.91,0,0,0,176.32,73.51Z" class="hello" fill="@{fill-color}" />
+										<path d="M296.3,54.3l-3.09,3a4.41,4.41,0,0,0-1.71,2.95,3,3,0,0,0,.39,1.44,12.36,12.36,0,0,0,1.46,2l10.81,12.51a20.77,20.77,0,0,0,2,2.12,7.41,7.41,0,0,0,1.65.94A5.66,5.66,0,0,1,310,80.68a3.27,3.27,0,0,1,.65,2.11q0,3.06-4.36,3.06h-11a2.88,2.88,0,0,1-1.78-.49,13.49,13.49,0,0,1-2.07-2.43,83.32,83.32,0,0,0-6-7.11,29.49,29.49,0,0,0-2.27-2.27,2,2,0,0,0-1.2-.53q-1.68,0-1.68,3.15,0,2.57,1.1,3.55l0.92,0.64A3,3,0,0,1,284,82.88q0,1.91-2.54,2.73a30.93,30.93,0,0,1-8.55.82,34.25,34.25,0,0,1-7.8-.64,3.32,3.32,0,0,1-1.69-1.05,2.59,2.59,0,0,1-.65-1.72,3.13,3.13,0,0,1,1.73-2.63,3.27,3.27,0,0,0,1.11-1.14,8.16,8.16,0,0,0,.62-2.09,63.23,63.23,0,0,0,.58-10.05,74.21,74.21,0,0,0-.61-11.47,5.4,5.4,0,0,0-.64-2,4.18,4.18,0,0,0-1.42-1.18,2.84,2.84,0,0,1-1.62-2.57,2.74,2.74,0,0,1,1-2.23,7.33,7.33,0,0,1,3.24-1.27,39.5,39.5,0,0,1,7.4-.58,19.52,19.52,0,0,1,6.73.87,2.9,2.9,0,0,1,2,2.89,2.52,2.52,0,0,1-.3,1.34A8.07,8.07,0,0,1,281,52.39a4.12,4.12,0,0,0-.85,1.94,12.11,12.11,0,0,0-.39,3q0,2.43,1.1,2.43a1.88,1.88,0,0,0,1.28-.58,36.56,36.56,0,0,0,2.5-2.89q2.17-2.69,2.17-3.67a3.85,3.85,0,0,0-.55-1.56,2.91,2.91,0,0,1-.38-1.33,3.1,3.1,0,0,1,2.31-3q2.31-.88,7.89-0.88a27.41,27.41,0,0,1,6.59.58q2.63,0.72,2.63,3.06a3,3,0,0,1-.55,1.72,2.46,2.46,0,0,1-1.36,1,11.94,11.94,0,0,1-2.8.23,6.36,6.36,0,0,0-2.3.36A7.67,7.67,0,0,0,296.3,54.3Z" class="hello" fill="@{fill-color}" />
+										<path d="M324.54,45.8a32.06,32.06,0,0,1,6.21.58q3.93,0.78,3.93,3.32a1.78,1.78,0,0,1-.39,1.26,8.45,8.45,0,0,1-2,1.23,3.76,3.76,0,0,0-1.75,2.92,58.41,58.41,0,0,0-.42,8.78q0,11,.55,13.67a2.79,2.79,0,0,0,.62,1.29,5.28,5.28,0,0,0,1.46,1,2.74,2.74,0,0,1,1.91,2.51q0,2.31-3.53,3.18a40.27,40.27,0,0,1-9.33.93q-9.42,0-9.42-3.58,0-1.3,1.85-2.43A3.38,3.38,0,0,0,315.93,78a109,109,0,0,0,.55-14q0-7.4-.75-9.48a4.29,4.29,0,0,0-1.94-2.14,6.92,6.92,0,0,1-1.59-1.3,2.09,2.09,0,0,1-.41-1.33,2.24,2.24,0,0,1,1.2-2,13.66,13.66,0,0,1,4.23-1.32A37.25,37.25,0,0,1,324.54,45.8Z" class="hello" fill="@{fill-color}" />
+										<path d="M349.27,85.85h-2.08q-1.82,0-4.07.17-1.42.11-2,.12a5.16,5.16,0,0,1-3.15-.9,2.77,2.77,0,0,1-1.21-2.34,2.2,2.2,0,0,1,.53-1.58,3.87,3.87,0,0,1,1.75-.91,2.43,2.43,0,0,0,1.56-.94,7,7,0,0,0,.64-2.53q0.23-2.17.42-8.44t0.19-12.45a9,9,0,0,0-.38-3.24,2.86,2.86,0,0,0-1.76-1.3,2.65,2.65,0,0,1-2-2.57,2.45,2.45,0,0,1,1.37-2.21,7.67,7.67,0,0,1,3.83-.8l1.91,0q2.43,0.09,3.53.09,4.13,0,9.33-.26,1.1-.06,2.74-0.06a29.54,29.54,0,0,1,10.46,1.5,16.29,16.29,0,0,1,8.61,7.57A22.82,22.82,0,0,1,382.09,66a23.32,23.32,0,0,1-1,6.54,20.15,20.15,0,0,1-2.57,5.68A17.68,17.68,0,0,1,369.32,85a23.25,23.25,0,0,1-7.4,1.16l-3.5-.12-3-.09Q351.93,85.85,349.27,85.85Zm6.07-31.32V76.89a3.53,3.53,0,0,0,.78,2.59,3.63,3.63,0,0,0,2.6.77q8.44,0,8.44-12.83,0-7.08-2-11a7.57,7.57,0,0,0-7.34-4.31,2.76,2.76,0,0,0-1.95.55A2.5,2.5,0,0,0,355.34,54.53Z" class="hello" fill="@{fill-color}" />
+										<path d="M401.8,45.6a28.19,28.19,0,0,1,7.8,1.47,3.37,3.37,0,0,0,.93.17,8.79,8.79,0,0,0,1.73-.52,2.77,2.77,0,0,1,1-.17q1.93,0,4.09,3.06a10.25,10.25,0,0,1,2.15,5.84,4,4,0,0,1-1,2.73,3,3,0,0,1-2.35,1.11,3.42,3.42,0,0,1-1.88-.46,32.3,32.3,0,0,1-3.18-2.74q-3.47-3.24-6.82-3.24a4,4,0,0,0-2.59.78,2.5,2.5,0,0,0-1,2.05q0,2.51,4.42,3.79A65,65,0,0,1,412.81,62q7.37,3.58,7.37,10.55a12.17,12.17,0,0,1-5,10.05q-5.14,4-13.44,4a37.2,37.2,0,0,1-7.8-.88A18.58,18.58,0,0,1,388,83.68q-1.39-.92-2.5-4a17.89,17.89,0,0,1-1.11-6.05,3.36,3.36,0,0,1,.58-2.14,2.22,2.22,0,0,1,1.82-.93,2.87,2.87,0,0,1,2.11,1.13,42.31,42.31,0,0,1,2.86,4.07,7.82,7.82,0,0,0,3.39,2.69,11.39,11.39,0,0,0,4.81,1.07,6.71,6.71,0,0,0,3.47-.79,2.34,2.34,0,0,0,1.33-2,2.5,2.5,0,0,0-1-2,10.56,10.56,0,0,0-3.38-1.56,45.3,45.3,0,0,1-6.3-2.38A19.06,19.06,0,0,1,390,68q-4.57-4-4.57-9.19a11.1,11.1,0,0,1,1.18-5A12.37,12.37,0,0,1,390,49.68,17.81,17.81,0,0,1,401.8,45.6Z" class="hello" fill="@{fill-color}" />
+									</svg>
+								</a>
+							</div>
+						</div>
+						<div class="a-z-bottom">
+	<div class="nav-menu a-z-index">
+		<span class="ico-menu a-z-index-icon"></span>
+		<h3>
+			<a href="/tools/a-z/" title="A-Z Index">A-Z Index</a>
+		</h3>
+		<div class="a-z-list">
+			<a href="/tools/a-z/index.php?id=a" title="A">A</a> |
+			<a href="/tools/a-z/index.php?id=b" title="B">B</a> |
+			<a href="/tools/a-z/index.php?id=c" title="C">C</a> |
+			<a href="/tools/a-z/index.php?id=d" title="D">D</a> |
+			<a href="/tools/a-z/index.php?id=e" title="E">E</a> |
+			<a href="/tools/a-z/index.php?id=f" title="F">F</a> |
+			<a href="/tools/a-z/index.php?id=g" title="G">G</a> |
+			<a href="/tools/a-z/index.php?id=h" title="H">H</a> |
+			<a href="/tools/a-z/index.php?id=i" title="I">I</a> |
+			<a href="/tools/a-z/index.php?id=j" title="J">J</a> |
+			<a href="/tools/a-z/index.php?id=k" title="K">K</a> |
+			<a href="/tools/a-z/index.php?id=l" title="L">L</a> |
+			<a href="/tools/a-z/index.php?id=m" title="M">M</a> |
+			<a href="/tools/a-z/index.php?id=n" title="N">N</a> |
+			<a href="/tools/a-z/index.php?id=o" title="O">O</a> |
+			<a href="/tools/a-z/index.php?id=p" title="P">P</a> |
+			<a href="/tools/a-z/index.php?id=q" title="Q">Q</a> |
+			<a href="/tools/a-z/index.php?id=r" title="R">R</a> |
+			<a href="/tools/a-z/index.php?id=s" title="S">S</a> |
+			<a href="/tools/a-z/index.php?id=t" title="Y">T</a> |
+			<a href="/tools/a-z/index.php?id=u" title="U">U</a> |
+			<a href="/tools/a-z/index.php?id=v" title="V">V</a> |
+			<a href="/tools/a-z/index.php?id=w" title="W">W</a> |
+			<a href="/tools/a-z/index.php?id=xyz" title="XYZ">XYZ</a>
+		</div>
+	</div>
+</div>					</div>
+					<!--News-->
+					<div id="nav-news" class="carousel__slide">
+						<div class="news left">
+							<div class="nav-menu whats-new">
+	<span class="ico-menu whats-new-icon"></span>
+		<h3><a href="/about/new/">What's New?</a></h3>
+		<ul class="header-whats-new">
+		<li><a href="/international/analysis/country/IDN">Indonesia Country Analysis Brief</a></li><li class="date">Aug 25, 2025</li><li><a href="/beta/states/overview/">State Energy Portal: Updated Analyses and Quick Facts</a></li><li class="date">Aug 21, 2025</li><li><a href="/electricity/wholesale/">Wholesale Electricity Market Data</a></li><li class="date">Aug 21, 2025</li>		<li class="foot"><a href="/about/new/">See what's new</a></li>
+	</ul>
+</div>							<div class="nav-menu press-room">
+								<span class="ico-menu press-room-icon"></span>
+								<h3>
+									<a href="/pressroom/" title="Press Room">Press Room</a>
+								</h3>
+								<ul>
+									<li>
+										<a href="/pressroom/releases.php" title="Press Releases">Press Releases</a>
+									</li>
+									<li>
+										<a href="/pressroom/testimony.php" title="Congressional Testimony">Congressional Testimony</a>
+									</li>
+									<li>
+										<a href="/pressroom/presentations.php" title="Presentations">Presentations</a>
+									</li>
+									<li>
+										<a href="/pressroom/events/" title="Events">Events</a>
+									</li>
+								</ul>
+							</div>
+						</div>
+						<div class="news right">
+							<div class="nav-menu upcoming">
+								<span class="ico-menu upcoming-icon"></span>
+								<h3>
+									<a href="/reports/upcoming.php" title="Coming Up">Coming Up</a>
+								</h3>
+								<ul>
+									<h2>Coming Up</h2>
+<ol>
+	  <li>
+    <a href="/naturalgas/storagecapacity/">Underground Natural Gas Working Storage <br>Capacity</a>
+  </li>
+  <li>
+    <a href="/renewable/annual/solar_photo/">Annual Solar Photovoltaic Module Shipments Report</a>
+  </li>
+
+</ol>
+<br>								</ul>
+							</div>
+							<div class="nav-menu featured-reports">
+								<span class="ico-menu featured-reports-icon"></span>
+								<h3>
+									Featured Reports
+								</h3>
+								<p>Reports requested by congress or otherwise deemed important.</p>
+								<ul>
+									<li>
+	<a href="/analysis/transportationfuels/padd2n4/" title="Midwest and Rocky Mountain Transportation Fuels Markets">Midwest and Rocky Mountain Transportation Fuels Markets</a>
+</li>
+<li>
+	<a href="/analysis/transportationfuels/padd1n3/" title="East Coast and Gulf Coast Transportation Fuels Markets">East Coast and Gulf Coast Transportation Fuels Markets</a>
+</li>
+<li>
+	<a href="/analysis/transportationfuels/padd5/" title="West Coast Transportation Fuels Markets">West Coast Transportation Fuels Markets</a>
+</li>
+<li>
+	<a href="/special/disruptions/socal/winter/" title="Southern California Daily Energy Report">Southern California Daily Energy Report</a>
+</li>
+<li>
+	<a href="/outlooks/archive/aeo16/section_issues.php#cpp" title="Effects of the Clean Power Plan">Effects of the Clean Power Plan</a>
+</li>								</ul>
+							</div>
+						</div>
+						<div class="a-z-bottom">
+	<div class="nav-menu a-z-index">
+		<span class="ico-menu a-z-index-icon"></span>
+		<h3>
+			<a href="/tools/a-z/" title="A-Z Index">A-Z Index</a>
+		</h3>
+		<div class="a-z-list">
+			<a href="/tools/a-z/index.php?id=a" title="A">A</a> |
+			<a href="/tools/a-z/index.php?id=b" title="B">B</a> |
+			<a href="/tools/a-z/index.php?id=c" title="C">C</a> |
+			<a href="/tools/a-z/index.php?id=d" title="D">D</a> |
+			<a href="/tools/a-z/index.php?id=e" title="E">E</a> |
+			<a href="/tools/a-z/index.php?id=f" title="F">F</a> |
+			<a href="/tools/a-z/index.php?id=g" title="G">G</a> |
+			<a href="/tools/a-z/index.php?id=h" title="H">H</a> |
+			<a href="/tools/a-z/index.php?id=i" title="I">I</a> |
+			<a href="/tools/a-z/index.php?id=j" title="J">J</a> |
+			<a href="/tools/a-z/index.php?id=k" title="K">K</a> |
+			<a href="/tools/a-z/index.php?id=l" title="L">L</a> |
+			<a href="/tools/a-z/index.php?id=m" title="M">M</a> |
+			<a href="/tools/a-z/index.php?id=n" title="N">N</a> |
+			<a href="/tools/a-z/index.php?id=o" title="O">O</a> |
+			<a href="/tools/a-z/index.php?id=p" title="P">P</a> |
+			<a href="/tools/a-z/index.php?id=q" title="Q">Q</a> |
+			<a href="/tools/a-z/index.php?id=r" title="R">R</a> |
+			<a href="/tools/a-z/index.php?id=s" title="S">S</a> |
+			<a href="/tools/a-z/index.php?id=t" title="Y">T</a> |
+			<a href="/tools/a-z/index.php?id=u" title="U">U</a> |
+			<a href="/tools/a-z/index.php?id=v" title="V">V</a> |
+			<a href="/tools/a-z/index.php?id=w" title="W">W</a> |
+			<a href="/tools/a-z/index.php?id=xyz" title="XYZ">XYZ</a>
+		</div>
+	</div>
+</div>					</div>
+				</div>
+			</div>
+		</div>
+		<div class="nav-search search-panel form-wrapper hide-search-panel">
+			<div class="search">
+				<form accept-charset="UTF-8" action="//search.usa.gov/search" id="search_form" method="get">
+					<input name="utf8" type="hidden" value="&#x2713;" />
+					<input id="affiliate" name="affiliate" type="hidden" value="eia.doe.gov" />
+					<!-- label class="accessibility" for="query">Enter Search Term(s):</label -->
+					<!-- span class="ico-menu search-icon"></span -->
+					<input autocomplete="off" class="usagov-search-autocomplete header-search-input" name="query" id="query" type="text" placeholder="Search eia.gov" />
+					<button type="submit" name="search" id="goBtn" class="button primary">Search</button>
+				</form>
+								<script>
+				//<![CDATA[
+				var usasearch_config = {
+					siteHandle: "eia.doe.gov"
+				};
+				var script = document.createElement("script");
+				script.type = "text/javascript";
+				script.src = "/global/scripts/search.usa.gov/remote.loader.js"; // NOTE this may need to be updated from //search.usa.gov/javascripts/remote.loader.js" periodically
+				document.getElementsByTagName("head")[0].appendChild(script);
+				//]]>
+				</script>
+							</div>
+		</div>
+	</nav>
+</header>
+	<div class="l-outer-wrapper">
+		<div class="l-inner-wrapper">
+
+
+
+
+
+<div class="l-row l-report-header-opendata l-two-col-right-wide">
+	<div class="l-col">
+		<div class="see-all">
+		</div>
+		<h1>
+			OPEN DATA		</h1>
+		<div class="release-dates">
+			<span class="responsive-container">
+				Committed to making energy data more accessible, understandable, relevant, and responsive to your needs.			</span>
+		</div>
+	</div>
+	<div class="l-col opendata-navigation">
+
+		<a href="/opendata/index.php" class="ico api ">
+			<span>API</span>
+		</a>
+		<a href="/opendata/excel/" class="ico addon ">
+			<span>Add-Ons</span>
+		</a>
+		<a href="/opendata/widgets.php" class="ico widgets ">
+			<span>Widgets</span>
+		</a>
+		<a href="/opendata/documentation.php" class="ico intro active">
+			<span>Documentation</span>
+		</a>
+	</div>
+</div><div id="page-content"></div><script>
+	function closeModal() {
+		document.querySelector('#offCanvas').classList.remove('is-opened')
+		document.querySelector('.offcanvas').classList.remove('is-visible')
+	}
+
+	let pageNavScript = document.createElement('script');
+	pageNavScript.setAttribute('src', '/global/scripts/global.page-nav.min.js')
+
+	let pageNavStyle = document.createElement('link')
+	pageNavStyle.setAttribute('href', '/global/styles/global.page-nav.min.css')
+	pageNavStyle.setAttribute('type', 'text/css')
+	pageNavStyle.setAttribute('media', 'screen, projection')
+	pageNavStyle.setAttribute('rel', 'stylesheet')
+	document.head.appendChild(pageNavStyle)
+	document.head.appendChild(pageNavScript)
+</script><div class="l-row l-two-col-right">
+	<div class="l-col">
+
+				<section id="Changelog">
+			<div class="article">
+
+				<h1>API Technical Documentation</h1>
+
+				<hr />
+				<h2 id="">APIv2 Documentation Changelog</h2>
+				<ul></ul>
+				<p><strong>January 2024, v2.1.6: JSON data points standardized as strings</strong></p>
+				<ul class="basic">
+					<li>Added new /electricity/rto data points (sub BAs). These data points required leading zeroes, which could not be expressed as JSON numbers.
+					<li>To maintain data type consistency across routes, the API has been standardized to return data values as strings.
+				</ul>
+
+				<p><strong>March 2023, v2.1.5: Minor bux fixes</strong></p>
+				<ul class="basic">
+					<li>Include EIA Excel Add-in version in the data return from the core API function. </li>
+				</ul>
+
+				<p><strong>February 2023, v2.1.4: Minor bux fixes</strong></p>
+				<ul class="basic">
+					<li>Fix for Excel Add-in for International Series.</li>
+					<li>OGIRS Query fix to pull specific series for Petroleum/Natural Gas routes. </li>
+				</ul>
+
+				<p><strong>February 2023, v2.1.3: Minor bux fixes</strong></p>
+				<ul class="basic">
+					<li>Fix spelling error.</li>
+					<li>Reorder default frequencies.</li>
+					<li>Address minor reported issues.</li>
+				</ul>
+
+				<p><strong>January 2023, v2.1.2: Minor bux fixes</strong></p>
+				<ul class="basic">
+					<li>Common data set fix for all data sets. </li>
+				</ul>
+
+				<p><strong>January 2023, v2.1.1: Minor bux fixes</strong></p>
+				<ul class="basic">
+					<li>New "Unit" column for AEO/IEO controller.</li>
+				</ul>
+
+				<p><strong>November 2022, v2.1.0: Clementia</strong> <em>Feature patch to add backward compatibility and migration features for APIv1</em>.</p>
+				<ul class="basic">
+					<li>Added automatic translation for APIv1 series IDs with the v2 /SeriesID path.</li>
+					<li>Introduced in-return warning messages.</li>
+				</ul>
+
+				<p><strong>November 2022, v2.0.4: Performance Tuning.</strong></p>
+				<ul class="basic">
+					<li>Optimized the back-end route processor to improve performance, especially while under load.</li>
+				</ul>
+				<!-- Removed public-facing debug fields (i.e, "count query execution") -->
+				<p><strong>September 2022, v2.0.3: Minor bux fixes</strong>.</p>
+				<!-- September 2022, v2.0.3: Patched a bug where the length parameter would not honor the 5,000 row return maximum. -->
+				<ul class="basic">
+					<li>Eliminated a bug where use of the <code><span class="hljs-string"><em>length</em></span></code> parameter could returm more than the 5,000 row maximum.</li>
+				</ul>
+				<p><strong>May 2022, v2.0.2: Public Release</strong>
+					<!-- May 2022, v2.0.2: Public release.  Minor labelling and bugfixes, no spec changes. -->
+				</p>
+				<ul class="basic">
+					<li>Added Support for XML output with the <code><span class="hljs-string"><em>out=xml parameter</em></span></code>.</li>
+				</ul>
+				<p><strong>February 2022, v2.0.1: Community Release</strong>
+					<!-- February 2022, v2.0.1: Community Release. First spec of APIv2; no changes. -->.</p>
+				<ul class="basic">
+					<li>Released first spec of APIv2; no changes.</li>
+				</ul>
+			</div>
+		</section>
+
+
+		<section id="Introduction">
+
+			<h2>
+				Introduction			</h2>
+
+			<p>EIA launched its original API in 2012. Since then, internet protocols and standards have evolved. To keep pace with these best practices and provide new, modern features, we have released a second version of our public API (APIv2).</p>
+		</section>
+		<section id="NewFeatures">
+			<h3>
+				New Features			</h3>
+			<p>APIv2&#39;s improvements include:</p>
+			<ul class="basic">
+				<li>
+					A fully RESTful implementation, including routes with a more programmatic syntax.
+				</li>
+				<li>
+					Datasets that are arranged in a logical hierarchy. Member datasets may be discovered by querying their parent node.
+				</li>
+				<li>
+					Modalities, periodicities, and facets, which vary between datasets, that may be specified and queried programmatically.
+				</li>
+				<li>
+					Customizable API returns: specify the columns, date range, and facets you wish to receive, thereby removing the need for client-side processing.
+				</li>
+				<li>
+					Enhanced metadata, specific to the dataset.
+				</li>
+			</ul>
+			<p>Responses to parameters both in the URL and in the HTTP header.</p>
+
+		</section>
+		<section id="APIv1availability">
+			<h3>
+				APIv1 availability			</h3>
+
+			<p>EIA will maintain support for its legacy API (APIv1) until at least January 2023. Some of APIv1&#39;s features are deprecated, meaning that they are available in the API&#39;s original data series and interface, but they are not in APIv2.</p>
+
+			<p>Table 1 summarizes the differences between the API versions. </p>
+			<div class="basic-table">
+				<table class="basic-table align-left-col-2 align-left-col-3 full-width">
+					<caption>Table 1. APIv2 changes</caption>
+					<thead>
+						<tr>
+							<th scope="col">Feature</th>
+							<th scope="col">APIv1 (deprecated; only exists in APIv1)</th>
+							<th scope="col">APIv2 Equivalent</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<th scope="row">HTTP protocols</th>
+							<td>http and https (http to end soon)</td>
+							<td>Only https</td>
+						</tr>
+						<tr>
+							<th scope="row">Geoset query</th>
+							<td>Separate query with the command parameter</td>
+							<td><em>Facet</em> property with values such as [stateid]</td>
+						</tr>
+						<tr>
+							<th scope="row">Relation and category</th>
+							<td>Separate queries with the command parameter</td>
+							<td>Relation and category are inherent to the RESTful route or are expressed in metadata if not in a tree hierarchy</td>
+						</tr>
+						<tr>
+							<th scope="row">Sort</th>
+							<td>N/A</td>
+							<td>A <em>sort</em> parameter</td>
+						</tr>
+						<tr>
+							<th scope="row">Pagination</th>
+							<td><em>Start</em>, <em>end,</em> and <em>num</em> parameters in an HTTP header</td>
+							<td><em>Offset</em> and <em>length</em> parameters</td>
+						</tr>
+						<tr>
+							<th scope="row">Update query</th>
+							<td>Quota‐free query that returns all series in category and their last update expressed in datetime</td>
+							<td>Not supported</td>
+						</tr>
+					</tbody>
+
+				</table>
+			</div>
+			<div class="top-container">
+				<a href="#top" class="top">Top</a>
+			</div>
+		</section>
+		<section id="OverallConcepts">
+			<h2>
+				Overall Concepts			</h2>
+		</section>
+		<section id="Examplesinthisguide">
+			<h3>
+				Examples in this guide			</h3>
+
+			<p>We will gradually build our API queries to harness the power of our API. To keep things simple, we will remain with a single-use case: the retail sales of electricity in Colorado. However, this command syntax applies to all of our APIv2 datasets.</p>
+
+			<p>In this document, italicized code represents deprecated v1 methods that are interacting with our API.</p>
+
+			<p>
+				<code><span class="hljs-string"><em>http://deprecated_code/</em></span></code>
+			</p>
+
+			<p>APIv2 call examples are shown in a bolded, fixed-width font:</p>
+
+			<p>
+				<code><span class="hljs-string"><strong>https://api.eia.gov/API_route</strong></span></code>
+			</p>
+
+			<p>API returns or HTTP headers are shown in a bordered call-out:</p>
+
+			<div class="code-container">
+				<pre><code class="json hljs language-json"><span class="hljs-punctuation">{</span>
+  Return from our API
+<span class="hljs-punctuation">}</span></code></pre>
+			</div>
+
+			<p>In these examples, we&#39;ve added whitespaces and carriage returns for clarity.</p>
+
+			<p>Many of our examples return very large data sets. For brevity, when we omit lines of a return, we&#39;ll denote them with ellipsis (<span class="hljs-etc">…</span>) as follows:</p>
+
+			<div class="code-container">
+				<pre><code class="json hljs language-json">response<span class="hljs-punctuation">: {</span>
+  Thing <span class="hljs-number">1</span>
+  Thing <span class="hljs-number">2</span>
+  Thing <span class="hljs-number">3</span>
+  <span class="hljs-etc">…</span>
+<span class="hljs-punctuation">}</span></code></pre>
+			</div>
+
+			<p>We will use <mark>highlighted, <strong>bold</strong></mark><!-- , shaded text  --> to indicate important code and output.</p>
+
+		</section>
+		<section id="UsinganAPIkey">
+			<h3>
+				Using an API key			</h3>
+
+			<p>To call our API, you must use the unique API key assigned to you. Visit our Open Data pages (<a href="https://www.eia.gov/opendata/" target="_blank">https://www.eia.gov/opendata/</a>) to register for this free key. EIA will send the key automatically to the email address provided.</p>
+
+			<p>To use an API key, place it as a parameter after the route.</p>
+
+			<p>
+				<code class="hljs-string hljs-strong">https://api.eia.gov/API_route?<mark>api_key=xxxxxxx</mark></code>
+			</p>
+
+			<p>Replace <strong>xxxxxx</strong> with the API key transmitted in your email. You must use the API key.</p>
+
+			<h3 id="Submitting">Submitting requests to our RESTful API and legacy APIv1 Series ID</h3>
+
+
+			<p>In APIv2 and beyond, our data series are now organized in a tree-like hierarchy. Our program requests data by expressing a URL path through this tree, which looks like directories in a URL. This result is called a <em>route</em>. <em>For example, here&#39;s the route for retail sales of electricity (note, we always must use our individual API user&#39;s key)</em>:</p>
+			<!--
+		/section>
+		<section id="Submittingrequesttoour">
+			<h3>
+				Submitting request to our RESTful API			</h3
+			-->
+			<p>
+				<code class="hljs-string hljs-strong">https://api.eia.gov/v2/<mark>electricity/retail-sales</del>&amp;api_key=xxxxxx</code>
+			</p>
+			<!--
+
+
+
+				<ul class="basic">
+					<li>
+						<a href="http://restfulapi.net/">http://restfulapi.net</a>
+					</li>
+					<li>
+						<a href="http://en.wikipedia.org/wiki/Representational_stat" target="_blank">http://en.wikipedia.org/wiki/Representational_state_transfer</a>
+					</li>
+				</ul>
+-->
+			<p>In APIv1, we had to know the series ID and express it in an URL call as follows:</p>
+
+			<p>
+				<code><span class="hljs-string"><em>http://api.eia.gov<del>/aeries/?series_id=sssssss</del>&amp;api_key=xxxxxx</em></span></code>
+			</p>
+
+			<p>For the Colorado data mentioned before, the older v1 requesting call would have been:</p>
+
+			<p>
+				<code><span class="hljs-string"><em>http://api.eia.gov/<del>series/?series_id=ELEC.SALES.CO-RES.A</del>&amp;api_key=xxxxxx</em></span></code>
+			</p>
+
+			<p>This APIv1 method is now deprecated .However, if you are fond of APIv1 Series IDs, you may invoke them using the special /series/ route, as follows. Note that we use a full route, but at the end we include the APIv1 Series_ID:</p>
+
+			<p>
+				<!-- code class="hljs-string hljs-strong">https://api.eia.gov/v2/<mark>electricity/retail-sales</mark>&amp;api_key=xxxxxx</code -->
+				<code class="hljs-string hljs-strong">https://api.eia.gov/v2/<mark>seriesid/ELEC.SALES.CO-RES.A</mark>?api_key=xxxxxx</code>
+			</p>
+
+		</section>
+		<section id="Supportingmultipleversi">
+			<h3>
+				Supporting multiple versions of our API			</h3>
+
+			<p>The first node in the route is the version of the API we wish to use. This document invokes our version 2 of the API, so /v2/ appears in all requests.</p>
+
+			<p>
+				<code class="hljs-string hljs-strong">https://api.eia.gov<mark>/v2</mark>/API_route?api_key=xxxxxx</code>
+			</p>
+
+			<!-- p>If we do not explicitly stipulate the version, the API will assume v1. APIv1&#39;s documentation is similarly deprecated, but still supported as of 2022, on our <a href="">Open Data</a> page.</p -->
+			<div class="top-container">
+				<a href="#top" class="top">Top</a>
+			</div>
+		</section>
+		<section id="GeneratinganAPIcall">
+			<h2>
+				Generating an API call			</h2>
+
+			<p>Before we return actual data from the API, we&#39;ll review the API&#39;s syntax and how to discover all the data available.</p>
+
+		</section>
+		<section id="Choosingbetweenparamete">
+			<h3>
+				Choosing between parameter locations			</h3>
+
+			<p>Our API looks for parameters in two locations, either in the URL or in the HTTP headers that we send in the GET request.</p>
+
+			<p>GET places all of of our request variables in the URL itself. For example:</p>
+
+			<p>
+				<code class="hljs-string hljs-strong">http://api.eia.gov/v2/electricity/retail-sales/data/?api_key=xxxxxx&amp;facets<mark>[stateid][]=CO&amp;facets[sectorid][]=RES&amp;frequency=monthly</mark></code>
+			</p>
+
+			<p>In this document, we have placed all our API query parameters in the URL. Some systems enforce a maximum length for URLs, so the API also accepts parameters inside the HTTP GET request.</p>
+
+			<p>To submit this same API call with parameters in this manner, we place our parameters inside the HTTP headers we submit to our API server. Note that our API Key must always appear in the URL; it will not be detected in the HTTP headers.</p>
+
+			<div class="code-container">
+				<pre><code class="json hljs language-json">https<span class="hljs-punctuation">:</span><span class="hljs-comment">//api.eia.gov/v2/electricity/retail-sales/data?Api_key=xxxxxx</span>
+(standard HTTP headers here)
+<span class="hljs-etc">…</span>
+Content-Type<span class="hljs-punctuation">:</span> application/x-www-form-urlencoded facets<span class="hljs-punctuation">[</span>stateid<span class="hljs-punctuation">]</span><span class="hljs-punctuation">[</span><span class="hljs-punctuation">]</span>=CO
+facets<span class="hljs-punctuation">[</span>sectorid<span class="hljs-punctuation">]</span><span class="hljs-punctuation">[</span><span class="hljs-punctuation">]</span>=RES&amp;frequency=monthly</span></code></pre>
+			</div>
+
+		</section>
+		<section id="Understandingreturneder">
+			<h3>
+				Understanding returned error codes			</h3>
+
+			<p>If our query omits a required parameter or contains other syntax errors, the API will respond with the relevant HTTP error codes and, in some cases, additional JSON text explaining the error. For example, if we have data series by month, quarter, and year and we ask for millennia, the API will respond:</p>
+			<div class="code-container">
+				<pre><code class="json hljs language-json"><span class="hljs-punctuation">{</span>
+  error<span class="hljs-punctuation">:</span> <span class="hljs-string">"Invalid frequency 'millenially' provided. The only valid frequencies are 'monthly', 'quarterly', and 'annual'.",</span>
+  code<span class="hljs-punctuation">:</span> <span class="hljs-number">400</span>
+<span class="hljs-punctuation">}</span></code></pre>
+			</div>
+
+		</section>
+		<section id="Debugginginformation">
+			<h3>
+				Debugging information			</h3>
+			<p>Similarly, if the API is able to return a data response to our request but is behaving in a potentially unexpected manner, it will include a warning in addition to the data return.</p>
+			<p>For example, our API only returns a maximum of 5,000 rows, even if more data points are responsive to your request. The API will return as many rows as it can, along with this warning:</p>
+			<div class="code-container">
+				<pre><code class="json hljs language-json"><span class="hljs-punctuation">{</span>
+warning<span class="hljs-punctuation">:</span> <span class="hljs-string">"parameter out of range"</span>
+description<span class="hljs-punctuation">:</span> <span class="hljs-string">"The API can only return 5000 rows in JSON format. Please consider constraining your request with facet, start, or end, or using offset to paginate results."</span>
+<span class="hljs-punctuation">}</span></code></pre>
+			</div>
+
+
+
+		</section>
+		<section id="IteratingthroughtheAPI">
+			<h3>
+				Iterating through the API&#039;s tree and its metadata			</h3>
+
+			<p>At the end of every return, the API will echo back what it understood to be our request. This response may be helpful while debugging advanced queries. The API will also identify the version of the API we are interacting with, so we can pair it with the correct technical documentation and other dependencies.</p>
+
+			<div class="code-container">
+				<pre><code class="json hljs language-json"><span class="hljs-punctuation">{</span>
+  response<span class="hljs-punctuation">: {</span>
+    <span class="hljs-etc">…</span>
+  <span class="hljs-punctuation">},</span>
+  request<span class="hljs-punctuation">: {</span>
+    command<span class="hljs-punctuation">:</span> <span class="hljs-string">"/v2/electricity/"</span><span class="hljs-punctuation">,</span>
+    params<span class="hljs-punctuation">: {</span>
+      api_key<span class="hljs-punctuation">:</span> <span class="hljs-string">"xxxxxx"</span>
+		<span class="hljs-etc">…</span>
+    <span class="hljs-punctuation">}</span>
+  <span class="hljs-punctuation">}</span>
+  <mark><strong>apiVersion<span class="hljs-punctuation">:</span> <span class="hljs-string">"2.1.0"</span></strong></mark>
+<span class="hljs-punctuation">}</span></code></pre>
+			</div>
+		</section>
+		<section id="Examiningametadatarequ">
+			<h3>
+				Examining a metadata request			</h3>
+			<p>Discovering datasets should be much easier in APIv2 because the API now self-documents and organizes itself in a data hierarchy. Parent datasets have child datasets, which may have children of their own, and so on. To investigate what datasets are available, we request a parent node. The API will respond with the child datasets (routes) for the path we&#39;ve requested.</p>
+
+			<p>In our ongoing example, we&#39;re looking for retail sales of electricity in Colorado. Let&#39;s start at the top and ask about electricity data, as follows:</p>
+
+			<p>
+				<code class="hljs-string hljs-strong">https://api.eia.gov/v2/<mark>electricity</del>&amp;api_key=xxxxxx</code>
+			</p>
+
+			<p>If we don&#39;t include <code class="hljs-string hljs-strong">/data</code> as the last node in our route or if we request a parent node with multiple data series as children, the API will return metadata pertaining to our request. Some fields returned (depending on the series) may include:</p>
+
+			<ul class="basic">
+				<li>
+					A long-form description
+				</li>
+				<li>
+					Available frequencies and periodicities
+				</li>
+				<li>
+					Optional data facets (such as a state location or PADD region)
+				</li>
+				<li>Child data series</li>
+			</ul>
+
+			<div class="code-container">
+				<pre><code class="json hljs language-json">response<span class="hljs-punctuation">: {</span>
+  <mark><strong>id<span class="hljs-punctuation">:</span> <span class="hljs-string">"electricity"</span><span class="hljs-punctuation">,</span></strong></mark>
+  name<span class="hljs-punctuation">:</span> <span class="hljs-string">"Electricity"</span><span class="hljs-punctuation">,</span>
+  description<span class="hljs-punctuation">:</span> <span class="hljs-string">"EIA electricity survey data"</span><span class="hljs-punctuation">,</span>
+  routes<span class="hljs-punctuation">: [</span>
+    <span class="hljs-punctuation">{</span>
+      <mark><strong>id<span class="hljs-punctuation">:</span> <span class="hljs-string">"retail-sales"</span><span class="hljs-punctuation">,</span></strong></mark>
+      name<span class="hljs-punctuation">:</span> <span class="hljs-string">"Electricity Sales to Ultimate Customers"</span><span class="hljs-punctuation">,</span>
+      description<span class="hljs-punctuation">:</span> <span class="hljs-string">"Electricity sales to ultimate customer by state and sector (number of customers, average price, revenue, and megawatthours of sales). Sources: Forms EIA-826, EIA-861, EIA-861M"</span>
+    <span class="hljs-punctuation">},</span>
+    <span class="hljs-punctuation">{</span>
+      <mark><strong>id<span class="hljs-punctuation">:</span> <span class="hljs-string">"electricity-power-operational-data"</span><span class="hljs-punctuation">,</span></strong></mark>
+      name<span class="hljs-punctuation">:</span> <span class="hljs-string">"Electric Power Operations (Annual and Monthly)"</span><span class="hljs-punctuation">,</span>
+      description<span class="hljs-punctuation">:</span> <span class="hljs-string">"Monthly and annual electric power operations by state, sector, and energy source. Source: Form EIA-923"</span>
+    <span class="hljs-punctuation">},</span>
+    <span class="hljs-punctuation">{</span>
+      <mark><strong>id<span class="hljs-punctuation">:</span> <span class="hljs-string">"rto"</span><span class="hljs-punctuation">,</span></strong></mark>
+      <span class="hljs-etc">…</span>
+    <span class="hljs-punctuation">},</span>
+    <span class="hljs-punctuation">{</span>
+      <mark><strong>id<span class="hljs-punctuation">:</span> <span class="hljs-string">"state-electricity-profiles"</span><span class="hljs-punctuation">,</span></strong></mark>
+      <span class="hljs-etc">…</span>
+    <span class="hljs-punctuation">},</span>
+    <span class="hljs-punctuation">{</span>
+      <mark><strong>id<span class="hljs-punctuation">:</span> <span class="hljs-string">"operating-generator-capacity"</span><span class="hljs-punctuation">,</span></strong></mark>
+      <span class="hljs-etc">…</span>
+    <span class="hljs-punctuation">},</span>
+    <span class="hljs-punctuation">{</span>
+      <mark><strong>id<span class="hljs-punctuation">:</span> <span class="hljs-string">"facility-fuel"</span><span class="hljs-punctuation">,</span></strong></mark>
+      <span class="hljs-etc">…</span>
+    <span class="hljs-punctuation">}</span>
+  <span class="hljs-punctuation">]</span>
+<span class="hljs-punctuation">},</span>
+<span class="hljs-etc">…</span></code></pre>
+			</div>
+
+			<p>In this case, the <code class="hljs-string hljs-strong">/electricity</code> route has several child routes. No data is specific to the master category of electricity. To explore one step further down our data hierarchy, we added our choice of these nodes to our previous URL routes, like so:</p>
+
+			<p>
+				<code class="hljs-string hljs-strong"><mark>https://api.eia.gov/</mark>v2/electricity/retail-sales<mark>?api_key=xxxxxx</mark></code>
+			</p>
+
+			<p>
+				<code class="hljs-string hljs-strong">https://api.eia.gov/v2<mark>/</mark>electricity/<mark>electricity-power-operational-data</mark>?api_key=xxxxxx</code>
+			</p>
+
+			<p>
+				<code class="hljs-string hljs-strong">https://api.eia.gov/v2<mark>/</mark>electricity/<mark>rto</mark>?api_key=xxxxxx</code>
+			</p>
+
+			<p>
+				<code class="hljs-string hljs-strong">https://api.eia.gov/v2<mark>/</mark>electricity/<mark>state-electricity-profiles</mark>?api_key=xxxxxx</code>
+			</p>
+
+			<p>
+				<code class="hljs-string hljs-strong">https://api.eia.gov/v2<mark>/</mark>electricity/<mark>operating-generator-capacity</mark>?api_key=xxxxxx</code>
+			</p>
+
+			<p>
+				<code class="hljs-string hljs-strong">https://api.eia.gov/v2<mark>/</mark>electricity/<mark>facility-fuel</mark>?api_key=xxxxxx</code>
+			</p>
+
+
+			<p>Using this mechanic, we can programmatically iterate through our data hierarchy.</p>
+
+			<h4><em>A word on API key limits</em></h4>
+
+			<p>Some programmers may create recursion routines to scrape our 2M+ data series automatically. Although they are free to do so, these programs must throttle the number of the requests they make per second and per hour. If you exceed these tolerances, your API key will be automatically but temporarily suspended, and it will be automatically reactivated after a brief cool down period. You will receive an error message informing you if this condition occurs. More specific information about these throttles are documented on our Open Data web pages.</p>
+
+		</section>
+		<section id="Facetsandtheiravailabl">
+			<h3>
+				Facets and their available values			</h3>
+
+			<p>Let&#39;s explore one of these paths. We&#39;ll search for retail sales of electricity. We&#39;re not using <strong>/data</strong> yet, so we wouldn&#39;t receive data values. However, we will receive a metadata return. Here&#39;s our API call:</p>
+			<p>
+				<code class="hljs-string hljs-strong">https://api.eia.gov/v2/electricity<mark>/retail-sales</mark>?api_key=xxxxxx</code>
+			</p>
+
+			<br />&#160;<br />
+
+			<div class="code-container">
+				<pre><code class="json hljs language-json">response<span class="hljs-punctuation">: {</span>
+  id<span class="hljs-punctuation">:</span> <span class="hljs-string">"retail-sales"</span><span class="hljs-punctuation">,</span>
+  name<span class="hljs-punctuation">:</span> <span class="hljs-string">"Electricity Sales to Ultimate Customers"</span><span class="hljs-punctuation">,</span>
+  description<span class="hljs-punctuation">:</span> <span class="hljs-string">"Electricity sales to ultimate customer by state and sector (number of customers, average price, revenue, and megawatthours of sales).
+  Sources: Forms EIA-826, EIA-861, EIA-861M"</span><span class="hljs-punctuation">,</span>
+  frequency<span class="hljs-punctuation">: [</span>
+    <span class="hljs-punctuation">{</span>
+      id<span class="hljs-punctuation">:</span> <span class="hljs-string">"monthly"</span><span class="hljs-punctuation">,</span>
+      description<span class="hljs-punctuation">:</span> <span class="hljs-string">"one data point for each month."</span><span class="hljs-punctuation">,</span>
+      query<span class="hljs-punctuation">:</span> <span class="hljs-string">"M"</span><span class="hljs-punctuation">,</span>
+      format<span class="hljs-punctuation">:</span> <span class="hljs-string">"YYYY-MM"</span>
+    <span class="hljs-punctuation">},</span>
+    <span class="hljs-punctuation">{</span>
+      id<span class="hljs-punctuation">:</span> <span class="hljs-string">"quarterly"</span><span class="hljs-punctuation">,</span>
+      <span class="hljs-etc">…</span>
+    <span class="hljs-punctuation">},</span>
+      id<span class="hljs-punctuation">:</span> <span class="hljs-string">"yearly"</span><span class="hljs-punctuation">,</span>
+      <span class="hljs-etc">…</span>
+    <span class="hljs-punctuation">}</span>
+  <span class="hljs-punctuation">]</span><span class="hljs-punctuation">,</span>
+  facets<span class="hljs-punctuation">: [</span>
+    <span class="hljs-punctuation">{</span>
+      id<span class="hljs-punctuation">:</span> <span class="hljs-string">"stateid"</span><span class="hljs-punctuation">,</span>
+      description<span class="hljs-punctuation">:</span> <span class="hljs-string">"State / Census Region"</span>
+    <span class="hljs-punctuation">}</span>
+    <span class="hljs-punctuation">{</span>
+      id<span class="hljs-punctuation">:</span> <span class="hljs-string">"sectorid"</span><span class="hljs-punctuation">,</span>
+      <span class="hljs-comment">//metadata for this facet "sector"</span>
+      <span class="hljs-etc">…</span>
+    <span class="hljs-punctuation">}</span>
+  <span class="hljs-punctuation">]</span><span class="hljs-punctuation">,</span>
+  data<span class="hljs-punctuation">: {</span>
+    revenue<span class="hljs-punctuation">: {</span>
+      alias<span class="hljs-punctuation">:</span> <span class="hljs-string">"Revenue from Sales to Ultimate Customers"</span><span class="hljs-punctuation">,</span>
+      units<span class="hljs-punctuation">:</span> <span class="hljs-string">"million dollars"</span>
+    <span class="hljs-punctuation">},</span>
+    sales<span class="hljs-punctuation">: {</span>
+      alias<span class="hljs-punctuation">:</span> <span class="hljs-string">"Megawatthours Sold to Ultimate Customers"</span><span class="hljs-punctuation">,</span>
+      units<span class="hljs-punctuation">:</span> <span class="hljs-string">"million kilowatthours"</span>
+    <span class="hljs-punctuation">},</span>
+    price<span class="hljs-punctuation">: {</span>
+      alias<span class="hljs-punctuation">:</span> <span class="hljs-string">"Average Price of Electricity to Ultimate Customers"</span><span class="hljs-punctuation">,</span>
+      units<span class="hljs-punctuation">:</span> <span class="hljs-string">"cents per kilowatthour"</span>
+    <span class="hljs-punctuation">},</span>
+    customers<span class="hljs-punctuation">: {</span>
+      alias<span class="hljs-punctuation">:</span> <span class="hljs-string">"Number of Ultimate Customers"</span><span class="hljs-punctuation">,</span>
+      units<span class="hljs-punctuation">:</span> <span class="hljs-string">"Number of customers"</span>
+    <span class="hljs-punctuation">}</span>
+  <span class="hljs-punctuation">},</span>
+
+  startPeriod<span class="hljs-punctuation">:</span> <span class="hljs-number">"2001-01"</span><span class="hljs-punctuation">,</span>
+  endPeriod<span class="hljs-punctuation">:</span> <span class="hljs-number">"2022-07"</span><span class="hljs-punctuation">,</span>
+  defaultDateFormat<span class="hljs-punctuation">:</span> <span class="hljs-string">"YYYY-MM"</span><span class="hljs-punctuation">,</span>
+  defaultFrequency<span class="hljs-punctuation">:</span> <span class="hljs-string">"frequency"</span>
+  <span class="hljs-comment">// Additional metadata here, if available</span>
+<span class="hljs-punctuation">}</span></code></pre>
+			</div>
+
+			<p>From this return, we see that the following data dimensions are available:</p>
+
+			<ul class="basic">
+				<li>
+					Three periodicities (frequencies) of data: monthly, quarterly, and annual
+				</li>
+				<li>
+					Two facets for further filtering: location and sector
+				</li>
+				<li>
+					Data columns that will contain individual values: revenue, sales, price, and customers
+				</li>
+				<li>
+					Additional metadata such as the range of available data, and default parameters should we choose not to explicitly stipulate them
+				</li>
+			</ul>
+
+			<p>This example return contains the metadata specific to retail sales of electricity. Other routes, many concerning different energy sources, are likely to have different metadata, specific and germane to their context.</p>
+
+		</section>
+		<section id="Returningmetadatavssp">
+			<h3>
+				Returning metadata vs. specific data values			</h3>
+
+			<h4>
+				<!-- h6 --><em>Determine the variables we can pass into the API to customize results</em>
+			</h4>
+
+			<p>In the previous example, we asked for metadata about retail sales of electricity. We saw two facets: location and sector. To determine what the appropriate values for those are, we query on that facet itself Let&#39;s try asking for all available sectors by specifying the <code class="hljs-string hljs-strong">sectorid</code> facet:</p>
+
+			<p>
+				<code class="hljs-string hljs-strong">https://api.eia.gov/v2/electricity/retail sales/facet/sectorid/?api_key=xxxxxx</code>
+			</p>
+
+			<br />&#160;<br />
+
+			<div class="code-container">
+				<pre><code class="json hljs language-json">response<span class="hljs-punctuation">: {</span>
+  totalFacets<span class="hljs-punctuation">:</span> <span class="hljs-number">"6"</span><span class="hljs-punctuation">,</span>
+  facets<span class="hljs-punctuation">: [</span>
+    <span class="hljs-punctuation">{</span>
+      <mark><strong>id<span class="hljs-punctuation">:</span> <span class="hljs-string">"COM"</span><span class="hljs-punctuation">,</span></strong></mark>
+      name<span class="hljs-punctuation">:</span> <span class="hljs-string">"commercial"</span><span class="hljs-punctuation">,</span> alias<span class="hljs-punctuation">:</span> <span class="hljs-string">"(COM) commercial"</span>
+    <span class="hljs-punctuation">},</span>
+    <span class="hljs-punctuation">{</span>
+      <mark><strong>id<span class="hljs-punctuation">:</span> <span class="hljs-string">"RES"</span><span class="hljs-punctuation">,</span></strong></mark>
+      name<span class="hljs-punctuation">:</span> <span class="hljs-string">"residential"</span><span class="hljs-punctuation">,</span>
+      alias<span class="hljs-punctuation">:</span> <span class="hljs-string">"(RES) residential"</span>
+    <span class="hljs-punctuation">},</span>
+    <span class="hljs-punctuation">{</span>
+      <mark><strong>id<span class="hljs-punctuation">:</span> <span class="hljs-string">"ALL"</span><span class="hljs-punctuation">,</span></strong></mark>
+      name<span class="hljs-punctuation">:</span> <span class="hljs-string">"all sectors"</span><span class="hljs-punctuation">,</span>
+      alias<span class="hljs-punctuation">:</span> <span class="hljs-string">"(ALL) all sectors"</span>
+    <span class="hljs-punctuation">},</span>
+    <span class="hljs-punctuation">{</span>
+      <mark><strong>id<span class="hljs-punctuation">:</span> <span class="hljs-string">"OTH"</span><span class="hljs-punctuation">,</span></strong></mark>
+      name<span class="hljs-punctuation">:</span> <span class="hljs-string">"other"</span><span class="hljs-punctuation">,</span>
+      alias<span class="hljs-punctuation">:</span> <span class="hljs-string">"(OTH) other"</span>
+    <span class="hljs-punctuation">},</span>
+    <span class="hljs-punctuation">{</span>
+      <mark><strong>id<span class="hljs-punctuation">:</span> <span class="hljs-string">"TRA"</span><span class="hljs-punctuation">,</span></strong></mark>
+      name<span class="hljs-punctuation">:</span> <span class="hljs-string">"transportation"</span><span class="hljs-punctuation">,</span>
+      alias<span class="hljs-punctuation">:</span> <span class="hljs-string">"(TRA) transportation"</span>
+    <span class="hljs-punctuation">},</span>
+    <span class="hljs-punctuation">{</span>
+      <mark><strong>id<span class="hljs-punctuation">:</span> <span class="hljs-string">"IND"</span><span class="hljs-punctuation">,</span></strong></mark>
+      name<span class="hljs-punctuation">:</span> <span class="hljs-string">"industrial"</span><span class="hljs-punctuation">,</span>
+      alias<span class="hljs-punctuation">:</span> <span class="hljs-string">"(IND) industrial"</span>
+    <span class="hljs-punctuation">}</span>
+  <span class="hljs-punctuation">]</span>
+<span class="hljs-punctuation">},</span>
+<span class="hljs-etc">…</span></code></pre>
+			</div>
+
+			<p>The API reports six available values for the facet <code class="hljs-string hljs-strong">sectorid</code>: COM, RES, ALL, OTH, TRA, and IND.</p>
+
+			<p>We can query on a <code class="hljs-string hljs-strong">sectorid</code> not in this list, for example <em>xxx</em>. The API won&#39;t return an error―because that&#39;s a valid query. However, we won&#39;t receive any data returns either, because the <em>xxx</em> sector doesn&#39;t have any data points.</p>
+
+		</section>
+		<section id="Parameters">
+			<h3>
+				Parameters			</h3>
+
+			<p>To request data points from the API, we stipulate <code class="hljs-string hljs-strong">/data</code> as the final node in our API call. For example:</p>
+
+			<p>
+				<code class="hljs-string hljs-strong">https://api.eia.gov/v2/electricity/retail-sales<mark>/data</mark>?api_key=xxxxxx</code>
+			</p>
+
+			<p>The API will now return all data columns relevant to our query.</p>
+
+			<div class="code-container">
+				<pre><code class="json hljs language-json">response<span class="hljs-punctuation">: {</span>
+  total<span class="hljs-punctuation">:</span> <span class="hljs-number">"7440"</span><span class="hljs-punctuation">,</span>
+  dateFormat<span class="hljs-punctuation">:</span> <span class="hljs-string">"YYYY"</span><span class="hljs-punctuation">,</span>
+  frequency<span class="hljs-punctuation">:</span> <span class="hljs-string">"annual"</span><span class="hljs-punctuation">,</span>
+  data<span class="hljs-punctuation">: [</span>
+    <span class="hljs-punctuation">{</span>
+      period<span class="hljs-punctuation">:</span> <span class="hljs-string">"2001"</span><span class="hljs-punctuation">,</span>
+      stateid<span class="hljs-punctuation">:</span> <span class="hljs-string">"AL"</span><span class="hljs-punctuation">,</span>
+      stateDescription<span class="hljs-punctuation">:</span> <span class="hljs-string">"Alabama"</span><span class="hljs-punctuation">,</span>
+      sectorid<span class="hljs-punctuation">:</span> <span class="hljs-string">"ALL"</span><span class="hljs-punctuation">,</span>
+      sectorName<span class="hljs-punctuation">:</span> <span class="hljs-string">"all sectors"</span>
+    <span class="hljs-punctuation">},
+    {</span>
+      period<span class="hljs-punctuation">:</span> <span class="hljs-string">"2001"</span><span class="hljs-punctuation">,</span>
+      stateid<span class="hljs-punctuation">:</span> <span class="hljs-string">"AL"</span><span class="hljs-punctuation">,</span>
+      stateDescription<span class="hljs-punctuation">:</span> <span class="hljs-string">"Alabama"</span><span class="hljs-punctuation">,</span>
+      sectorid<span class="hljs-punctuation">:</span> <span class="hljs-string">"CO"</span><span class="hljs-punctuation">,</span>
+      sectorName<span class="hljs-punctuation">:</span> <span class="hljs-string">"commercial"</span>
+    <span class="hljs-punctuation">},</span>
+  <span class="hljs-etc">…</span>
+  <span class="hljs-punctuation">]</span>
+<span class="hljs-punctuation">},</span>
+<span class="hljs-etc">…</span></code></pre>
+			</div>
+
+			<p>Note that there are no values here, yet. Later, we&#39;ll specify the data points we want to receive using the <code class="hljs-string hljs-strong">data[]</code> parameter, which returns columns of data.</p>
+			<div class="top-container">
+				<a href="#top" class="top">Top</a>
+			</div>
+		</section>
+		<section id="Data">
+			<h2>
+				Data []			</h2>
+
+			<p>Now that we have the API answering our requests and we know how to explore routes, metadata, and facets, let&#39;s get some data points out of it.</p>
+
+			<p>We may use a variety of parameters in our query to customize the return&#39;s results. We&#39;ll go over each parameter in turn. By doing so, we&#39;ll slowly build a robust API request.</p>
+
+		</section>
+		<section id="Facets">
+			<h3>
+				Facets			</h3>
+
+			<h4>
+				<!-- h6 --><em>(Optional, but required to receive data values) For the given route, specifies the data columns available to be returned</em>
+			</h4>
+
+			<p>To retrieve data points and their values from the API, we need to specify the specific columns we are interested in. In this document, we&#39;ve been asking about electricity residential sales, but many data points about that subject matter are available. As of early 2022, our API has data values on revenue, sales, price, and number of customers.</p>
+
+			<p>In earlier examples, when we asked about the metadata, the API responded with these available data points:</p>
+
+			<p>
+				<code class="hljs-string hljs-strong">https://api.eia.gov/v2/electricity/retail-sales/?api_key=xxxxxx</code>
+			</p>
+
+			<br />&#160;<br />
+
+			<div class="code-container">
+				<pre><code class="json hljs language-json"><span class="hljs-etc">…</span>
+data<span class="hljs-punctuation">: {</span>
+  revenue<span class="hljs-punctuation">: {</span>
+    units<span class="hljs-punctuation">:</span> <span class="hljs-string">"dollars"</span>
+  <span class="hljs-punctuation">},</span>
+  sales<span class="hljs-punctuation">: {</span>
+    units<span class="hljs-punctuation">:</span> <span class="hljs-string">"kilowatthours"</span>
+  <span class="hljs-punctuation">},</span>
+  price<span class="hljs-punctuation">: {</span>
+    units<span class="hljs-punctuation">:</span> <span class="hljs-string">"dollars per kilowatthour"</span>
+  <span class="hljs-punctuation">}</span>
+  <span class="hljs-comment">//Additional data values, if available</span>
+<span class="hljs-punctuation">}</span></code></pre>
+			</div>
+
+			<p>Given these columns, let&#39;s ask for the price. Remember, in addition to specifying the column in the <code class="hljs-string hljs-strong">data[]</code> parameter, we must also specify <code class="hljs-string hljs-strong">/data</code> as the last node in the route:</p>
+
+			<p>
+				<code class="hljs-string hljs-strong">https://api.eia.gov/v2/electricity/retail-sales<mark>/data</mark>/?api_key=XXXXXX<mark>&amp;data[]=price</mark></code>
+			</p>
+
+			<p>The response is a very large data set. We didn&#39;t specify any facets or filters, so the API returned as many values as it could. <strong>The API will not return more than 5,000 rows of data points</strong>. However, it will identify the total number of rows that are responsive to our request in the response header. In this case, 7,440 data rows match the API request we just made.</p>
+
+			<p>Here are the first few rows (as data is added and updated, these data points may change):</p>
+
+			<div class="code-container">
+				<pre><code class="json hljs language-json">response<span class="hljs-punctuation">: {</span>
+  <mark><strong>total<span class="hljs-punctuation">:</span> <span class="hljs-number">"7440"</span><span class="hljs-punctuation">,</span></strong></mark>
+  dateFormat<span class="hljs-punctuation">:</span> <span class="hljs-string">"YYYY"</span><span class="hljs-punctuation">,</span>
+  frequency<span class="hljs-punctuation">:</span> <span class="hljs-string">"annual"</span><span class="hljs-punctuation">,</span>
+  data<span class="hljs-punctuation">: [</span>
+    <span class="hljs-punctuation">{</span>
+      period<span class="hljs-punctuation">:</span> <span class="hljs-string">"2010"</span><span class="hljs-punctuation">,</span>
+      stateid<span class="hljs-punctuation">:</span> <span class="hljs-string">"AZ"</span><span class="hljs-punctuation">,</span>
+      stateDescription<span class="hljs-punctuation">:</span> <span class="hljs-string">"Arizona"</span><span class="hljs-punctuation">,</span>
+      sectorid<span class="hljs-punctuation">:</span> <span class="hljs-string">"TRA"</span><span class="hljs-punctuation">,</span>
+      sectorName<span class="hljs-punctuation">:</span> <span class="hljs-string">"transportation"</span><span class="hljs-punctuation">,</span>
+      price<span class="hljs-punctuation">:</span> <span class="hljs-number">"0"</span><span class="hljs-punctuation">,</span>
+      price-units<span class="hljs-punctuation">:</span> <span class="hljs-string">"cents per kilowatthour"</span>
+    <span class="hljs-punctuation">},
+    {</span>
+      period<span class="hljs-punctuation">:</span> <span class="hljs-string">"2010"</span><span class="hljs-punctuation">,</span>
+      stateid<span class="hljs-punctuation">:</span> <span class="hljs-string">"AR"</span><span class="hljs-punctuation">,</span>
+      stateDescription<span class="hljs-punctuation">:</span> <span class="hljs-string">"Arkansas"</span><span class="hljs-punctuation">,</span>
+      sectorid<span class="hljs-punctuation">:</span> <span class="hljs-string">"ALL"</span><span class="hljs-punctuation">,</span>
+      sectorName<span class="hljs-punctuation">:</span> <span class="hljs-string">"all sectors"</span><span class="hljs-punctuation">,</span> price<span class="hljs-punctuation">:</span> <span class="hljs-number">"7.28"</span><span class="hljs-punctuation">,</span>
+      price-units<span class="hljs-punctuation">:</span> <span class="hljs-string">"cents per kilowatthour"</span>
+    <span class="hljs-punctuation">},</span>
+    <span class="hljs-etc">…</span> <span class="hljs-comment">//additional returns</span>
+  <span class="hljs-punctuation">]</span>
+<span class="hljs-punctuation">}</span></code></pre>
+			</div>
+
+			<p>We can request multiple data columns be returned. Let&#39;s add the revenue column to our last query:</p>
+
+			<p>
+				<code class="hljs-string hljs-strong">https://api.eia.gov/v2/electricity/retail-sales/data/?api_key=XXXXXX<mark>&amp;data[0]=price&amp;data[1]=revenue</mark></code>
+			</p>
+
+			<br />&#160;<br />
+
+			<div class="code-container">
+				<pre><code class="json hljs language-json">data<span class="hljs-punctuation">:</span>
+  <span class="hljs-punctuation">[</span>
+    <span class="hljs-punctuation">{</span>
+      period<span class="hljs-punctuation">:</span> <span class="hljs-number">"2010"</span><span class="hljs-punctuation">,</span>
+      stateid<span class="hljs-punctuation">:</span> <span class="hljs-string">"AZ"</span><span class="hljs-punctuation">,</span>
+      stateDescription<span class="hljs-punctuation">:</span> <span class="hljs-string">"Arizona"</span><span class="hljs-punctuation">,</span>
+      sectorid<span class="hljs-punctuation">:</span> <span class="hljs-string">"TRA"</span><span class="hljs-punctuation">,</span>
+      sectorName<span class="hljs-punctuation">:</span> <span class="hljs-string">"transportation"</span><span class="hljs-punctuation">,</span>
+      <mark><strong>price<span class="hljs-punctuation">:</span> <span class="hljs-number">"0"</span><span class="hljs-punctuation">,</span></strong></mark>
+      <mark><strong>revenue<span class="hljs-punctuation">:</span> <span class="hljs-number">"0"</span><span class="hljs-punctuation">,</span></strong></mark>
+      price-units<span class="hljs-punctuation">:</span> <span class="hljs-string">"cents per kilowatthour"</span><span class="hljs-punctuation">,</span>
+      revenue-units<span class="hljs-punctuation">:</span> <span class="hljs-string">"million dollars"</span>
+    <span class="hljs-punctuation">},</span>
+    <span class="hljs-etc">…</span>
+  <span class="hljs-punctuation">]</span></code></pre>
+			</div>
+
+			<p>We do not need to manually stipulate the members of the array; our API will automatically create it for us. This query also works:</p>
+
+			<p>
+				<code class="hljs-string hljs-strong">https://api.eia.gov/v2/electricity/retail-sales/data/?api_key=XXXXXX<mark>&amp;data[]=price&amp;data[]=revenue</mark></code>
+			</p>
+
+			<p>and will produce the same return:</p>
+
+			<div class="code-container">
+				<pre><code class="json hljs language-json">data<span class="hljs-punctuation">: [</span>
+  <span class="hljs-punctuation">{</span>
+    period<span class="hljs-punctuation">:</span> <span class="hljs-number">"2010"</span><span class="hljs-punctuation">,</span>
+    stateid<span class="hljs-punctuation">:</span> <span class="hljs-string">"AZ"</span><span class="hljs-punctuation">,</span>
+    stateDescription<span class="hljs-punctuation">:</span> <span class="hljs-string">"Arizona"</span><span class="hljs-punctuation">,</span>
+    sectorid<span class="hljs-punctuation">:</span> <span class="hljs-string">"TRA"</span><span class="hljs-punctuation">,</span>
+    sectorName<span class="hljs-punctuation">:</span> <span class="hljs-string">"transportation"</span><span class="hljs-punctuation">,</span>
+    <mark><strong>price<span class="hljs-punctuation">:</span> <span class="hljs-number">"0"</span><span class="hljs-punctuation">,</span></strong></mark>
+    <mark><strong>revenue<span class="hljs-punctuation">:</span> <span class="hljs-number">"0"</span><span class="hljs-punctuation">,</span></strong></mark>
+    price-units<span class="hljs-punctuation">:</span> <span class="hljs-string">"cents per kilowatthour"</span><span class="hljs-punctuation">,</span>
+    revenue-units<span class="hljs-punctuation">:</span> <span class="hljs-string">"million dollars"</span>
+  <span class="hljs-punctuation">},</span>
+  <span class="hljs-etc">…</span>
+<span class="hljs-punctuation">]</span></code></pre>
+			</div>
+
+		</section>
+		<section id="Frequency">
+			<h3>
+				Frequency			</h3>
+
+			<h4>
+				<!-- h6 --><em>(Optional) Filters the API&#39;s response based on our requested location, sector, or other data filters</em>em>
+			</h4>
+
+			<p>Most of our data series have one or more query facets. If we query a series that has these facets without stipulating one or more of them, the API will respond with all matching data. The result can be a very large return. Facets enable us to filter the data of concern to us, shrinking the size of the returns to a more manageable size.</p>
+
+			<p>For example, our retail sales of electricity has the <code class="hljs-string hljs-strong">location</code> and <code class="hljs-string hljs-strong">sector</code> facets. If we query the route (without specifying <code class="hljs-string hljs-strong">/data</code>), the API will tell us the facets that are relevant to that route.</p>
+
+			<p>
+				<code class="hljs-string hljs-strong">https://api.eia.gov/v2/electricity/retail-sales/?api_key=xxxxxx</code>
+			</p>
+
+			<br />&#160;<br />
+
+			<div class="code-container">
+				<pre><code class="json hljs language-json"><span class="hljs-etc">…</span>
+<mark><strong>facets<span class="hljs-punctuation">: [</span>
+  <span class="hljs-punctuation">{</span>
+    id<span class="hljs-punctuation">:</span> <span class="hljs-string">"stateid"</span><span class="hljs-punctuation">,</span>
+    description<span class="hljs-punctuation">:</span> <span class="hljs-string">"State / Census Region"</span>
+  <span class="hljs-punctuation">},</span>
+  <span class="hljs-punctuation">{</span>
+    id<span class="hljs-punctuation">:</span> <span class="hljs-string">"sectorid"</span><span class="hljs-punctuation">,</span> description<span class="hljs-punctuation">:</span> <span class="hljs-string">"Sector"</span>
+    description<span class="hljs-punctuation">:</span> <span class="hljs-string">"sector"</span>
+  <span class="hljs-punctuation">}</span>
+<span class="hljs-punctuation">]</span></strong></mark></code></pre>
+			</div>
+
+			<p>Let&#39;s go back to our data query above and its very large return. To focus on residential sales, we&#39;ll add the <code class="hljs-string hljs-strong">sectorid</code> facet, and set it equal to <strong>RES</strong> (<strong>RES</strong> is the <code class="hljs-string hljs-strong">sectorid</code> for residential, as we learned from our metadata queries earlier).</p>
+
+			<p>
+				<code class="hljs-string hljs-strong">https://api.eia.gov/v2/electricity/retail-sales/data?api_key=xxxxxx&amp;data[]=price<mark>&amp;facets[sectorid][]=RES</mark></code>
+			</p>
+			<p>Now, we receive data that&#39;s only for the residential sector.</p>
+
+			<p>We may stipulate more than one facet in a call. Do so by invoking multiple facet parameters. To whittle down our query, let&#39;s specify electricity prices in Colorado <em>and </em>those for the residential sector.</p>
+
+			<p>To do so, we&#39;ll add the <code class="hljs-string hljs-strong">facet[stateid]</code> and set it to CO</code>. Remember to ask for a column return, in this case, price:</p>
+
+			<p>
+				<code class="hljs-string hljs-strong">https://api.eia.gov/v2/electricity/retail-sales/data?api_key=xxxxxx&amp;data[]=price&amp;facets[sectorid][]=RES<mark>&amp;facets[stateid][]=CO</mark></code>
+			</p>
+
+			<p>And then the API returns only price data for the residential sector in Colorado:</p>
+
+			<div class="code-container">
+				<pre><code class="json hljs language-json">response<span class="hljs-punctuation">: {</span>
+  total<span class="hljs-punctuation">:</span> <span class="hljs-number">"20"</span><span class="hljs-punctuation">,</span>
+  dateFormat<span class="hljs-punctuation">:</span> <span class="hljs-string">"YYYY"</span><span class="hljs-punctuation">,</span>
+  frequency<span class="hljs-punctuation">:</span> <span class="hljs-string">"yearly"</span><span class="hljs-punctuation">,</span>
+  data<span class="hljs-punctuation">: [</span>
+    <span class="hljs-punctuation">{</span>
+      period<span class="hljs-punctuation">:</span> <span class="hljs-number">"2001"</span><span class="hljs-punctuation">,</span>
+      stateid<span class="hljs-punctuation">:</span> <span class="hljs-string">"CO"</span><span class="hljs-punctuation">,</span>
+      stateDescription<span class="hljs-punctuation">:</span> <span class="hljs-string">"Colorado"</span><span class="hljs-punctuation">,</span>
+      sectorid<span class="hljs-punctuation">:</span> <span class="hljs-string">"RES"</span><span class="hljs-punctuation">,</span>
+      sectorName<span class="hljs-punctuation">:</span> <span class="hljs-string">"residential"</span><span class="hljs-punctuation">,</span>
+      price<span class="hljs-punctuation">:</span> <span class="hljs-number">"7.47"</span><span class="hljs-punctuation">,</span>
+      price-units<span class="hljs-punctuation">:</span> <span class="hljs-string">"cents per kilowatthour"</span>
+    <span class="hljs-punctuation">},</span>
+    <span class="hljs-punctuation">{</span>
+      period<span class="hljs-punctuation">:</span> <span class="hljs-number">"2002"</span><span class="hljs-punctuation">,</span>
+      stateid<span class="hljs-punctuation">:</span> <span class="hljs-string">"CO"</span><span class="hljs-punctuation">,</span>
+      stateDescription<span class="hljs-punctuation">:</span> <span class="hljs-string">"Colorado"</span><span class="hljs-punctuation">,</span>
+      sectorid<span class="hljs-punctuation">:</span> <span class="hljs-string">"RES"</span><span class="hljs-punctuation">,</span>
+      sectorName<span class="hljs-punctuation">:</span> <span class="hljs-string">"residential"</span><span class="hljs-punctuation">,</span>
+      price<span class="hljs-punctuation">:</span> <span class="hljs-number">"7.37"</span><span class="hljs-punctuation">,</span>
+      price-units<span class="hljs-punctuation">:</span> <span class="hljs-string">"cents per kilowatthour"</span>
+    <span class="hljs-punctuation">},</span>
+    <span class="hljs-etc">…</span>
+  <span class="hljs-punctuation">]</span>
+<span class="hljs-punctuation">}</span>
+<span class="hljs-etc">…</span></code></pre>
+			</div>
+
+		</section>
+		<section id="DateRange">
+			<h3>
+				Date Range			</h3>
+
+			<h4>
+				<!-- h6 --><em>(Optional) Stipulates the periodicity of the data, if multiple options exist</em>
+			</h4>
+
+			<p>Many of our data series are assembled in different periodicities - how often an event occurs or is measured. For example, we may have data grouped annually, quarterly, monthly, or even daily. The frequency query parameter stipulates the periodicity we want. Here, we&#39;ll ask for residential prices, tabulated monthly.</p>
+
+			<p>
+				<code class="hljs-string hljs-strong">https://api.eia.gov/v2/electricity/retail-sales/data?api_key=xxxxxx&amp;data[]=price&amp;facets[sectorid][]=RES<mark>&amp;facets[stateid][]=CO&amp;frequency=monthly</mark></code>
+			</p>
+
+			<p>Note that the period parameters have changed, indicating that we are now viewing monthly data:</p>
+
+			<div class="code-container">
+				<pre><code class="json hljs language-json">response<span class="hljs-punctuation">: {</span>
+  total<span class="hljs-punctuation">:</span> <span class="hljs-number">"251"</span><span class="hljs-punctuation">,</span>
+  <mark><strong>dateFormat<span class="hljs-punctuation">:</span> <span class="hljs-string">"YYYY-MM"</span><span class="hljs-punctuation">,</span></strong></mark>
+  <mark><strong>frequency<span class="hljs-punctuation">:</span> <span class="hljs-string">"monthly"</span><span class="hljs-punctuation">,</span></strong></mark>
+  data<span class="hljs-punctuation">: [</span>
+    <span class="hljs-punctuation">{</span>
+      <mark><strong>period<span class="hljs-punctuation">:</span> <span class="hljs-string">"2001-01"</span><span class="hljs-punctuation">,</span></strong></mark>
+      stateid<span class="hljs-punctuation">:</span> <span class="hljs-string">"CO"</span><span class="hljs-punctuation">,</span>
+      stateDescription<span class="hljs-punctuation">:</span> <span class="hljs-string">"Colorado"</span><span class="hljs-punctuation">,</span>
+      sectorid<span class="hljs-punctuation">:</span> <span class="hljs-string">"RES"</span><span class="hljs-punctuation">,</span>
+      sectorName<span class="hljs-punctuation">:</span> <span class="hljs-string">"residential"</span><span class="hljs-punctuation">,</span>
+      price<span class="hljs-punctuation">:</span> <span class="hljs-number">"6.71"</span><span class="hljs-punctuation">,</span>
+      price-units<span class="hljs-punctuation">:</span> <span class="hljs-string">"cents per kilowatthour"</span>
+  <span class="hljs-punctuation">},</span>
+  <span class="hljs-etc">…</span></code></pre>
+			</div>
+
+			<p>If we omit this parameter, the API will respond with the default periodicity for that series. We can confirm what periodicity we&#39;re looking at by looking at the frequency metadata entry.</p>
+
+		</section>
+		<section id="SortResults">
+			<h3>
+				Sort Results			</h3>
+
+			<h4>
+				<!-- h6 -->(Optional) Stipulate a start and end date restriction for the data
+			</h4>
+
+
+			<p>We can stipulate that the API only return data that lies within a specific date range. To do so, we add these optional parameters to our query, where <em>yyyy</em> is the year, <em>mm</em> is the month, and <em>dd</em> is the day.</p>
+
+			<p>Using our ongoing example, let's stipulate we only want to see February and March 2008 residential retail-sales of electricity in Colorado. The start parameter instructs the API only to return data after a specific point, and the end parameter stipulates the latest date. Using both of them in the same call, we can request data constrained to a specific time span:</p>
+
+
+			<h4>Start date</h4>
+
+			<p>
+				<code class="hljs-string hljs-strong">https://api.eia.gov/v2/electricity/retail-sales/data?api_key=xxxxxx&amp;data[]=price&amp;facets[sectorid][]=RES&amp;facets[stateid][]=CO&amp;frequency=monthly<mark>&amp;start=2008-01-31</maek></code>
+			</p>
+
+			<h4>End date</h4>
+
+			<p>
+				<code class="hljs-string hljs-strong">https://api.eia.gov/v2/electricity/retail-sales/data?api_key=xxxxxx&amp;data[]=price&amp;facets[sectorid][]=RES&amp;facets[stateid][]=CO&amp;frequency=monthly<mark>&amp;end=2008-03-01</maek></code>
+			</p>
+
+			<h4>
+				Start and end date together
+			</h4>
+
+			<p>
+				<code class="hljs-string hljs-strong">https://api.eia.gov/v2/electricity/retail-sales/data?api_key=xxxxxx&amp;data[]=price&amp;facets[sectorid][]=RES&amp;facets[stateid][]=CO&amp;frequency=monthly&amp;sta rt=2008-01-31&amp;end=2008-03-01</code>
+			</p>
+
+			<p>We receive two rows in return, the data points for February 2008, and March 2008.</p>
+			<p>In the last example, we specified a start date on January 31. Remember, the first part of this return stipulated that the series was monthly and the format of dates was YYYY-MM:</p>
+
+			<div class="code-container">
+				<pre><code class="json hljs language-json">response<span class="hljs-punctuation">: {</span>
+  total<span class="hljs-punctuation">:</span> <span class="hljs-number">"2"</span><span class="hljs-punctuation">,</span>
+  <mark><strong>dateFormat<span class="hljs-punctuation">:</span> <span class="hljs-string">"YYYY-MM"</span><span class="hljs-punctuation">,</span></strong></mark>
+  frequency<span class="hljs-punctuation">:</span> <span class="hljs-string">"monthly"</span><span class="hljs-punctuation">,</span>
+<span class="hljs-punctuation">}</span></code></pre>
+			</div>
+
+			<!-- p>We receive two rows in return. The date commands trim the total row count to the selected data period, even if additional rows exist outside of the selected date range.</p -->
+			<!-- p>If we were to stipulate <code class="hljs-string hljs-strong">&amp;start=2008-02-01</code>, or February 1, we wouldn&#39;t receive February&#39;s data. The datestamp of the February monthly data point, <code class="hljs-string hljs-strong">2008-02</code>, mathematically occurs before <mark><strong>2008-02-01</strong></mark>.</p -->
+			<p>The datestamp of the February monthly data point, 2008-02, mathematically occurs before <code class="hljs-string hljs-strong">2008-02-01</code>. If we were to stipulate <code class="hljs-string hljs-strong">&start=2008-02-01</code>, or February 1, 2008, we wouldn't receive February's data. That's why we stipulate the day before 2008-02, or 2008-01-31 (January 31st).
+		</section>
+		<section id="Pagination">
+			<h3>
+				Pagination			</h3>
+
+			<h4>
+				<!-- h6 -->(Optional) Orders the data by the column and in the direction we stipulate
+			</h4>
+
+			<p>We can request that the results of our query be ordered by any column, or multiple columns, in ascending or descending order.</p>
+
+			<p>We invoke the <code class="hljs-string hljs-strong">sort</code> array with this format:</p>
+
+			<p>
+				<code class="hljs-string hljs-strong">[SORT_PRECEDENCE_HERE][column]=COLUMN_NAME_HERE</code>
+			</p>
+
+			<p>starting with a <code class="hljs-string hljs-strong">sort_precedence</code> of 0.</p>
+
+			<p>We can stipulate the element <code class="hljs-string hljs-strong">[direction]</code> as either<code class="hljs-string hljs-strong">asc</code> or<code class="hljs-string hljs-strong">desc</code> to dictate the sort direction. For example, to order our results so that the most-recent data is returned first, we sort on the <code class="hljs-string hljs-strong">period</code> column in descending order:</p>
+
+			<p>
+				<code class="hljs-string hljs-strong">https://api.eia.gov/v2/electricity/retail-sales/data?api_key=xxxxxx&amp;data[]=price&amp;facets[sectorid][]=RES&amp;facets[stateid][]=CO&amp;frequency=monthly<mark>&amp;sort[0][column]=period&amp;sort[0][direction]=desc</mark></code>
+			</p>
+
+			<p>This code changes the order of data points appropriately:</p>
+
+			<div class="code-container">
+				<pre><code class="json hljs language-json">response<span class="hljs-punctuation">: {</span>
+  <span class="hljs-etc">…</span>
+  <span class="hljs-punctuation">[</span>
+    <span class="hljs-punctuation">{</span>
+      <span class="hljs-etc">…</span>
+      period<span class="hljs-punctuation">:</span> <span class="hljs-string">"2021-11,"</span>
+    <span class="hljs-punctuation">},</span>
+    <span class="hljs-punctuation">{</span>
+      <span class="hljs-etc">…</span>
+      period<span class="hljs-punctuation">:</span> <span class="hljs-string">"2021-10,"</span>
+    <span class="hljs-punctuation">},</span>
+    <span class="hljs-punctuation">{</span>
+      <span class="hljs-etc">…</span>
+      period<span class="hljs-punctuation">:</span> <span class="hljs-string">"2021-09,"</span>
+    <span class="hljs-punctuation">},</span>
+    <span class="hljs-etc">…</span>
+  <span class="hljs-punctuation">]</span>
+  <span class="hljs-etc">…</span>
+<span class="hljs-punctuation">}</span></span></code></pre>
+			</div>
+
+			<p>If we do not specify an order, the API will use the default sort order for that data series.</p>
+
+		</section>
+		<section>
+			<!-- id="?=$header024_id?">
+			<h3>
+				?=$header024?
+			</h3>-->
+			<h4>
+				<em>(Optional) Returns a subset of eligible rows responsive to the query</em>
+			</h4>
+			<p>Our request may generate more rows than we&#39;d like to ingest in one API call. EIA's API limits its data returns to the first 5,000 rows responsive to the request (300 rows if we request XML format).</p>
+			<p>We can override this behavior by using the length parameter. Using our most recent example of sorting by recent data first, let&#39;s imagine we only want the most recent year of data. Because we&#39;re stipulating a monthly frequency, we&#39;d only want 12 rows of data. We assign the <code class="hljs-string hljs-strong">length</code> parameter a value of 12:</p>
+			<p>
+				<code class="hljs-string hljs-strong">https://api.eia.gov/v2/electricity/retail-sales/data?api_key=xxxxxx&amp;data[]=price&amp;facets[sectorid][]=RES&amp;facets[stateid][]=CO&amp;frequency=monthly&amp;sort[0][column]=period&amp;sort[0][direction]=desc&amp;<mark>length=12</mark></code>
+			</p>
+
+			<p>We receive the first 12 rows of data the API can find, based on any sort or facet commands we give it.</p>
+
+			<p><code class="hljs-string hljs-strong">Offset</code> stipulates the row number the API should begin its return with, out of all the eligible rows our query would otherwise provide. For example, this query would withhold the most recent 24 rows, or months, of the dataset. We know it&#39;ll be the most recent data points because we stipulated the sort order previously.</span></p>
+
+			<p><code class="hljs-string hljs-strong">https://api.eia.gov/v2/electricity/retail sales/data?api_key=xxxxxx&amp;data[]=price&amp;facets[sectorid][]=RES&amp;facets[stateid][]=CO&amp;frequency=monthly&amp;sort[0][column]=period&amp;sort[0][direction]=desc&amp;<mark>offset=24</mark></code></p>
+
+			<p>In the above example, the API will skip over the first 24 eligible rows (<code class="hljs-string hljs-strong">offset=24</code>), which translates into 24 months (<code class="hljs-string hljs-strong">frequency=monthly</code>).</p>
+
+			<p>We can combine these two parameters to page through our data. To skip two years (<code class="hljs-string hljs-strong">offset=24</code>) and request a year of returns (<code class="hljs-string hljs-strong">length=12</code>), we&#39;d write:</p>
+
+			<p>
+				<code class="hljs-string hljs-strong">https://api.eia.gov/v2/electricity/retail-sales/data?api_key=xxxxxx&amp;data[]=price&amp;facets[sectorid][]=RES&amp;facets[stateid][]=CO&amp;frequency=monthly&amp;sort[ 0][column]=period&amp;sort[0][direction]=desc&amp;<mark>offset=24&amp;length=12</mark></code>
+			</p>
+
+			<p>No matter what we stipulate with these two parameters, our API will always return the total number of rows otherwise responsive to our request. Even if we only request 12 rows, as above, the data return informs us of the total rows available:</p>
+
+			<div class="code-container">
+				<pre><code class="json hljs language-json">response<span class="hljs-punctuation">: {</span>
+  <mark><strong>total<span class="hljs-punctuation">:</span> <span class="hljs-number">"251"</span><span class="hljs-punctuation">,</span></strong></mark>
+  dateFormat<span class="hljs-punctuation">:</span> <span class="hljs-string">"YYYY-MM"</span><span class="hljs-punctuation">,</span>
+  frequency<span class="hljs-punctuation">:</span> <span class="hljs-string">"monthly"</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-etc">…</span>
+<span class="hljs-punctuation">}</span></code></pre>
+			</div>
+		</section>
+		<section>
+			<!-- id="?=$header025_id?">
+			<h3>
+				?=$header025?
+			</h3 -->
+			<h4><em>(Optional) Specifies XML or JSON output.</em></h4>
+			<p>By default, our API will provide data returns in JSON format. However, you may specifically request XML output with the out parameter:</p>
+			<p><code class="hljs-string hljs-strong">https://api.eia.gov/v2/electricity/retail-sales/data?api_key=xxxxxx&amp;data[]=price&amp;facets[sectorid][]=RES&facets[stateid][]=CO&amp;<mark>out=xml</mark></code></p>
+
+			<div class="code-container">
+				<pre><code class="json hljs language-json"><span class="hljs-punctuation">&lt;</span>eia_api<span class="hljs-punctuation">&gt;</span>
+  <span class="hljs-punctuation">&lt;</span>response<span class="hljs-punctuation">&gt;</span>
+    <span class="hljs-etc">…</span>
+    <span class="hljs-punctuation">&lt;</span>row<span class="hljs-punctuation">&gt;</span>
+      <span class="hljs-punctuation">&lt;</span>period<span class="hljs-punctuation">&gt;</span><span class="hljs-string">2009</span><span class="hljs-punctuation">&lt;/</span>period<span class="hljs-punctuation">&gt;</span>
+      <span class="hljs-punctuation">&lt;</span>stateid<span class="hljs-punctuation">&gt;</span><span class="hljs-string">CO</span><span class="hljs-punctuation">&lt;/</span>stateid<span class="hljs-punctuation">&gt;</span>
+      <span class="hljs-punctuation">&lt;</span>stateDescription<span class="hljs-punctuation">&gt;</span><span class="hljs-string">Colorado</span><span class="hljs-punctuation">&lt;/</span>stateDescription<span class="hljs-punctuation">&gt;</span>
+      <span class="hljs-punctuation">&lt;</span>sectorid<span class="hljs-punctuation">&gt;</span><span class="hljs-string">RES</span><span class="hljs-punctuation">&lt;/</span>sectorid<span class="hljs-punctuation">&gt;</span>
+      <span class="hljs-punctuation">&lt;</span>sectorName<span class="hljs-punctuation">&gt;</span><span class="hljs-string">residential</span><span class="hljs-punctuation">&lt;/</span>sectorName<span class="hljs-punctuation">&gt;</span>
+      <span class="hljs-punctuation">&lt;</span>price<span class="hljs-punctuation">&gt;</span><span class="hljs-string">10</span><span class="hljs-punctuation">&lt;/</span>price<span class="hljs-punctuation">&gt;</span>
+      <span class="hljs-punctuation">&lt;</span>price-units<span class="hljs-punctuation">&gt;</span><span class="hljs-string">cents per kilowatthour</span><span class="hljs-punctuation">&lt;/</span>price-units<span class="hljs-punctuation">&gt;</span>
+    <span class="hljs-punctuation">&lt;/</span>row<span class="hljs-punctuation">&gt;</span>
+  <span class="hljs-punctuation">&lt;/</span>response<span class="hljs-punctuation">&gt;</span>
+  <span class="hljs-etc">…</span>
+<span class="hljs-punctuation">&lt;/</span>eia_api<span class="hljs-punctuation">&gt;</span></span></code></pre>
+			</div>
+			<p>For performance reasons, the API can only return a <code class="hljs-string hljs-strong"><em>maximum of 300 rows</em></code> when producing XML output. You may use the pagination features as described above to parse through the entire data return. You will see a warning embedded in the XML output to alert you of this limitation.</p>
+			<p>You may also explicitly stipulate JSON output (<code class="hljs-string">out=JSON</code>), however you don’t need to make this stipulation because omitting the parameter defaults the API to JSON format.</p>
+			<div class="top-container">
+				<a href="#top" class="top">Top</a>
+			</div>
+
+		</section>
+	</div>
+	<div class="l-col">
+		<div class="secondary-alt">
+	<ul class="basic">
+		<li class="head">
+			<h2>API Documentation</h2>
+		</li>
+		<li class="api-icon">
+			<span class="ico intro"><span>API Icon</span></span>
+			<div class="form-divider">
+				<fieldset>
+					<legend>Versions</legend>
+					<div class="dropdown-container no-js">
+						<div class="dropdown-button">
+							<span class="text">Select Version</span>
+							<span class="ico d-arrow">
+								<span>dropdown arrow</span>
+							</span>
+						</div>
+						<div class="dropdown-menu">
+							<ul>
+								<li class="ico pdf"><a href="./documentation/APIv2.1.0.pdf">API v2.1.0 (Current)</a></li>
+								<li class="ico pdf"><a href="./documentation/APIv2.0.1.pdf">API v2.0.1</a></li>
+								<li class="ico html"><a href="./v1/commands.php">API v1.0</a></li>
+							</ul>
+						</div>
+					</div>
+				</fieldset>
+			</div>
+		</li>
+	</ul>
+	<br />
+	<ul class="bullet">
+		<li><strong><a href="/opendata/eia-api-swagger.zip">Download YAML File <span class="ico zip"><span></span></span></strong></a></li>
+		<li><strong><a href="/opendata/faqs.php" data-fancybox data-type="iframe" data-slug="faq">FAQ's</a></strong></li>
+		<li><strong><a href="/opendata/pdf/EIA-APIv2-HandsOn-Webinar-11-Jan-23.pdf" target="_blank">API v2 webinar <span class="ico pdf"><span></span></span></strong></a></li>
+	</ul>
+</div><div class="secondary-alt">
+	<ul class="basic">
+		<li class="head">
+			<h2>Application Programming Interface (API)</h2>
+		</li>
+		<li class="api-icon"><span class="ico api"><span>API Icon</span></span>
+			<h4>Access EIA data how you need it</h4>
+		</li>
+		<li><a href="register.php" class="api-button iframe" data-fancybox>Register</a></li>
+		<li><a href="forgot-key.php" class="iframe accessible" data-fancybox="" data-type="iframe"><strong>Forgot API Key</strong></a></li>
+		<li class="list-spacer"></li>
+		<li class="list-spacer"></li>
+		<li>Registration and compliance with the <a href="terms-of-service.php" class="iframe accessible">API Terms of Service Agreement</a> help EIA monitor usage and ensure service availability. EIA data is provided free of charge and should be used in compliance with our <a href="/about/copyrights_reuse.php" class="accessible">Copyrights and Reuse Policy</a>.</li>
+		<li class="list-spacer"></li>
+		<li class="faqs"><span class="ico help"><span></span></span> <a href="faqs.php" class="iframe accessible" data-fancybox data-type="iframe" data-slug="faq"><strong>FAQ's</strong></a> <span class="pipe">|</span> <span class="ico pdf"><span></span></span><a href="/opendata/pdf/EIA-APIv2-HandsOn-Webinar-11-Jan-23.pdf" class="accessible" target="_blank"><strong>API v2 webinar</strong></a><span class="pipe">|</span><br /><span class="ico open-source-code"><span></span></span><a href="/tools/open-source-code/" class="accessible"><strong>Open Source Code</strong></a></li>
+	</ul>
+</div><nav class="page-nav secondary-alt sticky-top scroll-spy" id="scrollSpy" style="display: none">
+	<ul class="basic-list">
+		<li class="head">
+			<h2>On this page</h2>
+		</li>
+		<li data-id="Changelog" class="lvl-1 bold"><a href="#Changelog">
+				Changelog			</a></li>
+		<li data-id="Introduction" class="lvl-1 bold"><a href="#Introduction">
+				Introduction			</a></li>
+		<li class="lvl-2" data-id="NewFeatures"><a href="#NewFeatures">
+				New Features			</a></li>
+		<li class="lvl-2" data-id="APIv1availability"><a href="#APIv1availability">
+				APIv1 availability			</a></li>
+		<li class="lvl-1 bold" data-id="OverallConcepts"><a href="#OverallConcepts">
+				Overall Concepts			</a></li>
+		<li class="lvl-2" data-id="Examplesinthisguide"><a href="#Examplesinthisguide">
+				Examples in this guide			</a></li>
+		<li class="lvl-2" data-id="UsinganAPIkey"><a href="#UsinganAPIkey">
+				Using an API key			</a></li>
+		<li class="lvl-2" data-id="Submittingrequesttoour"><a href="#Submittingrequesttoour">
+				Submitting request to our RESTful API			</a></li>
+		<li class="lvl-2" data-id="Supportingmultipleversi"><a href="#Supportingmultipleversi">
+				Supporting multiple versions of our API			</a></li>
+		<li class="lvl-1 bold" data-id="GeneratinganAPIcall"><a href="#GeneratinganAPIcall">
+				Generating an API call			</a></li>
+		<li class="lvl-2" data-id="Choosingbetweenparamete"><a href="#Choosingbetweenparamete">
+				Choosing between parameter locations			</a></li>
+		<li class="lvl-2" data-id="Understandingreturneder"><a href="#Understandingreturneder">
+				Understanding returned error codes			</a></li>
+		<li class="lvl-2" data-id="Debugginginformation"><a href="#Debugginginformation">
+				Debugging information			</a></li>
+		<li class="lvl-2" data-id="IteratingthroughtheAPI"><a href="#IteratingthroughtheAPI">
+				Iterating through the API&#039;s tree and its metadata			</a></li>
+		<li class="lvl-2" data-id="Examiningametadatarequ"><a href="#Examiningametadatarequ">
+				Examining a metadata request			</a></li>
+		<li class="lvl-2" data-id="Facetsandtheiravailabl"><a href="#Facetsandtheiravailabl">
+				Facets and their available values			</a></li>
+		<li class="lvl-2" data-id="Returningmetadatavssp"><a href="#Returningmetadatavssp">
+				Returning metadata vs. specific data values			</a></li>
+		<li class="lvl-1 bold" data-id="Parameters"><a href="#Parameters">
+				Parameters			</a></li>
+		<li class="lvl-2" data-id="Data"><a href="#Data">
+				Data []			</a></li>
+		<li class="lvl-2" data-id="Facets"><a href="#Facets">
+				Facets			</a></li>
+		<li class="lvl-2" data-id="Frequency"><a href="#Frequency">
+				Frequency			</a></li>
+		<li class="lvl-2" data-id="DateRange"><a href="#DateRange">
+				Date Range			</a></li>
+		<li class="lvl-2" data-id="SortResults"><a href="#SortResults">
+				Sort Results			</a></li>
+		<li class="lvl-2" data-id="Pagination"><a href="#Pagination">
+				Pagination			</a></li>
+	</ul>
+</nav>
+<nav class="page-nav" id="offCanvas" style="display: none">
+	<div class="menu-wrapper">
+		<button class="close menu-close" title="Close" tabindex="0"></button>
+		<ul class="basic-list">
+			<li class="head">On this page</li>
+			<li data-id="Changelog" class="lvl-1 bold"><a href="#Changelog" onclick="closeModal()">
+					Changelog				</a></li>
+			<li data-id="Introduction" class="lvl-1 bold"><a href="#Introduction" onclick="closeModal()">
+					Introduction				</a></li>
+			<li class="lvl-2" data-id="NewFeatures"><a href="#NewFeatures" onclick="closeModal()">
+					New Features				</a></li>
+			<li class="lvl-2" data-id="APIv1availability"><a href="#APIv1availability" onclick="closeModal()">
+					APIv1 availability				</a></li>
+			<li class="lvl-1 bold" data-id="OverallConcepts"><a href="#OverallConcepts" onclick="closeModal()">
+					Overall Concepts				</a></li>
+			<li class="lvl-2" data-id="Examplesinthisguide"><a href="#Examplesinthisguide" onclick="closeModal()">
+					Examples in this guide				</a></li>
+			<li class="lvl-2" data-id="UsinganAPIkey"><a href="#UsinganAPIkey" onclick="closeModal()">
+					Using an API key				</a></li>
+			<li class="lvl-2" data-id="Submittingrequesttoour"><a href="#Submittingrequesttoour" onclick="closeModal()">
+					Submitting request to our RESTful API				</a></li>
+			<li class="lvl-2" data-id="Supportingmultipleversi"><a href="#Supportingmultipleversi" onclick="closeModal()">
+					Supporting multiple versions of our API				</a></li>
+			<li class="lvl-1 bold" data-id="GeneratinganAPIcall"><a href="#GeneratinganAPIcall" onclick="closeModal()">
+					Generating an API call				</a></li>
+			<li class="lvl-2" data-id="Choosingbetweenparamete"><a href="#Choosingbetweenparamete" onclick="closeModal()">
+					Choosing between parameter locations				</a></li>
+			<li class="lvl-2" data-id="Understandingreturneder"><a href="#Understandingreturneder" onclick="closeModal()">
+					Understanding returned error codes				</a></li>
+			<li class="lvl-2" data-id="Debugginginformation"><a href="#Debugginginformation" onclick="closeModal()">
+					Debugging information				</a></li>
+			<li class="lvl-2" data-id="IteratingthroughtheAPI"><a href="#IteratingthroughtheAPI" onclick="closeModal()">
+					Iterating through the API&#039;s tree and its metadata				</a></li>
+			<li class="lvl-2" data-id="Examiningametadatarequ"><a href="#Examiningametadatarequ" onclick="closeModal()">
+					Examining a metadata request				</a></li>
+			<li class="lvl-2" data-id="Facetsandtheiravailabl"><a href="#Facetsandtheiravailabl" onclick="closeModal()">
+					Facets and their available values				</a></li>
+			<li class="lvl-2" data-id="Returningmetadatavssp"><a href="#Returningmetadatavssp" onclick="closeModal()">
+					Returning metadata vs. specific data values				</a></li>
+			<li class="lvl-1 bold" data-id="Parameters"><a href="#Parameters" onclick="closeModal()">
+					Parameters				</a></li>
+			<li class="lvl-2" data-id="Data"><a href="#Data" onclick="closeModal()">
+					Data []				</a></li>
+			<li class="lvl-2" data-id="Facets"><a href="#Facets" onclick="closeModal()">
+					Facets				</a></li>
+			<li class="lvl-2" data-id="Frequency"><a href="#Frequency" onclick="closeModal()">
+					Frequency				</a></li>
+			<li class="lvl-2" data-id="DateRange"><a href="#DateRange" onclick="closeModal()">
+					Date Range				</a></li>
+			<li class="lvl-2" data-id="SortResults"><a href="#SortResults" onclick="closeModal()">
+					Sort Results				</a></li>
+			<li class="lvl-2" data-id="Pagination"><a href="#Pagination" onclick="closeModal()">
+					Pagination				</a></li>
+		</ul>
+	</div>
+</nav>	</div>
+</div>        </div>
+    </div>
+</div>
+<footer class="clearfix footer">
+    <div class="footer-inner">
+        <div class="l-row  l-two-col-right address-bar">
+            <div class="l-col">
+                <ul class="above-address-links">
+                    <li><a href="/about/">About EIA</a><span class="right-arrow-head"></span></li>
+                    <li><a href="/beta/api/">Open Data</a><span class="right-arrow-head"></span></li>
+                    <li><a href="/pressroom/">Press Room</a><span class="right-arrow-head"></span></li>
+                    <li><a href="/about/contact/">Contact Us</a><span class="right-arrow-head"></span></li>
+                </ul>
+            </div>
+            <div class="l-col">
+
+                <div>U.S. Energy Information Administration</div>
+                <div>1000 Independence Ave., SW</div>
+                <div>Washington, DC 20585</div>
+            </div>
+        </div>
+        <div class="l-row l-six-col-even footer-links">
+            <ul class="l-col">
+                <li>Sources &amp; Uses</li>
+                <li><a href="/petroleum/">Petroleum</a></li>
+                <li><a href="/coal/">Coal</a></li>
+                <li><a href="/naturalgas/">Natural Gas</a></li>
+                <li><a href="/renewable/">Renewable</a></li>
+                <li><a href="/nuclear/">Nuclear</a></li>
+                <li><a href="/electricity/">Electricity</a></li>
+                <li><a href="/consumption/">Consumption</a></li>
+                <li><a href="/totalenergy/">Total Energy</a></li>
+            </ul>
+            <ul class="l-col">
+                <li>Topics</li>
+                <li><a href="/analysis/">Analysis &amp; Projections</a></li>
+                <li><a href="/environment">Environment</a></li>
+                <li><a href="/finance/">Markets &amp; Finance</a></li>
+                <li><a href="/special/disruptions/">Energy Disruptions</a></li>
+                <li><a href="/todayinenergy/">Today in Energy</a></li>
+                <!-- li><br /></li -->
+                <li>Geography</li>
+                <li><a href="/beta/states/">States</a></li>
+                <li><a href="/countries/">Countries</a></li>
+                <li><a href="/maps/">Maps</a></li>
+            </ul>
+            <ul class="l-col">
+                <li>Tools</li>
+                <li><a href="/tools/a-z/">A-Z Index</a></li>
+                <li><a href="/reports/"><span class="line-break">All Reports &amp;</span> <span class="line-break">Publications</span></a></li>
+                <li><a href="/tools/"><span class="line-break">Data Tools, Apps,</span> <span class="line-break">and Maps</span></a></li>
+                <li><a href="/survey/">EIA Survey Forms</a></li>
+                <li><a href="/beta/">EIA Beta</a></li>
+                <li><a href="/tools/open-source-code/">Open Source Code</a></li>
+            </ul>
+            <ul class="l-col">
+                <li>Policies</li>
+                <li><a href="/about/privacy_security_policy.php">Privacy/Security</a></li>
+                <li><a href="/about/copyrights_reuse.php">Copyright &amp; Reuse</a></li>
+                <li><a href="/about/accessibility.php">Accessibility</a></li>
+                <li><a href="/about/information_quality_guidelines.php">Information Quality</a></li>
+                <li><a href="/about/foia.php">Freedom of Information Act (FOIA)</a></li>
+                <li><a href="https://www.energy.gov/cio/articles/vulnerability-disclosure-policy" target="_blank">Learn about the Department of Energy’s Vulnerability Disclosure Program</a></li>
+            </ul>
+            <ul class="l-col">
+                <li>Related Sites</li>
+                <li><a href="https://www.energy.gov/">U.S. Department of Energy</a></li>
+                <li><a href="https://www.usa.gov/">USA.gov</a></li>
+            </ul>
+            <ul class="l-col">
+                <li>Stay Connected</li>
+                <li><a href="http://facebook.com/eiagov/" target="_blank"><span class="ico-footer facebook"></span>Facebook</a></li>
+                <li><a href="http://x.com/eiagov/" target="_blank"><span class="ico-footer twitter"></span>X</a></li>
+                <li><a href="http://youtube.com/eiagov/" target="_blank"><span class="ico-footer youtube"></span>Youtube</a></li>
+                <li><a href="https://www.flickr.com/photos/eiagov/" target="_blank"><span class="ico-footer flickr"></span>Flickr</a></li>
+                <li><a href="http://linkedin.com/company/u-s-energy-information-administration" target="_blank"><span class="ico-footer linkedin"></span>LinkedIn</a></li>
+                <li><a href="/tools/emailupdates/" target="_blank"><span class="ico-footer email"></span>Email Updates</a></li>
+                <li><a href="/tools/rssfeeds/" target="_blank"><span class="ico-footer rss"></span>RSS Feeds</a></li>
+            </ul>
+        </div>
+    </div>
+</footer><script src="/global/scripts/global.min.js?v=11.3"></script>
+</body>
+
+</html>
