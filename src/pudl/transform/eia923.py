@@ -238,8 +238,6 @@ def _clean_gen_fuel_energy_sources(gen_fuel: pd.DataFrame) -> pd.DataFrame:
 
     * Remap MSW to biogenic and non biogenic fuel types.
     * Fill missing energy_source_code using most common code for each AER fuel codes.
-    * Drop duplicate fields where only difference is energy_source_code and 0
-      consumption data.
 
     Args:
         gen_fuel: generation fuels dataframe.
@@ -285,18 +283,6 @@ def _clean_gen_fuel_energy_sources(gen_fuel: pd.DataFrame) -> pd.DataFrame:
     ].map(frequent_energy_source_map)
     if gen_fuel.energy_source_code.isna().any():
         raise AssertionError("Missing data in generator_fuel_eia923.energy_source_code")
-
-    # Remove dupe rows with different energy_source_code values and 0 consumption data.
-    # Right now this only applies to plant id 50489 in 2025.
-    subset_df = gen_fuel[
-        (gen_fuel["plant_id_eia"] == 50489) & (gen_fuel["report_year"] == 2025)
-    ]
-    value_cols = subset_df.filter(regex=r"(_mwh|_units|_mmbtu)$").columns
-    zero_value_rows = subset_df.loc[
-        (subset_df[value_cols] == 0).all(axis=1), value_cols
-    ]
-    assert len(zero_value_rows) == 13
-    gen_fuel = gen_fuel.drop(zero_value_rows.index)
 
     return gen_fuel
 
@@ -673,6 +659,8 @@ def _core_eia923__pre_generation_fuel(raw_eia923__generation_fuel: pd.DataFrame)
     * Backfill missing prime_mover_codes
     * Create a separate generation_fuel_nuclear table.
     * Aggregate records with duplicate natural keys.
+    * Drop duplicate fields where only difference is energy_source_code and 0
+      consumption data.
 
     Args:
         raw_eia923__generation_fuel: The raw ``raw_eia923__generation_fuel`` dataframe.
@@ -761,6 +749,19 @@ def _core_eia923__pre_generation_fuel(raw_eia923__generation_fuel: pd.DataFrame)
 
     # Aggregate any remaining duplicates.
     gen_fuel = _aggregate_generation_fuel_duplicates(gen_fuel)
+
+    # Remove dupe rows with different energy_source_code values and 0 consumption data.
+    # Right now this only applies to plant id 50489 in 2025.
+    subset_df = gen_fuel[
+        (gen_fuel["plant_id_eia"] == 50489) & (gen_fuel["report_year"] == 2025)
+    ]
+    if not subset_df.empty:  # do this for fast_etl
+        value_cols = subset_df.filter(regex=r"(_mwh|_units|_mmbtu)$").columns
+        zero_value_rows = subset_df.loc[
+            (subset_df[value_cols] == 0).all(axis=1), value_cols
+        ]
+        assert len(zero_value_rows) == 13
+        gen_fuel = gen_fuel.drop(zero_value_rows.index)
 
     return (
         Output(output_name="_core_eia923__generation_fuel", value=gen_fuel),
