@@ -14,7 +14,7 @@ EIA Bulk API Data
    * - Source Format
      - JSON
    * - Download Size
-     - 1526 MB
+     - 1588 MB
    * - Temporal Coverage
      - 
    * - PUDL Code
