@@ -31,14 +31,14 @@ repos:
   ####################################################################################
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.15.20
+    rev: v0.15.21
     hooks:
       - id: ruff-check
         args: [--fix]
       - id: ruff-format
 
   - repo: https://github.com/rbubley/mirrors-prettier
-    rev: v3.9.4
+    rev: v3.9.5
     hooks:
       - id: prettier
         types_or: [yaml]
@@ -98,11 +98,11 @@ repos:
 
   # Scan for secrets and credentials
   - repo: https://github.com/trufflesecurity/trufflehog
-    rev: v3.95.7
+    rev: v3.95.9
     hooks:
       - id: trufflehog
         name: TruffleHog
-        entry: trufflehog git file://. --since-commit HEAD --fail
+        entry: trufflehog git file://. --since-commit HEAD --fail --exclude-paths trufflehog-exclude.txt
         language: golang
         pass_filenames: false
 

@@ -7,6 +7,10 @@
 # Assert that PUDL_ROOT_PATH is set by the container and points to a valid directory.
 cd "${PUDL_ROOT_PATH:?PUDL_ROOT_PATH must be set by the build container}" || exit 1
 
+# Fail immediately, rather than hours later when we finally try to trigger the
+# deployment, if this envvar was never wired through to the container.
+: "${DEPLOYMENT_ENVIRONMENT:?DEPLOYMENT_ENVIRONMENT must be set by the build container}"
+
 # Select the PUDL-specific dagster configuration.
 cp "${DAGSTER_HOME}/dagster-pudl.yaml" "${DAGSTER_HOME}/dagster.yaml"
 
@@ -53,21 +57,12 @@ function save_outputs_to_gcs() {
 
 function trigger_deployment() {
     set +x &&
-        echo "Triggering the PUDL deployment workflow using the GitHub API and curl" &&
-        curl --fail-with-body -sS -X POST \
-            -H "Accept: application/vnd.github+json" \
-            -H "Authorization: Bearer ${PUDL_BOT_PAT}" \
-            https://api.github.com/repos/catalyst-cooperative/pudl/actions/workflows/deploy-pudl.yml/dispatches \
-            -d @<(
-                cat <<JSON
-{
-  "ref": "${BUILD_REF}",
-  "inputs": {
-    "git_tag": "${GIT_TAG}"
-  }
-}
-JSON
-            ) &&
+        echo "Triggering the PUDL deployment workflow using the GitHub CLI" &&
+        GH_TOKEN="${PUDL_BOT_PAT}" gh workflow run deploy-pudl.yml \
+            --repo catalyst-cooperative/pudl \
+            --ref "${BUILD_REF}" \
+            -f "git_tag=${GIT_TAG}" \
+            -f "deployment_environment=${DEPLOYMENT_ENVIRONMENT}" &&
         set -x
 }
 
@@ -225,13 +220,7 @@ function cleanup_on_exit() {
         "$INTEGRATION_TEST_STATUS" \
         "$DATA_VALIDATION_STATUS" \
         "$ROW_COUNT_VALIDATION_STATUS" \
-        "$SAVE_OUTPUTS_STATUS" \
-        "$UPDATE_NIGHTLY_STATUS" \
-        "$UPDATE_STABLE_STATUS" \
-        "$PREP_OUTPUTS_STATUS" \
-        "$DISTRIBUTION_BUCKET_STATUS" \
-        "$GCS_TEMPORARY_HOLD_STATUS" \
-        "$TRIGGER_DATA_VIEWER_DEPLOY_STATUS"; then
+        "$SAVE_OUTPUTS_STATUS"; then
         notify_zulip "success" || true
     else
         notify_zulip "failure" || true

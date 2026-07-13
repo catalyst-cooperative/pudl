@@ -7,10 +7,13 @@ import pytest
 import requests
 
 from pudl.scripts.zenodo_data_release import (
+    PRODUCTION,
     RETRYABLE_STATUS_CODES,
     SANDBOX,
     EmptyDraft,
     ZenodoClient,
+    _LegacyDeposition,
+    build_zenodo_release_zulip_message,
 )
 
 
@@ -44,7 +47,16 @@ def _fake_response(status_code: int, payload: dict | None = None) -> SimpleNames
     def _json():
         return payload
 
-    return SimpleNamespace(status_code=status_code, text="ok", json=_json)
+    def _raise_for_status():
+        if status_code >= 400:
+            raise requests.HTTPError(f"{status_code} error", response=None)
+
+    return SimpleNamespace(
+        status_code=status_code,
+        text="ok",
+        json=_json,
+        raise_for_status=_raise_for_status,
+    )
 
 
 def _requests_response(status_code: int) -> requests.Response:
@@ -190,3 +202,127 @@ def test_sync_directory_skips_top_level_directories_and_ignored_files(
         for call in zenodo_client.create_bucket_file.call_args_list
     ]
     assert uploaded_paths == ["keep.txt"]
+
+
+def _deposition_payload(*, submitted: bool) -> dict:
+    """A minimal but schema-valid ``_LegacyDeposition`` payload."""
+    return {
+        "id": 535155,
+        "conceptrecid": 535136,
+        "links": {
+            "html": "https://sandbox.zenodo.org/records/535155",
+            "bucket": "https://sandbox.zenodo.org/api/files/abc123",
+        },
+        "metadata": {
+            "title": "PUDL",
+            "access_right": "open",
+            "creators": [{"name": "Test Creator"}],
+        },
+        "submitted": submitted,
+    }
+
+
+def test_publish_deposition_returns_normally_on_success(mocker, zenodo_client):
+    """A clean 200 response should be parsed and returned directly."""
+    mocker.patch.object(
+        zenodo_client,
+        "retry_request",
+        return_value=_fake_response(200, _deposition_payload(submitted=True)),
+    )
+
+    deposition = zenodo_client.publish_deposition(535155)
+
+    assert deposition.submitted is True
+
+
+def test_publish_deposition_tolerates_404_after_lost_response(mocker, zenodo_client):
+    """A 404 on the publish action is tolerated if the deposition is already published.
+
+    This reproduces a real production failure: a POST to .../actions/publish times
+    out on the client side after Zenodo already processed it, so the deposition gets
+    published. But 404 isn't in RETRYABLE_STATUS_CODES, so retry_request returns it
+    as-is rather than retrying -- and a retried POST to the same publish-action URL
+    404s anyway, since a deposition that's already published has no pending publish
+    action left to trigger.
+    """
+    mocker.patch.object(
+        zenodo_client, "retry_request", return_value=_fake_response(404)
+    )
+    mocker.patch.object(
+        zenodo_client,
+        "get_deposition",
+        return_value=_LegacyDeposition(**_deposition_payload(submitted=True)),
+    )
+
+    deposition = zenodo_client.publish_deposition(535155)
+
+    assert deposition.submitted is True
+
+
+def test_publish_deposition_raises_on_404_when_not_actually_published(
+    mocker, zenodo_client
+):
+    """A 404 that doesn't correspond to an already-published deposition still raises."""
+    mocker.patch.object(
+        zenodo_client, "retry_request", return_value=_requests_response(404)
+    )
+    mocker.patch.object(
+        zenodo_client,
+        "get_deposition",
+        return_value=_LegacyDeposition(**_deposition_payload(submitted=False)),
+    )
+
+    with pytest.raises(requests.HTTPError):
+        zenodo_client.publish_deposition(535155)
+
+
+@pytest.mark.parametrize(
+    "env,publish,record_url,expected_substrings",
+    [
+        (
+            PRODUCTION,
+            True,
+            "https://zenodo.org/records/12345",
+            [
+                ":check: PUDL Zenodo Release Succeeded",
+                "PRODUCTION",
+                "publish",
+                "Published record: https://zenodo.org/records/12345",
+            ],
+        ),
+        (
+            SANDBOX,
+            False,
+            "https://sandbox.zenodo.org/records/6789",
+            [
+                ":check: PUDL Zenodo Release Succeeded",
+                "SANDBOX",
+                "draft, no-publish",
+                "Draft record: https://sandbox.zenodo.org/records/6789",
+            ],
+        ),
+    ],
+)
+def test_build_zenodo_release_zulip_message_success(
+    env, publish, record_url, expected_substrings
+):
+    """A successful run should label its env/mode and link to the resulting record."""
+    message = build_zenodo_release_zulip_message(
+        env=env, publish=publish, succeeded=True, record_url=record_url
+    )
+
+    for substring in expected_substrings:
+        assert substring in message
+
+
+def test_build_zenodo_release_zulip_message_failure_omits_record_link():
+    """A failed run should be clearly marked as failed, with no record link."""
+    message = build_zenodo_release_zulip_message(
+        env=SANDBOX,
+        publish=True,
+        succeeded=False,
+        record_url=None,
+    )
+
+    assert ":x: PUDL Zenodo Release Failed" in message
+    assert "record" not in message.lower()

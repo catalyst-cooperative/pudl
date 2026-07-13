@@ -8,3 +8,10 @@ sources:
               arguments:
                 table_name: core_eia860__scd_ownership
                 partition_expr: EXTRACT(YEAR FROM report_date)
+        columns:
+          - name: fraction_owned
+            data_tests:
+              - dbt_expectations.expect_column_values_to_be_between:
+                  arguments:
+                    min_value: 0.0
+                    max_value: 1.0

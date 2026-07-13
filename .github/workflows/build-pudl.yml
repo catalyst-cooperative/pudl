@@ -44,29 +44,30 @@ jobs:
             exit 0
           fi
 
-      - name: Set git tag based on build type
+      - name: Set git tag and deployment type based on build type
         if: ${{ env.SKIP_BUILD != 'true' }}
+        # Nightly builds and builds triggered by stable tag pushes trigger production
+        # deployments. Branch builds trigger staging deployments
         run: |
+          BUILD_ID="$(date +%Y-%m-%d-%H%M)-$(git rev-parse --short=9 HEAD)-${{ github.ref_name }}"
+          echo "BUILD_ID=$BUILD_ID" >> "$GITHUB_ENV"
           if [[ ${{ github.event_name }} == "schedule" ]]; then
               echo "GIT_TAG=nightly-$(date +%Y-%m-%d)" >> "$GITHUB_ENV"
+              echo "DEPLOYMENT_ENVIRONMENT=production" >> "$GITHUB_ENV"
           elif [[ ${{ github.event_name }} == "workflow_dispatch" ]]; then
-              echo "GIT_TAG=branch-${{ github.ref_name }}-$(date +%Y-%m-%d)" >> "$GITHUB_ENV"
+              echo "GIT_TAG=branch-$BUILD_ID" >> "$GITHUB_ENV"
+              echo "DEPLOYMENT_ENVIRONMENT=staging" >> "$GITHUB_ENV"
           elif [[ ${{ github.event_name }} == "push" ]]; then
               echo "GIT_TAG=${{ github.ref_name }}" >>  "$GITHUB_ENV"
+              echo "DEPLOYMENT_ENVIRONMENT=production" >> "$GITHUB_ENV"
           fi
-
-      - name: Set action environment variables
-        if: ${{ env.SKIP_BUILD != 'true' }}
-        run: |
-          {
-              echo "BUILD_ID=$(date +%Y-%m-%d-%H%M)-$(git rev-parse --short=9 HEAD)-${{ github.ref_name }}";
-          } >> "$GITHUB_ENV"
 
       - name: Show freshly set envvars
         if: ${{ env.SKIP_BUILD != 'true' }}
         run: |
           echo "GIT_TAG: $GIT_TAG"
           echo "BUILD_ID: $BUILD_ID"
+          echo "DEPLOYMENT_ENVIRONMENT: $DEPLOYMENT_ENVIRONMENT"
 
       - name: Tag build
         if: ${{ (env.SKIP_BUILD != 'true') && (github.event_name != 'push') }}
@@ -129,8 +130,7 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.docker_metadata.outputs.tags }}
           labels: ${{ steps.docker_metadata.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          # Docker caching disabled -- see docker-build-test.yml.
 
       - id: "auth"
         if: ${{ env.SKIP_BUILD != 'true' }}
@@ -162,6 +162,7 @@ jobs:
             --container-env AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
             --container-env BUILD_ID=${{ env.BUILD_ID }} \
             --container-env BUILD_REF=${{ github.ref_name }} \
+            --container-env DEPLOYMENT_ENVIRONMENT=${{ env.DEPLOYMENT_ENVIRONMENT }} \
             --container-env GCP_BILLING_PROJECT=${{ secrets.GCP_BILLING_PROJECT }} \
             --container-env GITHUB_ACTION_TRIGGER=${{ github.event_name }} \
             --container-env GIT_TAG=${{ env.GIT_TAG }} \
@@ -179,7 +180,7 @@ jobs:
       # Start the batch job
       - name: Kick off batch job
         if: ${{ env.SKIP_BUILD != 'true' }}
-        run: gcloud batch jobs submit run-etl-${{ env.BUILD_ID }} --config ${{ env.BATCH_JOB_JSON }} --location us-west1
+        run: gcloud batch jobs submit build-pudl-${{ env.BUILD_ID }} --config ${{ env.BATCH_JOB_JSON }} --location us-west1
 
       - name: Status emoji
         if: ${{ env.SKIP_BUILD != 'true' }}

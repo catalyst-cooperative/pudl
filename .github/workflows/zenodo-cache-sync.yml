@@ -35,7 +35,10 @@ jobs:
         with:
           locked: true
           cache: true
-          cache-write: ${{ github.event_name == 'push' && github.ref_name == 'main' }}
+          # This workflow triggers on schedule/workflow_dispatch/pull_request,
+          # never push, so it never writes. warm-gha-caches.yml and
+          # build-deploy-docs.yml keep the main-branch copy fresh.
+          cache-write: false
 
       - name: Authenticate to AWS
         uses: aws-actions/configure-aws-credentials@v6

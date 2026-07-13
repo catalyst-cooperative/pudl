@@ -17499,39 +17499,62 @@ utility_id_pudl,utility_id_ferc1,utility_name_ferc1,utility_id_eia,utility_name_
 17957,,,67846,Drennan Energy Storage LLC,EIA860 ER 2025
 17958,,,67847,Kearsarge Grissom LLC,EIA860 ER 2025
 17959,,,56571,,"EIA860 ER 2025 -- comes from owner_utility_id_eia and operator_utility_id_eia columns in _core_eia860__utilities table. Doesn't show up anywhere else, but necessary for foreign key mapping."
-17960,,,60671,EcoElectrica LP,
-17961,,,60697,AES Puerto Rico LP,
-17962,,,60698,Oriana Energy LLC,
-17963,,,60754,"Fonroche Energy America, Inc.",
-17964,,,65231,AbbVie LTD,
-17965,,,65407,Lilly del Caribe,
-17966,,,60725,San Fermin Solar Farm LLC,
-17967,,,60689,"PV Properties, Inc.",
-17968,,,60673,"AES ILUMINA, LLC",
-17969,,,61268,Janssen Ortho LLC,
-17970,,,60760,Horizon Energy LLC,
-17971,,,61437,HIMA San Pablo Caguas,
-17972,,,65229,Bacardi Corporation,
-17973,,,66984,Haleon Consumer Healthcare,
-17974,,,60866,Directorate Of Public Works USAG Fort Buchanan,
-17975,,,61250,"Holsum de Puerto Rico, Inc.",
-17976,,,66558,Baxter Healthcare Corporation of Puerto Rico,
-17977,,,65289,Hewlett Packard Puerto Rico B.V.,
-17978,,,65224,Hospital Auxilio Mutuo,
-17979,,,61940,Cervecera de Puerto Rico,
-17980,,,60726,"Landfill Gas Technologies of Fajardo, LLC",
-17981,,,66626,Baxter Healthcare of Puerto Rico/Jayuya,
-17982,,,62725,HIMA San Pablo Bayamon,
-17983,,,65278,Mayaguez Medical Center,
-17984,,,65294,Manati Medical Center,
-17985,,,65228,iPR Pharmaceuticals Inc,
-17986,,,62728,HIMA San Pablo Fajardo,
-17987,,,65263,Bayamon Medical Center,
-17988,,,67116,Enernet CHP One LLC,
-17989,,,60887,United States Coast Guard Puerto Rico,
-17990,,,65267,Hospital Caribbean Medical Center,
-17991,,,67161,PF Consumer Healthcare BV PR Operations LLC,
-17992,,,65264,"Dorado Health, Inc",
-17993,,,65230,Stryker Puerto Rico LLC,
-17994,,,62729,HIMA San Pablo Humacao,
-17995,,,66838,San Lucas Metro Inc.,
+17960,,,67848,"South Platte Storage, LLC",EIA860M May 2026
+17961,,,67865,"Murch Solar, LLC",EIA860M May 2026
+17962,,,67864,"Alligator Creek Solar, LLC",EIA860M May 2026
+17963,,,67868,"Two Blues Solar, LLC",EIA860M May 2026
+17964,,,67869,"Delaware Ranch Solar, LLC",EIA860M May 2026
+17965,,,67867,"Snapdragon Solar, LLC",EIA860M May 2026
+17966,,,67872,Crosswind Holdco LLC,EIA860M May 2026
+17967,,,67866,"Pike Solar, LLC",EIA860M May 2026
+17968,,,67873,Hardin Holdco LLC,EIA860M May 2026
+17969,,,67851,"SREOG IL Partnership 2, LLC",EIA860M May 2026
+17970,,,67902,"Ka Ie Ie Waho Company, LLC",EIA860M May 2026
+17971,,,67852,"SREOG IL Partnership 3, LLC",EIA860M May 2026
+17972,,,67853,"Kewanee Renewables, LLC",EIA860M May 2026
+17973,,,67850,"SREOG IL Partnership 1, LLC",EIA860M May 2026
+17974,,,67855,CVE US PA Bigler 409 LLC,EIA860M May 2026
+17975,,,67856,CVE US PA Bigler 436 LLC,EIA860M May 2026
+17976,,,67859,CVE US PA BUCKINGHAM 151 LLC,EIA860M May 2026
+17977,,,67861,CVE US PA Dayton 379 LLC,EIA860M May 2026
+17978,,,67860,CVE US PA Burrell 396 LLC,EIA860M May 2026
+17979,,,67857,CVE US PA Bigler 437 LLC,EIA860M May 2026
+17980,,,67863,CVE US PA Jones 399 LLC,EIA860M May 2026
+17981,,,67862,CVE US PA Dayton 404 LLC,EIA860M May 2026
+17982,,,67858,CVE US PA Bigler 438 LLC,EIA860M May 2026
+17983,,,60671,EcoElectrica LP,EIA 860M Puerto Rico data
+17984,,,60697,AES Puerto Rico LP,EIA 860M Puerto Rico data
+17985,,,60698,Oriana Energy LLC,EIA 860M Puerto Rico data
+17986,,,60754,"Fonroche Energy America, Inc.",EIA 860M Puerto Rico data
+17987,,,65231,AbbVie LTD,EIA 860M Puerto Rico data
+17988,,,65407,Lilly del Caribe,EIA 860M Puerto Rico data
+17989,,,60725,San Fermin Solar Farm LLC,EIA 860M Puerto Rico data
+17990,,,60689,"PV Properties, Inc.",EIA 860M Puerto Rico data
+17991,,,60673,"AES ILUMINA, LLC",EIA 860M Puerto Rico data
+17992,,,61268,Janssen Ortho LLC,EIA 860M Puerto Rico data
+17993,,,60760,Horizon Energy LLC,EIA 860M Puerto Rico data
+17994,,,61437,HIMA San Pablo Caguas,EIA 860M Puerto Rico data
+17995,,,65229,Bacardi Corporation,EIA 860M Puerto Rico data
+17996,,,66984,Haleon Consumer Healthcare,EIA 860M Puerto Rico data
+17997,,,60866,Directorate Of Public Works USAG Fort Buchanan,EIA 860M Puerto Rico data
+17998,,,61250,"Holsum de Puerto Rico, Inc.",EIA 860M Puerto Rico data
+17999,,,66558,Baxter Healthcare Corporation of Puerto Rico,EIA 860M Puerto Rico data
+18000,,,65289,Hewlett Packard Puerto Rico B.V.,EIA 860M Puerto Rico data
+18001,,,65224,Hospital Auxilio Mutuo,EIA 860M Puerto Rico data
+18002,,,61940,Cervecera de Puerto Rico,EIA 860M Puerto Rico data
+18003,,,60726,"Landfill Gas Technologies of Fajardo, LLC",EIA 860M Puerto Rico data
+18004,,,66626,Baxter Healthcare of Puerto Rico/Jayuya,EIA 860M Puerto Rico data
+18005,,,62725,HIMA San Pablo Bayamon,EIA 860M Puerto Rico data
+18006,,,65278,Mayaguez Medical Center,EIA 860M Puerto Rico data
+18007,,,65294,Manati Medical Center,EIA 860M Puerto Rico data
+18008,,,65228,iPR Pharmaceuticals Inc,EIA 860M Puerto Rico data
+18009,,,62728,HIMA San Pablo Fajardo,EIA 860M Puerto Rico data
+18010,,,65263,Bayamon Medical Center,EIA 860M Puerto Rico data
+18011,,,67116,Enernet CHP One LLC,EIA 860M Puerto Rico data
+18012,,,60887,United States Coast Guard Puerto Rico,EIA 860M Puerto Rico data
+18013,,,65267,Hospital Caribbean Medical Center,EIA 860M Puerto Rico data
+18014,,,67161,PF Consumer Healthcare BV PR Operations LLC,EIA 860M Puerto Rico data
+18015,,,65264,"Dorado Health, Inc",EIA 860M Puerto Rico data
+18016,,,65230,Stryker Puerto Rico LLC,EIA 860M Puerto Rico data
+18017,,,62729,HIMA San Pablo Humacao,EIA 860M Puerto Rico data
+18018,,,66838,San Lucas Metro Inc.,EIA 860M Puerto Rico data

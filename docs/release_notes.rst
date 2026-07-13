@@ -14,6 +14,17 @@ Enhancements
 * Added experimental Parquet outputs derived from the FERC DBF databases, and basic
   ``datpackage.json`` metadata describing their schemas to support querying and preview
   through the `PUDL Data Viewer <https://data.catalyst.coop>`__. See PR :pr:`5339`.
+* Standardized all unit strings in :mod:`pudl.metadata.fields` to
+  `Pint expression syntax <https://pint.readthedocs.io/>`__, replacing ad-hoc
+  abbreviations (``gpm``, ``min``, ``F``, ``cfm``), underscore-separated
+  compound units (``lb_per_MMBTU``, ``USD_per_MWh``), and inconsistent
+  capitalization. A new :mod:`pudl.metadata.units` module defines
+  ``PUDL_UNIT_REGISTRY``, a ``pint.UnitRegistry`` extended with energy-industry
+  units (``MMBtu``, ``Mcf``, ``MMcf``, ``TBtu``, ``VAr``, ``USD``). Added extensive
+  new per-column units annotations. These changes should facilitate programmatic unit
+  parsing, display, and conversion, and they are now surfaced in the PUDL metadata and
+  datapackage outputs as machine-readable Pint-compatible unit definitions. See
+  :issue:`5078` and :pr:`5361`.
 
 New Data
 ^^^^^^^^
@@ -29,20 +40,55 @@ EIA-176
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
-EIA860
+EIA-860
 ~~~~~~~
 
 * Added early release data for EIA-860 2025. See issue :issue:`5322` and PR :pr:`5324`.
 
+EIA-860M
+~~~~~~~~
+
+* Added :doc:`EIA-860M <data_sources/eia860>` data through May 2026. See
+  issue :issue:`5369` and PR :pr:`5371`.
+
 Documentation
 ^^^^^^^^^^^^^
+* Expanded the developer docs around metadata naming, typing, and updates to explain
+  how unit annotations, field namespaces, and namespace/table-specific metadata
+  overrides should be defined and maintained. See :pr:`5361`.
+
+* Set up the `sphinx_llm <https://github.com/NVIDIA/sphinx-llm>`__ Sphinx extension to
+  generate a Markdown version of the PUDL documentation, suitable for consumption by
+  LLMs, based on the `llms.txt <https://llmstxt.org/>`__ convention. See PR :pr:`5381`.
 
 New Data Tests & Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* A new :func:`~pudl.dagster.asset_checks.valid_datapackage_unit_strings_check` asset
+  check factory validates all unit strings in the PUDL datapackage descriptor against
+  the registry after each ETL run. About a dozen fields in PHMSA gas and EIA-860 FGD
+  data that were typed as ``number`` but contain integer counts have been corrected to
+  ``"type": "integer"``. A bug where ``convert_cols_dtypes`` and ``get_parquet_table``
+  overrides in ``FIELD_METADATA_BY_RESOURCE``, were sometimes ignored has been fixed.
+* Added ``dbt`` ``expect_column_values_to_be_between`` tests to codify range
+  expectations for columns stated as percentages (0, 100) vs those that represent
+  fractional values (0, 1). Column naming still needs to be standardized. FERC Form 1
+  fraction tests use ``error_if`` thresholds to accommodate a known small number of
+  out-of-range values. See :pr:`5361`.
+
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* Three EIA-860 columns that EIA reports as percentages but PUDL describes as
+  fractions have been corrected. ``standard_so2_percent_scrubbed`` (boilers) was
+  already stored as a fraction but misnamed; it is now renamed
+  ``standard_so2_fraction_scrubbed``. ``max_oil_heat_input`` (multi-fuel generators)
+  and ``dry_cooling_pct`` (cooling equipment) were extracted as percentages; both are
+  now divided by 100 in the transform step and the cooling column is renamed
+  ``dry_cooling_fraction``. Field descriptions for the FERC1 ``*_fraction_cost``
+  columns have been updated to say "fraction (0-1)" instead of "percentage".
+  All true ``_pct`` columns now carry an explicit ``"unit": "percent"`` annotation.
+  See :pr:`5361`.
 * Fixed several Click-based console scripts so shell callers now receive correct
   non-zero exit codes on failure. The script-entry conventions in
   :mod:`pudl.scripts` now use Click-native exits and call ``main()`` directly in
@@ -55,13 +101,57 @@ Bug Fixes & Data Cleaning
   was loaded. Switching to native :func:`geopandas.GeoDataFrame.to_parquet` produces
   spec-compliant GeoParquet 1.0.0 metadata. See issues :issue:`4061,5074` and PR
   :pr:`5347`.
+* Dropped the uninformative ``is_total`` column from
+  :ref:`core_rus7__yearly_distribution_services` and
+  :ref:`out_rus7__yearly_distribution_services`, renamed the ``service_status``
+  values to the self-explanatory ``connected_this_year``, ``retired_this_year``,
+  ``total_in_place`` and ``idle_in_place``, and documented why RUS Form 7 Part B
+  subcomponents do not sum to the reported total within a year. See issue
+  :issue:`5262` and PR :pr:`5323`.
+* Fixed several nightly/stable/branch deployment flow-control bugs: nightly builds
+  were silently landing in staging instead of production because
+  ``DEPLOYMENT_ENVIRONMENT`` was never wired into the build container's Batch job,
+  PUDL Viewer redeploys and Zenodo releases fired for every deploy type instead of
+  being restricted to nightly builds and non-branch builds respectively, stale
+  objects from earlier deployments were never cleared from the public GCS/S3 paths
+  before new outputs were written, and a staging copy of a stable release tag was
+  incorrectly treated as an immutable path that could never be cleared. See issue
+  :issue:`5382` and PR :pr:`5384`.
+* Added two new optional arguments to ``get_pudl_dtypes`` and ``apply_pudl_dtypes``.
+  ``resource`` (aka table) name will now return all of the authoritative
+  resource-specific dtypes instead of the generic or source-specific types.
+  ``dtype_backend`` will now return the types for the specific file type, which extends
+  the previous behavior of returning pandas dtypes. The dtype management now lives in
+  :mod:`pudl.metadata.dtypes`. See :pr:`5361`.
+* Fixed ``pudl_deploy`` returning a plain integer exit code from its Click command,
+  which Click's standalone mode silently discards, so shell callers previously saw
+  exit code 0 even when a deployment stage failed. It now uses ``ctx.exit()`` like
+  the other scripts fixed in :pr:`5374`. See :issue:`5382` and PR :pr:`5384`.
+* Fixed the longstanding issue with ``zenodo_data_release`` sandbox release failures
+  happening even when the publication actually succeeded, because a client-side
+  timeout on the publish request triggered a retry that legitimately 404s once a
+  deposit is already published, and that raw 404 body was then parsed as if it were
+  a real deposition. Also fixed the build-ID provenance marker file being a
+  zero-byte upload, which Zenodo rejects outright. See PR :pr:`5384`.
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
+* Sped up PUDL deploys by compressing SQLite databases concurrently in a thread
+  pool and uploading to all four GCS/S3 targets concurrently instead of one at a time.
+  Also reduced the SQLite ``compresslevel`` from 9 to 6, trading a little archive size
+  for much faster compression step. See :issue:`5382` and PR :pr:`5384`.
+
 Developer Experience
 ^^^^^^^^^^^^^^^^^^^^
 
+* Reduced spurious logging and error output from our unit tests. See PR :pr:`5362`.
+* Added two new optional arguments to ``get_pudl_dtypes`` and ``apply_pudl_dtypes``:
+  ``resource`` (aka table) name will now return all of the authoritative
+  resource-specific dtypes instead of the generic or source-specific types.
+  ``dtype_backend`` will now return the types for the specific file type, which extends
+  the previous behavior of returning pandas dtypes. The dtype management now lives in
+  :mod:`pudl.metadata.dtypes`. See :pr:`5361`.
 * Reworked the nightly PUDL build and deployment automation to send start and
   status notifications to the ``pudl-deployments`` Zulip stream directly from
   GitHub Actions and the batch build script, with per-stage timing summaries and
@@ -77,6 +167,20 @@ Developer Experience
   ``out_ferc714__georeferenced_respondents``) now use ``parquet_io_manager``.
   Updated the DuckDB dependency to ``>=1.5,<1.6``. See issues :issue:`4061,5074` and
   PR :pr:`5347`.
+* Extended the nightly build's Zulip reporting and stage-tracking machinery (added
+  in :pr:`5374`) to ``pudl_deploy``. Deployments now save logs to
+  ``builds.catalyst.coop`` and send a per-stage duration + outcome report to Zulip.
+  Centralized deployment logic and validation in a ``DeploymentPlan`` Pydantic model in
+  :mod:`pudl.deploy.pudl`. Replaced some ad-hoc ``curl``/JSON GitHub Actions dispatch
+  with the ``gh`` CLI and a shared ``dispatch_github_workflow()`` helper. Added
+  required-argument & duplicate-key validation to ``devtools/generate_batch_config.py``
+  Batch job config generator used by both the PUDL and FERC EQR build workflows. See
+  issue :issue:`5382` and PR :pr:`5384`.
+* Added a guard so that deploying to a permanent, version-tagged stable-release
+  path that already has content raises immediately instead of silently uploading
+  over it, and updated the Zenodo data release Zulip notification to state plainly
+  whether a release was sandbox or production and publish or draft, with a link to
+  the resulting record. See issue :issue:`5382` and PR :pr:`5384`.
 
 .. _release-v2026.6.1:
 
@@ -203,6 +307,9 @@ Bug Fixes & Data Cleaning
   top-level directories when deciding what to upload to Zenodo, which caused release
   failures once we started leaving the ``ferc*_xbrl`` directories on the filesystem. See
   PR :pr:`5254`.
+
+Performance Improvements
+^^^^^^^^^^^^^^^^^^^^^^^^
 
 Quality of Life Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^

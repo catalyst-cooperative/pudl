@@ -15,7 +15,7 @@ import pudl.logging_helpers
 from pudl.helpers import convert_col_to_bool, normalize_year_fragments
 from pudl.metadata.classes import PUDL_PACKAGE
 from pudl.metadata.codes import CODE_METADATA
-from pudl.metadata.fields import apply_pudl_dtypes
+from pudl.metadata.dtypes import apply_pudl_dtypes
 from pudl.transform.classes import InvalidRows, drop_invalid_rows
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -429,7 +429,13 @@ def _yearly_to_monthly_records(df: pd.DataFrame) -> pd.DataFrame:
     month_idx = pd.MultiIndex.from_frame(col_df).set_names([None, "report_month"])
     # reshape
     df.columns = month_idx
-    stacked = df.stack()
+    stacked = df.stack(future_stack=True)
+    # Preserve the prior behavior of dropping rows whose reshaped monthly
+    # values are all null while still using pandas' new stack implementation.
+    if isinstance(stacked, pd.Series):
+        stacked = stacked.dropna()
+    else:
+        stacked = stacked.dropna(how="all")
     # Keep return type stable for type-checkers when stack collapses to Series.
     df = stacked.to_frame() if isinstance(stacked, pd.Series) else stacked
     # restore original index and columns - reset index except level 0
@@ -1360,7 +1366,11 @@ def _core_eia923__monthly_cooling_system_information(
     primary_key = ["plant_id_eia", "report_date", "cooling_id_eia"]
     return (
         pudl.helpers.dedupe_and_drop_nas(csi_df, primary_key_cols=primary_key)
-        .pipe(apply_pudl_dtypes, group="eia", strict=False)
+        .pipe(
+            apply_pudl_dtypes,
+            resource="_core_eia923__monthly_cooling_system_information",
+            strict=False,
+        )
         .pipe(PUDL_PACKAGE.encode)
     )
 

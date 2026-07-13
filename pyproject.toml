@@ -49,7 +49,7 @@ dependencies = []
 "Documentation" = "https://docs.catalyst.coop/pudl"
 "Issue Tracker" = "https://github.com/catalyst-cooperative/pudl/issues"
 "Support" = "https://github.com/catalyst-cooperative/pudl/discussions"
-"Funding" = "https://catalyst.coop/support-the-pudl-project/"
+"Funding" = "https://opencollective.com/pudl/"
 
 [tool.pixi.workspace]
 name = "catalystcoop.pudl"
@@ -70,7 +70,7 @@ bottleneck = ">=1.5.0"
 "catalystcoop.ferc_xbrl_extractor" = ">=1.10,<1.11"
 click = ">=8.4"
 coloredlogs = ">=14.0"
-coverage = ">=7.13"
+coverage = ">=7.15"
 curl = ">=8.17"
 dagster = ">=1.13"
 dagster-dbt = ">=1!0.29"
@@ -101,7 +101,7 @@ jinja2 = ">=3.1"
 jupyter = ">=1.1"
 jupyter-lsp = ">=2.3"
 jupyter-resource-usage = ">=1.2"
-jupyterlab = ">=4.5"
+jupyterlab = ">=4.6"
 jupyterlab-lsp = ">=5.2"
 matplotlib-base = ">=3.11"
 memray = ">=1.18.0"
@@ -118,16 +118,17 @@ pandas = ">=2.3"
 pandoc = ">=3.7"
 pandera-polars = ">=0.31"
 parallel = ">=20250822"
+pint = ">=0.25.3"
 polars = ">=1.42" # v1.41.2 fixed a big memory leak
-prek = ">=0.4"
+prek = ">=0.4.8"
 # potentially unresolveable breaking changes in prettier 4.x
 prettier = ">=3.8,<4"
 proj = ">=9.8.1"
 # pyarrow upgrade blocked by stale geopandas 0.14 in Kaggle environment
-pyarrow = ">=23"
+pyarrow = ">=24"
 pydantic = ">=2.13"
 pydantic-settings = ">=2.13"
-pydata-sphinx-theme = ">=0.16.1"
+pydata-sphinx-theme = ">=0.20"
 pygraphviz = ">=1"
 pytest = ">=9"
 pytest-console-scripts = ">=1.4"
@@ -152,6 +153,7 @@ sphinx = ">=9"
 sphinx-autoapi = ">=3.8"
 sphinx-design = ">=0.7.0"
 sphinx-issues = ">=5"
+sphinx-llm = ">=0.4.1"
 sphinx-reredirects = ">=1"
 sphinxcontrib-bibtex = ">=2.6"
 sphinxcontrib-googleanalytics = ">=0.4"
@@ -159,7 +161,7 @@ sphinxcontrib-mermaid = ">=2.0"
 splink = ">=4.0.14"
 sqlalchemy = ">=2"
 sqlite = ">=3.53"
-taplo = "==0.9.3"
+taplo = "==0.9.3" # Pinned to match version in VS Code extension
 terraform = ">=1.14"
 timezonefinder = ">=8"
 typos = ">=1.47"
@@ -169,6 +171,7 @@ usaddress = ">=0.5.16,<0.6"
 uv = ">=0.11"
 xlsxwriter = ">=3.2"
 zip = ">=3.0"
+gh = ">=2.96.0,<3"
 
 [tool.pixi.pypi-dependencies]
 # Install the local package in editable mode. Assume dependencies are specified either
@@ -178,7 +181,7 @@ zip = ">=3.0"
 detect-secrets = ">=1.5"
 
 [tool.pixi.feature.dev.dependencies]
-gh = ">=2" # GitHub CLI
+duckdb-cli = ">=1.5,<1.6"
 jq = ">=1.8" # Primarily for agent skills use
 marimo = ">=0.13"
 matplotx = ">=0.3.10"
@@ -381,8 +384,8 @@ cmd = "prek install"
 description = "Install pre-commit hooks"
 
 # Dependency Update tasks
-[tool.pixi.tasks.prek-autoupdate]
-cmd = "prek autoupdate"
+[tool.pixi.tasks.prek-update]
+cmd = "prek update"
 description = "Update pre-commit hook versions"
 
 [tool.pixi.tasks.dbt-deps-upgrade]
@@ -533,7 +536,6 @@ ignore-path = ["docs/ferc/form1", "docs/_build", "docs/data_sources/phmsagas"]
 minversion = "9.0"
 testpaths = ["./"]
 filterwarnings = [
-    "ignore:distutils Version classes are deprecated:DeprecationWarning",
     "ignore:Deprecated call to `pkg_resources.declare_namespace:DeprecationWarning",
     "ignore:Deprecated call to.*declare_namespace:DeprecationWarning:pkg_resources",
     "ignore:Deprecated call to:DeprecationWarning:google.rpc",
@@ -543,7 +545,6 @@ filterwarnings = [
     "ignore:Integration of EIA 861:UserWarning:pudl.extract.eia861",
     "ignore:pkg_resources is deprecated as an API.:DeprecationWarning",
     "ignore:Subclassing validator classes is not intended to be part of their public API.:DeprecationWarning",
-    "ignore:Subclassing validator classes:DeprecationWarning:tableschema",
     "ignore:datetime.datetime.utcnow() is deprecated:DeprecationWarning",
     "ignore:Python 3.14 will, by default, filter extracted tar archives:DeprecationWarning:dbt_common[.*]",
     "ignore:The Shapely GEOS version:UserWarning:geopandas[.*]",
@@ -557,12 +558,15 @@ filterwarnings = [
     "ignore:Pydantic V1 style `@validator` validators are deprecated:pydantic.PydanticDeprecatedSince20:mlflow.gateway.config",
     "ignore:The `update_forward_refs` method is deprecated:pydantic.PydanticDeprecatedSince20:ferc_xbrl_extractor.taxonomy",
     "once:Could not infer format, so each element will be parsed individually, falling back to `dateutil`.:UserWarning:pudl.extract.eia_bulk_elec",
-    "once:In a future version:FutureWarning:pudl.helpers",
-    "once:open_binary is deprecated:DeprecationWarning:pudl.glue.ferc1_eia",
-    "once:open_text is deprecated:DeprecationWarning:pudl.glue.ferc1_eia",
     "once:The behavior of DataFrame concatenation with empty or all-NA entries is deprecated.:FutureWarning",
     "once:Valid config keys have changed in V2:UserWarning",
     "once:AssetExecutionContext.op_config is deprecated:DeprecationWarning",
+    "ignore:unclosed database:ResourceWarning",
+    "ignore:Specifying a partitions_def on an AssetCheckSpec is currently in preview",
+    "ignore:No path_separator found in configuration:DeprecationWarning:alembic",
+    "ignore:Extension type 'geoarrow.wkb' is not registered:UserWarning",
+    "ignore:invalid escape sequence:SyntaxWarning:stringcase",
+    "ignore:invalid escape sequence:SyntaxWarning:parsedatetime",
 ]
 
 markers = ["slow: marks tests as slow (deselect with '-m \"not slow\"')"]

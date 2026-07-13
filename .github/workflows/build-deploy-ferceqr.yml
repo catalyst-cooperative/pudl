@@ -20,8 +20,9 @@ on:
           - test
           - production
           - none
-  schedule:
-    - cron: "48 0 3 * *" # 00:48 UTC on the third of every month
+  # Disable scheduled build until we have archiving is highly reliable
+  # schedule:
+  #   - cron: "48 0 3 * *" # 00:48 UTC on the third of every month
 
 env:
   GCP_BILLING_PROJECT: ${{ secrets.GCP_BILLING_PROJECT }}
@@ -111,8 +112,7 @@ jobs:
           push: true
           tags: ${{ steps.docker_metadata.outputs.tags }}
           labels: ${{ steps.docker_metadata.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          # Docker caching disabled -- see docker-build-test.yml.
 
       - name: Authenticate with Google Cloud
         id: "gcloud-auth"
@@ -155,7 +155,7 @@ jobs:
             --output ${{ env.BATCH_JOB_JSON }}
 
       - name: Launch Google Batch job
-        run: gcloud batch jobs submit run-ferceqr-etl-${{ env.BATCH_JOB_ID }} --config ${{ env.BATCH_JOB_JSON }} --location us-east1
+        run: gcloud batch jobs submit build-deploy-ferceqr-${{ env.BATCH_JOB_ID }} --config ${{ env.BATCH_JOB_JSON }} --location us-east1
 
       - name: Status emoji
         run: |
