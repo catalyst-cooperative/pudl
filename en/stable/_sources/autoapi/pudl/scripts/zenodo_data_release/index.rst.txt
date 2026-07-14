@@ -64,6 +64,7 @@ Functions
 
 .. autoapisummary::
 
+   pudl.scripts.zenodo_data_release.build_zenodo_release_zulip_message
    pudl.scripts.zenodo_data_release.main
 
 
@@ -408,6 +409,12 @@ Module Contents
       :type:  _LegacyMetadata
 
 
+   .. py:attribute:: submitted
+      :type:  bool
+      :value: False
+
+
+
 .. py:class:: _NewFile(/, **data: Any)
 
    Bases: :py:obj:`pydantic.BaseModel`
@@ -700,6 +707,13 @@ Module Contents
 
       LEGACY API: publish deposition.
 
+      The publish action isn't safely retriable: if a request times out after
+      Zenodo already processed it server-side, a retried POST to the same
+      ``actions/publish`` URL 404s, since a deposition that's already published no
+      longer has a pending publish action -- even though the publish itself
+      succeeded. Rather than fail on that specific 404, check whether the
+      deposition is actually already published before giving up.
+
 
 
 .. py:class:: State
@@ -831,6 +845,16 @@ Module Contents
 
       A URL for viewing this draft.
 
+
+
+.. py:function:: build_zenodo_release_zulip_message(env: str, publish: bool, succeeded: bool, record_url: str | None) -> str
+
+   Build a markdown Zulip message summarizing a Zenodo release attempt.
+
+   Makes the sandbox/production environment and publish/draft mode immediately
+   visible, so a misconfigured run is obvious at a glance, and links to the
+   resulting record when the release succeeded -- the live record if ``publish``
+   was requested, otherwise the draft awaiting manual review.
 
 
 .. py:function:: main(env: str, source_dir: str, publish: bool, ignore: tuple[str]) -> int

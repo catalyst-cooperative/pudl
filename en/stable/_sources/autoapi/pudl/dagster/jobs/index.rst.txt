@@ -23,11 +23,26 @@ Attributes
 
 .. autoapisummary::
 
+   pudl.dagster.jobs.pudl_job
+   pudl.dagster.jobs.ferc_to_sqlite_job
+   pudl.dagster.jobs.pudl_with_ferc_to_sqlite_job
+   pudl.dagster.jobs.ferceqr_job
+   pudl.dagster.jobs.ferceqr_deployment_job
    pudl.dagster.jobs.default_jobs
 
 
 Module Contents
 ---------------
+
+.. py:data:: pudl_job
+
+.. py:data:: ferc_to_sqlite_job
+
+.. py:data:: pudl_with_ferc_to_sqlite_job
+
+.. py:data:: ferceqr_job
+
+.. py:data:: ferceqr_deployment_job
 
 .. py:data:: default_jobs
 

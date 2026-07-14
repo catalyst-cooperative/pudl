@@ -46,6 +46,7 @@ Functions
    pudl.dagster.asset_checks.group_mean_continuity_check
    pudl.dagster.asset_checks.asset_check_from_schema
    pudl.dagster.asset_checks.valid_datapackage_check
+   pudl.dagster.asset_checks.valid_datapackage_unit_strings_check
 
 
 Module Contents
@@ -82,7 +83,7 @@ Module Contents
    a LazyFrame, then handled exactly the same as a typical asset.
 
 
-.. py:function:: valid_datapackage_check(asset_key: dagster.AssetKey | str, *, description: str = 'Validate a frictionless datapackage descriptor against the spec.', blocking: bool = True) -> dagster.AssetChecksDefinition
+.. py:function:: valid_datapackage_check(asset_key: dagster.AssetKey | str, *, description: str, blocking: bool = True) -> dagster.AssetChecksDefinition
 
    Return a Dagster asset check that validates a frictionless datapackage descriptor.
 
@@ -104,6 +105,22 @@ Module Contents
 
 
 .. py:data:: high_memory_assets
-   :value: ['out_vcerare__hourly_available_capacity_factor', 'core_epacems__hourly_emissions']
+   :value: ['out_vcerare__hourly_available_capacity_factor', 'core_epacems__hourly_emissions',...
+
+
+.. py:function:: valid_datapackage_unit_strings_check(asset_key: dagster.AssetKey | str, *, description: str, blocking: bool = True) -> dagster.AssetChecksDefinition
+
+   Return a Dagster asset check that validates unit strings in a datapackage descriptor.
+
+   Reads the descriptor from ``$PUDL_OUTPUT/parquet/datapackage.json``, builds a
+   Pint unit registry from the ``unit_registry`` field embedded in the descriptor,
+   and attempts to parse every ``unit`` field value with that registry.  All
+   failures are collected before the check reports so a single run surfaces every
+   bad unit string.
+
+   :param asset_key: Key of the asset that produces the datapackage descriptor.
+   :param description: Human-readable description attached to the check in the
+                       Dagster UI.
+   :param blocking: Whether the check is blocking (default ``True``).
 
 

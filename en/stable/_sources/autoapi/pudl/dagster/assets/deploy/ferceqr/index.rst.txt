@@ -19,7 +19,11 @@ Attributes
 .. autoapisummary::
 
    pudl.dagster.assets.deploy.ferceqr.logger
+   pudl.dagster.assets.deploy.ferceqr.FERCEQR_SOURCE_RUN_ID_TAG
+   pudl.dagster.assets.deploy.ferceqr.FERCEQR_SOURCE_PARTITIONS_TAG
+   pudl.dagster.assets.deploy.ferceqr.DAGSTER_BACKFILL_TAG
    pudl.dagster.assets.deploy.ferceqr.FERCEQR_TRANSFORM_ASSETS
+   pudl.dagster.assets.deploy.ferceqr.StepStatusTable
 
 
 Functions
@@ -27,12 +31,22 @@ Functions
 
 .. autoapisummary::
 
-   pudl.dagster.assets.deploy.ferceqr._get_logfile_list
-   pudl.dagster.assets.deploy.ferceqr._get_etl_status_csv_path
    pudl.dagster.assets.deploy.ferceqr._write_status_file
+   pudl.dagster.assets.deploy.ferceqr._clear_status_files
+   pudl.dagster.assets.deploy.ferceqr._staging_path
+   pudl.dagster.assets.deploy.ferceqr._deploy_to_staging
+   pudl.dagster.assets.deploy.ferceqr._promote_staging
+   pudl.dagster.assets.deploy.ferceqr._remove_staging
+   pudl.dagster.assets.deploy.ferceqr._parse_step_key
+   pudl.dagster.assets.deploy.ferceqr._validate_partitions
+   pudl.dagster.assets.deploy.ferceqr._markdown_step_status_table
+   pudl.dagster.assets.deploy.ferceqr._gather_step_statuses
+   pudl.dagster.assets.deploy.ferceqr._markdown_logfile_list
+   pudl.dagster.assets.deploy.ferceqr._compute_deploy_duration
+   pudl.dagster.assets.deploy.ferceqr.build_ferceqr_notification
    pudl.dagster.assets.deploy.ferceqr.deployment_status_asset
    pudl.dagster.assets.deploy.ferceqr.deploy_ferceqr
-   pudl.dagster.assets.deploy.ferceqr.handle_ferceqr_deployment_failure
+   pudl.dagster.assets.deploy.ferceqr.handle_ferceqr_failure
 
 
 Module Contents
@@ -40,39 +54,176 @@ Module Contents
 
 .. py:data:: logger
 
+.. py:data:: FERCEQR_SOURCE_RUN_ID_TAG
+   :value: 'ferceqr/source_run_id'
+
+
+.. py:data:: FERCEQR_SOURCE_PARTITIONS_TAG
+   :value: 'ferceqr/source_partitions'
+
+
+.. py:data:: DAGSTER_BACKFILL_TAG
+   :value: 'dagster/backfill'
+
+
 .. py:data:: FERCEQR_TRANSFORM_ASSETS
    :value: ['core_ferceqr__contracts', 'core_ferceqr__transactions', 'core_ferceqr__quarterly_identity',...
 
 
-.. py:function:: _get_logfile_list(build_id: str) -> str
+.. py:data:: StepStatusTable
+
+.. py:function:: _write_status_file(status: Literal['FERCEQR_SUCCESS', 'FERCEQR_FAILURE'], pudl_paths: pudl.workspace.setup.PudlPaths)
+
+   Notify build script that job is complete by creating a status file.
+
+   Flush logging handlers before writing the sentinel. The bash script that
+   launched the Dagster daemon uses ``inotifywait`` to watch for this sentinel
+   and runs ``killall dagster-daemon`` as soon as it appears. Any buffered log
+   output written before the sentinel but not yet flushed will be lost when the
+   daemon process is killed, making errors invisible in the log.
+
+
+.. py:function:: _clear_status_files(pudl_paths: pudl.workspace.setup.PudlPaths) -> None
+
+   Remove any stale FERC EQR status files from the output directory.
+
+
+.. py:function:: _staging_path(dist_path: upath.UPath) -> upath.UPath
+
+   Return the staging path *alongside* *dist_path* for an atomic deploy.
+
+   The staging path sits as a sibling of the deployment target, rather than a
+   child. On cloud storage this avoids prefix-scoping ambiguity during the
+   rename loop — the staging and final prefixes are completely disjoint:
+
+   .. code-block:: text
+
+       gs://bucket/
+         ├── 2026-06-10-.../              (final target dir)
+         └── ._staging_2026-06-10-.../    (staging dir, sibling)
+
+   The suffix includes the BUILD_ID to tie it to a specific build run, and a
+   random component to avoid collisions during concurrent development runs.
+
+   If ``BUILD_ID`` is not set (local/testing), a random short suffix is used alone.
+
+
+.. py:function:: _deploy_to_staging(ferceqr_deployment: pudl.dagster.resources.FercEqrDeploymentResource, source_partitions: list[str], datapackage_path: pathlib.Path) -> list[upath.UPath]
+
+   Copy EQR outputs to a staging location under each target, return staging paths.
+
+   Each table's Parquet files and the datapackage JSON are written to a temporary
+   ``._staging_{BUILD_ID}_{random}`` subdirectory beneath the real deployment target.
+   This ensures that a timeout or crash during copying never leaves the final target
+   in a partially-deployed state.
+
+   *datapackage_path* is the path to the ``ferceqr_parquet_datapackage.json``
+   file on the local filesystem (written to ``pudl_output`` by the caller).
+
+   Returns the list of staging :class:`~upath.UPath` objects so the caller can atomically
+   promote them via rename.
+
+
+.. py:function:: _promote_staging(staging_targets: list[upath.UPath], resolved_targets: list[upath.UPath]) -> None
+
+   Atomically promote staging directories to their final destination paths.
+
+   For each ``(staging_dir, final_dir)`` pair, this moves the contents of the staged
+   table directories and the datapackage JSON into the final target directory. On GCS
+   and S3 ``UPath.rename()`` performs a server-side copy followed by deletion of the
+   original, so the metadata (owner, timestamps, storage class) is preserved and no
+   data re-upload occurs. On local filesystems the rename is a fast inode-level
+   operation.
+
+
+.. py:function:: _remove_staging(staging_dir: upath.UPath) -> None
+
+   Remove a staging directory and all its contents.
+
+   Used for cleanup if the promotion step fails — the partial staging data is
+   discarded rather than leaked. Safe to call on directories that do not exist
+   (e.g. if promotion already removed them before the failure occurred).
+
+   Uses ``fs.rm(path, recursive=True)`` instead of ``rmdir()`` because cloud
+   storage (GCS, S3) uses virtual prefixes rather than real directories and
+   ``rmdir()`` would raise ``NotADirectoryError``.
+
+
+.. py:function:: _parse_step_key(step_key: str, source_partition: str | None) -> tuple[str, str]
+
+   Extract asset and partition from a step key like ``asset_name[partition]``.
+
+   FERC EQR transform steps always follow the ``asset_name[partition]`` format, so the
+   regex match is expected to succeed for all relevant steps. The fallback path is a
+   safety net for unexpected non-bracketed step keys (e.g. system steps). In that case,
+   the raw step key is used as the asset label so the status table remains
+   comprehensible, and ``source_partition or "UNKNOWN"`` avoids ``None`` as a dict key.
+
+
+.. py:function:: _validate_partitions(raw: str | None) -> list[str]
+
+   Validate and parse the source partitions JSON from run tags.
+
+   Also verifies that each partition is one of the allowed working partitions
+   defined for the ``ferceqr`` data source in ``pudl.metadata.sources``.
+
+
+.. py:function:: _markdown_step_status_table(asset_partition_statuses: StepStatusTable, partitions: list[str] | None) -> str
+
+   Format terminal step statuses as an asset-by-partition Markdown table.
+
+
+.. py:function:: _gather_step_statuses(context: dagster.AssetExecutionContext, source_run_id: str) -> tuple[StepStatusTable, str | None]
+
+   Collect step statuses and total elapsed time across all source runs.
+
+   The elapsed time is computed from the earliest ``start_time`` to the latest
+   ``end_time`` across all source runs (backfill or single). Returns
+   ``(statuses, formatted_duration)``.
+
+
+.. py:function:: _markdown_logfile_list(build_id: str) -> str
 
    Return pointer to logs to send in Zulip message.
 
 
-.. py:function:: _get_etl_status_csv_path(pudl_paths: pudl.workspace.setup.PudlPaths) -> pathlib.Path
+.. py:function:: _compute_deploy_duration(context: dagster.AssetExecutionContext) -> str | None
 
-.. py:function:: _write_status_file(status: Literal['SUCCESS', 'FAILURE'], pudl_paths: pudl.workspace.setup.PudlPaths)
-
-   Notify build script that job is complete by creating a status file.
+   Return elapsed time since the current run started, or None on failure.
 
 
-.. py:function:: deployment_status_asset(handler: collections.abc.Callable) -> dagster.AssetsDefinition
+.. py:function:: build_ferceqr_notification(context: dagster.AssetExecutionContext, outcome: Literal['SUCCESS', 'FAILURE']) -> str
 
-   Create a wrapper for deployment handler assets.
+   Build a Markdown notification string for FERC EQR deployment outcomes.
 
-   This is useful to gracefully handle errors if the deployment status assets fail
-   for any reason. When these assets fail, sometimes the logs don't show up in the
-   batch job appropriately, and the status file never gets created, so the job keeps
-   running until it eventually times out.
-
-
-.. py:function:: deploy_ferceqr(pudl_paths: pudl.workspace.setup.PudlPaths, zulip: pudl.dagster.resources.ZulipNotificationResource)
-
-   Publish EQR outputs to cloud storage.
+   Extracts all relevant information (source partitions, run ID, duration,
+   step statuses, distribution paths, build ID) from the Dagster execution
+   context and returns a formatted Markdown message ready for Zulip.
 
 
-.. py:function:: handle_ferceqr_deployment_failure(pudl_paths: pudl.workspace.setup.PudlPaths, zulip: pudl.dagster.resources.ZulipNotificationResource)
+.. py:function:: deployment_status_asset(asset_fn: collections.abc.Callable) -> dagster.AssetsDefinition
 
-   Send notification if EQR deployment failed.
+   Create a custom decorator for deployment handler assets.
+
+   This allows us to gracefully handle errors if the deployment assets fail for any
+   reason. When these assets fail, sometimes the logs don't show up in the batch job
+   appropriately, and the status file never gets created, so the job keeps running
+   until it eventually times out.
+
+
+.. py:function:: deploy_ferceqr(context: dagster.AssetExecutionContext)
+
+   Publish EQR outputs to configured deployment targets.
+
+   Uses a staging-then-rename pattern: all files are first uploaded to a
+   ``._staging_{BUILD_ID}_{random}`` directory beneath each target, then
+   atomically moved (server-side on GCS/S3, inode-level locally) to the final
+   path. This ensures the target is never partially populated — if the upload
+   is interrupted, the staging directory is simply discarded.
+
+
+.. py:function:: handle_ferceqr_failure(context: dagster.AssetExecutionContext)
+
+   Send notification if the FERC EQR build failed.
 
 

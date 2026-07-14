@@ -21,6 +21,10 @@ Attributes
    pudl.metadata.classes.PositiveFloat
    pudl.metadata.classes.T
    pudl.metadata.classes.StrictList
+   pudl.metadata.classes.FieldNamespace
+   pudl.metadata.classes.FIELD_NAMESPACES
+   pudl.metadata.classes.EtlGroup
+   pudl.metadata.classes.ETL_GROUPS
    pudl.metadata.classes.PUDL_PACKAGE
 
 
@@ -136,6 +140,24 @@ Module Contents
 
    Allows :class:`list`, :class:`tuple`, :class:`set`, :class:`frozenset`,
    :class:`collections.deque`, or generators and casts to a :class:`list`.
+
+.. py:data:: FieldNamespace
+
+   Canonical field namespace identifiers used by PUDL resources.
+
+.. py:data:: FIELD_NAMESPACES
+   :type:  tuple[FieldNamespace, Ellipsis]
+
+   All valid PUDL field namespace identifiers.
+
+.. py:data:: EtlGroup
+
+   Canonical ETL group identifiers used by PUDL resources.
+
+.. py:data:: ETL_GROUPS
+   :type:  tuple[EtlGroup, Ellipsis]
+
+   All valid PUDL ETL group identifiers.
 
 .. py:function:: _check_unique(value: list = None) -> list | None
 
@@ -1626,13 +1648,13 @@ Module Contents
 
 
    .. py:attribute:: field_namespace
-      :type:  Literal['censusdp1tract', 'eia', 'eiaaeo', 'eiaapi', 'epacems', 'ferc', 'ferc1', 'ferc714', 'ferceqr', 'glue', 'gridpathratoolkit', 'ppe', 'pudl', 'nrelatb', 'vcerare', 'phmsagas', 'sec', 'rus'] | None
+      :type:  FieldNamespace | None
       :value: None
 
 
 
    .. py:attribute:: etl_group
-      :type:  Literal['censusdp1tract', 'eia176', 'eia191', 'eia860', 'eia861', 'eia861_disabled', 'eia923', 'eia930', 'eiaaeo', 'entity_eia', 'epacems', 'entity_ferc', 'ferc1', 'ferc1_disabled', 'ferc714', 'ferceqr', 'glue', 'gridpathratoolkit', 'outputs', 'static_ferc1', 'static_eia', 'static_eia_disabled', 'eiaapi', 'state_demand', 'static_pudl', 'service_territories', 'nrelatb', 'vcerare', 'phmsagas', 'sec10k', 'rus7', 'static_rus', 'rus12'] | None
+      :type:  EtlGroup | None
       :value: None
 
 
