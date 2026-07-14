@@ -708,15 +708,6 @@ def _core_eia923__pre_generation_fuel(raw_eia923__generation_fuel: pd.DataFrame)
     )
 
     gen_fuel = _clean_gen_fuel_energy_sources(gen_fuel)
-    gen_fuel = PUDL_PACKAGE.encode(gen_fuel)
-    gen_fuel["fuel_type_code_pudl"] = gen_fuel.energy_source_code.map(
-        pudl.helpers.label_map(
-            CODE_METADATA["core_eia__codes_energy_sources"]["df"],
-            from_col="code",
-            to_col="fuel_type_code_pudl",
-            null_value=pd.NA,
-        )
-    )
 
     # Drop records missing all variable fields.
     variable_fields = [
@@ -731,6 +722,30 @@ def _core_eia923__pre_generation_fuel(raw_eia923__generation_fuel: pd.DataFrame)
 
     # Convert Year/Month columns into a single Date column...
     gen_fuel = pudl.helpers.convert_to_date(gen_fuel)
+
+    # Remove dupe rows with different energy_source_code values and 0 consumption data.
+    # Right now this only applies to plant id 50489 in 2025.
+    if 2025 in gen_fuel.report_date.dt.year.unique():
+        subset_df = gen_fuel[
+            (gen_fuel["plant_id_eia"] == 50489)
+            & (gen_fuel["report_date"].dt.year == 2025)
+        ]
+        value_cols = subset_df.filter(regex=r"(_mwh|_units|_mmbtu)$").columns
+        zero_value_rows = subset_df.loc[
+            (subset_df[value_cols] == 0).all(axis=1), value_cols
+        ]
+        assert len(zero_value_rows) == 13
+        gen_fuel = gen_fuel.drop(zero_value_rows.index)
+
+    gen_fuel = PUDL_PACKAGE.encode(gen_fuel)
+    gen_fuel["fuel_type_code_pudl"] = gen_fuel.energy_source_code.map(
+        pudl.helpers.label_map(
+            CODE_METADATA["core_eia__codes_energy_sources"]["df"],
+            from_col="code",
+            to_col="fuel_type_code_pudl",
+            null_value=pd.NA,
+        )
+    )
 
     # Create separate nuclear unit fuel table
     nukes = gen_fuel[
@@ -749,19 +764,6 @@ def _core_eia923__pre_generation_fuel(raw_eia923__generation_fuel: pd.DataFrame)
 
     # Aggregate any remaining duplicates.
     gen_fuel = _aggregate_generation_fuel_duplicates(gen_fuel)
-
-    # Remove dupe rows with different energy_source_code values and 0 consumption data.
-    # Right now this only applies to plant id 50489 in 2025.
-    if 2025 in gen_fuel.report_date.dt.year.unique():
-        subset_df = gen_fuel[
-            (gen_fuel["plant_id_eia"] == 50489) & (gen_fuel["report_year"] == 2025)
-        ]
-        value_cols = subset_df.filter(regex=r"(_mwh|_units|_mmbtu)$").columns
-        zero_value_rows = subset_df.loc[
-            (subset_df[value_cols] == 0).all(axis=1), value_cols
-        ]
-        assert len(zero_value_rows) == 13
-        gen_fuel = gen_fuel.drop(zero_value_rows.index)
 
     return (
         Output(output_name="_core_eia923__generation_fuel", value=gen_fuel),
@@ -1074,24 +1076,32 @@ def _drop_duplicates__core_eia923__generation(
     # only column that differs in these records. We don't expect this table
     # to vary by pm code.... also generators definitionally shouldn't have
     # two prime_mover_codes
-    still_dupe_mask = gen_df.duplicated(subset=unique_subset, keep=False)
-    still_dupes = gen_df[still_dupe_mask]
-    if set(gen_df.report_date.dt.year.unique()) >= set({2012, 2013, 2025, 2026}):
-        assert set(still_dupes.plant_id_eia.unique()) == {3405, 55088}
-        assert set(still_dupes.report_date.dt.year.unique()) == {2012, 2013, 2025, 2026}
+
+    # This function is only really necessary so long as there are dupes in the fast_etl
+    # that need to be separated out.
+    def _agg_dupes(df: pd.DataFrame, mask) -> pd.DataFrame:
         first_cols = [
             col
-            for col in still_dupes
+            for col in df
             if col not in unique_subset + ["net_generation_mwh", "prime_mover_code"]
         ]
         deduped = (
-            still_dupes.groupby(unique_subset)
+            df.groupby(unique_subset)
             .agg({"net_generation_mwh": "sum", **dict.fromkeys(first_cols, "first")})
             .reset_index()
         )
+        return pd.concat([gen_df[~mask], deduped], ignore_index=True)
 
-        gen_df = pd.concat([gen_df[~still_dupe_mask], deduped], ignore_index=True)
-
+    still_dupe_mask = gen_df.duplicated(subset=unique_subset, keep=False)
+    still_dupes = gen_df[still_dupe_mask]
+    if set(gen_df.report_date.dt.year.unique()) == set({2026}):  # for the fast_etl
+        assert set(still_dupes.plant_id_eia.unique()) == {55088}
+        assert set(still_dupes.report_date.dt.year.unique()) == {2026}
+        gen_df = _agg_dupes(still_dupes, still_dupe_mask)
+    elif set(gen_df.report_date.dt.year.unique()) >= set({2012, 2013, 2025}):
+        assert set(still_dupes.plant_id_eia.unique()) == {3405, 55088}
+        assert set(still_dupes.report_date.dt.year.unique()) == {2012, 2013, 2025, 2026}
+        gen_df = _agg_dupes(still_dupes, still_dupe_mask)
     if not (
         still_dupes := gen_df[gen_df.duplicated(subset=unique_subset, keep=False)]
     ).empty:
