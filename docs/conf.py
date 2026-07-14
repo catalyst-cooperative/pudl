@@ -11,6 +11,7 @@
 import datetime
 import importlib.metadata
 import os
+import pathlib
 import shutil
 
 from pybtex.plugin import register_plugin
@@ -185,7 +186,7 @@ templates_path = ["_templates"]
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = ["_build"]
+exclude_patterns = ["_build", "docs"]
 
 # This is necessary because Sphinx 9.0+ is getting confused about class
 # attributes named type, and type[SomeClass] annotations in factory functions
@@ -216,9 +217,33 @@ html_theme_options = {
         {
             "name": "GitHub",
             "url": "https://github.com/catalyst-cooperative/pudl",
-            "icon": "fa-brands fa-square-github",
+            "icon": "fa-brands fa-github",
             "type": "fontawesome",
-        }
+        },
+        {
+            "name": "Mastodon",
+            "url": "https://mastodon.energy/@catalystcoop",
+            "icon": "fa-brands fa-mastodon",
+            "type": "fontawesome",
+        },
+        {
+            "name": "Bluesky",
+            "url": "https://bsky.app/profile/catalyst.coop",
+            "icon": "fa-brands fa-bluesky",
+            "type": "fontawesome",
+        },
+        {
+            "name": "LinkedIn",
+            "url": "https://www.linkedin.com/company/catalyst-cooperative/",
+            "icon": "fa-brands fa-linkedin",
+            "type": "fontawesome",
+        },
+        {
+            "name": "Support PUDL",
+            "url": "https://opencollective.com/pudl",
+            "icon": "fa-solid fa-donate",
+            "type": "fontawesome",
+        },
     ],
     "switcher": {
         "json_url": "https://docs.catalyst.coop/pudl/available_versions.json",
@@ -231,6 +256,14 @@ html_theme_options = {
     "show_nav_level": {
         "**": 2,
     },
+    # Preserve pydata-sphinx-theme's default footer_end ("theme-version") and
+    # add a link to the sphinx_llm.txt generated llms.txt index, so agents
+    # exploring the rendered site (rather than landing on a specific page)
+    # can discover the markdown-friendly docs.
+    "footer_end": [
+        "theme-version",
+        *(["llms-txt-link"] if "sphinx_llm.txt" in extensions else []),
+    ],
 }
 html_sidebars = {
     "release_notes": [],
@@ -348,12 +381,69 @@ def cleanup_csv_dir(app, exception):
         shutil.rmtree(csv_dir)
 
 
+def cleanup_docs_img_hack_dir(app, exception):
+    """Remove symlink to images dir when the build is finished."""
+    docs_img_hack_dir = PUDL_DOCS_PATH / "docs"
+    if docs_img_hack_dir.exists() and docs_img_hack_dir.is_dir():
+        shutil.rmtree(docs_img_hack_dir)
+
+
+def add_markdown_alternate_link(app, pagename, templatename, context, doctree):
+    """Advertise the sphinx_llm.txt markdown twin of each page via <link rel="alternate">.
+
+    sphinx_llm.txt generates a ``<page>.html.md`` file alongside every HTML
+    page (see llms_txt_suffix_mode="auto" default), but doesn't add any
+    in-page signal pointing to it. This makes that markdown version
+    discoverable to crawlers/agents that check for standard alternate-format
+    links, without requiring them to already know the llms.txt convention.
+    """
+    if pagename not in app.env.found_docs:
+        # Skip generated non-document pages (search, genindex, 404, etc.)
+        # that don't have a markdown counterpart.
+        return
+    # sphinx_llm.txt writes the markdown twin next to its HTML page (e.g.
+    # dev/pudl_id_mapping.html -> dev/pudl_id_mapping.html.md), so a
+    # same-directory-relative filename is all that's needed. We avoid
+    # context["pathto"](pagename) here because it collapses same-page
+    # self-references down to a bare "#", which would produce a broken
+    # "#.md" href.
+    markdown_filename = f"{pagename.rsplit('/', 1)[-1]}.html.md"
+    link_tag = (
+        '\n<link rel="alternate" type="text/markdown" '
+        'title="Markdown version of this page" '
+        f'href="{markdown_filename}" />'
+    )
+    context["metatags"] = context.get("metatags", "") + link_tag
+
+
+def _create_readme_image_symlink(app):
+    """Create docs/docs/images symlink so README.rst image paths resolve.
+
+    README.rst uses 'docs/images/logos/...' paths (relative to repo root). When
+    included in docs/index.rst, Sphinx resolves those paths relative to docs/,
+    looking for docs/docs/images/logos/... — this symlink satisfies that lookup.
+    """
+    inner = pathlib.Path(app.srcdir) / "docs"
+    inner.mkdir(exist_ok=True)
+    images = inner / "images"
+    if not images.exists():
+        images.symlink_to("../images")
+
+
 def setup(app):
     """Add custom CSS defined in _static/custom.css."""
     app.add_css_file("custom.css")
+    app.connect("builder-inited", _create_readme_image_symlink)
     app.connect("builder-inited", data_dictionary_metadata_to_rst)
     app.connect("builder-inited", data_sources_metadata_to_rst)
     app.connect("builder-inited", static_dfs_to_rst)
+    # Only advertise markdown alternates if sphinx_llm.txt is actually
+    # installed, loaded, and not explicitly disabled via llms_txt_enabled.
+    if "sphinx_llm.txt" in app.extensions and getattr(
+        app.config, "llms_txt_enabled", True
+    ):
+        app.connect("html-page-context", add_markdown_alternate_link)
     if not keep_generated_files:
         app.connect("build-finished", cleanup_rsts)
         app.connect("build-finished", cleanup_csv_dir)
+        app.connect("build-finished", cleanup_docs_img_hack_dir)
