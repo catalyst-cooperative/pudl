@@ -9,6 +9,17 @@ v2026.8.x (2026-08-xx)
 
 This is the upcoming monthly PUDL release.
 
+Documentation
+^^^^^^^^^^^^^
+
+* Set up the `sphinx_llm <https://github.com/NVIDIA/sphinx-llm>`__ Sphinx extension to
+  generate a Markdown version of the PUDL documentation, suitable for consumption by
+  LLMs, based on the `llms.txt <https://llmstxt.org/>`__ convention. Each page now
+  advertises its Markdown counterpart via a ``<link rel="alternate"
+  type="text/markdown">`` tag, and the site footer links directly to ``llms.txt``, so
+  that agents browsing the rendered HTML docs can discover and prefer the Markdown
+  versions. See PRs :pr:`5381,5393`.
+
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -114,7 +125,6 @@ FERC CID
 
 * Updated the FERC company identifiers with data through end of
   June 2026. See PR :pr:`5396`.
-
 
 Documentation
 ^^^^^^^^^^^^^
