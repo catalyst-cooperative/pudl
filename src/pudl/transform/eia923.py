@@ -752,10 +752,10 @@ def _core_eia923__pre_generation_fuel(raw_eia923__generation_fuel: pd.DataFrame)
 
     # Remove dupe rows with different energy_source_code values and 0 consumption data.
     # Right now this only applies to plant id 50489 in 2025.
-    subset_df = gen_fuel[
-        (gen_fuel["plant_id_eia"] == 50489) & (gen_fuel["report_year"] == 2025)
-    ]
-    if not subset_df.empty:  # do this for fast_etl
+    if 2025 in gen_fuel.report_date.dt.year.unique():
+        subset_df = gen_fuel[
+            (gen_fuel["plant_id_eia"] == 50489) & (gen_fuel["report_year"] == 2025)
+        ]
         value_cols = subset_df.filter(regex=r"(_mwh|_units|_mmbtu)$").columns
         zero_value_rows = subset_df.loc[
             (subset_df[value_cols] == 0).all(axis=1), value_cols
