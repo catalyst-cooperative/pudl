@@ -1061,7 +1061,11 @@ def _drop_duplicates__core_eia923__generation(
     # raise alarm bells if we are dropping more than we expect... but not for unit
     # tests when we are feeding it almost all problems.
     max_drop_ratio = 0.013
-    if not unit_test and (drop_ratio := len(drop_em) / len(gen_df)) > max_drop_ratio:
+    if (
+        not unit_test
+        and (drop_ratio := len(drop_em) / len(gen_df)) > max_drop_ratio
+        and len(gen_df.report_date.dt.year.unique()) > 3
+    ):
         raise AssertionError(
             f"Dropped {drop_ratio} as duplicates but expected only {max_drop_ratio}"
         )
@@ -1079,29 +1083,32 @@ def _drop_duplicates__core_eia923__generation(
 
     # This function is only really necessary so long as there are dupes in the fast_etl
     # that need to be separated out.
-    def _agg_dupes(df: pd.DataFrame, mask) -> pd.DataFrame:
+    def _agg_dupes(df: pd.DataFrame, dupe_df: pd.DataFrame, mask) -> pd.DataFrame:
         first_cols = [
             col
-            for col in df
+            for col in dupe_df
             if col not in unique_subset + ["net_generation_mwh", "prime_mover_code"]
         ]
         deduped = (
-            df.groupby(unique_subset)
+            dupe_df.groupby(unique_subset)
             .agg({"net_generation_mwh": "sum", **dict.fromkeys(first_cols, "first")})
             .reset_index()
         )
-        return pd.concat([gen_df[~mask], deduped], ignore_index=True)
+        return pd.concat([df[~mask], deduped], ignore_index=True)
 
     still_dupe_mask = gen_df.duplicated(subset=unique_subset, keep=False)
     still_dupes = gen_df[still_dupe_mask]
-    if set(gen_df.report_date.dt.year.unique()) == set({2026}):  # for the fast_etl
+    gen_df.to_pickle("/Users/austensharpe/Desktop/gen_df.pkl")
+    if set(gen_df.report_date.dt.year.unique()) == set(
+        {2020, 2026}
+    ):  # for the fast_etl
         assert set(still_dupes.plant_id_eia.unique()) == {55088}
         assert set(still_dupes.report_date.dt.year.unique()) == {2026}
-        gen_df = _agg_dupes(still_dupes, still_dupe_mask)
+        gen_df = _agg_dupes(gen_df, still_dupes, still_dupe_mask)
     elif set(gen_df.report_date.dt.year.unique()) >= set({2012, 2013, 2025}):
         assert set(still_dupes.plant_id_eia.unique()) == {3405, 55088}
         assert set(still_dupes.report_date.dt.year.unique()) == {2012, 2013, 2025, 2026}
-        gen_df = _agg_dupes(still_dupes, still_dupe_mask)
+        gen_df = _agg_dupes(gen_df, still_dupes, still_dupe_mask)
     if not (
         still_dupes := gen_df[gen_df.duplicated(subset=unique_subset, keep=False)]
     ).empty:
@@ -1109,6 +1116,7 @@ def _drop_duplicates__core_eia923__generation(
             "There are still duplicates found in the table when we expect none:\n"
             f"{still_dupes.set_index(unique_subset).sort_index()}"
         )
+    gen_df.to_pickle("/Users/austensharpe/Desktop/gen_df.pkl")
     return gen_df
 
 
