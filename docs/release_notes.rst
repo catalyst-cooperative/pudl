@@ -2,11 +2,20 @@
 PUDL Release Notes
 =======================================================================================
 
-.. _release-v2026.7.0:
+.. _release-v2026.7.2:
 
 ---------------------------------------------------------------------------------------
-v2026.7.0 (2026-07-XX)
+v2026.7.2 (2026-07-14)
 ---------------------------------------------------------------------------------------
+
+This is a monthly PUDL data release, primarily motivated by updating
+the EIA-860M monthly data through May 2026. As usual, it also includes
+all of the other changes that have accumulated on ``main`` since our
+last release.
+
+This month, we have new EIA-176 tables, the EIA-860 early release,
+Parquet outputs for DBF assets, improved units handling, GeoParquet
+bugfixes, and better signal:noise ratio in unit test logging outputs.
 
 Enhancements
 ^^^^^^^^^^^^
@@ -32,17 +41,44 @@ New Data
 EIA-176
 ~~~~~~~
 
-* Added detailed core EIA-176 continuation-line tables for natural gas imports,
-  supplemental gaseous fuel supplies, gas exports, and other gas disposition. See
+* Added detailed core :doc:`EIA-176 <data_sources/eia176>`
+  continuation-line tables for natural gas imports, supplemental
+  gaseous fuel supplies, gas exports, and other gas disposition. See
   :issue:`5240` and :pr:`5245`.
 
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
+EIA-191
+~~~~~~~
+
+* Added :doc:`EIA-191 <data_sources/eia191>` data through end of
+  March 2026. See PR :pr:`5396`.
+
+EIA-930
+~~~~~~~
+
+* Added :doc:`EIA-930 <data_sources/eia930>` data through end of
+  June 2026. See PR :pr:`5396`
+
+EIA Electricity API
+~~~~~~~~~~~~~~~~~~~
+
+* Updated the bulk :doc:`EIA Electricity API <data_sources/eiaapi>` data
+  used to fill in redacted fuel prices. See PR :pr:`5396`.
+
+EPA CEMS
+~~~~~~~~
+
+* Added :doc:`EPA CEMS <data_sources/epacems>` data through end of
+  March 2026. See PR :pr:`5396`
+
 EIA-860
 ~~~~~~~
 
-* Added early release data for EIA-860 2025. See issue :issue:`5322` and PR :pr:`5324`.
+* Added early release data for :doc:`EIA-860
+  <data_sources/eia860>` 2025. See issue :issue:`5322` and PR
+  :pr:`5324`.
 
 EIA-860M
 ~~~~~~~~
@@ -50,15 +86,33 @@ EIA-860M
 * Added :doc:`EIA-860M <data_sources/eia860>` data through May 2026. See
   issue :issue:`5369` and PR :pr:`5371`.
 
+FERC Forms 2 and 6
+~~~~~~~~~~~~~~~~~~
+
+* Updated the raw FERC Form 2 and 6 archives to include additional
+  2025 data. This data is converted to SQLite, but not deeply
+  integrated into PUDL. See PR :pr:`5396`.
+
+FERC CID
+~~~~~~~~
+
+* Updated the FERC company identifiers with data through end of
+  June 2026. See PR :pr:`5396`.
+
+
 Documentation
 ^^^^^^^^^^^^^
+
 * Expanded the developer docs around metadata naming, typing, and updates to explain
   how unit annotations, field namespaces, and namespace/table-specific metadata
   overrides should be defined and maintained. See :pr:`5361`.
-
 * Set up the `sphinx_llm <https://github.com/NVIDIA/sphinx-llm>`__ Sphinx extension to
   generate a Markdown version of the PUDL documentation, suitable for consumption by
-  LLMs, based on the `llms.txt <https://llmstxt.org/>`__ convention. See PR :pr:`5381`.
+  LLMs, based on the `llms.txt <https://llmstxt.org/>`__ convention. Each page now
+  advertises its Markdown counterpart via a ``<link rel="alternate"
+  type="text/markdown">`` tag, and the site footer links directly to ``llms.txt``, so
+  that agents browsing the rendered HTML docs can discover and prefer the Markdown
+  versions. See PRs :pr:`5381,5393`.
 
 New Data Tests & Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
