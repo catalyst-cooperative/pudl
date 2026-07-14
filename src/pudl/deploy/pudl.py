@@ -608,7 +608,7 @@ def get_build_from_tag(tag: str) -> UPath:
     build_path_pattern = re.compile(r"(\d{4}-\d{2}-\d{2}-\d{4})-([a-f|0-9]{9})")
     checked = []
     for build_path in build_bucket.glob(f"*-{git_ref}"):
-        checked.append(build_path)
+        checked.append(str(build_path))
         if (match := build_path_pattern.search(str(build_path))) is None:
             raise RuntimeError(
                 f"Found build path with unexpected name format associated with ref, {git_ref}: {build_path}"
