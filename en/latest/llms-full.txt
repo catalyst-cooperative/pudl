@@ -185,8 +185,8 @@ generator, or hourly electricity demand with missing and outlying values imputed
   provides examples of working with PUDL data using Python in Jupyter notebooks.
 * For larger tables, including those with hourly resolution, you may want to use
   tools designed for data that’s larger than your computer’s available memory.
-  Polars dataframes <https://docs.pola.rs/user-guide/getting-started/> and
-  DuckDB <https://duckdb.org/docs/> are great options.
+  [Polars dataframes](https://docs.pola.rs/user-guide/getting-started/) and
+  [DuckDB](https://duckdb.org/docs/) are great options.
 
 <a id="test-and-validate"></a>
 
@@ -235,35 +235,44 @@ The PUDL Sustainers provide ongoing financial support to ensure the open data ke
 flowing, and the project is sustainable long term. They’re also involved in our
 quarterly planning process. To learn more see [the PUDL Project page on Open Collective](https://opencollective.com/pudl).
 
-### Gigawatt Tier (≥$25,000/year)
+### Gigawatt Tier (≥$25,000/year) ⚡⚡⚡
 
-[![RMI](images/logos/RMI.png)](https://rmi.org)[![GridLab](images/logos/GridLab.png)](https://gridlab.org)
+#### [RMI](https://rmi.org)
 
-### Megawatt Tier (≥$16,000/year)
+[![RMI](images/logos/RMI.png)](https://rmi.org)
+
+#### [GridLab](https://gridlab.org)
+
+[![GridLab](images/logos/GridLab.png)](https://gridlab.org)
+
+### Megawatt Tier (≥$5,000/year) ⚡⚡
 
 Become our first [Megawatt tier sustainer](https://opencollective.com/pudl)!
 
-### Kilowatt Tier (≥$8,000/year)
+### Kilowatt Tier (≥$1,000/year) ⚡
 
-Become our first [kilowatt tier sustainer](https://opencollective.com/pudl)!
+#### [Singularity Energy](https://singularity.energy)
+
+[![Singularity Energy](images/logos/Singularity.png)](https://singularity.energy)
 
 ## Major Grant Funders
 
-### Alfred P. Sloan Foundation
+### [The Alfred P. Sloan Foundation](https://sloan.org/programs/research/energy-and-environment/)
 
 [![Alfred P. Sloan Foundation Energy and Environment Program](images/logos/Sloan.png)](https://sloan.org/programs/research/energy-and-environment/)
 
-The PUDL Project has been supported by three grants from the [Alfred P. Sloan
-Foundation’s Energy and Environment Program](https://sloan.org/programs/research/energy-and-environment), in 2019, 2021, and
-2024.
+The PUDL Project has been supported by four grants from the [Alfred P. Sloan
+Foundation’s Energy and Environment Program](https://sloan.org/programs/research/energy-and-environment), in 2019, 2021, 2024,
+and 2026.
 
-### National Science Foundation
+### [The National Science Foundation](https://new.nsf.gov/funding/opportunities/pathways-enable-open-source-ecosystems-pose)
 
 [![National Science Foundation Pathways to Enable Open Source Ecosystems (POSE)](images/logos/NSF.png)](https://new.nsf.gov/funding/opportunities/pathways-enable-open-source-ecosystems-pose)
 
-The PUDL Project was awarded a grant from the National Science Foundation’s [Pathways to
-Enable Open Source Ecosystems (POSE) program](https://new.nsf.gov/funding/opportunities/pathways-enable-open-source-ecosystems-pose)
-([award 2346139](https://www.nsf.gov/awardsearch/showAward?AWD_ID=2346139)) in 2024.
+The PUDL Project was awarded a grant from the National Science Foundation’s [Pathways
+to Enable Open Source Ecosystems (POSE) program](https://new.nsf.gov/funding/opportunities/pathways-enable-open-source-ecosystems-pose)
+([award 2346139](https://www.nsf.gov/awardsearch/showAward?AWD_ID=2346139)) in
+2024.
 
 
 # index.html.md
@@ -39305,11 +39314,6 @@ jurisdiction. See [18 CFR 35.10b Electric Quarterly Reports](https://www.ecfr.go
 
 ## Notable Irregularities
 
-#### WARNING
-As of 2026-01-15 integration of FERC EQR into PUDL is still underway, and the dataset
-should be considered a work in progress. You can check the status of issues linked
-below. See also tracking issues [#4850](https://github.com/catalyst-cooperative/pudl/issues/4850), [#4786](https://github.com/catalyst-cooperative/pudl/issues/4786)
-
 * A small percentage of the individual filing zip archives included in the quarterly
   FERC EQR bulk data are corrupted, and cannot be extracted. We assume this is due to
   errors in the filing process, and that these filings are likely revised and corrected
@@ -74756,7 +74760,11 @@ bugfixes, and better signal:noise ratio in unit test logging outputs.
   overrides should be defined and maintained. See [#5361](https://github.com/catalyst-cooperative/pudl/pull/5361).
 * Set up the [sphinx_llm](https://github.com/NVIDIA/sphinx-llm) Sphinx extension to
   generate a Markdown version of the PUDL documentation, suitable for consumption by
-  LLMs, based on the [llms.txt](https://llmstxt.org/) convention. See PR [#5381](https://github.com/catalyst-cooperative/pudl/pull/5381).
+  LLMs, based on the [llms.txt](https://llmstxt.org/) convention. Each page now
+  advertises its Markdown counterpart via a `<link rel="alternate"
+  type="text/markdown">` tag, and the site footer links directly to `llms.txt`, so
+  that agents browsing the rendered HTML docs can discover and prefer the Markdown
+  versions. See PRs [#5381](https://github.com/catalyst-cooperative/pudl/pull/5381), [#5393](https://github.com/catalyst-cooperative/pudl/pull/5393).
 
 ### New Data Tests & Validations
 
