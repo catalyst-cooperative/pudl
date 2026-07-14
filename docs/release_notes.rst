@@ -1,6 +1,21 @@
 =======================================================================================
 PUDL Release Notes
 =======================================================================================
+.. _release-v2026.8.x:
+
+---------------------------------------------------------------------------------------
+v2026.8.x (2026-08-xx)
+---------------------------------------------------------------------------------------
+
+This is the upcoming monthly PUDL release.
+
+Bug Fixes & Data Cleaning
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Fixed incorrectly mapped Western Area Power Authority BA codes in FERC 714
+  data - previously, the Upper Great Plains West region FERC respondent was mapped
+  to the Desert Southwest region EIA balancing authority information, and vice
+  versa. See :issue:`4644 and :pr:`5408`.
 
 .. _release-v2026.7.2:
 
@@ -21,7 +36,7 @@ Enhancements
 ^^^^^^^^^^^^
 
 * Added experimental Parquet outputs derived from the FERC DBF databases, and basic
-  ``datpackage.json`` metadata describing their schemas to support querying and preview
+  ``datapackage.json`` metadata describing their schemas to support querying and preview
   through the `PUDL Data Viewer <https://data.catalyst.coop>`__. See PR :pr:`5339`.
 * Standardized all unit strings in :mod:`pudl.metadata.fields` to
   `Pint expression syntax <https://pint.readthedocs.io/>`__, replacing ad-hoc
