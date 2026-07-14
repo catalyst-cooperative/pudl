@@ -163,7 +163,7 @@ PUDL currently integrates data from:
   - `Source Docs <https://www.ferc.gov/general-information-1/oil-industry-forms/form-6-6q-historical-vfp-data>`__
 * **FERC Form 60** (raw data converted to SQLite):
   - `Source Docs <https://www.ferc.gov/form-60-annual-report-centralized-service-companies>`__
-* **PHMSA Natural Gas Annual Reports** (work in progress by :user:`switchbox-data`):
+* **PHMSA Natural Gas Annual Reports**:
   - `Source Docs <https://www.phmsa.dot.gov/data-and-statistics/pipeline/gas-distribution-gas-gathering-gas-transmission-hazardous-liquids>`__
   - `PUDL Docs <https://docs.catalyst.coop/pudl/en/nightly/data_sources/phmsagas.html>`__
 * **USDA Rural Utilities Service Form 7** (via FOIA requests):
@@ -262,66 +262,82 @@ Find PUDL useful? Want to help make it better? There are lots of ways to help!
 PUDL Sustainers
 ---------------
 
+.. _pudl_sustainers_start:
+
 The PUDL Sustainers provide ongoing financial support to ensure the open data keeps
 flowing, and the project is sustainable long term. They're also involved in our
 quarterly planning process. To learn more see `the PUDL Project page on Open Collective
 <https://opencollective.com/pudl>`__.
 
-Gigawatt Tier (≥$25,000/year)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Gigawatt Tier (≥$25,000/year) ⚡⚡⚡
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+`RMI <https://rmi.org>`__
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. image:: docs/images/logos/RMI.png
-   :width: 600
+   :width: 500
    :target: https://rmi.org
    :alt: RMI
-   :align: center
+
+`GridLab <https://gridlab.org>`__
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. image:: docs/images/logos/GridLab.png
-   :width: 600
+   :width: 500
    :target: https://gridlab.org
    :alt: GridLab
-   :align: center
 
-Megawatt Tier (≥$5,000/year)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Megawatt Tier (≥$5,000/year) ⚡⚡
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Become our first `Megawatt tier sustainer <https://opencollective.com/pudl>`__!
 
-Kilowatt Tier (≥$1,000/year)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Kilowatt Tier (≥$1,000/year) ⚡
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Become our first `kilowatt tier sustainer <https://opencollective.com/pudl>`__!
+`Singularity Energy <https://singularity.energy>`__
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. image:: docs/images/logos/Singularity.png
+   :width: 300
+   :target: https://singularity.energy
+   :alt: Singularity Energy
+
+.. _pudl_sustainers_end:
 
 Major Grant Funders
 -------------------
 
-Alfred P. Sloan Foundation
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. _pudl_grants_start:
+
+`The Alfred P. Sloan Foundation <https://sloan.org/programs/research/energy-and-environment/>`__
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. image:: docs/images/logos/Sloan.png
-   :width: 400
+   :height: 150
    :target: https://sloan.org/programs/research/energy-and-environment/
    :alt: Alfred P. Sloan Foundation Energy and Environment Program
-   :align: center
 
 The PUDL Project has been supported by four grants from the `Alfred P. Sloan
 Foundation's Energy and Environment Program
 <https://sloan.org/programs/research/energy-and-environment>`__, in 2019, 2021, 2024,
 and 2026.
 
-National Science Foundation
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
+`The National Science Foundation <https://new.nsf.gov/funding/opportunities/pathways-enable-open-source-ecosystems-pose>`__
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. image:: docs/images/logos/NSF.png
-   :width: 400
+   :height: 150
    :target: https://new.nsf.gov/funding/opportunities/pathways-enable-open-source-ecosystems-pose
    :alt: National Science Foundation Pathways to Enable Open Source Ecosystems (POSE)
-   :align: center
 
-The PUDL Project was awarded a grant from the National Science Foundation's `Pathways to
-Enable Open Source Ecosystems (POSE) program
+The PUDL Project was awarded a grant from the National Science Foundation's `Pathways
+to Enable Open Source Ecosystems (POSE) program
 <https://new.nsf.gov/funding/opportunities/pathways-enable-open-source-ecosystems-pose>`__
-(`award 2346139 <https://www.nsf.gov/awardsearch/showAward?AWD_ID=2346139>`__) in 2024.
+(`award 2346139 <https://www.nsf.gov/awardsearch/showAward?AWD_ID=2346139>`__) in
+2024.
+
+.. _pudl_grants_end:
 
 Licensing
 ---------

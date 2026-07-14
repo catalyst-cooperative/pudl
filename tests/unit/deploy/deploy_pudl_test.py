@@ -583,11 +583,11 @@ def test_get_build_from_tag(
     # Create build directories in tmp_path
     if create_builds:
         for build_name, most_recent_build in [
-            (f"2026-02-04-1230-{expected_hash}-main", True),
-            (f"2026-02-04-0530-{expected_hash}-main", False),
-            (f"2026-01-01-0000-{expected_hash}-main", False),
-            (f"2026-01-01-1200-{other_hash}-main", True),
-            (f"2025-12-31-1200-{other_hash}-main", False),
+            (f"2026-02-04-1230-{expected_hash}", True),
+            (f"2026-02-04-0530-{expected_hash}", False),
+            (f"2026-01-01-0000-{expected_hash}", False),
+            (f"2026-01-01-1200-{other_hash}", True),
+            (f"2025-12-31-1200-{other_hash}", False),
         ]:
             build_path = tmp_path / build_name
             build_path.mkdir()

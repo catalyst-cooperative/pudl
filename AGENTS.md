@@ -107,29 +107,26 @@ pre-commit hooks both interactively and as git hooks.
 
 ### Adding dependencies
 
-Adding a **runtime dependency** requires updating `pyproject.toml` in two places:
+Adding a **runtime dependency** requires updating `pyproject.toml`:
 
-1. `[tool.pixi.dependencies]` — the full conda-forge listing (dev + test + runtime).
-2. `[tool.pixi.package.run-dependencies]` — the minimal runtime set used when PUDL is
-   installed as a conda package (e.g. by `pudl-archiver`). Keep this in sync with the
-   expansive list above.
+- `[tool.pixi.dependencies]` — the full conda-forge listing (dev + test + runtime).
 
 Dev-only or test-only dependencies belong only in `[tool.pixi.dependencies]` (or
 `[tool.pixi.feature.dev.dependencies]`). After editing, run `pixi install` to update
 the lockfile.
 
 If a new pre-commit hook is needed, add it to `.pre-commit-config.yaml` and run
-`pixi run prek install` to update the git hooks.
+`pixi run prek-install` to update the git hooks.
 
 ## Common commands
 
 ```bash
 # New worktree initialization
 pixi install
-pixi run prek install
+pixi run prek-install
 
 # Linting and formatting
-pixi run prek run --all-files             # run all hooks on all files
+pixi run prek-run                         # run all hooks on all files
 pixi run prek run ruff-check --all-files  # lint without fixing
 pixi run prek run ruff-format --all-files # fix formatting
 
@@ -435,7 +432,7 @@ Create a new branch and a matching worktree with the same name for each feature 
 will become a PR. Initialize the new worktree with:
 
 ```bash
-pixi install && pixi run prek install
+pixi install && pixi run prek-install
 ```
 
 After editing files run `pixi run ruff check` and `pixi run ruff format` on the changed
