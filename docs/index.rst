@@ -201,8 +201,8 @@ generator, or hourly electricity demand with missing and outlying values imputed
       provides examples of working with PUDL data using Python in Jupyter notebooks.
     * For larger tables, including those with hourly resolution, you may want to use
       tools designed for data that's larger than your computer's available memory.
-      `Polars dataframes <https://docs.pola.rs/user-guide/getting-started/>` and
-      `DuckDB <https://duckdb.org/docs/>` are great options.
+      `Polars dataframes <https://docs.pola.rs/user-guide/getting-started/>`__ and
+      `DuckDB <https://duckdb.org/docs/>`__ are great options.
 
 .. _test-and-validate:
 
