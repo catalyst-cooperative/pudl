@@ -1098,7 +1098,6 @@ def _drop_duplicates__core_eia923__generation(
 
     still_dupe_mask = gen_df.duplicated(subset=unique_subset, keep=False)
     still_dupes = gen_df[still_dupe_mask]
-    gen_df.to_pickle("/Users/austensharpe/Desktop/gen_df.pkl")
     if set(gen_df.report_date.dt.year.unique()) == set(
         {2020, 2026}
     ):  # for the fast_etl
@@ -1116,7 +1115,6 @@ def _drop_duplicates__core_eia923__generation(
             "There are still duplicates found in the table when we expect none:\n"
             f"{still_dupes.set_index(unique_subset).sort_index()}"
         )
-    gen_df.to_pickle("/Users/austensharpe/Desktop/gen_df.pkl")
     return gen_df
 
 
