@@ -1,0 +1,47 @@
+pudl.output.rus
+===============
+
+.. py:module:: pudl.output.rus
+
+.. autoapi-nested-parse::
+
+   Create output tables for RUS-7 and RUS-12.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.output.rus.out_rus7_assets
+   pudl.output.rus.out_rus12_assets
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.output.rus.out_rus_asset_factory
+
+
+Module Contents
+---------------
+
+.. py:function:: out_rus_asset_factory(core_table_name: str, borrower_table_name: str, io_manager_key: str | None = None) -> dagster.AssetsDefinition
+
+   An asset factory for finished RUS output tables.
+
+   :param core_table_name: the name of the core table.
+   :param borrower_table_name: the name of the borrower table which we
+                               want to merge onto the core table.
+   :param io_manager_key: the name of the IO Manager of the final asset.
+
+   :returns: A RUS output asset.
+
+
+.. py:data:: out_rus7_assets
+
+.. py:data:: out_rus12_assets
+

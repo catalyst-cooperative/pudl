@@ -1,0 +1,44 @@
+pudl.dagster.assets.core.eiaapi_electricity
+===========================================
+
+.. py:module:: pudl.dagster.assets.core.eiaapi_electricity
+
+.. autoapi-nested-parse::
+
+   Dagster assets for EIA API electricity aggregates.
+
+   This module defines asset logic for the aggregate EIA electricity data products that
+   PUDL derives from the archived EIA API electricity JSON data and then loads into the
+   core asset graph.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.dagster.assets.core.eiaapi_electricity.logger
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.dagster.assets.core.eiaapi_electricity.core_eia__yearly_fuel_receipts_costs_aggs
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:function:: core_eia__yearly_fuel_receipts_costs_aggs(context)
+
+   Extract and transform EIA API electricity aggregates.
+
+   :returns: A dictionary of DataFrames whose keys are the names of the corresponding
+             database table.
+
+

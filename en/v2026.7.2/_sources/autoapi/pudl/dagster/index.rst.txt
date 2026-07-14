@@ -1,0 +1,29 @@
+pudl.dagster
+============
+
+.. py:module:: pudl.dagster
+
+.. autoapi-nested-parse::
+
+   Top-level Dagster orchestration package for PUDL.
+
+
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 1
+
+   /autoapi/pudl/dagster/asset_checks/index
+   /autoapi/pudl/dagster/assets/index
+   /autoapi/pudl/dagster/build/index
+   /autoapi/pudl/dagster/config/index
+   /autoapi/pudl/dagster/io_managers/index
+   /autoapi/pudl/dagster/jobs/index
+   /autoapi/pudl/dagster/partitions/index
+   /autoapi/pudl/dagster/provenance/index
+   /autoapi/pudl/dagster/resources/index
+   /autoapi/pudl/dagster/sensors/index
+
+

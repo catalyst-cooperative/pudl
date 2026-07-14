@@ -1,0 +1,176 @@
+pudl.metadata.dtypes
+====================
+
+.. py:module:: pudl.metadata.dtypes
+
+.. autoapi-nested-parse::
+
+   Canonical PUDL dtype mappings and dtype-application helpers.
+
+   This module serves two related purposes:
+
+   1. Define the canonical mapping from PUDL's simplified field types
+       (``string``, ``integer``, ``geometry``, etc.) to the concrete dtype objects used
+       by supported tabular backends like pandas, Polars, SQLite, DuckDB, and PyArrow.
+   2. Expose helper functions that resolve those backend dtypes for either the global
+       field metadata or a concrete PUDL resource schema, and apply them to pandas or
+       Polars dataframes.
+
+   When a concrete ``resource`` is provided to :func:`get_pudl_dtypes`, the resource
+   schema is authoritative. That means resource-specific field typing and enum/category
+   information already encoded in ``PUDL_PACKAGE`` will be used directly where possible.
+
+   Not every backend supports every canonical PUDL field type. In particular, some
+   backends do not yet support PUDL's ``geometry`` fields. In those cases the dtype
+   helpers intentionally omit unsupported fields rather than returning an incompatible
+   dtype mapping.
+
+   This module intentionally keeps the import of ``PUDL_PACKAGE`` local to the helper
+   functions that need it, so the metadata class graph does not introduce a module import
+   cycle.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.metadata.dtypes.FIELD_DTYPES_POLARS
+   pudl.metadata.dtypes.FIELD_DTYPES_DUCKDB
+   pudl.metadata.dtypes.FIELD_DTYPES_PANDAS
+   pudl.metadata.dtypes.FIELD_DTYPES_PYARROW
+   pudl.metadata.dtypes.FIELD_DTYPES_SQLITE
+   pudl.metadata.dtypes.CONSTRAINT_DTYPES
+   pudl.metadata.dtypes.PERIODS
+   pudl.metadata.dtypes.PudlDtypeBackend
+   pudl.metadata.dtypes._DTYPE_MAPS_BY_BACKEND
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.metadata.dtypes._get_applicable_dtypes
+   pudl.metadata.dtypes.get_pudl_dtypes
+   pudl.metadata.dtypes._get_pudl_namespace_dtypes
+   pudl.metadata.dtypes._get_pudl_resource_dtypes
+   pudl.metadata.dtypes.apply_pudl_dtypes
+   pudl.metadata.dtypes.apply_pudl_dtypes_polars
+
+
+Module Contents
+---------------
+
+.. py:data:: FIELD_DTYPES_POLARS
+   :type:  dict[str, type[polars.DataType] | polars.DataType]
+
+   Polars data type by simplified PUDL field type.
+
+.. py:data:: FIELD_DTYPES_DUCKDB
+   :type:  dict[str, duckdb.sqltypes.DuckDBPyType]
+
+   DuckDB data type by simplified PUDL field type.
+
+.. py:data:: FIELD_DTYPES_PANDAS
+   :type:  dict[str, str]
+
+   Pandas data type by simplified PUDL field type.
+
+.. py:data:: FIELD_DTYPES_PYARROW
+   :type:  dict[str, pyarrow.DataType]
+
+.. py:data:: FIELD_DTYPES_SQLITE
+   :type:  dict[str, type[sqlalchemy.types.TypeEngine] | sqlalchemy.types.TypeEngine]
+
+   SQLAlchemy column types by simplified PUDL field type.
+
+.. py:data:: CONSTRAINT_DTYPES
+   :type:  dict[str, type]
+
+   Python types for field constraints by simplified PUDL field type.
+
+.. py:data:: PERIODS
+   :type:  dict[str, collections.abc.Callable[[pandas.Series], pandas.Series | pandas.DataFrame]]
+
+   Functions converting datetimes to period start times, by time period.
+
+.. py:data:: PudlDtypeBackend
+
+.. py:data:: _DTYPE_MAPS_BY_BACKEND
+   :type:  dict[PudlDtypeBackend, dict[str, Any]]
+
+.. py:function:: _get_applicable_dtypes(columns: list[str], field_namespace: str | None, resource: str | None, dtype_backend: PudlDtypeBackend, strict: bool) -> dict[str, Any]
+
+   Return the subset of resolved dtypes needed to cast the given columns.
+
+
+.. py:function:: get_pudl_dtypes(field_namespace: str | None = None, resource: str | None = None, dtype_backend: PudlDtypeBackend = 'pandas') -> dict[str, Any]
+
+   Compile a dictionary of field dtypes.
+
+   :param field_namespace: The field namespace (e.g. ferc1, eia) to use for overriding
+                           the default field types. If None, no namespace overrides are applied.
+   :param resource: The resource (table) name whose schema should define the field
+                    types. If provided, resource field types are authoritative.
+   :param dtype_backend: Named dtype backend to compile. Supported values are
+                         ``"pandas"``, ``"polars"``, ``"sqlite"``, ``"duckdb"``, and ``"pyarrow"``.
+
+   :returns: A mapping of PUDL field names to their associated data types.
+
+
+.. py:function:: _get_pudl_namespace_dtypes(field_namespace: str | None = None, dtype_backend: PudlDtypeBackend = 'pandas') -> dict[str, Any]
+
+   Compile a dictionary of field dtypes based on the namespace-level field metadata.
+
+   If no field_namespace is provided, the global PUDL field metadata is used.
+
+   :param field_namespace: The field namespace (e.g. ferc1, eia) whose schema should
+                           define the field types. If None, no namespace overrides are applied.
+   :param dtype_backend: Named dtype backend to compile. Supported values are
+                         ``"pandas"``, ``"polars"``, ``"sqlite"``, ``"duckdb"``, and ``"pyarrow"``.
+
+   :returns: A mapping of PUDL field names to their associated data types.
+
+
+.. py:function:: _get_pudl_resource_dtypes(resource: str, dtype_backend: PudlDtypeBackend = 'pandas') -> dict[str, Any]
+
+   Compile a dictionary of field dtypes for a specific PUDL resource.
+
+   :param resource: The resource (table) name whose schema should define the field
+                    types. If provided, resource field types are authoritative.
+   :param dtype_backend: Named dtype backend to compile. Supported values are
+                         ``"pandas"``, ``"polars"``, ``"sqlite"``, ``"duckdb"``, and ``"pyarrow"``.
+
+   :returns: A mapping of PUDL field names to their associated data types.
+
+
+.. py:function:: apply_pudl_dtypes(df: pandas.DataFrame | geopandas.GeoDataFrame, field_namespace: str | None = None, resource: str | None = None, strict: bool = False) -> pandas.DataFrame | geopandas.GeoDataFrame
+
+   Apply dtypes to those columns in a dataframe that have PUDL types defined.
+
+   :param df: The dataframe to apply types to. Not all columns need to have types
+              defined in the PUDL metadata unless you pass ``strict=True``.
+   :param field_namespace: The field namespace to use for overrides, if any.
+   :param resource: The resource (table) name whose schema should define the field
+                    types. If provided, resource field types are authoritative.
+   :param strict: whether or not all columns need a corresponding field.
+
+   :returns: The input dataframe, but with standard PUDL types applied.
+
+
+.. py:function:: apply_pudl_dtypes_polars(lf: polars.LazyFrame, field_namespace: str | None = None, resource: str | None = None, strict: bool = False) -> polars.LazyFrame
+
+   Apply dtypes to those columns in a dataframe that have PUDL types defined.
+
+   :param lf: The LazyFrame to apply types to. Not all columns need to have types
+              defined in the PUDL metadata unless you pass ``strict=True``.
+   :param field_namespace: The field namespace to use for overrides, if any.
+   :param resource: The resource (table) name whose schema should define the field
+                    types. If provided, resource field types are authoritative.
+   :param strict: whether or not all columns need a corresponding field.
+
+   :returns: The input LazyFrame, but with standard PUDL types applied.
+
+
