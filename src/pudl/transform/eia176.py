@@ -168,6 +168,7 @@ OTHER_DISPOSITION_TYPE_MAP = {
 #   FX = Gulf of America, MX = Mexico, BL = Brazil, OO = countries without FIPS codes
 # These are national-level adjustment records and should be excluded.
 NATIONAL_ADJUSTMENT_STATE_CODES = frozenset({"BL", "FX", "MX", "OO"})
+MAX_NATIONAL_ADJUSTMENT_RECORDS = 28
 
 
 @multi_asset(
@@ -1315,6 +1316,11 @@ def core_eia176__yearly_company_characteristics(
 
     # Drop national-level adjustment records — see NATIONAL_ADJUSTMENT_STATE_CODES
     n_national = df["operating_state"].isin(NATIONAL_ADJUSTMENT_STATE_CODES).sum()
+    assert n_national <= MAX_NATIONAL_ADJUSTMENT_RECORDS, (
+        f"Expected no more than {MAX_NATIONAL_ADJUSTMENT_RECORDS} national-level "
+        f"adjustment records in "
+        f"core_eia176__yearly_company_characteristics, got {n_national}."
+    )
     logger.info(
         f"Dropping {n_national} national-level adjustment records from "
         f"core_eia176__yearly_company_characteristics "
