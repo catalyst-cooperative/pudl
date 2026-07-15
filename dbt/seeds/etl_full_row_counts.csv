@@ -782,7 +782,7 @@ core_eia860__scd_generators,2022,32353
 core_eia860__scd_generators,2023,33489
 core_eia860__scd_generators,2024,34914
 core_eia860__scd_generators,2025,36172
-core_eia860__scd_generators,2026,37627
+core_eia860__scd_generators,2026,37870
 core_eia860__scd_generators_energy_storage,2016,78
 core_eia860__scd_generators_energy_storage,2017,110
 core_eia860__scd_generators_energy_storage,2018,146
@@ -891,7 +891,7 @@ core_eia860__scd_plants,2022,14278
 core_eia860__scd_plants,2023,15112
 core_eia860__scd_plants,2024,16179
 core_eia860__scd_plants,2025,16981
-core_eia860__scd_plants,2026,17610
+core_eia860__scd_plants,2026,17681
 core_eia860__scd_utilities,2001,3424
 core_eia860__scd_utilities,2002,6816
 core_eia860__scd_utilities,2003,3534
@@ -917,7 +917,7 @@ core_eia860__scd_utilities,2022,7526
 core_eia860__scd_utilities,2023,7806
 core_eia860__scd_utilities,2024,8285
 core_eia860__scd_utilities,2025,8525
-core_eia860__scd_utilities,2026,7576
+core_eia860__scd_utilities,2026,7618
 core_eia860m__changelog_generators,2015,49530
 core_eia860m__changelog_generators,2016,58745
 core_eia860m__changelog_generators,2017,22122
@@ -1614,9 +1614,9 @@ core_eia__codes_storage_technology_types,,8
 core_eia__codes_wet_dry_bottom,,2
 core_eia__codes_wind_quality_class,,4
 core_eia__entity_boilers,,6923
-core_eia__entity_generators,,42636
-core_eia__entity_plants,,19524
-core_eia__entity_utilities,,17259
+core_eia__entity_generators,,42879
+core_eia__entity_plants,,19593
+core_eia__entity_utilities,,17295
 core_eia__yearly_fuel_receipts_costs_aggs,2008,35222
 core_eia__yearly_fuel_receipts_costs_aggs,2009,34866
 core_eia__yearly_fuel_receipts_costs_aggs,2010,34845
@@ -1658,7 +1658,7 @@ core_epa__assn_eia_epacamd,2021,6410
 core_epa__assn_eia_epacamd,2022,6410
 core_epa__assn_eia_epacamd,2023,6371
 core_epa__assn_eia_epacamd,2024,6340
-core_epa__assn_eia_epacamd_subplant_ids,,44583
+core_epa__assn_eia_epacamd_subplant_ids,,44826
 core_epacems__hourly_emissions,1995,3846120
 core_epacems__hourly_emissions,1996,3645432
 core_epacems__hourly_emissions,1997,17660784
@@ -2636,8 +2636,8 @@ core_phmsagas__yearly_distribution_operators,2021,1444
 core_phmsagas__yearly_distribution_operators,2022,1449
 core_phmsagas__yearly_distribution_operators,2023,1440
 core_phmsagas__yearly_distribution_operators,2024,1428
-core_pudl__assn_eia_pudl_plants,,19548
-core_pudl__assn_eia_pudl_utilities,,17295
+core_pudl__assn_eia_pudl_plants,,19617
+core_pudl__assn_eia_pudl_utilities,,17331
 core_pudl__assn_ferc1_dbf_pudl_utilities,,411
 core_pudl__assn_ferc1_pudl_plants,,8189
 core_pudl__assn_ferc1_pudl_utilities,,438
@@ -2645,13 +2645,13 @@ core_pudl__assn_ferc1_xbrl_pudl_utilities,,288
 core_pudl__assn_ferc714_csv_pudl_respondents,,213
 core_pudl__assn_ferc714_pudl_respondents,,218
 core_pudl__assn_ferc714_xbrl_pudl_respondents,,118
-core_pudl__assn_utilities_plants,,20452
+core_pudl__assn_utilities_plants,,20521
 core_pudl__codes_data_maturities,,4
 core_pudl__codes_datasources,,15
 core_pudl__codes_imputation_reasons,,12
 core_pudl__codes_subdivisions,,69
-core_pudl__entity_plants_pudl,,21503
-core_pudl__entity_utilities_pudl,,17410
+core_pudl__entity_plants_pudl,,21572
+core_pudl__entity_utilities_pudl,,17446
 core_rus12__entity_borrowers,,92
 core_rus12__monthly_demand_and_energy_at_delivery_points,2006,1500
 core_rus12__monthly_demand_and_energy_at_delivery_points,2007,1428
@@ -3911,7 +3911,7 @@ out_eia__monthly_generators,2022,314856
 out_eia__monthly_generators,2023,324483
 out_eia__monthly_generators,2024,333776
 out_eia__monthly_generators,2025,343926
-out_eia__monthly_generators,2026,37627
+out_eia__monthly_generators,2026,37870
 out_eia__yearly_assn_plant_parts_plant_gen,2001,258598
 out_eia__yearly_assn_plant_parts_plant_gen,2002,279292
 out_eia__yearly_assn_plant_parts_plant_gen,2003,286122
@@ -3937,7 +3937,7 @@ out_eia__yearly_assn_plant_parts_plant_gen,2022,480343
 out_eia__yearly_assn_plant_parts_plant_gen,2023,494938
 out_eia__yearly_assn_plant_parts_plant_gen,2024,514139
 out_eia__yearly_assn_plant_parts_plant_gen,2025,527923
-out_eia__yearly_assn_plant_parts_plant_gen,2026,521736
+out_eia__yearly_assn_plant_parts_plant_gen,2026,525128
 out_eia__yearly_boilers,2008,3598
 out_eia__yearly_boilers,2009,4348
 out_eia__yearly_boilers,2010,4693
@@ -3981,7 +3981,7 @@ out_eia__yearly_generators,2022,32353
 out_eia__yearly_generators,2023,33446
 out_eia__yearly_generators,2024,34871
 out_eia__yearly_generators,2025,36120
-out_eia__yearly_generators,2026,37627
+out_eia__yearly_generators,2026,37870
 out_eia__yearly_generators_by_ownership,2001,39430
 out_eia__yearly_generators_by_ownership,2002,40926
 out_eia__yearly_generators_by_ownership,2003,41832
@@ -4007,7 +4007,7 @@ out_eia__yearly_generators_by_ownership,2022,67964
 out_eia__yearly_generators_by_ownership,2023,70114
 out_eia__yearly_generators_by_ownership,2024,73120
 out_eia__yearly_generators_by_ownership,2025,75556
-out_eia__yearly_generators_by_ownership,2026,75254
+out_eia__yearly_generators_by_ownership,2026,75740
 out_eia__yearly_plant_parts,2001,127890
 out_eia__yearly_plant_parts,2002,135628
 out_eia__yearly_plant_parts,2003,140072
@@ -4018,7 +4018,7 @@ out_eia__yearly_plant_parts,2007,154465
 out_eia__yearly_plant_parts,2008,161216
 out_eia__yearly_plant_parts,2009,168584
 out_eia__yearly_plant_parts,2010,163846
-out_eia__yearly_plant_parts,2011,170448
+out_eia__yearly_plant_parts,2011,170446
 out_eia__yearly_plant_parts,2012,178187
 out_eia__yearly_plant_parts,2013,190654
 out_eia__yearly_plant_parts,2014,198298
@@ -4033,7 +4033,7 @@ out_eia__yearly_plant_parts,2022,286382
 out_eia__yearly_plant_parts,2023,298756
 out_eia__yearly_plant_parts,2024,315551
 out_eia__yearly_plant_parts,2025,326236
-out_eia__yearly_plant_parts,2026,318570
+out_eia__yearly_plant_parts,2026,320210
 out_eia__yearly_plants,2001,5886
 out_eia__yearly_plants,2002,5832
 out_eia__yearly_plants,2003,5843
@@ -4059,7 +4059,7 @@ out_eia__yearly_plants,2022,14278
 out_eia__yearly_plants,2023,15112
 out_eia__yearly_plants,2024,16179
 out_eia__yearly_plants,2025,16981
-out_eia__yearly_plants,2026,17610
+out_eia__yearly_plants,2026,17681
 out_eia__yearly_utilities,2001,3424
 out_eia__yearly_utilities,2002,6816
 out_eia__yearly_utilities,2003,3534
@@ -4085,7 +4085,7 @@ out_eia__yearly_utilities,2022,7526
 out_eia__yearly_utilities,2023,7806
 out_eia__yearly_utilities,2024,8285
 out_eia__yearly_utilities,2025,8525
-out_eia__yearly_utilities,2026,7576
+out_eia__yearly_utilities,2026,7618
 out_ferc1__yearly_all_plants,1994,2439
 out_ferc1__yearly_all_plants,1995,2451
 out_ferc1__yearly_all_plants,1996,2417
