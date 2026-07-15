@@ -49,7 +49,7 @@ jobs:
         # Nightly builds and builds triggered by stable tag pushes trigger production
         # deployments. Branch builds trigger staging deployments
         run: |
-          BUILD_ID="$(date +%Y-%m-%d-%H%M)-$(git rev-parse --short=9 HEAD)-${{ github.ref_name }}"
+          BUILD_ID="$(date +%Y-%m-%d-%H%M)-$(git rev-parse --short=9 HEAD)"
           echo "BUILD_ID=$BUILD_ID" >> "$GITHUB_ENV"
           if [[ ${{ github.event_name }} == "schedule" ]]; then
               echo "GIT_TAG=nightly-$(date +%Y-%m-%d)" >> "$GITHUB_ENV"
@@ -82,7 +82,7 @@ jobs:
           if [[ "${{ env.SKIP_BUILD }}" == 'true' ]]; then
             echo "notification_content=:ghost: Skipping nightly build for $(date +%Y-%m-%d)" >> "$GITHUB_ENV"
           else
-            echo "notification_content=:rocket: Launching PUDL Build: ${{ env.BUILD_ID }}" >> "$GITHUB_ENV"
+            echo "notification_content=:rocket: Launching PUDL Build: ${{ env.BUILD_ID }} (${{ env.GIT_TAG }})" >> "$GITHUB_ENV"
           fi
 
       - name: Notify Zulip of build start or skip
@@ -180,7 +180,7 @@ jobs:
       # Start the batch job
       - name: Kick off batch job
         if: ${{ env.SKIP_BUILD != 'true' }}
-        run: gcloud batch jobs submit run-etl-${{ env.BUILD_ID }} --config ${{ env.BATCH_JOB_JSON }} --location us-west1
+        run: gcloud batch jobs submit build-pudl-${{ env.BUILD_ID }} --config ${{ env.BATCH_JOB_JSON }} --location us-west1
 
       - name: Status emoji
         if: ${{ env.SKIP_BUILD != 'true' }}
@@ -203,4 +203,4 @@ jobs:
           to: "pudl-deployments"
           topic: "build-deploy-pudl"
           content: >
-            ${{ env.emoji }} Google Batch job for ${{ env.BUILD_ID }} launched with status: ${{ job.status }}.
+            ${{ env.emoji }} Google Batch job for ${{ env.BUILD_ID }} (${{ env.GIT_TAG }}) launched with status: ${{ job.status }}.

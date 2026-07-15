@@ -36,11 +36,8 @@ authors = [{ name = "Catalyst Cooperative", email = "pudl@catalyst.coop" }]
 requires-python = ">=3.13,<3.14.0a0"
 dynamic = ["version"]
 license = "MIT"
-# All dependencies are managed through pixi, ensuring they're always installed from
-# conda-forge if available. See tool.pixi.dependencies, tool.pixi.pypi-dependencies,
-# and tool.pixi.package.run-dependencies below. This means that the package cannot be
-# installed with pip or uv, but it is set up to be built with pixi into a conda package
-# which can be installed with conda, mamba, micromamba, pixi, etc.
+# Dependencies are managed via pixi, so they're installed from conda-forge if available.
+# See tool.pixi.dependencies and tool.pixi.pypi-dependencies below.
 dependencies = []
 
 [project.urls]
@@ -49,7 +46,7 @@ dependencies = []
 "Documentation" = "https://docs.catalyst.coop/pudl"
 "Issue Tracker" = "https://github.com/catalyst-cooperative/pudl/issues"
 "Support" = "https://github.com/catalyst-cooperative/pudl/discussions"
-"Funding" = "https://catalyst.coop/support-the-pudl-project/"
+"Funding" = "https://opencollective.com/pudl/"
 
 [tool.pixi.workspace]
 name = "catalystcoop.pudl"
@@ -70,7 +67,7 @@ bottleneck = ">=1.5.0"
 "catalystcoop.ferc_xbrl_extractor" = ">=1.10,<1.11"
 click = ">=8.4"
 coloredlogs = ">=14.0"
-coverage = ">=7.13"
+coverage = ">=7.15"
 curl = ">=8.17"
 dagster = ">=1.13"
 dagster-dbt = ">=1!0.29"
@@ -101,7 +98,7 @@ jinja2 = ">=3.1"
 jupyter = ">=1.1"
 jupyter-lsp = ">=2.3"
 jupyter-resource-usage = ">=1.2"
-jupyterlab = ">=4.5"
+jupyterlab = ">=4.6"
 jupyterlab-lsp = ">=5.2"
 matplotlib-base = ">=3.11"
 memray = ">=1.18.0"
@@ -120,15 +117,15 @@ pandera-polars = ">=0.31"
 parallel = ">=20250822"
 pint = ">=0.25.3"
 polars = ">=1.42" # v1.41.2 fixed a big memory leak
-prek = ">=0.4"
+prek = ">=0.4.8"
 # potentially unresolveable breaking changes in prettier 4.x
 prettier = ">=3.8,<4"
 proj = ">=9.8.1"
 # pyarrow upgrade blocked by stale geopandas 0.14 in Kaggle environment
-pyarrow = ">=23"
+pyarrow = ">=24"
 pydantic = ">=2.13"
 pydantic-settings = ">=2.13"
-pydata-sphinx-theme = ">=0.16.1"
+pydata-sphinx-theme = ">=0.20"
 pygraphviz = ">=1"
 pytest = ">=9"
 pytest-console-scripts = ">=1.4"
@@ -161,7 +158,7 @@ sphinxcontrib-mermaid = ">=2.0"
 splink = ">=4.0.14"
 sqlalchemy = ">=2"
 sqlite = ">=3.53"
-taplo = "==0.9.3"
+taplo = "==0.9.3" # Pinned to match version in VS Code extension
 terraform = ">=1.14"
 timezonefinder = ">=8"
 typos = ">=1.47"
@@ -181,6 +178,7 @@ gh = ">=2.96.0,<3"
 detect-secrets = ">=1.5"
 
 [tool.pixi.feature.dev.dependencies]
+duckdb-cli = ">=1.5,<1.6"
 jq = ">=1.8" # Primarily for agent skills use
 marimo = ">=0.13"
 matplotx = ">=0.3.10"
@@ -599,7 +597,7 @@ relative_files = true
 precision = 2
 sort = "miss"
 skip_empty = true
-fail_under = 80
+fail_under = 92
 exclude_lines = [
     # Have to re-enable the standard pragma
     "pragma: no cover",
