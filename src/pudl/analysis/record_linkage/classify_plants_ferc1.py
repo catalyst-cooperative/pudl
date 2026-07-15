@@ -166,8 +166,6 @@ def ferc_to_ferc(
     ###########################################################################
     # Now we need to assign IDs to the large steam plants, since FERC doesn't
     # do this for us.
-    logger.info("Identifying distinct large FERC plants for ID assignment.")
-
     input_df = merge_steam_fuel_dfs(
         core_ferc1__yearly_steam_plants_sched402,
         out_ferc1__yearly_steam_plants_fuel_by_plant_sched402,

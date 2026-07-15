@@ -215,7 +215,7 @@ def add_new_matches_to_dataframe(
     # Then use this value to fill NAs in the utility ID PUDL.
     updates_df.utility_id_pudl = updates_df.utility_id_pudl.fillna(
         updates_df.group_id + max(existing_glue_df.utility_id_pudl)
-    )
+    ).astype("Int64")
     updates_df = updates_df.drop(columns=["group_id", "cleaned_utility_name"])
     # Add a note to these records to help us quickly identify which were matched automatically.s
     updates_df["notes"] = (
@@ -332,7 +332,7 @@ def main(test_run: bool) -> int:
         matches_new=matched_utilities, existing_glue_df=existing_glue_df
     )
 
-    if not updated_spreadsheet.empty:
+    if updated_spreadsheet and not updated_spreadsheet.empty:
         write_updated_matches(test_run=test_run, dataframe=updated_spreadsheet)
 
     return 0

@@ -362,6 +362,59 @@ class TestTagPropagation(TestForestSetup):
         ]:
             assert annotated_tags[post_yes_node]["in_rate_base"] == "yes"
 
+    def test_annotated_forest_propagates_leafward_two_layers_plus_corrections(self):
+        """If the parent node gets a tag (with no other conflicting tags), ensure all children get the same tags."""
+        edges = [
+            (self.parent, self.child1),
+            (self.parent, self.child2),
+            (self.parent, self.parent_correction),
+            (self.child1, self.grand_child11),
+            (self.child1, self.grand_child12),
+            (self.child1, self.child1_correction),
+        ]
+        pre_assigned_yes_nodes = [self.parent]
+        tags = pd.DataFrame(pre_assigned_yes_nodes).assign(
+            in_rate_base=["yes"] * len(pre_assigned_yes_nodes),
+        )
+        annotated_tags = self.build_forest_and_annotated_tags(edges, tags)
+        for pre_yes_node in pre_assigned_yes_nodes:
+            assert annotated_tags[pre_yes_node]["in_rate_base"] == "yes"
+        for post_yes_node in dedupe_n_flatten_list_of_lists(edges):
+            assert annotated_tags[post_yes_node]["in_rate_base"] == "yes"
+
+    def test_leafward_propagation_of_conflicting_tags(self):
+        """Test conflicting tags.
+
+        If a parent has a tag that differs from a child (child1) we expect:
+        - the originally assigned tags to stay the same
+        - all leafward nodes downstream of child1 should have the differing tag
+        - all leafward nodes downstream of parent which were not originally tagged
+          should inherit the parent's tags.
+
+        """
+        edges = [
+            (self.parent, self.child1),
+            (self.parent, self.child2),
+            (self.parent, self.parent_correction),
+            (self.child1, self.grand_child11),
+            (self.child1, self.grand_child12),
+            (self.child1, self.child1_correction),
+        ]
+        pre_assigned_yes_nodes = [self.parent]
+        pre_assigned_no_nodes = [self.child1]
+        tags = pd.DataFrame(pre_assigned_yes_nodes + pre_assigned_no_nodes).assign(
+            in_rate_base=["yes", "no"],
+        )
+        annotated_tags = self.build_forest_and_annotated_tags(edges, tags)
+        for yes_node in pre_assigned_yes_nodes + [self.child2]:
+            assert annotated_tags[yes_node]["in_rate_base"] == "yes"
+        for no_node in pre_assigned_no_nodes + [
+            self.child1_correction,
+            self.grand_child11,
+            self.grand_child12,
+        ]:
+            assert annotated_tags[no_node]["in_rate_base"] == "no"
+
 
 def test_get_core_ferc1_asset_description():
     valid_core_ferc1_asset_name = "core_ferc1__yearly_income_statements_sched114"

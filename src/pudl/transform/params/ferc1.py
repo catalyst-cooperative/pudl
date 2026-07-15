@@ -292,6 +292,13 @@ PLANT_FUNCTION_CATEGORIES = {
             "ferc:CommonPlantElectricMember",
         },
         "total": {"total"},
+        "wind_production": {"wind_production", "ferc:WindProductionPlantMember"},
+        "other_renewable_production": {
+            "other_renewable_production",
+            "ferc:OtherRenewableProductionPlantMember",
+        },
+        "energy_storage": {"energy_storage", "ferc:EnergyStoragePlantMember"},
+        "solar_production": {"solar_production", "ferc:SolarProductionPlantMember"},
     }
 }
 
@@ -1067,16 +1074,33 @@ TRANSFORM_PARAMS = {
             "on": "ferc_account_label",
         },
         "align_row_numbers_dbf": {"dbf_table_names": ["f1_plant_in_srvce"]},
+        "drop_invalid_rows": [
+            {
+                "invalid_values": [pd.NA, np.nan, ""],
+                "required_valid_cols": [
+                    "starting_balance",
+                    "additions",
+                    "retirements",
+                    "adjustments",
+                    "transfers",
+                    "ending_balance",
+                ],
+            }
+        ],
         # Known issue with reporting of construction in progress not classified in classified fields of table.
         "reconcile_table_calculations": {
             "column_to_check": "ending_balance",
             "group_metric_checks": {
                 "group_metric_tolerances": {
                     "ungrouped": {"error_frequency": 0.08},
+                    # worst factoid: distribution_plant
+                    "xbrl_factoid": {"error_frequency": 0.054},
+                    # worst utility: 455
                     "utility_id_ferc1": {
-                        "error_frequency": 0.038,
-                        "relative_error_magnitude": 0.51,  # worst utility: 444
+                        "error_frequency": 0.09,
+                        "relative_error_magnitude": 0.51,
                     },
+                    "report_year": {"error_frequency": 0.009},
                 },
             },
         },
@@ -1425,6 +1449,9 @@ TRANSFORM_PARAMS = {
                         "net_energy_generation",
                         "megawatt_hours_purchased_other_than_storage",
                         "megawatt_hours_purchased_for_energy_storage",
+                        "wind_generation",
+                        "other_renewable_generation",
+                        "solar_generation",
                         # exchanges
                         "energy_received_through_power_exchanges",
                         "energy_delivered_through_power_exchanges",
@@ -1519,7 +1546,7 @@ TRANSFORM_PARAMS = {
                     "sched_table_name",
                 ],
                 "value_types": ["energy_disposition_mwh"],
-                "expected_drop_cols": 19,
+                "expected_drop_cols": 22,
                 "stacked_column_name": "xbrl_factoid",
             }
         },
@@ -2351,6 +2378,8 @@ TRANSFORM_PARAMS = {
                         "income_taxes_federal",
                         "extraordinary_income",
                         "amortization_of_premium_on_debt_credit",
+                        "gains_from_disposition_of_environmental_credits",
+                        "losses_from_disposition_of_environmental_credits",
                     ]
                 }
             },
@@ -2587,6 +2616,10 @@ TRANSFORM_PARAMS = {
                     "accumulated_depreciation_general_ending_balance": "general_ending_balance",
                     "accumulated_depreciation_regional_transmission_and_market_operation_ending_balance": "regional_transmission_and_market_operation_ending_balance",
                     "accumulated_provision_for_depreciation_of_electric_utility_plant_ending_balance": "total_ending_balance",
+                    "accumulated_depreciation_wind_production_ending_balance": "wind_production_ending_balance",
+                    "accumulated_depreciation_other_renewable_production_ending_balance": "other_renewable_production_ending_balance",
+                    "accumulated_depreciation_energy_storage_ending_balance": "energy_storage_ending_balance",
+                    "accumulated_depreciation_solar_production_ending_balance": "solar_production_ending_balance",
                 }
             },
             "xbrl": {
@@ -2603,6 +2636,12 @@ TRANSFORM_PARAMS = {
             "plant_status": PLANT_STATUS,
             "plant_function": PLANT_FUNCTION_CATEGORIES,
         },
+        "drop_invalid_rows": [
+            {
+                "invalid_values": [pd.NA, np.nan, ""],
+                "required_valid_cols": ["ending_balance"],
+            },
+        ],
         "align_row_numbers_dbf": {"dbf_table_names": ["f1_accumdepr_prvsn"]},
         "wide_to_tidy": {
             "dbf": {
@@ -2625,7 +2664,7 @@ TRANSFORM_PARAMS = {
                     "sched_table_name",
                 ],
                 "value_types": ["ending_balance"],
-                "expected_drop_cols": 10,
+                "expected_drop_cols": 14,
                 "stacked_column_name": "plant_function",
             },
         },
@@ -2661,7 +2700,7 @@ TRANSFORM_PARAMS = {
                 "group_metric_tolerances": {
                     "ungrouped": {
                         "error_frequency": 0.034,
-                        "null_reported_value_frequency": 0.76,
+                        "null_reported_value_frequency": 0.80,
                     },
                     "xbrl_factoid": {"error_frequency": 0.034},
                     "report_year": {
@@ -2994,6 +3033,79 @@ TRANSFORM_PARAMS = {
                         "underground_line_expenses",
                         "underground_line_expenses_transmission_expense",
                         "water_for_power",
+                        "maintenance_of_solar_panels_structures_and_equipment_solar_generation",
+                        "administrative_and_general_maintenance_expenses",
+                        "maintenance_of_computer_hardware_administrative_and_general_expenses",
+                        "maintenance_supervision_and_engineering_energy_storage_expenses",
+                        "power_production_expenses_other_renewable",
+                        "maintenance_of_computer_hardware_wind_generation",
+                        "other_renewable_generation_operations_expense",
+                        "maintenance_of_computer_hardware_nuclear_power_generation",
+                        "maintenance_of_computer_hardware_other_power_generation",
+                        "maintenance_of_communication_equipment_steam_power_generation",
+                        "maintenance_of_structures_other_renewable_generation",
+                        "rents_solar_generation",
+                        "maintenance_of_computer_software_distribution",
+                        "maintenance_of_communication_equipment_administrative_and_general_expenses",
+                        "operation_supervision_and_engineering_other_renewable_generation",
+                        "rents_wind_generation",
+                        "wind_turbine_generation_and_other_plant_operating_expenses_wind_generation",
+                        "maintenance_of_computer_software_administrative_and_general_expenses",
+                        "maintenance_of_computer_hardware_distribution",
+                        "rents_other_renewable_generation",
+                        "energy_storage_operation_expenses",
+                        "power_production_expenses_solar",
+                        "fuel_other_renewable_generation",
+                        "maintenance_of_computer_software_solar_generation",
+                        "maintenance_of_miscellaneous_solar_generation_plant",
+                        "operation_of_energy_storage_equipment_energy_storage_expense",
+                        "maintenance_of_computer_hardware_hydraulic_power_generation",
+                        "maintenance_of_computer_hardware_steam_power_generation",
+                        "maintenance_of_computer_hardware_solar_generation",
+                        "maintenance_of_boilers_other_renewable_generation",
+                        "maintenance_supervision_and_engineering_solar_generation",
+                        "energy_storage_expenses",
+                        "maintenance_of_computer_software_steam_power_generation",
+                        "operation_supervision_and_engineering_wind_generation",
+                        "maintenance_of_computer_software_other_renewable_generation",
+                        "other_renewable_generation_maintenance_expense",
+                        "maintenance_of_generating_and_electric_equipment_other_renewable_generation",
+                        "maintenance_of_energy_storage_equipment_and_structures_energy_storage_expenses",
+                        "maintenance_of_wind_turbines_structures_and_equipment_wind_generation",
+                        "other_miscellaneous_generation_and_other_plant_operating_expenses_other_renewable_generation",
+                        "maintenance_of_computer_software_energy_storage_expenses",
+                        "maintenance_of_computer_hardware_energy_storage_expenses",
+                        "maintenance_of_communication_equipment_wind_generation",
+                        "wind_generation_operations_expense",
+                        "solar_generation_operations_expense",
+                        "wind_generation_maintenance_expense",
+                        "maintenance_of_communication_equipment_solar_generation",
+                        "maintenance_of_miscellaneous_renewable_production_plant_other_renewable_generation",
+                        "operation_supervision_and_engineering_solar_generation",
+                        "maintenance_supervision_and_engineering_other_renewable_generation",
+                        "maintenance_of_computer_software_hydraulic_power_generation",
+                        "rents_energy_storage_expense",
+                        "maintenance_of_miscellaneous_wind_generation_plant",
+                        "operation_supervision_and_engineering_energy_storage_expenses",
+                        "unbundled_environmental_credits",
+                        "maintenance_of_communication_equipment_nuclear_power_generation",
+                        "maintenance_of_communication_equipment_energy_storage_expenses",
+                        "maintenance_supervision_and_engineering_wind_generation",
+                        "maintenance_of_computer_hardware_other_renewable_generation",
+                        "maintenance_of_communication_equipment_hydraulic_power_generation",
+                        "maintenance_of_computer_software_wind_generation",
+                        "maintenance_of_communication_equipment_other_renewable_generation",
+                        "solar_generation_maintenance_expense",
+                        "storage_fuel_energy_storage_expense",
+                        "solar_panel_generation_and_other_plant_operating_expenses_solar_generation",
+                        "bundled_environmental_credits",
+                        "maintenance_of_computer_software_nuclear_power_generation",
+                        "maintenance_of_computer_software_other_power_generation",
+                        "maintenance_of_miscellaneous_other_energy_storage_plant_energy_storage_expenses",
+                        "maintenance_of_communication_equipment_distribution",
+                        "maintenance_of_communication_equipment_other_power_generation",
+                        "energy_storage_maintenance_expenses",
+                        "power_production_expenses_wind",
                     ]
                 }
             },
@@ -3016,6 +3128,12 @@ TRANSFORM_PARAMS = {
             "data_columns": ["dollar_value"],
             "table_name": "core_ferc1__yearly_operating_expenses_sched320",
         },
+        "drop_invalid_rows": [
+            {
+                "invalid_values": [pd.NA, np.nan, ""],
+                "required_valid_cols": ["dollar_value"],
+            },
+        ],
         "add_columns_with_uniform_values": {
             "columns_to_add": {
                 "utility_type": {"column_value": "electric", "is_dimension": True}
@@ -3032,11 +3150,16 @@ TRANSFORM_PARAMS = {
                     "ungrouped": {"relative_error_magnitude": 0.002},
                     "report_year": {"relative_error_magnitude": 0.042},
                     "xbrl_factoid": {
-                        "error_frequency": 0.018,
+                        # in fast test worst guy is wind_generation_operations_expense
+                        "error_frequency": 0.062,
                         "relative_error_magnitude": 0.028,
+                        # mostly null bc they were added in 2025:
+                        # other_renewable_generation_maintenance_expense & other_renewable_generation_operations_expense
+                        "null_calculated_value_frequency": 0.76,
                     },
                     "utility_id_ferc1": {
-                        "error_frequency": 0.017,
+                        # in fast test worst guy is 196
+                        "error_frequency": 0.053,
                         "relative_error_magnitude": 0.066,
                     },
                 },

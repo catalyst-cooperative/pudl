@@ -7,7 +7,7 @@ import pandas as pd
 import polars as pl
 from dagster import AssetIn, Field, asset
 
-from pudl.metadata.fields import apply_pudl_dtypes_polars
+from pudl.metadata.dtypes import apply_pudl_dtypes_polars
 
 HEAT_RATE_ANALYSIS_CONFIG_SCHEMA = {
     "final_year": Field(
@@ -1243,4 +1243,7 @@ def out_epacems__yearly_operational_characteristics(
             "min_stable_level_consecutive_hours"
         ],
         states=heat_rate_config["states"],
-    ).pipe(apply_pudl_dtypes_polars, group="epacems")
+    ).pipe(
+        apply_pudl_dtypes_polars,
+        resource="out_epacems__yearly_operational_characteristics",
+    )

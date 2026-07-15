@@ -122,9 +122,12 @@ What data is available?
 
 PUDL currently integrates data from:
 
-* **EIA Form 176** (a few tables -- work in progress):
+* **EIA Form 176** (work in progress):
   - `Source Docs <https://www.eia.gov/dnav/ng/TblDefs/NG_DataSources.html#s176>`__
   - `PUDL Docs <https://docs.catalyst.coop/pudl/en/nightly/data_sources/eia176.html>`__
+* **EIA Form 191** (work in progress):
+  - `Source Docs <https://www.eia.gov/naturalgas/ngqs/>`__
+  - `PUDL Docs <https://docs.catalyst.coop/pudl/en/nightly/data_sources/eia191.html>`__
 * **EIA Form 860**:
   - `Source Docs <https://www.eia.gov/electricity/data/eia860/>`__
   - `PUDL Docs <https://docs.catalyst.coop/pudl/en/nightly/data_sources/eia860.html>`__
@@ -151,18 +154,36 @@ PUDL currently integrates data from:
 * **FERC Form 714** (a few fully processed tables):
   - `Source Docs <https://www.ferc.gov/industries-data/electric/general-information/electric-industry-forms/form-no-714-annual-electric/data>`__
   - `PUDL Docs <https://docs.catalyst.coop/pudl/en/nightly/data_sources/ferc714.html>`__
+* **FERC Electric Quarterly Reports (EQR)**:
+  - `Source Docs <https://www.ferc.gov/industries-data/electric/power-sales-and-markets/electric-quarterly-reports-eqr>`__
+  - `PUDL Docs <https://docs.catalyst.coop/pudl/en/nightly/data_sources/ferceqr.html>`__
 * **FERC Form 2** (raw data converted to SQLite):
   - `Source Docs <https://www.ferc.gov/industries-data/natural-gas/industry-forms/form-2-2a-3-q-gas-historical-vfp-data>`__
 * **FERC Form 6** (raw data converted to SQLite):
   - `Source Docs <https://www.ferc.gov/general-information-1/oil-industry-forms/form-6-6q-historical-vfp-data>`__
 * **FERC Form 60** (raw data converted to SQLite):
   - `Source Docs <https://www.ferc.gov/form-60-annual-report-centralized-service-companies>`__
+* **PHMSA Natural Gas Annual Reports**:
+  - `Source Docs <https://www.phmsa.dot.gov/data-and-statistics/pipeline/gas-distribution-gas-gathering-gas-transmission-hazardous-liquids>`__
+  - `PUDL Docs <https://docs.catalyst.coop/pudl/en/nightly/data_sources/phmsagas.html>`__
+* **USDA Rural Utilities Service Form 7** (via FOIA requests):
+  - `Source Docs <https://www.rd.usda.gov/resources/forms/rus-forms>`__
+  - `PUDL Docs <https://docs.catalyst.coop/pudl/en/nightly/data_sources/rus7.html>`__
+* **USDA Rural Utilities Service Form 12** (via FOIA requests):
+  - `Source Docs <https://www.rd.usda.gov/resources/forms/rus-forms>`__
+  - `PUDL Docs <https://docs.catalyst.coop/pudl/en/nightly/data_sources/rus12.html>`__
+* **SEC Form 10-K** (Exhibit 21 Parent & Subsidiary Relationships)**:
+  - `Source Docs <https://www.sec.gov/search-filings/edgar-application-programming-interfaces>`__
+  - `PUDL Docs <https://docs.catalyst.coop/pudl/en/nightly/data_sources/sec10k.html>`__
 * **NREL Annual Technology Baseline (ATB) for Electricity**:
   - `Source Docs <https://atb.nrel.gov/electricity/2024/data>`__
   - `PUDL Docs <https://docs.catalyst.coop/pudl/en/nightly/data_sources/nrelatb.html>`__
 * **GridPath Resource Adequacy Toolkit** (partial):
   - `Source Docs <https://gridlab.org/gridpathratoolkit/>`__
   - `PUDL Docs <https://docs.catalyst.coop/pudl/en/nightly/data_sources/gridpathratoolkit.html>`__
+* **Vibrant Clean Energy Resource Adequacy Renewable Energy**:
+  - `Source Docs <https://vibrantcleanenergy.com/products/datasets/>`__
+  - `PUDL Docs <https://docs.catalyst.coop/pudl/en/nightly/data_sources/vcerare.html>`__
 * **US Census Demographic Profile 1 Geodatabase**:
   - `Source Docs <https://www.census.gov/geographies/mapping-files/2010/geo/tiger-data.html>`__
   - `PUDL Docs <https://docs.catalyst.coop/pudl/en/nightly/data_sources/censusdp1tract.html>`__
@@ -175,8 +196,6 @@ Get in touch!
 
 * Additional fully processed FERC Form 1 tables, e.g. Transmission & Distribution assets
 * Additional high value EIA AEO tables
-* `PHMSA Natural Gas Annual Report <https://www.phmsa.dot.gov/data-and-statistics/pipeline/gas-distribution-gas-gathering-gas-transmission-hazardous-liquids>`__
-* `FERC Electric Quarterly Reports (EQR) <https://www.ferc.gov/industries-data/electric/power-sales-and-markets/electric-quarterly-reports-eqr>`__ (integration now in progress with support from `GridLab <https://gridlab.org>`__!)
 * `EIA Thermoelectric Water Usage <https://www.eia.gov/electricity/data/water/>`__
 * `FERC Form 2 <https://www.ferc.gov/industries-data/natural-gas/overview/general-information/natural-gas-industry-forms/form-22a-data>`__
   (Annual Report of Major Natural Gas Companies)
@@ -220,7 +239,8 @@ pull request or email us at `hello@catalyst.coop <mailto:hello@catalyst.coop>`__
 * `The PowerGenome Project <https://github.com/PowerGenome/PowerGenome>`__
 * `Singularity Energy <https://singularity.energy>`__
 * `The Open Grid Emissions Initiative <https://singularity.energy/open-grid-emissions>`__
-* `Win Climate <https://climate.win>`__
+* `SwitchBox <https://switch.box>`__
+* `Vote Solar <https://votesolar.org>`__
 * `The Deployment Gap Model Education Fund <https://www.deploymentgap.fund/>`__
 
 .. _pudl_orgs_end:
@@ -242,66 +262,82 @@ Find PUDL useful? Want to help make it better? There are lots of ways to help!
 PUDL Sustainers
 ---------------
 
+.. _pudl_sustainers_start:
+
 The PUDL Sustainers provide ongoing financial support to ensure the open data keeps
 flowing, and the project is sustainable long term. They're also involved in our
 quarterly planning process. To learn more see `the PUDL Project page on Open Collective
 <https://opencollective.com/pudl>`__.
 
-Gigawatt Tier (≥$25,000/year)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Gigawatt Tier (≥$25,000/year) ⚡⚡⚡
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+`RMI <https://rmi.org>`__
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. image:: docs/images/logos/RMI.png
-   :width: 600
+   :width: 500
    :target: https://rmi.org
    :alt: RMI
-   :align: center
+
+`GridLab <https://gridlab.org>`__
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. image:: docs/images/logos/GridLab.png
-   :width: 600
+   :width: 500
    :target: https://gridlab.org
    :alt: GridLab
-   :align: center
 
-Megawatt Tier (≥$16,000/year)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Megawatt Tier (≥$5,000/year) ⚡⚡
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Become our first `Megawatt tier sustainer <https://opencollective.com/pudl>`__!
 
-Kilowatt Tier (≥$8,000/year)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Kilowatt Tier (≥$1,000/year) ⚡
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Become our first `kilowatt tier sustainer <https://opencollective.com/pudl>`__!
+`Singularity Energy <https://singularity.energy>`__
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. image:: docs/images/logos/Singularity.png
+   :width: 300
+   :target: https://singularity.energy
+   :alt: Singularity Energy
+
+.. _pudl_sustainers_end:
 
 Major Grant Funders
 -------------------
 
-Alfred P. Sloan Foundation
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. _pudl_grants_start:
+
+`The Alfred P. Sloan Foundation <https://sloan.org/programs/research/energy-and-environment/>`__
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. image:: docs/images/logos/Sloan.png
-   :width: 400
+   :height: 150
    :target: https://sloan.org/programs/research/energy-and-environment/
    :alt: Alfred P. Sloan Foundation Energy and Environment Program
-   :align: center
 
-The PUDL Project has been supported by three grants from the `Alfred P. Sloan
+The PUDL Project has been supported by four grants from the `Alfred P. Sloan
 Foundation's Energy and Environment Program
-<https://sloan.org/programs/research/energy-and-environment>`__, in 2019, 2021, and
-2024.
+<https://sloan.org/programs/research/energy-and-environment>`__, in 2019, 2021, 2024,
+and 2026.
 
-National Science Foundation
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
+`The National Science Foundation <https://new.nsf.gov/funding/opportunities/pathways-enable-open-source-ecosystems-pose>`__
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. image:: docs/images/logos/NSF.png
-   :width: 400
+   :height: 150
    :target: https://new.nsf.gov/funding/opportunities/pathways-enable-open-source-ecosystems-pose
    :alt: National Science Foundation Pathways to Enable Open Source Ecosystems (POSE)
-   :align: center
 
-The PUDL Project was awarded a grant from the National Science Foundation's `Pathways to
-Enable Open Source Ecosystems (POSE) program
+The PUDL Project was awarded a grant from the National Science Foundation's `Pathways
+to Enable Open Source Ecosystems (POSE) program
 <https://new.nsf.gov/funding/opportunities/pathways-enable-open-source-ecosystems-pose>`__
-(`award 2346139 <https://www.nsf.gov/awardsearch/showAward?AWD_ID=2346139>`__) in 2024.
+(`award 2346139 <https://www.nsf.gov/awardsearch/showAward?AWD_ID=2346139>`__) in
+2024.
+
+.. _pudl_grants_end:
 
 Licensing
 ---------

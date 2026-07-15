@@ -1,87 +1,5 @@
 """Metadata and operational constants."""
 
-import datetime
-from collections.abc import Callable
-
-import duckdb
-import geoarrow.pyarrow as ga
-import geopandas as gpd  # noqa: ICN002
-import pandas as pd
-import polars as pl
-import pyarrow as pa
-import sqlalchemy as sa
-from sqlalchemy.dialects.sqlite import DATETIME as SQLITE_DATETIME
-
-FIELD_DTYPES_POLARS: dict[str, str] = {
-    "boolean": pl.datatypes.Boolean,
-    "date": pl.datatypes.Date,
-    "datetime": pl.datatypes.Datetime(time_unit="ms"),
-    "integer": pl.datatypes.Int64,
-    "number": pl.datatypes.Float64,
-    "string": pl.datatypes.String,
-    "year": pl.datatypes.Datetime,
-}
-"""Polars data type by simplified PUDL field type."""
-
-FIELD_DTYPES_DUCKDB: dict[str, str] = {
-    "boolean": duckdb.sqltypes.BOOLEAN,
-    "date": duckdb.sqltypes.DATE,
-    "datetime": duckdb.sqltypes.TIMESTAMP_MS,
-    "integer": duckdb.sqltypes.INTEGER,
-    "number": duckdb.sqltypes.DOUBLE,
-    "string": duckdb.sqltypes.VARCHAR,
-    "year": duckdb.sqltypes.TIMESTAMP_MS,
-}
-"""DuckDB data type by simplified PUDL field type."""
-FIELD_DTYPES_PANDAS: dict[str, str] = {
-    "boolean": "boolean",
-    "date": "datetime64[s]",
-    "datetime": "datetime64[s]",
-    "geometry": "geometry",
-    "integer": "Int64",
-    "number": "float64",
-    "string": "string",
-    "year": "datetime64[s]",
-}
-"""Pandas data type by simplified PUDL field type."""
-
-FIELD_DTYPES_PYARROW: dict[str, pa.DataType] = {
-    "boolean": pa.bool_(),
-    "date": pa.date32(),
-    "datetime": pa.timestamp("ms"),
-    "geometry": ga.wkb(),
-    "integer": pa.int32(),
-    "number": pa.float32(),
-    "string": pa.string(),
-    "year": pa.int32(),
-}
-
-FIELD_DTYPES_SQL: dict[str, type] = {
-    "boolean": sa.Boolean,
-    "date": sa.Date,
-    # Ensure SQLite's string representation of datetime uses only whole seconds:
-    "datetime": SQLITE_DATETIME(
-        storage_format="%(year)04d-%(month)02d-%(day)02d %(hour)02d:%(minute)02d:%(second)02d"
-    ),
-    "integer": sa.Integer,
-    "number": sa.Float,
-    "string": sa.Text,
-    "year": sa.Integer,
-}
-"""SQLAlchemy column types by simplified PUDL field type."""
-
-CONSTRAINT_DTYPES: dict[str, type] = {
-    "boolean": bool,
-    "date": datetime.date,
-    "datetime": datetime.datetime,
-    "geometry": gpd.array.GeometryDtype,
-    "integer": int,
-    "number": float,
-    "string": str,
-    "year": int,
-}
-"""Python types for field constraints by simplified PUDL field type."""
-
 LICENSES: dict[str, dict[str, str]] = {
     "cc-by-4.0": {
         "name": "CC-BY-4.0",
@@ -96,148 +14,173 @@ LICENSES: dict[str, dict[str, str]] = {
 }
 """License attributes."""
 
-PERIODS: dict[str, Callable[[pd.Series], pd.Series]] = {
-    "year": lambda x: pd.Series(x.to_numpy().astype("datetime64[Y]")),
-    "quarter": lambda x: x.apply(
-        pd.tseries.offsets.QuarterBegin(startingMonth=1).rollback
-    ),
-    "month": lambda x: pd.Series(x.to_numpy().astype("datetime64[M]")),
-    "date": lambda x: pd.Series(x.to_numpy().astype("datetime64[D]")),
-}
-"""Functions converting datetimes to period start times, by time period."""
-
-CONTRIBUTORS: dict[str, dict[str, str]] = {
+CONTRIBUTORS: dict[str, dict] = {
     "catalyst-cooperative": {
+        "name": "catalyst-cooperative",
         "title": "Catalyst Cooperative",
         "email": "pudl@catalyst.coop",
         "path": "https://catalyst.coop",
-        "role": "publisher",
+        "roles": ["publisher"],
         "zenodo_role": "distributor",
         "organization": "Catalyst Cooperative",
     },
     "zane-selvans": {
+        "name": "zane-selvans",
         "title": "Zane Selvans",
         "email": "zane.selvans@catalyst.coop",
         "path": "https://amateurearthling.org",
-        "role": "wrangler",
+        "roles": ["wrangler"],
         "zenodo_role": "project member",
         "organization": "Catalyst Cooperative",
         "orcid": "0000-0002-9961-7208",
     },
     "christina-gosnell": {
+        "name": "christina-gosnell",
         "title": "Christina Gosnell",
         "email": "christina.gosnell@catalyst.coop",
-        "role": "contributor",
+        "roles": ["contributor"],
         "zenodo_role": "project member",
         "organization": "Catalyst Cooperative",
         "orcid": "0009-0004-2979-6142",
     },
     "steven-winter": {
+        "name": "steven-winter",
         "title": "Steven Winter",
         "email": "steven.winter@catalyst.coop",
-        "role": "contributor",
+        "roles": ["contributor"],
         "zenodo_role": "project member",
         "organization": "Catalyst Cooperative",
     },
     "alana-wilson": {
+        "name": "alana-wilson",
         "title": "Alana Wilson",
         "email": "alana.wilson@catalyst.coop",
-        "role": "contributor",
+        "roles": ["contributor"],
         "zenodo_role": "project member",
         "organization": "Catalyst Cooperative",
     },
     "karl-dunkle-werner": {
+        "name": "karl-dunkle-werner",
         "title": "Karl Dunkle Werner",
         "email": "karldw@berkeley.edu",
         "path": "https://karldw.org",
-        "role": "contributor",
+        "roles": ["contributor"],
         "zenodo_role": "project member",
         "organization": "UC Berkeley",
         "orcid": "0000-0003-0523-7309",
     },
     "greg-schivley": {
+        "name": "greg-schivley",
         "title": "Greg Schivley",
         "path": "https://gschivley.github.io",
-        "role": "contributor",
+        "roles": ["contributor"],
         "zenodo_role": "project member",
         "organization": "Carbon Impact Consulting",
         "orcid": "0000-0002-8947-694X",
     },
     "austen-sharpe": {
+        "name": "austen-sharpe",
         "title": "Austen Sharpe",
         "email": "austen.sharpe@catalyst.coop",
-        "role": "contributor",
+        "roles": ["contributor"],
         "zenodo_role": "project member",
         "organization": "Catalyst Cooperative",
     },
     "katherine-lamb": {
+        "name": "katherine-lamb",
         "title": "Katherine Lamb",
         "email": "katherine.lamb@catalyst.coop",
-        "role": "contributor",
+        "roles": ["contributor"],
         "zenodo_role": "project member",
         "organization": "Catalyst Cooperative",
     },
     "bennett-norman": {
+        "name": "bennett-norman",
         "title": "Bennett Norman",
         "email": "bennett.norman@catalyst.coop",
-        "role": "contributor",
+        "roles": ["contributor"],
         "zenodo_role": "project member",
         "organization": "Catalyst Cooperative",
     },
     "trenton-bush": {
+        "name": "trenton-bush",
         "title": "Trenton Bush",
         "email": "trenton.bush@catalyst.coop",
-        "role": "contributor",
+        "roles": ["contributor"],
         "zenodo_role": "project member",
         "organization": "Catalyst Cooperative",
     },
     "ethan-welty": {
+        "name": "ethan-welty",
         "title": "Ethan Welty",
         "email": "ethan.welty@gmail.com",
-        "role": "contributor",
+        "roles": ["contributor"],
         "zenodo_role": "project member",
         "organization": "Catalyst Cooperative",
         "orcid": "0000-0001-8046-2210",
     },
     "dazhong-xia": {
+        "name": "dazhong-xia",
         "title": "Dazhong Xia",
         "email": "dazhong.xia@catalyst.coop",
-        "role": "contributor",
+        "roles": ["contributor"],
         "zenodo_role": "project member",
         "organization": "Catalyst Cooperative",
     },
     "ella-belfer": {
+        "name": "ella-belfer",
         "title": "Ella Belfer",
         "email": "ella.belfer@catalyst.coop",
-        "role": "contributor",
+        "roles": ["contributor"],
         "zenodo_role": "project member",
         "organization": "Catalyst Cooperative",
         "orcid": "0000-0001-9784-8531",
     },
+    "kathryn-mazaitis": {
+        "name": "kathryn-mazaitis",
+        "title": "Kathryn Mazaitis",
+        "email": "kathryn.mazaitis@catalyst.coop",
+        "roles": ["contributor"],
+        "zenodo_role": "project member",
+        "organization": "Catalyst Cooperative",
+        "orcid": "0009-0009-9063-080X",
+    },
     "vibrant-clean-energy": {
+        "name": "vibrant-clean-energy",
         "title": "Vibrant Clean Energy",
         "email": "info@vibrantcleanenergy.com",
         "path": "https://vibrantcleanenergy.com/",
-        "role": "author",
+        "roles": ["author"],
         "zenodo_role": "producer",
         "organization": "Vibrant Clean Energy",
     },
     "elaine-hart": {
+        "name": "elaine-hart",
         "title": "Elaine Hart",
-        "email": "elaine@momentenergyinsights.com",
-        "path": "https://www.momentenergyinsights.com/",
-        "role": "author",
+        "email": "elaine@sylvan.energy",
+        "path": "https://www.sylvan.energy/",
+        "roles": ["author"],
         "zenodo_role": "producer",
-        "organization": "Moment Energy Insights",
+        "organization": "Sylvan Energy Analytics",
     },
     "matthew-grimley": {
+        "name": "matthew-grimley",
         "title": "Matthew Grimley",
         "email": "griml011@umn.edu",
         "path": "https://www.hhh.umn.edu/directory/matthew-grimley",
-        "role": "contributor",
+        "roles": ["contributor"],
         "zenodo_role": "data collector",
         "organization": "University of Minnesota",
         "orcid": "0000-0003-3969-505X",
+    },
+    "switchbox": {
+        "name": "switchbox",
+        "title": "SwitchBox",
+        "email": "hello@switch.box",
+        "path": "https://www.switch.box/",
+        "roles": ["contributor"],
+        "zenodo_role": "project member",
+        "organization": "SwitchBox",
     },
 }
 """PUDL Contributors for attribution.

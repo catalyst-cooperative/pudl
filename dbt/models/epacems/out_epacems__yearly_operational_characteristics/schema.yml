@@ -1,0 +1,17 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: out_epacems__yearly_operational_characteristics
+        columns:
+          - name: plant_id_epa
+          - name: emissions_unit_id_epa
+          - name: plant_id_eia
+          - name: max_gross_load_mw
+          - name: min_stable_level
+          - name: min_up_time_hours
+          - name: min_down_time_hours
+          - name: heat_rate_at_max_load_factor_mmbtu_per_mwh
+          - name: heat_rate_at_min_stable_level_mmbtu_per_mwh
+          - name: ramp_up_rate_fraction_of_max_gross_load_per_min
+          - name: ramp_down_rate_fraction_of_max_gross_load_per_min

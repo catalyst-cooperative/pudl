@@ -8,7 +8,7 @@ from dagster import AssetsDefinition, Field, asset
 
 import pudl.helpers
 import pudl.logging_helpers
-from pudl.metadata.fields import apply_pudl_dtypes
+from pudl.metadata.dtypes import apply_pudl_dtypes
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -42,7 +42,7 @@ def denorm_by_plant(
         )
         .dropna(subset=["plant_id_eia", "utility_id_eia"])
         .pipe(pudl.helpers.organize_cols, cols=first_cols)
-        .pipe(apply_pudl_dtypes, group="eia")
+        .pipe(apply_pudl_dtypes, field_namespace="eia")
     )
     return df
 
@@ -70,7 +70,7 @@ def denorm_by_gen(
         )
         .dropna(subset=["plant_id_eia", "utility_id_eia", "generator_id"])
         .pipe(pudl.helpers.organize_cols, cols=first_cols)
-        .pipe(apply_pudl_dtypes, group="eia")
+        .pipe(apply_pudl_dtypes, field_namespace="eia")
     )
     return df
 
@@ -98,7 +98,7 @@ def denorm_by_boil(
         )
         .dropna(subset=["plant_id_eia", "utility_id_eia", "boiler_id"])
         .pipe(pudl.helpers.organize_cols, cols=first_cols)
-        .pipe(apply_pudl_dtypes, group="eia")
+        .pipe(apply_pudl_dtypes, field_namespace="eia")
     )
     return df
 
@@ -343,11 +343,11 @@ def out_eia923__fuel_receipts_costs(
         )
         frc_df = _add_fuel_cost_per_mmbtu_source_col(frc_df, "rolling_avg")
     # Calculate useful frequency-independent totals:
-    frc_df["fuel_consumed_mmbtu"] = (
+    frc_df["fuel_received_mmbtu"] = (
         frc_df["fuel_mmbtu_per_unit"] * frc_df["fuel_received_units"]
     )
     frc_df["total_fuel_cost"] = (
-        frc_df["fuel_consumed_mmbtu"] * frc_df["fuel_cost_per_mmbtu"]
+        frc_df["fuel_received_mmbtu"] * frc_df["fuel_cost_per_mmbtu"]
     )
     return denorm_by_plant(frc_df, pu=_out_eia__plants_utilities)
 
@@ -560,7 +560,7 @@ def time_aggregated_eia923_asset_factory(
             .agg(
                 {
                     "fuel_received_units": pudl.helpers.sum_na,
-                    "fuel_consumed_mmbtu": pudl.helpers.sum_na,
+                    "fuel_received_mmbtu": pudl.helpers.sum_na,
                     "total_fuel_cost": pudl.helpers.sum_na,
                     "total_sulfur_content": pudl.helpers.sum_na,
                     "total_ash_content": pudl.helpers.sum_na,
@@ -573,9 +573,9 @@ def time_aggregated_eia923_asset_factory(
                 }
             )
             .assign(
-                fuel_cost_per_mmbtu=lambda x: x.total_fuel_cost / x.fuel_consumed_mmbtu,
+                fuel_cost_per_mmbtu=lambda x: x.total_fuel_cost / x.fuel_received_mmbtu,
                 fuel_mmbtu_per_unit=lambda x: (
-                    x.fuel_consumed_mmbtu / x.fuel_received_units
+                    x.fuel_received_mmbtu / x.fuel_received_units
                 ),
                 ash_content_pct=lambda x: x.total_ash_content / x.fuel_received_units,
                 sulfur_content_pct=lambda x: (

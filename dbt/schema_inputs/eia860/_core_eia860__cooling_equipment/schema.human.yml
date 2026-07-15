@@ -22,3 +22,10 @@ sources:
               arguments:
                 table_name: _core_eia860__cooling_equipment
                 partition_expr: EXTRACT(YEAR FROM report_date)
+        columns:
+          - name: dry_cooling_fraction
+            data_tests:
+              - dbt_expectations.expect_column_values_to_be_between:
+                  arguments:
+                    min_value: 0.0
+                    max_value: 1.0

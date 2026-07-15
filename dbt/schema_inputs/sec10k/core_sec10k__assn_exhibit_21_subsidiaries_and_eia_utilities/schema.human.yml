@@ -9,16 +9,18 @@ sources:
               config:
                 enabled: "{{ target.name == 'etl-full'}}"
               arguments:
-                min_value: 5691
-                # 2026Q2: boosted from 5696 to 5701 for remote builds; extra matches vs local are:
-                # talen montana, LLC x2
+                # local builds
+                # 2026-07-08: dropped from 5708 to 5705 when 39004
+                # changed its EIA name from Reliant to NorAm (-4 entries)
+                # and 61185 changed from Cycle Power Partners to Cycle Holdings (+1 entry)
+                min_value: 5705
+                # remote builds
+                # As of 2026-06-24 the only extra entry in remote is
                 # great bay power marketing, inc
-                # nrg greens bayout 6 llc
-                # kaiser permanente
-                # cone renewable energy project
-                # terraform power operating, llc x2
-                # blackwater rd solar llc
-                max_value: 5701
+                # 2026-07-08: 5971 changed its EIA name from
+                # Great Bay Power Marketing to Great Bay Power Corporation,
+                # which may eliminate this discrepancy
+                max_value: 5706
         columns:
           - name: subsidiary_company_id_sec10k
             data_tests:

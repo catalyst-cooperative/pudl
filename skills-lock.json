@@ -5,7 +5,13 @@
       "source": "dagster-io/skills",
       "sourceType": "github",
       "skillPath": "skills/dagster-expert/skills/dagster-expert/SKILL.md",
-      "computedHash": "2d94bda586b6e63a3a8735125fc5d7717548cc747cddf2f05fa95b1892c527e7"
+      "computedHash": "0de12b5fee0975ce5440efbea2f49016bfe6af3e6b0aba12a293bc03698939b4"
+    },
+    "datapackage": {
+      "source": "catalyst-cooperative/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/datapackage/SKILL.md",
+      "computedHash": "4a891235162a8ba4a74f0448fed5061d16d06e5f0e00c029b2ebd5b4647a133d"
     },
     "dignified-python": {
       "source": "dagster-io/skills",

@@ -10,7 +10,7 @@ from pudl.helpers import drop_records_with_null_in_column
 from pudl.metadata.classes import PUDL_PACKAGE, DataSource
 from pudl.metadata.codes import CODE_METADATA
 from pudl.metadata.dfs import POLITICAL_SUBDIVISIONS
-from pudl.metadata.fields import apply_pudl_dtypes
+from pudl.metadata.dtypes import apply_pudl_dtypes
 from pudl.settings import Eia860DataConfig
 from pudl.transform.eia861 import clean_nerc
 
@@ -58,7 +58,7 @@ def _core_eia860__ownership(raw_eia860__ownership: pd.DataFrame) -> pd.DataFrame
 
     # This has to come before the fancy indexing below, otherwise the plant_id_eia
     # is still a float.
-    own_df = apply_pudl_dtypes(own_df, group="eia")
+    own_df = apply_pudl_dtypes(own_df, field_namespace="eia")
 
     # A small number of generators are reported multiple times in the ownership
     # table due to the use of leading zeroes in their integer generator_id values
@@ -434,13 +434,21 @@ def _core_eia860__generators_energy_storage(
     raw_eia860__generator_energy_storage_retired: pd.DataFrame,
 ) -> pd.DataFrame:
     """Transform the energy storage specific generators table."""
-    storage_ex = raw_eia860__generator_energy_storage_existing
+    storage_ex = raw_eia860__generator_energy_storage_existing.pipe(
+        drop_records_with_null_in_column,
+        column="generator_id",
+        num_of_expected_nulls=2,  # Plant ID 62844 in 2025 and one notes columns in 2025
+    )
     storage_pr = raw_eia860__generator_energy_storage_proposed.pipe(
         drop_records_with_null_in_column,
         column="generator_id",
-        num_of_expected_nulls=2,  # Plant ID 62844 in 2023-4
+        num_of_expected_nulls=3,  # Plant ID 62844 in 2023-4 and one notes column from 2025
     )
-    storage_re = raw_eia860__generator_energy_storage_retired
+    storage_re = raw_eia860__generator_energy_storage_retired.pipe(
+        drop_records_with_null_in_column,
+        column="generator_id",
+        num_of_expected_nulls=1,  # One notes columns in 2025
+    )
 
     # every boolean column in the raw storage tables has a served_ or stored_ prefix
     boolean_columns_to_fix = list(storage_ex.filter(regex=r"^served_|^stored_|^is_"))
@@ -627,6 +635,7 @@ def _core_eia860__generators_multifuel(
         & (multifuel_df["plant_id_eia"] == 56032)
     ]
     multifuel_df = multifuel_df.drop(dupe_pk_rows_to_drop.index)
+    multifuel_df["max_oil_heat_input"] = multifuel_df["max_oil_heat_input"] / 100
     return multifuel_df
 
 
@@ -1373,8 +1382,13 @@ def _core_eia860__cooling_equipment(
     ce_df.loc[:, ce_df.columns.str.endswith("_thousand_dollars")] *= 1000
     ce_df.columns = ce_df.columns.str.replace("_thousand_dollars", "")
 
+    ce_df["dry_cooling_pct"] = ce_df["dry_cooling_pct"] / 100
+    ce_df = ce_df.rename(columns={"dry_cooling_pct": "dry_cooling_fraction"})
+
     # Encoding is required here because this table is not yet getting harvested.
-    return apply_pudl_dtypes(ce_df, group="eia", strict=True).pipe(PUDL_PACKAGE.encode)
+    return apply_pudl_dtypes(
+        ce_df, resource="_core_eia860__cooling_equipment", strict=False
+    ).pipe(PUDL_PACKAGE.encode)
 
 
 @asset_check(asset=_core_eia860__cooling_equipment, blocking=True)
@@ -1503,7 +1517,9 @@ def _core_eia860__fgd_equipment(
     )
 
     # Encoding required because this isn't fed into harvesting yet.
-    return PUDL_PACKAGE.encode(fgd_df).pipe(apply_pudl_dtypes, strict=False)
+    return PUDL_PACKAGE.encode(fgd_df).pipe(
+        apply_pudl_dtypes, resource="_core_eia860__fgd_equipment", strict=False
+    )
 
 
 @asset_check(asset=_core_eia860__fgd_equipment, blocking=True)
