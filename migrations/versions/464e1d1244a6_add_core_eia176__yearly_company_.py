@@ -1,8 +1,8 @@
 """add_core_eia176__yearly_company_characteristics
 
-Revision ID: 48fade8aeee8
-Revises: f98868d3f5cb
-Create Date: 2026-04-21 08:27:53.098357
+Revision ID: 464e1d1244a6
+Revises: 9a8d47bd495e
+Create Date: 2026-07-15 09:01:06.482063
 
 """
 from alembic import op
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '48fade8aeee8'
-down_revision = 'f98868d3f5cb'
+revision = '464e1d1244a6'
+down_revision = '9a8d47bd495e'
 branch_labels = None
 depends_on = None
 
@@ -21,7 +21,7 @@ def upgrade() -> None:
     op.create_table('core_eia176__yearly_company_characteristics',
     sa.Column('report_year', sa.Integer(), nullable=False, comment='Four-digit year in which the data was reported.'),
     sa.Column('operator_id_eia', sa.Text(), nullable=False, comment='The unique EIA identifier for an operator in a given state. The last two letters of the ID indicate the state.'),
-    sa.Column('operating_state', sa.Enum('AB', 'AK', 'AL', 'AR', 'AS', 'AZ', 'BC', 'CA', 'CO', 'CT', 'DC', 'DE', 'FL', 'GA', 'GU', 'HI', 'IA', 'ID', 'IL', 'IN', 'KS', 'KY', 'LA', 'MA', 'MB', 'MD', 'ME', 'MI', 'MN', 'MO', 'MP', 'MS', 'MT', 'NB', 'NC', 'ND', 'NE', 'NH', 'NJ', 'NL', 'NM', 'NS', 'NT', 'NU', 'NV', 'NY', 'OH', 'OK', 'ON', 'OR', 'PA', 'PE', 'PR', 'QC', 'RI', 'SC', 'SD', 'SK', 'TN', 'TX', 'UT', 'VA', 'VI', 'VT', 'WA', 'WI', 'WV', 'WY', 'YT'), nullable=True, comment='State that the operator is reporting for.'),
+    sa.Column('operating_state', sa.Enum('FL', 'VA', 'CT', 'ME', 'KS', 'NY', 'SD', 'NC', 'DE', 'ID', 'IA', 'AK', 'NH', 'WY', 'KY', 'BC', 'NS', 'VT', 'OK', 'CO', 'DC', 'ND', 'ON', 'PR', 'YT', 'NL', 'HI', 'IN', 'AB', 'OH', 'MS', 'OR', 'MT', 'PA', 'GA', 'PE', 'SC', 'TX', 'MP', 'MA', 'WA', 'AS', 'MO', 'NJ', 'NV', 'IL', 'TN', 'RI', 'VI', 'MB', 'UT', 'WI', 'WV', 'MD', 'NB', 'NM', 'CA', 'NE', 'QC', 'MI', 'MN', 'NU', 'NT', 'GU', 'AZ', 'AR', 'LA', 'SK', 'AL'), nullable=True, comment='State that the operator is reporting for.'),
     sa.Column('is_distribution_company_cooperative', sa.Boolean(), nullable=True, comment='Whether the company is a cooperative distribution company.'),
     sa.Column('is_distribution_company_investor_owned', sa.Boolean(), nullable=True, comment='Whether the company is an investor-owned distribution company.'),
     sa.Column('is_distribution_company_municipally_owned', sa.Boolean(), nullable=True, comment='Whether the company is a municipally-owned distribution company.'),
@@ -37,7 +37,7 @@ def upgrade() -> None:
     sa.Column('is_other_ownership', sa.Boolean(), nullable=True, comment='Whether the company reported an ownership type other than investor-owned, cooperative, municipal, or private.'),
     sa.Column('other_ownership_description', sa.Text(), nullable=True, comment="Free-text description of ownership type when 'other' ownership is indicated."),
     sa.Column('has_alternative_fuel_fleet', sa.Boolean(), nullable=True, comment='Whether the company operated a fleet of alternative-fuel vehicles during the report year.'),
-    sa.Column('alternative_fleet_size', sa.Integer(), nullable=True, comment='Number of alternative-fuel vehicles in the company\'s fleet (EIA Form 176 Part 3, Line B).'),
+    sa.Column('alternative_fleet_size', sa.Integer(), nullable=True, comment="Number of alternative-fuel vehicles in the company's fleet (EIA Form 176 Part 3, Line B)."),
     sa.Column('customer_choice_residential_eligible', sa.Integer(), nullable=True, comment='Number of residential customers eligible for customer choice programs (EIA Form 176 Part 3, Line C).'),
     sa.Column('customer_choice_residential_participating', sa.Integer(), nullable=True, comment='Number of residential customers participating in customer choice programs (EIA Form 176 Part 3, Line C).'),
     sa.Column('has_sales_or_acquisitions', sa.Boolean(), nullable=True, comment='Whether the company completed sales or acquisitions of natural gas distribution assets during the report year (EIA Form 176 Part 3, Line D).'),
