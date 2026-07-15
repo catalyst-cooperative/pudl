@@ -93,10 +93,10 @@ def test___drop_duplicates__core_eia923__generation():
     dupes = pd.read_csv(
         StringIO(
             """plant_id_eia,generator_id,report_date,net_generation_mwh
-55358,CT1,2025-01-01,0.0
-55358,CT1,2025-01-01,100413.0
-55358,CT1,2025-02-01,
-55358,CT1,2025-02-01,96550.0
+55358,CT1,2020-01-01,0.0
+55358,CT1,2020-01-01,100413.0
+55358,CT1,2020-02-01,
+55358,CT1,2020-02-01,96550.0
 """
         ),
         parse_dates=["report_date"],
@@ -105,8 +105,8 @@ def test___drop_duplicates__core_eia923__generation():
     expected_deduped = pd.read_csv(
         StringIO(
             """plant_id_eia,generator_id,report_date,net_generation_mwh
-55358,CT1,2025-01-01,100413.0
-55358,CT1,2025-02-01,96550.0
+55358,CT1,2020-01-01,100413.0
+55358,CT1,2020-02-01,96550.0
 """
         ),
         parse_dates=["report_date"],
@@ -118,7 +118,7 @@ def test___drop_duplicates__core_eia923__generation():
     pd.testing.assert_frame_equal(expected_deduped, got_deduped)
 
     ##############################################################################
-    # This is the specific plant from 2012/2013 that has two records per gen with
+    # These are the specific plants from 2012/2013 and 2025/2026 that have two records per gen with
     # different prime_mover_code
     still_dupes = pd.read_csv(
         StringIO(
@@ -128,7 +128,11 @@ def test___drop_duplicates__core_eia923__generation():
 3405,1,2012-09-01,2000,1.0,CA
 3405,1,2012-09-01,-80.0,1.0,ST
 3405,1,2013-11-01,3000,1.0,CA
-3405,1,2013-11-01,-100,1.0,ST"""
+3405,1,2013-11-01,-100,1.0,ST
+55088,ST1,2025-01-01,80790,3.0,ST
+55088,ST1,2025-01-01,19499,3.0,CA
+55088,ST1,2026-04-01,87040,3.0,ST
+55088,ST1,2026-04-01,39863,3.0,CA"""
         ),
         parse_dates=["report_date"],
     ).convert_dtypes()
@@ -141,7 +145,9 @@ def test___drop_duplicates__core_eia923__generation():
             """plant_id_eia,generator_id,report_date,net_generation_mwh,sector_id_eia,prime_mover_code
 3405,1,2012-08-01,1050,1.0,
 3405,1,2012-09-01,1920,1.0,
-3405,1,2013-11-01,2900,1.0,"""
+3405,1,2013-11-01,2900,1.0,
+55088,ST1,2025-01-01,100289,3.0,
+55088,ST1,2026-04-01,126903,3.0,"""
         ),
         parse_dates=["report_date"],
     ).convert_dtypes()
