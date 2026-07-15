@@ -1,5 +1,28 @@
 # PUDL Release Notes
 
+<a id="release-v2026-8-x"></a>
+
+## v2026.8.x (2026-08-xx)
+
+This is the upcoming monthly PUDL release.
+
+### Documentation
+
+* Set up the [sphinx_llm](https://github.com/NVIDIA/sphinx-llm) Sphinx extension to
+  generate a Markdown version of the PUDL documentation, suitable for consumption by
+  LLMs, based on the [llms.txt](https://llmstxt.org/) convention. Each page now
+  advertises its Markdown counterpart via a `<link rel="alternate"
+  type="text/markdown">` tag, and the site footer links directly to `llms.txt`, so
+  that agents browsing the rendered HTML docs can discover and prefer the Markdown
+  versions. See PRs [#5381](https://github.com/catalyst-cooperative/pudl/pull/5381), [#5393](https://github.com/catalyst-cooperative/pudl/pull/5393).
+
+### Bug Fixes & Data Cleaning
+
+* Fixed incorrectly mapped Western Area Power Authority BA codes in FERC 714
+  data - previously, the Upper Great Plains West region FERC respondent was mapped
+  to the Desert Southwest region EIA balancing authority information, and vice
+  versa. See [#4644 and :pr:\`5408](https://github.com/catalyst-cooperative/pudl/issues/4644 and :pr:`5408).
+
 <a id="release-v2026-7-2"></a>
 
 ## v2026.7.2 (2026-07-14)
@@ -16,7 +39,7 @@ bugfixes, and better signal:noise ratio in unit test logging outputs.
 ### Enhancements
 
 * Added experimental Parquet outputs derived from the FERC DBF databases, and basic
-  `datpackage.json` metadata describing their schemas to support querying and preview
+  `datapackage.json` metadata describing their schemas to support querying and preview
   through the [PUDL Data Viewer](https://data.catalyst.coop). See PR [#5339](https://github.com/catalyst-cooperative/pudl/pull/5339).
 * Standardized all unit strings in [`pudl.metadata.fields`](autoapi/pudl/metadata/fields/index.md#module-pudl.metadata.fields) to
   [Pint expression syntax](https://pint.readthedocs.io/), replacing ad-hoc
@@ -87,13 +110,6 @@ bugfixes, and better signal:noise ratio in unit test logging outputs.
 * Expanded the developer docs around metadata naming, typing, and updates to explain
   how unit annotations, field namespaces, and namespace/table-specific metadata
   overrides should be defined and maintained. See [#5361](https://github.com/catalyst-cooperative/pudl/pull/5361).
-* Set up the [sphinx_llm](https://github.com/NVIDIA/sphinx-llm) Sphinx extension to
-  generate a Markdown version of the PUDL documentation, suitable for consumption by
-  LLMs, based on the [llms.txt](https://llmstxt.org/) convention. Each page now
-  advertises its Markdown counterpart via a `<link rel="alternate"
-  type="text/markdown">` tag, and the site footer links directly to `llms.txt`, so
-  that agents browsing the rendered HTML docs can discover and prefer the Markdown
-  versions. See PRs [#5381](https://github.com/catalyst-cooperative/pudl/pull/5381), [#5393](https://github.com/catalyst-cooperative/pudl/pull/5393).
 
 ### New Data Tests & Validations
 

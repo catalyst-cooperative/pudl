@@ -1,6 +1,32 @@
 =======================================================================================
 PUDL Release Notes
 =======================================================================================
+.. _release-v2026.8.x:
+
+---------------------------------------------------------------------------------------
+v2026.8.x (2026-08-xx)
+---------------------------------------------------------------------------------------
+
+This is the upcoming monthly PUDL release.
+
+Documentation
+^^^^^^^^^^^^^
+
+* Set up the `sphinx_llm <https://github.com/NVIDIA/sphinx-llm>`__ Sphinx extension to
+  generate a Markdown version of the PUDL documentation, suitable for consumption by
+  LLMs, based on the `llms.txt <https://llmstxt.org/>`__ convention. Each page now
+  advertises its Markdown counterpart via a ``<link rel="alternate"
+  type="text/markdown">`` tag, and the site footer links directly to ``llms.txt``, so
+  that agents browsing the rendered HTML docs can discover and prefer the Markdown
+  versions. See PRs :pr:`5381,5393`.
+
+Bug Fixes & Data Cleaning
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Fixed incorrectly mapped Western Area Power Authority BA codes in FERC 714
+  data - previously, the Upper Great Plains West region FERC respondent was mapped
+  to the Desert Southwest region EIA balancing authority information, and vice
+  versa. See :issue:`4644 and :pr:`5408`.
 
 .. _release-v2026.7.2:
 
@@ -21,7 +47,7 @@ Enhancements
 ^^^^^^^^^^^^
 
 * Added experimental Parquet outputs derived from the FERC DBF databases, and basic
-  ``datpackage.json`` metadata describing their schemas to support querying and preview
+  ``datapackage.json`` metadata describing their schemas to support querying and preview
   through the `PUDL Data Viewer <https://data.catalyst.coop>`__. See PR :pr:`5339`.
 * Standardized all unit strings in :mod:`pudl.metadata.fields` to
   `Pint expression syntax <https://pint.readthedocs.io/>`__, replacing ad-hoc
@@ -100,20 +126,12 @@ FERC CID
 * Updated the FERC company identifiers with data through end of
   June 2026. See PR :pr:`5396`.
 
-
 Documentation
 ^^^^^^^^^^^^^
 
 * Expanded the developer docs around metadata naming, typing, and updates to explain
   how unit annotations, field namespaces, and namespace/table-specific metadata
   overrides should be defined and maintained. See :pr:`5361`.
-* Set up the `sphinx_llm <https://github.com/NVIDIA/sphinx-llm>`__ Sphinx extension to
-  generate a Markdown version of the PUDL documentation, suitable for consumption by
-  LLMs, based on the `llms.txt <https://llmstxt.org/>`__ convention. Each page now
-  advertises its Markdown counterpart via a ``<link rel="alternate"
-  type="text/markdown">`` tag, and the site footer links directly to ``llms.txt``, so
-  that agents browsing the rendered HTML docs can discover and prefer the Markdown
-  versions. See PRs :pr:`5381,5393`.
 
 New Data Tests & Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^

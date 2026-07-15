@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.transform.ferc714 &#8212; PUDL 2026.7.3.dev2 documentation</title>
+    <title>pudl.transform.ferc714 &#8212; PUDL 2026.7.3.dev3 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=e423cb74"></script>
+    <script src="../../../_static/documentation_options.js?v=4d63bf12"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -655,8 +655,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.7.3.dev2 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.7.3.dev2 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.7.3.dev3 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.7.3.dev3 documentation - Home"/>
   
   
 </a></div>
@@ -1300,6 +1300,15 @@ window.runMermaid = runMermaid;</script>
         <span class="mi">201</span><span class="p">:</span> <span class="mi">56090</span><span class="p">,</span>  <span class="c1"># Griffith Energy (bad id was 55124)</span>
         <span class="mi">205</span><span class="p">:</span> <span class="mi">58790</span><span class="p">,</span>  <span class="c1"># Gridforce Energy Management (missing or 11378 in xbrl)</span>
         <span class="mi">213</span><span class="p">:</span> <span class="mi">64898</span><span class="p">,</span>  <span class="c1"># GridLiance (missing)</span>
+        <span class="c1"># NOTE 2026-07-14: For the Western Area Power Administration: the EIA</span>
+        <span class="c1"># *BA code* and *utility code* for Upper Midwest / Desert Southwest are</span>
+        <span class="c1"># flipped from each other, and FERC 714 reports using the utility code.</span>
+        <span class="c1"># We want to keep them using the BA-world codes.</span>
+        <span class="c1">#</span>
+        <span class="c1"># See https://github.com/catalyst-cooperative/pudl/issues/4644</span>
+        <span class="mi">162</span><span class="p">:</span> <span class="mi">25471</span><span class="p">,</span>  <span class="c1"># WAPA Lower Colorado has 25471 BA code and 19610 utility ID</span>
+        <span class="mi">163</span><span class="p">:</span> <span class="mi">19610</span><span class="p">,</span>  <span class="c1"># WAPA Upper Missouri West has 19610 BA code, 25471 utility ID</span>
+        <span class="mi">217</span><span class="p">:</span> <span class="mi">19610</span><span class="p">,</span>  <span class="c1"># WAPA Upper Great Plains has 19610 BA code, 25471 utility ID</span>
     <span class="p">},</span>
     <span class="s2">&quot;xbrl&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="c1"># FERC 714 Respondent ID XBRL: EIA BA or Utility ID</span>
