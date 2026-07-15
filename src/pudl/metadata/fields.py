@@ -4470,7 +4470,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "is_gatherer": {
         "type": "boolean",
-        "description": "Whether the company operates as a natural gas gatherer.",
+        "description": (
+            "Whether the company gathers natural gas from production areas for "
+            "delivery to processing plants, transmission pipelines, or distribution "
+            "systems."
+        ),
     },
     "is_generation_only": {
         "type": "boolean",

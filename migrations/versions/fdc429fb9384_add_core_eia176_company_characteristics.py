@@ -1,8 +1,8 @@
 """add core eia176 company characteristics
 
-Revision ID: e40a3e845b65
+Revision ID: fdc429fb9384
 Revises: 9a8d47bd495e
-Create Date: 2026-07-15 10:50:38.880053
+Create Date: 2026-07-15 11:16:04.169195
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'e40a3e845b65'
+revision = 'fdc429fb9384'
 down_revision = '9a8d47bd495e'
 branch_labels = None
 depends_on = None
@@ -21,12 +21,12 @@ def upgrade() -> None:
     op.create_table('core_eia176__yearly_company_characteristics',
     sa.Column('report_year', sa.Integer(), nullable=False, comment='Four-digit year in which the data was reported.'),
     sa.Column('operator_id_eia', sa.Text(), nullable=False, comment='The unique EIA identifier for an operator in a given state. The last two letters of the ID indicate the state.'),
-    sa.Column('operating_state', sa.Enum('SD', 'DC', 'NJ', 'WI', 'LA', 'CA', 'WY', 'GA', 'MS', 'ME', 'NU', 'UT', 'SC', 'NV', 'IL', 'MP', 'MO', 'PE', 'QC', 'NB', 'TX', 'NC', 'FL', 'MD', 'ID', 'HI', 'NT', 'KS', 'MN', 'AB', 'CT', 'MI', 'VI', 'MT', 'NS', 'KY', 'IN', 'PA', 'WV', 'NL', 'NH', 'NM', 'VA', 'RI', 'CO', 'BC', 'IA', 'YT', 'MA', 'ON', 'PR', 'DE', 'AK', 'OR', 'MB', 'AS', 'OK', 'OH', 'AR', 'NY', 'SK', 'NE', 'ND', 'TN', 'GU', 'VT', 'AL', 'AZ', 'WA'), nullable=True, comment='State that the operator is reporting for.'),
+    sa.Column('operating_state', sa.Enum('VI', 'AB', 'MO', 'WA', 'UT', 'ME', 'MP', 'PE', 'CA', 'FL', 'AS', 'ND', 'PA', 'MT', 'NJ', 'ID', 'WV', 'DC', 'OR', 'MD', 'DE', 'NY', 'TN', 'NT', 'NM', 'CT', 'SC', 'ON', 'IL', 'WI', 'GA', 'NB', 'BC', 'NH', 'NS', 'IA', 'PR', 'OH', 'NC', 'MB', 'AL', 'HI', 'IN', 'MN', 'OK', 'RI', 'TX', 'MA', 'WY', 'GU', 'NV', 'VT', 'QC', 'MI', 'MS', 'CO', 'SD', 'AK', 'KY', 'NL', 'VA', 'KS', 'SK', 'YT', 'NU', 'AR', 'LA', 'NE', 'AZ'), nullable=True, comment='State that the operator is reporting for.'),
     sa.Column('is_distribution_company_cooperative', sa.Boolean(), nullable=True, comment='Whether the company is a cooperative distribution company.'),
     sa.Column('is_distribution_company_investor_owned', sa.Boolean(), nullable=True, comment='Whether the company is an investor-owned distribution company.'),
     sa.Column('is_distribution_company_municipally_owned', sa.Boolean(), nullable=True, comment='Whether the company is a municipally-owned distribution company.'),
     sa.Column('is_distribution_company_privately_owned', sa.Boolean(), nullable=True, comment='Whether the company is a privately-owned distribution company.'),
-    sa.Column('is_gatherer', sa.Boolean(), nullable=True, comment='Whether the company operates as a natural gas gatherer.'),
+    sa.Column('is_gatherer', sa.Boolean(), nullable=True, comment='Whether the company gathers natural gas from production areas for delivery to processing plants, transmission pipelines, or distribution systems.'),
     sa.Column('is_interstate_pipeline', sa.Boolean(), nullable=True, comment='Whether the company operates an interstate natural gas pipeline.'),
     sa.Column('is_intrastate_pipeline', sa.Boolean(), nullable=True, comment='Whether the company operates an intrastate natural gas pipeline.'),
     sa.Column('is_liquid_natural_gas_marine_terminal', sa.Boolean(), nullable=True, comment='Whether the company operates a liquefied natural gas marine terminal.'),

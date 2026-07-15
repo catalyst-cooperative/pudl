@@ -164,7 +164,8 @@ OTHER_DISPOSITION_TYPE_MAP = {
     "vented_flared": ["vented flared"],
 }
 
-# Non-US operating_state codes in the RP4 table. Per EIA (2026-05-05):
+# Non-US operating_state codes in the operation types and sector items table.
+# Per EIA (2026-05-05):
 #   FX = Gulf of America, MX = Mexico, BL = Brazil, OO = countries without FIPS codes
 # These are national-level adjustment records and should be excluded.
 NATIONAL_ADJUSTMENT_STATE_CODES = frozenset({"BL", "FX", "MX", "OO"})
@@ -1275,8 +1276,9 @@ def core_eia176__yearly_company_characteristics(
       ``simplify_strings()``.
 
     Args:
-        raw_eia176__operation_types_and_sector_items: Raw EIA-176 RP4 table; primary
-            source for all ``is_*`` columns and ``operating_state``.
+        raw_eia176__operation_types_and_sector_items: Raw EIA-176 operation types
+            and sector items table; primary source for all ``is_*`` columns and
+            ``operating_state``.
         _core_eia176__yearly_company_data: Wide company-level EIA-176 data; provides
             numeric and boolean company fields.
     """
