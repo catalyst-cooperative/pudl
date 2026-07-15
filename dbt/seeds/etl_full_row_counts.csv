@@ -1670,7 +1670,7 @@ core_epa__assn_eia_epacamd,2021,6410
 core_epa__assn_eia_epacamd,2022,6410
 core_epa__assn_eia_epacamd,2023,6371
 core_epa__assn_eia_epacamd,2024,6340
-core_epa__assn_eia_epacamd_subplant_ids,,44583
+core_epa__assn_eia_epacamd_subplant_ids,,44581
 core_epacems__hourly_emissions,1995,3846120
 core_epacems__hourly_emissions,1996,3645432
 core_epacems__hourly_emissions,1997,17660784
@@ -3949,7 +3949,7 @@ out_eia__yearly_assn_plant_parts_plant_gen,2007,314112
 out_eia__yearly_assn_plant_parts_plant_gen,2008,323859
 out_eia__yearly_assn_plant_parts_plant_gen,2009,335548
 out_eia__yearly_assn_plant_parts_plant_gen,2010,324928
-out_eia__yearly_assn_plant_parts_plant_gen,2011,335202
+out_eia__yearly_assn_plant_parts_plant_gen,2011,335198
 out_eia__yearly_assn_plant_parts_plant_gen,2012,346297
 out_eia__yearly_assn_plant_parts_plant_gen,2013,362449
 out_eia__yearly_assn_plant_parts_plant_gen,2014,374332
@@ -4046,7 +4046,7 @@ out_eia__yearly_plant_parts,2007,154465
 out_eia__yearly_plant_parts,2008,161216
 out_eia__yearly_plant_parts,2009,168584
 out_eia__yearly_plant_parts,2010,163846
-out_eia__yearly_plant_parts,2011,170448
+out_eia__yearly_plant_parts,2011,170446
 out_eia__yearly_plant_parts,2012,178187
 out_eia__yearly_plant_parts,2013,190654
 out_eia__yearly_plant_parts,2014,198298
