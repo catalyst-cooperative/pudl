@@ -699,20 +699,23 @@ def _assign_groupwise_load_factor_bins(
     # use pd.cut on the valid rows
     valid_pd = valid.collect().to_pandas()
 
-    valid_pd["load_factor_bin"] = (
-        valid_pd.group_by(unit_cols, group_keys=False)[load_factor_col]
-        .apply(
-            lambda s: pd.cut(
-                s,
-                bins=10,
-                right=True,
-                include_lowest=False,
-            )
+    valid_pd["load_factor_bin"] = valid_pd.groupby(unit_cols, group_keys=False)[
+        load_factor_col
+    ].apply(
+        lambda s: pd.cut(
+            s,
+            bins=10,
+            right=True,
+            include_lowest=False,
         )
-        .astype("object")
     )
 
     valid_pl = pl.from_pandas(valid_pd)
+    valid_pl = valid_pl.with_columns(
+        pl.col("state").cast(
+            pl.Enum(categories=invalid.collect_schema()["state"].categories)
+        )
+    )
 
     # recombine with rest of rows
     combined = pl.concat(
@@ -724,14 +727,8 @@ def _assign_groupwise_load_factor_bins(
 
     # Rank bins for each set of unit_cols
     result = combined.with_columns(
-        pl.col("load_factor_bin")
-        .map_elements(lambda x: x.left if x is not None else None)
-        .alias("load_factor_bin_left")
-    ).with_columns(
-        pl.col("load_factor_bin_left")
-        .rank(method="dense")
-        .over(unit_cols)
-        .alias("load_factor_bin_ordinal")
+        pl.col("load_factor_bin").struct[0].alias("load_factor_bin_left"),
+        pl.col("load_factor_bin").struct[1].alias("load_factor_bin_right"),
     )
 
     return result
@@ -844,29 +841,23 @@ def prep_output_df(
 
     output = (
         cems.group_by(unit_cols)
-        .agg(base_agg)
+        .agg(**base_agg)
         .with_columns(
-            [
-                pl.lit(None).cast(pl.Float64).alias("min_stable_level"),
-                pl.lit(None).cast(pl.Float64).alias("min_up_time_hr"),
-                pl.lit(None).cast(pl.Float64).alias("min_down_time_hr"),
-                pl.lit(None)
-                .cast(pl.Float64)
-                .alias("heat_rate_at_max_load_factor_mmbtu_per_mwh"),
-                pl.lit(None)
-                .cast(pl.Float64)
-                .alias("heat_rate_at_min_stable_level_mmbtu_per_mwh"),
-                pl.lit(None)
-                .cast(pl.Float64)
-                .alias(
-                    f"ramp_up_rate_fraction_of_{output_ramp_rate_col_suffix}_per_min"
-                ),
-                pl.lit(None)
-                .cast(pl.Float64)
-                .alias(
-                    f"ramp_down_rate_fraction_of_{output_ramp_rate_col_suffix}_per_min"
-                ),
-            ]
+            pl.lit(None).cast(pl.Float64).alias("min_stable_level"),
+            pl.lit(None).cast(pl.Float64).alias("min_up_time_hr"),
+            pl.lit(None).cast(pl.Float64).alias("min_down_time_hr"),
+            pl.lit(None)
+            .cast(pl.Float64)
+            .alias("heat_rate_at_max_load_factor_mmbtu_per_mwh"),
+            pl.lit(None)
+            .cast(pl.Float64)
+            .alias("heat_rate_at_min_stable_level_mmbtu_per_mwh"),
+            pl.lit(None)
+            .cast(pl.Float64)
+            .alias(f"ramp_up_rate_fraction_of_{output_ramp_rate_col_suffix}_per_min"),
+            pl.lit(None)
+            .cast(pl.Float64)
+            .alias(f"ramp_down_rate_fraction_of_{output_ramp_rate_col_suffix}_per_min"),
         )
     )
     return output
@@ -972,9 +963,7 @@ def estimate_operational_characteristics_by_unit(
     if cems_working.limit(1).collect().is_empty():
         return pl.LazyFrame()
 
-    cems_working = cems_working.sort_values(
-        col_dict["unit_cols"] + ["operating_datetime_utc"]
-    )
+    cems_working = cems_working.sort(col_dict["unit_cols"] + ["operating_datetime_utc"])
 
     # Assign groupwise load factor bins
     cems_working = _assign_groupwise_load_factor_bins(
@@ -1148,20 +1137,18 @@ def estimate_operational_characteristics_by_unit(
     )
 
     output = output.with_columns(
-        [
-            (pl.col("ramp_up_rate") / pl.col(col_dict["output_max_load_col"]) / 60)
-            .round(2)
-            .alias(
-                f"ramp_up_rate_fraction_of_{col_dict['output_ramp_rate_col_suffix']}_per_min"
-            ),
-            (pl.col("ramp_down_rate") / pl.col(col_dict["output_max_load_col"]) / 60)
-            .round(2)
-            .alias(
-                f"ramp_down_rate_fraction_of_{col_dict['output_ramp_rate_col_suffix']}_per_min"
-            ),
-            pl.col("heat_rate_at_max_load_factor_mmbtu_per_mwh").round(2),
-            pl.col("heat_rate_at_min_stable_level_mmbtu_per_mwh").round(2),
-        ]
+        (pl.col("ramp_up_rate") / pl.col(col_dict["output_max_load_col"]) / 60)
+        .round(2)
+        .alias(
+            f"ramp_up_rate_fraction_of_{col_dict['output_ramp_rate_col_suffix']}_per_min"
+        ),
+        (pl.col("ramp_down_rate") / pl.col(col_dict["output_max_load_col"]) / 60)
+        .round(2)
+        .alias(
+            f"ramp_down_rate_fraction_of_{col_dict['output_ramp_rate_col_suffix']}_per_min"
+        ),
+        pl.col("heat_rate_at_max_load_factor_mmbtu_per_mwh").round(2),
+        pl.col("heat_rate_at_min_stable_level_mmbtu_per_mwh").round(2),
     )
 
     output = output.drop(
