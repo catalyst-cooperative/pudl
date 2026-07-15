@@ -106,7 +106,7 @@ raw_eia860__all_dfs = raw_df_factory(Extractor, name="eia860")
     can_subset=True,
     required_resource_keys={"datastore", "global_data_config"},
 )
-def extract_eia860(context, raw_eia860__all_dfs):
+def extract_eia860(context, raw_eia860__all_dfs, raw_eia860m__all_dfs):
     """Extract raw EIA data from excel sheets into dataframes.
 
     Args:
@@ -116,7 +116,6 @@ def extract_eia860(context, raw_eia860__all_dfs):
         A tuple of extracted EIA dataframes.
     """
     eia_data_config = context.resources.global_data_config.pudl.eia
-    ds = context.resources.datastore
     selected_outputs = set(context.selected_output_names)
 
     # Intersect the requested outputs with the three generator tables that EIA-860M
@@ -129,12 +128,21 @@ def extract_eia860(context, raw_eia860__all_dfs):
     } & {"generator_existing", "generator_proposed", "generator_retired"}
 
     # EIA-860M only augments the generator tabs that overlap with annual EIA-860.
-    # When subsetting this multi-asset, only extract and append 860M data if the user
-    # requested at least one of those appendable raw outputs and 860M is enabled.
+    # When subsetting this multi-asset, only append 860M data if the user requested at
+    # least one of those appendable raw outputs.
+    # Use the already-extracted raw_eia860m asset and filter it to the months specified
+    # in the EIA-860M data config rather than re-extracting 860M here. This makes the
+    # provenance explicit in the DAG.
     if eia_data_config.eia860.eia860m and selected_eia860m_appendable_tables:
-        eia860m_raw_dfs = pudl.extract.eia860m.Extractor(ds).extract(
-            year_month=eia_data_config.eia860.eia860m_year_months
-        )
+        # year-months to include from the EIA-860M raw asset (e.g., ["2024-05"])
+        eia860m_months = set(eia_data_config.eia860m.year_months)
+
+        # Filter each 860M page to only include rows from the requested months.
+        eia860m_raw_dfs = {}
+        for page, df in raw_eia860m__all_dfs.items():
+            mask = df["report_date"].dt.strftime("%Y-%m").isin(eia860m_months)
+            eia860m_raw_dfs[page] = df.loc[mask].copy()
+
         raw_eia860__all_dfs = pudl.extract.eia860m.append_eia860m(
             eia860_raw_dfs=raw_eia860__all_dfs, eia860m_raw_dfs=eia860m_raw_dfs
         )
