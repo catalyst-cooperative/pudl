@@ -1,8 +1,17 @@
 # PUDL Release Notes
 
-<a id="release-v2026-7-0"></a>
+<a id="release-v2026-7-2"></a>
 
-## v2026.7.0 (2026-07-XX)
+## v2026.7.2 (2026-07-14)
+
+This is a monthly PUDL data release, primarily motivated by updating
+the EIA-860M monthly data through May 2026. As usual, it also includes
+all of the other changes that have accumulated on `main` since our
+last release.
+
+This month, we have new EIA-176 tables, the EIA-860 early release,
+Parquet outputs for DBF assets, improved units handling, GeoParquet
+bugfixes, and better signal:noise ratio in unit test logging outputs.
 
 ### Enhancements
 
@@ -25,20 +34,53 @@
 
 #### EIA-176
 
-* Added detailed core EIA-176 continuation-line tables for natural gas imports,
-  supplemental gaseous fuel supplies, gas exports, and other gas disposition. See
+* Added detailed core [EIA-176](data_sources/eia176.md)
+  continuation-line tables for natural gas imports, supplemental
+  gaseous fuel supplies, gas exports, and other gas disposition. See
   [#5240](https://github.com/catalyst-cooperative/pudl/issues/5240) and [#5245](https://github.com/catalyst-cooperative/pudl/pull/5245).
 
 ### Expanded Data Coverage
 
+#### EIA-191
+
+* Added [EIA-191](data_sources/eia191.md) data through end of
+  March 2026. See PR [#5396](https://github.com/catalyst-cooperative/pudl/pull/5396).
+
+#### EIA-930
+
+* Added [EIA-930](data_sources/eia930.md) data through end of
+  June 2026. See PR [#5396](https://github.com/catalyst-cooperative/pudl/pull/5396)
+
+#### EIA Electricity API
+
+* Updated the bulk [EIA Electricity API](data_sources/eiaapi.md) data
+  used to fill in redacted fuel prices. See PR [#5396](https://github.com/catalyst-cooperative/pudl/pull/5396).
+
+#### EPA CEMS
+
+* Added [EPA CEMS](data_sources/epacems.md) data through end of
+  March 2026. See PR [#5396](https://github.com/catalyst-cooperative/pudl/pull/5396)
+
 #### EIA-860
 
-* Added early release data for EIA-860 2025. See issue [#5322](https://github.com/catalyst-cooperative/pudl/issues/5322) and PR [#5324](https://github.com/catalyst-cooperative/pudl/pull/5324).
+* Added early release data for [EIA-860](data_sources/eia860.md) 2025. See issue [#5322](https://github.com/catalyst-cooperative/pudl/issues/5322) and PR
+  [#5324](https://github.com/catalyst-cooperative/pudl/pull/5324).
 
 #### EIA-860M
 
 * Added [EIA-860M](data_sources/eia860.md) data through May 2026. See
   issue [#5369](https://github.com/catalyst-cooperative/pudl/issues/5369) and PR [#5371](https://github.com/catalyst-cooperative/pudl/pull/5371).
+
+#### FERC Forms 2 and 6
+
+* Updated the raw FERC Form 2 and 6 archives to include additional
+  2025 data. This data is converted to SQLite, but not deeply
+  integrated into PUDL. See PR [#5396](https://github.com/catalyst-cooperative/pudl/pull/5396).
+
+#### FERC CID
+
+* Updated the FERC company identifiers with data through end of
+  June 2026. See PR [#5396](https://github.com/catalyst-cooperative/pudl/pull/5396).
 
 ### Documentation
 
@@ -47,7 +89,11 @@
   overrides should be defined and maintained. See [#5361](https://github.com/catalyst-cooperative/pudl/pull/5361).
 * Set up the [sphinx_llm](https://github.com/NVIDIA/sphinx-llm) Sphinx extension to
   generate a Markdown version of the PUDL documentation, suitable for consumption by
-  LLMs, based on the [llms.txt](https://llmstxt.org/) convention. See PR [#5381](https://github.com/catalyst-cooperative/pudl/pull/5381).
+  LLMs, based on the [llms.txt](https://llmstxt.org/) convention. Each page now
+  advertises its Markdown counterpart via a `<link rel="alternate"
+  type="text/markdown">` tag, and the site footer links directly to `llms.txt`, so
+  that agents browsing the rendered HTML docs can discover and prefer the Markdown
+  versions. See PRs [#5381](https://github.com/catalyst-cooperative/pudl/pull/5381), [#5393](https://github.com/catalyst-cooperative/pudl/pull/5393).
 
 ### New Data Tests & Validations
 
