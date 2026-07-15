@@ -12,6 +12,9 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "See GitHub issue #4729."
             ),
             "additional_source_text": "(Part 3, Lines A–F)",
+            "additional_details_text": (
+                "The natural_gas_pump_price field is reported only for 2014-2016."
+            ),
         },
         "schema": {
             "fields": [

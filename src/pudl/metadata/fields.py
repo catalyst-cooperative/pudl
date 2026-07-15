@@ -400,10 +400,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     },
     "alternative_fleet_size": {
         "type": "integer",
-        "description": (
-            "Number of alternative-fuel vehicles in the company's fleet "
-            "(EIA Form 176 Part 3, Line B)."
-        ),
+        "description": "Number of alternative-fuel vehicles in the company's fleet.",
     },
     "alternative_fuel_vehicle_activity": {
         "type": "boolean",
@@ -1544,15 +1541,13 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "customer_choice_residential_eligible": {
         "type": "integer",
         "description": (
-            "Number of residential customers eligible for customer choice programs "
-            "(EIA Form 176 Part 3, Line C)."
+            "Number of residential customers eligible for customer choice programs."
         ),
     },
     "customer_choice_residential_participating": {
         "type": "integer",
         "description": (
-            "Number of residential customers participating in customer choice programs "
-            "(EIA Form 176 Part 3, Line C)."
+            "Number of residential customers participating in customer choice programs."
         ),
     },
     "customer_class": {
@@ -1801,8 +1796,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "boolean",
         "description": (
             "Whether the company completed sales or acquisitions of natural gas "
-            "distribution assets during the report year "
-            "(EIA Form 176 Part 3, Line D)."
+            "distribution assets during the report year."
         ),
     },
     "debt_ending_balance": {
@@ -5100,8 +5094,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "natural_gas_pump_price": {
         "type": "number",
         "description": (
-            "Price of natural gas at public fueling stations operated by the company "
-            "(EIA Form 176 Part 3, Line E). Reported 2014-2016 only."
+            "Price of natural gas at public fueling stations operated by the company."
         ),
         "unit": "USD / Mcf",
     },
