@@ -11,13 +11,13 @@ from dagster import (
     multi_asset,
 )
 
+from pudl.analysis.record_linkage.name_cleaner import CompanyNameCleaner
 from pudl.helpers import (
     cleanstrings_series,
     multi_index_stack,
     simplify_columns,
     simplify_strings,
 )
-from pudl.analysis.record_linkage.name_cleaner import CompanyNameCleaner
 from pudl.logging_helpers import get_logger
 
 logger = get_logger(__name__)
@@ -1245,6 +1245,7 @@ def core_eia176__yearly_liquefied_natural_gas_inventory(
     return df
 
 
+@asset(io_manager_key="pudl_io_manager")
 def core_eia176__yearly_company_characteristics(
     raw_eia176__operation_types_and_sector_items: pd.DataFrame,
     _core_eia176__yearly_company_data: pd.DataFrame,
@@ -1305,6 +1306,12 @@ def core_eia176__yearly_company_characteristics(
         how="left",
         validate="1:1",
     )
+    # Some company fields only exist in source years where the question was asked
+    # (e.g. natural_gas_pump_price appears in 2014-2016, but not in the 2020/2024
+    # fast build). Preserve the full output schema for partial-year materializations.
+    for col in company_cols:
+        if col not in df:
+            df[col] = float("nan") if col == "natural_gas_pump_price" else pd.NA
 
     # Drop national-level adjustment records — see NATIONAL_ADJUSTMENT_STATE_CODES
     n_national = df["operating_state"].isin(NATIONAL_ADJUSTMENT_STATE_CODES).sum()
