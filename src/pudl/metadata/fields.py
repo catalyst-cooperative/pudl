@@ -5103,7 +5103,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Price of natural gas at public fueling stations operated by the company "
             "(EIA Form 176 Part 3, Line E). Reported 2014-2016 only."
         ),
-        "unit": "USD_per_Mcf",
+        "unit": "USD / Mcf",
     },
     "natural_gas_storage": {
         "type": "boolean",
