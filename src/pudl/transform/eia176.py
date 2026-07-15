@@ -1356,14 +1356,6 @@ def core_eia176__yearly_company_characteristics(
         )
         df = df.drop(columns=["sales_acquisitions_1_yes_0_no"])
 
-    for col in [
-        "alternative_fleet_size",
-        "customer_choice_residential_eligible",
-        "customer_choice_residential_participating",
-    ]:
-        if col in df.columns:
-            df[col] = df[col].astype(pd.Int64Dtype())
-
     null_operating_state = df["operating_state"].isnull().sum()
     assert null_operating_state == 0, (
         f"Expected 0 null operating_state values in "
