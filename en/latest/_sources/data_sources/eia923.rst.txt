@@ -18,9 +18,9 @@ EIA Form 923 -- Power Plant Operations Report
    * - Source Format
      - Microsoft Excel (.xls/.xlsx)
    * - Download Size
-     - 373 MB
+     - 379 MB
    * - Temporal Coverage
-     - 2001-2025
+     - 2001-2026
    * - PUDL Code
      - ``eia923``
    * - Unprocessed Source Data Archive

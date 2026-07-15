@@ -64,6 +64,11 @@ bugfixes, and better signal:noise ratio in unit test logging outputs.
 
 ### Expanded Data Coverage
 
+#### EIA-923
+
+* Added early release data for EIA-923 2025. See issue [#5372](https://github.com/catalyst-cooperative/pudl/issues/5372) and PR [#5391](https://github.com/catalyst-cooperative/pudl/pull/5391).
+* Added 2026 data through April for EIA-923. See [#5391](https://github.com/catalyst-cooperative/pudl/pull/5391).
+
 #### EIA-191
 
 * Added [EIA-191](data_sources/eia191.md) data through end of
