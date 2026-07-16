@@ -243,6 +243,15 @@ EIA_CODE_FIXES: dict[Literal["combined", "csv", "xbrl"], dict[int | str, int]] =
         201: 56090,  # Griffith Energy (bad id was 55124)
         205: 58790,  # Gridforce Energy Management (missing or 11378 in xbrl)
         213: 64898,  # GridLiance (missing)
+        # NOTE 2026-07-14: For the Western Area Power Administration: the EIA
+        # *BA code* and *utility code* for Upper Midwest / Desert Southwest are
+        # flipped from each other, and FERC 714 reports using the utility code.
+        # We want to keep them using the BA-world codes.
+        #
+        # See https://github.com/catalyst-cooperative/pudl/issues/4644
+        162: 25471,  # WAPA Lower Colorado has 25471 BA code and 19610 utility ID
+        163: 19610,  # WAPA Upper Missouri West has 19610 BA code, 25471 utility ID
+        217: 19610,  # WAPA Upper Great Plains has 19610 BA code, 25471 utility ID
     },
     "xbrl": {
         # FERC 714 Respondent ID XBRL: EIA BA or Utility ID
