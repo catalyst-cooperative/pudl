@@ -46,7 +46,7 @@ pudl:
     eia757a:
       years: [2014, 2017]
     eia923:
-      years: [2020, 2025]
+      years: [2020, 2026]
     eia860:
       years: [2020, 2025]
       eia860m: true
