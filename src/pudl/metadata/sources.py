@@ -531,7 +531,7 @@ SOURCES: dict[str, Any] = {
             "and evaluate the environmental and public health impacts of power "
             "plant emissions."
         ),
-        "concept_doi": "10.5281/zenodo.21321422",
+        "concept_doi": "10.5281/zenodo.14783043",
         "source_file_dict": {
             "respondents": "Power plants over 25MW",
             "source_format": "Comma Separated Value (.csv)",
