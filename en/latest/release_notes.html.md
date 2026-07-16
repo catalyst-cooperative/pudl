@@ -6,6 +6,14 @@
 
 This is the upcoming monthly PUDL release.
 
+### New Data
+
+#### EIA-860M
+
+* Added Puerto Rico [EIA-860M](data_sources/eia860.md) data into EIA 860 tables. See
+  issue [#4352](https://github.com/catalyst-cooperative/pudl/issues/4352) and PR [#5360](https://github.com/catalyst-cooperative/pudl/pull/5360). Shoutout to [@bsousa22](https://github.com/sponsors/bsousa22) for making his
+  first PUDL contribution!
+
 ### Documentation
 
 * Set up the [sphinx_llm](https://github.com/NVIDIA/sphinx-llm) Sphinx extension to
@@ -61,12 +69,6 @@ bugfixes, and better signal:noise ratio in unit test logging outputs.
   continuation-line tables for natural gas imports, supplemental
   gaseous fuel supplies, gas exports, and other gas disposition. See
   [#5240](https://github.com/catalyst-cooperative/pudl/issues/5240) and [#5245](https://github.com/catalyst-cooperative/pudl/pull/5245).
-
-#### EIA-860M
-
-* Added Puerto Rico [EIA-860M](data_sources/eia860.md) data into EIA 860 tables. See
-  issue [#4352](https://github.com/catalyst-cooperative/pudl/issues/4352) and PR [#5360](https://github.com/catalyst-cooperative/pudl/pull/5360). Shoutout to [@bsousa22](https://github.com/sponsors/bsousa22) for making his
-  first PUDL contribution!
 
 ### Expanded Data Coverage
 
