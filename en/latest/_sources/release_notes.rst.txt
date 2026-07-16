@@ -72,6 +72,12 @@ EIA-176
   gaseous fuel supplies, gas exports, and other gas disposition. See
   :issue:`5240` and :pr:`5245`.
 
+EIA-860M
+~~~~~~~~
+
+* Added Puerto Rico :doc:`EIA-860M <data_sources/eia860>` data into EIA 860 tables. See
+  issue :issue:`4352` and PR :pr:`5360`. Shoutout to :user:`bsousa22` for making his
+  first PUDL contribution!
 
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
