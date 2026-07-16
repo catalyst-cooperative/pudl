@@ -308,7 +308,7 @@ SOURCES: dict[str, Any] = {
             "source_format": "Microsoft Excel (.xls/.xlsx)",
         },
         "working_partitions": {
-            "years": sorted(set(range(2001, 2026))),
+            "years": sorted(set(range(2001, 2027))),
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],

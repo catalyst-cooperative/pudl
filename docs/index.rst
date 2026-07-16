@@ -201,8 +201,8 @@ generator, or hourly electricity demand with missing and outlying values imputed
       provides examples of working with PUDL data using Python in Jupyter notebooks.
     * For larger tables, including those with hourly resolution, you may want to use
       tools designed for data that's larger than your computer's available memory.
-      `Polars dataframes <https://docs.pola.rs/user-guide/getting-started/>` and
-      `DuckDB <https://duckdb.org/docs/>` are great options.
+      `Polars dataframes <https://docs.pola.rs/user-guide/getting-started/>`__ and
+      `DuckDB <https://duckdb.org/docs/>`__ are great options.
 
 .. _test-and-validate:
 
@@ -236,72 +236,19 @@ Organizations using PUDL
    :start-after: .. _pudl_orgs_start:
    :end-before: .. _pudl_orgs_end:
 
-
 ---------------------------------------------------------------------------------------
 PUDL Sustainers
 ---------------------------------------------------------------------------------------
-
-The PUDL Sustainers provide ongoing financial support to ensure the open data keeps
-flowing, and the project is sustainable long term. They're also involved in our
-quarterly planning process. To learn more see `the PUDL Project page on Open Collective
-<https://opencollective.com/pudl>`__.
-
-Gigawatt Tier (≥$25,000/year)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. image:: images/logos/RMI.png
-   :width: 600
-   :target: https://rmi.org
-   :alt: RMI
-   :align: center
-
-.. image:: images/logos/GridLab.png
-   :width: 600
-   :target: https://gridlab.org
-   :alt: GridLab
-   :align: center
-
-Megawatt Tier (≥$16,000/year)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Become our first `Megawatt tier sustainer <https://opencollective.com/pudl>`__!
-
-Kilowatt Tier (≥$8,000/year)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Become our first `kilowatt tier sustainer <https://opencollective.com/pudl>`__!
+.. include:: ../README.rst
+   :start-after: .. _pudl_sustainers_start:
+   :end-before: .. _pudl_sustainers_end:
 
 ---------------------------------------------------------------------------------------
 Major Grant Funders
 ---------------------------------------------------------------------------------------
-
-Alfred P. Sloan Foundation
-^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. image:: images/logos/Sloan.png
-   :width: 400
-   :target: https://sloan.org/programs/research/energy-and-environment/
-   :alt: Alfred P. Sloan Foundation Energy and Environment Program
-   :align: center
-
-The PUDL Project has been supported by three grants from the `Alfred P. Sloan
-Foundation's Energy and Environment Program
-<https://sloan.org/programs/research/energy-and-environment>`__, in 2019, 2021, and
-2024.
-
-National Science Foundation
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. image:: images/logos/NSF.png
-   :width: 400
-   :target: https://new.nsf.gov/funding/opportunities/pathways-enable-open-source-ecosystems-pose
-   :alt: National Science Foundation Pathways to Enable Open Source Ecosystems (POSE)
-   :align: center
-
-The PUDL Project was awarded a grant from the National Science Foundation's `Pathways to
-Enable Open Source Ecosystems (POSE) program
-<https://new.nsf.gov/funding/opportunities/pathways-enable-open-source-ecosystems-pose>`__
-(`award 2346139 <https://www.nsf.gov/awardsearch/showAward?AWD_ID=2346139>`__) in 2024.
+.. include:: ../README.rst
+   :start-after: .. _pudl_grants_start:
+   :end-before: .. _pudl_grants_end:
 
 .. toctree::
   :hidden:
