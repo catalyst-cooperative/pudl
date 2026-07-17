@@ -38,6 +38,22 @@ Bug Fixes & Data Cleaning
   to the Desert Southwest region EIA balancing authority information, and vice
   versa. See :issue:`4644 and :pr:`5408`.
 
+Performance Improvements
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+* The fast ETL now processes only two representative EIA-861 years instead of the
+  entire time series, bringing it in line with how every other dataset is already
+  handled and speeding up both local development and CI. Processing all years was
+  originally a workaround for discontinued columns and data validation tests that
+  couldn't tolerate partial coverage; those limitations have since been resolved.
+  This change surfaced an implicit assumption in the FERC-714 outputs that all EIA-861
+  years were always available, in the logic that repairs known-bad balancing
+  authority/utility associations by copying data from a known-good year. That repair
+  logic has been rewritten as an explicit, validated mapping of per-year fixes, so it
+  degrades gracefully when only a subset of years is present, and is substantially
+  easier to read, test, and extend than the compact form it replaces. See
+  :issue:`2628` and :pr:`4568`.
+
 .. _release-v2026.7.2:
 
 ---------------------------------------------------------------------------------------
