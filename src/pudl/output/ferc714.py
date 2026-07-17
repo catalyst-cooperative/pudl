@@ -382,11 +382,11 @@ def filled_core_eia861__yearly_balancing_authority(
     Applies the explicit year-to-year repairs described in :data:`BA_FIXES` to the
     BA identity table.
 
-    For each ``source_year -> target_year`` mapping, adds a row for the target
-    year if one is missing, copying all attributes from the source year.
-    Existing target-year rows are left unchanged. This is therefore an
-    explicit year-to-year copy for missing BA identity rows, not a general
-    forward-fill or backward-fill across a range of years.
+    Each entry in :data:`BA_FIXES` names one ``source_year`` and one
+    ``target_year`` for a given balancing authority. If that BA already has a
+    row for the target year, nothing changes. Otherwise, its source-year row
+    is copied and relabeled with the target year's date. No other years are
+    affected, and no values are interpolated or extrapolated.
 
     Silently skips any target year absent from the data. Logs a warning and
     skips if the target year is present but the source year, or the specific
