@@ -54,7 +54,9 @@ pudl:
       year_months: ["2026-04", "2026-05"]
     eia861:
       # These years must overlap with FERC-714 to allow assets that depend on both to
-      # be materialized.
+      # be materialized. If you modify this list, be sure to update the matching
+      # pudl_service_territories commands in
+      # tests/integration/scripts/console_scripts_test.py
       years: [2020, 2024]
     eia930:
       half_years: ["2026half1"]
