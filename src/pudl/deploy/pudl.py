@@ -605,8 +605,10 @@ def get_build_from_tag(tag: str) -> UPath:
     # Loop through all builds associated with git ref and find most recent one
     most_recent_build_dt = datetime.min
     most_recent_build_path = None
-    build_path_pattern = re.compile(r"(\d{4}-\d{2}-\d{2}-\d{4})-([a-f|0-9]{9})-(.+)")
-    for build_path in build_bucket.glob(f"*-{git_ref}-*"):
+    build_path_pattern = re.compile(r"(\d{4}-\d{2}-\d{2}-\d{4})-([a-f|0-9]{9})")
+    checked = []
+    for build_path in build_bucket.glob(f"*-{git_ref}"):
+        checked.append(str(build_path))
         if (match := build_path_pattern.search(str(build_path))) is None:
             raise RuntimeError(
                 f"Found build path with unexpected name format associated with ref, {git_ref}: {build_path}"
@@ -621,7 +623,7 @@ def get_build_from_tag(tag: str) -> UPath:
     # Check that we found a build
     if most_recent_build_path is None:
         raise RuntimeError(
-            f"Can't find a build associated with tag: {tag}, ref: {git_ref}"
+            f"Can't find a build associated with tag: {tag}, ref: {git_ref}; checked:\n{'\n'.join(checked)}"
         )
     logger.info(
         f"Most recent build associated with tag {tag}: {most_recent_build_path.as_uri()}"

@@ -155,7 +155,7 @@ jobs:
             --output ${{ env.BATCH_JOB_JSON }}
 
       - name: Launch Google Batch job
-        run: gcloud batch jobs submit run-ferceqr-etl-${{ env.BATCH_JOB_ID }} --config ${{ env.BATCH_JOB_JSON }} --location us-east1
+        run: gcloud batch jobs submit build-deploy-ferceqr-${{ env.BATCH_JOB_ID }} --config ${{ env.BATCH_JOB_JSON }} --location us-east1
 
       - name: Status emoji
         run: |
