@@ -37,6 +37,13 @@ Bug Fixes & Data Cleaning
   data - previously, the Upper Great Plains West region FERC respondent was mapped
   to the Desert Southwest region EIA balancing authority information, and vice
   versa. See :issue:`4644 and :pr:`5408`.
+* Fixed a bug in ``allocate_gen_fuel.identify_proposed_plants()`` where a plant that
+  transitions from ``proposed`` to ``existing`` status across the years spanned by a
+  multi-year ETL run had its legitimately all-proposed years' generation and fuel data
+  silently dropped. The "entirely proposed" check compared operational status across
+  the full multi-year input rather than per year, so a plant with mixed statuses across
+  its history would never pass the check for *any* of its years. Thanks to
+  :user:`grgmiller` for this contribution. See :issue:`TODO` and :pr:`TODO`.
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
