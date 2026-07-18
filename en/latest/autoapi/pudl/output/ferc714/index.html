@@ -18,7 +18,7 @@
     </script>
     
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
-    <title>pudl.output.ferc714 &#8212; PUDL 2026.7.3.dev7 documentation</title>
+    <title>pudl.output.ferc714 &#8212; PUDL 2026.7.3.dev8 documentation</title>
   
   
   
@@ -51,7 +51,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../../_static/documentation_options.js?v=85f16449"></script>
+    <script src="../../../../_static/documentation_options.js?v=2786950e"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -142,8 +142,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.7.3.dev7 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.7.3.dev7 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.7.3.dev8 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.7.3.dev8 documentation - Home"/>
   
   
 </a></div>
@@ -864,14 +864,28 @@ at <a class="reference internal" href="../../../../methodology/timeseries_imputa
 <tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.ferc714.logger" title="pudl.output.ferc714.logger"><code class="xref py py-obj docutils literal notranslate"><span class="pre">logger</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.ferc714.ASSOCIATIONS" title="pudl.output.ferc714.ASSOCIATIONS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ASSOCIATIONS</span></code></a></p></td>
-<td><p>Adjustments to balancing authority-utility associations from EIA 861.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.ferc714.BA_FIXES" title="pudl.output.ferc714.BA_FIXES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BA_FIXES</span></code></a></p></td>
+<td><p>Explicit year-to-year repair instructions for EIA-861 balancing authority data.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.ferc714.UTILITIES" title="pudl.output.ferc714.UTILITIES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">UTILITIES</span></code></a></p></td>
 <td><p>Balancing authorities to treat as utilities in associations from EIA 861.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.ferc714.imputed_hourly_planning_area_demand_assets" title="pudl.output.ferc714.imputed_hourly_planning_area_demand_assets"><code class="xref py py-obj docutils literal notranslate"><span class="pre">imputed_hourly_planning_area_demand_assets</span></code></a></p></td>
 <td><p></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="classes">
+<h2>Classes<a class="headerlink" href="#classes" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.ferc714.BaFix" title="pudl.output.ferc714.BaFix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BaFix</span></code></a></p></td>
+<td><p>A single BA data repair entry for one target year.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.ferc714.BaFixMap" title="pudl.output.ferc714.BaFixMap"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BaFixMap</span></code></a></p></td>
+<td><p>Validated mapping of target years to lists of <a class="reference internal" href="#pudl.output.ferc714.BaFix" title="pudl.output.ferc714.BaFix"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaFix</span></code></a> repair entries.</p></td>
 </tr>
 </tbody>
 </table>
@@ -884,31 +898,34 @@ at <a class="reference internal" href="../../../../methodology/timeseries_imputa
 <tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.ferc714.categorize_eia_code" title="pudl.output.ferc714.categorize_eia_code"><code class="xref py py-obj docutils literal notranslate"><span class="pre">categorize_eia_code</span></code></a>(→ pandas.DataFrame)</p></td>
 <td><p>Categorize FERC 714 <code class="docutils literal notranslate"><span class="pre">eia_codes</span></code> as either balancing authority or utility IDs.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.ferc714.filled_core_eia861__yearly_balancing_authority" title="pudl.output.ferc714.filled_core_eia861__yearly_balancing_authority"><code class="xref py py-obj docutils literal notranslate"><span class="pre">filled_core_eia861__yearly_balancing_authority</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.ferc714._apply_exclude_states" title="pudl.output.ferc714._apply_exclude_states"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_apply_exclude_states</span></code></a>(→ pandas.DataFrame)</p></td>
+<td><p>Filter source rows by exclude_states, raising if all rows are eliminated.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.ferc714.filled_core_eia861__yearly_balancing_authority" title="pudl.output.ferc714.filled_core_eia861__yearly_balancing_authority"><code class="xref py py-obj docutils literal notranslate"><span class="pre">filled_core_eia861__yearly_balancing_authority</span></code></a>(...)</p></td>
 <td><p>Modified core_eia861__yearly_balancing_authority table.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.ferc714.filled_core_eia861__assn_balancing_authority" title="pudl.output.ferc714.filled_core_eia861__assn_balancing_authority"><code class="xref py py-obj docutils literal notranslate"><span class="pre">filled_core_eia861__assn_balancing_authority</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.ferc714.filled_core_eia861__assn_balancing_authority" title="pudl.output.ferc714.filled_core_eia861__assn_balancing_authority"><code class="xref py py-obj docutils literal notranslate"><span class="pre">filled_core_eia861__assn_balancing_authority</span></code></a>(...)</p></td>
 <td><p>Modified core_eia861__assn_balancing_authority table.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.ferc714.filled_service_territory_eia861" title="pudl.output.ferc714.filled_service_territory_eia861"><code class="xref py py-obj docutils literal notranslate"><span class="pre">filled_service_territory_eia861</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.ferc714.filled_core_eia861__yearly_service_territory" title="pudl.output.ferc714.filled_core_eia861__yearly_service_territory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">filled_core_eia861__yearly_service_territory</span></code></a>(...)</p></td>
 <td><p>Modified core_eia861__yearly_service_territory table.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.ferc714._out_ferc714__annualized_respondents" title="pudl.output.ferc714._out_ferc714__annualized_respondents"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_out_ferc714__annualized_respondents</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.ferc714._out_ferc714__annualized_respondents" title="pudl.output.ferc714._out_ferc714__annualized_respondents"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_out_ferc714__annualized_respondents</span></code></a>(→ pandas.DataFrame)</p></td>
 <td><p>Broadcast respondent data across all years with reported demand.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.ferc714._out_ferc714__categorized_respondents" title="pudl.output.ferc714._out_ferc714__categorized_respondents"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_out_ferc714__categorized_respondents</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.ferc714._out_ferc714__categorized_respondents" title="pudl.output.ferc714._out_ferc714__categorized_respondents"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_out_ferc714__categorized_respondents</span></code></a>(→ pandas.DataFrame)</p></td>
 <td><p>Annualized respondents with <code class="docutils literal notranslate"><span class="pre">respondent_type</span></code> assigned if possible.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.ferc714.out_ferc714__respondents_with_fips" title="pudl.output.ferc714.out_ferc714__respondents_with_fips"><code class="xref py py-obj docutils literal notranslate"><span class="pre">out_ferc714__respondents_with_fips</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.ferc714.out_ferc714__respondents_with_fips" title="pudl.output.ferc714.out_ferc714__respondents_with_fips"><code class="xref py py-obj docutils literal notranslate"><span class="pre">out_ferc714__respondents_with_fips</span></code></a>(→ pandas.DataFrame)</p></td>
 <td><p>Annual respondents with the county FIPS IDs for their service territories.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.ferc714._out_ferc714__georeferenced_counties" title="pudl.output.ferc714._out_ferc714__georeferenced_counties"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_out_ferc714__georeferenced_counties</span></code></a>(...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.ferc714._out_ferc714__georeferenced_counties" title="pudl.output.ferc714._out_ferc714__georeferenced_counties"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_out_ferc714__georeferenced_counties</span></code></a>(...)</p></td>
 <td><p>Annual respondents with all associated county-level geometries.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.ferc714.out_ferc714__georeferenced_respondents" title="pudl.output.ferc714.out_ferc714__georeferenced_respondents"><code class="xref py py-obj docutils literal notranslate"><span class="pre">out_ferc714__georeferenced_respondents</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.ferc714.out_ferc714__georeferenced_respondents" title="pudl.output.ferc714.out_ferc714__georeferenced_respondents"><code class="xref py py-obj docutils literal notranslate"><span class="pre">out_ferc714__georeferenced_respondents</span></code></a>(...)</p></td>
 <td><p>Annual respondents with a single all-encompassing geometry for each year.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.output.ferc714.out_ferc714__summarized_demand" title="pudl.output.ferc714.out_ferc714__summarized_demand"><code class="xref py py-obj docutils literal notranslate"><span class="pre">out_ferc714__summarized_demand</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.output.ferc714.out_ferc714__summarized_demand" title="pudl.output.ferc714.out_ferc714__summarized_demand"><code class="xref py py-obj docutils literal notranslate"><span class="pre">out_ferc714__summarized_demand</span></code></a>(→ pandas.DataFrame)</p></td>
 <td><p>Compile annualized, categorized respondents and summarize values.</p></td>
 </tr>
 </tbody>
@@ -922,24 +939,99 @@ at <a class="reference internal" href="../../../../methodology/timeseries_imputa
 <span class="sig-prename descclassname"><span class="pre">pudl.output.ferc714.</span></span><span class="sig-name descname"><span class="pre">logger</span></span><a class="reference internal" href="../../../../_modules/pudl/output/ferc714.html#logger"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.output.ferc714.logger" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
-<dl class="py data">
-<dt class="sig sig-object py" id="pudl.output.ferc714.ASSOCIATIONS">
-<span class="sig-prename descclassname"><span class="pre">pudl.output.ferc714.</span></span><span class="sig-name descname"><span class="pre">ASSOCIATIONS</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><a class="reference internal" href="../../../../_modules/pudl/output/ferc714.html#ASSOCIATIONS"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.output.ferc714.ASSOCIATIONS" title="Link to this definition">#</a></dt>
-<dd><p>Adjustments to balancing authority-utility associations from EIA 861.</p>
-<p>The changes are applied locally to EIA 861 tables.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="pudl.output.ferc714.BaFix">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pudl.output.ferc714.</span></span><span class="sig-name descname"><span class="pre">BaFix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">/</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pudl/output/ferc714.html#BaFix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.output.ferc714.BaFix" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://pydantic.dev/docs/validation/latest/api/pydantic/base_model/#pydantic.BaseModel" title="(in Pydantic v0.0.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pydantic.BaseModel</span></code></a></p>
+<p>A single BA data repair entry for one target year.</p>
 <ul class="simple">
-<li><p><cite>id</cite> (int): EIA balancing authority identifier (<cite>balancing_authority_id_eia</cite>).</p></li>
-<li><p><cite>from</cite> (int): Reference year, to use as a template for target years.</p></li>
-<li><p><cite>to</cite> (List[int]): Target years, in the closed interval format [minimum, maximum].
-Rows in <cite>core_eia861__yearly_balancing_authority</cite> are added (if missing) for every target year
-with the attributes from the reference year.
-Rows in <cite>core_eia861__assn_balancing_authority</cite> are added (or replaced, if existing)
-for every target year with the utility associations from the reference year.
-Rows in <cite>core_eia861__yearly_service_territory</cite> are added (if missing) for every target year
-with the nearest year’s associated utilities’ counties.</p></li>
-<li><p><cite>exclude</cite> (Optional[List[str]]): Utilities to exclude, by state (two-letter code).
-Rows are excluded from <cite>core_eia861__assn_balancing_authority</cite> with target year and state.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">id</span></code>: EIA balancing authority identifier (<code class="docutils literal notranslate"><span class="pre">balancing_authority_id_eia</span></code>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">source_year</span></code>: The year whose data is used as a template for the repair.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">exclude_states</span></code>: Optional list of two-letter state codes. Utility associations
+for utilities in these states are omitted when copying from <code class="docutils literal notranslate"><span class="pre">source_year</span></code>.</p></li>
 </ul>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.output.ferc714.BaFix.model_config">
+<span class="sig-name descname"><span class="pre">model_config</span></span><a class="reference internal" href="../../../../_modules/pudl/output/ferc714.html#BaFix.model_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.output.ferc714.BaFix.model_config" title="Link to this definition">#</a></dt>
+<dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.output.ferc714.BaFix.id">
+<span class="sig-name descname"><span class="pre">id</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><a class="reference internal" href="../../../../_modules/pudl/output/ferc714.html#BaFix.id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.output.ferc714.BaFix.id" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.output.ferc714.BaFix.source_year">
+<span class="sig-name descname"><span class="pre">source_year</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><a class="reference internal" href="../../../../_modules/pudl/output/ferc714.html#BaFix.source_year"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.output.ferc714.BaFix.source_year" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.output.ferc714.BaFix.exclude_states">
+<span class="sig-name descname"><span class="pre">exclude_states</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></span><a class="reference internal" href="../../../../_modules/pudl/output/ferc714.html#BaFix.exclude_states"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.output.ferc714.BaFix.exclude_states" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pudl.output.ferc714.BaFixMap">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pudl.output.ferc714.</span></span><span class="sig-name descname"><span class="pre">BaFixMap</span></span><a class="reference internal" href="../../../../_modules/pudl/output/ferc714.html#BaFixMap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.output.ferc714.BaFixMap" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://pydantic.dev/docs/validation/latest/api/pydantic/root_model/#pydantic.root_model.RootModel" title="(in Pydantic v0.0.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pydantic.RootModel</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">int</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">list</span></code></a>[<a class="reference internal" href="#pudl.output.ferc714.BaFix" title="pudl.output.ferc714.BaFix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BaFix</span></code></a>]]]</p>
+<p>Validated mapping of target years to lists of <a class="reference internal" href="#pudl.output.ferc714.BaFix" title="pudl.output.ferc714.BaFix"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaFix</span></code></a> repair entries.</p>
+<p>Raises <code class="docutils literal notranslate"><span class="pre">pydantic.ValidationError</span></code> for malformed entries (wrong types,
+unknown keys) and <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> for cross-entry constraint violations:
+duplicate BA IDs within the same target year, and self-referential fixes
+where <code class="docutils literal notranslate"><span class="pre">source_year</span> <span class="pre">==</span> <span class="pre">target_year</span></code>.  Instantiated once at module load as
+the <a class="reference internal" href="#pudl.output.ferc714.BA_FIXES" title="pudl.output.ferc714.BA_FIXES"><code class="xref py py-data docutils literal notranslate"><span class="pre">BA_FIXES</span></code></a> constant.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.output.ferc714.BaFixMap._check_structure">
+<span class="sig-name descname"><span class="pre">_check_structure</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pudl.output.ferc714.BaFixMap" title="pudl.output.ferc714.BaFixMap"><span class="pre">BaFixMap</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/output/ferc714.html#BaFixMap._check_structure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.output.ferc714.BaFixMap._check_structure" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.output.ferc714.BaFixMap.items">
+<span class="sig-name descname"><span class="pre">items</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pudl/output/ferc714.html#BaFixMap.items"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.output.ferc714.BaFixMap.items" title="Link to this definition">#</a></dt>
+<dd><p>Iterate over (target_year, fixes) pairs, delegating to the root dict.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pudl.output.ferc714.BA_FIXES">
+<span class="sig-prename descclassname"><span class="pre">pudl.output.ferc714.</span></span><span class="sig-name descname"><span class="pre">BA_FIXES</span></span><a class="reference internal" href="../../../../_modules/pudl/output/ferc714.html#BA_FIXES"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.output.ferc714.BA_FIXES" title="Link to this definition">#</a></dt>
+<dd><p>Explicit year-to-year repair instructions for EIA-861 balancing authority data.</p>
+<p>Each key is a target year that requires a manual repair for one or more balancing
+authorities. Each value is a list of <a class="reference internal" href="#pudl.output.ferc714.BaFix" title="pudl.output.ferc714.BaFix"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaFix</span></code></a> entries describing which BA to
+repair and which single <code class="docutils literal notranslate"><span class="pre">source_year</span></code> should be treated as the authoritative template
+for that specific target year.</p>
+<p>The fixes are consumed by three functions:
+<a class="reference internal" href="#pudl.output.ferc714.filled_core_eia861__yearly_balancing_authority" title="pudl.output.ferc714.filled_core_eia861__yearly_balancing_authority"><code class="xref py py-func docutils literal notranslate"><span class="pre">filled_core_eia861__yearly_balancing_authority()</span></code></a>,
+<a class="reference internal" href="#pudl.output.ferc714.filled_core_eia861__assn_balancing_authority" title="pudl.output.ferc714.filled_core_eia861__assn_balancing_authority"><code class="xref py py-func docutils literal notranslate"><span class="pre">filled_core_eia861__assn_balancing_authority()</span></code></a>, and
+<a class="reference internal" href="#pudl.output.ferc714.filled_core_eia861__yearly_service_territory" title="pudl.output.ferc714.filled_core_eia861__yearly_service_territory"><code class="xref py py-func docutils literal notranslate"><span class="pre">filled_core_eia861__yearly_service_territory()</span></code></a>. They all use the same explicit
+<code class="docutils literal notranslate"><span class="pre">source_year</span> <span class="pre">-&gt;</span> <span class="pre">target_year</span></code> mappings, but apply them differently:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">filled_core_eia861__yearly_balancing_authority</span></code> fills missing BA id rows for a
+target year without overwriting any existing target rows.</p></li>
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">filled_core_eia861__assn_balancing_authority</span></code> replaces the target-year</dt><dd><p>BA-utility association rows with rows copied from <code class="docutils literal notranslate"><span class="pre">source_year</span></code>.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">filled_core_eia861__yearly_service_territory</span></code> limits itself to the utility-state-year</dt><dd><p>combinations implicated by those explicit fixes and copies county coverage
+from the nearest available relevant year when needed.</p>
+</dd>
+</dl>
+</li>
+</ul>
+<p>This is not a forward-fill or backward-fill across all years. Data from one year is only
+applied to another year when a <code class="docutils literal notranslate"><span class="pre">source_year</span> <span class="pre">-&gt;</span> <span class="pre">target_year</span></code> pair is listed here.</p>
+<p>All three functions silently skip a target year that is not present in the available
+EIA-861 data, and log a warning when the target year is present but the <code class="docutils literal notranslate"><span class="pre">source_year</span></code>
+required for the repair is not.</p>
+<p>To add a new fix: identify the target year(s), the affected BA’s
+<code class="docutils literal notranslate"><span class="pre">balancing_authority_id_eia</span></code>, and a <code class="docutils literal notranslate"><span class="pre">source_year</span></code> whose data is correct. If certain
+states should be excluded from the copy, add <code class="docutils literal notranslate"><span class="pre">exclude_states</span></code>.</p>
 </dd></dl>
 
 <dl class="py data">
@@ -948,14 +1040,14 @@ Rows are excluded from <cite>core_eia861__assn_balancing_authority</cite> with t
 <dd><p>Balancing authorities to treat as utilities in associations from EIA 861.</p>
 <p>The changes are applied locally to EIA 861 tables.</p>
 <ul class="simple">
-<li><p><cite>id</cite> (int): EIA balancing authority (BA) identifier (<cite>balancing_authority_id_eia</cite>).
-Rows for <cite>id</cite> are removed from <cite>core_eia861__yearly_balancing_authority</cite>.</p></li>
-<li><p><cite>reassign</cite> (Optional[bool]): Whether to reassign utilities to parent BAs.
-Rows for <cite>id</cite> as BA in <cite>core_eia861__assn_balancing_authority</cite> are removed.
-Utilities assigned to <cite>id</cite> for a given year are reassigned
-to the BAs for which <cite>id</cite> is an associated utility.</p></li>
-<li><p><cite>replace</cite> (Optional[bool]): Whether to remove rows where <cite>id</cite> is a utility in
-<cite>core_eia861__assn_balancing_authority</cite>. Applies only if <cite>reassign=True</cite>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">id</span></code> (int): EIA balancing authority (BA) identifier (<code class="docutils literal notranslate"><span class="pre">balancing_authority_id_eia</span></code>).
+Rows for <code class="docutils literal notranslate"><span class="pre">id</span></code> are removed from <code class="docutils literal notranslate"><span class="pre">core_eia861__yearly_balancing_authority</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">reassign</span></code> (Optional[bool]): Whether to reassign utilities to parent BAs.
+Rows for <code class="docutils literal notranslate"><span class="pre">id</span></code> as BA in <code class="docutils literal notranslate"><span class="pre">core_eia861__assn_balancing_authority</span></code> are removed.
+Utilities assigned to <code class="docutils literal notranslate"><span class="pre">id</span></code> for a given year are reassigned
+to the BAs for which <code class="docutils literal notranslate"><span class="pre">id</span></code> is an associated utility.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">replace</span></code> (Optional[bool]): Whether to remove rows where <code class="docutils literal notranslate"><span class="pre">id</span></code> is a utility in
+<code class="docutils literal notranslate"><span class="pre">core_eia861__assn_balancing_authority</span></code>. Applies only if <code class="docutils literal notranslate"><span class="pre">reassign=True</span></code>.</p></li>
 </ul>
 </dd></dl>
 
@@ -1011,35 +1103,77 @@ up in both util_ids_eia and ba_ids_eia. Must be one of “utility” or
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="pudl.output.ferc714._apply_exclude_states">
+<span class="sig-prename descclassname"><span class="pre">pudl.output.ferc714.</span></span><span class="sig-name descname"><span class="pre">_apply_exclude_states</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ref</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.4)"><span class="pre">pandas.DataFrame</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">fix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pudl.output.ferc714.BaFix" title="pudl.output.ferc714.BaFix"><span class="pre">BaFix</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_year</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.4)"><span class="pre">pandas.DataFrame</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/output/ferc714.html#_apply_exclude_states"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.output.ferc714._apply_exclude_states" title="Link to this definition">#</a></dt>
+<dd><p>Filter source rows by exclude_states, raising if all rows are eliminated.</p>
+<p>An empty result after filtering means the exclude_states list is broader than
+the actual data, which would silently drop all associations for the (BA,
+target_year) pair.  That is almost certainly an erroneous specification.</p>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="pudl.output.ferc714.filled_core_eia861__yearly_balancing_authority">
 <span class="sig-prename descclassname"><span class="pre">pudl.output.ferc714.</span></span><span class="sig-name descname"><span class="pre">filled_core_eia861__yearly_balancing_authority</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">core_eia861__yearly_balancing_authority</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.4)"><span class="pre">pandas.DataFrame</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.4)"><span class="pre">pandas.DataFrame</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/output/ferc714.html#filled_core_eia861__yearly_balancing_authority"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.output.ferc714.filled_core_eia861__yearly_balancing_authority" title="Link to this definition">#</a></dt>
 <dd><p>Modified core_eia861__yearly_balancing_authority table.</p>
-<p>This function adds rows for each balancing authority-year pair missing from the
-cleaned core_eia861__yearly_balancing_authority table, using a dictionary of manual fixes. It
-uses the reference year as a template. The function also removes balancing
-authorities that are manually categorized as utilities.</p>
+<p>Applies the explicit year-to-year repairs described in <a class="reference internal" href="#pudl.output.ferc714.BA_FIXES" title="pudl.output.ferc714.BA_FIXES"><code class="xref py py-data docutils literal notranslate"><span class="pre">BA_FIXES</span></code></a> to the
+BA identity table.</p>
+<p>Each entry in <a class="reference internal" href="#pudl.output.ferc714.BA_FIXES" title="pudl.output.ferc714.BA_FIXES"><code class="xref py py-data docutils literal notranslate"><span class="pre">BA_FIXES</span></code></a> names one <code class="docutils literal notranslate"><span class="pre">source_year</span></code> and one
+<code class="docutils literal notranslate"><span class="pre">target_year</span></code> for a given balancing authority. If that BA already has a
+row for the target year, nothing changes. Otherwise, its source-year row
+is copied and relabeled with the target year’s date. No other years are
+affected, and no values are interpolated or extrapolated.</p>
+<p>Silently skips any target year absent from the data. Logs a warning and
+skips if the target year is present but the source year, or the specific
+BA row within that source year, is not. Also removes balancing authorities
+that are manually categorised as utilities via <a class="reference internal" href="#pudl.output.ferc714.UTILITIES" title="pudl.output.ferc714.UTILITIES"><code class="xref py py-data docutils literal notranslate"><span class="pre">UTILITIES</span></code></a>.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pudl.output.ferc714.filled_core_eia861__assn_balancing_authority">
 <span class="sig-prename descclassname"><span class="pre">pudl.output.ferc714.</span></span><span class="sig-name descname"><span class="pre">filled_core_eia861__assn_balancing_authority</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">core_eia861__assn_balancing_authority</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.4)"><span class="pre">pandas.DataFrame</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.4)"><span class="pre">pandas.DataFrame</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/output/ferc714.html#filled_core_eia861__assn_balancing_authority"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.output.ferc714.filled_core_eia861__assn_balancing_authority" title="Link to this definition">#</a></dt>
 <dd><p>Modified core_eia861__assn_balancing_authority table.</p>
-<p>This function adds rows for each balancing authority-year pair missing from the
-cleaned core_eia861__assn_balancing_authority table, using a dictionary of manual fixes.
-It uses the reference year as a template. The function also reassigns balancing
-authorities that are manually categorized as utilities to their parent balancing
-authorities.</p>
+<p>Applies the explicit year-to-year repairs described in <a class="reference internal" href="#pudl.output.ferc714.BA_FIXES" title="pudl.output.ferc714.BA_FIXES"><code class="xref py py-data docutils literal notranslate"><span class="pre">BA_FIXES</span></code></a> to the
+BA-utility association table.</p>
+<p>For each <code class="docutils literal notranslate"><span class="pre">source_year</span> <span class="pre">-&gt;</span> <span class="pre">target_year</span></code> mapping, replaces all existing rows
+for the <code class="docutils literal notranslate"><span class="pre">(BA,</span> <span class="pre">target_year)</span></code> pair with rows copied from the source year,
+optionally filtered by <a class="reference internal" href="#pudl.output.ferc714.BaFix.exclude_states" title="pudl.output.ferc714.BaFix.exclude_states"><code class="xref py py-attr docutils literal notranslate"><span class="pre">BaFix.exclude_states</span></code></a>. This is an explicit
+year-to-year rewrite of known-bad associations, not a general forward-fill
+or backward-fill across a range of years.</p>
+<p>Silently skips target years absent from the data; logs a warning when the
+target year is present but the source year is not, or when that BA has no
+source-year rows to copy. In those cases the target-year rows are left
+unchanged because the repair cannot be applied correctly. Also removes
+balancing authorities listed in <a class="reference internal" href="#pudl.output.ferc714.UTILITIES" title="pudl.output.ferc714.UTILITIES"><code class="xref py py-data docutils literal notranslate"><span class="pre">UTILITIES</span></code></a> and, when
+<code class="docutils literal notranslate"><span class="pre">reassign=True</span></code>, re-parents their child utilities to the grandparent BAs.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="pudl.output.ferc714.filled_service_territory_eia861">
-<span class="sig-prename descclassname"><span class="pre">pudl.output.ferc714.</span></span><span class="sig-name descname"><span class="pre">filled_service_territory_eia861</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">core_eia861__assn_balancing_authority</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.4)"><span class="pre">pandas.DataFrame</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">core_eia861__yearly_service_territory</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.4)"><span class="pre">pandas.DataFrame</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.4)"><span class="pre">pandas.DataFrame</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/output/ferc714.html#filled_service_territory_eia861"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.output.ferc714.filled_service_territory_eia861" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="pudl.output.ferc714.filled_core_eia861__yearly_service_territory">
+<span class="sig-prename descclassname"><span class="pre">pudl.output.ferc714.</span></span><span class="sig-name descname"><span class="pre">filled_core_eia861__yearly_service_territory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filled_assn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.4)"><span class="pre">pandas.DataFrame</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">core_eia861__yearly_service_territory</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.4)"><span class="pre">pandas.DataFrame</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.4)"><span class="pre">pandas.DataFrame</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/output/ferc714.html#filled_core_eia861__yearly_service_territory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.output.ferc714.filled_core_eia861__yearly_service_territory" title="Link to this definition">#</a></dt>
 <dd><p>Modified core_eia861__yearly_service_territory table.</p>
-<p>This function adds rows for each balancing authority-year pair missing from the
-cleaned core_eia861__yearly_service_territory table, using a dictionary of manual fixes. It also
-drops utility-state combinations which are missing counties across all years of
-data, fills records missing counties with the nearest year of county data for the
-same utility and state.</p>
+<p>Applies county-level service territory repairs implied by <a class="reference internal" href="#pudl.output.ferc714.BA_FIXES" title="pudl.output.ferc714.BA_FIXES"><code class="xref py py-data docutils literal notranslate"><span class="pre">BA_FIXES</span></code></a>.</p>
+<p>Selects utility-state-year combinations that are relevant to the explicit
+<code class="docutils literal notranslate"><span class="pre">source_year</span> <span class="pre">-&gt;</span> <span class="pre">target_year</span></code> BA repairs in <a class="reference internal" href="#pudl.output.ferc714.BA_FIXES" title="pudl.output.ferc714.BA_FIXES"><code class="xref py py-data docutils literal notranslate"><span class="pre">BA_FIXES</span></code></a>, covering
+both the listed target years and the source years used to repair them. It
+then merges those rows with the service territory to obtain county FIPS
+data, drops utility-state pairs that have no county data in <em>any</em>
+explicitly implicated year, and copies county rows onto missing years from
+the closest other explicitly implicated year for that same utility-state
+pair.</p>
+<p>This is not a traditional forward-fill or backward-fill across all years in
+the dataset. County rows are only copied between years when those years are
+explicitly implicated by the <code class="docutils literal notranslate"><span class="pre">source_year</span> <span class="pre">-&gt;</span> <span class="pre">target_year</span></code> mappings in
+<a class="reference internal" href="#pudl.output.ferc714.BA_FIXES" title="pudl.output.ferc714.BA_FIXES"><code class="xref py py-data docutils literal notranslate"><span class="pre">BA_FIXES</span></code></a>, and the copy is only used to support those explicit
+repairs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filled_assn</strong> – The already-repaired BA-utility association table, as
+returned by <a class="reference internal" href="#pudl.output.ferc714.filled_core_eia861__assn_balancing_authority" title="pudl.output.ferc714.filled_core_eia861__assn_balancing_authority"><code class="xref py py-func docutils literal notranslate"><span class="pre">filled_core_eia861__assn_balancing_authority()</span></code></a>.</p></li>
+<li><p><strong>core_eia861__yearly_service_territory</strong> – The raw service territory table.</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
@@ -1174,15 +1308,29 @@ geometries for the planning areas.</p>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#attributes">Attributes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.output.ferc714.logger"><code class="docutils literal notranslate"><span class="pre">logger</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.output.ferc714.ASSOCIATIONS"><code class="docutils literal notranslate"><span class="pre">ASSOCIATIONS</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.output.ferc714.BaFix"><code class="docutils literal notranslate"><span class="pre">BaFix</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.output.ferc714.BaFix.model_config"><code class="docutils literal notranslate"><span class="pre">BaFix.model_config</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.output.ferc714.BaFix.id"><code class="docutils literal notranslate"><span class="pre">BaFix.id</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.output.ferc714.BaFix.source_year"><code class="docutils literal notranslate"><span class="pre">BaFix.source_year</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.output.ferc714.BaFix.exclude_states"><code class="docutils literal notranslate"><span class="pre">BaFix.exclude_states</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.output.ferc714.BaFixMap"><code class="docutils literal notranslate"><span class="pre">BaFixMap</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.output.ferc714.BaFixMap._check_structure"><code class="docutils literal notranslate"><span class="pre">BaFixMap._check_structure()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.output.ferc714.BaFixMap.items"><code class="docutils literal notranslate"><span class="pre">BaFixMap.items()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.output.ferc714.BA_FIXES"><code class="docutils literal notranslate"><span class="pre">BA_FIXES</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.output.ferc714.UTILITIES"><code class="docutils literal notranslate"><span class="pre">UTILITIES</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.output.ferc714.categorize_eia_code"><code class="docutils literal notranslate"><span class="pre">categorize_eia_code()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.output.ferc714._apply_exclude_states"><code class="docutils literal notranslate"><span class="pre">_apply_exclude_states()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.output.ferc714.filled_core_eia861__yearly_balancing_authority"><code class="docutils literal notranslate"><span class="pre">filled_core_eia861__yearly_balancing_authority()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.output.ferc714.filled_core_eia861__assn_balancing_authority"><code class="docutils literal notranslate"><span class="pre">filled_core_eia861__assn_balancing_authority()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.output.ferc714.filled_service_territory_eia861"><code class="docutils literal notranslate"><span class="pre">filled_service_territory_eia861()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.output.ferc714.filled_core_eia861__yearly_service_territory"><code class="docutils literal notranslate"><span class="pre">filled_core_eia861__yearly_service_territory()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.output.ferc714._out_ferc714__annualized_respondents"><code class="docutils literal notranslate"><span class="pre">_out_ferc714__annualized_respondents()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.output.ferc714._out_ferc714__categorized_respondents"><code class="docutils literal notranslate"><span class="pre">_out_ferc714__categorized_respondents()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.output.ferc714.out_ferc714__respondents_with_fips"><code class="docutils literal notranslate"><span class="pre">out_ferc714__respondents_with_fips()</span></code></a></li>

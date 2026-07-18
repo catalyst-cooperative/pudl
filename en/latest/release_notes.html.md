@@ -31,6 +31,22 @@ This is the upcoming monthly PUDL release.
   to the Desert Southwest region EIA balancing authority information, and vice
   versa. See [#4644 and :pr:\`5408](https://github.com/catalyst-cooperative/pudl/issues/4644 and :pr:`5408).
 
+### Performance Improvements
+
+* The fast ETL now processes only two representative
+  [EIA-861](data_sources/eia861.md) years instead of the entire time series, bringing
+  it in line with how every other dataset is already handled and speeding up both local
+  development and CI. Processing all years was originally a workaround for discontinued
+  columns and data validation tests that couldn’t tolerate partial coverage; those
+  limitations have since been resolved. This change surfaced an implicit assumption in
+  the [FERC-714](data_sources/ferc714.md) outputs that all EIA-861 years were always
+  available, in the logic that repairs known-bad balancing authority/utility
+  associations by copying data from a known-good year. That repair logic has been
+  rewritten as an explicit, validated mapping of per-year fixes, so it degrades
+  gracefully when only a subset of years is present, and is substantially easier to
+  read, test, and extend than the compact form it replaces. See [#2628](https://github.com/catalyst-cooperative/pudl/issues/2628) and
+  [#4568](https://github.com/catalyst-cooperative/pudl/pull/4568).
+
 <a id="release-v2026-7-2"></a>
 
 ## v2026.7.2 (2026-07-14)

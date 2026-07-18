@@ -77,8 +77,7 @@ Pre-processing applied to all EIA-861 dataframes.
   data is an early release, and we extract this information from the filenames, as
   it’s uniform across the whole dataset.
 * Convert report_year column to report_date.
-* Aggregate values for rows with utility id 88888 (anonymized) - see \_combine_88888_values
-  for details.
+* If we’ve gotten an empty dataframe, make sure it has a data_maturity column.
 
 ### pudl.transform.eia861.\_post_process(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), name: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
