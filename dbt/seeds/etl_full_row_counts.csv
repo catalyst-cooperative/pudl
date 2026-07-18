@@ -923,7 +923,7 @@ core_eia860__scd_utilities,2022,7526
 core_eia860__scd_utilities,2023,7806
 core_eia860__scd_utilities,2024,8285
 core_eia860__scd_utilities,2025,8525
-core_eia860__scd_utilities,2026,7576
+core_eia860__scd_utilities,2026,7618
 core_eia860m__changelog_generators,2015,49530
 core_eia860m__changelog_generators,2016,58745
 core_eia860m__changelog_generators,2017,22122
@@ -2648,8 +2648,8 @@ core_phmsagas__yearly_distribution_operators,2021,1444
 core_phmsagas__yearly_distribution_operators,2022,1449
 core_phmsagas__yearly_distribution_operators,2023,1440
 core_phmsagas__yearly_distribution_operators,2024,1428
-core_pudl__assn_eia_pudl_plants,,19548
-core_pudl__assn_eia_pudl_utilities,,17295
+core_pudl__assn_eia_pudl_plants,,19617
+core_pudl__assn_eia_pudl_utilities,,17331
 core_pudl__assn_ferc1_dbf_pudl_utilities,,411
 core_pudl__assn_ferc1_pudl_plants,,8189
 core_pudl__assn_ferc1_pudl_utilities,,438
@@ -2657,13 +2657,13 @@ core_pudl__assn_ferc1_xbrl_pudl_utilities,,288
 core_pudl__assn_ferc714_csv_pudl_respondents,,213
 core_pudl__assn_ferc714_pudl_respondents,,218
 core_pudl__assn_ferc714_xbrl_pudl_respondents,,118
-core_pudl__assn_utilities_plants,,20452
+core_pudl__assn_utilities_plants,,20521
 core_pudl__codes_data_maturities,,4
 core_pudl__codes_datasources,,15
 core_pudl__codes_imputation_reasons,,12
 core_pudl__codes_subdivisions,,69
-core_pudl__entity_plants_pudl,,21503
-core_pudl__entity_utilities_pudl,,17410
+core_pudl__entity_plants_pudl,,21572
+core_pudl__entity_utilities_pudl,,17446
 core_rus12__entity_borrowers,,92
 core_rus12__monthly_demand_and_energy_at_delivery_points,2006,1500
 core_rus12__monthly_demand_and_energy_at_delivery_points,2007,1428
@@ -4113,7 +4113,7 @@ out_eia__yearly_utilities,2022,7526
 out_eia__yearly_utilities,2023,7806
 out_eia__yearly_utilities,2024,8285
 out_eia__yearly_utilities,2025,8525
-out_eia__yearly_utilities,2026,7576
+out_eia__yearly_utilities,2026,7618
 out_ferc1__yearly_all_plants,1994,2439
 out_ferc1__yearly_all_plants,1995,2451
 out_ferc1__yearly_all_plants,1996,2417

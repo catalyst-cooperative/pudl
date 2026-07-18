@@ -9,6 +9,16 @@ v2026.8.x (2026-08-xx)
 
 This is the upcoming monthly PUDL release.
 
+New Data
+^^^^^^^^
+
+EIA-860M
+~~~~~~~~
+
+* Added Puerto Rico :doc:`EIA-860M <data_sources/eia860>` data into EIA 860 tables. See
+  issue :issue:`4352` and PR :pr:`5360`. Shoutout to :user:`bsousa22` for making his
+  first PUDL contribution!
+
 Documentation
 ^^^^^^^^^^^^^
 
