@@ -50,7 +50,8 @@ The [MSHA Mines & Production](https://arlweb.msha.gov/OpenGovernmentData/OGIMSHA
 dataset describes coal production by mine and operating company along with statistics
 about labor productivity and safety. This is a smaller dataset (100s of MB) available as
 relatively clean and well structured CSV files.
-.. \_data-ces:
+
+<a id="data-ces"></a>
 
 ## Machine Readable Clean Energy Standards
 

@@ -39,7 +39,7 @@ Instance of metadata object to use with this extractor.
 
 #### cols_added *= []*
 
-#### process_raw(df, page, \*\*partition)
+#### process_raw(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), page: [str](https://docs.python.org/3/library/stdtypes.html#str), \*\*partition)
 
 Apply necessary pre-processing to the dataframe.
 
@@ -48,7 +48,7 @@ Apply necessary pre-processing to the dataframe.
 * Add a flag indicating if record came from EIA 860, or EIA 860M
 * Fix any generator_id values with leading zeroes.
 
-#### *static* get_dtypes(page, \*\*partition)
+#### *static* get_dtypes(page: [str](https://docs.python.org/3/library/stdtypes.html#str), \*\*partition)
 
 Returns dtypes for plant id columns.
 

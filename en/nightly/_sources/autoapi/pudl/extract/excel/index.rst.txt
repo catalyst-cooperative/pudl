@@ -118,7 +118,7 @@ Module Contents
 
 
 
-.. py:class:: ExcelExtractor(ds)
+.. py:class:: ExcelExtractor(ds: pudl.workspace.datastore.Datastore)
 
    Bases: :py:obj:`pudl.extract.extractor.GenericExtractor`
 

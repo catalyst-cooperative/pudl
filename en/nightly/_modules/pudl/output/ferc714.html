@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.output.ferc714 &#8212; PUDL 2026.7.3.dev1 documentation</title>
+    <title>pudl.output.ferc714 &#8212; PUDL 2026.7.3.dev9 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=c492519f"></script>
+    <script src="../../../_static/documentation_options.js?v=8ec6e168"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -655,8 +655,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.7.3.dev1 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.7.3.dev1 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.7.3.dev9 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.7.3.dev9 documentation - Home"/>
   
   
 </a></div>
@@ -1041,6 +1041,7 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dagster</span><span class="w"> </span><span class="kn">import</span> <span class="n">Field</span><span class="p">,</span> <span class="n">asset</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span><span class="p">,</span> <span class="n">RootModel</span><span class="p">,</span> <span class="n">model_validator</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">pudl.analysis.service_territory</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pudl.logging_helpers</span>
@@ -1056,46 +1057,240 @@ window.runMermaid = runMermaid;</script>
 <span class="n">logger</span> <span class="o">=</span> <span class="n">pudl</span><span class="o">.</span><span class="n">logging_helpers</span><span class="o">.</span><span class="n">get_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="ASSOCIATIONS">
-<a class="viewcode-back" href="../../../autoapi/pudl/output/ferc714/index.html#pudl.output.ferc714.ASSOCIATIONS">[docs]</a>
-<span class="n">ASSOCIATIONS</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="c1"># MISO: Midwest Indep System Operator</span>
-    <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">56669</span><span class="p">,</span> <span class="s2">&quot;from&quot;</span><span class="p">:</span> <span class="mi">2011</span><span class="p">,</span> <span class="s2">&quot;to&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">2009</span><span class="p">,</span> <span class="mi">2010</span><span class="p">]},</span>
-    <span class="c1"># SWPP: Southwest Power Pool</span>
-    <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">59504</span><span class="p">,</span> <span class="s2">&quot;from&quot;</span><span class="p">:</span> <span class="mi">2014</span><span class="p">,</span> <span class="s2">&quot;to&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">2006</span><span class="p">,</span> <span class="mi">2009</span><span class="p">],</span> <span class="s2">&quot;exclude&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;NE&quot;</span><span class="p">]},</span>
-    <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">59504</span><span class="p">,</span> <span class="s2">&quot;from&quot;</span><span class="p">:</span> <span class="mi">2014</span><span class="p">,</span> <span class="s2">&quot;to&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">2010</span><span class="p">,</span> <span class="mi">2013</span><span class="p">]},</span>
-    <span class="c1"># LGEE: LG&amp;E and KU Services Company</span>
-    <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">11249</span><span class="p">,</span> <span class="s2">&quot;from&quot;</span><span class="p">:</span> <span class="mi">2014</span><span class="p">,</span> <span class="s2">&quot;to&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">2006</span><span class="p">,</span> <span class="mi">2013</span><span class="p">]},</span>
-    <span class="c1"># (no code): Entergy</span>
-    <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">12506</span><span class="p">,</span> <span class="s2">&quot;from&quot;</span><span class="p">:</span> <span class="mi">2012</span><span class="p">,</span> <span class="s2">&quot;to&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">2013</span><span class="p">,</span> <span class="mi">2013</span><span class="p">]},</span>
-    <span class="c1"># (no code): American Electric Power Co Inc</span>
-    <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">829</span><span class="p">,</span> <span class="s2">&quot;from&quot;</span><span class="p">:</span> <span class="mi">2008</span><span class="p">,</span> <span class="s2">&quot;to&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">2009</span><span class="p">,</span> <span class="mi">2013</span><span class="p">]},</span>
-    <span class="c1"># PJM: PJM Interconnection LLC</span>
-    <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">14725</span><span class="p">,</span> <span class="s2">&quot;from&quot;</span><span class="p">:</span> <span class="mi">2011</span><span class="p">,</span> <span class="s2">&quot;to&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">2006</span><span class="p">,</span> <span class="mi">2010</span><span class="p">]},</span>
-    <span class="c1"># BANC: Balancing Authority of Northern California</span>
-    <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">16534</span><span class="p">,</span> <span class="s2">&quot;from&quot;</span><span class="p">:</span> <span class="mi">2013</span><span class="p">,</span> <span class="s2">&quot;to&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">2012</span><span class="p">,</span> <span class="mi">2012</span><span class="p">]},</span>
-    <span class="c1"># SPS: Southwestern Public Service</span>
-    <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">17718</span><span class="p">,</span> <span class="s2">&quot;from&quot;</span><span class="p">:</span> <span class="mi">2010</span><span class="p">,</span> <span class="s2">&quot;to&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">2006</span><span class="p">,</span> <span class="mi">2009</span><span class="p">]},</span>
-    <span class="c1"># Nevada Power Company</span>
-    <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">13407</span><span class="p">,</span> <span class="s2">&quot;from&quot;</span><span class="p">:</span> <span class="mi">2009</span><span class="p">,</span> <span class="s2">&quot;to&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">2006</span><span class="p">,</span> <span class="mi">2008</span><span class="p">]},</span>
-    <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">13407</span><span class="p">,</span> <span class="s2">&quot;from&quot;</span><span class="p">:</span> <span class="mi">2013</span><span class="p">,</span> <span class="s2">&quot;to&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">2014</span><span class="p">,</span> <span class="mi">2019</span><span class="p">]},</span>
-<span class="p">]</span></div>
 
-<span class="sd">&quot;&quot;&quot;Adjustments to balancing authority-utility associations from EIA 861.</span>
+<div class="viewcode-block" id="BaFix">
+<a class="viewcode-back" href="../../../autoapi/pudl/output/ferc714/index.html#pudl.output.ferc714.BaFix">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">BaFix</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A single BA data repair entry for one target year.</span>
 
-<span class="sd">The changes are applied locally to EIA 861 tables.</span>
+<span class="sd">    * ``id``: EIA balancing authority identifier (``balancing_authority_id_eia``).</span>
+<span class="sd">    * ``source_year``: The year whose data is used as a template for the repair.</span>
+<span class="sd">    * ``exclude_states``: Optional list of two-letter state codes. Utility associations</span>
+<span class="sd">      for utilities in these states are omitted when copying from ``source_year``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
-<span class="sd">* `id` (int): EIA balancing authority identifier (`balancing_authority_id_eia`).</span>
-<span class="sd">* `from` (int): Reference year, to use as a template for target years.</span>
-<span class="sd">* `to` (List[int]): Target years, in the closed interval format [minimum, maximum].</span>
-<span class="sd">  Rows in `core_eia861__yearly_balancing_authority` are added (if missing) for every target year</span>
-<span class="sd">  with the attributes from the reference year.</span>
-<span class="sd">  Rows in `core_eia861__assn_balancing_authority` are added (or replaced, if existing)</span>
-<span class="sd">  for every target year with the utility associations from the reference year.</span>
-<span class="sd">  Rows in `core_eia861__yearly_service_territory` are added (if missing) for every target year</span>
-<span class="sd">  with the nearest year&#39;s associated utilities&#39; counties.</span>
-<span class="sd">* `exclude` (Optional[List[str]]): Utilities to exclude, by state (two-letter code).</span>
-<span class="sd">  Rows are excluded from `core_eia861__assn_balancing_authority` with target year and state.</span>
+<div class="viewcode-block" id="BaFix.model_config">
+<a class="viewcode-back" href="../../../autoapi/pudl/output/ferc714/index.html#pudl.output.ferc714.BaFix.model_config">[docs]</a>
+    <span class="n">model_config</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;frozen&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;extra&quot;</span><span class="p">:</span> <span class="s2">&quot;forbid&quot;</span><span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="BaFix.id">
+<a class="viewcode-back" href="../../../autoapi/pudl/output/ferc714/index.html#pudl.output.ferc714.BaFix.id">[docs]</a>
+    <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span></div>
+
+<div class="viewcode-block" id="BaFix.source_year">
+<a class="viewcode-back" href="../../../autoapi/pudl/output/ferc714/index.html#pudl.output.ferc714.BaFix.source_year">[docs]</a>
+    <span class="n">source_year</span><span class="p">:</span> <span class="nb">int</span></div>
+
+<div class="viewcode-block" id="BaFix.exclude_states">
+<a class="viewcode-back" href="../../../autoapi/pudl/output/ferc714/index.html#pudl.output.ferc714.BaFix.exclude_states">[docs]</a>
+    <span class="n">exclude_states</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="BaFixMap">
+<a class="viewcode-back" href="../../../autoapi/pudl/output/ferc714/index.html#pudl.output.ferc714.BaFixMap">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">BaFixMap</span><span class="p">(</span><span class="n">RootModel</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">BaFix</span><span class="p">]]]):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Validated mapping of target years to lists of :class:`BaFix` repair entries.</span>
+
+<span class="sd">    Raises ``pydantic.ValidationError`` for malformed entries (wrong types,</span>
+<span class="sd">    unknown keys) and ``ValueError`` for cross-entry constraint violations:</span>
+<span class="sd">    duplicate BA IDs within the same target year, and self-referential fixes</span>
+<span class="sd">    where ``source_year == target_year``.  Instantiated once at module load as</span>
+<span class="sd">    the :data:`BA_FIXES` constant.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;after&quot;</span><span class="p">)</span>
+<div class="viewcode-block" id="BaFixMap._check_structure">
+<a class="viewcode-back" href="../../../autoapi/pudl/output/ferc714/index.html#pudl.output.ferc714.BaFixMap._check_structure">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_check_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;BaFixMap&quot;</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">target_year</span><span class="p">,</span> <span class="n">fixes</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">ba_ids</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">id</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">fixes</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ba_ids</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">ba_ids</span><span class="p">)):</span>
+                <span class="n">dupes</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">({</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">ba_ids</span> <span class="k">if</span> <span class="n">ba_ids</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">})</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Duplicate BA IDs </span><span class="si">{</span><span class="n">dupes</span><span class="si">}</span><span class="s2"> in BA_FIXES[</span><span class="si">{</span><span class="n">target_year</span><span class="si">}</span><span class="s2">]: &quot;</span>
+                    <span class="s2">&quot;each BA must appear at most once per target year.&quot;</span>
+                <span class="p">)</span>
+            <span class="k">for</span> <span class="n">fix</span> <span class="ow">in</span> <span class="n">fixes</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">fix</span><span class="o">.</span><span class="n">source_year</span> <span class="o">==</span> <span class="n">target_year</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;BA </span><span class="si">{</span><span class="n">fix</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> in BA_FIXES[</span><span class="si">{</span><span class="n">target_year</span><span class="si">}</span><span class="s2">]: &quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;source_year (</span><span class="si">{</span><span class="n">fix</span><span class="o">.</span><span class="n">source_year</span><span class="si">}</span><span class="s2">) must not equal target_year.&quot;</span>
+                    <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+
+<div class="viewcode-block" id="BaFixMap.items">
+<a class="viewcode-back" href="../../../autoapi/pudl/output/ferc714/index.html#pudl.output.ferc714.BaFixMap.items">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">items</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Iterate over (target_year, fixes) pairs, delegating to the root dict.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">items</span><span class="p">()</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="BA_FIXES">
+<a class="viewcode-back" href="../../../autoapi/pudl/output/ferc714/index.html#pudl.output.ferc714.BA_FIXES">[docs]</a>
+<span class="n">BA_FIXES</span> <span class="o">=</span> <span class="n">BaFixMap</span><span class="o">.</span><span class="n">model_validate</span><span class="p">(</span>
+    <span class="p">{</span>
+        <span class="c1"># Each key is a target year that needs repair. Each value is the list of per-BA</span>
+        <span class="c1"># fixes to apply for that year.  A fix copies the BA&#39;s utility associations from</span>
+        <span class="c1"># source_year into target_year, replacing any rows that already exist for that</span>
+        <span class="c1"># (BA, target_year) pair.</span>
+        <span class="c1">#</span>
+        <span class="c1"># When either target_year or source_year is absent from the available EIA-861</span>
+        <span class="c1"># data (e.g. in the fast ETL), the fix is skipped.  If target_year IS present</span>
+        <span class="c1"># but source_year is NOT, a warning is logged.</span>
+        <span class="mi">2006</span><span class="p">:</span> <span class="p">[</span>
+            <span class="c1"># SWPP: Southwest Power Pool (Nebraska utilities excluded — reported separately)</span>
+            <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">59504</span><span class="p">,</span> <span class="s2">&quot;source_year&quot;</span><span class="p">:</span> <span class="mi">2014</span><span class="p">,</span> <span class="s2">&quot;exclude_states&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;NE&quot;</span><span class="p">]},</span>
+            <span class="c1"># LGEE: LG&amp;E and KU Services Company</span>
+            <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">11249</span><span class="p">,</span> <span class="s2">&quot;source_year&quot;</span><span class="p">:</span> <span class="mi">2014</span><span class="p">},</span>
+            <span class="c1"># PJM: PJM Interconnection LLC</span>
+            <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">14725</span><span class="p">,</span> <span class="s2">&quot;source_year&quot;</span><span class="p">:</span> <span class="mi">2011</span><span class="p">},</span>
+            <span class="c1"># SPS: Southwestern Public Service</span>
+            <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">17718</span><span class="p">,</span> <span class="s2">&quot;source_year&quot;</span><span class="p">:</span> <span class="mi">2010</span><span class="p">},</span>
+            <span class="c1"># Nevada Power Company</span>
+            <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">13407</span><span class="p">,</span> <span class="s2">&quot;source_year&quot;</span><span class="p">:</span> <span class="mi">2009</span><span class="p">},</span>
+        <span class="p">],</span>
+        <span class="mi">2007</span><span class="p">:</span> <span class="p">[</span>
+            <span class="c1"># SWPP: Southwest Power Pool (Nebraska utilities excluded)</span>
+            <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">59504</span><span class="p">,</span> <span class="s2">&quot;source_year&quot;</span><span class="p">:</span> <span class="mi">2014</span><span class="p">,</span> <span class="s2">&quot;exclude_states&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;NE&quot;</span><span class="p">]},</span>
+            <span class="c1"># LGEE: LG&amp;E and KU Services Company</span>
+            <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">11249</span><span class="p">,</span> <span class="s2">&quot;source_year&quot;</span><span class="p">:</span> <span class="mi">2014</span><span class="p">},</span>
+            <span class="c1"># PJM: PJM Interconnection LLC</span>
+            <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">14725</span><span class="p">,</span> <span class="s2">&quot;source_year&quot;</span><span class="p">:</span> <span class="mi">2011</span><span class="p">},</span>
+            <span class="c1"># SPS: Southwestern Public Service</span>
+            <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">17718</span><span class="p">,</span> <span class="s2">&quot;source_year&quot;</span><span class="p">:</span> <span class="mi">2010</span><span class="p">},</span>
+            <span class="c1"># Nevada Power Company</span>
+            <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">13407</span><span class="p">,</span> <span class="s2">&quot;source_year&quot;</span><span class="p">:</span> <span class="mi">2009</span><span class="p">},</span>
+        <span class="p">],</span>
+        <span class="mi">2008</span><span class="p">:</span> <span class="p">[</span>
+            <span class="c1"># SWPP: Southwest Power Pool (Nebraska utilities excluded)</span>
+            <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">59504</span><span class="p">,</span> <span class="s2">&quot;source_year&quot;</span><span class="p">:</span> <span class="mi">2014</span><span class="p">,</span> <span class="s2">&quot;exclude_states&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;NE&quot;</span><span class="p">]},</span>
+            <span class="c1"># LGEE: LG&amp;E and KU Services Company</span>
+            <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">11249</span><span class="p">,</span> <span class="s2">&quot;source_year&quot;</span><span class="p">:</span> <span class="mi">2014</span><span class="p">},</span>
+            <span class="c1"># PJM: PJM Interconnection LLC</span>
+            <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">14725</span><span class="p">,</span> <span class="s2">&quot;source_year&quot;</span><span class="p">:</span> <span class="mi">2011</span><span class="p">},</span>
+            <span class="c1"># SPS: Southwestern Public Service</span>
+            <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">17718</span><span class="p">,</span> <span class="s2">&quot;source_year&quot;</span><span class="p">:</span> <span class="mi">2010</span><span class="p">},</span>
+            <span class="c1"># Nevada Power Company</span>
+            <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">13407</span><span class="p">,</span> <span class="s2">&quot;source_year&quot;</span><span class="p">:</span> <span class="mi">2009</span><span class="p">},</span>
+        <span class="p">],</span>
+        <span class="mi">2009</span><span class="p">:</span> <span class="p">[</span>
+            <span class="c1"># MISO: Midwest Independent System Operator</span>
+            <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">56669</span><span class="p">,</span> <span class="s2">&quot;source_year&quot;</span><span class="p">:</span> <span class="mi">2011</span><span class="p">},</span>
+            <span class="c1"># SWPP: Southwest Power Pool (Nebraska utilities excluded)</span>
+            <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">59504</span><span class="p">,</span> <span class="s2">&quot;source_year&quot;</span><span class="p">:</span> <span class="mi">2014</span><span class="p">,</span> <span class="s2">&quot;exclude_states&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;NE&quot;</span><span class="p">]},</span>
+            <span class="c1"># LGEE: LG&amp;E and KU Services Company</span>
+            <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">11249</span><span class="p">,</span> <span class="s2">&quot;source_year&quot;</span><span class="p">:</span> <span class="mi">2014</span><span class="p">},</span>
+            <span class="c1"># AEP: American Electric Power Co Inc</span>
+            <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">829</span><span class="p">,</span> <span class="s2">&quot;source_year&quot;</span><span class="p">:</span> <span class="mi">2008</span><span class="p">},</span>
+            <span class="c1"># PJM: PJM Interconnection LLC</span>
+            <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">14725</span><span class="p">,</span> <span class="s2">&quot;source_year&quot;</span><span class="p">:</span> <span class="mi">2011</span><span class="p">},</span>
+            <span class="c1"># SPS: Southwestern Public Service</span>
+            <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">17718</span><span class="p">,</span> <span class="s2">&quot;source_year&quot;</span><span class="p">:</span> <span class="mi">2010</span><span class="p">},</span>
+        <span class="p">],</span>
+        <span class="mi">2010</span><span class="p">:</span> <span class="p">[</span>
+            <span class="c1"># MISO: Midwest Independent System Operator</span>
+            <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">56669</span><span class="p">,</span> <span class="s2">&quot;source_year&quot;</span><span class="p">:</span> <span class="mi">2011</span><span class="p">},</span>
+            <span class="c1"># SWPP: Southwest Power Pool</span>
+            <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">59504</span><span class="p">,</span> <span class="s2">&quot;source_year&quot;</span><span class="p">:</span> <span class="mi">2014</span><span class="p">},</span>
+            <span class="c1"># LGEE: LG&amp;E and KU Services Company</span>
+            <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">11249</span><span class="p">,</span> <span class="s2">&quot;source_year&quot;</span><span class="p">:</span> <span class="mi">2014</span><span class="p">},</span>
+            <span class="c1"># AEP: American Electric Power Co Inc</span>
+            <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">829</span><span class="p">,</span> <span class="s2">&quot;source_year&quot;</span><span class="p">:</span> <span class="mi">2008</span><span class="p">},</span>
+            <span class="c1"># PJM: PJM Interconnection LLC</span>
+            <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">14725</span><span class="p">,</span> <span class="s2">&quot;source_year&quot;</span><span class="p">:</span> <span class="mi">2011</span><span class="p">},</span>
+        <span class="p">],</span>
+        <span class="mi">2011</span><span class="p">:</span> <span class="p">[</span>
+            <span class="c1"># SWPP: Southwest Power Pool</span>
+            <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">59504</span><span class="p">,</span> <span class="s2">&quot;source_year&quot;</span><span class="p">:</span> <span class="mi">2014</span><span class="p">},</span>
+            <span class="c1"># LGEE: LG&amp;E and KU Services Company</span>
+            <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">11249</span><span class="p">,</span> <span class="s2">&quot;source_year&quot;</span><span class="p">:</span> <span class="mi">2014</span><span class="p">},</span>
+            <span class="c1"># AEP: American Electric Power Co Inc</span>
+            <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">829</span><span class="p">,</span> <span class="s2">&quot;source_year&quot;</span><span class="p">:</span> <span class="mi">2008</span><span class="p">},</span>
+        <span class="p">],</span>
+        <span class="mi">2012</span><span class="p">:</span> <span class="p">[</span>
+            <span class="c1"># SWPP: Southwest Power Pool</span>
+            <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">59504</span><span class="p">,</span> <span class="s2">&quot;source_year&quot;</span><span class="p">:</span> <span class="mi">2014</span><span class="p">},</span>
+            <span class="c1"># LGEE: LG&amp;E and KU Services Company</span>
+            <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">11249</span><span class="p">,</span> <span class="s2">&quot;source_year&quot;</span><span class="p">:</span> <span class="mi">2014</span><span class="p">},</span>
+            <span class="c1"># BANC: Balancing Authority of Northern California</span>
+            <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">16534</span><span class="p">,</span> <span class="s2">&quot;source_year&quot;</span><span class="p">:</span> <span class="mi">2013</span><span class="p">},</span>
+            <span class="c1"># AEP: American Electric Power Co Inc</span>
+            <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">829</span><span class="p">,</span> <span class="s2">&quot;source_year&quot;</span><span class="p">:</span> <span class="mi">2008</span><span class="p">},</span>
+        <span class="p">],</span>
+        <span class="mi">2013</span><span class="p">:</span> <span class="p">[</span>
+            <span class="c1"># SWPP: Southwest Power Pool</span>
+            <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">59504</span><span class="p">,</span> <span class="s2">&quot;source_year&quot;</span><span class="p">:</span> <span class="mi">2014</span><span class="p">},</span>
+            <span class="c1"># LGEE: LG&amp;E and KU Services Company</span>
+            <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">11249</span><span class="p">,</span> <span class="s2">&quot;source_year&quot;</span><span class="p">:</span> <span class="mi">2014</span><span class="p">},</span>
+            <span class="c1"># Entergy</span>
+            <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">12506</span><span class="p">,</span> <span class="s2">&quot;source_year&quot;</span><span class="p">:</span> <span class="mi">2012</span><span class="p">},</span>
+            <span class="c1"># AEP: American Electric Power Co Inc</span>
+            <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">829</span><span class="p">,</span> <span class="s2">&quot;source_year&quot;</span><span class="p">:</span> <span class="mi">2008</span><span class="p">},</span>
+        <span class="p">],</span>
+        <span class="mi">2014</span><span class="p">:</span> <span class="p">[</span>
+            <span class="c1"># Nevada Power Company (now NV Energy)</span>
+            <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">13407</span><span class="p">,</span> <span class="s2">&quot;source_year&quot;</span><span class="p">:</span> <span class="mi">2013</span><span class="p">},</span>
+        <span class="p">],</span>
+        <span class="mi">2015</span><span class="p">:</span> <span class="p">[</span>
+            <span class="c1"># Nevada Power Company (now NV Energy)</span>
+            <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">13407</span><span class="p">,</span> <span class="s2">&quot;source_year&quot;</span><span class="p">:</span> <span class="mi">2013</span><span class="p">},</span>
+        <span class="p">],</span>
+        <span class="mi">2016</span><span class="p">:</span> <span class="p">[</span>
+            <span class="c1"># Nevada Power Company (now NV Energy)</span>
+            <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">13407</span><span class="p">,</span> <span class="s2">&quot;source_year&quot;</span><span class="p">:</span> <span class="mi">2013</span><span class="p">},</span>
+        <span class="p">],</span>
+        <span class="mi">2017</span><span class="p">:</span> <span class="p">[</span>
+            <span class="c1"># Nevada Power Company (now NV Energy)</span>
+            <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">13407</span><span class="p">,</span> <span class="s2">&quot;source_year&quot;</span><span class="p">:</span> <span class="mi">2013</span><span class="p">},</span>
+        <span class="p">],</span>
+        <span class="mi">2018</span><span class="p">:</span> <span class="p">[</span>
+            <span class="c1"># Nevada Power Company (now NV Energy)</span>
+            <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">13407</span><span class="p">,</span> <span class="s2">&quot;source_year&quot;</span><span class="p">:</span> <span class="mi">2013</span><span class="p">},</span>
+        <span class="p">],</span>
+        <span class="mi">2019</span><span class="p">:</span> <span class="p">[</span>
+            <span class="c1"># Nevada Power Company (now NV Energy)</span>
+            <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">13407</span><span class="p">,</span> <span class="s2">&quot;source_year&quot;</span><span class="p">:</span> <span class="mi">2013</span><span class="p">},</span>
+        <span class="p">],</span>
+    <span class="p">}</span>
+<span class="p">)</span></div>
+
+<span class="sd">&quot;&quot;&quot;Explicit year-to-year repair instructions for EIA-861 balancing authority data.</span>
+
+<span class="sd">Each key is a target year that requires a manual repair for one or more balancing</span>
+<span class="sd">authorities. Each value is a list of :class:`BaFix` entries describing which BA to</span>
+<span class="sd">repair and which single ``source_year`` should be treated as the authoritative template</span>
+<span class="sd">for that specific target year.</span>
+
+<span class="sd">The fixes are consumed by three functions:</span>
+<span class="sd">:func:`filled_core_eia861__yearly_balancing_authority`,</span>
+<span class="sd">:func:`filled_core_eia861__assn_balancing_authority`, and</span>
+<span class="sd">:func:`filled_core_eia861__yearly_service_territory`. They all use the same explicit</span>
+<span class="sd">``source_year -&gt; target_year`` mappings, but apply them differently:</span>
+
+<span class="sd">* ``filled_core_eia861__yearly_balancing_authority`` fills missing BA id rows for a</span>
+<span class="sd">  target year without overwriting any existing target rows.</span>
+<span class="sd">* ``filled_core_eia861__assn_balancing_authority`` replaces the target-year</span>
+<span class="sd">    BA-utility association rows with rows copied from ``source_year``.</span>
+<span class="sd">* ``filled_core_eia861__yearly_service_territory`` limits itself to the utility-state-year</span>
+<span class="sd">    combinations implicated by those explicit fixes and copies county coverage</span>
+<span class="sd">    from the nearest available relevant year when needed.</span>
+
+<span class="sd">This is not a forward-fill or backward-fill across all years. Data from one year is only</span>
+<span class="sd">applied to another year when a ``source_year -&gt; target_year`` pair is listed here.</span>
+
+<span class="sd">All three functions silently skip a target year that is not present in the available</span>
+<span class="sd">EIA-861 data, and log a warning when the target year is present but the ``source_year``</span>
+<span class="sd">required for the repair is not.</span>
+
+<span class="sd">To add a new fix: identify the target year(s), the affected BA&#39;s</span>
+<span class="sd">``balancing_authority_id_eia``, and a ``source_year`` whose data is correct. If certain</span>
+<span class="sd">states should be excluded from the copy, add ``exclude_states``.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="UTILITIES">
@@ -1117,14 +1312,14 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">The changes are applied locally to EIA 861 tables.</span>
 
-<span class="sd">* `id` (int): EIA balancing authority (BA) identifier (`balancing_authority_id_eia`).</span>
-<span class="sd">  Rows for `id` are removed from `core_eia861__yearly_balancing_authority`.</span>
-<span class="sd">* `reassign` (Optional[bool]): Whether to reassign utilities to parent BAs.</span>
-<span class="sd">  Rows for `id` as BA in `core_eia861__assn_balancing_authority` are removed.</span>
-<span class="sd">  Utilities assigned to `id` for a given year are reassigned</span>
-<span class="sd">  to the BAs for which `id` is an associated utility.</span>
-<span class="sd">* `replace` (Optional[bool]): Whether to remove rows where `id` is a utility in</span>
-<span class="sd">  `core_eia861__assn_balancing_authority`. Applies only if `reassign=True`.</span>
+<span class="sd">* ``id`` (int): EIA balancing authority (BA) identifier (``balancing_authority_id_eia``).</span>
+<span class="sd">  Rows for ``id`` are removed from ``core_eia861__yearly_balancing_authority``.</span>
+<span class="sd">* ``reassign`` (Optional[bool]): Whether to reassign utilities to parent BAs.</span>
+<span class="sd">  Rows for ``id`` as BA in ``core_eia861__assn_balancing_authority`` are removed.</span>
+<span class="sd">  Utilities assigned to ``id`` for a given year are reassigned</span>
+<span class="sd">  to the BAs for which ``id`` is an associated utility.</span>
+<span class="sd">* ``replace`` (Optional[bool]): Whether to remove rows where ``id`` is a utility in</span>
+<span class="sd">  ``core_eia861__assn_balancing_authority``. Applies only if ``reassign=True``.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="c1">################################################################################</span>
@@ -1194,19 +1389,19 @@ window.runMermaid = runMermaid;</script>
             <span class="s2">&quot;Must be either &#39;utility&#39; or &#39;balancing_authority&#39;.&quot;</span>
         <span class="p">)</span>
 
-    <span class="n">eia_codes</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">eia_codes</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;eia_code&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span>
-    <span class="n">ba_ids</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">codes_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;eia_code&quot;</span><span class="p">:</span> <span class="n">eia_codes</span><span class="p">})</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span>
+    <span class="n">ba_series</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">ba_ids</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;balancing_authority_id_eia&quot;</span><span class="p">)</span>
         <span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span>
         <span class="o">.</span><span class="n">convert_dtypes</span><span class="p">()</span>
     <span class="p">)</span>
-    <span class="n">util_ids</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">util_series</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">util_ids</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;utility_id_eia&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span><span class="o">.</span><span class="n">convert_dtypes</span><span class="p">()</span>
     <span class="p">)</span>
 
-    <span class="n">df</span> <span class="o">=</span> <span class="n">eia_codes</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
-        <span class="n">ba_ids</span><span class="p">,</span> <span class="n">left_on</span><span class="o">=</span><span class="s2">&quot;eia_code&quot;</span><span class="p">,</span> <span class="n">right_on</span><span class="o">=</span><span class="s2">&quot;balancing_authority_id_eia&quot;</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span>
-    <span class="p">)</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">util_ids</span><span class="p">,</span> <span class="n">left_on</span><span class="o">=</span><span class="s2">&quot;eia_code&quot;</span><span class="p">,</span> <span class="n">right_on</span><span class="o">=</span><span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">codes_df</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+        <span class="n">ba_series</span><span class="p">,</span> <span class="n">left_on</span><span class="o">=</span><span class="s2">&quot;eia_code&quot;</span><span class="p">,</span> <span class="n">right_on</span><span class="o">=</span><span class="s2">&quot;balancing_authority_id_eia&quot;</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">util_series</span><span class="p">,</span> <span class="n">left_on</span><span class="o">=</span><span class="s2">&quot;eia_code&quot;</span><span class="p">,</span> <span class="n">right_on</span><span class="o">=</span><span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">)</span>
     <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">primary</span><span class="si">}</span><span class="s2">_id_eia&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">notnull</span><span class="p">(),</span> <span class="s2">&quot;respondent_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">primary</span>
     <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
         <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">secondary</span><span class="si">}</span><span class="s2">_id_eia&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">notnull</span><span class="p">())</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">primary</span><span class="si">}</span><span class="s2">_id_eia&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isnull</span><span class="p">()),</span>
@@ -1224,6 +1419,31 @@ window.runMermaid = runMermaid;</script>
 <span class="c1">################################################################################</span>
 
 
+<div class="viewcode-block" id="_apply_exclude_states">
+<a class="viewcode-back" href="../../../autoapi/pudl/output/ferc714/index.html#pudl.output.ferc714._apply_exclude_states">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_apply_exclude_states</span><span class="p">(</span>
+    <span class="n">ref</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">fix</span><span class="p">:</span> <span class="n">BaFix</span><span class="p">,</span> <span class="n">target_year</span><span class="p">:</span> <span class="nb">int</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Filter source rows by exclude_states, raising if all rows are eliminated.</span>
+
+<span class="sd">    An empty result after filtering means the exclude_states list is broader than</span>
+<span class="sd">    the actual data, which would silently drop all associations for the (BA,</span>
+<span class="sd">    target_year) pair.  That is almost certainly an erroneous specification.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">fix</span><span class="o">.</span><span class="n">exclude_states</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">ref</span>
+    <span class="n">filtered</span> <span class="o">=</span> <span class="n">ref</span><span class="p">[</span><span class="o">~</span><span class="n">ref</span><span class="p">[</span><span class="s2">&quot;state&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">fix</span><span class="o">.</span><span class="n">exclude_states</span><span class="p">)]</span>
+    <span class="k">if</span> <span class="n">filtered</span><span class="o">.</span><span class="n">empty</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">ref</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;BA </span><span class="si">{</span><span class="n">fix</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> target_year=</span><span class="si">{</span><span class="n">target_year</span><span class="si">}</span><span class="s2">: &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;exclude_states=</span><span class="si">{</span><span class="n">fix</span><span class="o">.</span><span class="n">exclude_states</span><span class="si">!r}</span><span class="s2"> removed all &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">ref</span><span class="p">)</span><span class="si">}</span><span class="s2"> source rows from source_year=</span><span class="si">{</span><span class="n">fix</span><span class="o">.</span><span class="n">source_year</span><span class="si">}</span><span class="s2">. &quot;</span>
+            <span class="s2">&quot;Verify the exclude_states list is not too broad.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">filtered</span></div>
+
+
+
 <div class="viewcode-block" id="filled_core_eia861__yearly_balancing_authority">
 <a class="viewcode-back" href="../../../autoapi/pudl/output/ferc714/index.html#pudl.output.ferc714.filled_core_eia861__yearly_balancing_authority">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">filled_core_eia861__yearly_balancing_authority</span><span class="p">(</span>
@@ -1231,37 +1451,63 @@ window.runMermaid = runMermaid;</script>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Modified core_eia861__yearly_balancing_authority table.</span>
 
-<span class="sd">    This function adds rows for each balancing authority-year pair missing from the</span>
-<span class="sd">    cleaned core_eia861__yearly_balancing_authority table, using a dictionary of manual fixes. It</span>
-<span class="sd">    uses the reference year as a template. The function also removes balancing</span>
-<span class="sd">    authorities that are manually categorized as utilities.</span>
+<span class="sd">    Applies the explicit year-to-year repairs described in :data:`BA_FIXES` to the</span>
+<span class="sd">    BA identity table.</span>
+
+<span class="sd">    Each entry in :data:`BA_FIXES` names one ``source_year`` and one</span>
+<span class="sd">    ``target_year`` for a given balancing authority. If that BA already has a</span>
+<span class="sd">    row for the target year, nothing changes. Otherwise, its source-year row</span>
+<span class="sd">    is copied and relabeled with the target year&#39;s date. No other years are</span>
+<span class="sd">    affected, and no values are interpolated or extrapolated.</span>
+
+<span class="sd">    Silently skips any target year absent from the data. Logs a warning and</span>
+<span class="sd">    skips if the target year is present but the source year, or the specific</span>
+<span class="sd">    BA row within that source year, is not. Also removes balancing authorities</span>
+<span class="sd">    that are manually categorised as utilities via :data:`UTILITIES`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">core_eia861__yearly_balancing_authority</span>
     <span class="n">index</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;balancing_authority_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;report_date&quot;</span><span class="p">]</span>
     <span class="n">dfi</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
-    <span class="c1"># Prepare reference rows</span>
-    <span class="n">keys</span> <span class="o">=</span> <span class="p">[(</span><span class="n">fix</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">],</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="n">fix</span><span class="p">[</span><span class="s2">&quot;from&quot;</span><span class="p">],</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span> <span class="k">for</span> <span class="n">fix</span> <span class="ow">in</span> <span class="n">ASSOCIATIONS</span><span class="p">]</span>
-    <span class="n">refs</span> <span class="o">=</span> <span class="n">dfi</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">keys</span><span class="p">]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="s2">&quot;records&quot;</span><span class="p">)</span>
-    <span class="c1"># Build table of new rows</span>
-    <span class="c1"># Insert row for each target balancing authority-year pair</span>
-    <span class="c1"># missing from the original table, using the reference year as a template.</span>
-    <span class="n">rows</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">ref</span><span class="p">,</span> <span class="n">fix</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">refs</span><span class="p">,</span> <span class="n">ASSOCIATIONS</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-        <span class="k">for</span> <span class="n">year</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">fix</span><span class="p">[</span><span class="s2">&quot;to&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">fix</span><span class="p">[</span><span class="s2">&quot;to&quot;</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
-            <span class="n">key</span> <span class="o">=</span> <span class="p">(</span><span class="n">fix</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">],</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="n">year</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
-            <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dfi</span><span class="o">.</span><span class="n">index</span><span class="p">:</span>
-                <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="o">**</span><span class="n">ref</span><span class="p">,</span> <span class="s2">&quot;report_date&quot;</span><span class="p">:</span> <span class="n">key</span><span class="p">[</span><span class="mi">1</span><span class="p">]})</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
-        <span class="p">[</span>
-            <span class="n">df</span><span class="p">,</span>
-            <span class="n">apply_pudl_dtypes</span><span class="p">(</span>
-                <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">rows</span><span class="p">),</span>
-                <span class="n">resource</span><span class="o">=</span><span class="s2">&quot;core_eia861__yearly_balancing_authority&quot;</span><span class="p">,</span>
-            <span class="p">),</span>
-        <span class="p">],</span>
-        <span class="n">axis</span><span class="o">=</span><span class="s2">&quot;index&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="c1"># Remove balancing authorities treated as utilities</span>
+    <span class="n">eia861_years</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span><span class="p">)</span>
+
+    <span class="n">new_rows</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">target_year</span><span class="p">,</span> <span class="n">fixes</span> <span class="ow">in</span> <span class="n">BA_FIXES</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">target_year</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">eia861_years</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">target_date</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="n">target_year</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">fix</span> <span class="ow">in</span> <span class="n">fixes</span><span class="p">:</span>
+            <span class="n">source_year</span> <span class="o">=</span> <span class="n">fix</span><span class="o">.</span><span class="n">source_year</span>
+            <span class="k">if</span> <span class="n">source_year</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">eia861_years</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Skipping BA repair for id=</span><span class="si">{</span><span class="n">fix</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> target_year=</span><span class="si">{</span><span class="n">target_year</span><span class="si">}</span><span class="s2">: &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;source_year=</span><span class="si">{</span><span class="n">source_year</span><span class="si">}</span><span class="s2"> not in available EIA-861 data. &quot;</span>
+                    <span class="s2">&quot;If running the full ETL, verify the fix spec is correct.&quot;</span>
+                <span class="p">)</span>
+                <span class="k">continue</span>
+            <span class="n">target_key</span> <span class="o">=</span> <span class="p">(</span><span class="n">fix</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">target_date</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">target_key</span> <span class="ow">in</span> <span class="n">dfi</span><span class="o">.</span><span class="n">index</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">source_key</span> <span class="o">=</span> <span class="p">(</span><span class="n">fix</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="n">source_year</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">source_key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dfi</span><span class="o">.</span><span class="n">index</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Skipping BA repair for id=</span><span class="si">{</span><span class="n">fix</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> target_year=</span><span class="si">{</span><span class="n">target_year</span><span class="si">}</span><span class="s2">: &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;source row </span><span class="si">{</span><span class="n">source_key</span><span class="si">}</span><span class="s2"> not found in BA table.&quot;</span>
+                <span class="p">)</span>
+                <span class="k">continue</span>
+            <span class="n">ref</span> <span class="o">=</span> <span class="n">dfi</span><span class="o">.</span><span class="n">loc</span><span class="p">[[</span><span class="n">source_key</span><span class="p">]]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="s2">&quot;records&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">new_rows</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="o">**</span><span class="n">ref</span><span class="p">,</span> <span class="s2">&quot;report_date&quot;</span><span class="p">:</span> <span class="n">target_date</span><span class="p">})</span>
+
+    <span class="k">if</span> <span class="n">new_rows</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="n">df</span><span class="p">,</span>
+                <span class="n">apply_pudl_dtypes</span><span class="p">(</span>
+                    <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">new_rows</span><span class="p">),</span>
+                    <span class="n">resource</span><span class="o">=</span><span class="s2">&quot;core_eia861__yearly_balancing_authority&quot;</span><span class="p">,</span>
+                <span class="p">),</span>
+            <span class="p">],</span>
+            <span class="n">axis</span><span class="o">=</span><span class="s2">&quot;index&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
     <span class="n">mask</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;balancing_authority_id_eia&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="n">util</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">util</span> <span class="ow">in</span> <span class="n">UTILITIES</span><span class="p">])</span>
     <span class="k">return</span> <span class="n">apply_pudl_dtypes</span><span class="p">(</span>
         <span class="n">df</span><span class="p">[</span><span class="o">~</span><span class="n">mask</span><span class="p">],</span> <span class="n">resource</span><span class="o">=</span><span class="s2">&quot;core_eia861__yearly_balancing_authority&quot;</span>
@@ -1271,62 +1517,92 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="filled_core_eia861__assn_balancing_authority">
 <a class="viewcode-back" href="../../../autoapi/pudl/output/ferc714/index.html#pudl.output.ferc714.filled_core_eia861__assn_balancing_authority">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">filled_core_eia861__assn_balancing_authority</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">filled_core_eia861__assn_balancing_authority</span><span class="p">(</span>  <span class="c1"># noqa: C901</span>
     <span class="n">core_eia861__assn_balancing_authority</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Modified core_eia861__assn_balancing_authority table.</span>
 
-<span class="sd">    This function adds rows for each balancing authority-year pair missing from the</span>
-<span class="sd">    cleaned core_eia861__assn_balancing_authority table, using a dictionary of manual fixes.</span>
-<span class="sd">    It uses the reference year as a template. The function also reassigns balancing</span>
-<span class="sd">    authorities that are manually categorized as utilities to their parent balancing</span>
-<span class="sd">    authorities.</span>
+<span class="sd">    Applies the explicit year-to-year repairs described in :data:`BA_FIXES` to the</span>
+<span class="sd">    BA-utility association table.</span>
+
+<span class="sd">    For each ``source_year -&gt; target_year`` mapping, replaces all existing rows</span>
+<span class="sd">    for the ``(BA, target_year)`` pair with rows copied from the source year,</span>
+<span class="sd">    optionally filtered by :attr:`BaFix.exclude_states`. This is an explicit</span>
+<span class="sd">    year-to-year rewrite of known-bad associations, not a general forward-fill</span>
+<span class="sd">    or backward-fill across a range of years.</span>
+
+<span class="sd">    Silently skips target years absent from the data; logs a warning when the</span>
+<span class="sd">    target year is present but the source year is not, or when that BA has no</span>
+<span class="sd">    source-year rows to copy. In those cases the target-year rows are left</span>
+<span class="sd">    unchanged because the repair cannot be applied correctly. Also removes</span>
+<span class="sd">    balancing authorities listed in :data:`UTILITIES` and, when</span>
+<span class="sd">    ``reassign=True``, re-parents their child utilities to the grandparent BAs.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">core_eia861__assn_balancing_authority</span>
-    <span class="c1"># Prepare reference rows</span>
-    <span class="n">refs</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">fix</span> <span class="ow">in</span> <span class="n">ASSOCIATIONS</span><span class="p">:</span>
-        <span class="n">mask</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;balancing_authority_id_eia&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="n">fix</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="nb">bool</span><span class="p">)</span>
-        <span class="n">mask</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">][</span><span class="n">mask</span><span class="p">]</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="n">fix</span><span class="p">[</span><span class="s2">&quot;from&quot;</span><span class="p">],</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
-        <span class="n">ref</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
-        <span class="k">if</span> <span class="s2">&quot;exclude&quot;</span> <span class="ow">in</span> <span class="n">fix</span><span class="p">:</span>
-            <span class="c1"># Exclude utilities by state</span>
-            <span class="n">mask</span> <span class="o">=</span> <span class="o">~</span><span class="n">ref</span><span class="p">[</span><span class="s2">&quot;state&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">fix</span><span class="p">[</span><span class="s2">&quot;exclude&quot;</span><span class="p">])</span>
-            <span class="n">ref</span> <span class="o">=</span> <span class="n">ref</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
-        <span class="n">refs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ref</span><span class="p">)</span>
-    <span class="c1"># Build a table of new rows</span>
-    <span class="c1"># Insert (or overwrite) rows for each target balancing authority-year pair,</span>
-    <span class="c1"># using the reference year as a template.</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">eia861_years</span> <span class="o">:=</span> <span class="nb">set</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span><span class="p">))</span> <span class="o">==</span> <span class="nb">set</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No EIA-861 years found!&quot;</span><span class="p">)</span>
+
     <span class="n">replaced</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
-    <span class="n">tables</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">ref</span><span class="p">,</span> <span class="n">fix</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">refs</span><span class="p">,</span> <span class="n">ASSOCIATIONS</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-        <span class="k">for</span> <span class="n">year</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">fix</span><span class="p">[</span><span class="s2">&quot;to&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">fix</span><span class="p">[</span><span class="s2">&quot;to&quot;</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
-            <span class="n">key</span> <span class="o">=</span> <span class="n">fix</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">],</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="n">year</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-            <span class="n">mask</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;balancing_authority_id_eia&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="n">key</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="nb">bool</span><span class="p">)</span>
-            <span class="n">mask</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">][</span><span class="n">mask</span><span class="p">]</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="n">key</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-            <span class="n">tables</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ref</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">report_date</span><span class="o">=</span><span class="n">key</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
-            <span class="n">replaced</span> <span class="o">|=</span> <span class="n">mask</span>
-    <span class="c1"># Append to original table with matching rows removed</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
-        <span class="p">[</span>
-            <span class="n">df</span><span class="p">[</span><span class="o">~</span><span class="n">replaced</span><span class="p">],</span>
-            <span class="n">apply_pudl_dtypes</span><span class="p">(</span>
-                <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">tables</span><span class="p">),</span>
-                <span class="n">resource</span><span class="o">=</span><span class="s2">&quot;core_eia861__assn_balancing_authority&quot;</span><span class="p">,</span>
-            <span class="p">),</span>
-        <span class="p">]</span>
-    <span class="p">)</span>
-    <span class="c1"># Remove balancing authorities treated as utilities</span>
-    <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
-    <span class="n">tables</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">new_tables</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">target_year</span><span class="p">,</span> <span class="n">fixes</span> <span class="ow">in</span> <span class="n">BA_FIXES</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">target_year</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">eia861_years</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">target_date</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="n">target_year</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">fix</span> <span class="ow">in</span> <span class="n">fixes</span><span class="p">:</span>
+            <span class="n">source_year</span> <span class="o">=</span> <span class="n">fix</span><span class="o">.</span><span class="n">source_year</span>
+            <span class="k">if</span> <span class="n">source_year</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">eia861_years</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Skipping BA association repair for id=</span><span class="si">{</span><span class="n">fix</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;target_year=</span><span class="si">{</span><span class="n">target_year</span><span class="si">}</span><span class="s2">: source_year=</span><span class="si">{</span><span class="n">source_year</span><span class="si">}</span><span class="s2"> not in &quot;</span>
+                    <span class="s2">&quot;available EIA-861 data. If running the full ETL, verify the &quot;</span>
+                    <span class="s2">&quot;fix spec is correct.&quot;</span>
+                <span class="p">)</span>
+                <span class="k">continue</span>
+            <span class="n">source_date</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="n">source_year</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="c1"># Collect source-year association rows for this BA</span>
+            <span class="n">ref</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span>
+                <span class="n">df</span><span class="p">[</span><span class="s2">&quot;balancing_authority_id_eia&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="n">fix</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+                <span class="o">&amp;</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="n">source_date</span><span class="p">)</span>
+            <span class="p">]</span>
+            <span class="k">if</span> <span class="n">ref</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Skipping BA association repair for id=</span><span class="si">{</span><span class="n">fix</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;target_year=</span><span class="si">{</span><span class="n">target_year</span><span class="si">}</span><span class="s2">: source rows for &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;source_year=</span><span class="si">{</span><span class="n">source_year</span><span class="si">}</span><span class="s2"> not found in association table.&quot;</span>
+                <span class="p">)</span>
+                <span class="k">continue</span>
+            <span class="n">ref</span> <span class="o">=</span> <span class="n">_apply_exclude_states</span><span class="p">(</span><span class="n">ref</span><span class="p">,</span> <span class="n">fix</span><span class="p">,</span> <span class="n">target_year</span><span class="p">)</span>
+            <span class="c1"># Mark existing target-year rows for removal</span>
+            <span class="n">target_mask</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;balancing_authority_id_eia&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="n">fix</span><span class="o">.</span><span class="n">id</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">df</span><span class="p">[</span>
+                <span class="s2">&quot;report_date&quot;</span>
+            <span class="p">]</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="n">target_date</span><span class="p">)</span>
+            <span class="n">replaced</span> <span class="o">|=</span> <span class="n">target_mask</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="nb">bool</span><span class="p">)</span>
+            <span class="n">new_tables</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ref</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">report_date</span><span class="o">=</span><span class="n">target_date</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">new_tables</span><span class="p">:</span>
+        <span class="n">new_rows</span> <span class="o">=</span> <span class="n">apply_pudl_dtypes</span><span class="p">(</span>
+            <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">new_tables</span><span class="p">),</span>
+            <span class="n">resource</span><span class="o">=</span><span class="s2">&quot;core_eia861__assn_balancing_authority&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df</span><span class="p">[</span><span class="o">~</span><span class="n">replaced</span><span class="p">],</span> <span class="n">new_rows</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="s2">&quot;index&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">replaced</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span>
+                <span class="s2">&quot;BA association repair marked target rows for replacement without &quot;</span>
+                <span class="s2">&quot;producing any replacement rows.&quot;</span>
+            <span class="p">)</span>
+
+    <span class="c1"># Remove BAs that are really utilities; optionally re-parent their children</span>
+    <span class="n">removal_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+    <span class="n">reassignment_tables</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">util</span> <span class="ow">in</span> <span class="n">UTILITIES</span><span class="p">:</span>
         <span class="n">is_parent</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;balancing_authority_id_eia&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="n">util</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span>
-        <span class="n">mask</span> <span class="o">|=</span> <span class="n">is_parent</span>
-        <span class="c1"># Associated utilities are reassigned to parent balancing authorities</span>
+        <span class="n">removal_mask</span> <span class="o">|=</span> <span class="n">is_parent</span>
         <span class="k">if</span> <span class="n">util</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;reassign&quot;</span><span class="p">):</span>
-            <span class="c1"># Ignore when entity is child to itself</span>
+            <span class="c1"># Rows where util[&quot;id&quot;] is a utility (child) under some other BA</span>
             <span class="n">is_child</span> <span class="o">=</span> <span class="o">~</span><span class="n">is_parent</span> <span class="o">&amp;</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;utility_id_eia&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="n">util</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span>
-            <span class="c1"># Build table associating parents to children of entity</span>
+            <span class="c1"># Link each grandchild utility to the grandparent BAs</span>
             <span class="n">table</span> <span class="o">=</span> <span class="p">(</span>
                 <span class="n">df</span><span class="p">[</span><span class="n">is_child</span><span class="p">]</span>
                 <span class="o">.</span><span class="n">merge</span><span class="p">(</span>
@@ -1349,11 +1625,11 @@ window.runMermaid = runMermaid;</script>
                     <span class="p">}</span>
                 <span class="p">)</span>
             <span class="p">)</span>
-            <span class="n">tables</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
+            <span class="n">reassignment_tables</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">util</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;replace&quot;</span><span class="p">):</span>
-                <span class="n">mask</span> <span class="o">|=</span> <span class="n">is_child</span>
+                <span class="n">removal_mask</span> <span class="o">|=</span> <span class="n">is_child</span>
     <span class="k">return</span> <span class="p">(</span>
-        <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df</span><span class="p">[</span><span class="o">~</span><span class="n">mask</span><span class="p">]]</span> <span class="o">+</span> <span class="n">tables</span><span class="p">)</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df</span><span class="p">[</span><span class="o">~</span><span class="n">removal_mask</span><span class="p">]]</span> <span class="o">+</span> <span class="n">reassignment_tables</span><span class="p">)</span>
         <span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span>
         <span class="o">.</span><span class="n">pipe</span><span class="p">(</span>
             <span class="n">apply_pudl_dtypes</span><span class="p">,</span>
@@ -1363,44 +1639,70 @@ window.runMermaid = runMermaid;</script>
 
 
 
-<div class="viewcode-block" id="filled_service_territory_eia861">
-<a class="viewcode-back" href="../../../autoapi/pudl/output/ferc714/index.html#pudl.output.ferc714.filled_service_territory_eia861">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">filled_service_territory_eia861</span><span class="p">(</span>
-    <span class="n">core_eia861__assn_balancing_authority</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+<div class="viewcode-block" id="filled_core_eia861__yearly_service_territory">
+<a class="viewcode-back" href="../../../autoapi/pudl/output/ferc714/index.html#pudl.output.ferc714.filled_core_eia861__yearly_service_territory">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">filled_core_eia861__yearly_service_territory</span><span class="p">(</span>
+    <span class="n">filled_assn</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
     <span class="n">core_eia861__yearly_service_territory</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Modified core_eia861__yearly_service_territory table.</span>
 
-<span class="sd">    This function adds rows for each balancing authority-year pair missing from the</span>
-<span class="sd">    cleaned core_eia861__yearly_service_territory table, using a dictionary of manual fixes. It also</span>
-<span class="sd">    drops utility-state combinations which are missing counties across all years of</span>
-<span class="sd">    data, fills records missing counties with the nearest year of county data for the</span>
-<span class="sd">    same utility and state.</span>
+<span class="sd">    Applies county-level service territory repairs implied by :data:`BA_FIXES`.</span>
+
+<span class="sd">    Selects utility-state-year combinations that are relevant to the explicit</span>
+<span class="sd">    ``source_year -&gt; target_year`` BA repairs in :data:`BA_FIXES`, covering</span>
+<span class="sd">    both the listed target years and the source years used to repair them. It</span>
+<span class="sd">    then merges those rows with the service territory to obtain county FIPS</span>
+<span class="sd">    data, drops utility-state pairs that have no county data in *any*</span>
+<span class="sd">    explicitly implicated year, and copies county rows onto missing years from</span>
+<span class="sd">    the closest other explicitly implicated year for that same utility-state</span>
+<span class="sd">    pair.</span>
+
+<span class="sd">    This is not a traditional forward-fill or backward-fill across all years in</span>
+<span class="sd">    the dataset. County rows are only copied between years when those years are</span>
+<span class="sd">    explicitly implicated by the ``source_year -&gt; target_year`` mappings in</span>
+<span class="sd">    :data:`BA_FIXES`, and the copy is only used to support those explicit</span>
+<span class="sd">    repairs.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        filled_assn: The already-repaired BA-utility association table, as</span>
+<span class="sd">            returned by :func:`filled_core_eia861__assn_balancing_authority`.</span>
+<span class="sd">        core_eia861__yearly_service_territory: The raw service territory table.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">index</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;state&quot;</span><span class="p">,</span> <span class="s2">&quot;report_date&quot;</span><span class="p">]</span>
-    <span class="c1"># Select relevant balancing authority-utility associations</span>
-    <span class="n">assn</span> <span class="o">=</span> <span class="n">filled_core_eia861__assn_balancing_authority</span><span class="p">(</span>
-        <span class="n">core_eia861__assn_balancing_authority</span>
-    <span class="p">)</span>
-    <span class="n">selected</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">assn</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">fix</span> <span class="ow">in</span> <span class="n">ASSOCIATIONS</span><span class="p">:</span>
-        <span class="n">years</span> <span class="o">=</span> <span class="p">[</span><span class="n">fix</span><span class="p">[</span><span class="s2">&quot;from&quot;</span><span class="p">],</span> <span class="o">*</span><span class="nb">range</span><span class="p">(</span><span class="n">fix</span><span class="p">[</span><span class="s2">&quot;to&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">fix</span><span class="p">[</span><span class="s2">&quot;to&quot;</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span>
-        <span class="n">dates</span> <span class="o">=</span> <span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="n">year</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">year</span> <span class="ow">in</span> <span class="n">years</span><span class="p">]</span>
-        <span class="n">mask</span> <span class="o">=</span> <span class="n">assn</span><span class="p">[</span><span class="s2">&quot;balancing_authority_id_eia&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="n">fix</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="nb">bool</span><span class="p">)</span>
-        <span class="n">mask</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span> <span class="o">=</span> <span class="n">assn</span><span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">][</span><span class="n">mask</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">dates</span><span class="p">)</span>
-        <span class="n">selected</span> <span class="o">|=</span> <span class="n">mask</span>
-    <span class="c1"># Reformat as unique utility-state-year</span>
-    <span class="n">assn</span> <span class="o">=</span> <span class="n">assn</span><span class="p">[</span><span class="n">selected</span><span class="p">][</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span>
-    <span class="c1"># Select relevant service territories</span>
+    <span class="n">eia861_years</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">core_eia861__yearly_service_territory</span><span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span><span class="p">)</span>
+
+    <span class="c1"># Collect the exact (ba_id, date) pairs implicated by BA_FIXES so we only</span>
+    <span class="c1"># look at source and target years that participate in an explicit repair.</span>
+    <span class="n">relevant</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">tuple</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">target_year</span><span class="p">,</span> <span class="n">fixes</span> <span class="ow">in</span> <span class="n">BA_FIXES</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">fix</span> <span class="ow">in</span> <span class="n">fixes</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">target_year</span> <span class="ow">in</span> <span class="n">eia861_years</span><span class="p">:</span>
+                <span class="n">relevant</span><span class="o">.</span><span class="n">add</span><span class="p">((</span><span class="n">fix</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="n">target_year</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)))</span>
+            <span class="k">if</span> <span class="n">fix</span><span class="o">.</span><span class="n">source_year</span> <span class="ow">in</span> <span class="n">eia861_years</span><span class="p">:</span>
+                <span class="n">relevant</span><span class="o">.</span><span class="n">add</span><span class="p">((</span><span class="n">fix</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="n">fix</span><span class="o">.</span><span class="n">source_year</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)))</span>
+
+    <span class="n">selected</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">filled_assn</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">ba_id</span><span class="p">,</span> <span class="n">date</span> <span class="ow">in</span> <span class="n">relevant</span><span class="p">:</span>
+        <span class="n">selected</span> <span class="o">|=</span> <span class="p">(</span>
+            <span class="n">filled_assn</span><span class="p">[</span><span class="s2">&quot;balancing_authority_id_eia&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="n">ba_id</span><span class="p">)</span>
+            <span class="o">&amp;</span> <span class="n">filled_assn</span><span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="n">date</span><span class="p">)</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="nb">bool</span><span class="p">)</span>
+
+    <span class="c1"># Unique utility-state-year triples implicated by the explicit repairs.</span>
+    <span class="n">assn</span> <span class="o">=</span> <span class="n">filled_assn</span><span class="p">[</span><span class="n">selected</span><span class="p">][</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span>
+    <span class="c1"># Left-join to service territory: missing counties become NaN</span>
     <span class="n">mdf</span> <span class="o">=</span> <span class="n">assn</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">core_eia861__yearly_service_territory</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">)</span>
-    <span class="c1"># Drop utility-state with no counties for all years</span>
+    <span class="c1"># Drop utility-state pairs that never have any county data in any</span>
+    <span class="c1"># explicitly implicated year.</span>
     <span class="n">grouped</span> <span class="o">=</span> <span class="n">mdf</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;state&quot;</span><span class="p">])[</span><span class="s2">&quot;county_id_fips&quot;</span><span class="p">]</span>
     <span class="n">mdf</span> <span class="o">=</span> <span class="n">mdf</span><span class="p">[</span><span class="n">grouped</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="s2">&quot;count&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">gt</span><span class="p">(</span><span class="mi">0</span><span class="p">)]</span>
-    <span class="c1"># Fill missing utility-state-year with nearest year with counties</span>
+    <span class="c1"># Copy county rows onto missing years from the closest other implicated</span>
+    <span class="c1"># year for the same utility-state pair.</span>
     <span class="n">grouped</span> <span class="o">=</span> <span class="n">mdf</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">index</span><span class="p">)[</span><span class="s2">&quot;county_id_fips&quot;</span><span class="p">]</span>
     <span class="n">missing</span> <span class="o">=</span> <span class="n">mdf</span><span class="p">[</span><span class="n">grouped</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="s2">&quot;count&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="mi">0</span><span class="p">)]</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="s2">&quot;records&quot;</span><span class="p">)</span>
     <span class="n">has_county</span> <span class="o">=</span> <span class="n">mdf</span><span class="p">[</span><span class="s2">&quot;county_id_fips&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">notna</span><span class="p">()</span>
-    <span class="n">tables</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">fill_tables</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">missing</span><span class="p">:</span>
         <span class="n">mask</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">mdf</span><span class="p">[</span><span class="s2">&quot;utility_id_eia&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;utility_id_eia&quot;</span><span class="p">])</span>
@@ -1408,14 +1710,18 @@ window.runMermaid = runMermaid;</script>
             <span class="o">&amp;</span> <span class="n">has_county</span>
         <span class="p">)</span>
         <span class="n">years</span> <span class="o">=</span> <span class="n">mdf</span><span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">][</span><span class="n">mask</span><span class="p">]</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span>
-        <span class="c1"># Match to nearest year</span>
         <span class="n">idx</span> <span class="o">=</span> <span class="p">(</span><span class="n">years</span> <span class="o">-</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span><span class="o">.</span><span class="n">idxmin</span><span class="p">()</span>
         <span class="n">mask</span> <span class="o">&amp;=</span> <span class="n">mdf</span><span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="n">years</span><span class="p">[</span><span class="n">idx</span><span class="p">])</span>
-        <span class="n">tables</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mdf</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">report_date</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">]))</span>
-    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">core_eia861__yearly_service_territory</span><span class="p">]</span> <span class="o">+</span> <span class="n">tables</span><span class="p">)</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span>
+        <span class="n">fill_tables</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mdf</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">report_date</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">]))</span>
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">core_eia861__yearly_service_territory</span><span class="p">]</span> <span class="o">+</span> <span class="n">fill_tables</span><span class="p">)</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span>
         <span class="n">apply_pudl_dtypes</span><span class="p">,</span> <span class="n">resource</span><span class="o">=</span><span class="s2">&quot;core_eia861__yearly_service_territory&quot;</span>
     <span class="p">)</span></div>
 
+
+
+<span class="c1">################################################################################</span>
+<span class="c1"># Asset definitions</span>
+<span class="c1">################################################################################</span>
 
 
 <span class="nd">@asset</span><span class="p">(</span>
@@ -1605,8 +1911,8 @@ window.runMermaid = runMermaid;</script>
     <span class="n">assn</span> <span class="o">=</span> <span class="n">filled_core_eia861__assn_balancing_authority</span><span class="p">(</span>
         <span class="n">core_eia861__assn_balancing_authority</span>
     <span class="p">)</span>
-    <span class="n">st_eia861</span> <span class="o">=</span> <span class="n">filled_service_territory_eia861</span><span class="p">(</span>
-        <span class="n">core_eia861__assn_balancing_authority</span><span class="p">,</span> <span class="n">core_eia861__yearly_service_territory</span>
+    <span class="n">st_eia861</span> <span class="o">=</span> <span class="n">filled_core_eia861__yearly_service_territory</span><span class="p">(</span>
+        <span class="n">assn</span><span class="p">,</span> <span class="n">core_eia861__yearly_service_territory</span>
     <span class="p">)</span>
 
     <span class="c1"># Generate the BA:FIPS relation:</span>
@@ -1677,11 +1983,12 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    respondent in each year. This is fast, and still good for mapping, and retains all</span>
 <span class="sd">    of the FIPS IDs so you can also still do ID based analyses.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">counties_gdf</span> <span class="o">=</span> <span class="n">pudl</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">service_territory</span><span class="o">.</span><span class="n">add_geometries</span><span class="p">(</span>
-        <span class="n">out_ferc714__respondents_with_fips</span><span class="p">,</span>
-        <span class="n">census_gdf</span><span class="o">=</span><span class="n">out_censusdp1tract__counties</span><span class="p">,</span>
-    <span class="p">)</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">apply_pudl_dtypes</span><span class="p">,</span> <span class="n">field_namespace</span><span class="o">=</span><span class="s2">&quot;ferc714&quot;</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">counties_gdf</span></div>
+    <span class="k">return</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span>
+        <span class="n">pudl</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">service_territory</span><span class="o">.</span><span class="n">add_geometries</span><span class="p">(</span>
+            <span class="n">out_ferc714__respondents_with_fips</span><span class="p">,</span>
+            <span class="n">census_gdf</span><span class="o">=</span><span class="n">out_censusdp1tract__counties</span><span class="p">,</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">apply_pudl_dtypes</span><span class="p">,</span> <span class="n">field_namespace</span><span class="o">=</span><span class="s2">&quot;ferc714&quot;</span><span class="p">)</span>
+    <span class="p">)</span></div>
 
 
 
@@ -1706,7 +2013,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    you can see which respondent-years have both reported demand and decent geometries,</span>
 <span class="sd">    calculate their areas to see if something changed from year to year, etc.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">respondents_gdf</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="k">return</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span>
         <span class="n">pudl</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">service_territory</span><span class="o">.</span><span class="n">add_geometries</span><span class="p">(</span>
             <span class="n">out_ferc714__respondents_with_fips</span><span class="p">,</span>
             <span class="n">census_gdf</span><span class="o">=</span><span class="n">out_censusdp1tract__counties</span><span class="p">,</span>
@@ -1722,8 +2029,7 @@ window.runMermaid = runMermaid;</script>
             <span class="n">apply_pudl_dtypes</span><span class="p">,</span>
             <span class="n">resource</span><span class="o">=</span><span class="s2">&quot;out_ferc714__georeferenced_respondents&quot;</span><span class="p">,</span>
         <span class="p">)</span>
-    <span class="p">)</span>
-    <span class="k">return</span> <span class="n">respondents_gdf</span></div>
+    <span class="p">)</span></div>
 
 
 

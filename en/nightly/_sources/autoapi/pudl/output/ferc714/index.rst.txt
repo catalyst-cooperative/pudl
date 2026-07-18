@@ -18,9 +18,18 @@ Attributes
 .. autoapisummary::
 
    pudl.output.ferc714.logger
-   pudl.output.ferc714.ASSOCIATIONS
+   pudl.output.ferc714.BA_FIXES
    pudl.output.ferc714.UTILITIES
    pudl.output.ferc714.imputed_hourly_planning_area_demand_assets
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   pudl.output.ferc714.BaFix
+   pudl.output.ferc714.BaFixMap
 
 
 Functions
@@ -29,9 +38,10 @@ Functions
 .. autoapisummary::
 
    pudl.output.ferc714.categorize_eia_code
+   pudl.output.ferc714._apply_exclude_states
    pudl.output.ferc714.filled_core_eia861__yearly_balancing_authority
    pudl.output.ferc714.filled_core_eia861__assn_balancing_authority
-   pudl.output.ferc714.filled_service_territory_eia861
+   pudl.output.ferc714.filled_core_eia861__yearly_service_territory
    pudl.output.ferc714._out_ferc714__annualized_respondents
    pudl.output.ferc714._out_ferc714__categorized_respondents
    pudl.output.ferc714.out_ferc714__respondents_with_fips
@@ -45,24 +55,94 @@ Module Contents
 
 .. py:data:: logger
 
-.. py:data:: ASSOCIATIONS
-   :type:  list[dict[str, Any]]
+.. py:class:: BaFix(/, **data: Any)
 
-   Adjustments to balancing authority-utility associations from EIA 861.
+   Bases: :py:obj:`pydantic.BaseModel`
 
-   The changes are applied locally to EIA 861 tables.
 
-   * `id` (int): EIA balancing authority identifier (`balancing_authority_id_eia`).
-   * `from` (int): Reference year, to use as a template for target years.
-   * `to` (List[int]): Target years, in the closed interval format [minimum, maximum].
-     Rows in `core_eia861__yearly_balancing_authority` are added (if missing) for every target year
-     with the attributes from the reference year.
-     Rows in `core_eia861__assn_balancing_authority` are added (or replaced, if existing)
-     for every target year with the utility associations from the reference year.
-     Rows in `core_eia861__yearly_service_territory` are added (if missing) for every target year
-     with the nearest year's associated utilities' counties.
-   * `exclude` (Optional[List[str]]): Utilities to exclude, by state (two-letter code).
-     Rows are excluded from `core_eia861__assn_balancing_authority` with target year and state.
+   A single BA data repair entry for one target year.
+
+   * ``id``: EIA balancing authority identifier (``balancing_authority_id_eia``).
+   * ``source_year``: The year whose data is used as a template for the repair.
+   * ``exclude_states``: Optional list of two-letter state codes. Utility associations
+     for utilities in these states are omitted when copying from ``source_year``.
+
+
+   .. py:attribute:: model_config
+
+      Configuration for the model, should be a dictionary conforming to [`ConfigDict`][pydantic.config.ConfigDict].
+
+
+   .. py:attribute:: id
+      :type:  int
+
+
+   .. py:attribute:: source_year
+      :type:  int
+
+
+   .. py:attribute:: exclude_states
+      :type:  list[str]
+      :value: []
+
+
+
+.. py:class:: BaFixMap
+
+   Bases: :py:obj:`pydantic.RootModel`\ [\ :py:obj:`dict`\ [\ :py:obj:`int`\ , :py:obj:`list`\ [\ :py:obj:`BaFix`\ ]\ ]\ ]
+
+
+   Validated mapping of target years to lists of :class:`BaFix` repair entries.
+
+   Raises ``pydantic.ValidationError`` for malformed entries (wrong types,
+   unknown keys) and ``ValueError`` for cross-entry constraint violations:
+   duplicate BA IDs within the same target year, and self-referential fixes
+   where ``source_year == target_year``.  Instantiated once at module load as
+   the :data:`BA_FIXES` constant.
+
+
+   .. py:method:: _check_structure() -> BaFixMap
+
+
+   .. py:method:: items()
+
+      Iterate over (target_year, fixes) pairs, delegating to the root dict.
+
+
+
+.. py:data:: BA_FIXES
+
+   Explicit year-to-year repair instructions for EIA-861 balancing authority data.
+
+   Each key is a target year that requires a manual repair for one or more balancing
+   authorities. Each value is a list of :class:`BaFix` entries describing which BA to
+   repair and which single ``source_year`` should be treated as the authoritative template
+   for that specific target year.
+
+   The fixes are consumed by three functions:
+   :func:`filled_core_eia861__yearly_balancing_authority`,
+   :func:`filled_core_eia861__assn_balancing_authority`, and
+   :func:`filled_core_eia861__yearly_service_territory`. They all use the same explicit
+   ``source_year -> target_year`` mappings, but apply them differently:
+
+   * ``filled_core_eia861__yearly_balancing_authority`` fills missing BA id rows for a
+     target year without overwriting any existing target rows.
+   * ``filled_core_eia861__assn_balancing_authority`` replaces the target-year
+       BA-utility association rows with rows copied from ``source_year``.
+   * ``filled_core_eia861__yearly_service_territory`` limits itself to the utility-state-year
+       combinations implicated by those explicit fixes and copies county coverage
+       from the nearest available relevant year when needed.
+
+   This is not a forward-fill or backward-fill across all years. Data from one year is only
+   applied to another year when a ``source_year -> target_year`` pair is listed here.
+
+   All three functions silently skip a target year that is not present in the available
+   EIA-861 data, and log a warning when the target year is present but the ``source_year``
+   required for the repair is not.
+
+   To add a new fix: identify the target year(s), the affected BA's
+   ``balancing_authority_id_eia``, and a ``source_year`` whose data is correct. If certain
+   states should be excluded from the copy, add ``exclude_states``.
 
 .. py:data:: UTILITIES
    :type:  list[dict[str, Any]]
@@ -71,14 +151,14 @@ Module Contents
 
    The changes are applied locally to EIA 861 tables.
 
-   * `id` (int): EIA balancing authority (BA) identifier (`balancing_authority_id_eia`).
-     Rows for `id` are removed from `core_eia861__yearly_balancing_authority`.
-   * `reassign` (Optional[bool]): Whether to reassign utilities to parent BAs.
-     Rows for `id` as BA in `core_eia861__assn_balancing_authority` are removed.
-     Utilities assigned to `id` for a given year are reassigned
-     to the BAs for which `id` is an associated utility.
-   * `replace` (Optional[bool]): Whether to remove rows where `id` is a utility in
-     `core_eia861__assn_balancing_authority`. Applies only if `reassign=True`.
+   * ``id`` (int): EIA balancing authority (BA) identifier (``balancing_authority_id_eia``).
+     Rows for ``id`` are removed from ``core_eia861__yearly_balancing_authority``.
+   * ``reassign`` (Optional[bool]): Whether to reassign utilities to parent BAs.
+     Rows for ``id`` as BA in ``core_eia861__assn_balancing_authority`` are removed.
+     Utilities assigned to ``id`` for a given year are reassigned
+     to the BAs for which ``id`` is an associated utility.
+   * ``replace`` (Optional[bool]): Whether to remove rows where ``id`` is a utility in
+     ``core_eia861__assn_balancing_authority``. Applies only if ``reassign=True``.
 
 .. py:function:: categorize_eia_code(eia_codes: list[int], ba_ids: list[int], util_ids: list[int], priority: str = 'balancing_authority') -> pandas.DataFrame
 
@@ -124,36 +204,79 @@ Module Contents
    :rtype: A DataFrame containing 2 columns
 
 
+.. py:function:: _apply_exclude_states(ref: pandas.DataFrame, fix: BaFix, target_year: int) -> pandas.DataFrame
+
+   Filter source rows by exclude_states, raising if all rows are eliminated.
+
+   An empty result after filtering means the exclude_states list is broader than
+   the actual data, which would silently drop all associations for the (BA,
+   target_year) pair.  That is almost certainly an erroneous specification.
+
+
 .. py:function:: filled_core_eia861__yearly_balancing_authority(core_eia861__yearly_balancing_authority: pandas.DataFrame) -> pandas.DataFrame
 
    Modified core_eia861__yearly_balancing_authority table.
 
-   This function adds rows for each balancing authority-year pair missing from the
-   cleaned core_eia861__yearly_balancing_authority table, using a dictionary of manual fixes. It
-   uses the reference year as a template. The function also removes balancing
-   authorities that are manually categorized as utilities.
+   Applies the explicit year-to-year repairs described in :data:`BA_FIXES` to the
+   BA identity table.
+
+   Each entry in :data:`BA_FIXES` names one ``source_year`` and one
+   ``target_year`` for a given balancing authority. If that BA already has a
+   row for the target year, nothing changes. Otherwise, its source-year row
+   is copied and relabeled with the target year's date. No other years are
+   affected, and no values are interpolated or extrapolated.
+
+   Silently skips any target year absent from the data. Logs a warning and
+   skips if the target year is present but the source year, or the specific
+   BA row within that source year, is not. Also removes balancing authorities
+   that are manually categorised as utilities via :data:`UTILITIES`.
 
 
 .. py:function:: filled_core_eia861__assn_balancing_authority(core_eia861__assn_balancing_authority: pandas.DataFrame) -> pandas.DataFrame
 
    Modified core_eia861__assn_balancing_authority table.
 
-   This function adds rows for each balancing authority-year pair missing from the
-   cleaned core_eia861__assn_balancing_authority table, using a dictionary of manual fixes.
-   It uses the reference year as a template. The function also reassigns balancing
-   authorities that are manually categorized as utilities to their parent balancing
-   authorities.
+   Applies the explicit year-to-year repairs described in :data:`BA_FIXES` to the
+   BA-utility association table.
+
+   For each ``source_year -> target_year`` mapping, replaces all existing rows
+   for the ``(BA, target_year)`` pair with rows copied from the source year,
+   optionally filtered by :attr:`BaFix.exclude_states`. This is an explicit
+   year-to-year rewrite of known-bad associations, not a general forward-fill
+   or backward-fill across a range of years.
+
+   Silently skips target years absent from the data; logs a warning when the
+   target year is present but the source year is not, or when that BA has no
+   source-year rows to copy. In those cases the target-year rows are left
+   unchanged because the repair cannot be applied correctly. Also removes
+   balancing authorities listed in :data:`UTILITIES` and, when
+   ``reassign=True``, re-parents their child utilities to the grandparent BAs.
 
 
-.. py:function:: filled_service_territory_eia861(core_eia861__assn_balancing_authority: pandas.DataFrame, core_eia861__yearly_service_territory: pandas.DataFrame) -> pandas.DataFrame
+.. py:function:: filled_core_eia861__yearly_service_territory(filled_assn: pandas.DataFrame, core_eia861__yearly_service_territory: pandas.DataFrame) -> pandas.DataFrame
 
    Modified core_eia861__yearly_service_territory table.
 
-   This function adds rows for each balancing authority-year pair missing from the
-   cleaned core_eia861__yearly_service_territory table, using a dictionary of manual fixes. It also
-   drops utility-state combinations which are missing counties across all years of
-   data, fills records missing counties with the nearest year of county data for the
-   same utility and state.
+   Applies county-level service territory repairs implied by :data:`BA_FIXES`.
+
+   Selects utility-state-year combinations that are relevant to the explicit
+   ``source_year -> target_year`` BA repairs in :data:`BA_FIXES`, covering
+   both the listed target years and the source years used to repair them. It
+   then merges those rows with the service territory to obtain county FIPS
+   data, drops utility-state pairs that have no county data in *any*
+   explicitly implicated year, and copies county rows onto missing years from
+   the closest other explicitly implicated year for that same utility-state
+   pair.
+
+   This is not a traditional forward-fill or backward-fill across all years in
+   the dataset. County rows are only copied between years when those years are
+   explicitly implicated by the ``source_year -> target_year`` mappings in
+   :data:`BA_FIXES`, and the copy is only used to support those explicit
+   repairs.
+
+   :param filled_assn: The already-repaired BA-utility association table, as
+                       returned by :func:`filled_core_eia861__assn_balancing_authority`.
+   :param core_eia861__yearly_service_territory: The raw service territory table.
 
 
 .. py:function:: _out_ferc714__annualized_respondents(context, core_ferc714__respondent_id: pandas.DataFrame) -> pandas.DataFrame

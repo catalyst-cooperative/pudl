@@ -62,7 +62,7 @@ Module Contents
 
 
 
-   .. py:method:: process_raw(df, page, **partition)
+   .. py:method:: process_raw(df: pandas.DataFrame, page: str, **partition)
 
       Apply necessary pre-processing to the dataframe.
 
@@ -73,7 +73,7 @@ Module Contents
 
 
 
-   .. py:method:: get_dtypes(page, **partition)
+   .. py:method:: get_dtypes(page: str, **partition)
       :staticmethod:
 
 
