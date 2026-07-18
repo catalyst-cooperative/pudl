@@ -237,6 +237,13 @@ Bug Fixes & Data Cleaning
   asset group and its downstream assets now also captures the EIA-860 assets that
   rely on it, instead of silently leaving them stale. See :issue:`4327` and
   PR :pr:`5409`.
+* Fixed a bug in ``allocate_gen_fuel.identify_proposed_plants()`` where a plant that
+  transitions from ``proposed`` to ``existing`` status across the years spanned by a
+  multi-year ETL run had its legitimately all-proposed years' generation and fuel data
+  silently dropped. The "entirely proposed" check compared operational status across
+  the full multi-year input rather than per year, so a plant with mixed statuses across
+  its history would never pass the check for *any* of its years. Thanks to
+  :user:`grgmiller` for this contribution. See :issue:`TODO` and :pr:`TODO`.
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
