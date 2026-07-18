@@ -17,7 +17,7 @@ env:
   username: ""
   url: ""
   org: catalyst-cooperative
-  ignored_users: '["e-belfer", "krivard", "pre-commit-ci[bot]", "dependabot[bot]", "github-actions[bot]", "catalyst-workflow-triggerer[bot]"]'
+  ignored_users: '["e-belfer", "krivard"]'
 jobs:
   com-dev-notify:
     name: Notify Catalyst of community activity
@@ -63,7 +63,7 @@ jobs:
 
       - name: Send message to ComDev Zulip channel
         if: >-
-          ${{ steps.is_organization_member.outputs.result == 'false' && !contains(fromJSON(env.ignored_users), env.username) }}
+          ${{ steps.is_organization_member.outputs.result == 'false' && !contains(fromJSON(env.ignored_users), env.username) && !endsWith(env.username, '[bot]') }}
         uses: zulip/github-actions-zulip/send-message@v2
         with:
           api-key: ${{ secrets.ZULIP_API_KEY }}
