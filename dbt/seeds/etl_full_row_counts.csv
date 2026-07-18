@@ -788,7 +788,7 @@ core_eia860__scd_generators,2022,32353
 core_eia860__scd_generators,2023,33489
 core_eia860__scd_generators,2024,34914
 core_eia860__scd_generators,2025,36171
-core_eia860__scd_generators,2026,37638
+core_eia860__scd_generators,2026,37881
 core_eia860__scd_generators_energy_storage,2016,78
 core_eia860__scd_generators_energy_storage,2017,110
 core_eia860__scd_generators_energy_storage,2018,146
@@ -897,7 +897,7 @@ core_eia860__scd_plants,2022,14278
 core_eia860__scd_plants,2023,15112
 core_eia860__scd_plants,2024,16179
 core_eia860__scd_plants,2025,16983
-core_eia860__scd_plants,2026,17642
+core_eia860__scd_plants,2026,17712
 core_eia860__scd_utilities,2001,3424
 core_eia860__scd_utilities,2002,6816
 core_eia860__scd_utilities,2003,3534
@@ -924,18 +924,18 @@ core_eia860__scd_utilities,2023,7806
 core_eia860__scd_utilities,2024,8285
 core_eia860__scd_utilities,2025,8525
 core_eia860__scd_utilities,2026,7618
-core_eia860m__changelog_generators,2015,49530
-core_eia860m__changelog_generators,2016,58745
+core_eia860m__changelog_generators,2015,49533
+core_eia860m__changelog_generators,2016,58749
 core_eia860m__changelog_generators,2017,22122
 core_eia860m__changelog_generators,2018,7526
-core_eia860m__changelog_generators,2019,9632
+core_eia860m__changelog_generators,2019,9633
 core_eia860m__changelog_generators,2020,9060
-core_eia860m__changelog_generators,2021,9705
-core_eia860m__changelog_generators,2022,15952
-core_eia860m__changelog_generators,2023,10090
-core_eia860m__changelog_generators,2024,11548
-core_eia860m__changelog_generators,2025,10717
-core_eia860m__changelog_generators,2026,7251
+core_eia860m__changelog_generators,2021,9707
+core_eia860m__changelog_generators,2022,15953
+core_eia860m__changelog_generators,2023,10092
+core_eia860m__changelog_generators,2024,11551
+core_eia860m__changelog_generators,2025,10719
+core_eia860m__changelog_generators,2026,7252
 core_eia861__assn_balancing_authority,2001,3114
 core_eia861__assn_balancing_authority,2002,3396
 core_eia861__assn_balancing_authority,2003,3348
@@ -1626,9 +1626,9 @@ core_eia__codes_storage_technology_types,,8
 core_eia__codes_wet_dry_bottom,,2
 core_eia__codes_wind_quality_class,,4
 core_eia__entity_boilers,,6927
-core_eia__entity_generators,,42634
-core_eia__entity_plants,,19524
-core_eia__entity_utilities,,17259
+core_eia__entity_generators,,42877
+core_eia__entity_plants,,19593
+core_eia__entity_utilities,,17295
 core_eia__yearly_fuel_receipts_costs_aggs,2008,35222
 core_eia__yearly_fuel_receipts_costs_aggs,2009,34866
 core_eia__yearly_fuel_receipts_costs_aggs,2010,34845
@@ -1670,7 +1670,7 @@ core_epa__assn_eia_epacamd,2021,6410
 core_epa__assn_eia_epacamd,2022,6410
 core_epa__assn_eia_epacamd,2023,6371
 core_epa__assn_eia_epacamd,2024,6340
-core_epa__assn_eia_epacamd_subplant_ids,,44581
+core_epa__assn_eia_epacamd_subplant_ids,,44824
 core_epacems__hourly_emissions,1995,3846120
 core_epacems__hourly_emissions,1996,3645432
 core_epacems__hourly_emissions,1997,17660784
@@ -3592,7 +3592,7 @@ out_eia923__generation_fuel_combined,2022,189250
 out_eia923__generation_fuel_combined,2023,197699
 out_eia923__generation_fuel_combined,2024,207559
 out_eia923__generation_fuel_combined,2025,205371
-out_eia923__generation_fuel_combined,2026,23464
+out_eia923__generation_fuel_combined,2026,23468
 out_eia923__monthly_boiler_fuel,2008,77537
 out_eia923__monthly_boiler_fuel,2009,79002
 out_eia923__monthly_boiler_fuel,2010,81161
@@ -3725,7 +3725,7 @@ out_eia923__monthly_generation_fuel_combined,2022,189250
 out_eia923__monthly_generation_fuel_combined,2023,197699
 out_eia923__monthly_generation_fuel_combined,2024,207559
 out_eia923__monthly_generation_fuel_combined,2025,205371
-out_eia923__monthly_generation_fuel_combined,2026,23464
+out_eia923__monthly_generation_fuel_combined,2026,23468
 out_eia923__yearly_boiler_fuel,2008,6783
 out_eia923__yearly_boiler_fuel,2009,6748
 out_eia923__yearly_boiler_fuel,2010,6901
@@ -3938,7 +3938,7 @@ out_eia__monthly_generators,2022,314856
 out_eia__monthly_generators,2023,324483
 out_eia__monthly_generators,2024,333776
 out_eia__monthly_generators,2025,344269
-out_eia__monthly_generators,2026,37638
+out_eia__monthly_generators,2026,37881
 out_eia__yearly_assn_plant_parts_plant_gen,2001,258598
 out_eia__yearly_assn_plant_parts_plant_gen,2002,279292
 out_eia__yearly_assn_plant_parts_plant_gen,2003,286122
@@ -3949,7 +3949,7 @@ out_eia__yearly_assn_plant_parts_plant_gen,2007,314112
 out_eia__yearly_assn_plant_parts_plant_gen,2008,323859
 out_eia__yearly_assn_plant_parts_plant_gen,2009,335548
 out_eia__yearly_assn_plant_parts_plant_gen,2010,324928
-out_eia__yearly_assn_plant_parts_plant_gen,2011,335198
+out_eia__yearly_assn_plant_parts_plant_gen,2011,335202
 out_eia__yearly_assn_plant_parts_plant_gen,2012,346297
 out_eia__yearly_assn_plant_parts_plant_gen,2013,362449
 out_eia__yearly_assn_plant_parts_plant_gen,2014,374332
@@ -3964,7 +3964,7 @@ out_eia__yearly_assn_plant_parts_plant_gen,2022,480343
 out_eia__yearly_assn_plant_parts_plant_gen,2023,494938
 out_eia__yearly_assn_plant_parts_plant_gen,2024,514139
 out_eia__yearly_assn_plant_parts_plant_gen,2025,529239
-out_eia__yearly_assn_plant_parts_plant_gen,2026,521769
+out_eia__yearly_assn_plant_parts_plant_gen,2026,525161
 out_eia__yearly_boilers,2008,3598
 out_eia__yearly_boilers,2009,4348
 out_eia__yearly_boilers,2010,4693
@@ -4009,7 +4009,7 @@ out_eia__yearly_generators,2022,32353
 out_eia__yearly_generators,2023,33446
 out_eia__yearly_generators,2024,34871
 out_eia__yearly_generators,2025,36119
-out_eia__yearly_generators,2026,37638
+out_eia__yearly_generators,2026,37881
 out_eia__yearly_generators_by_ownership,2001,39430
 out_eia__yearly_generators_by_ownership,2002,40926
 out_eia__yearly_generators_by_ownership,2003,41832
@@ -4035,7 +4035,7 @@ out_eia__yearly_generators_by_ownership,2022,67964
 out_eia__yearly_generators_by_ownership,2023,70114
 out_eia__yearly_generators_by_ownership,2024,73120
 out_eia__yearly_generators_by_ownership,2025,75554
-out_eia__yearly_generators_by_ownership,2026,75276
+out_eia__yearly_generators_by_ownership,2026,75762
 out_eia__yearly_plant_parts,2001,127890
 out_eia__yearly_plant_parts,2002,135628
 out_eia__yearly_plant_parts,2003,140072
@@ -4046,7 +4046,7 @@ out_eia__yearly_plant_parts,2007,154465
 out_eia__yearly_plant_parts,2008,161216
 out_eia__yearly_plant_parts,2009,168584
 out_eia__yearly_plant_parts,2010,163846
-out_eia__yearly_plant_parts,2011,170446
+out_eia__yearly_plant_parts,2011,170448
 out_eia__yearly_plant_parts,2012,178187
 out_eia__yearly_plant_parts,2013,190654
 out_eia__yearly_plant_parts,2014,198298
@@ -4061,7 +4061,7 @@ out_eia__yearly_plant_parts,2022,286382
 out_eia__yearly_plant_parts,2023,298756
 out_eia__yearly_plant_parts,2024,315551
 out_eia__yearly_plant_parts,2025,327005
-out_eia__yearly_plant_parts,2026,318600
+out_eia__yearly_plant_parts,2026,320240
 out_eia__yearly_plants,2001,5886
 out_eia__yearly_plants,2002,5832
 out_eia__yearly_plants,2003,5843
@@ -4087,7 +4087,7 @@ out_eia__yearly_plants,2022,14278
 out_eia__yearly_plants,2023,15112
 out_eia__yearly_plants,2024,16179
 out_eia__yearly_plants,2025,16983
-out_eia__yearly_plants,2026,17642
+out_eia__yearly_plants,2026,17712
 out_eia__yearly_utilities,2001,3424
 out_eia__yearly_utilities,2002,6816
 out_eia__yearly_utilities,2003,3534
