@@ -52,9 +52,9 @@ class TestGenericDataConfig:
             working_tables = ["table"]
 
             class Test(GenericDataConfig):
-                data_source: DataSource = DataSource(  # type: ignore  # noqa: PGH003
+                data_source: DataSource = DataSource(  # type: ignore[invalid-attribute-override, missing-argument]
                     working_partitions=working_partitions,
-                    working_tables=working_tables,  # type: ignore  # noqa: PGH003
+                    working_tables=working_tables,  # type: ignore[unknown-argument]
                 )
 
             Test()
@@ -79,7 +79,7 @@ class TestFerc1DataConfig:
     def test_none_years_raise(self: Self):
         """Test that null years raise a validation error."""
         with pytest.raises(ValidationError):
-            _ = Ferc1DataConfig(years=None)  # type: ignore  # noqa: PGH003
+            _ = Ferc1DataConfig(years=None)  # type: ignore[invalid-argument-type]
 
     def test_default_years(self: Self):
         """Test all years are used as default."""
@@ -134,7 +134,7 @@ class TestEpaCemsDataConfig:
     def test_none_quarters_raise(self: Self):
         """Test that setting a required partition to None raises an error."""
         with pytest.raises(ValidationError):
-            _ = EpaCemsDataConfig(quarters=None)  # type: ignore  # noqa: PGH003
+            _ = EpaCemsDataConfig(quarters=None)  # type: ignore[unknown-argument]
 
 
 class TestEia860DataConfig:
