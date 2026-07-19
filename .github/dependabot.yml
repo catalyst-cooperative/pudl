@@ -6,3 +6,15 @@ updates:
     target-branch: main
     schedule:
       interval: weekly
+
+  - package-ecosystem: docker
+    directory: /builds
+    target-branch: main
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: docker
+    directory: /.devcontainer
+    target-branch: main
+    schedule:
+      interval: weekly
