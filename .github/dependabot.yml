@@ -6,15 +6,19 @@ updates:
     target-branch: main
     schedule:
       interval: weekly
+    groups:
+      github-actions:
+        patterns:
+          - "*"
 
   - package-ecosystem: docker
-    directory: /builds
+    directories:
+      - /builds
+      - /.devcontainer
     target-branch: main
     schedule:
       interval: weekly
-
-  - package-ecosystem: docker
-    directory: /.devcontainer
-    target-branch: main
-    schedule:
-      interval: weekly
+    groups:
+      docker:
+        patterns:
+          - "*"
