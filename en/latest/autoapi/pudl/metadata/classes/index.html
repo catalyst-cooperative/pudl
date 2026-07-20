@@ -18,7 +18,7 @@
     </script>
     
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
-    <title>pudl.metadata.classes &#8212; PUDL 2026.7.3.dev11 documentation</title>
+    <title>pudl.metadata.classes &#8212; PUDL 2026.7.3.dev12 documentation</title>
   
   
   
@@ -51,7 +51,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../../_static/documentation_options.js?v=09c7da55"></script>
+    <script src="../../../../_static/documentation_options.js?v=297640be"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -142,8 +142,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.7.3.dev11 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.7.3.dev11 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.7.3.dev12 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.7.3.dev12 documentation - Home"/>
   
   
 </a></div>
@@ -776,6 +776,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../../dev/run_a_release.html">Run a Versioned Release</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../dev/pudl_id_mapping.html">PUDL ID Mapping</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../dev/naming_conventions.html">Naming Conventions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../dev/llm_best_practices.html">Best practices for working with LLMs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../dev/data_guidelines.html">Data and ETL Design Guidelines</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../dev/nightly_data_builds.html">Nightly Data Builds</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../dev/ferceqr_data_builds.html">FERC EQR Data Builds</a></li>
@@ -1498,13 +1499,13 @@ the result of data entry errors or changes in the standard codes over time.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pudl.metadata.classes.Field.to_pyarrow_dtype">
-<span class="sig-name descname"><span class="pre">to_pyarrow_dtype</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://arrow.apache.org/docs/python/generated/pyarrow.DataType.html#pyarrow.DataType" title="(in Apache Arrow v24.0.0)"><span class="pre">pyarrow.DataType</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/classes.html#Field.to_pyarrow_dtype"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.classes.Field.to_pyarrow_dtype" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">to_pyarrow_dtype</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://arrow.apache.org/docs/python/generated/pyarrow.DataType.html#pyarrow.DataType" title="(in Apache Arrow v25.0.0)"><span class="pre">pyarrow.DataType</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/classes.html#Field.to_pyarrow_dtype"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.classes.Field.to_pyarrow_dtype" title="Link to this definition">#</a></dt>
 <dd><p>Return PyArrow data type.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pudl.metadata.classes.Field.to_pyarrow">
-<span class="sig-name descname"><span class="pre">to_pyarrow</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://arrow.apache.org/docs/python/generated/pyarrow.Field.html#pyarrow.Field" title="(in Apache Arrow v24.0.0)"><span class="pre">pyarrow.Field</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/classes.html#Field.to_pyarrow"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.classes.Field.to_pyarrow" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">to_pyarrow</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://arrow.apache.org/docs/python/generated/pyarrow.Field.html#pyarrow.Field" title="(in Apache Arrow v25.0.0)"><span class="pre">pyarrow.Field</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/classes.html#Field.to_pyarrow"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.classes.Field.to_pyarrow" title="Link to this definition">#</a></dt>
 <dd><p>Return a PyArrow Field appropriate to the field.</p>
 </dd></dl>
 
@@ -2585,7 +2586,7 @@ then expanded (<a class="reference internal" href="#pudl.metadata.classes.Contri
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pudl.metadata.classes.Resource.to_pyarrow">
-<span class="sig-name descname"><span class="pre">to_pyarrow</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://arrow.apache.org/docs/python/generated/pyarrow.Schema.html#pyarrow.Schema" title="(in Apache Arrow v24.0.0)"><span class="pre">pyarrow.Schema</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/classes.html#Resource.to_pyarrow"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.classes.Resource.to_pyarrow" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">to_pyarrow</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://arrow.apache.org/docs/python/generated/pyarrow.Schema.html#pyarrow.Schema" title="(in Apache Arrow v25.0.0)"><span class="pre">pyarrow.Schema</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/classes.html#Resource.to_pyarrow"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.classes.Resource.to_pyarrow" title="Link to this definition">#</a></dt>
 <dd><p>Construct a PyArrow schema for the resource.</p>
 </dd></dl>
 
