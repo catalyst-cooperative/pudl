@@ -1,5 +1,6 @@
 """Use EPA CEMS and EIA data to estimate generator operational characteristics."""
 
+from pathlib import Path
 from typing import Any
 
 import numpy as np
@@ -7,7 +8,13 @@ import pandas as pd
 import polars as pl
 from dagster import AssetIn, Field, asset
 
+import pudl.logging_helpers
+from pudl.metadata.classes import PUDL_PACKAGE
 from pudl.metadata.dtypes import apply_pudl_dtypes_polars
+from pudl.workspace.setup import PudlPaths
+
+logger = pudl.logging_helpers.get_logger(__name__)
+
 
 HEAT_RATE_ANALYSIS_CONFIG_SCHEMA = {
     "final_year": Field(
@@ -27,7 +34,7 @@ HEAT_RATE_ANALYSIS_CONFIG_SCHEMA = {
             "the configured final year."
         ),
     ),
-    "min_stable_level_consecutive_hours": Field(
+    "min_stable_consecutive_hours": Field(
         int,
         default_value=8,
         description=(
@@ -67,8 +74,8 @@ def _get_heat_rate_analysis_config(context) -> dict[str, Any]:
     return {
         "final_year": context.op_config["final_year"],
         "num_years": context.op_config["num_years"],
-        "min_stable_level_consecutive_hours": context.op_config[
-            "min_stable_level_consecutive_hours"
+        "min_stable_consecutive_hours": context.op_config[
+            "min_stable_consecutive_hours"
         ],
         "states": context.op_config["states"],
         "eia_monthly_generators_report_date": context.op_config[
@@ -644,19 +651,22 @@ def calculate_ramp_rate(
 
 
 def _add_run_id(
-    df: pl.LazyFrame,
+    lf: pl.LazyFrame,
     unit_cols: list[str],
     state_col: str | None = None,
-) -> pd.Series:
+) -> pl.Series:
     """Generate run IDs for consecutive hourly observations within each unit."""
-    same_unit = df[unit_cols].eq(df[unit_cols].shift()).all(axis=1)
-    consecutive_hour = (
-        df["operating_datetime_utc"].diff().dt.total_seconds().div(3600).eq(1)
-    )
+    same_unit = lf.select(
+        result=pl.all_horizontal([pl.col(c).eq(pl.col(c).shift()) for c in unit_cols])
+    ).to_series()
+    consecutive_hour = lf.select(
+        pl.col("operating_datetime_utc").diff().dt.total_seconds().truediv(3600).eq(1)
+    ).to_series()
 
-    same_state = True if state_col is None else df[state_col].eq(df[state_col].shift())
-
-    return (~(same_unit & consecutive_hour & same_state)).cumsum()
+    same_state = lf.select(
+        True if state_col is None else pl.col(state_col).eq(pl.col(state_col).shift())
+    ).to_series()
+    return (~(same_unit & consecutive_hour & same_state)).cum_sum()
 
 
 def add_run_id(
@@ -833,7 +843,7 @@ def prep_output_df(
     unit_cols: list[str],
     output_max_load_col: str,
     output_ramp_rate_col_suffix: str,
-):
+) -> pl.DataFrame:
     """Set up aggregated output dataframe with empty calculated columns."""
     base_agg = {output_max_load_col: pl.col(output_max_load_col).first()}
     if "plant_id_eia" in cems.columns:
@@ -868,11 +878,11 @@ def compute_stable_runs(
 ) -> pl.DataFrame:
     """Given a certain consecutive hour threshold, find runs with stable behavior."""
     stable_runs = (
-        binned_cems.filter(pl.col("load_factor_bin_ordinal") > 1)
+        binned_cems.filter(pl.col("load_factor_bin_right") > 1)
         .group_by(
             unit_cols
             + [
-                "load_factor_bin_ordinal",
+                "load_factor_bin_right",
                 "load_factor_bin_left",
                 "load_factor_bin",
                 "bin_run_id",
@@ -884,17 +894,17 @@ def compute_stable_runs(
 
     stable_bins = (
         stable_runs.filter(pl.col("run_length") >= consecutive_hours)
-        .sort(unit_cols + ["load_factor_bin_ordinal"])
+        .sort(unit_cols + ["load_factor_bin_right"])
         .unique(subset=unit_cols, keep="first")
         .rename(
             {
-                "load_factor_bin_ordinal": "min_stable_bin_ordinal",
+                "load_factor_bin_right": "min_stable_bin_right",
                 "load_factor_bin_left": "min_stable_level",
                 "load_factor_bin": "min_stable_bin",
             }
         )
         .select(
-            unit_cols + ["min_stable_bin_ordinal", "min_stable_level", "min_stable_bin"]
+            unit_cols + ["min_stable_bin_right", "min_stable_level", "min_stable_bin"]
         )
     )
 
@@ -908,12 +918,12 @@ def compute_heat_rate_at_max_load(
 ) -> pl.LazyFrame:
     """Compute the heat rate at the maximum load (by bin)."""
     max_bin = heat_rate_input.group_by(unit_cols).agg(
-        pl.col("load_factor_bin_ordinal").max().alias("max_load_bin_ordinal")
+        pl.col("load_factor_bin_right").max().alias("max_load_bin_right")
     )
 
     return (
         heat_rate_input.join(max_bin, on=unit_cols)
-        .filter(pl.col("load_factor_bin_ordinal") == pl.col("max_load_bin_ordinal"))
+        .filter(pl.col("load_factor_bin_right") == pl.col("max_load_bin_right"))
         .group_by(unit_cols)
         .agg(
             pl.col(heat_rate_col)
@@ -948,7 +958,7 @@ def compute_min_stable_heat_rates(
 
 def estimate_operational_characteristics_by_unit(
     cems: pl.LazyFrame,
-    consecutive_hours: int,
+    min_stable_consecutive_hours: int,
     adjusted: bool = False,
 ) -> pl.LazyFrame:
     """Estimate operational characteristics for every EPA CEMS plant-unit pair.
@@ -986,19 +996,19 @@ def estimate_operational_characteristics_by_unit(
         .unique()
     )
 
-    if valid_units.limit(1).collect().is_empty():
+    if valid_units.is_empty():
         return output
 
     valid_cems = cems_working.join(valid_units, on=col_dict["unit_cols"], how="inner")
-    binned_cems = valid_cems.filter(
-        pl.col("load_factor_bin").is_not_null()
-    ).with_columns(
-        _add_run_id(valid_cems, unit_cols=col_dict["unit_cols"]).alias("bin_run_id")
+    binned_cems = valid_cems.filter(pl.col("load_factor_bin").is_not_null()).pipe(
+        lambda lf: lf.with_columns(
+            bin_run_id=_add_run_id(lf, unit_cols=col_dict["unit_cols"])
+        )
     )
 
     # Compute stable runs
     stable_runs = compute_stable_runs(
-        binned_cems, col_dict["unit_cols"], consecutive_hours
+        binned_cems, col_dict["unit_cols"], min_stable_consecutive_hours
     )
 
     # Add stable bins back to the main output DF
@@ -1186,7 +1196,7 @@ def operational_characteristics(
     core_epacems__hourly_emissions: pl.LazyFrame,
     final_year: int,
     num_years: int,
-    min_stable_level_consecutive_hours: int,
+    min_stable_consecutive_hours: int,
     states: list[str] | None,
 ) -> pl.LazyFrame:
     """Estimate EPA CEMS unit operational characteristics.
@@ -1201,8 +1211,18 @@ def operational_characteristics(
     )
     return estimate_operational_characteristics_by_unit(
         cems=cems,
-        consecutive_hours=min_stable_level_consecutive_hours,
+        min_stable_consecutive_hours=min_stable_consecutive_hours,
     )
+
+
+def _partitioned_path(pudl_paths: PudlPaths) -> Path:
+    partitioned_path = (
+        pudl_paths.pudl_output
+        / "parquet"
+        / "out_epacems__yearly_operational_characteristics"
+    )
+    partitioned_path.mkdir(exist_ok=True)
+    return partitioned_path
 
 
 @asset(
@@ -1222,15 +1242,33 @@ def out_epacems__yearly_operational_characteristics(
     """Estimate EPA CEMS unit operational characteristics."""
     # context.pdb.set_trace()
     heat_rate_config = _get_heat_rate_analysis_config(context)
-    return operational_characteristics(
-        core_epacems__hourly_emissions=core_epacems__hourly_emissions,
-        final_year=heat_rate_config["final_year"],
-        num_years=heat_rate_config["num_years"],
-        min_stable_level_consecutive_hours=heat_rate_config[
-            "min_stable_level_consecutive_hours"
-        ],
-        states=heat_rate_config["states"],
-    ).pipe(
-        apply_pudl_dtypes_polars,
-        resource="out_epacems__yearly_operational_characteristics",
-    )
+
+    # Iterate over all the partitions we are processing, since polars is parallelized
+    # internally and this will save us significant dagster process startup overhead and
+    # avoid CPU resource contention.
+    resource_metadata = PUDL_PACKAGE.get_resource("core_epacems__hourly_emissions")
+    states = [
+        field for field in resource_metadata.schema.fields if field.name == "state"
+    ][0].constraints.enum
+    outs = []
+    for state in states:
+        logger.info(
+            f"Deriving unit-level operational characteristics from {state} EPA CEMS "
+        )
+
+        state_lf = operational_characteristics(
+            core_epacems__hourly_emissions=core_epacems__hourly_emissions,
+            final_year=heat_rate_config["final_year"],
+            num_years=heat_rate_config["num_years"],
+            min_stable_consecutive_hours=heat_rate_config[
+                "min_stable_consecutive_hours"
+            ],
+            states=[state],
+        ).pipe(
+            apply_pudl_dtypes_polars,
+            resource="out_epacems__yearly_operational_characteristics",
+        )
+
+        outs.append(state_lf)
+
+    return pl.concat(outs, how="vertical", parallel=True, low_memory=True)
