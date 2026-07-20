@@ -17,6 +17,19 @@ jobs:
         uses: actions/checkout@v7
         with:
           fetch-depth: 0
+
+      - name: Verify the tag points at the current HEAD of main
+        # Checking ancestry (e.g. `git branch --remotes --contains`) isn't enough --
+        # any commit reachable from main passes that check, including a stale local
+        # main that's behind origin. Require an exact match against origin/main's
+        # current tip instead, so tagging from a stale local checkout fails loudly.
+        run: |
+          main_sha="$(git rev-parse origin/main)"
+          if [[ "${{ github.sha }}" != "$main_sha" ]]; then
+            echo "::error::Tag ${{ github.ref_name }} (${{ github.sha }}) does not point at the current HEAD of main ($main_sha). Pull the latest main and re-tag."
+            exit 1
+          fi
+
       - name: Determine previous release tag
         run: |
           echo "PREVIOUS_RELEASE_TAG=$(git tag --list 'v20*' --sort=-v:refname | grep -v "$(git describe --tags --exact-match HEAD 2>/dev/null || echo 'none')" | head -n 1)" >> "${GITHUB_ENV}"
