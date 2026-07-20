@@ -7,7 +7,7 @@ PUDL Release Notes
 v2026.8.x (2026-08-xx)
 ---------------------------------------------------------------------------------------
 
-This is the upcoming monthly PUDL release.
+This is the upcoming quarterly PUDL release.
 
 New Data
 ^^^^^^^^
@@ -21,6 +21,9 @@ EIA-860M
 
 Documentation
 ^^^^^^^^^^^^^
+
+* Added LLM use guidelines and best practices to the 
+  :doc:`contributor guide <CONTRIBUTING>` and :doc:`dev guide <dev/llm_best_practices>`.
 
 * Set up the `sphinx_llm <https://github.com/NVIDIA/sphinx-llm>`__ Sphinx extension to
   generate a Markdown version of the PUDL documentation, suitable for consumption by
@@ -36,7 +39,7 @@ Bug Fixes & Data Cleaning
 * Fixed incorrectly mapped Western Area Power Authority BA codes in FERC 714
   data - previously, the Upper Great Plains West region FERC respondent was mapped
   to the Desert Southwest region EIA balancing authority information, and vice
-  versa. See :issue:`4644 and :pr:`5408`.
+  versa. See :issue:`4644` and :pr:`5408`.
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
