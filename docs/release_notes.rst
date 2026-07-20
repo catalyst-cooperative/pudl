@@ -22,7 +22,7 @@ EIA-860M
 Documentation
 ^^^^^^^^^^^^^
 
-* Added LLM use guidelines and best practices to the 
+* Added LLM use guidelines and best practices to the
   :doc:`contributor guide <CONTRIBUTING>` and :doc:`dev guide <dev/llm_best_practices>`.
 
 * Set up the `sphinx_llm <https://github.com/NVIDIA/sphinx-llm>`__ Sphinx extension to
