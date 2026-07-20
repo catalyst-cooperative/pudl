@@ -4,7 +4,13 @@ sources:
     tables:
       - name: core_eia861__yearly_net_metering_customer_fuel_class
         data_tests:
-          - expect_columns_not_all_null
+          - expect_columns_not_all_null:
+              arguments:
+                row_conditions:
+                  capacity_mw: EXTRACT(year FROM report_date) >= 2010
+                  energy_capacity_mwh: EXTRACT(year FROM report_date) >= 2023
+                  short_form: EXTRACT(year FROM report_date) = 2019
+                  sold_to_utility_mwh: EXTRACT(year FROM report_date) >= 2007
           - check_row_counts_per_partition:
               arguments:
                 table_name: core_eia861__yearly_net_metering_customer_fuel_class
