@@ -195,6 +195,7 @@ class ZenodoDoiSettings(BaseSettings):
     eia930: ZenodoDoi
     eiaaeo: ZenodoDoi
     eiaapi: ZenodoDoi
+    eianems: ZenodoDoi
     epacamd_eia: ZenodoDoi
     epacems: ZenodoDoi
     ferc1: ZenodoDoi
