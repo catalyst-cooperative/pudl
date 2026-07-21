@@ -1553,7 +1553,7 @@ core_eia930__hourly_interchange,2022,2616495
 core_eia930__hourly_interchange,2023,2584200
 core_eia930__hourly_interchange,2024,2591280
 core_eia930__hourly_interchange,2025,2610654
-core_eia930__hourly_interchange,2026,1300876
+core_eia930__hourly_interchange,2026,1315228
 core_eia930__hourly_net_generation_by_energy_source,2015,5571256
 core_eia930__hourly_net_generation_by_energy_source,2016,11015136
 core_eia930__hourly_net_generation_by_energy_source,2017,10985040
@@ -1565,7 +1565,7 @@ core_eia930__hourly_net_generation_by_energy_source,2022,10430202
 core_eia930__hourly_net_generation_by_energy_source,2023,10291616
 core_eia930__hourly_net_generation_by_energy_source,2024,10180656
 core_eia930__hourly_net_generation_by_energy_source,2025,10111059
-core_eia930__hourly_net_generation_by_energy_source,2026,4959779
+core_eia930__hourly_net_generation_by_energy_source,2026,5066027
 core_eia930__hourly_operations,2015,293224
 core_eia930__hourly_operations,2016,579744
 core_eia930__hourly_operations,2017,578160
@@ -1577,7 +1577,7 @@ core_eia930__hourly_operations,2022,548958
 core_eia930__hourly_operations,2023,541664
 core_eia930__hourly_operations,2024,535824
 core_eia930__hourly_operations,2025,532161
-core_eia930__hourly_operations,2026,261041
+core_eia930__hourly_operations,2026,266633
 core_eia930__hourly_subregion_demand,2018,366043
 core_eia930__hourly_subregion_demand,2019,727080
 core_eia930__hourly_subregion_demand,2020,729072
@@ -1586,7 +1586,7 @@ core_eia930__hourly_subregion_demand,2022,727080
 core_eia930__hourly_subregion_demand,2023,727080
 core_eia930__hourly_subregion_demand,2024,729072
 core_eia930__hourly_subregion_demand,2025,727080
-core_eia930__hourly_subregion_demand,2026,374141
+core_eia930__hourly_subregion_demand,2026,380549
 core_eia__codes_averaging_periods,,17
 core_eia__codes_balancing_authorities,,100
 core_eia__codes_balancing_authority_subregions,,90
@@ -3891,7 +3891,7 @@ out_eia930__hourly_aggregated_demand,2022,148920
 out_eia930__hourly_aggregated_demand,2023,148920
 out_eia930__hourly_aggregated_demand,2024,149328
 out_eia930__hourly_aggregated_demand,2025,148920
-out_eia930__hourly_aggregated_demand,2026,73955
+out_eia930__hourly_aggregated_demand,2026,75587
 out_eia930__hourly_operations,2015,291016
 out_eia930__hourly_operations,2016,579744
 out_eia930__hourly_operations,2017,578160
@@ -3903,7 +3903,7 @@ out_eia930__hourly_operations,2022,548958
 out_eia930__hourly_operations,2023,541664
 out_eia930__hourly_operations,2024,535824
 out_eia930__hourly_operations,2025,527031
-out_eia930__hourly_operations,2026,256691
+out_eia930__hourly_operations,2026,262211
 out_eia930__hourly_subregion_demand,2018,366043
 out_eia930__hourly_subregion_demand,2019,727080
 out_eia930__hourly_subregion_demand,2020,729072
@@ -3912,7 +3912,7 @@ out_eia930__hourly_subregion_demand,2022,727080
 out_eia930__hourly_subregion_demand,2023,727080
 out_eia930__hourly_subregion_demand,2024,729072
 out_eia930__hourly_subregion_demand,2025,727080
-out_eia930__hourly_subregion_demand,2026,374141
+out_eia930__hourly_subregion_demand,2026,380549
 out_eia__monthly_generators,2001,194239
 out_eia__monthly_generators,2002,201072
 out_eia__monthly_generators,2003,205348
