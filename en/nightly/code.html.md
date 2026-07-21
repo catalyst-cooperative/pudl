@@ -21,6 +21,7 @@
   * [Run a Versioned Release](dev/run_a_release.md)
   * [PUDL ID Mapping](dev/pudl_id_mapping.md)
   * [Naming Conventions](dev/naming_conventions.md)
+  * [Best practices for working with LLMs](dev/llm_best_practices.md)
   * [Data and ETL Design Guidelines](dev/data_guidelines.md)
   * [Nightly Data Builds](dev/nightly_data_builds.md)
   * [FERC EQR Data Builds](dev/ferceqr_data_builds.md)

@@ -18573,7 +18573,7 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 Code table containing descriptions of categorical codes for balancing authority subregions in EIA 930.
 
 Most-recent data:
-: 2026half1
+: 2026half2
 
 Processing:
 : Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.

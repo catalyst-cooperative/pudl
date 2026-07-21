@@ -440,6 +440,7 @@ The following data sources serve as the foundation for our data pipeline.
   * [Asset Naming Conventions](naming_conventions.md#asset-naming-conventions)
   * [Columns and Field Names](naming_conventions.md#columns-and-field-names)
   * [Naming Conventions in Code](naming_conventions.md#naming-conventions-in-code)
+* [Best practices for working with LLMs](llm_best_practices.md)
 * [Data and ETL Design Guidelines](data_guidelines.md)
   * [Input vs. Output Data](data_guidelines.md#input-vs-output-data)
   * [Minimize Data Alteration](data_guidelines.md#minimize-data-alteration)
@@ -32387,6 +32388,38 @@ If you’re **looking to help us integrate a specific dataset into PUDL**, find 
 [office hours](https://calend.ly/catalyst-cooperative/pudl-office-hours) and we
 can talk through next steps.
 
+<a id="llm-policy"></a>
+
+### LLM use policy
+
+1. **All PRs, internal and external, will be reviewed by a human.**
+
+> * 🏃 We don’t want the code to grow faster than we can understand it.
+> * 🧹 This is particularly important for data cleaning and subtle
+>   domain-informed decision making.
+
+> That means we need to optimize work for ease of human review:
+
+> * 💞 Reviewers are humans - respect their time.
+> * Review is the bottleneck, so let’s keep it going as smoothly as
+>   possible.
+1. **When reviewing and self-reviewing, make a human synthesis of the
+   work - what changed? Why? What did you learn?**
+
+> * 🏃 We need to make sure we understand what’s going into the
+>   codebase.
+> * 🧹 We need to make sure domain-specific changes are well-considered.
+1. **When making a PR with some LLM-generated content, briefly describe
+   the usage of LLMs so we know what to expect.** Examples:
+
+> * “I used an LLM to generate these tests, and cleaned them up by hand.”
+> * “I talked through my plan with an LLM, revised it, and then had it
+>   implement the plan.”
+1. **🗽In order to avoid vendor lock-in, we will reject additions to
+   Catalyst LLM tooling that require the use of one particular model
+   or harness.** We will actively engage with open tooling and openly
+   licensed models to avoid relying on proprietary solutions.
+
 ### Your first contribution
 
 **Setup**
@@ -33052,6 +33085,7 @@ during builds.
   * [Run a Versioned Release](dev/run_a_release.md)
   * [PUDL ID Mapping](dev/pudl_id_mapping.md)
   * [Naming Conventions](dev/naming_conventions.md)
+  * [Best practices for working with LLMs](dev/llm_best_practices.md)
   * [Data and ETL Design Guidelines](dev/data_guidelines.md)
   * [Nightly Data Builds](dev/nightly_data_builds.md)
   * [FERC EQR Data Builds](dev/ferceqr_data_builds.md)
@@ -37346,7 +37380,7 @@ respective transform function.
 | Respondents                     | All entities in the contiguous United States that are listed in the North American Electric Reliability Corporation’s (NERC) Compliance Registry as a balancing authority.                                                                                                                                                                              |
 | Source Format                   | Comma separated values (CSV)                                                                                                                                                                                                                                                                                                                            |
 | Download Size                   | 409 MB                                                                                                                                                                                                                                                                                                                                                  |
-| Temporal Coverage               | 2015half2-2026half1                                                                                                                                                                                                                                                                                                                                     |
+| Temporal Coverage               | 2015half2-2026half2                                                                                                                                                                                                                                                                                                                                     |
 | PUDL Code                       | `eia930`                                                                                                                                                                                                                                                                                                                                                |
 | Unprocessed Source Data Archive | [10.5281/zenodo.10840077](https://doi.org/10.5281/zenodo.10840077)                                                                                                                                                                                                                                                                                      |
 | Issues                          | [Open EIA Form 930 – Hourly and Daily Balancing Authority Operations Report issues](https://github.com/catalyst-cooperative/pudl/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3Aeia930)                                                                                                                                                           |
@@ -39718,6 +39752,34 @@ Run:
 1. `tf init` so you get the GCP provider. You only need to do this the first time.
 2. `tf plan` to see what is going to happen.
 3. `tf apply` to make changes to infrastructure.
+
+
+# llm_best_practices.html.md
+
+<a id="lmm-best-practices"></a>
+
+# Best practices for working with LLMs
+
+* Do not use agents for reasoning about data. Reasoning requires domain
+  expertise that LLMs do not have. Finalizing code that reasons about data often
+  involves iterative exploration that is difficult to summarize & document
+  effectively if you are not the one that did the iteration.
+* Use agents to amplify a hand-built prototype: reduce tedium and identify edge
+  cases you might not have seen.
+* Prioritize solutions that you could replicate yourself: reinforce things you
+  already understand, instead of creating a black box.
+* Prioritize solutions you can maintain yourself: agentic programming is
+  currently operated at a loss and that will not be true forever.
+* Use agents to build tools for mass modifications, instead of having them do
+  the mass modifications directly. A few dozen lines in a tool are easier for
+  humans to evaluate for correctness than hundreds of line edits.
+* Use agents to locate relevant analyses which have been written or vetted by
+  human experts.
+* Guarding against scope creep is easier to do at the beginning than while
+  you’re in it: think carefully about the requirements and boundaries of a task
+  before you bring an LLM into it.
+* Relentlessly push your LLM to keep things simple. If something seems to your
+  human judgement to be harder than it “should” be, follow that instinct.
 
 
 # managing_external_contributions.html.md
@@ -59799,7 +59861,7 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 Code table containing descriptions of categorical codes for balancing authority subregions in EIA 930.
 
 Most-recent data:
-: 2026half1
+: 2026half2
 
 Processing:
 : Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
@@ -74790,7 +74852,7 @@ you can all use the newly mapped PUDL IDs. But first, make sure to head back to 
 
 ## v2026.8.x (2026-08-xx)
 
-This is the upcoming monthly PUDL release.
+This is the upcoming quarterly PUDL release.
 
 ### New Data
 
@@ -74802,6 +74864,8 @@ This is the upcoming monthly PUDL release.
 
 ### Documentation
 
+* Added LLM use guidelines and best practices to the
+  [contributor guide](CONTRIBUTING.md) and [dev guide](dev/llm_best_practices.md).
 * Set up the [sphinx_llm](https://github.com/NVIDIA/sphinx-llm) Sphinx extension to
   generate a Markdown version of the PUDL documentation, suitable for consumption by
   LLMs, based on the [llms.txt](https://llmstxt.org/) convention. Each page now
@@ -74815,7 +74879,7 @@ This is the upcoming monthly PUDL release.
 * Fixed incorrectly mapped Western Area Power Authority BA codes in FERC 714
   data - previously, the Upper Great Plains West region FERC respondent was mapped
   to the Desert Southwest region EIA balancing authority information, and vice
-  versa. See [#4644 and :pr:\`5408](https://github.com/catalyst-cooperative/pudl/issues/4644 and :pr:`5408).
+  versa. See [#4644](https://github.com/catalyst-cooperative/pudl/issues/4644) and [#5408](https://github.com/catalyst-cooperative/pudl/pull/5408).
 
 ### Performance Improvements
 
