@@ -7,10 +7,23 @@ PUDL Release Notes
 v2026.8.x (2026-08-xx)
 ---------------------------------------------------------------------------------------
 
-This is the upcoming monthly PUDL release.
+This is the upcoming quarterly PUDL release.
+
+New Data
+^^^^^^^^
+
+EIA-860M
+~~~~~~~~
+
+* Added Puerto Rico :doc:`EIA-860M <data_sources/eia860>` data into EIA 860 tables. See
+  issue :issue:`4352` and PR :pr:`5360`. Shoutout to :user:`bsousa22` for making his
+  first PUDL contribution!
 
 Documentation
 ^^^^^^^^^^^^^
+
+* Added LLM use guidelines and best practices to the
+  :doc:`contributor guide <CONTRIBUTING>` and :doc:`dev guide <dev/llm_best_practices>`.
 
 * Set up the `sphinx_llm <https://github.com/NVIDIA/sphinx-llm>`__ Sphinx extension to
   generate a Markdown version of the PUDL documentation, suitable for consumption by
@@ -26,7 +39,24 @@ Bug Fixes & Data Cleaning
 * Fixed incorrectly mapped Western Area Power Authority BA codes in FERC 714
   data - previously, the Upper Great Plains West region FERC respondent was mapped
   to the Desert Southwest region EIA balancing authority information, and vice
-  versa. See :issue:`4644 and :pr:`5408`.
+  versa. See :issue:`4644` and :pr:`5408`.
+
+Performance Improvements
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+* The fast ETL now processes only two representative
+  :doc:`EIA-861 <data_sources/eia861>` years instead of the entire time series, bringing
+  it in line with how every other dataset is already handled and speeding up both local
+  development and CI. Processing all years was originally a workaround for discontinued
+  columns and data validation tests that couldn't tolerate partial coverage; those
+  limitations have since been resolved. This change surfaced an implicit assumption in
+  the :doc:`FERC-714 <data_sources/ferc714>` outputs that all EIA-861 years were always
+  available, in the logic that repairs known-bad balancing authority/utility
+  associations by copying data from a known-good year. That repair logic has been
+  rewritten as an explicit, validated mapping of per-year fixes, so it degrades
+  gracefully when only a subset of years is present, and is substantially easier to
+  read, test, and extend than the compact form it replaces. See :issue:`2628` and
+  :pr:`4568`.
 
 .. _release-v2026.7.2:
 
@@ -71,7 +101,6 @@ EIA-176
   continuation-line tables for natural gas imports, supplemental
   gaseous fuel supplies, gas exports, and other gas disposition. See
   :issue:`5240` and :pr:`5245`.
-
 
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
