@@ -1,17 +1,22 @@
 """Use EPA CEMS and EIA data to estimate generator operational characteristics."""
 
-from pathlib import Path
 from typing import Any
 
 import numpy as np
 import pandas as pd
 import polars as pl
-from dagster import AssetIn, Field, asset
+from dagster import (
+    AllPartitionMapping,
+    AssetExecutionContext,
+    AssetIn,
+    Field,
+    StaticPartitionsDefinition,
+    asset,
+)
 
 import pudl.logging_helpers
 from pudl.metadata.classes import PUDL_PACKAGE
 from pudl.metadata.dtypes import apply_pudl_dtypes_polars
-from pudl.workspace.setup import PudlPaths
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -103,6 +108,7 @@ def filter_cems_for_heat_rate_analysis(
     Returns:
         Hourly EPA CEMS records filtered to the requested years and states.
     """
+    logger.info(f"Filtering for {states}")
     start_year = final_year - num_years
     cems_columns = [
         "plant_id_eia",
@@ -122,6 +128,7 @@ def filter_cems_for_heat_rate_analysis(
     )
 
     if states:
+        logger.info(f"Really really def filtering for {states}")
         cems_lf = cems_lf.filter(pl.col("state").is_in(states))
     # cems["operating_datetime_utc"] = pd.to_datetime(cems["operating_datetime_utc"])
     return cems_lf
@@ -991,7 +998,9 @@ def estimate_operational_characteristics_by_unit(
     per-unit ``qcut`` behavior.
     """
     # Filter and pre-process CEMS based on adjustment boolean
+    logger.info("we're about to adjust")
     cems_working, col_dict = handle_adjustment_in_cems(cems, adjusted)
+    logger.info("okay we've adjusted")
 
     if cems_working.limit(1).collect().is_empty():
         return pl.LazyFrame()
@@ -1239,60 +1248,67 @@ def operational_characteristics(
     )
 
 
-def _partitioned_path(pudl_paths: PudlPaths) -> Path:
-    partitioned_path = (
-        pudl_paths.pudl_output
-        / "parquet"
-        / "out_epacems__yearly_operational_characteristics"
+states_partitions_def = StaticPartitionsDefinition(
+    [
+        field
+        for field in PUDL_PACKAGE.get_resource(
+            "core_epacems__hourly_emissions"
+        ).schema.fields
+        if field.name == "state"
+    ][0].constraints.enum
+)
+
+
+@asset(
+    partitions_def=states_partitions_def,
+    ins={
+        "core_epacems__hourly_emissions": AssetIn(input_manager_key="pudl_io_manager"),
+    },
+    compute_kind="Python",
+    config_schema=HEAT_RATE_ANALYSIS_CONFIG_SCHEMA,
+)
+def _out_epacems__yearly_operational_characteristics_state(
+    context: AssetExecutionContext, core_epacems__hourly_emissions: pl.LazyFrame
+) -> pd.DataFrame:
+    """State partition of out_epacems__yearly_operational_characteristics."""
+    state = context.partition_key  # gets the current partition's state
+    heat_rate_config = _get_heat_rate_analysis_config(context)
+    # process data for this state
+    logger.info(
+        f"Deriving unit-level operational characteristics from {state} EPA CEMS "
     )
-    partitioned_path.mkdir(exist_ok=True)
-    return partitioned_path
+
+    state_lf = operational_characteristics(
+        core_epacems__hourly_emissions=core_epacems__hourly_emissions,
+        final_year=heat_rate_config["final_year"],
+        num_years=heat_rate_config["num_years"],
+        min_stable_consecutive_hours=heat_rate_config["min_stable_consecutive_hours"],
+        states=[state],
+    ).pipe(
+        apply_pudl_dtypes_polars,
+        resource="out_epacems__yearly_operational_characteristics",
+    )
+    return state_lf
 
 
 @asset(
     name="out_epacems__yearly_operational_characteristics",
     ins={
-        "core_epacems__hourly_emissions": AssetIn(input_manager_key="pudl_io_manager"),
+        "_out_epacems__yearly_operational_characteristics_state": AssetIn(
+            partition_mapping=AllPartitionMapping()
+        )
     },
+    # TODO: make
     # io_manager_key="pudl_io_manager",
     compute_kind="Python",
-    config_schema=HEAT_RATE_ANALYSIS_CONFIG_SCHEMA,
+    # TODO: rlly high now?
     op_tags={"memory-use": "high"},
 )
 def out_epacems__yearly_operational_characteristics(
     context,
-    core_epacems__hourly_emissions: pl.LazyFrame,
-) -> pl.LazyFrame:
+    _out_epacems__yearly_operational_characteristics_state: dict[str, pl.DataFrame],
+) -> pl.DataFrame:
     """Estimate EPA CEMS unit operational characteristics."""
-    # context.pdb.set_trace()
-    heat_rate_config = _get_heat_rate_analysis_config(context)
-
-    # Iterate over all the partitions we are processing, since polars is parallelized
-    # internally and this will save us significant dagster process startup overhead and
-    # avoid CPU resource contention.
-    resource_metadata = PUDL_PACKAGE.get_resource("core_epacems__hourly_emissions")
-    states = [
-        field for field in resource_metadata.schema.fields if field.name == "state"
-    ][0].constraints.enum
-    outs = []
-    for state in states:
-        logger.info(
-            f"Deriving unit-level operational characteristics from {state} EPA CEMS "
-        )
-
-        state_lf = operational_characteristics(
-            core_epacems__hourly_emissions=core_epacems__hourly_emissions,
-            final_year=heat_rate_config["final_year"],
-            num_years=heat_rate_config["num_years"],
-            min_stable_consecutive_hours=heat_rate_config[
-                "min_stable_consecutive_hours"
-            ],
-            states=[state],
-        ).pipe(
-            apply_pudl_dtypes_polars,
-            resource="out_epacems__yearly_operational_characteristics",
-        )
-
-        outs.append(state_lf)
-
-    return pl.concat(outs, how="vertical", parallel=True, low_memory=True)
+    return pl.concat(
+        list(_out_epacems__yearly_operational_characteristics_state.values())
+    )
