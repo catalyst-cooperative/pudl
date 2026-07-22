@@ -135,7 +135,7 @@ def extract_eia860(context, raw_eia860__all_dfs, raw_eia860m__all_dfs):
     # provenance explicit in the DAG.
     if eia_data_config.eia860.eia860m and selected_eia860m_appendable_tables:
         # year-months to include from the EIA-860M raw asset (e.g., ["2024-05"])
-        eia860m_months = set(eia_data_config.eia860m.year_months)
+        eia860m_months = set(eia_data_config.eia860.eia860m_year_months)
 
         # Filter each 860M page to only include rows from the requested months.
         eia860m_raw_dfs = {}
