@@ -731,21 +731,26 @@ def _assign_groupwise_load_factor_bins(
     valid_pl = valid_pl.with_columns(
         pl.col("state").cast(
             pl.Enum(categories=invalid.collect_schema()["state"].categories)
-        )
+        ),
+        pl.col("load_factor_bin").cast(pl.Struct({0: pl.Float64, 1: pl.Float64})),
     )
 
     # recombine with rest of rows
     combined = pl.concat(
         [
             valid_pl,
-            invalid.with_columns(pl.lit(None).alias("load_factor_bin")).collect(),
+            invalid.with_columns(
+                pl.lit(None)
+                .cast(pl.Struct({0: pl.Float64, 1: pl.Float64}))
+                .alias("load_factor_bin")
+            ).collect(),
         ]
     )
 
     # Rank bins for each set of unit_cols
     result = combined.with_columns(
         pl.col("load_factor_bin").struct[0].alias("load_factor_bin_left"),
-        pl.col("load_factor_bin").struct[1].alias("load_factor_bin_riiiight"),
+        pl.col("load_factor_bin").struct[1].alias("load_factor_bin_right"),
     ).with_columns(
         pl.col("load_factor_bin_left")
         .rank(method="dense")
