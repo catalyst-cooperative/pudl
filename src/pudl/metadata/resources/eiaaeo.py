@@ -484,7 +484,7 @@ _STAGING_FIELD_METADATA: dict[str, dict[str, Any]] = {
             ]
         },
     },
-}  # noqa:W0612
+}
 
 # 2024-04-24: to "promote" the schemas, we can add them to this set and move
 # the field definitions
