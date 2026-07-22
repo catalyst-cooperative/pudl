@@ -15,9 +15,12 @@ jobs:
   bot-auto-merge:
     name: Auto-merge passing bot PRs
     runs-on: ubuntu-latest
+    # Gate on who *opened* the PR, not github.actor -- for a `synchronize` event,
+    # github.actor is whoever pushed the latest commit (e.g. pre-commit-ci fixing up
+    # a human-authored PR), which must not by itself trigger auto-merge.
     if: >-
-      github.actor == 'dependabot[bot]' ||
-      github.actor == 'pre-commit-ci[bot]'
+      github.event.pull_request.user.login == 'dependabot[bot]' ||
+      github.event.pull_request.user.login == 'pre-commit-ci[bot]'
     steps:
       - name: Impersonate auto merge PR bot
         uses: actions/create-github-app-token@v3
