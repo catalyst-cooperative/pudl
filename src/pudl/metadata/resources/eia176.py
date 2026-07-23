@@ -6,10 +6,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_eia176__yearly_company_characteristics": {
         "description": {
             "additional_summary_text": (
-                "a company's operational and ownership characteristics "
-                "(Part 3, Lines A–F). National-level adjustment records "
-                "(operating_state in FX, MX, BL, OO) are excluded. "
-                "See GitHub issue #4729."
+                "a company's operational and ownership characteristics. "
             ),
             "additional_source_text": "(Part 3, Lines A–D)",
             "additional_details_text": (
