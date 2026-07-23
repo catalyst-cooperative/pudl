@@ -10,7 +10,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             ),
             "additional_source_text": "(Part 3, Lines A–D)",
             "additional_details_text": (
-                "The natural_gas_pump_price field is reported only for 2014-2016."
+                "The natural_gas_pump_price_dollars_per_mcf field is reported only "
+                "for 2014-2016."
             ),
         },
         "schema": {
@@ -39,7 +40,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "customer_choice_residential_eligible",
                 "customer_choice_residential_participating",
                 "has_sales_or_acquisitions",
-                "natural_gas_pump_price",
+                "natural_gas_pump_price_dollars_per_mcf",
             ],
             "primary_key": [
                 "report_year",

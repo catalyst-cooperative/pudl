@@ -5095,7 +5095,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "The name of the owner or operator of natural gas pipeline that connects directly to this facility or that connects to a lateral pipeline owned by this facility."
         ),
     },
-    "natural_gas_pump_price": {
+    "natural_gas_pump_price_dollars_per_mcf": {
         "type": "number",
         "description": (
             "Price of natural gas at public fueling stations operated by the company."

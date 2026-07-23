@@ -51,10 +51,10 @@ EIA-176
   (Lines A-F). Includes ``alternative_fleet_size``,
   ``customer_choice_residential_eligible``,
   ``customer_choice_residential_participating``, ``has_sales_or_acquisitions``, and
-  ``natural_gas_pump_price`` (2014-2016 only). National-level adjustment records
-  (operating_state FX, MX, BL, OO) are excluded. The raw ``is_other_ownership`` and
-  ``is_other_ownership_2`` fields (which never co-occur) are merged into a single
-  ``is_other_ownership`` boolean.
+  ``natural_gas_pump_price_dollars_per_mcf`` (2014-2016 only). National-level
+  adjustment records (operating_state FX, MX, BL, OO) are excluded. The raw
+  ``is_other_ownership`` and ``is_other_ownership_2`` fields (which never co-occur)
+  are merged into a single ``is_other_ownership`` boolean.
   See :issue:`4697` and :pr:`5197`.
 
 FERC 1

@@ -1311,7 +1311,8 @@ def core_eia176__yearly_company_characteristics(
     )
     # Some company fields only exist in source years where the question was asked
     # (e.g. natural_gas_pump_price appears in 2014-2016, but not in the 2020/2024
-    # fast build). Preserve the full output schema for partial-year materializations.
+    # fast build). Preserve the full output schema for partial-year materializations
+    # before renaming source columns into their output names.
     for col in company_cols:
         if col not in df:
             df[col] = float("nan") if col == "natural_gas_pump_price" else pd.NA
@@ -1347,7 +1348,10 @@ def core_eia176__yearly_company_characteristics(
     df = simplify_strings(df, ["other_ownership_description"])
 
     df = df.rename(
-        columns={"alternative_fuel_fleet_1_yes_0_no": "has_alternative_fuel_fleet"}
+        columns={
+            "alternative_fuel_fleet_1_yes_0_no": "has_alternative_fuel_fleet",
+            "natural_gas_pump_price": "natural_gas_pump_price_dollars_per_mcf",
+        }
     )
     # Only reported 2005-2015; preserve null for years where the question wasn't asked
     df["has_alternative_fuel_fleet"] = df["has_alternative_fuel_fleet"].map({1.0: True})
