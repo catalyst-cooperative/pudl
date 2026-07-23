@@ -9,6 +9,24 @@ sources:
               arguments:
                 table_name: core_eia176__yearly_company_characteristics
                 partition_expr: report_year
+          - dbt_utils.expression_is_true:
+              arguments:
+                expression: customer_choice_residential_eligible >= customer_choice_residential_participating
+              config:
+                error_if: ">1"
+                warn_if: ">1"
+              description: Residential customers eligible for customer choice should be greater than or equal to participating customers. One known 2022 California record currently violates this expectation.
+          - dbt_utils.expression_is_true:
+              arguments:
+                expression: alternative_fleet_size IS NULL OR has_alternative_fuel_fleet IS DISTINCT FROM FALSE
+              description: Alternative fuel fleet size should not be reported when the alternative fuel fleet flag is explicitly false.
+          - dbt_utils.expression_is_true:
+              arguments:
+                expression: natural_gas_pump_price_dollars_per_mcf IS NULL OR natural_gas_pump_price_dollars_per_mcf > 0
+              config:
+                error_if: ">13"
+                warn_if: ">13"
+              description: Natural gas pump price should be positive when reported. There are 13 known zero-value records in the current data.
         columns:
           - name: report_year
           - name: operator_id_eia
@@ -31,7 +49,19 @@ sources:
           - name: other_ownership_description
           - name: has_alternative_fuel_fleet
           - name: alternative_fleet_size
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
           - name: customer_choice_residential_eligible
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
           - name: customer_choice_residential_participating
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
           - name: has_sales_or_acquisitions
           - name: natural_gas_pump_price_dollars_per_mcf
