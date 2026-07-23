@@ -31,6 +31,8 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "is_storage_operator",
                 "is_synthetic_natural_gas_plant_operator",
                 "is_other_ownership",
+                "is_public_compressed_natural_gas_fueling_station",
+                "is_public_lng_fueling_station",
                 "other_ownership_description",
                 "has_alternative_fuel_fleet",
                 "alternative_fleet_size",
@@ -38,8 +40,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "customer_choice_residential_participating",
                 "has_sales_or_acquisitions",
                 "natural_gas_pump_price",
-                "is_public_compressed_natural_gas_fueling_station",
-                "is_public_lng_fueling_station",
             ],
             "primary_key": [
                 "report_year",
