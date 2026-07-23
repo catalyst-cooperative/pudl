@@ -567,9 +567,14 @@ def test_update_pudl_viewer_selects_workflow_by_environment(
 @pytest.mark.parametrize(
     "create_builds,build_successful,build_type,git_ref_name",
     [
-        (True, True, "nightly", "main"),
-        (True, False, "stable", "v2026-01-01"),
-        (False, True, "branch", "my-branch-name"),
+        (create_builds, build_successful, *build_type_info)
+        for create_builds in [True, False]
+        for build_successful in [True, False]
+        for build_type_info in [
+            ("nightly", "main"),
+            ("stable", "v2026-01-01"),
+            ("branch", "my-branch-name"),
+        ]
     ],
 )
 def test_get_build_from_tag(
