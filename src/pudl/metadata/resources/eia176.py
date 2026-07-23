@@ -11,7 +11,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "(operating_state in FX, MX, BL, OO) are excluded. "
                 "See GitHub issue #4729."
             ),
-            "additional_source_text": "(Part 3, Lines A–F)",
+            "additional_source_text": "(Part 3, Lines A–D)",
             "additional_details_text": (
                 "The natural_gas_pump_price field is reported only for 2014-2016."
             ),
