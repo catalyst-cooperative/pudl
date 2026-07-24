@@ -2214,6 +2214,7 @@ def get_parquet_table_polars(
     table_name: str,
     partitions: dict | None = None,
     paths: PudlPaths | None = None,
+    schema_enforcement: bool = True,
 ) -> pl.LazyFrame:
     """Read a table from a parquet file and return as a polars LazyFrame.
 
@@ -2221,16 +2222,12 @@ def get_parquet_table_polars(
         table_name: Name of the table to read.
         partitions: Optional dictionary of partitions to filter the data. See
             :class:`ParquetData` definition for details.
+        paths: optional :class:`PudlPaths`. By default, the default
+            :class:`PudlPaths` will be used.
 
     Returns:
         A polars LazyFrame representing the table.
     """
-    # Import here to avoid circular imports
-    from pudl.metadata.classes import Resource
-
-    resource = Resource.from_id(table_name)
-    schema = resource.to_polars_dtypes()
-
     # Get the Parquet file path
     if partitions is None:
         resolved_paths = PudlPaths() if paths is None else paths
@@ -2240,7 +2237,24 @@ def get_parquet_table_polars(
         # Points to a directory of parquet files when there partitions is non None
         parquet_path = parquet_data.parquet_path
 
-    return pl.scan_parquet(parquet_path).cast(schema, strict=False)
+    # if schema_enforcement:
+    # Import here to avoid circular imports
+    from pudl.metadata.classes import Resource
+
+    resource = Resource.from_id(table_name)
+    schema = resource.to_polars_dtypes()
+    # Ensure that the categorical columns have the inferred order
+    cat_cols = {
+        col: dtype for col, dtype in schema.items() if isinstance(dtype, pl.Enum)
+    }
+    non_cat_cols = {
+        col: dtype for col, dtype in schema.items() if cat_cols.get(col, True)
+    }
+
+    inferred_schema = pl.scan_parquet(parquet_path).collect_schema()
+    cat_cols = {col: inferred_schema[col] for col, dtype in cat_cols.items()}
+
+    return pl.scan_parquet(parquet_path, schema=non_cat_cols | cat_cols)
 
 
 def get_parquet_table(

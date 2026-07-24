@@ -710,7 +710,10 @@ def _assign_groupwise_load_factor_bins(
     stats = (
         cems.sort(unit_cols + ["operating_datetime_utc"])
         .group_by(unit_cols)
-        .agg(pl.col(load_factor_col).n_unique().alias("load_factor_nunique"))
+        .agg(
+            # drop nulls before n_unique-ing so we don't get a bunch of null valid stats
+            pl.col(load_factor_col).drop_nulls().n_unique().alias("load_factor_nunique")
+        )
     )
     cems = cems.join(stats, on=unit_cols, how="left")
 
@@ -719,28 +722,22 @@ def _assign_groupwise_load_factor_bins(
 
     # use pd.cut on the valid rows
     logger.info("converting to pandas")
-    # THIS STEP TAKES 30 SECONDS THAT"S UNACCEPTABLE
-    valid_pd = valid.collect().to_pandas(use_pyarrow_extension_array=True)
+    # THIS STEP TAKES 30 SECONDS THAT'S UNACCEPTABLE
+    valid_pd = valid.collect().to_pandas()
     logger.info("conversion done... doing the gb pd.cut step now")
-    valid_pd["load_factor_bin"] = (
-        # w/o dropping nulls here, we we're getting
-        # `ValueError: Bin edges must be unique:` with nulls
-        # this will enable getting bin factors for all valid, non-null
-        # records. But is it a problem to have nulls mixed in with
-        # valid records within the same unit_cols group?
-        valid_pd[valid_pd[load_factor_col].notnull()]
-        .groupby(unit_cols, group_keys=False)[load_factor_col]
-        .apply(
-            lambda s: pd.cut(
-                s,
-                bins=10,
-                right=True,
-                include_lowest=False,
-            )
+    valid_pd["load_factor_bin"] = valid_pd.groupby(unit_cols, group_keys=False)[
+        load_factor_col
+    ].apply(
+        lambda s: pd.cut(
+            s,
+            bins=10,
+            right=True,
+            include_lowest=False,
         )
     )
     logger.info("Back to polars with you")
     valid_pl = pl.from_pandas(valid_pd)
+    logger.info("okay your polars again now do other stuff")
     valid_pl = valid_pl.with_columns(
         pl.col("state").cast(
             pl.Enum(categories=invalid.collect_schema()["state"].categories)
@@ -1015,10 +1012,10 @@ def estimate_operational_characteristics_by_unit(
         "now we are checking if the cems_working is empty which maybe takes a while..."
     )
     # THIS STEP TAKES 30 SECONDS THAT"S UNACCEPTABLE
-    if cems_working.limit(1).collect().is_empty():
-        logger.info("We are pooping out a nothingburger")
-        return pl.LazyFrame()
-    logger.info("... how long did that take?")
+    # if cems_working.limit(1).collect().is_empty():
+    #     logger.info("We are pooping out a nothingburger")
+    #     return pl.LazyFrame()
+    # logger.info("... how long did that take?")
     # Assign groupwise load factor bins
     cems_working = _assign_groupwise_load_factor_bins(
         cems=cems_working,
@@ -1269,9 +1266,7 @@ def operational_characteristics_factory(
     @asset(
         name=f"_out_epacems__yearly_operational_characteristics_{state}",
         ins={
-            "core_epacems__hourly_emissions": AssetIn(
-                input_manager_key="pudl_io_manager"
-            ),
+            "core_epacems__hourly_emissions": AssetIn(),
         },
         config_schema=HEAT_RATE_ANALYSIS_CONFIG_SCHEMA,
         op_tags={"memory-use": "high"},
