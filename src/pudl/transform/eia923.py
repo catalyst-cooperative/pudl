@@ -1827,6 +1827,52 @@ def _core_eia923__energy_storage(
     return es_df
 
 
+def _core_eia923__yearly_fuel_stocks(
+    raw_eia923__stocks: pd.DataFrame,
+) -> pd.DataFrame:
+    """Transform the EIA-923 fossil-fuel stocks table.
+
+    The raw table reports end-of-month coal, oil and petcoke stocks by census
+    division / state, with one wide record per region and year (twelve columns per
+    fuel). This transform:
+
+    * standardizes null values,
+    * reshapes the wide monthly coal/oil/petcoke columns into tall monthly records
+      via :func:`_yearly_to_monthly_records`, keeping one column per fuel type,
+    * builds a ``report_date`` from ``report_year`` and the reshaped month,
+    * strips the ``census_division_and_state`` labels (the raw values contain
+      trailing-whitespace duplicates), and
+    * coerces the fuel-stock columns to numeric.
+
+    Note:
+        This is the transform-only increment for `issue #5081
+        <https://github.com/catalyst-cooperative/pudl/issues/5081>`__. Per the issue's
+        checkpoint, it is intentionally not yet wired as a Dagster ``@asset`` or given
+        table metadata, pending maintainer feedback on two open questions: (1) whether
+        injecting ``report_year`` from the partition in the extractor (see
+        ``pudl.extract.eia923``) is the preferred fix for the year-less stocks page,
+        and (2) how to standardize ``census_division_and_state`` against PUDL's
+        existing state/region conventions (it mixes census divisions and individual
+        states).
+
+    Args:
+        raw_eia923__stocks: The raw ``raw_eia923__stocks`` dataframe.
+
+    Returns:
+        A tall monthly fuel-stocks dataframe with a ``report_date`` column and one
+        column per fuel stock type (coal, oil, petcoke).
+    """
+    df = (
+        pudl.helpers.standardize_na_values(raw_eia923__stocks)
+        .pipe(_yearly_to_monthly_records)
+        .pipe(pudl.helpers.convert_to_date)
+    )
+    df["census_division_and_state"] = df["census_division_and_state"].str.strip()
+    for fuel in ("coal", "oil", "petcoke"):
+        df[fuel] = pd.to_numeric(df[fuel], errors="coerce")
+    return df
+
+
 @asset(io_manager_key="pudl_io_manager")
 def _core_eia923__yearly_byproduct_disposition(
     raw_eia923__byproduct_disposition: pd.DataFrame,

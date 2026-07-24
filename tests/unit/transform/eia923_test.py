@@ -81,6 +81,59 @@ def test__yearly_to_monthly_records__drops_all_null_months():
     pd.testing.assert_frame_equal(expected, actual)
 
 
+def test__core_eia923__yearly_fuel_stocks():
+    """Wide monthly coal/oil/petcoke stock columns become tall monthly records.
+
+    Covers the transform-only increment for issue #5081: region labels are
+    whitespace-stripped, the wide monthly columns are reshaped into one row per
+    populated month with a ``report_date``, and the fuel-stock columns are coerced to
+    numeric (with ``"."`` becoming NaN).
+    """
+    raw = pd.DataFrame(
+        {
+            "census_division_and_state": ["New England   ", "Middle Atlantic"],
+            "report_year": [2020, 2020],
+            "data_maturity": ["final", "final"],
+            "coal_january": ["10.0", "20.0"],
+            "coal_june": ["11.0", "21.0"],
+            "oil_january": ["1.0", "2.0"],
+            "oil_june": ["1.5", "2.5"],
+            "petcoke_january": ["0.0", "0.1"],
+            "petcoke_june": [".", "0.2"],
+        }
+    )
+    out = eia923._core_eia923__yearly_fuel_stocks(raw)
+
+    # Region labels are stripped of trailing whitespace.
+    assert set(out["census_division_and_state"]) == {"New England", "Middle Atlantic"}
+    # Two records x two populated months -> four monthly rows.
+    assert len(out) == 4
+    # report_date is built from report_year + the reshaped month.
+    assert set(out["report_date"]) == {
+        pd.Timestamp("2020-01-01"),
+        pd.Timestamp("2020-06-01"),
+    }
+    # Fuel-stock columns are numeric.
+    for fuel in ("coal", "oil", "petcoke"):
+        assert pd.api.types.is_float_dtype(out[fuel])
+
+    ne_jan = out[
+        (out["census_division_and_state"] == "New England")
+        & (out["report_date"] == pd.Timestamp("2020-01-01"))
+    ].iloc[0]
+    assert ne_jan["coal"] == 10.0
+    assert ne_jan["oil"] == 1.0
+    assert ne_jan["petcoke"] == 0.0
+
+    ne_jun = out[
+        (out["census_division_and_state"] == "New England")
+        & (out["report_date"] == pd.Timestamp("2020-06-01"))
+    ].iloc[0]
+    assert ne_jun["coal"] == 11.0
+    # A "." raw value coerces to NaN.
+    assert pd.isna(ne_jun["petcoke"])
+
+
 def test___drop_duplicates__core_eia923__generation():
     """Test whether this bespoke de-duper actually preserves one of the records.
 
