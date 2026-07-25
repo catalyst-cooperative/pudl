@@ -44,41 +44,41 @@ from pudl.metadata.fields import FIELD_METADATA, FIELD_METADATA_BY_NAMESPACE
 FIELD_DTYPES_POLARS: dict[str, type[pl.DataType] | pl.DataType] = {
     "boolean": polars_datatypes.Boolean,
     "date": polars_datatypes.Date,
-    "datetime": polars_datatypes.Datetime(time_unit="ms"),
+    "datetime": polars_datatypes.Datetime(time_unit="us"),
     "integer": polars_datatypes.Int64,
     "number": polars_datatypes.Float64,
     "string": polars_datatypes.String,
-    "year": polars_datatypes.Datetime(time_unit="ms"),
+    "year": polars_datatypes.Datetime(time_unit="us"),
 }
 """Polars data type by simplified PUDL field type."""
 
 FIELD_DTYPES_DUCKDB: dict[str, duckdb.sqltypes.DuckDBPyType] = {
     "boolean": duckdb.sqltypes.BOOLEAN,
     "date": duckdb.sqltypes.DATE,
-    "datetime": duckdb.sqltypes.TIMESTAMP_MS,
+    "datetime": duckdb.sqltypes.TIMESTAMP,
     "integer": duckdb.sqltypes.BIGINT,
     "number": duckdb.sqltypes.DOUBLE,
     "string": duckdb.sqltypes.VARCHAR,
-    "year": duckdb.sqltypes.TIMESTAMP_MS,
+    "year": duckdb.sqltypes.TIMESTAMP,
 }
 """DuckDB data type by simplified PUDL field type."""
 
 FIELD_DTYPES_PANDAS: dict[str, str] = {
     "boolean": "boolean",
-    "date": "datetime64[ms]",
-    "datetime": "datetime64[ms]",
+    "date": "datetime64[us]",
+    "datetime": "datetime64[us]",
     "geometry": "geometry",
     "integer": "Int64",
     "number": "float64",
     "string": "string",
-    "year": "datetime64[ms]",
+    "year": "datetime64[us]",
 }
 """Pandas data type by simplified PUDL field type."""
 
 FIELD_DTYPES_PYARROW: dict[str, pa.DataType] = {
     "boolean": pa.bool_(),
     "date": pa.date32(),
-    "datetime": pa.timestamp("ms"),
+    "datetime": pa.timestamp("us"),
     "geometry": ga.wkb(),
     "integer": pa.int64(),
     "number": pa.float64(),
@@ -283,7 +283,7 @@ def _get_pudl_resource_dtypes(
     elif dtype_backend == "sqlite":
         # Similarly SQLite is also missing the geometry dtype.
         dtypes = {
-            field.name: field.to_sql_dtype()
+            field.name: field.to_sqlite_dtype()
             for field in resource_metadata.schema.fields
             if field.type in FIELD_DTYPES_SQLITE
         }

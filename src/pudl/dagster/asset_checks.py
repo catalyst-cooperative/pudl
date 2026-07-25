@@ -265,7 +265,6 @@ def asset_check_from_schema(  # noqa: C901
     asset_key: dg.AssetKey,
     package: Package,
     duckdb_asset: bool,
-    high_memory_asset: bool,
 ) -> dg.AssetChecksDefinition | None:
     """Create a Dagster asset check based on the resource schema, if defined.
 
@@ -320,10 +319,15 @@ def asset_check_from_schema(  # noqa: C901
 
         try:
             if isinstance(asset_value, pl.LazyFrame):
-                validated_schema = asset_value.pipe(pandera_schema.validate, lazy=True)
-                # Only validate data contents if asset is not marked as high memory
-                if not high_memory_asset:
-                    validated_schema.collect(engine="streaming")
+                # NOTE: Pandera's polars backend only performs schema-level
+                # validation (column presence + dtype) for a `pl.LazyFrame`,
+                # via `collect_schema()` -- it does not run Check/unique/
+                # non-nullable content validation unless the validation depth
+                # is explicitly forced to `SCHEMA_AND_DATA`, which we do not
+                # currently do here. Content constraints declared in PUDL's
+                # metadata (enum values, ranges, uniqueness, etc.) are
+                # therefore NOT enforced for Polars LazyFrame assets today.
+                asset_value.pipe(pandera_schema.validate, lazy=True)
             else:
                 pandera_schema.validate(asset_value, lazy=True)
             return dg.AssetCheckResult(passed=True, metadata=metadata)
@@ -414,12 +418,6 @@ duckdb_assets = [
     "core_ferceqr__transactions",
 ]
 
-high_memory_assets = [
-    "out_vcerare__hourly_available_capacity_factor",
-    "core_epacems__hourly_emissions",
-    "core_ferceqr__transactions",
-]
-
 default_asset_checks += [
     check
     for check in (
@@ -427,7 +425,6 @@ default_asset_checks += [
             asset_key,
             PUDL_PACKAGE,
             duckdb_asset=asset_key.to_user_string() in duckdb_assets,
-            high_memory_asset=asset_key.to_user_string() in high_memory_assets,
         )
         for asset_key in asset_keys
     )
@@ -546,5 +543,4 @@ __all__ = [
     "group_mean_continuity_check",
     "default_asset_checks",
     "duckdb_assets",
-    "high_memory_assets",
 ]
