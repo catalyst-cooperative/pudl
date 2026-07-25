@@ -640,7 +640,7 @@ class Field(PudlMeta):
     Examples:
         >>> field = Field(name='x', type='string', description='X', constraints={'enum': ['x', 'y']})
         >>> field.to_pandas_dtype()
-        'category'
+        CategoricalDtype(categories=['x', 'y'], ordered=False, categories_dtype=object)
         >>> field.to_sql()
         Column('x', Enum('x', 'y'), CheckConstraint(...), table=None, comment='X')
         >>> field = Field.from_id('utility_id_eia')
@@ -738,16 +738,25 @@ class Field(PudlMeta):
             return pl.Categorical
         return FIELD_DTYPES_POLARS[self.type]
 
-    def to_pandas_dtype(self) -> str:
+    def to_pandas_dtype(self) -> str | pd.CategoricalDtype:
         """Return Pandas data type.
 
-        Enum-constrained string fields use the unconstrained ``"category"`` dtype
-        rather than a ``CategoricalDtype`` fixed to the enum values, so dictionary
-        encoding is preserved without duplicating the enum constraint at the
-        pandas dtype level.
+        Enum-constrained string fields use a ``CategoricalDtype`` fixed to the
+        enum values (unlike :meth:`to_polars_dtype`, which uses unconstrained
+        ``pl.Categorical`` -- see its docstring for why). Polars needed the
+        unconstrained dtype to avoid pinning the physical Parquet schema, but
+        pandas has no analogous constraint: its Parquet write path already uses
+        an unconstrained PyArrow dictionary type (see
+        :meth:`to_pyarrow_dtype`), so the fixed category list here is purely an
+        in-memory convenience with no round-trip cost. It also isn't optional:
+        code that compares same-field ``Categorical`` columns sourced from
+        different tables (e.g. ``eia_ferc1_train.py``) relies on both sides
+        having identical category sets, which pandas only guarantees when the
+        categories come from fixed field metadata rather than being inferred
+        independently from each table's actual data.
         """
         if self.constraints.enum and self.type == "string":
-            return "category"
+            return pd.CategoricalDtype(self.constraints.enum)
         return FIELD_DTYPES_PANDAS[self.type]
 
     def to_sqlite_dtype(self) -> type:  # noqa: A003
@@ -1951,7 +1960,7 @@ class Resource(PudlMeta):
         """Return Polars data type of each field by field name."""
         return {f.name: f.to_polars_dtype() for f in self.schema.fields}
 
-    def to_pandas_dtypes(self) -> dict[str, str]:
+    def to_pandas_dtypes(self) -> dict[str, str | pd.CategoricalDtype]:
         """Return Pandas data type of each field by field name."""
         return {f.name: f.to_pandas_dtype() for f in self.schema.fields}
 
