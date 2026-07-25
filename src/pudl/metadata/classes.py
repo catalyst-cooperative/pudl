@@ -728,26 +728,23 @@ class Field(PudlMeta):
         """Return polars data type.
 
         Enum-constrained string fields are stored as unconstrained
-        :class:`pl.Categorical` rather than :class:`pl.Enum`. Polars embeds the
-        fixed category list from an ``Enum`` column directly in the Parquet field
-        metadata, which permanently pins the physical dtype: any later attempt to
-        scan that file with a different (e.g. plain ``Categorical``) schema fails
-        at collection time instead of being coerced. ``Categorical`` round-trips
-        through Parquet without that constraint. The enum value constraint itself
-        is enforced separately via the Pandera schema checks.
+        :class:`pl.Categorical` rather than :class:`pl.Enum`. Polars embeds a fixed,
+        ordered category list from an ``Enum`` column directly in the Parquet field
+        metadata, which permanently pins the physical dtype: any later attempt to scan
+        that file with a different schema or even slightly different ``Enum`` fails
+        instead of being coerced. ``Categorical`` round-trips through Parquet fine.
         """
         if self.constraints.enum and self.type == "string":
             return pl.Categorical
         return FIELD_DTYPES_POLARS[self.type]
 
-    def to_pandas_dtype(self) -> str | pd.CategoricalDtype:
+    def to_pandas_dtype(self) -> str:
         """Return Pandas data type.
 
         Enum-constrained string fields use the unconstrained ``"category"`` dtype
         rather than a ``CategoricalDtype`` fixed to the enum values, so dictionary
         encoding is preserved without duplicating the enum constraint at the
-        pandas dtype level. The enum value constraint is enforced separately via
-        the Pandera schema checks.
+        pandas dtype level.
         """
         if self.constraints.enum and self.type == "string":
             return "category"
@@ -1933,7 +1930,7 @@ class Resource(PudlMeta):
         """Return Polars data type of each field by field name."""
         return {f.name: f.to_polars_dtype() for f in self.schema.fields}
 
-    def to_pandas_dtypes(self) -> dict[str, str | pd.CategoricalDtype]:
+    def to_pandas_dtypes(self) -> dict[str, str]:
         """Return Pandas data type of each field by field name."""
         return {f.name: f.to_pandas_dtype() for f in self.schema.fields}
 
