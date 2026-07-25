@@ -327,8 +327,10 @@ def asset_check_from_schema(  # noqa: C901
                 # currently do here. Content constraints declared in PUDL's
                 # metadata (enum values, ranges, uniqueness, etc.) are
                 # therefore NOT enforced for Polars LazyFrame assets today.
-                asset_value.pipe(pandera_schema.validate, lazy=True)
+                assert isinstance(pandera_schema, pr_polars.DataFrameSchema)
+                pandera_schema.validate(asset_value, lazy=True)
             else:
+                assert isinstance(pandera_schema, pr_pandas.DataFrameSchema)
                 pandera_schema.validate(asset_value, lazy=True)
             return dg.AssetCheckResult(passed=True, metadata=metadata)
 

@@ -1029,7 +1029,7 @@ class Schema(PudlMeta):
                     )
         return self
 
-    def to_pandera(self: Self) -> pr_polars.DataFrameSchema:
+    def to_pandera(self: Self) -> pr_polars.DataFrameSchema | pr_pandas.DataFrameSchema:
         """Turn PUDL Schema into Pandera schema, so dagster can understand it."""
         # 2024-02-09: pr.Check doesn't have interop with Pydantic type system
         # yet, so we encode as Callable, then cast.
