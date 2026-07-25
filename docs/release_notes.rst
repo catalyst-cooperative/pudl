@@ -58,6 +58,34 @@ Performance Improvements
   read, test, and extend than the compact form it replaces. See :issue:`2628` and
   :pr:`4568`.
 
+Developer Experience
+^^^^^^^^^^^^^^^^^^^^
+
+* Standardized numeric and datetime dtypes across all four output-format type maps in
+  :mod:`pudl.metadata.dtypes`. ``integer``/``number`` fields now use 64-bit types
+  (``pa.int64()``/``pa.float64()`` in PyArrow, ``BIGINT``/``DOUBLE`` in DuckDB) instead
+  of a 32-bit PyArrow/DuckDB pair that was inconsistent with the Polars and pandas dtype
+  maps. Testing showed the storage cost of the switch is only about 10% on our biggest
+  pandas-managed tables. ``datetime``/``year`` fields now use microsecond (``"us"``)
+  resolution everywhere (Polars, DuckDB, pandas, PyArrow) instead of a mix of second and
+  millisecond precision, since microseconds is the one resolution every backend already
+  treats as native and PUDL has no sub-second data. The unused ``compact`` argument to
+  :meth:`~pudl.metadata.classes.Field.to_pandas_dtype` (which returned 32-bit types) has
+  been removed. See PR :pr:`5350`.
+* Stopped using ``pl.Enum`` for enum-constrained string fields in favor of unconstrained
+  ``pl.Categorical``/pandas ``"category"``. Polars embeds an ``Enum`` column's fixed
+  category list directly in Parquet field metadata, which permanently pins the physical
+  dtype: any later attempt to scan that file with a different schema fails at collection
+  time instead of being coerced. ``Categorical`` round-trips through Parquet cleanly,
+  and the enum value constraint itself is still enforced via Pandera's ``Check.isin``.
+  Switch :func:`~pudl.helpers.get_parquet_table_polars` to using a single
+  ``pl.scan_parquet(..., schema=...)`` call, since the ``.cast()`` was only necessary
+  due to the presence of ``pl.Enum`` columns, and forced materialization. This allowed
+  us to remove a gated ``.collect(engine="streaming")`` call on high-memory assets and
+  surfaced that Pandera's Polars backend had never enforced content checks (value
+  ranges, uniqueness, etc.) on any ``LazyFrame``-backed asset, regardless of that gate
+  -- see PR :pr:`5432` for the fix. See PR :pr:`5350`.
+
 .. _release-v2026.7.2:
 
 ---------------------------------------------------------------------------------------
@@ -252,16 +280,6 @@ Performance Improvements
 Developer Experience
 ^^^^^^^^^^^^^^^^^^^^
 
-* Switched PUDL's PyArrow and DuckDB field type maps to use 64-bit types for ``integer``
-  and ``number`` fields. Previously
-  :data:`~pudl.metadata.constants.FIELD_DTYPES_PYARROW` used ``pa.int32()`` and
-  ``pa.float32()`` when pandas DataFrames were written to Parquet. Testing showed the
-  storage impact of switching to ``pa.int64()``/``pa.float64()`` is only ~10% on the
-  biggest pandas managed tables. The DuckDB map also used 32-bit ``INTEGER`` instead of
-  ``BIGINT``, inconsistent with all other type maps. All four type maps (PyArrow,
-  DuckDB, Polars, pandas) now agree on 64-bit numeric types. The unused ``compact``
-  parameter on :meth:`~pudl.metadata.classes.Field.to_pandas_dtype` (which returned
-  32-bit types) has been removed.
 * Reduced spurious logging and error output from our unit tests. See PR :pr:`5362`.
 * Added two new optional arguments to ``get_pudl_dtypes`` and ``apply_pudl_dtypes``:
   ``resource`` (aka table) name will now return all of the authoritative
