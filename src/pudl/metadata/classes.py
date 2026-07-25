@@ -800,7 +800,28 @@ class Field(PudlMeta):
             elif self.type == "date":
                 checks.append(f"{name} IS DATE({name})")
             elif self.type == "datetime":
-                checks.append(f"{name} IS DATETIME({name})")
+                # A plain `{name} IS DATETIME({name})` can't validate a
+                # microsecond-precision string: SQLite's own DATETIME()
+                # function only round-trips whole-second precision (even its
+                # 'subsec' modifier only adds milliseconds), so it would
+                # reject every value written at the microsecond resolution
+                # used everywhere else in PUDL. Instead, validate the
+                # YYYY-MM-DD HH:MM:SS portion for real calendar/time
+                # correctness via DATETIME(), and separately validate the
+                # fractional-seconds suffix is present and exactly six
+                # digits via GLOB -- SQLite's GLOB has no `{n}`-style
+                # repetition syntax, so the six-digit pattern is built here
+                # rather than spelled out character by character in the SQL
+                # string itself. NULL propagates through IS/AND/GLOB to a
+                # NULL check result, which SQLite (like standard SQL) treats
+                # as satisfying the constraint, so nullable columns still
+                # accept NULL.
+                microseconds_pattern = "[0-9]" * 6
+                checks.append(
+                    f"(SUBSTR({name}, 1, 19) IS DATETIME(SUBSTR({name}, 1, 19))) "
+                    f"AND ({name} GLOB SUBSTR({name}, 1, 19) "
+                    f"|| '.{microseconds_pattern}')"
+                )
         if check_values:
             # Field constraints
             if self.constraints.min_length is not None:
