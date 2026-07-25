@@ -33,6 +33,17 @@ TABLE_DESCRIPTIONS = {
             "Contains information about individual electricity market transactions that took place"
             " during a given reporting quarter. Reported by the seller."
         ),
+        "additional_primary_key_text": (
+            "The primary key ought to be ['year_quarter', 'seller_company_id_ferc', "
+            "'transaction_unique_id']. However, many reporting quarters contain a "
+            "substantial number of records that duplicate this combination of "
+            "columns, in some cases repeated many times over, and the number of "
+            "duplicates appears to grow in more recent quarters. It isn't yet clear "
+            "whether this reflects a data quality issue in the underlying FERC EQR "
+            "submissions or a bug in PUDL's extraction or transformation of this "
+            "table. Further investigation is required, so this table currently has "
+            "no enforced primary key."
+        ),
         "usage_warnings": ["experimental_wip"],
     },
     "index_pub": {
@@ -154,11 +165,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "standardized_price",
                 "total_transmission_charge",
                 "total_transaction_charge",
-            ],
-            "primary_key": [
-                "year_quarter",
-                "seller_company_id_ferc",
-                "transaction_unique_id",
             ],
         },
         "create_database_schema": False,
