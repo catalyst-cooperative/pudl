@@ -40,6 +40,17 @@ Bug Fixes & Data Cleaning
   data - previously, the Upper Great Plains West region FERC respondent was mapped
   to the Desert Southwest region EIA balancing authority information, and vice
   versa. See :issue:`4644` and :pr:`5408`.
+* Fixed an exact-float merge bug in FERC1 "exploded tables" corrections. The
+  :meth:`~pudl.output.ferc1.Exploder.add_sizable_minority_corrections` method matched
+  correction candidates by merging directly on floating point columns. Exact float
+  equality is extremely brittle, and switching from 32- to 64-bit floats on this branch
+  changed which utility/year pairs matched, producing extra rows and different
+  ``ending_balance`` sums in :ref:`out_ferc1__yearly_detailed_balance_sheet_assets` and
+  :ref:`out_ferc1__yearly_rate_base`. It turns out these were real matches being lost
+  due to the limited precision of 32-bit floats, on top of the brittleness of of merging
+  on floating point numbers. These are now being captured deterministically by merging
+  on unique and nearly identical values with a fixed, empirically informed tolerance of
+  $10. See PR :pr:`5350`.
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -84,7 +95,7 @@ Developer Experience
   us to remove a gated ``.collect(engine="streaming")`` call on high-memory assets and
   surfaced that Pandera's Polars backend had never enforced content checks (value
   ranges, uniqueness, etc.) on any ``LazyFrame``-backed asset, regardless of that gate
-  -- see PR :pr:`5432` for the fix. See PR :pr:`5350`.
+  -- see PR :pr:`5432` for the fix. See PR :pr:`5350` for these dtype changes.
 
 .. _release-v2026.7.2:
 
