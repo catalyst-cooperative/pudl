@@ -56,13 +56,9 @@ sources:
                     max_value: 975646318820 + 5
                     row_condition: "report_year = 2022"
               - dbt_expectations.expect_column_sum_to_be_between:
-                  description: >
-                    Sum of the ending_balance by year should hold relatively constant.
-                    This year is also processed by the fast ETL, which covers a
-                    different subset of years/utilities and so can legitimately
-                    produce a different sum than the full ETL.
+                  description: Sum of the ending_balance by year should hold relatively constant. min_value is lower because of differences in the fast etl.
                   arguments:
-                    min_value: 904317513895 - 5
+                    min_value: 901448498197 - 5
                     max_value: 904317513895 + 5
                     row_condition: "report_year = 2021"
               - dbt_expectations.expect_column_sum_to_be_between:
