@@ -7,7 +7,6 @@ with app.setup:
     import os
     from pathlib import Path
 
-    import altair as alt
     import polars as pl
     from upath import UPath
 
