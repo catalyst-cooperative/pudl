@@ -1654,17 +1654,17 @@ class Exploder:
         default *relative* tolerance is far too loose at the scale of these balances
         (hundreds of thousands to billions of dollars).
 
-        The $10 absolute tolerance was chosen empirically. It is not a result of
-        floating point noise. Across the full candidate pool, match deltas thin out
-        steadily from
-        $0.50 up to a few hundred dollars, then jump sharply past ~$1,000 at which point
-        unrelated pairs of records start matching. Every candidate with a delta up to
-        $10 pairs a large-magnitude value (tens of thousands to billions of dollars)
-        with a small absolute gap, consistent with a genuine independent-rounding
-        or trivial reporting difference between the two reported schedules, not a
-        coincidental collision. At a tolerance of $10 no not-close row ever matches
-        more than one off-by candidate, which would be the expected signature of
-        spurious matches if they occurred.
+        The $10 absolute tolerance is empirically informed, and not related to the noise
+        from floating point values. Across the full candidate pool, we find additional
+        unique matches increase relatively rapidly up to a delta of ~$10, and then
+        level off between $10 and a few thousand dollars. At larger deltas unrelated
+        pairs of records start matching. Every candidate with a delta up to $10 pairs a
+        large-magnitude value (tens of thousands to billions of dollars) with a small
+        absolute gap, consistent with a rounding or trivial reporting difference between
+        the two reported schedules, not a coincidental collision. Up to deltas of even
+        thousands of dollars, no not-close row ever matches more than one off-by
+        candidate, which would be the expected signature of spurious matches if they
+        occurred.
 
         Relatedly, :meth:`add_sizable_minority_corrections_to_calcs` adds these
         :attr:`self.off_by_facts` to :attr:`self.exploded_calcs`.
