@@ -37,14 +37,14 @@ repos:
   ####################################################################################
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.15.22
+    rev: v0.16.0
     hooks:
       - id: ruff-check
         args: [--fix]
       - id: ruff-format
 
   - repo: https://github.com/rbubley/mirrors-prettier
-    rev: v3.9.5
+    rev: v3.9.6
     hooks:
       - id: prettier
         types_or: [yaml]
@@ -67,7 +67,7 @@ repos:
   ####################################################################################
 
   # Spell check our documentation and code comments
-  - repo: https://github.com/adhtruong/mirrors-typos
+  - repo: https://github.com/crate-ci/typos
     rev: v1.48.0
     hooks:
       - id: typos
@@ -104,7 +104,7 @@ repos:
 
   # Scan for secrets and credentials
   - repo: https://github.com/trufflesecurity/trufflehog
-    rev: v3.95.9
+    rev: v3.96.0
     hooks:
       - id: trufflehog
         name: TruffleHog
