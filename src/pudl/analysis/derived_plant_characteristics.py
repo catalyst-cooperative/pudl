@@ -16,6 +16,7 @@ from dagster import (
 import pudl.logging_helpers
 from pudl.metadata.classes import PUDL_PACKAGE
 from pudl.metadata.dtypes import apply_pudl_dtypes_polars
+from pudl.metadata.enums import EPACEMS_STATES
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -706,7 +707,6 @@ def _assign_groupwise_load_factor_bins(
 ) -> pl.DataFrame:
     """Exact per-unit pd.cut(bins=10) using LazyFrame + minimal pandas fallback."""
     # compute group load factor
-    logger.info("Begin _assign_groupwise_load_factor_bins")
     stats = (
         cems.sort(unit_cols + ["operating_datetime_utc"])
         .group_by(unit_cols)
@@ -721,10 +721,7 @@ def _assign_groupwise_load_factor_bins(
     invalid = cems.filter(pl.col("load_factor_nunique") <= 1)
 
     # use pd.cut on the valid rows
-    logger.info("converting to pandas")
-    # THIS STEP TAKES 30 SECONDS THAT'S UNACCEPTABLE
     valid_pd = valid.collect().to_pandas()
-    logger.info("conversion done... doing the gb pd.cut step now")
     valid_pd["load_factor_bin"] = valid_pd.groupby(unit_cols, group_keys=False)[
         load_factor_col
     ].apply(
@@ -735,13 +732,9 @@ def _assign_groupwise_load_factor_bins(
             include_lowest=False,
         )
     )
-    logger.info("Back to polars with you")
     valid_pl = pl.from_pandas(valid_pd)
-    logger.info("okay your polars again now do other stuff")
     valid_pl = valid_pl.with_columns(
-        pl.col("state").cast(
-            pl.Enum(categories=invalid.collect_schema()["state"].categories)
-        ),
+        pl.col("state").cast(pl.Categorical),
         pl.col("load_factor_bin").cast(pl.Struct({0: pl.Float64, 1: pl.Float64})),
     )
 
@@ -881,9 +874,11 @@ def prep_output_df(
     output_ramp_rate_col_suffix: str,
 ) -> pl.DataFrame:
     """Set up aggregated output dataframe with empty calculated columns."""
-    base_agg = {output_max_load_col: pl.col(output_max_load_col).first()}
+    base_agg = {}
     if "plant_id_eia" in cems.columns:
+        logger.info("NO plant_id_eia")
         base_agg["plant_id_eia"] = pl.col("plant_id_eia").first()
+    base_agg[output_max_load_col] = pl.col(output_max_load_col).first()
 
     output = (
         cems.group_by(unit_cols)
@@ -1004,18 +999,7 @@ def estimate_operational_characteristics_by_unit(
     per-unit ``qcut`` behavior.
     """
     # Filter and pre-process CEMS based on adjustment boolean
-    logger.info("we're about to adjust")
     cems_working, col_dict = handle_adjustment_in_cems(cems, adjusted)
-    logger.info("okay we've adjusted")
-    logger.info(f"{isinstance(cems_working, pl.LazyFrame)}")
-    logger.info(
-        "now we are checking if the cems_working is empty which maybe takes a while..."
-    )
-    # THIS STEP TAKES 30 SECONDS THAT"S UNACCEPTABLE
-    # if cems_working.limit(1).collect().is_empty():
-    #     logger.info("We are pooping out a nothingburger")
-    #     return pl.LazyFrame()
-    # logger.info("... how long did that take?")
     # Assign groupwise load factor bins
     cems_working = _assign_groupwise_load_factor_bins(
         cems=cems_working,
@@ -1215,21 +1199,16 @@ def estimate_operational_characteristics_by_unit(
     ordered_cols = [
         "plant_id_epa",
         "emissions_unit_id_epa",
+        "plant_id_eia",
+        col_dict["output_max_load_col"],
+        "min_stable_level",
+        "min_up_time_hr",
+        "min_down_time_hr",
+        "heat_rate_at_max_load_factor_mmbtu_per_mwh",
+        "heat_rate_at_min_stable_level_mmbtu_per_mwh",
+        f"ramp_up_rate_fraction_of_{col_dict['output_ramp_rate_col_suffix']}_per_min",
+        f"ramp_down_rate_fraction_of_{col_dict['output_ramp_rate_col_suffix']}_per_min",
     ]
-    if "plant_id_eia" in output.columns:
-        ordered_cols.append("plant_id_eia")
-    ordered_cols.extend(
-        [
-            col_dict["output_max_load_col"],
-            "min_stable_level",
-            "min_up_time_hr",
-            "min_down_time_hr",
-            "heat_rate_at_max_load_factor_mmbtu_per_mwh",
-            "heat_rate_at_min_stable_level_mmbtu_per_mwh",
-            f"ramp_up_rate_fraction_of_{col_dict['output_ramp_rate_col_suffix']}_per_min",
-            f"ramp_down_rate_fraction_of_{col_dict['output_ramp_rate_col_suffix']}_per_min",
-        ]
-    )
 
     return output.select(ordered_cols)
 
@@ -1269,7 +1248,7 @@ def operational_characteristics_factory(
             "core_epacems__hourly_emissions": AssetIn(),
         },
         config_schema=HEAT_RATE_ANALYSIS_CONFIG_SCHEMA,
-        op_tags={"memory-use": "high"},
+        # op_tags={"memory-use": "high"},
     )
     def _out_epacems_state(
         context: AssetExecutionContext,
@@ -1298,40 +1277,31 @@ def operational_characteristics_factory(
     return _out_epacems_state
 
 
-states = [
+CEMS_STATES = [
     field
     for field in PUDL_PACKAGE.get_resource(
         "core_epacems__hourly_emissions"
     ).schema.fields
     if field.name == "state"
 ][0].constraints.enum
+"""All of the states from cems. (may be a more elegant way to do this)."""
+
 
 operational_characteristics_assets = [
-    operational_characteristics_factory(state)
-    for state in
-    # grab all of the states from cems. (may be a more elegant way to do this)
-    states
+    operational_characteristics_factory(state) for state in EPACEMS_STATES
 ]
 
 
-# @asset(
-#     name="out_epacems__yearly_operational_characteristics",
-#     ins={
-#         "_out_epacems__yearly_operational_characteristics_state": AssetIn(
-#             partition_mapping=AllPartitionMapping()
-#         )
-#     },
-#     # TODO: make this actually work
-#     # io_manager_key="pudl_io_manager",
-#     compute_kind="Python",
-#     # TODO: rlly high now?
-#     op_tags={"memory-use": "high"},
-# )
-# def out_epacems__yearly_operational_characteristics(
-#     context,
-#     _out_epacems__yearly_operational_characteristics_state: dict[str, pl.DataFrame],
-# ) -> pl.DataFrame:
-#     """Estimate EPA CEMS unit operational characteristics."""
-#     return pl.concat(
-#         list(_out_epacems__yearly_operational_characteristics_state.values())
-#     )
+@asset(
+    name="out_epacems__yearly_operational_characteristics",
+    ins={
+        f"_out_epacems__yearly_operational_characteristics_{state}": AssetIn()
+        for state in CEMS_STATES
+    },
+    # TODO: make this actually work
+    # io_manager_key="pudl_io_manager",
+    compute_kind="Python",
+)
+def out_epacems__yearly_operational_characteristics(context, **kwargs) -> pl.LazyFrame:
+    """Estimate EPA CEMS unit operational characteristics."""
+    return pl.concat(kwargs.values()).lazy()
