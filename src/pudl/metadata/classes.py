@@ -725,9 +725,17 @@ class Field(PudlMeta):
         return FIELD_DTYPES_DUCKDB[self.type]
 
     def to_polars_dtype(self) -> pl.DataType:
-        """Return polars data type."""
-        if self.constraints.enum:
-            return pl.Enum(self.constraints.enum)
+        """Return polars data type.
+
+        Enum-constrained string fields are stored as unconstrained
+        :class:`pl.Categorical` rather than :class:`pl.Enum`. Polars embeds a fixed,
+        ordered category list from an ``Enum`` column directly in the Parquet field
+        metadata, which permanently pins the physical dtype: any later attempt to scan
+        that file with a different schema or even slightly different ``Enum`` fails
+        instead of being coerced. ``Categorical`` round-trips through Parquet fine.
+        """
+        if self.constraints.enum and self.type == "string":
+            return pl.Categorical
         return FIELD_DTYPES_POLARS[self.type]
 
     def to_pandas_dtype(self, compact: bool = False) -> str | pd.CategoricalDtype:
@@ -736,7 +744,7 @@ class Field(PudlMeta):
         Args:
             compact: Whether to return a low-memory data type (32-bit integer or float).
         """
-        if self.constraints.enum:
+        if self.constraints.enum and self.type == "string":
             return pd.CategoricalDtype(self.constraints.enum)
         if compact:
             if self.type == "integer":
@@ -891,9 +899,11 @@ class Field(PudlMeta):
         constraints = self.constraints
         checks = constraints.to_pandera_checks(use_pandas_backend)
         if constraints.enum:
-            column_type = (
-                "category" if use_pandas_backend else pl.Enum(constraints.enum)
-            )
+            # The physical dtype is unconstrained Categorical/"category" (see
+            # Field.to_polars_dtype / Field.to_pandas_dtype); the enum value
+            # constraint itself is enforced by the `checks` (Check.isin) above,
+            # not by the declared column dtype.
+            column_type = "category" if use_pandas_backend else pl.Categorical
         elif self.type == "geometry":
             column_type = gpd.array.GeometryDtype()
         else:
@@ -1019,7 +1029,7 @@ class Schema(PudlMeta):
                     )
         return self
 
-    def to_pandera(self: Self) -> pr_polars.DataFrameSchema:
+    def to_pandera(self: Self) -> pr_polars.DataFrameSchema | pr_pandas.DataFrameSchema:
         """Turn PUDL Schema into Pandera schema, so dagster can understand it."""
         # 2024-02-09: pr.Check doesn't have interop with Pydantic type system
         # yet, so we encode as Callable, then cast.
@@ -2044,17 +2054,16 @@ class Resource(PudlMeta):
                 and pd.api.types.is_integer_dtype(df[field.name])
             ):
                 df[field.name] = pd.to_datetime(df[field.name], format="%Y")
-            if isinstance(dtypes[field.name], pd.CategoricalDtype):
+            if field.constraints.enum and field.type == "string" and field.name in df:
                 uncategorized = [
                     value
                     for value in df[field.name].dropna().unique()
-                    if value not in dtypes[field.name].categories
+                    if value not in field.constraints.enum
                 ]
                 if uncategorized:
                     raise ValueError(
                         f"Values in {field.name} column are not included in "
-                        "categorical values in field enum constraint "
-                        f"and will be converted to nulls ({uncategorized})."
+                        f"the field's enum constraint: {uncategorized}."
                     )
         df = (
             # Reorder columns and insert missing columns
