@@ -19,6 +19,14 @@ EIA-860M
   issue :issue:`4352` and PR :pr:`5360`. Shoutout to :user:`bsousa22` for making his
   first PUDL contribution!
 
+Expanded Data Coverage
+^^^^^^^^^^^^^^^^^^^^^^
+
+FERC-714
+~~~~~~~~
+
+* Added 2025 XBRL data for FERC-714. See :issue:`5424` and :pr:`5436`.
+
 Documentation
 ^^^^^^^^^^^^^
 
