@@ -2214,7 +2214,6 @@ def get_parquet_table_polars(
     table_name: str,
     partitions: dict | None = None,
     paths: PudlPaths | None = None,
-    schema_enforcement: bool = True,
 ) -> pl.LazyFrame:
     """Read a table from a parquet file and return as a polars LazyFrame.
 
@@ -2237,24 +2236,22 @@ def get_parquet_table_polars(
         # Points to a directory of parquet files when there partitions is non None
         parquet_path = parquet_data.parquet_path
 
-    # if schema_enforcement:
     # Import here to avoid circular imports
     from pudl.metadata.classes import Resource
 
     resource = Resource.from_id(table_name)
-    schema = resource.to_polars_dtypes()
-    # Ensure that the categorical columns have the inferred order
-    cat_cols = {
-        col: dtype for col, dtype in schema.items() if isinstance(dtype, pl.Enum)
-    }
-    non_cat_cols = {
-        col: dtype for col, dtype in schema.items() if cat_cols.get(col, True)
-    }
-
-    inferred_schema = pl.scan_parquet(parquet_path).collect_schema()
-    cat_cols = {col: inferred_schema[col] for col, dtype in cat_cols.items()}
-
-    return pl.scan_parquet(parquet_path, schema=non_cat_cols | cat_cols)
+    # Pass the expected schema in directly rather than scanning then casting: casting
+    # a LazyFrame containing Enum-typed columns forces materialization, which is very
+    # slow for our largest hourly tables. Enum-constrained fields are stored as plain
+    # Categorical (see Field.to_polars_dtype), so no such cast is needed here anyway.
+    # Parquet files still store integer/float columns as 32-bit (FIELD_DTYPES_PYARROW),
+    # narrower than the 64-bit Polars schema we're requesting here, so allow scan-time
+    # upcasting rather than the strict match scan_parquet defaults to.
+    return pl.scan_parquet(
+        parquet_path,
+        schema=resource.to_polars_dtypes(),
+        cast_options=pl.ScanCastOptions(integer_cast="upcast", float_cast="upcast"),
+    )
 
 
 def get_parquet_table(

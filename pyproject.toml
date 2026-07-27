@@ -568,6 +568,7 @@ filterwarnings = [
     "once:Valid config keys have changed in V2:UserWarning",
     "once:AssetExecutionContext.op_config is deprecated:DeprecationWarning",
     "ignore:unclosed database:ResourceWarning",
+    "ignore:Exception ignored in:pytest.PytestUnraisableExceptionWarning",
     "ignore:Specifying a partitions_def on an AssetCheckSpec is currently in preview",
     "ignore:No path_separator found in configuration:DeprecationWarning:alembic",
     "ignore:Extension type 'geoarrow.wkb' is not registered:UserWarning",
