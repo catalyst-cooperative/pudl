@@ -30,7 +30,7 @@ class Extractor(excel.ExcelExtractor):
         self.cols_added = []
         super().__init__(*args, **kwargs)
 
-    def process_raw(self, df, page, **partition):
+    def process_raw(self, df: pd.DataFrame, page: str, **partition):
         """Apply necessary pre-processing to the dataframe.
 
         * Rename columns based on our compiled spreadsheet metadata
@@ -50,7 +50,7 @@ class Extractor(excel.ExcelExtractor):
         return df
 
     @staticmethod
-    def get_dtypes(page, **partition):
+    def get_dtypes(page: str, **partition):
         """Returns dtypes for plant id columns."""
         return {
             "Plant ID": pd.Int64Dtype(),

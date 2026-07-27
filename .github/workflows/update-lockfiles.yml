@@ -30,9 +30,12 @@ jobs:
         with:
           app-id: ${{ secrets.WORKFLOW_TRIGGERER_APP_ID }}
           private-key: ${{ secrets.WORKFLOW_TRIGGERER_PRIVATE_KEY }}
+          permission-contents: write
+          permission-pull-requests: write
       - uses: actions/checkout@v7
         with:
           token: ${{ steps.generate-token.outputs.token }}
+          persist-credentials: false
           fetch-depth: 0 # Fetch all history and tags for hatch-vcs version detection
       - uses: prefix-dev/setup-pixi@v0.10.0
         with:
