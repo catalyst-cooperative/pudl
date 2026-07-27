@@ -77,17 +77,10 @@ Performance Improvements
 Developer Experience
 ^^^^^^^^^^^^^^^^^^^^
 
-* Standardized numeric and datetime dtypes across all four output-format type maps in
-  :mod:`pudl.metadata.dtypes`. ``integer``/``number`` fields now use 64-bit types
-  (``pa.int64()``/``pa.float64()`` in PyArrow, ``BIGINT``/``DOUBLE`` in DuckDB) instead
-  of a 32-bit PyArrow/DuckDB pair that was inconsistent with the Polars and pandas dtype
-  maps. Testing showed the storage cost of the switch is only about 10% on our biggest
-  pandas-managed tables. ``datetime``/``year`` fields now use microsecond (``"us"``)
-  resolution everywhere (Polars, DuckDB, pandas, PyArrow) instead of a mix of second and
-  millisecond precision, since microseconds is the one resolution every backend already
-  treats as native and PUDL has no sub-second data. The unused ``compact`` argument to
-  :meth:`~pudl.metadata.classes.Field.to_pandas_dtype` (which returned 32-bit types) has
-  been removed. See PR :pr:`5350`.
+* Standardized numeric dtypes to always use 64-bit values, and datetime types to use
+  microsecond resolution in :mod:`pudl.metadata.dtypes`. The unused ``compact`` argument
+  to :meth:`~pudl.metadata.classes.Field.to_pandas_dtype` was retired. See PR
+  :pr:`5350`.
 
 .. _release-v2026.7.2:
 
