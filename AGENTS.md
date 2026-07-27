@@ -130,8 +130,9 @@ pixi run prek-run                         # run all hooks on all files
 pixi run prek run ruff-check --all-files  # lint without fixing
 pixi run prek run ruff-format --all-files # fix formatting
 
-# Type checking (faster than mypy)
-pixi run ty check src/pudl/path/to/file.py
+# Type checking (fails only on errors not already in the baseline):
+pixi run pyrefly-check
+pixi run -e dev pyrefly check src/pudl/path/to/file.py  # quick check of one file
 
 # Unit tests (fast; run before every commit)
 pixi run pytest-unit
@@ -168,13 +169,30 @@ rg -C 3 "assert_ferc_sqlite_compatible" src/  # show 3 lines of context
 rg '"plant_id_eia"' src/pudl/metadata/    # find a field/column definition in metadata
 ```
 
-### ty
+### pyrefly
 
-Use to find Python type errors before committing. `ty` uses its own error codes
+Use to find Python type errors before committing. `pyrefly` uses its own error codes
 (e.g. `missing-argument`, `unresolved-attribute`) which differ from mypy's
 (e.g. `call-arg`, `attr-defined`).
 
 For suppression syntax, see **Type error suppression** in the Code Style section.
+
+**Baseline policy**: PUDL is not yet enforcing full type-checking — pre-existing
+errors are recorded in `.pyrefly-baseline.json` and suppressed by
+`pixi run pyrefly-check`. You are not required to fix pre-existing errors in files
+you touch, but:
+
+- Never introduce a *new* pyrefly error. Run `pixi run pyrefly-check` (or
+  `pixi run -e dev pyrefly check <file>` for a quick look at one file) before
+  committing, and confirm your change doesn't add anything beyond what's already
+  baselined.
+- Never edit or regenerate `.pyrefly-baseline.json` to absorb a new error — that
+  defeats its purpose as a ratchet against regressions. The only legitimate reason
+  to regenerate it (`pyrefly check --baseline .pyrefly-baseline.json
+  --update-baseline`) is to shrink it after fixing pre-existing errors, and only
+  with explicit user approval.
+- If pyrefly flags pre-existing errors in code you're already touching, feel free
+  to fix them opportunistically, but do not treat it as required scope creep.
 
 ### jq
 
@@ -310,23 +328,22 @@ internal variables are optional; add them only when the type is non-obvious.
 Enforcement is currently light and experimental, so err on the side of annotating
 rather than skipping.
 
-**Type error suppression**: prefer `# type: ignore[specific-code]` when a single
-code suppresses the warning across all type checkers being used. When `ty` and mypy
-use different codes for the same error and there is no shared code, fall back to a
-bare `# type: ignore` — but you must also add `# noqa: PGH003` to silence ruff's
-rule that forbids bare ignores:
+**Type error suppression**: suppress `pyrefly` errors with
+`# type: ignore[specific-code]`, using pyrefly's own error codes (e.g.
+`missing-argument`, `unresolved-attribute` — see the `pyrefly` entry in Preferred
+CLI tools). Only fall back to a bare `# type: ignore` if pyrefly gives no error
+code to target; a bare ignore also requires `# noqa: PGH003` to silence ruff's
+rule against untargeted ignores:
 
 ```python
 result = some_dynamic_call()  # type: ignore  # noqa: PGH003
 ```
 
-The `# noqa: PGH003` is not optional: without it, ruff will reject the bare ignore.
-Reserve this pattern for cases where no single error code works across checkers.
 If the suppression is non-obvious, add a prose comment explaining why:
 
 ```python
 # EIA raw data uses mixed string/int years; we coerce downstream.
-year = row["year"]  # type: ignore  # noqa: PGH003
+year = row["year"]  # type: ignore[arg-type]
 ```
 
 **Logging**: never use `print()` outside of CLI interfaces. Use Python's `logging`
@@ -464,6 +481,7 @@ Before marking a PR as ready for review:
 
 - [ ] Pre-commit hooks pass on all files: `pixi run prek-run`
 - [ ] All unit tests pass: `pixi run pytest-unit`
+- [ ] No new pyrefly errors introduced: `pixi run pyrefly-check`
 - [ ] Docs check passes with no errors or warnings: `pixi run docs-check`
 - [ ] If public or contributor-facing behavior changed: release notes entry has been
       added to `docs/release_notes.rst` with the issue number and PR number
@@ -474,14 +492,22 @@ Before marking a PR as ready for review:
 
 ## Sandbox safe execution
 
-**Shell autocorrect**: the `.pixi/` directory in the project root can trigger shell
-autocorrect/spellcheck behavior (especially in zsh) that suggests correcting
-`pixi` → `.pixi`. This is always wrong. Use a shell-safe guard before running pixi
-commands:
+**Shell autocorrect**: the `.pixi/` directory in the project root can trigger zsh's
+command-line spelling correction, which suggests correcting `pixi` → `.pixi`. This
+is always wrong, but the problem is zsh-specific — bash and fish don't correct
+command names this way, so no guard is needed under those shells. Under zsh, use
+the `nocorrect` precommand modifier, which disables correction for that single
+command line only without mutating shell option state (unlike `unsetopt`, so it
+won't trip sandbox checks that flag option-changing builtins). Guard on
+`$ZSH_VERSION` so the same line works unchanged under bash:
 
 ```bash
-command -v unsetopt >/dev/null 2>&1 && unsetopt CORRECT CORRECT_ALL; pixi run ...
+if [ -n "$ZSH_VERSION" ]; then nocorrect pixi run ...; else pixi run ...; fi
 ```
+
+This is POSIX-style syntax, valid under both bash and zsh. Fish uses different
+`if`/`end` syntax and isn't a supported shell for agent sandboxes, so it's out of
+scope here — but fish doesn't have this autocorrect behavior in the first place.
 
 **Frozen execution**: use `pixi run --frozen` to prevent pixi from updating the
 environment when running commands, avoiding unexpected dependency resolution:
@@ -491,7 +517,7 @@ pixi run --frozen pytest --no-cov tests/unit
 pixi run --frozen dg check defs --verbose
 ```
 
-Prefer already-installed binaries (`dg`, `rg`, `ruff`, `ty`, `jq`) before invoking
+Prefer already-installed binaries (`dg`, `rg`, `ruff`, `pyrefly`, `jq`) before invoking
 commands that may trigger package resolution or updates.
 
 When running `pixi run docs-build` in a sandbox environment, set
