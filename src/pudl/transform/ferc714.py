@@ -144,6 +144,10 @@ TIMEZONE_OFFSET_CODE_FIXES_BY_YEAR = [
 ]
 
 DISCONTINUOUS_DATES = [
+    # 2025 DST: 3/09-11/2
+    # 2 1-hr gaps on 1/1
+    # 9 1-hr gaps on 3/9
+    {"report_year": 2025, "gap_count": 11},
     # 2024 DST: 3/10-11/3
     #  1 1-hr gap  on 3/1
     #  1 2-hr gap  on 3/9
@@ -404,6 +408,9 @@ def _assign_respondent_id_ferc714(
     )
 
     df["respondent_id_ferc714"] = df[resp_id_col].map(resp_map_series)
+    assert df.respondent_id_ferc714.notnull().all(), (
+        "Some FERC714 respondent IDs are unmapped. You may need to update the respondent_id_ferc714 mapping spreadsheet."
+    )
     return df
 
 
@@ -580,7 +587,7 @@ class RespondentId:
             raise AssertionError(
                 "We expected 0 respondents with multiple different eia_code's "
                 f"reported for each respondent in {source} data, "
-                f"but we found {len(multiple_eia_codes)}"
+                f"but we found {len(multiple_eia_codes)}:\n\n{multiple_eia_codes}"
             )
         return df.drop(columns=["eia_code_count"])
 
