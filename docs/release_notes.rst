@@ -44,6 +44,21 @@ Bug Fixes & Data Cleaning
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
+* Stopped using ``pl.Enum`` for enum-constrained string fields in favor of
+  unconstrained ``pl.Categorical``/pandas ``"category"``. Polars embeds an ``Enum``
+  column's fixed category list directly in Parquet field metadata, which permanently
+  pins the physical dtype: any later attempt to scan that file with a different
+  schema fails at collection time instead of being coerced. ``Categorical``
+  round-trips through Parquet cleanly, and the enum value constraint itself is still
+  enforced via Pandera's ``Check.isin``. Switched
+  :func:`~pudl.helpers.get_parquet_table_polars` to using a single
+  ``pl.scan_parquet(..., schema=...)`` call, since the ``.cast()`` was only necessary
+  due to the presence of ``pl.Enum`` columns, and forced materialization. This
+  allowed us to remove a gated ``.collect(engine="streaming")`` call on high-memory
+  assets, and surfaced that Pandera's Polars backend had never enforced content
+  checks (value ranges, uniqueness, etc.) on any ``LazyFrame``-backed asset,
+  regardless of that gate. Enabling real content validation for ``LazyFrame`` assets
+  is left as follow-up work.
 * The fast ETL now processes only two representative
   :doc:`EIA-861 <data_sources/eia861>` years instead of the entire time series, bringing
   it in line with how every other dataset is already handled and speeding up both local
