@@ -725,37 +725,14 @@ class Field(PudlMeta):
         return FIELD_DTYPES_DUCKDB[self.type]
 
     def to_polars_dtype(self) -> pl.DataType:
-        """Return polars data type.
-
-        Enum-constrained string fields are stored as unconstrained
-        :class:`pl.Categorical` rather than :class:`pl.Enum`. Polars embeds a fixed,
-        ordered category list from an ``Enum`` column directly in the Parquet field
-        metadata, which permanently pins the physical dtype: any later attempt to scan
-        that file with a different schema or even slightly different ``Enum`` fails
-        instead of being coerced. ``Categorical`` round-trips through Parquet fine.
-        """
-        if self.constraints.enum and self.type == "string":
-            return pl.Categorical
+        """Return polars data type."""
+        if self.constraints.enum:
+            return pl.Enum(self.constraints.enum)
         return FIELD_DTYPES_POLARS[self.type]
 
     def to_pandas_dtype(self) -> str | pd.CategoricalDtype:
-        """Return Pandas data type.
-
-        Enum-constrained string fields use a ``CategoricalDtype`` fixed to the
-        enum values (unlike :meth:`to_polars_dtype`, which uses unconstrained
-        ``pl.Categorical`` -- see its docstring for why). Polars needed the
-        unconstrained dtype to avoid pinning the physical Parquet schema, but
-        pandas has no analogous constraint: its Parquet write path already uses
-        an unconstrained PyArrow dictionary type (see
-        :meth:`to_pyarrow_dtype`), so the fixed category list here is purely an
-        in-memory convenience with no round-trip cost. It also isn't optional:
-        code that compares same-field ``Categorical`` columns sourced from
-        different tables (e.g. ``eia_ferc1_train.py``) relies on both sides
-        having identical category sets, which pandas only guarantees when the
-        categories come from fixed field metadata rather than being inferred
-        independently from each table's actual data.
-        """
-        if self.constraints.enum and self.type == "string":
+        """Return Pandas data type."""
+        if self.constraints.enum:
             return pd.CategoricalDtype(self.constraints.enum)
         return FIELD_DTYPES_PANDAS[self.type]
 
@@ -926,11 +903,9 @@ class Field(PudlMeta):
         constraints = self.constraints
         checks = constraints.to_pandera_checks(use_pandas_backend)
         if constraints.enum:
-            # The physical dtype is unconstrained Categorical/"category" (see
-            # Field.to_polars_dtype / Field.to_pandas_dtype); the enum value
-            # constraint itself is enforced by the `checks` (Check.isin) above,
-            # not by the declared column dtype.
-            column_type = "category" if use_pandas_backend else pl.Categorical
+            column_type = (
+                "category" if use_pandas_backend else pl.Enum(constraints.enum)
+            )
         elif self.type == "geometry":
             column_type = gpd.array.GeometryDtype()
         else:
@@ -1056,7 +1031,7 @@ class Schema(PudlMeta):
                     )
         return self
 
-    def to_pandera(self: Self) -> pr_polars.DataFrameSchema | pr_pandas.DataFrameSchema:
+    def to_pandera(self: Self) -> pr_polars.DataFrameSchema:
         """Turn PUDL Schema into Pandera schema, so dagster can understand it."""
         # 2024-02-09: pr.Check doesn't have interop with Pydantic type system
         # yet, so we encode as Callable, then cast.
@@ -2076,16 +2051,17 @@ class Resource(PudlMeta):
                 and pd.api.types.is_integer_dtype(df[field.name])
             ):
                 df[field.name] = pd.to_datetime(df[field.name], format="%Y")
-            if field.constraints.enum and field.type == "string" and field.name in df:
+            if isinstance(dtypes[field.name], pd.CategoricalDtype):
                 uncategorized = [
                     value
                     for value in df[field.name].dropna().unique()
-                    if value not in field.constraints.enum
+                    if value not in dtypes[field.name].categories
                 ]
                 if uncategorized:
                     raise ValueError(
                         f"Values in {field.name} column are not included in "
-                        f"the field's enum constraint: {uncategorized}."
+                        "categorical values in field enum constraint "
+                        f"and will be converted to nulls ({uncategorized})."
                     )
         df = (
             # Reorder columns and insert missing columns

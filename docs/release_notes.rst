@@ -83,19 +83,6 @@ Developer Experience
   treats as native and PUDL has no sub-second data. The unused ``compact`` argument to
   :meth:`~pudl.metadata.classes.Field.to_pandas_dtype` (which returned 32-bit types) has
   been removed. See PR :pr:`5350`.
-* Stopped using ``pl.Enum`` for enum-constrained string fields in favor of unconstrained
-  ``pl.Categorical``/pandas ``"category"``. Polars embeds an ``Enum`` column's fixed
-  category list directly in Parquet field metadata, which permanently pins the physical
-  dtype: any later attempt to scan that file with a different schema fails at collection
-  time instead of being coerced. ``Categorical`` round-trips through Parquet cleanly,
-  and the enum value constraint itself is still enforced via Pandera's ``Check.isin``.
-  Switch :func:`~pudl.helpers.get_parquet_table_polars` to using a single
-  ``pl.scan_parquet(..., schema=...)`` call, since the ``.cast()`` was only necessary
-  due to the presence of ``pl.Enum`` columns, and forced materialization. This allowed
-  us to remove a gated ``.collect(engine="streaming")`` call on high-memory assets and
-  surfaced that Pandera's Polars backend had never enforced content checks (value
-  ranges, uniqueness, etc.) on any ``LazyFrame``-backed asset, regardless of that gate
-  -- see PR :pr:`5432` for the fix. See PR :pr:`5350` for these dtype changes.
 
 .. _release-v2026.7.2:
 
