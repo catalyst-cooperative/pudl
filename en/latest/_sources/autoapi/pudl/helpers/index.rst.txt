@@ -1134,6 +1134,8 @@ Module Contents
    :param table_name: Name of the table to read.
    :param partitions: Optional dictionary of partitions to filter the data. See
                       :class:`ParquetData` definition for details.
+   :param paths: optional :class:`PudlPaths`. By default, the default
+                 :class:`PudlPaths` will be used.
 
    :returns: A polars LazyFrame representing the table.
 

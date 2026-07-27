@@ -35,6 +35,12 @@ This is the upcoming quarterly PUDL release.
 
 ### Performance Improvements
 
+* Switched from using `pl.Enum` to unconstrained `pl.Categorical` types to preserve
+  lazy execution in [`get_parquet_table_polars()`](autoapi/pudl/helpers/index.md#pudl.helpers.get_parquet_table_polars). This allows running
+  schema checks on large tables, and Pandera’s Polars backend never actually enforced
+  data content checks on `pl.LazyFrame` assets (99% of assets in PUDL). See PR
+  [#5434](https://github.com/catalyst-cooperative/pudl/pull/5434). Implementing efficient content validation for `pl.LazyFrame` assets is
+  left to PR [#5432](https://github.com/catalyst-cooperative/pudl/pull/5432).
 * The fast ETL now processes only two representative
   [EIA-861](data_sources/eia861.md) years instead of the entire time series, bringing
   it in line with how every other dataset is already handled and speeding up both local

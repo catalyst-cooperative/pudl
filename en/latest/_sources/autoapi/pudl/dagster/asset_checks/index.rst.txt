@@ -35,7 +35,6 @@ Attributes
 
    pudl.dagster.asset_checks.default_asset_checks
    pudl.dagster.asset_checks.duckdb_assets
-   pudl.dagster.asset_checks.high_memory_assets
 
 
 Functions
@@ -68,7 +67,7 @@ Module Contents
                               threshold.
 
 
-.. py:function:: asset_check_from_schema(asset_key: dagster.AssetKey, package: pudl.metadata.classes.Package, duckdb_asset: bool, high_memory_asset: bool) -> dagster.AssetChecksDefinition | None
+.. py:function:: asset_check_from_schema(asset_key: dagster.AssetKey, package: pudl.metadata.classes.Package, duckdb_asset: bool) -> dagster.AssetChecksDefinition | None
 
    Create a Dagster asset check based on the resource schema, if defined.
 
@@ -102,10 +101,6 @@ Module Contents
 
 .. py:data:: duckdb_assets
    :value: ['core_ferceqr__quarterly_identity', 'core_ferceqr__contracts',...
-
-
-.. py:data:: high_memory_assets
-   :value: ['out_vcerare__hourly_available_capacity_factor', 'core_epacems__hourly_emissions',...
 
 
 .. py:function:: valid_datapackage_unit_strings_check(asset_key: dagster.AssetKey | str, *, description: str, blocking: bool = True) -> dagster.AssetChecksDefinition

@@ -574,6 +574,13 @@ Module Contents
 
       Return polars data type.
 
+      Enum-constrained string fields are stored as unconstrained
+      :class:`pl.Categorical` rather than :class:`pl.Enum`. Polars embeds a fixed,
+      ordered category list from an ``Enum`` column directly in the Parquet field
+      metadata, which permanently pins the physical dtype: any later attempt to scan
+      that file with a different schema or even slightly different ``Enum`` fails
+      instead of being coerced. ``Categorical`` round-trips through Parquet fine.
+
 
 
    .. py:method:: to_pandas_dtype(compact: bool = False) -> str | pandas.CategoricalDtype
@@ -750,7 +757,7 @@ Module Contents
 
 
 
-   .. py:method:: to_pandera() -> pandera.polars.DataFrameSchema
+   .. py:method:: to_pandera() -> pandera.polars.DataFrameSchema | pandera.pandas.DataFrameSchema
 
       Turn PUDL Schema into Pandera schema, so dagster can understand it.
 

@@ -406,6 +406,13 @@ Return duckdb data type.
 
 Return polars data type.
 
+Enum-constrained string fields are stored as unconstrained
+`pl.Categorical` rather than `pl.Enum`. Polars embeds a fixed,
+ordered category list from an `Enum` column directly in the Parquet field
+metadata, which permanently pins the physical dtype: any later attempt to scan
+that file with a different schema or even slightly different `Enum` fails
+instead of being coerced. `Categorical` round-trips through Parquet fine.
+
 #### to_pandas_dtype(compact: [bool](https://docs.python.org/3/library/functions.html#bool) = False) → [str](https://docs.python.org/3/library/stdtypes.html#str) | [pandas.CategoricalDtype](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.CategoricalDtype.html#pandas.CategoricalDtype)
 
 Return Pandas data type.
@@ -516,7 +523,7 @@ Verify that all primary key elements also appear in the schema fields.
 
 Verify that all foreign key elements also appear in the schema fields.
 
-#### to_pandera() → pandera.polars.DataFrameSchema
+#### to_pandera() → pandera.polars.DataFrameSchema | pandera.pandas.DataFrameSchema
 
 Turn PUDL Schema into Pandera schema, so dagster can understand it.
 
