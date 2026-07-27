@@ -76,7 +76,7 @@ class _LegacyMetadata(BaseModel):
     title: str
     access_right: str
     creators: list[dict]
-    license: str = "cc-by-4.0"  # noqa: A003
+    license: str = "cc-by-4.0"
     publication_date: str = ""
     description: str = ""
 

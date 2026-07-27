@@ -540,11 +540,11 @@ default_asset_checks.append(
 )
 
 __all__ = [
-    "valid_datapackage_check",
-    "valid_datapackage_unit_strings_check",
     "asset_check_from_schema",
-    "group_mean_continuity_check",
     "default_asset_checks",
     "duckdb_assets",
+    "group_mean_continuity_check",
     "high_memory_assets",
+    "valid_datapackage_check",
+    "valid_datapackage_unit_strings_check",
 ]

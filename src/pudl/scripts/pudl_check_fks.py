@@ -50,12 +50,12 @@ def main(logfile: pathlib.Path, loglevel: str, db_path: pathlib.Path) -> int:
     completed. This script runs the same check.
     """
     # Deferred to keep --help fast; see pudl/scripts/__init__.py for rationale.
-    import sqlalchemy as sa  # noqa: PLC0415
-    from dotenv import load_dotenv  # noqa: PLC0415
+    import sqlalchemy as sa
+    from dotenv import load_dotenv
 
-    import pudl  # noqa: PLC0415
-    from pudl.validate.integrity import check_foreign_keys  # noqa: PLC0415
-    from pudl.workspace.setup import PudlPaths  # noqa: PLC0415
+    import pudl
+    from pudl.validate.integrity import check_foreign_keys
+    from pudl.workspace.setup import PudlPaths
 
     load_dotenv()
 

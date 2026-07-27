@@ -57,7 +57,7 @@ class ForeignKeyError(sa_exc.SQLAlchemyError):
         return False
 
 
-class ForeignKeyErrors(sa_exc.SQLAlchemyError):  # noqa: N818
+class ForeignKeyErrors(sa_exc.SQLAlchemyError):
     """Raised when data in a database violate multiple foreign key constraints."""
 
     def __init__(self, fk_errors: list[ForeignKeyError]):

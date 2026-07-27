@@ -286,8 +286,8 @@ def _initialize_ferc_engine(
         asset_key=AssetKey(asset_key),
         instance=dagster_instance,
     )
-    _ = io_manager.metadata  # noqa: SLF001
-    io_manager._check_provenance(context)  # noqa: SLF001
+    _ = io_manager.metadata
+    io_manager._check_provenance(context)
     return io_manager.engine
 
 

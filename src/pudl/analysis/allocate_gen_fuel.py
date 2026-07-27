@@ -492,7 +492,7 @@ def select_input_data(
 
 
 def standardize_input_frequency(
-    bf: pd.DataFrame, gens: pd.DataFrame, gen: pd.DataFrame, freq: Literal["MS", "MS"]
+    bf: pd.DataFrame, gens: pd.DataFrame, gen: pd.DataFrame, freq: Literal["MS", "YS"]
 ) -> tuple:
     """Standardize the frequency of the input tables.
 

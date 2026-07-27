@@ -95,7 +95,7 @@ def _staging_path(dist_path: UPath) -> UPath:
     return dist_path.parent / f"._staging_{suffix}"
 
 
-def _deploy_to_staging(  # noqa: C901
+def _deploy_to_staging(
     ferceqr_deployment: FercEqrDeploymentResource,
     source_partitions: list[str],
     datapackage_path: Path,

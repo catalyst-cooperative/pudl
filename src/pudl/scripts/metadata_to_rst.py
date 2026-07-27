@@ -72,9 +72,9 @@ def main(
     metadata_to_rst -s bad_table1 -s bad_table2 -d ./pudl/docs -o ./datadict.rst
     """
     # Deferred to keep --help fast; see pudl/scripts/__init__.py for rationale.
-    import pudl.logging_helpers  # noqa: PLC0415
-    from pudl.metadata.classes import Package  # noqa: PLC0415
-    from pudl.metadata.resources import RESOURCE_METADATA  # noqa: PLC0415
+    import pudl.logging_helpers
+    from pudl.metadata.classes import Package
+    from pudl.metadata.resources import RESOURCE_METADATA
 
     logger = pudl.logging_helpers.get_logger(__name__)
     pudl.logging_helpers.configure_root_logger(logfile=logfile, loglevel=loglevel)

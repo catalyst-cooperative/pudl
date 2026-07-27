@@ -448,14 +448,14 @@ def test_datastore_resource_loads_local_cache(tmp_path) -> None:
             },
         ) as datastore:
             assert isinstance(datastore, Datastore)
-            assert datastore._cache.num_layers() == 2  # noqa: SLF001
+            assert datastore._cache.num_layers() == 2
 
-            local_cache, cloud_cache = datastore._cache._caches  # noqa: SLF001
+            local_cache, cloud_cache = datastore._cache._caches
             assert isinstance(local_cache, UPathCache)
             assert isinstance(cloud_cache, UPathCache)
-            assert local_cache._protocol == "file"  # noqa: SLF001
-            assert cloud_cache._protocol == "s3"  # noqa: SLF001
-            assert local_cache._base_path.path == str(pudl_paths.pudl_input)  # noqa: SLF001
+            assert local_cache._protocol == "file"
+            assert cloud_cache._protocol == "s3"
+            assert local_cache._base_path.path == str(pudl_paths.pudl_input)
 
 
 def test_datastore_resource_loads_cloud_cache_only(tmp_path) -> None:
@@ -482,11 +482,11 @@ def test_datastore_resource_loads_cloud_cache_only(tmp_path) -> None:
             },
         ) as datastore:
             assert isinstance(datastore, Datastore)
-            assert datastore._cache.num_layers() == 1  # noqa: SLF001
+            assert datastore._cache.num_layers() == 1
 
-            cloud_cache = datastore._cache._caches[0]  # noqa: SLF001
+            cloud_cache = datastore._cache._caches[0]
             assert isinstance(cloud_cache, UPathCache)
-            assert cloud_cache._protocol == "s3"  # noqa: SLF001
+            assert cloud_cache._protocol == "s3"
 
 
 def _all_settings_instances() -> list[BaseModel]:

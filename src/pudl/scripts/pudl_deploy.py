@@ -199,7 +199,7 @@ def main(
         )
         # run_stage's default fail_hard=True re-raises on failure instead of
         # returning, so reaching this line means resolve_build succeeded.
-        assert resolved is not None  # noqa: S101
+        assert resolved is not None
         plan = resolved.plan
         build_path = resolved.build_path
         build_id = resolved.build_id

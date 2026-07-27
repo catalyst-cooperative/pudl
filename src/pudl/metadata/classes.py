@@ -1780,7 +1780,7 @@ class Resource(PudlMeta):
         return obj
 
     @staticmethod
-    def dict_from_resource_descriptor(  # noqa: C901
+    def dict_from_resource_descriptor(
         resource_id: str,
         descriptor: PudlResourceDescriptor,
     ) -> dict:

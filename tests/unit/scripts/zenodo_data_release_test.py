@@ -62,7 +62,7 @@ def _fake_response(status_code: int, payload: dict | None = None) -> SimpleNames
 def _requests_response(status_code: int) -> requests.Response:
     response = requests.Response()
     response.status_code = status_code
-    response._content = b""  # noqa: SLF001
+    response._content = b""
     response.url = "https://example.com"
     return response
 
@@ -148,7 +148,7 @@ def test_create_bucket_file_reopens_stream(mocker, zenodo_client, tmp_path):
 
     calls: list[bytes] = []
 
-    def fake_request(*, method, url, headers, data, stream, timeout):  # noqa: ARG001
+    def fake_request(*, method, url, headers, data, stream, timeout):
         assert method == "PUT"
         payload = data.read()
         calls.append(payload)

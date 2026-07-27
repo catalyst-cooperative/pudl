@@ -2690,7 +2690,7 @@ def parse_address(addr: str):
 
 def listify(x: Any) -> list[Any]:
     """Listify an input that is sometimes a list and sometimes not."""
-    return x if isinstance(x, list) else [x]  # noqa: E731
+    return x if isinstance(x, list) else [x]
 
 
 def env_var_is_true(env_var: str) -> bool:

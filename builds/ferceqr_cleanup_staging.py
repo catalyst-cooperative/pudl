@@ -67,7 +67,7 @@ def _remove_staging_dirs(targets: list[UPath]) -> int:
                     child.fs.rm(child.path, recursive=True)
                     logger.info(f"Removed orphaned staging dir: {child}")
                     removed += 1
-                except Exception:  # noqa: S112
+                except Exception:
                     logger.warning(f"Failed to remove staging dir: {child}")
     return removed
 
