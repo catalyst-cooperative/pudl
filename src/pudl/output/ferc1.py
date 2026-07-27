@@ -1650,15 +1650,15 @@ class Exploder:
 
         We merge candidates on the report_year and utility_id_ferc1 keys restricting the
         candidate pool to a single utility-year. Then we compare the reported values
-        with :func:`numpy.isclose` using an absolute tolerance of $10. ``np.isclose``'s
+        with :func:`numpy.isclose` using an absolute tolerance of $5. ``np.isclose``'s
         default *relative* tolerance is far too loose at the scale of these balances
         (hundreds of thousands to billions of dollars).
 
-        The $10 absolute tolerance is empirically informed, and not related to the noise
+        The $5 absolute tolerance is empirically informed, and not related to the noise
         from floating point values. Across the full candidate pool, we find additional
-        unique matches increase relatively rapidly up to a delta of ~$10, and then
-        level off between $10 and a few thousand dollars. At larger deltas unrelated
-        pairs of records start matching. Every candidate with a delta up to $10 pairs a
+        unique matches increase relatively rapidly up to a delta of ~$5, and then
+        level off between $5 and a few thousand dollars. At larger deltas unrelated
+        pairs of records start matching. Every candidate with a delta up to $5 pairs a
         large-magnitude value (tens of thousands to billions of dollars) with a small
         absolute gap, consistent with a rounding or trivial reporting difference between
         the two reported schedules, not a coincidental collision. Up to deltas of even
@@ -1707,7 +1707,7 @@ class Exploder:
                     candidate_corrections["abs_diff"],
                     candidate_corrections[f"{self.value_col}_off_by"],
                     rtol=0.0,
-                    atol=10.0,
+                    atol=5.0,
                 )
             ]
             # use a dict/kwarg for assign so we can dynamically set the name of value_col

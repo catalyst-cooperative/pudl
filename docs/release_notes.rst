@@ -43,14 +43,13 @@ Bug Fixes & Data Cleaning
 * Fixed an exact-float merge bug in FERC1 "exploded tables" corrections. The
   :meth:`~pudl.output.ferc1.Exploder.add_sizable_minority_corrections` method matched
   correction candidates by merging directly on floating point columns. Exact float
-  equality is extremely brittle, and switching from 32- to 64-bit floats on this branch
+  equality is extremely brittle, and moving from 32- to 64-bit floats
   changed which utility/year pairs matched, producing extra rows and different
   ``ending_balance`` sums in :ref:`out_ferc1__yearly_detailed_balance_sheet_assets` and
-  :ref:`out_ferc1__yearly_rate_base`. It turns out these were real matches being lost
+  :ref:`out_ferc1__yearly_rate_base`. These were real matches being lost
   due to the limited precision of 32-bit floats, on top of the brittleness of of merging
   on floating point numbers. These are now being captured deterministically by merging
-  on unique and nearly identical values with a fixed, empirically informed tolerance of
-  $10. See PR :pr:`5350`.
+  on values within a fixed tolerance of $5. See PR :pr:`5350`.
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
