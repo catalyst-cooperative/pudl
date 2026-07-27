@@ -58,7 +58,7 @@ Performance Improvements
   assets, and surfaced that Pandera's Polars backend had never enforced content
   checks (value ranges, uniqueness, etc.) on any ``LazyFrame``-backed asset,
   regardless of that gate. Enabling real content validation for ``LazyFrame`` assets
-  is left as follow-up work.
+  is left to PR :pr:`5432`.
 * The fast ETL now processes only two representative
   :doc:`EIA-861 <data_sources/eia861>` years instead of the entire time series, bringing
   it in line with how every other dataset is already handled and speeding up both local
