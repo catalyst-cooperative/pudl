@@ -285,12 +285,19 @@ ETL_GROUPS: tuple[EtlGroup, ...] = get_args(EtlGroup)
 # ---- Class attribute validators ---- #
 
 
-def _check_unique(value: list = None) -> list | None:
+def _check_unique(value: list | None = None) -> list | None:
     """Check that input list has unique values."""
     if value:
         for i in range(len(value)):
             if value[i] in value[:i]:
                 raise ValueError(f"contains duplicate {value[i]}")
+    return value
+
+
+def _sort_deterministically(value: list | None = None) -> list | None:
+    """Sort an enum constraint's values into a deterministic order."""
+    if value:
+        return sorted(value)
     return value
 
 
@@ -338,19 +345,10 @@ class FieldConstraints(PudlMeta):
     minimum: StrictInt | StrictFloat | datetime.date | datetime.datetime | None = None
     maximum: StrictInt | StrictFloat | datetime.date | datetime.datetime | None = None
     pattern: re.Pattern | None = None
-    enum: (
-        StrictList[
-            String
-            | StrictInt
-            | StrictFloat
-            | StrictBool
-            | datetime.date
-            | datetime.datetime
-        ]
-        | None
-    ) = None
+    enum: StrictList[String] | None = None
 
     _check_unique = _validator("enum", fn=_check_unique)
+    _sort_enum = _validator("enum", fn=_sort_deterministically)
 
     @field_validator("max_length")
     @classmethod
