@@ -19,7 +19,7 @@ from sqlite3 import sqlite_version
 from typing import Any, ClassVar
 
 import dagster as dg
-import geopandas as gpd  # noqa: ICN002
+import geopandas
 import pandas as pd
 import polars as pl
 import pyarrow.parquet as pq
@@ -144,7 +144,7 @@ class PudlMixedFormatIOManager(ConfigurableIOManager):
 
     def load_input(
         self, context: dg.InputContext
-    ) -> pd.DataFrame | gpd.GeoDataFrame | pl.LazyFrame:
+    ) -> pd.DataFrame | geopandas.GeoDataFrame | pl.LazyFrame:
         """Reads input from the appropriate IO manager instance."""
         if self.read_from_parquet:
             return self._parquet_io_manager.load_input(context)
@@ -379,7 +379,7 @@ class PudlParquetIOManager(dg.ConfigurableIOManager):
     def handle_output(
         self,
         context: dg.OutputContext,
-        obj: pd.DataFrame | gpd.GeoDataFrame | pl.LazyFrame,
+        obj: pd.DataFrame | geopandas.GeoDataFrame | pl.LazyFrame,
     ) -> None:
         """Writes a pudl dataframe to a Parquet file.
 
@@ -393,7 +393,7 @@ class PudlParquetIOManager(dg.ConfigurableIOManager):
         parquet_path = self.pudl_paths.parquet_path(table_name)
         parquet_path.parent.mkdir(parents=True, exist_ok=True)
 
-        if isinstance(obj, gpd.GeoDataFrame):
+        if isinstance(obj, geopandas.GeoDataFrame):
             gdf = res.enforce_schema(obj)
             gdf.to_parquet(parquet_path, index=False)
         elif isinstance(obj, pd.DataFrame):
@@ -419,7 +419,7 @@ class PudlParquetIOManager(dg.ConfigurableIOManager):
 
     def load_input(
         self, context: dg.InputContext
-    ) -> pd.DataFrame | gpd.GeoDataFrame | pl.LazyFrame:
+    ) -> pd.DataFrame | geopandas.GeoDataFrame | pl.LazyFrame:
         """Loads pudl table from parquet file."""
         table_name = get_table_name_from_context(context)
         if context.dagster_type.typing_type == pl.LazyFrame:
