@@ -2,6 +2,7 @@
 
 import json
 import re
+from datetime import date
 from typing import Any
 
 import duckdb.sqltypes
@@ -17,6 +18,7 @@ import sqlalchemy as sa
 from shapely import Point
 
 from pudl.metadata.classes import (
+    _CHUNKED_PK_CHECK_TABLES,
     PUDL_PACKAGE,
     DataSource,
     Field,
@@ -204,6 +206,257 @@ def test_enum_constraint_order_is_deterministic() -> None:
         constraints={"enum": {"z", "a", "m", "b"}},
     )
     assert field.constraints.enum == ["a", "b", "m", "z"]
+
+
+def test_check_primary_key_reports_both_duplicates_and_nulls() -> None:
+    """check_primary_key should report every violation in one pass, not just the first.
+
+    Regression test: an earlier version raised on the first problem it found
+    (duplicates), so a caller fixing that would only discover the null-value
+    problem on a second run.
+    """
+    resource = Resource(
+        name="_test__check_primary_key",
+        description="Synthetic resource for check_primary_key tests.",
+        schema={
+            "fields": [
+                {"name": "id", "type": "integer", "description": "Primary key."}
+            ],
+            "primary_key": ["id"],
+        },
+    )
+    df = pd.DataFrame({"id": pd.array([1, 1, None], dtype="Int64")})
+    with pytest.raises(
+        ValueError, match=r"(?s)duplicate primary keys.*Null values"
+    ) as exc:
+        resource.check_primary_key(df)
+    assert "duplicate primary keys" in str(exc.value)
+    assert "Null values found" in str(exc.value)
+
+
+def test_check_primary_key_dispatches_by_type() -> None:
+    """check_primary_key routes to the pandas or polars implementation by type.
+
+    Callers shouldn't have to remember two method names for the two backends --
+    this locks in that a single ``check_primary_key`` call works for either.
+    """
+    resource = Resource(
+        name="_test__check_primary_key_dispatch",
+        description="Synthetic resource for check_primary_key dispatch tests.",
+        schema={
+            "fields": [
+                {"name": "id", "type": "integer", "description": "Primary key."}
+            ],
+            "primary_key": ["id"],
+        },
+    )
+    # Pandas: raises directly, returns nothing.
+    with pytest.raises(ValueError, match="duplicate primary keys"):
+        resource.check_primary_key(pd.DataFrame({"id": [1, 1]}))
+
+    # Polars: returns a list of SchemaErrors instead of raising.
+    errors = resource.check_primary_key(pl.LazyFrame({"id": [1, 1]}))
+    assert isinstance(errors, list)
+    assert len(errors) > 0
+
+
+# ---------------------------------------------------------------------------
+# Tests for chunked primary-key uniqueness checking (Resource.check_primary_key's
+# polars path, i.e. Resource._check_primary_key_polars)
+# ---------------------------------------------------------------------------
+#
+# The polars path never uses pandera's built-in composite-uniqueness check
+# (too memory-hungry, see polars-comment.md); it always uses its own
+# group-by/count-based `Resource._find_duplicate_primary_keys`, optionally run
+# once per chunk instead of once on the whole table for PUDL's few oversized
+# tables (`_CHUNKED_PK_CHECK_TABLES`). Chunking is only correct because the
+# chunking column is itself part of the primary key -- two rows with an
+# identical composite key necessarily share the same value of it, so
+# duplicates can never span chunk boundaries, whether the column is
+# date/datetime (chunked by year) or anything else (chunked by distinct
+# value). These tests exercise the machinery directly with synthetic
+# resources, independent of which real tables are currently enumerated.
+
+
+def _temporal_pk_resource() -> Resource:
+    return Resource(
+        name="_test__temporal_pk_chunking",
+        description="Synthetic resource with a temporal primary key.",
+        schema={
+            "fields": [
+                {"name": "event_date", "type": "date", "description": "Event date."},
+                {"name": "unit_id", "type": "integer", "description": "Unit ID."},
+            ],
+            "primary_key": ["event_date", "unit_id"],
+        },
+    )
+
+
+def _categorical_pk_resource() -> Resource:
+    return Resource(
+        name="_test__categorical_pk_chunking",
+        description="Synthetic resource with a string primary-key column.",
+        schema={
+            "fields": [
+                {"name": "filer_id", "type": "string", "description": "Filer ID."},
+                {
+                    "name": "record_id",
+                    "type": "integer",
+                    "description": "Record ID.",
+                },
+            ],
+            "primary_key": ["filer_id", "record_id"],
+        },
+    )
+
+
+def test_check_primary_key_polars_temporal_valid() -> None:
+    """Repeated non-key values across different years are not false positives.
+
+    ``_temporal_pk_resource`` isn't in ``_CHUNKED_PK_CHECK_TABLES``, so this
+    exercises ``check_primary_key``'s default, unchunked polars dispatch path;
+    ``test_chunk_filters_temporal_*`` below separately verify the chunking
+    mechanism itself preserves the same correctness.
+    """
+    resource = _temporal_pk_resource()
+    lf = pl.LazyFrame(
+        {
+            "event_date": [
+                date(2020, 1, 1),
+                date(2020, 1, 2),
+                date(2021, 1, 1),
+                date(2021, 1, 2),
+            ],
+            # unit_id repeats across years -- fine, since event_date differs.
+            "unit_id": [1, 2, 1, 2],
+        }
+    )
+    errors = resource._check_primary_key_polars(lf)
+    assert errors == []
+
+
+def test_check_primary_key_polars_temporal_catches_duplicate() -> None:
+    """A true duplicate composite key within one year is still caught."""
+    resource = _temporal_pk_resource()
+    lf = pl.LazyFrame(
+        {
+            "event_date": [date(2020, 1, 1), date(2020, 1, 1), date(2021, 1, 1)],
+            "unit_id": [1, 1, 1],
+        }
+    )
+    errors = resource._check_primary_key_polars(lf)
+    assert len(errors) > 0
+
+
+def test_check_primary_key_polars_categorical_valid() -> None:
+    """Repeated non-key values across different filers are not false positives."""
+    resource = _categorical_pk_resource()
+    lf = pl.LazyFrame(
+        {
+            "filer_id": ["A", "A", "B", "B"],
+            # record_id repeats across filers -- fine, since filer_id differs.
+            "record_id": [1, 2, 1, 2],
+        }
+    )
+    errors = resource._check_primary_key_polars(lf)
+    assert errors == []
+
+
+def test_check_primary_key_polars_categorical_catches_duplicate() -> None:
+    """A true duplicate composite key within one filer is still caught."""
+    resource = _categorical_pk_resource()
+    lf = pl.LazyFrame(
+        {
+            "filer_id": ["A", "A", "B"],
+            "record_id": [1, 1, 1],
+        }
+    )
+    errors = resource._check_primary_key_polars(lf)
+    assert len(errors) > 0
+
+
+def test_chunk_filters_temporal_partitions_by_year() -> None:
+    """Temporal chunk filters split rows into non-overlapping, year-aligned sets."""
+    lf = pl.LazyFrame(
+        {"event_date": [date(2020, 1, 1), date(2020, 6, 1), date(2021, 3, 1)]}
+    )
+    filters = Resource._chunk_filters(lf, "event_date")
+    assert len(filters) == 2  # 2020 and 2021
+    row_counts = sorted(lf.filter(f).select(pl.len()).collect().item() for f in filters)
+    assert row_counts == [1, 2]
+
+
+def test_chunk_filters_categorical_partitions_by_value() -> None:
+    """Categorical chunk filters split rows by each distinct value, exactly."""
+    lf = pl.LazyFrame({"filer_id": ["A", "A", "B"]})
+    filters = Resource._chunk_filters(lf, "filer_id")
+    assert len(filters) == 2  # "A" and "B"
+    counts_by_value = {}
+    for f in filters:
+        chunk = lf.filter(f).collect()
+        counts_by_value[chunk["filer_id"][0]] = chunk.height
+    assert counts_by_value == {"A": 2, "B": 1}
+
+
+def test_check_primary_key_polars_no_primary_key() -> None:
+    """Resources without a primary key are trivially valid."""
+    resource = Resource(
+        name="_test__no_pk",
+        description="Synthetic resource without a primary key.",
+        schema={"fields": [{"name": "x", "type": "integer", "description": "X."}]},
+    )
+    lf = pl.LazyFrame({"x": [1, 1, 1]})
+    assert resource._check_primary_key_polars(lf) == []
+
+
+def test_check_primary_key_polars_rejects_bad_chunk_field(mocker) -> None:
+    """A chunk field that isn't part of the primary key is a config error.
+
+    Chunking is only exact (see `Resource._chunk_filters`) when the chunk
+    column is part of the primary key -- if `_CHUNKED_PK_CHECK_TABLES` is ever
+    misconfigured with a column that isn't, that has to fail loudly rather
+    than silently produce an incomplete uniqueness check.
+    """
+    resource = Resource(
+        name="_test__bad_chunk_field",
+        description="Synthetic resource for testing chunk-field misconfiguration.",
+        schema={
+            "fields": [
+                {"name": "id", "type": "integer", "description": "Primary key."},
+                {"name": "other", "type": "integer", "description": "Not in the PK."},
+            ],
+            "primary_key": ["id"],
+        },
+    )
+    mocker.patch.dict(_CHUNKED_PK_CHECK_TABLES, {resource.name: "other"})
+    lf = pl.LazyFrame({"id": [1, 2], "other": [1, 2]})
+    with pytest.raises(AssertionError, match="isn't part of"):
+        resource._check_primary_key_polars(lf)
+
+
+def test_find_duplicate_primary_keys() -> None:
+    """The underlying group-by/count reduction correctly identifies duplicates."""
+    lf = pl.LazyFrame({"a": [1, 1, 2], "b": ["x", "x", "y"]})
+    duplicates = Resource._find_duplicate_primary_keys(lf, ["a", "b"])
+    assert duplicates.height == 1
+    assert duplicates["a"][0] == 1
+    assert duplicates["b"][0] == "x"
+    assert duplicates["_pk_count"][0] == 2
+
+
+def test_chunked_pk_check_tables_are_valid() -> None:
+    """Every entry in _CHUNKED_PK_CHECK_TABLES must name a real, matching field.
+
+    Guards against the mapping silently going stale if a listed resource's
+    primary key changes -- the chunking column must remain part of the
+    primary key, since that's what makes chunking by it exact rather than
+    approximate.
+    """
+    for resource_name, field_name in _CHUNKED_PK_CHECK_TABLES.items():
+        resource = PUDL_PACKAGE.get_resource(resource_name)
+        assert field_name in resource.schema.primary_key, (
+            f"{field_name} is not part of {resource_name}'s primary key"
+        )
 
 
 def test_field_unit_strings() -> None:
