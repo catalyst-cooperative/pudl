@@ -21,7 +21,7 @@ from contextlib import contextmanager
 from functools import partial
 from io import BytesIO
 from pathlib import Path
-from typing import Any, Literal, NamedTuple
+from typing import TYPE_CHECKING, Any, Literal, NamedTuple
 
 import duckdb
 import geopandas as gpd  # noqa: ICN002
@@ -38,6 +38,9 @@ from pydantic import BaseModel, Field
 import pudl.logging_helpers
 from pudl.metadata.dtypes import apply_pudl_dtypes, get_pudl_dtypes
 from pudl.workspace.setup import PudlPaths
+
+if TYPE_CHECKING:
+    from pudl.metadata.classes import Resource
 
 sum_na = partial(pd.Series.sum, skipna=False)
 """A sum function that returns NA if the Series includes any NA values.
@@ -2260,6 +2263,32 @@ def get_parquet_table_polars(
     )
 
 
+def _fix_residual_read_dtypes(df: pd.DataFrame, resource: "Resource") -> pd.DataFrame:
+    """Fix the handful of dtypes ``dtype_backend="numpy_nullable"`` can't get right.
+
+    Three gaps remain after a ``dtype_backend="numpy_nullable"`` read, none of them
+    fixable by that argument alone:
+
+    * integer/number columns are narrower on disk (e.g. 32-bit) than PUDL's pandas
+      targets (see ``FIELD_DTYPES_PYARROW``/``FIELD_DTYPES_PANDAS``);
+    * "date" columns (Arrow ``date32``) always come back as plain ``object`` --
+      pandas has no native nullable date-only dtype -- rather than PUDL's
+      ``datetime64[s]`` target;
+    * "datetime" columns come back at whatever timestamp resolution is stored on
+      disk (e.g. ``datetime64[ms]``), not PUDL's ``datetime64[s]`` target.
+
+    Every other field type -- including enum-constrained strings -- is already
+    correct after that read and needs no further casting.
+    """
+    fixes = {
+        field.name: field.to_pandas_dtype()
+        for field in resource.schema.fields
+        if field.type in ("integer", "number", "date", "datetime")
+        and field.name in df.columns
+    }
+    return df.astype(fixes) if fixes else df
+
+
 def get_parquet_table(
     table_name: str,
     columns: list[str] | None = None,
@@ -2303,6 +2332,8 @@ def get_parquet_table(
 
     is_geospatial = any(resource.get_field(col).type == "geometry" for col in columns)
 
+    full_read = set(columns) == set(resource.get_field_names())
+
     if is_geospatial:
         df = gpd.read_parquet(
             path=parquet_path,
@@ -2312,7 +2343,14 @@ def get_parquet_table(
             use_threads=True,
             memory_map=True,
         )
-    else:
+        # geopandas' reader has no equivalent to pandas' dtype_backend, so this
+        # branch still needs enforce_schema's full re-cast.
+        df = (
+            resource.enforce_schema(df)
+            if full_read
+            else apply_pudl_dtypes(df, resource=resource.name)
+        )
+    else:  # not geospatial -- the normal case
         df = pd.read_parquet(
             path=parquet_path,
             columns=columns,
@@ -2320,13 +2358,24 @@ def get_parquet_table(
             schema=pyarrow_schema,
             use_threads=True,
             memory_map=True,
+            dtype_backend="numpy_nullable",
         )
 
-    # Only enforce schema if we're reading all columns
-    if set(columns) == set(resource.get_field_names()):
-        return resource.enforce_schema(df)
-    # For specific columns, apply PUDL dtypes including resource-level overrides
-    return apply_pudl_dtypes(df, resource=resource.name)
+    if not full_read:
+        # For specific columns, apply PUDL dtypes including resource-level overrides
+        df = apply_pudl_dtypes(df, resource=resource.name)
+    else:
+        # dtype_backend="numpy_nullable" already gets every column to PUDL's target
+        # dtype except for the few gaps _fix_residual_read_dtypes covers -- enforce_schema's
+        # full re-cast of every column, including enum fields, is redundant here: pandas'
+        # Categorical reconstructs a constrained dtype's full category list (even unused
+        # ones) straight from the Parquet dictionary page, with no PUDL-metadata-driven
+        # re-derivation needed. See tests/unit/helpers_test.py's
+        # test_constrained_categorical_cross_backend_parquet_roundtrip.
+        df = _fix_residual_read_dtypes(df, resource)
+        resource.check_primary_key(df)
+
+    return df
 
 
 def standardize_phone_column(df: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
