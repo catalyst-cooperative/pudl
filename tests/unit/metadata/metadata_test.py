@@ -187,6 +187,25 @@ def test_field_definitions() -> None:
         )
 
 
+def test_enum_constraint_order_is_deterministic() -> None:
+    """An enum constraint's value order must not depend on set-iteration order.
+
+    Some enum constraints (e.g. ``EPACEMS_STATES`` in ``pudl.metadata.enums``) are
+    built from a Python ``set``, whose iteration order depends on per-process hash
+    randomization rather than the values themselves -- so ``list(some_set)`` can
+    differ between two runs of the same code. ``FieldConstraints``' deterministic-
+    sort validator makes the order a pure function of the values themselves,
+    independent of the input list/set's construction order or process.
+    """
+    field = Field(
+        name="_test_field",
+        type="string",
+        description="Test field.",
+        constraints={"enum": {"z", "a", "m", "b"}},
+    )
+    assert field.constraints.enum == ["a", "b", "m", "z"]
+
+
 def test_field_unit_strings() -> None:
     """Check that all unit strings in FIELD_METADATA parse against PUDL_UNIT_REGISTRY.
 
