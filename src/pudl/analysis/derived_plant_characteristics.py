@@ -14,7 +14,6 @@ from dagster import (
 )
 
 import pudl.logging_helpers
-from pudl.metadata.dtypes import apply_pudl_dtypes_polars
 from pudl.metadata.enums import EPACEMS_STATES
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -398,9 +397,6 @@ def _summarize_ramp_rates(
             how="horizontal",
         )
 
-    logger.info(
-        "do the apparently computationally intensive map_groups which has a pandas conversion in there"
-    )
     return ramp_input.group_by(unit_cols).map_groups(summarize_unit)
 
 
@@ -787,9 +783,6 @@ def operational_characteristics(
 
     This table corresponds to the script output named ``epa_op_char_output_df.csv``.
     """
-    logger.info(
-        f"Deriving unit-level operational characteristics from {states} EPA CEMS "
-    )
     cems = filter_cems_for_heat_rate_analysis(
         core_epacems__hourly_emissions=core_epacems__hourly_emissions,
         final_year=final_year,
@@ -838,11 +831,11 @@ def operational_characteristics_factory(
                 "min_stable_consecutive_hours"
             ],
             states=[state],
-        ).pipe(
-            # TODO: remove this when we convert the io manager
-            apply_pudl_dtypes_polars,
-            resource="out_epacems__yearly_operational_characteristics",
-        )
+        )  # .pipe(
+        #     # TODO: remove this when we convert the io manager
+        #     apply_pudl_dtypes_polars,
+        #     resource="out_epacems__yearly_operational_characteristics",
+        # )
         return state_lf
 
     return _out_epacems_state
@@ -859,7 +852,6 @@ operational_characteristics_assets = [
         f"_out_epacems__yearly_operational_characteristics_{state}": AssetIn()
         for state in EPACEMS_STATES
     },
-    # TODO: make this actually work
     # io_manager_key="pudl_io_manager",
     compute_kind="Python",
 )
