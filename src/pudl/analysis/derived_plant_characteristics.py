@@ -1295,50 +1295,16 @@ operational_characteristics_assets = [
 ]
 
 
-# @asset(
-#     name="out_epacems__yearly_operational_characteristics",
-#     ins={
-#         f"_out_epacems__yearly_operational_characteristics_{state}": AssetIn()
-#         for state in CEMS_STATES
-#     },
-#     # TODO: make this actually work
-#     # io_manager_key="pudl_io_manager",
-#     compute_kind="Python",
-# )
-# def out_epacems__yearly_operational_characteristics(context, **kwargs) -> pl.LazyFrame:
-#     """Estimate EPA CEMS unit operational characteristics."""
-#     return pl.concat(kwargs.values()).lazy()
-
-
 @asset(
     name="out_epacems__yearly_operational_characteristics",
-    ins={"core_epacems__hourly_emissions": AssetIn()},
+    ins={
+        f"_out_epacems__yearly_operational_characteristics_{state}": AssetIn()
+        for state in CEMS_STATES
+    },
     # TODO: make this actually work
     # io_manager_key="pudl_io_manager",
     compute_kind="Python",
-    config_schema=HEAT_RATE_ANALYSIS_CONFIG_SCHEMA,
 )
-def out_epacems__yearly_operational_characteristics(
-    context: AssetExecutionContext, core_epacems__hourly_emissions: pl.LazyFrame
-) -> pl.LazyFrame:
+def out_epacems__yearly_operational_characteristics(context, **kwargs) -> pl.LazyFrame:
     """Estimate EPA CEMS unit operational characteristics."""
-    heat_rate_config = _get_heat_rate_analysis_config(context)
-    out = pl.concat(
-        [
-            operational_characteristics(
-                core_epacems__hourly_emissions=core_epacems__hourly_emissions,
-                final_year=heat_rate_config["final_year"],
-                num_years=heat_rate_config["num_years"],
-                min_stable_consecutive_hours=heat_rate_config[
-                    "min_stable_consecutive_hours"
-                ],
-                states=[state],
-            ).pipe(
-                apply_pudl_dtypes_polars,
-                resource="out_epacems__yearly_operational_characteristics",
-            )
-            for state in EPACEMS_STATES
-        ]
-    )
-
-    return out.lazy()
+    return pl.concat(kwargs.values()).lazy()
