@@ -1,12 +1,16 @@
 """Unit tests for the :mod:`pudl.helpers` module."""
 
+from datetime import date, datetime
 from io import StringIO
 
 import numpy as np
 import pandas as pd
+import polars as pl
+import pyarrow as pa
 import pytest
 from pandas.testing import assert_frame_equal, assert_series_equal
 from pandas.tseries.offsets import BYearEnd
+from polars.testing import assert_frame_equal as assert_pl_frame_equal
 
 import pudl.helpers
 from pudl.helpers import (
@@ -23,6 +27,7 @@ from pudl.helpers import (
     expand_timeseries,
     flatten_list,
     get_parquet_table,
+    get_parquet_table_polars,
     normalize_year_fragments,
     remove_leading_zeros_from_numeric_strings,
     retry,
@@ -31,6 +36,8 @@ from pudl.helpers import (
     standardize_phone_column,
     zero_pad_numeric_string,
 )
+from pudl.metadata.classes import Resource
+from pudl.workspace.setup import PudlPaths
 
 MONTHLY_GEN_FUEL = pd.DataFrame(
     {
@@ -1162,3 +1169,181 @@ def test_get_parquet_table_subset_applies_resource_override(mocker, tmp_path):
     result = get_parquet_table(resource_name, columns=subset)
     assert str(result["customers"].dtype) == "float64"
     assert result["customers"].tolist() == [1.5]
+
+
+# Shared by the golden-behavior dtype tests below. Covers every PUDL field-type
+# family, each with a null, as plain Python objects so the same dict works for
+# both pd.DataFrame and pl.LazyFrame.
+_MULTI_TYPE_FIELDS = [
+    {"name": "id", "type": "integer", "description": "Primary key."},
+    {"name": "value", "type": "number", "description": "A float value."},
+    {"name": "flag", "type": "boolean", "description": "A boolean flag."},
+    {"name": "name", "type": "string", "description": "A string field."},
+    {"name": "observed_on", "type": "date", "description": "A date."},
+    {"name": "recorded_at", "type": "datetime", "description": "A datetime."},
+    {
+        "name": "code",
+        "type": "string",
+        "description": "Enum-constrained code.",
+        "constraints": {"enum": ["a", "b", "c"]},
+    },
+]
+_MULTI_TYPE_DATA = {
+    "id": [1, 2, 3],
+    "value": [1.5, None, 3.5],
+    "flag": [True, False, None],
+    "name": ["x", None, "z"],
+    "observed_on": [date(2020, 1, 1), date(2020, 2, 1), None],
+    "recorded_at": [datetime(2020, 1, 1), None, datetime(2020, 3, 1, 12, 0, 0)],
+    "code": ["a", "b", None],
+}
+
+
+def _make_multi_type_resource(name: str) -> Resource:
+    """Build a synthetic Resource covering every PUDL field-type family."""
+    return Resource(
+        name=name,
+        description="Synthetic resource covering every PUDL field-type family.",
+        schema={"fields": _MULTI_TYPE_FIELDS, "primary_key": ["id"]},
+    )
+
+
+def _make_test_pudl_paths(tmp_path) -> PudlPaths:
+    """Build a :class:`PudlPaths` rooted at a pytest ``tmp_path``."""
+    return PudlPaths(pudl_input=tmp_path / "input", pudl_output=tmp_path / "output")
+
+
+def test_get_parquet_table_full_read_dtypes(mocker, tmp_path):
+    """Golden-behavior test: a full-column read must reproduce what was written."""
+    resource = _make_multi_type_resource("_test__get_parquet_table_full_read_dtypes")
+    written_df = resource.enforce_schema(pd.DataFrame(_MULTI_TYPE_DATA))
+
+    paths = _make_test_pudl_paths(tmp_path)
+    parquet_path = paths.parquet_path(resource.name)
+    parquet_path.parent.mkdir(parents=True, exist_ok=True)
+    written_df.to_parquet(parquet_path, index=False, schema=resource.to_pyarrow())
+
+    mocker.patch("pudl.metadata.classes.Resource.from_id", return_value=resource)
+
+    result = get_parquet_table(resource.name, paths=paths)
+    assert_frame_equal(result, written_df)
+
+
+def test_get_parquet_table_polars_full_read_dtypes(mocker, tmp_path):
+    """Golden-behavior test: same as above, for the Polars LazyFrame path."""
+    resource = _make_multi_type_resource(
+        "_test__get_parquet_table_polars_full_read_dtypes"
+    )
+    # Pre-existing pyrefly complaint, same as the identical cast() call in
+    # PudlParquetIOManager.handle_output.
+    written_lf = pl.LazyFrame(_MULTI_TYPE_DATA).cast(
+        resource.to_polars_dtypes()  # type: ignore[bad-argument-type]
+    )
+
+    paths = _make_test_pudl_paths(tmp_path)
+    parquet_path = paths.parquet_path(resource.name)
+    parquet_path.parent.mkdir(parents=True, exist_ok=True)
+    written_lf.sink_parquet(parquet_path, engine="streaming")
+
+    mocker.patch("pudl.metadata.classes.Resource.from_id", return_value=resource)
+
+    result = get_parquet_table_polars(resource.name, paths=paths)
+    assert_pl_frame_equal(result.collect(), written_lf.collect())
+
+
+# "c" is declared but never appears in any row, so these check whether an unused
+# category survives -- not just whether observed values round-trip.
+_CATEGORICAL_CATEGORIES = ["a", "b", "c"]
+_CATEGORICAL_VALUES = ["a", "b", None]
+
+
+def _write_pandas_categorical(path):
+    pd.DataFrame(
+        {
+            "code": pd.Categorical(
+                _CATEGORICAL_VALUES, categories=_CATEGORICAL_CATEGORIES
+            )
+        }
+    ).to_parquet(
+        path,
+        schema=pa.schema([pa.field("code", pa.dictionary(pa.int32(), pa.string()))]),
+    )
+
+
+def _write_polars_enum(path):
+    pl.LazyFrame({"code": _CATEGORICAL_VALUES}).cast(
+        {"code": pl.Enum(_CATEGORICAL_CATEGORIES)}
+    ).sink_parquet(path)
+
+
+@pytest.mark.parametrize(
+    ("write", "read_categories", "expected"),
+    [
+        (
+            _write_pandas_categorical,
+            lambda p: set(
+                pd.read_parquet(p)["code"].dtype.categories  # type: ignore[missing-attribute]
+            ),
+            {"a", "b", "c"},
+        ),
+        (
+            _write_polars_enum,
+            # Enum's category list is a fixed, declared dtype-level property.
+            lambda p: set(
+                pl.read_parquet(p)["code"].dtype.categories  # type: ignore[missing-attribute]
+            ),
+            {"a", "b", "c"},
+        ),
+        (
+            _write_polars_enum,
+            lambda p: set(
+                pd.read_parquet(p)["code"].dtype.categories  # type: ignore[missing-attribute]
+            ),
+            {"a", "b", "c"},
+        ),
+        (
+            _write_pandas_categorical,
+            # Categorical has no fixed list -- only whatever's actually present.
+            lambda p: set(pl.read_parquet(p)["code"].drop_nulls().unique().to_list()),
+            {"a", "b"},
+        ),
+    ],
+    ids=[
+        "pandas-write_pandas-read_preserves-unused",
+        "polars-write_polars-read_preserves-unused",
+        "polars-write_pandas-read_preserves-unused",
+        "pandas-write_polars-read_drops-unused",
+    ],
+)
+def test_constrained_categorical_cross_backend_parquet_roundtrip(
+    tmp_path, write, read_categories, expected
+):
+    """Cross-backend behavior for a constrained categorical/enum column's Parquet round trip.
+
+    Not symmetric: Polars' ``Enum`` writer stores its entire declared category
+    list in the physical dictionary page regardless of what's observed, so both
+    pandas and Polars recover it fully. Pandas' plain ``Categorical`` writer only
+    encodes what's actually referenced, and while pandas itself reads that back
+    faithfully, Polars' generic (non-Polars-authored) dictionary decoding compacts
+    away unreferenced entries -- so only that one direction loses the unused
+    category. Locked in here so a future pandas/polars/pyarrow upgrade that
+    changes this is caught rather than discovered downstream.
+    """
+    path = tmp_path / "code.parquet"
+    write(path)
+    assert read_categories(path) == expected
+
+
+def test_polars_enum_parquet_roundtrip_is_order_sensitive(tmp_path):
+    """A pl.Enum's category order is part of its identity, unlike a Categorical's.
+
+    Reading a Polars-written Enum column back with a differently-ordered (but
+    same-membership) Enum schema raises, rather than coercing -- the counterpart
+    to the "preserves order" half of the polars-write/polars-read case above.
+    """
+    path = tmp_path / "code.parquet"
+    pl.LazyFrame({"code": ["a", "b"]}).cast(
+        {"code": pl.Enum(["c", "b", "a"])}
+    ).sink_parquet(path)
+    with pytest.raises(pl.exceptions.SchemaError):
+        pl.scan_parquet(path, schema={"code": pl.Enum(["a", "b", "c"])}).collect()
