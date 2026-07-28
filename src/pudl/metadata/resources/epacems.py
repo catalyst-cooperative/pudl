@@ -61,7 +61,7 @@ CEMS data.
             "usage_warnings": ["estimated_values"],
             "additional_details_text": """This table summarizes several inferred
 operational characteristics for each EPA CEMS emissions unit using hourly CEMS
-gross load and fuel heat content over a configurable multi-year window.
+gross load and fuel heat content over a three-year window.
 
 The values are not directly reported by source agencies. They are derived from
 observed hourly operations, including load factor bins, consecutive operating
@@ -87,7 +87,6 @@ as an analytical estimate rather than as reported plant characteristics.""",
         "sources": ["epacems"],
         "field_namespace": "epacems",
         "etl_group": "epacems",
-        "create_database_schema": False,
     },
 }
 """EPA CEMS resource attributes by PUDL identifier (``resource.name``).

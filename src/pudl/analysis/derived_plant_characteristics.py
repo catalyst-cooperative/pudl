@@ -384,17 +384,12 @@ def _summarize_ramp_rates(
 
     def summarize_unit(unit_df: pl.LazyFrame) -> pl.DataFrame:
         ramp_up, ramp_down = calculate_ramp_rate(unit_df, generation_col=generation_col)
-        return pl.concat(
-            [
-                unit_df,
-                pl.DataFrame(
-                    {
-                        "ramp_up_rate": [ramp_up],
-                        "ramp_down_rate": [ramp_down],
-                    }
-                ),
-            ],
-            how="horizontal",
+        return pl.DataFrame(
+            {col: unit_df.select(pl.col(col).first()) for col in unit_cols}
+            | {
+                "ramp_up_rate": [ramp_up],
+                "ramp_down_rate": [ramp_down],
+            }
         )
 
     return ramp_input.group_by(unit_cols).map_groups(summarize_unit)
@@ -478,8 +473,8 @@ def prep_output_df(
         .agg(**base_agg)
         .with_columns(
             pl.lit(None).cast(pl.Float64).alias("min_stable_level"),
-            pl.lit(None).cast(pl.Float64).alias("min_up_time_hr"),
-            pl.lit(None).cast(pl.Float64).alias("min_down_time_hr"),
+            pl.lit(None).cast(pl.Float64).alias("min_up_time_hours"),
+            pl.lit(None).cast(pl.Float64).alias("min_down_time_hours"),
             pl.lit(None)
             .cast(pl.Float64)
             .alias("heat_rate_at_max_load_factor_mmbtu_per_mwh"),
@@ -606,7 +601,7 @@ def calculate_min_up_or_down_times(
             .group_by(unit_cols + [f"{up_or_down}_run_id"])
             .len()
             .group_by(unit_cols)
-            .agg(pl.col("len").min().alias(f"min_{up_or_down}_time_hr"))
+            .agg(pl.col("len").min().alias(f"min_{up_or_down}_time_hours"))
         )
 
         output = (
@@ -614,12 +609,12 @@ def calculate_min_up_or_down_times(
             .with_columns(
                 pl.coalesce(
                     [
-                        pl.col(f"min_{up_or_down}_time_hr_y"),
-                        pl.col(f"min_{up_or_down}_time_hr"),
+                        pl.col(f"min_{up_or_down}_time_hours_y"),
+                        pl.col(f"min_{up_or_down}_time_hours"),
                     ]
-                ).alias(f"min_{up_or_down}_time_hr")
+                ).alias(f"min_{up_or_down}_time_hours")
             )
-            .drop(f"min_{up_or_down}_time_hr_y")
+            .drop(f"min_{up_or_down}_time_hours_y")
         )
     return output
 
@@ -653,10 +648,16 @@ def estimate_operational_characteristics_by_unit(
         col_dict["output_ramp_rate_col_suffix"],
     )
 
-    valid_cems = cems_working.filter(pl.col("load_factor_nunique") > 1)
-    if valid_cems.is_empty():
+    valid_units = (
+        cems_working.filter(pl.col("load_factor_nunique") > 1)
+        .select(unit_cols)
+        .unique()
+    )
+
+    if valid_units.is_empty():
         return output
 
+    valid_cems = cems_working.join(valid_units, on=unit_cols, how="inner")
     binned_cems = valid_cems.filter(pl.col("load_factor_bin").is_not_null()).pipe(
         lambda lf: lf.with_columns(bin_run_id=_add_run_id(lf, unit_cols=unit_cols))
     )
@@ -761,8 +762,8 @@ def estimate_operational_characteristics_by_unit(
         "plant_id_eia",
         col_dict["output_max_load_col"],
         "min_stable_level",
-        "min_up_time_hr",
-        "min_down_time_hr",
+        "min_up_time_hours",
+        "min_down_time_hours",
         "heat_rate_at_max_load_factor_mmbtu_per_mwh",
         "heat_rate_at_min_stable_level_mmbtu_per_mwh",
         f"ramp_up_rate_fraction_of_{col_dict['output_ramp_rate_col_suffix']}_per_min",
@@ -831,11 +832,7 @@ def operational_characteristics_factory(
                 "min_stable_consecutive_hours"
             ],
             states=[state],
-        )  # .pipe(
-        #     # TODO: remove this when we convert the io manager
-        #     apply_pudl_dtypes_polars,
-        #     resource="out_epacems__yearly_operational_characteristics",
-        # )
+        )
         return state_lf
 
     return _out_epacems_state
@@ -852,12 +849,12 @@ operational_characteristics_assets = [
         f"_out_epacems__yearly_operational_characteristics_{state}": AssetIn()
         for state in EPACEMS_STATES
     },
-    # io_manager_key="pudl_io_manager",
+    io_manager_key="pudl_io_manager",
     compute_kind="Python",
 )
-def out_epacems__yearly_operational_characteristics(context, **kwargs) -> pl.LazyFrame:
+def out_epacems__yearly_operational_characteristics(context, **kwargs) -> pd.DataFrame:
     """Estimate EPA CEMS unit operational characteristics."""
-    return pl.concat(kwargs.values()).lazy()
+    return pl.concat(kwargs.values()).to_pandas()
 
 
 ##################
