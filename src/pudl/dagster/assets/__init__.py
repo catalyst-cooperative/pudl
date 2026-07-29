@@ -40,6 +40,7 @@ raw_module_groups = {
     "raw_eia923": [pudl.extract.eia923],
     "raw_eia930": [pudl.extract.eia930],
     "raw_eiaaeo": [pudl.extract.eiaaeo],
+    "raw_epamats": [pudl.extract.epamats],
     "raw_ferc1": [pudl.extract.ferc1],
     "raw_ferc714": [pudl.extract.ferc714],
     "raw_ferccid": [pudl.extract.ferccid],
