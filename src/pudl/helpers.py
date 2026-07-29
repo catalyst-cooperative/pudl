@@ -28,6 +28,7 @@ import geopandas as gpd  # noqa: ICN002
 import numpy as np
 import pandas as pd
 import polars as pl
+import pyarrow.parquet as pq
 import requests
 import sqlalchemy as sa
 import usaddress
@@ -2481,11 +2482,32 @@ def persist_table_as_parquet(
             compression=compression,
         )
     elif isinstance(table_data, duckdb.DuckDBPyRelation):
-        table_data.to_parquet(
-            str(parquet_data.parquet_path),
-            overwrite=True,
-            compression=compression,
-        )
+        # DuckDB's own to_parquet() writer flattens ENUM columns down to plain
+        # Arrow `string` in the file's schema -- it still dictionary-encodes them
+        # at the physical Parquet page level (no space penalty), but loses the
+        # logical-type signal that lets pandas/Polars reconstitute a categorical
+        # column on read, unlike files written by either of those two backends.
+        # Converting to Arrow first preserves it correctly: DuckDB's Arrow export
+        # maps ENUM to a real `dictionary<values=string, indices=...>` type, which
+        # pandas and Polars both recognize. to_arrow_reader() is a genuine
+        # streaming, batched RecordBatchReader (not a single materialized Table),
+        # so writing it out batch-by-batch keeps memory bounded to one batch at a
+        # time -- necessary for our largest DuckDB-produced tables.
+        #
+        # This is measurably slower than DuckDB's native to_parquet() (~7-10x on
+        # core_ferceqr__transactions' largest quarterly partition, 58.9M rows):
+        # DuckDB's own writer runs its internal engine across all CPU cores, while
+        # pyarrow's ParquetWriter writes single-threaded regardless of batch size
+        # or pyarrow's global thread-pool settings. Accepted deliberately -- this
+        # data is processed rarely and quarters are written in parallel, so the
+        # wall-clock cost of any one partition writing more slowly matters less
+        # than getting correct, cross-backend-readable categorical dtypes.
+        reader = table_data.to_arrow_reader(batch_size=100_000)
+        with pq.ParquetWriter(
+            str(parquet_data.parquet_path), reader.schema, compression=compression
+        ) as writer:
+            for batch in reader:
+                writer.write_batch(batch)
     else:
         raise TypeError(
             "table_data must be of type pd.DataFrame, pl.LazyFrame or duckdb.DuckDBPyRelation."
