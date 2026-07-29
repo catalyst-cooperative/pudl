@@ -905,11 +905,13 @@ class Field(PudlMeta):
             descriptor["constraints"] = constraints
         return frictionless.Field.from_descriptor(descriptor)
 
-    def to_pandera_column(self, use_pandas_backend: bool) -> pr_polars.Column:
+    def to_pandera_column(
+        self, use_pandas_backend: bool
+    ) -> pr_polars.Column | pr_pandas.Column:
         """Encode this field def as a Pandera column."""
         constraints = self.constraints
         checks = constraints.to_pandera_checks(use_pandas_backend)
-        if constraints.enum:
+        if constraints.enum and self.type == "string":
             # The physical dtype is unconstrained Categorical/"category" (see
             # Field.to_polars_dtype / Field.to_pandas_dtype); the enum value
             # constraint itself is enforced by the `checks` (Check.isin) above,
