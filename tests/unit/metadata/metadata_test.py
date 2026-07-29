@@ -15,6 +15,7 @@ import polars as pl
 import pyarrow as pa
 import pytest
 import sqlalchemy as sa
+from pandera.errors import SchemaErrors
 from shapely import Point
 
 from pudl.metadata.classes import (
@@ -346,6 +347,35 @@ def test_check_primary_key_polars_temporal_catches_duplicate() -> None:
     )
     errors = resource._check_primary_key_polars(lf)
     assert len(errors) > 0
+
+
+def test_duplicate_primary_key_error_is_schema_errors_compatible() -> None:
+    """A duplicate-PK SchemaError must survive being wrapped in a real SchemaErrors.
+
+    Regression test: pandera's polars backend unconditionally reads
+    ``err.schema.name`` and ``err.check_output`` off of every error the moment a
+    ``SchemaErrors`` containing it is constructed (see ``failure_cases_metadata``
+    in ``pandera/backends/polars/base.py``), not just when the error is later
+    displayed. The two returned-list-only tests above (checking
+    ``len(errors) > 0``) never actually construct one, so they didn't catch that
+    the manually-built duplicate-PK ``SchemaError`` used to leave both of those
+    ``None``, crashing with an opaque ``AttributeError`` -- as first surfaced by
+    a real duplicate-primary-key partition of ``core_ferceqr__quarterly_index_pub``.
+    """
+    resource = _temporal_pk_resource()
+    lf = pl.LazyFrame(
+        {
+            "event_date": [date(2020, 1, 1), date(2020, 1, 1), date(2021, 1, 1)],
+            "unit_id": [1, 1, 1],
+        }
+    )
+    errors = resource._check_primary_key_polars(lf)
+    # Constructing SchemaErrors -- not just returning the list -- is what
+    # previously crashed; pandera does this eagerly in its own __init__.
+    schema_errors = SchemaErrors(
+        schema=resource.schema.to_pandera(), schema_errors=errors, data=lf
+    )
+    assert "not unique" in str(schema_errors)
 
 
 def test_check_primary_key_polars_categorical_valid() -> None:

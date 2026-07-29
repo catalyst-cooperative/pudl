@@ -27,6 +27,7 @@ import pyarrow as pa
 import pydantic
 import sqlalchemy as sa
 from pandas._libs.missing import NAType
+from pandera.constants import CHECK_OUTPUT_KEY
 from pandera.errors import SchemaError, SchemaErrorReason
 from pydantic import (
     AnyHttpUrl,
@@ -2311,12 +2312,31 @@ class Resource(PudlMeta):
         """Build a SchemaError describing duplicate primary-key combinations."""
         primary_key = self.schema.primary_key
         return SchemaError(
-            schema=None,
-            data=duplicates,
-            message=f"columns {tuple(primary_key)!r} not unique:\n{duplicates}",
+            # pandera's polars backend unconditionally reads schema.name and
+            # check_output (see failure_cases_metadata in
+            # pandera/backends/polars/base.py) whenever failure_cases is a
+            # pl.DataFrame, crashing with an unhelpful AttributeError on the
+            # defaults (`schema=None`/`check_output=None`) this error would
+            # otherwise have. A minimal, columnless DataFrameSchema satisfies
+            # the `.name` access without needing this resource's real schema.
+            schema=pr_polars.DataFrameSchema(name=self.name),
+            # None, not duplicates again: identical to failure_cases below, and
+            # pandera's own per-column errors leave data=None too -- callers
+            # that want the offending rows should look at failure_cases.
+            data=None,
+            # A short summary, not the full table -- callers that want the
+            # actual offending rows should use failure_cases/failure_case_count
+            # (see asset_checks._process_schema_errors), not this string.
+            message=(
+                f"columns {tuple(primary_key)!r} not unique: "
+                f"{duplicates.height} duplicate combinations"
+            ),
             check="multiple_fields_uniqueness",
             reason_code=SchemaErrorReason.DUPLICATES,
             failure_cases=duplicates,
+            # Every row here already *is* a failure, so this is a same-length,
+            # all-False stand-in for a real per-row check_output.
+            check_output=pl.DataFrame({CHECK_OUTPUT_KEY: [False] * duplicates.height}),
             column_name=self.name,
         )
 
