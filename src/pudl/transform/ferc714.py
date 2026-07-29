@@ -181,9 +181,10 @@ DUPLICATED_DATETIMES = {
     2013: 2,
     2022: 4,
     2024: 1,
+    2025: 1,
 }
 """Identified duplicated UTC datetimes resulting from changes to a planning area's
-reporting timezone."""
+reporting timezone or duplicated reporting on Jan 1st in two report years."""
 
 BAD_RESPONDENTS = [
     2,
@@ -1285,6 +1286,31 @@ class YearlyPlanningAreaDemandForecast:
                 f"We expected one or 0 NA forecast year, but found:\n{nulls}"
             )
         df = df[df["forecast_year"].notna()]
+
+        # [2026-july eb]
+        # in 2025, C003677 () reports data for 2034 forecasts two times in two rows
+        # (order_number 10 and 11), each with different values. The report should provide
+        # forecasts to 2035, so the latter value (order number 11) should have corresponded to 2035
+        # forecasts. This value is manually updated.
+        text_in_year_mask = (
+            (df.respondent_id_ferc714_xbrl == "C003677")
+            & (df.report_year == 2025)
+            & (df.forecast_year == 2034)
+            & (df.order_number == 11)
+        )
+        expect_bad_data: bool = (2025, "C003677") in df.loc[
+            :, ["report_year", "respondent_id_ferc714_xbrl"]
+        ].drop_duplicates().set_index(
+            ["report_year", "respondent_id_ferc714_xbrl"]
+        ).index
+        if expect_bad_data and not text_in_year_mask.any():
+            raise AssertionError(
+                "Expected to find invalid demand forecast data for (2025, C003677) but "
+                "text_in_year_mask selects no records. The data or filtering process may "
+                "have been revised and this spot fix can be removed."
+            )
+        df.loc[text_in_year_mask, "forecast_year"] = 2035  # Manually update this field
+
         # Convert YY to YYYY for respondent 107 (the culprit).
         # The earliest forecast year reported as YY is 22. Any numbers
         # lower than that would signify a transition into 2100.
