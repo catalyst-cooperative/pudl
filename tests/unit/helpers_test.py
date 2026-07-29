@@ -3,11 +3,13 @@
 from datetime import date, datetime
 from io import StringIO
 
+import duckdb
 import geopandas as gpd  # noqa: ICN002
 import numpy as np
 import pandas as pd
 import polars as pl
 import pyarrow as pa
+import pyarrow.parquet as pq
 import pytest
 from geopandas.testing import assert_geodataframe_equal
 from pandas.testing import assert_frame_equal, assert_series_equal
@@ -33,6 +35,7 @@ from pudl.helpers import (
     get_parquet_table,
     get_parquet_table_polars,
     normalize_year_fragments,
+    persist_table_as_parquet,
     remove_leading_zeros_from_numeric_strings,
     retry,
     standardize_na_values,
@@ -1413,3 +1416,77 @@ def test_constrained_categorical_cross_backend_parquet_roundtrip(
     path = tmp_path / "code.parquet"
     write(path)
     assert read_categories(path) == expected
+
+
+def test_polars_enum_parquet_roundtrip_is_order_sensitive(tmp_path):
+    """A pl.Enum's category order is part of its identity, unlike a Categorical's.
+
+    Reading a Polars-written Enum column back with a differently-ordered (but
+    same-membership) Enum schema raises, rather than coercing -- the counterpart
+    to the "preserves order" half of the polars-write/polars-read case above.
+    """
+    path = tmp_path / "code.parquet"
+    pl.LazyFrame({"code": ["a", "b"]}).cast(
+        {"code": pl.Enum(["c", "b", "a"])}
+    ).sink_parquet(path)
+    with pytest.raises(pl.exceptions.SchemaError):
+        pl.scan_parquet(path, schema={"code": pl.Enum(["a", "b", "c"])}).collect()
+
+
+def test_polars_enum_parquet_roundtrip_is_order_sensitive(tmp_path):
+    """A pl.Enum's category order is part of its identity, unlike a Categorical's.
+
+    Reading a Polars-written Enum column back with a differently-ordered (but
+    same-membership) Enum schema raises, rather than coercing -- the counterpart
+    to the "preserves order" half of the polars-write/polars-read case above.
+    """
+    path = tmp_path / "code.parquet"
+    pl.LazyFrame({"code": ["a", "b"]}).cast(
+        {"code": pl.Enum(["c", "b", "a"])}
+    ).sink_parquet(path)
+    with pytest.raises(pl.exceptions.SchemaError):
+        pl.scan_parquet(path, schema={"code": pl.Enum(["a", "b", "c"])}).collect()
+
+
+def test_persist_table_as_parquet_duckdb_enum_written_as_dictionary(
+    tmp_path, monkeypatch
+):
+    """A DuckDB relation's ENUM columns should round-trip as Categorical, not String.
+
+    DuckDB's own ``.to_parquet()`` writer flattens ENUM columns down to plain Arrow
+    ``string`` in the file's schema -- it still dictionary-encodes them at the Parquet
+    page level, but users get no schema-level indication it is a categorical column.
+    Instead we write DuckDB relations out using pyarrow in ``persist_table_as_parquet``
+    which preserves the ``dictionary<...>`` type. Values not contained in the ENUM
+    cannot be written because DuckDB's ENUM type rejects them at insert time.
+
+    Categories that never appear in any row survive into the file's dictionary. This has
+    to be checked by reading the dictionary-encoded column with pyarrow, not by
+    inspecting Polars' ``Categorical`` reconstruction because unlike a pandas
+    ``CategoricalDtype``, Polars compacts away any category not actually referenced by a
+    row (see test_constrained_categorical_cross_backend_parquet_roundtrip).
+    """
+    monkeypatch.setenv("PUDL_OUTPUT", str(tmp_path / "output"))
+    monkeypatch.setenv("PUDL_INPUT", str(tmp_path / "input"))
+
+    con = duckdb.connect()
+    con.execute("CREATE TYPE test_enum AS ENUM ('a', 'b', 'c')")
+    con.execute("CREATE TABLE t (code test_enum, value INTEGER)")
+    con.execute("INSERT INTO t VALUES ('a', 1), ('b', 2), ('a', 3)")
+    with pytest.raises(duckdb.ConversionException):
+        con.execute("INSERT INTO t VALUES ('not_in_enum', 4)")
+    rel = con.table("t")
+
+    parquet_data = persist_table_as_parquet(
+        rel, table_name="_test__duckdb_enum_dictionary"
+    )
+
+    schema = pq.read_schema(parquet_data.parquet_path)
+    assert pa.types.is_dictionary(schema.field("code").type)
+
+    written_col = pq.read_table(parquet_data.parquet_path)["code"].combine_chunks()
+    assert written_col.dictionary.to_pylist() == ["a", "b", "c"]
+
+    result = pl.read_parquet(parquet_data.parquet_path)
+    assert result["code"].dtype == pl.Categorical
+    assert result["code"].to_list() == ["a", "b", "a"]
