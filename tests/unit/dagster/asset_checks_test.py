@@ -298,6 +298,10 @@ def test_polars_lazyframe_content_checks(value, code, expected_pass) -> None:
     lf = lf.with_columns(pl.col("code").cast(pl.Categorical))
     result = fn(lf)
     assert result.passed == expected_pass
+    # Regression guard: a failure must go through the clean SchemaErrors path
+    # (populating detailed_errors), not fall through to the generic exception
+    # handler -- see Resource._duplicate_primary_key_error's history.
+    assert "unexpected_error" not in result.metadata
 
 
 @pytest.mark.parametrize(
@@ -328,6 +332,7 @@ def test_geopandas_content_checks(value, code, expected_pass) -> None:
     )
     result = fn(gdf)
     assert result.passed == expected_pass
+    assert "unexpected_error" not in result.metadata
 
 
 # ---------------------------------------------------------------------------
@@ -429,6 +434,10 @@ def test_polars_lazyframe_uniqueness_checks(
     )
     result = fn(lf)
     assert result.passed == expected_pass
+    # Regression guard: in particular, the "duplicate_primary_key" case must
+    # fail via the clean SchemaErrors path, not the generic exception handler
+    # -- see Resource._duplicate_primary_key_error's history.
+    assert "unexpected_error" not in result.metadata
 
 
 @pytest.mark.parametrize(
@@ -454,6 +463,7 @@ def test_geopandas_uniqueness_checks(
     )
     result = fn(gdf)
     assert result.passed == expected_pass
+    assert "unexpected_error" not in result.metadata
 
 
 def test_pandera_schema_check_combines_schema_and_content_errors() -> None:
@@ -502,6 +512,7 @@ def test_pandera_schema_check_combines_schema_and_content_errors() -> None:
     result = fn(lf)
 
     assert result.passed is False
+    assert "unexpected_error" not in result.metadata
     detailed_errors = result.metadata["detailed_errors"].data
     messages = [e["error_message"] for e in detailed_errors]
     assert any("missing_field" in m for m in messages), (
