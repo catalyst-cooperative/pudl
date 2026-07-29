@@ -14,6 +14,24 @@ This is the upcoming quarterly PUDL release.
   issue [#4352](https://github.com/catalyst-cooperative/pudl/issues/4352) and PR [#5360](https://github.com/catalyst-cooperative/pudl/pull/5360). Shoutout to [@bsousa22](https://github.com/sponsors/bsousa22) for making his
   first PUDL contribution!
 
+### Expanded Data Coverage
+
+#### EIA Electricity API
+
+* Updated the [bulk EIA Electricity API](data_sources/eiaapi.md)
+  data used to fill in redacted fuel prices. See PR [#5441](https://github.com/catalyst-cooperative/pudl/pull/5441).
+
+#### EPA CEMS
+
+* Updated the [EPA CEMS](data_sources/epacems.md) data with
+  additional records through end of March 2026. See PR [#5441](https://github.com/catalyst-cooperative/pudl/pull/5441).
+
+#### FERC Form 6
+
+* Updated the raw FERC Form 6 archives to include additional
+  2025 data. This data is converted to SQLite, but not deeply
+  integrated into PUDL. See PR [#5441](https://github.com/catalyst-cooperative/pudl/pull/5441).
+
 ### Documentation
 
 * Added LLM use guidelines and best practices to the

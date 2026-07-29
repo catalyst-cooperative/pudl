@@ -16992,6 +16992,14 @@ Extractor for EIA form 191.
 
 Instance of metadata object to use with this extractor.
 
+#### source_filename(page: [str](https://docs.python.org/3/library/stdtypes.html#str), \*\*partition: [pudl.extract.extractor.PartitionSelection](../extractor/index.md#pudl.extract.extractor.PartitionSelection)) → [str](https://docs.python.org/3/library/stdtypes.html#str)
+
+Override filename selection.
+
+Since archive version 33.0.0, EIA-191 archives include both annual and monthly files for some years.
+All files specify whether they are annual or monthly.
+PUDL processes only monthly EIA-191 data.
+
 #### get_page_cols(page: [str](https://docs.python.org/3/library/stdtypes.html#str), partition_key: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]
 
 Get the columns for a particular page and partition key.
@@ -37900,7 +37908,7 @@ respective transform function.
 |---------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | Source Description              | All data made available in bulk through the EIA Open Data API. At present, PUDL integrates only a few specific data series related to fuel receipts and costs figures from the Bulk Electricity API. |
 | Source Format                   | JSON                                                                                                                                                                                                 |
-| Download Size                   | 1588 MB                                                                                                                                                                                              |
+| Download Size                   | 1595 MB                                                                                                                                                                                              |
 | Temporal Coverage               |                                                                                                                                                                                                      |
 | PUDL Code                       | `eiaapi`                                                                                                                                                                                             |
 | Unprocessed Source Data Archive | [10.5281/zenodo.7067366](https://doi.org/10.5281/zenodo.7067366)                                                                                                                                     |
@@ -74986,6 +74994,24 @@ This is the upcoming quarterly PUDL release.
 * Added Puerto Rico [EIA-860M](data_sources/eia860.md) data into EIA 860 tables. See
   issue [#4352](https://github.com/catalyst-cooperative/pudl/issues/4352) and PR [#5360](https://github.com/catalyst-cooperative/pudl/pull/5360). Shoutout to [@bsousa22](https://github.com/sponsors/bsousa22) for making his
   first PUDL contribution!
+
+### Expanded Data Coverage
+
+#### EIA Electricity API
+
+* Updated the [bulk EIA Electricity API](data_sources/eiaapi.md)
+  data used to fill in redacted fuel prices. See PR [#5441](https://github.com/catalyst-cooperative/pudl/pull/5441).
+
+#### EPA CEMS
+
+* Updated the [EPA CEMS](data_sources/epacems.md) data with
+  additional records through end of March 2026. See PR [#5441](https://github.com/catalyst-cooperative/pudl/pull/5441).
+
+#### FERC Form 6
+
+* Updated the raw FERC Form 6 archives to include additional
+  2025 data. This data is converted to SQLite, but not deeply
+  integrated into PUDL. See PR [#5441](https://github.com/catalyst-cooperative/pudl/pull/5441).
 
 ### Documentation
 
