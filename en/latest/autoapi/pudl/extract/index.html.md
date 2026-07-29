@@ -26,6 +26,7 @@ are ready for normalization and data cleaning by the data source specific module
 * [pudl.extract.eiaaeo](eiaaeo/index.md)
 * [pudl.extract.eiaapi](eiaapi/index.md)
 * [pudl.extract.epacems](epacems/index.md)
+* [pudl.extract.epamats](epamats/index.md)
 * [pudl.extract.excel](excel/index.md)
 * [pudl.extract.extractor](extractor/index.md)
 * [pudl.extract.ferc](ferc/index.md)

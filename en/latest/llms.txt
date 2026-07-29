@@ -1,6 +1,6 @@
 # PUDL
 
-> PUDL 2026.7.3.dev18 documentation
+> PUDL 2026.7.3.dev20 documentation
 
 
 2016-2026, Catalyst Cooperative, CC-BY-4.0
@@ -111,6 +111,7 @@
 - [pudl.extract.csv](autoapi/pudl/extract/csv/index.html.md): Extractor for CSV data.
 - [pudl.extract.rus7](autoapi/pudl/extract/rus7/index.html.md): Extract USDA RUS Form 7 data from CSVs.
 - [pudl.extract.censuspep](autoapi/pudl/extract/censuspep/index.html.md): Retrieve data from Census PEP spreadsheets.
+- [pudl.extract.epamats](autoapi/pudl/extract/epamats/index.html.md): Retrieve data from EPA MATS hourly zipped CSVs.
 - [pudl.extract.ferccid](autoapi/pudl/extract/ferccid/index.html.md): This module extracts the raw FERC Company Identifier (CID) table.
 - [pudl.extract.ferc6](autoapi/pudl/extract/ferc6/index.html.md): Extract FERC Form 6 data from DBF archives.
 - [pudl.extract.phmsagas](autoapi/pudl/extract/phmsagas/index.html.md): Retrieves data from PHMSA natural gas spreadsheets for analysis.
