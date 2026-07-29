@@ -2249,16 +2249,39 @@ def get_parquet_table_polars(
     from pudl.metadata.classes import Resource
 
     resource = Resource.from_id(table_name)
-    # Pass the expected schema in directly rather than scanning then casting: casting
-    # a LazyFrame containing Enum-typed columns forces materialization, which is very
-    # slow for our largest hourly tables. Enum-constrained fields are stored as plain
-    # Categorical (see Field.to_polars_dtype), so no such cast is needed here anyway.
+
+    # Scan without an explicit schema first to discover each column's actual
+    # on-disk dtype -- this is metadata-only (collect_schema()), no data is read.
+    # Enum-constrained string fields are stored as unconstrained Categorical (see
+    # Field.to_polars_dtype), but the physical on-disk type can still vary: DuckDB-
+    # produced files store these columns as plain String rather than Categorical
+    # (verified against real core_ferceqr__contracts output). Requesting a fixed
+    # schema up front fails outright for those columns the moment it doesn't match
+    # the on-disk type exactly, so this deliberately scans without one and only
+    # overrides the specific columns that actually need it below.
+    natural_schema = pl.scan_parquet(parquet_path).collect_schema()
+
     # Parquet files still store integer/float columns as 32-bit (FIELD_DTYPES_PYARROW),
-    # narrower than the 64-bit Polars schema we're requesting here, so allow scan-time
-    # upcasting rather than the strict match scan_parquet defaults to.
+    # narrower than the 64-bit Polars schema we're requesting here, so override just
+    # those columns to allow scan-time upcasting rather than the strict match
+    # scan_parquet defaults to. Every other column -- including Categorical/string
+    # ones -- passes through with its natural, on-disk dtype.
+    def _needs_numeric_upcast(on_disk: pl.DataType, target: pl.DataType) -> bool:
+        same_numeric_kind = (on_disk.is_integer() and target.is_integer()) or (
+            on_disk.is_float() and target.is_float()
+        )
+        return same_numeric_kind and on_disk != target
+
+    target_dtypes = resource.to_polars_dtypes()
+    schema = {
+        name: target_dtypes[name]
+        if name in target_dtypes and _needs_numeric_upcast(dtype, target_dtypes[name])
+        else dtype
+        for name, dtype in natural_schema.items()
+    }
     return pl.scan_parquet(
         parquet_path,
-        schema=resource.to_polars_dtypes(),
+        schema=schema,
         cast_options=pl.ScanCastOptions(integer_cast="upcast", float_cast="upcast"),
     )
 
