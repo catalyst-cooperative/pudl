@@ -22,10 +22,34 @@ EIA-860M
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
+EIA-930
+~~~~~~~
+
+* Updated :doc:`EIA-930 <data_sources/eia930>` data. See PR :pr:`5445`.
+
 FERC-714
 ~~~~~~~~
 
-* Added 2025 XBRL data for FERC-714. See :issue:`5424` and :pr:`5436`.
+* Added 2025 XBRL data for :doc:`FERC-714 <data_sources/ferc714>`. See :issue:`5424` and :pr:`5436`.
+
+EIA Electricity API
+~~~~~~~~~~~~~~~~~~~
+
+* Updated the :doc:`bulk EIA Electricity API <data_sources/eiaapi>`
+  data used to fill in redacted fuel prices. See PR :pr:`5441`.
+
+EPA CEMS
+~~~~~~~~
+
+* Updated the :doc:`EPA CEMS <data_sources/epacems>` data with
+  additional records through end of March 2026. See PR :pr:`5441`.
+
+FERC Form 6
+~~~~~~~~~~~
+
+* Updated the raw FERC Form 6 archives to include additional
+  2025 data. This data is converted to SQLite, but not deeply
+  integrated into PUDL. See PR :pr:`5441`.
 
 Documentation
 ^^^^^^^^^^^^^
