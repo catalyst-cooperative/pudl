@@ -1288,7 +1288,7 @@ class YearlyPlanningAreaDemandForecast:
         df = df[df["forecast_year"].notna()]
 
         # [2026-july eb]
-        # in 2025, C003677 () reports data for 2034 forecasts two times in two rows
+        # in 2025, C003677 (PUD No. 2 of Grant County) reports data for 2034 forecasts two times in two rows
         # (order_number 10 and 11), each with different values. The report should provide
         # forecasts to 2035, so the latter value (order number 11) should have corresponded to 2035
         # forecasts. This value is manually updated.
@@ -1298,6 +1298,7 @@ class YearlyPlanningAreaDemandForecast:
             & (df.forecast_year == 2034)
             & (df.order_number == 11)
         )
+        # this looks complicated but we do it this way for performance reasons
         expect_bad_data: bool = (2025, "C003677") in df.loc[
             :, ["report_year", "respondent_id_ferc714_xbrl"]
         ].drop_duplicates().set_index(
