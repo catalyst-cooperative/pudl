@@ -529,6 +529,7 @@ class EiaDataConfig(FrozenBaseModel):
 
         Dependencies:
         * eia923 requires eia860 for harvesting purposes.
+        * eia860 can be set to require certain months of eia860M data.
 
         Args:
             values (Dict[str, BaseModel]): dataset data configuration.
@@ -544,6 +545,27 @@ class EiaDataConfig(FrozenBaseModel):
             data["eia860"] = Eia860DataConfig(
                 years=[year for year in data["eia923"].years if year in available_years]
             )
+
+        if data.get("eia860"):
+            if data.get("eia860").eia860m:
+                required_860m_months = data["eia860"].eia860m_year_months
+                if not data.get(
+                    "eia860m"
+                ):  # If EIA 860M not provided, process the necessary months only
+                    data["eia860m"] = Eia860mDataConfig(
+                        year_months=required_860m_months
+                    )
+                # If 860M processed but necessary months not provided, raise a warning
+                elif any(
+                    [
+                        month
+                        for month in required_860m_months
+                        if month not in data.get("eia860m").year_months
+                    ]
+                ):
+                    raise ValueError(
+                        f"Trying to process 860M data for {data.get('eia860m').year_months}, but you are missing the following required year-month partitions: {required_860m_months}."
+                    )
         return data
 
 
