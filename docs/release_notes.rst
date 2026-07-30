@@ -19,6 +19,15 @@ EIA-860M
   issue :issue:`4352` and PR :pr:`5360`. Shoutout to :user:`bsousa22` for making his
   first PUDL contribution!
 
+EIA-923
+~~~~~~~
+
+* Added the :ref:`i_core_eia923__yearly_fuel_stocks` table, which reports end-of-month
+  coal, petroleum liquids, and petroleum coke stocks held at electric power sector
+  generating facilities, aggregated by census division or state. The wide monthly
+  source columns are reshaped into tall monthly records and the reported thousand-unit
+  quantities are converted to base units. See issue :issue:`5081` and PR :pr:`5431`.
+
 Documentation
 ^^^^^^^^^^^^^
 
