@@ -529,7 +529,6 @@ class EiaDataConfig(FrozenBaseModel):
 
         Dependencies:
         * eia923 requires eia860 for harvesting purposes.
-        * eia860 can be set to require certain months of eia860M data.
 
         Args:
             values (Dict[str, BaseModel]): dataset data configuration.
@@ -545,28 +544,43 @@ class EiaDataConfig(FrozenBaseModel):
             data["eia860"] = Eia860DataConfig(
                 years=[year for year in data["eia923"].years if year in available_years]
             )
-
-        if data.get("eia860"):
-            if data.get("eia860").eia860m:
-                required_860m_months = data["eia860"].eia860m_year_months
-                if not data.get(
-                    "eia860m"
-                ):  # If EIA 860M not provided, process the necessary months only
-                    data["eia860m"] = Eia860mDataConfig(
-                        year_months=required_860m_months
-                    )
-                # If 860M processed but necessary months not provided, raise a warning
-                elif any(
-                    [
-                        month
-                        for month in required_860m_months
-                        if month not in data.get("eia860m").year_months
-                    ]
-                ):
-                    raise ValueError(
-                        f"Trying to process 860M data for {data.get('eia860m').year_months}, but you are missing the following required year-month partitions: {required_860m_months}."
-                    )
+            # By default, this will also require some partitions of EIA 860M data.
+            if data["eia860"].eia860m and not data.get("eia860m"):
+                data["eia860m"] = Eia860mDataConfig(
+                    year_months=data["eia860"].eia860m_year_months
+                )
         return data
+
+    @model_validator(mode="after")
+    def validate_eia860m_consistency(self):
+        """After-construction validation: ensure eia860/eia860m are consistent.
+
+        Note: this only validates and raises; it does not attempt to inject a missing
+        eia860m config (after-mode validators run after models are constructed).
+        """
+        # If eia860 is not present, nothing to validate
+        if not self.eia860:
+            return self
+
+        # If eia860 requests 860m months, ensure an eia860m config exists
+        if self.eia860.eia860m:
+            required_months = list(self.eia860.eia860m_year_months or [])
+            if not self.eia860m:
+                raise ValueError(
+                    "EIA860 configuration requests EIA860M months but no "
+                    "EIA860M configuration was provided. Provide eia.eia860m: true "
+                    f"and eia.eia860m.year_months that cover {required_months}."
+                )
+
+            provided_months = list(self.eia860m.year_months or [])
+            missing = [m for m in required_months if m not in provided_months]
+            if missing:
+                raise ValueError(
+                    f"EIA860 requests the following 860M months {required_months} "
+                    f"but the EIA860M configuration only includes {provided_months}; "
+                    f"missing: {missing}"
+                )
+        return self
 
 
 class Rus7DataConfig(GenericDataConfig):
