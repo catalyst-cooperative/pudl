@@ -69,6 +69,9 @@ pudl:
     #
     # We only use q1 for epacems etl_fast even if later quarters are available.
     year_quarters: ["2024q1"]
+  epamats:
+    # We only use q1 for epamats etl_fast even if later quarters are available.
+    year_quarters: ["2025q1"]
   phmsagas:
     years: [2024]
   nrelatb:
