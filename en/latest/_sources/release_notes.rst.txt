@@ -27,6 +27,12 @@ EIA-930
 
 * Updated :doc:`EIA-930 <data_sources/eia930>` data. See PR :pr:`5445`.
 
+FERC-714
+~~~~~~~~
+
+* Added 2025 XBRL data for :doc:`FERC-714 <data_sources/ferc714>`. See
+  :issue:`5424` and :pr:`5436`.
+
 EIA Electricity API
 ~~~~~~~~~~~~~~~~~~~
 

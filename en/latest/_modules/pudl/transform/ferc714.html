@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.transform.ferc714 &#8212; PUDL 2026.7.3.dev23 documentation</title>
+    <title>pudl.transform.ferc714 &#8212; PUDL 2026.7.3.dev24 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=b7cebeb2"></script>
+    <script src="../../../_static/documentation_options.js?v=5fedff02"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.7.3.dev23 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.7.3.dev23 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.7.3.dev24 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.7.3.dev24 documentation - Home"/>
   
   
 </a></div>
@@ -1025,6 +1025,10 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="DISCONTINUOUS_DATES">
 <a class="viewcode-back" href="../../../autoapi/pudl/transform/ferc714/index.html#pudl.transform.ferc714.DISCONTINUOUS_DATES">[docs]</a>
 <span class="n">DISCONTINUOUS_DATES</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="c1"># 2025 DST: 3/09-11/2</span>
+    <span class="c1"># 2 1-hr gaps on 1/1</span>
+    <span class="c1"># 9 1-hr gaps on 3/9</span>
+    <span class="p">{</span><span class="s2">&quot;report_year&quot;</span><span class="p">:</span> <span class="mi">2025</span><span class="p">,</span> <span class="s2">&quot;gap_count&quot;</span><span class="p">:</span> <span class="mi">11</span><span class="p">},</span>
     <span class="c1"># 2024 DST: 3/10-11/3</span>
     <span class="c1">#  1 1-hr gap  on 3/1</span>
     <span class="c1">#  1 2-hr gap  on 3/9</span>
@@ -1061,10 +1065,11 @@ window.runMermaid = runMermaid;</script>
     <span class="mi">2013</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
     <span class="mi">2022</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
     <span class="mi">2024</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="mi">2025</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
 <span class="p">}</span></div>
 
 <span class="sd">&quot;&quot;&quot;Identified duplicated UTC datetimes resulting from changes to a planning area&#39;s</span>
-<span class="sd">reporting timezone.&quot;&quot;&quot;</span>
+<span class="sd">reporting timezone or duplicated reporting on Jan 1st in two report years.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="BAD_RESPONDENTS">
 <a class="viewcode-back" href="../../../autoapi/pudl/transform/ferc714/index.html#pudl.transform.ferc714.BAD_RESPONDENTS">[docs]</a>
@@ -1309,6 +1314,9 @@ window.runMermaid = runMermaid;</script>
     <span class="p">)</span>
 
     <span class="n">df</span><span class="p">[</span><span class="s2">&quot;respondent_id_ferc714&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">resp_id_col</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">resp_map_series</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">df</span><span class="o">.</span><span class="n">respondent_id_ferc714</span><span class="o">.</span><span class="n">notnull</span><span class="p">()</span><span class="o">.</span><span class="n">all</span><span class="p">(),</span> <span class="p">(</span>
+        <span class="s2">&quot;Some FERC714 respondent IDs are unmapped. You may need to update the respondent_id_ferc714 mapping spreadsheet.&quot;</span>
+    <span class="p">)</span>
     <span class="k">return</span> <span class="n">df</span></div>
 
 
@@ -1505,7 +1513,7 @@ window.runMermaid = runMermaid;</script>
             <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span>
                 <span class="s2">&quot;We expected 0 respondents with multiple different eia_code&#39;s &quot;</span>
                 <span class="sa">f</span><span class="s2">&quot;reported for each respondent in </span><span class="si">{</span><span class="n">source</span><span class="si">}</span><span class="s2"> data, &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;but we found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">multiple_eia_codes</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;but we found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">multiple_eia_codes</span><span class="p">)</span><span class="si">}</span><span class="s2">:</span><span class="se">\n\n</span><span class="si">{</span><span class="n">multiple_eia_codes</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="p">)</span>
         <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;eia_code_count&quot;</span><span class="p">])</span></div>
 
@@ -2278,6 +2286,32 @@ window.runMermaid = runMermaid;</script>
                 <span class="sa">f</span><span class="s2">&quot;We expected one or 0 NA forecast year, but found:</span><span class="se">\n</span><span class="si">{</span><span class="n">nulls</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="p">)</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;forecast_year&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">notna</span><span class="p">()]</span>
+
+        <span class="c1"># [2026-july eb]</span>
+        <span class="c1"># in 2025, C003677 (PUD No. 2 of Grant County) reports data for 2034 forecasts two times in two rows</span>
+        <span class="c1"># (order_number 10 and 11), each with different values. The report should provide</span>
+        <span class="c1"># forecasts to 2035, so the latter value (order number 11) should have corresponded to 2035</span>
+        <span class="c1"># forecasts. This value is manually updated.</span>
+        <span class="n">text_in_year_mask</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">respondent_id_ferc714_xbrl</span> <span class="o">==</span> <span class="s2">&quot;C003677&quot;</span><span class="p">)</span>
+            <span class="o">&amp;</span> <span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">report_year</span> <span class="o">==</span> <span class="mi">2025</span><span class="p">)</span>
+            <span class="o">&amp;</span> <span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">forecast_year</span> <span class="o">==</span> <span class="mi">2034</span><span class="p">)</span>
+            <span class="o">&amp;</span> <span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">order_number</span> <span class="o">==</span> <span class="mi">11</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="c1"># this looks complicated but we do it this way for performance reasons</span>
+        <span class="n">expect_bad_data</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2025</span><span class="p">,</span> <span class="s2">&quot;C003677&quot;</span><span class="p">)</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+            <span class="p">:,</span> <span class="p">[</span><span class="s2">&quot;report_year&quot;</span><span class="p">,</span> <span class="s2">&quot;respondent_id_ferc714_xbrl&quot;</span><span class="p">]</span>
+        <span class="p">]</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span>
+            <span class="p">[</span><span class="s2">&quot;report_year&quot;</span><span class="p">,</span> <span class="s2">&quot;respondent_id_ferc714_xbrl&quot;</span><span class="p">]</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">index</span>
+        <span class="k">if</span> <span class="n">expect_bad_data</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">text_in_year_mask</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span>
+                <span class="s2">&quot;Expected to find invalid demand forecast data for (2025, C003677) but &quot;</span>
+                <span class="s2">&quot;text_in_year_mask selects no records. The data or filtering process may &quot;</span>
+                <span class="s2">&quot;have been revised and this spot fix can be removed.&quot;</span>
+            <span class="p">)</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">text_in_year_mask</span><span class="p">,</span> <span class="s2">&quot;forecast_year&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2035</span>  <span class="c1"># Manually update this field</span>
+
         <span class="c1"># Convert YY to YYYY for respondent 107 (the culprit).</span>
         <span class="c1"># The earliest forecast year reported as YY is 22. Any numbers</span>
         <span class="c1"># lower than that would signify a transition into 2100.</span>

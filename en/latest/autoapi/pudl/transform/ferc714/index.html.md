@@ -63,7 +63,7 @@ expect to add to this list each year.
 ### pudl.transform.ferc714.DUPLICATED_DATETIMES
 
 Identified duplicated UTC datetimes resulting from changes to a planning area’s
-reporting timezone.
+reporting timezone or duplicated reporting on Jan 1st in two report years.
 
 ### pudl.transform.ferc714.BAD_RESPONDENTS *= [2, 319, 99991, 99992, 99993, 99994, 99995]*
 

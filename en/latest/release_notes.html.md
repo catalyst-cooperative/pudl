@@ -20,6 +20,11 @@ This is the upcoming quarterly PUDL release.
 
 * Updated [EIA-930](data_sources/eia930.md) data. See PR [#5445](https://github.com/catalyst-cooperative/pudl/pull/5445).
 
+#### FERC-714
+
+* Added 2025 XBRL data for [FERC-714](data_sources/ferc714.md). See
+  [#5424](https://github.com/catalyst-cooperative/pudl/issues/5424) and [#5436](https://github.com/catalyst-cooperative/pudl/pull/5436).
+
 #### EIA Electricity API
 
 * Updated the [bulk EIA Electricity API](data_sources/eiaapi.md)

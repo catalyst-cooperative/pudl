@@ -4408,7 +4408,7 @@ expect to add to this list each year.
 ### pudl.transform.ferc714.DUPLICATED_DATETIMES
 
 Identified duplicated UTC datetimes resulting from changes to a planning area’s
-reporting timezone.
+reporting timezone or duplicated reporting on Jan 1st in two report years.
 
 ### pudl.transform.ferc714.BAD_RESPONDENTS *= [2, 319, 99991, 99992, 99993, 99994, 99995]*
 
@@ -38803,6 +38803,9 @@ of data. Common updates include:
   after investigating the new duplicates and confirming they occur on reasonable
   dates (usually when a respondent changes their UTC offset, whether due to daylight
   savings time or otherwise).
+* Note that `out_ferc714__georeferenced_respondents` is expected to have a small
+  partition for the most recent year of data if it is updated prior to EIA-861’s annual
+  final release, as these datasets are both used to produce this table.
 
 ## 5. Update the PUDL DB Schema
 
@@ -39325,8 +39328,8 @@ per-table direct links](https://github.com/catalyst-cooperative/eel-hole/issues/
 | Source URL                      | [https://www.ferc.gov/industries-data/electric/general-information/electric-industry-forms/form-no-714-annual-electric](https://www.ferc.gov/industries-data/electric/general-information/electric-industry-forms/form-no-714-annual-electric)                                                                                                                                                               |
 |---------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | Source Description              | Electric transmitting utilities operating balancing authority areas and planning areas with annual peak demand over 200MW are required to file Form 714 with the Federal Energy Regulatory Commission (FERC), reporting balancing authority area generation, actual and scheduled inter-balancing authority area power transfers, and net energy for load, summer-winter generation peaks and system lambda. |
-| Download Size                   | 194 MB                                                                                                                                                                                                                                                                                                                                                                                                       |
-| Temporal Coverage               | 2006-2024                                                                                                                                                                                                                                                                                                                                                                                                    |
+| Download Size                   | 228 MB                                                                                                                                                                                                                                                                                                                                                                                                       |
+| Temporal Coverage               | 2006-2025                                                                                                                                                                                                                                                                                                                                                                                                    |
 | PUDL Code                       | `ferc714`                                                                                                                                                                                                                                                                                                                                                                                                    |
 | Unprocessed Source Data Archive | [10.5281/zenodo.4127100](https://doi.org/10.5281/zenodo.4127100)                                                                                                                                                                                                                                                                                                                                             |
 | Issues                          | [Open FERC Form 714 – Annual Electric Balancing Authority Area and Planning Area Report issues](https://github.com/catalyst-cooperative/pudl/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3Aferc714)                                                                                                                                                                                                   |
@@ -49036,7 +49039,7 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 Annual summary of demand and other information about FERC-714 respondents.
 
 Most-recent data:
-: 2024
+: 2025
 
 Processing:
 : Data has been expanded into a wide/denormalized format, with IDs and codes accompanied by human-readable names and descriptions.
@@ -49226,7 +49229,7 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 Hourly time series of electricity demand by planning area.
 
 Most-recent data:
-: 2024
+: 2025
 
 Processing:
 : Data is ready for use in analyses, but for practical reasons has not been denormalized and remains in narrow format.
@@ -49310,7 +49313,7 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 Annual respondents with the county FIPS IDs for their service territories.
 
 Most-recent data:
-: 2024
+: 2025
 
 Processing:
 : Data has been expanded into a wide/denormalized format, with IDs and codes accompanied by human-readable names and descriptions.
@@ -49394,7 +49397,7 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 Summarized demand statistics and FERC-714 respondent attributes by respondent-year.
 
 Most-recent data:
-: 2024
+: 2025
 
 Processing:
 : Data has been expanded into a wide/denormalized format, with IDs and codes accompanied by human-readable names and descriptions.
@@ -66045,7 +66048,7 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 Hourly time series of electricity demand by planning area.
 
 Most-recent data:
-: 2024
+: 2025
 
 Processing:
 : Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
@@ -66132,7 +66135,7 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 Respondent identification.
 
 Most-recent data:
-: 2024
+: 2025
 
 Processing:
 : Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
@@ -66206,7 +66209,7 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 Annual time series of 10-year forecasted summer and winter peak demand and annual net energy per planning area.
 
 Most-recent data:
-: 2024
+: 2025
 
 Processing:
 : Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
@@ -75000,6 +75003,11 @@ This is the upcoming quarterly PUDL release.
 #### EIA-930
 
 * Updated [EIA-930](data_sources/eia930.md) data. See PR [#5445](https://github.com/catalyst-cooperative/pudl/pull/5445).
+
+#### FERC-714
+
+* Added 2025 XBRL data for [FERC-714](data_sources/ferc714.md). See
+  [#5424](https://github.com/catalyst-cooperative/pudl/issues/5424) and [#5436](https://github.com/catalyst-cooperative/pudl/pull/5436).
 
 #### EIA Electricity API
 
