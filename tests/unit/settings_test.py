@@ -238,36 +238,29 @@ class TestEiaDataConfig:
 
     def test_eia860_eia860m_both_present_succeeds(self: Self):
         """When both eia860 requests 860M months and eia860m is provided the model should validate."""
-        # choose months that are outside the default EIA-860 years (e.g., 2026 months)
-        required_months = ["2026-04"]
-
-        eia860 = Eia860DataConfig(eia860m=True, eia860m_year_months=required_months)
+        eia860 = Eia860DataConfig(eia860m=True)
         # provided eia860m includes at least the required months
-        eia860m = Eia860mDataConfig(year_months=["2026-04", "2026-05"])
+        eia860m = Eia860mDataConfig(year_months=eia860.eia860m_year_months)
 
         cfg = EiaDataConfig(eia860=eia860, eia860m=eia860m)
 
         assert cfg.eia860 is not None
         assert cfg.eia860m is not None
         # required months must be present in the resolved eia860m year_months
-        assert set(required_months).issubset(set(cfg.eia860m.year_months))
+        assert set(cfg.eia860.eia860m_year_months) == set(cfg.eia860m.year_months)
 
     def test_eia860_eia860m_missing_months_raises(self: Self):
         """If eia860 requests specific 860M months but the provided eia860m config lacks them, validation should fail."""
-        required_months = ["2026-01"]
-
-        eia860 = Eia860DataConfig(eia860m=True, eia860m_year_months=required_months)
+        eia860 = Eia860DataConfig(eia860m=True)
         # provided eia860m is missing one of the required months
-        incomplete_eia860m = Eia860mDataConfig(year_months=["2022-01"])
+        incomplete_eia860m = Eia860mDataConfig(year_months=["2020-01"])
 
         with pytest.raises(ValidationError):
             EiaDataConfig(eia860=eia860, eia860m=incomplete_eia860m)
 
     def test_eia860_without_eia860m_raises(self: Self):
         """If eia860 requests specific 860M months but the provided eia860m config lacks them, validation should fail."""
-        required_months = ["2026-01"]
-
-        eia860 = Eia860DataConfig(eia860m=True, eia860m_year_months=required_months)
+        eia860 = Eia860DataConfig(eia860m=True)
 
         with pytest.raises(ValidationError):
             EiaDataConfig(eia860=eia860)
