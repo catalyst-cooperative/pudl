@@ -330,7 +330,9 @@ def _assign_groupwise_load_factor_bins(
     valid_pl = pl.from_pandas(valid_pd)
     valid_pl = valid_pl.with_columns(
         pl.col("state").cast(pl.Categorical),
-        pl.col("load_factor_bin").cast(pl.Struct({0: pl.Float64, 1: pl.Float64})),
+        pl.col("load_factor_bin").cast(
+            pl.Struct({"left": pl.Float64, "right": pl.Float64})
+        ),
     )
 
     # recombine with rest of rows
@@ -339,7 +341,7 @@ def _assign_groupwise_load_factor_bins(
             valid_pl,
             invalid.with_columns(
                 pl.lit(None)
-                .cast(pl.Struct({0: pl.Float64, 1: pl.Float64}))
+                .cast(valid_pl["load_factor_bin"].dtype)
                 .alias("load_factor_bin")
             ).collect(),
         ]
@@ -493,7 +495,7 @@ def prep_output_df(
 
 
 def compute_stable_runs(
-    binned_cems: pl.DataFrame, unit_cols: list[str], consecutive_hours: int
+    binned_cems: pl.DataFrame, unit_cols: list[str], min_stable_consecutive_hours: int
 ) -> pl.DataFrame:
     """Given a certain consecutive hour threshold, find runs with stable behavior."""
     stable_runs = (
@@ -512,7 +514,7 @@ def compute_stable_runs(
     )
 
     stable_bins = (
-        stable_runs.filter(pl.col("run_length") >= consecutive_hours)
+        stable_runs.filter(pl.col("run_length") >= min_stable_consecutive_hours)
         .sort(unit_cols + ["load_factor_bin_ordinal"])
         .unique(subset=unit_cols, keep="first")
         .rename(
@@ -773,29 +775,6 @@ def estimate_operational_characteristics_by_unit(
     return output.select(ordered_cols)
 
 
-def operational_characteristics(
-    core_epacems__hourly_emissions: pl.LazyFrame,
-    final_year: int,
-    num_years: int,
-    min_stable_consecutive_hours: int,
-    states: list[str] | None,
-) -> pl.LazyFrame:
-    """Estimate EPA CEMS unit operational characteristics.
-
-    This table corresponds to the script output named ``epa_op_char_output_df.csv``.
-    """
-    cems = filter_cems_for_heat_rate_analysis(
-        core_epacems__hourly_emissions=core_epacems__hourly_emissions,
-        final_year=final_year,
-        num_years=num_years,
-        states=states,
-    )
-    return estimate_operational_characteristics_by_unit(
-        cems=cems,
-        min_stable_consecutive_hours=min_stable_consecutive_hours,
-    )
-
-
 def operational_characteristics_factory(
     state: str,
 ) -> AssetsDefinition:
@@ -812,6 +791,10 @@ def operational_characteristics_factory(
         context: AssetExecutionContext,
         core_epacems__hourly_emissions: pl.LazyFrame,
     ) -> pl.DataFrame:
+        """Estimate EPA CEMS unit operational characteristics.
+
+        This table corresponds to the script output named ``epa_op_char_output_df.csv``.
+        """
         heat_rate_config = _get_heat_rate_analysis_config(context)
         year_quarters = context.resources.global_data_config.pudl.epacems.year_quarters
         max_full_year = int(
@@ -824,14 +807,18 @@ def operational_characteristics_factory(
         logger.info(
             f"Deriving unit-level operational characteristics from {state} EPA CEMS "
         )
-        state_lf = operational_characteristics(
+
+        cems = filter_cems_for_heat_rate_analysis(
             core_epacems__hourly_emissions=core_epacems__hourly_emissions,
             final_year=max_full_year,
             num_years=heat_rate_config["num_years"],
+            states=[state],
+        )
+        state_lf = estimate_operational_characteristics_by_unit(
+            cems=cems,
             min_stable_consecutive_hours=heat_rate_config[
                 "min_stable_consecutive_hours"
             ],
-            states=[state],
         )
         return state_lf
 
