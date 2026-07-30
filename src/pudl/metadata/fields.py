@@ -1184,6 +1184,16 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Indicates whether the generator uses carbon capture technology."
         ),
     },
+    "census_division_and_state": {
+        "type": "string",
+        "description": (
+            "Census division, state, or grouping of states as reported in the "
+            "EIA-923 fuel stocks table. The raw values mix census divisions, "
+            "individual states, multi-state groupings, and a national total, and "
+            "are not yet standardized against PUDL's state or census-region "
+            "conventions."
+        ),
+    },
     "central_index_key": {
         "type": "string",
         "description": "Identifier of the company in SEC database.",
@@ -1249,6 +1259,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Coal heat content as a fraction (0-1) of overall fuel heat content, "
             "measured in MMBtu. The '_mmbtu' suffix indicates the denominator unit "
             "used to compute the fraction, not the unit of this field."
+        ),
+    },
+    "coal_stock_tons": {
+        "type": "number",
+        "unit": "short_ton",
+        "description": (
+            "End-of-month coal stocks held at electric power sector generating "
+            "facilities, aggregated by census division or state."
         ),
     },
     "coalmine_county_id_fips": {
@@ -6122,6 +6140,22 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "dry_cooling_fraction": {
         "description": "Fraction of cooling load served by dry cooling components.",
         "type": "number",
+    },
+    "petroleum_coke_stock_barrels": {
+        "type": "number",
+        "unit": "barrel",
+        "description": (
+            "End-of-month petroleum coke stocks held at electric power sector "
+            "generating facilities, aggregated by census division or state."
+        ),
+    },
+    "petroleum_liquids_stock_barrels": {
+        "type": "number",
+        "unit": "barrel",
+        "description": (
+            "End-of-month petroleum liquids stocks held at electric power sector "
+            "generating facilities, aggregated by census division or state."
+        ),
     },
     "phone_extension": {
         "type": "string",

@@ -1162,6 +1162,49 @@ and consumption is the net generation."""
         "sources": ["eia923"],
         "etl_group": "eia923",
     },
+    "_core_eia923__yearly_fuel_stocks": {
+        "description": {
+            "additional_summary_text": (
+                "end-of-month coal, petroleum liquids, and petroleum coke stocks "
+                "held at electric power sector generating facilities, aggregated by "
+                "census division or state."
+            ),
+            "usage_warnings": ["experimental_wip"],
+            "additional_source_text": "(Fuel Stocks Data)",
+            "additional_primary_key_text": (
+                "The census_division_and_state column is reported as free text and "
+                "mixes census divisions, individual states, multi-state groupings, "
+                "and a national total. It has not yet been standardized against "
+                "PUDL's state or census-region conventions, so it is stored as-is "
+                "and left unconstrained."
+            ),
+            "additional_details_text": (
+                "In the raw data all twelve months of stocks are reported in a "
+                "single wide record per region and year. Here they have been "
+                "reshaped into tall monthly records. Coal stocks are reported in "
+                "thousand tons and petroleum liquids and petroleum coke in thousand "
+                "barrels in the source; they have been converted to short tons and "
+                "barrels respectively."
+            ),
+        },
+        "schema": {
+            "fields": [
+                "report_date",
+                "census_division_and_state",
+                "coal_stock_tons",
+                "petroleum_liquids_stock_barrels",
+                "petroleum_coke_stock_barrels",
+                "data_maturity",
+            ],
+            "primary_key": [
+                "report_date",
+                "census_division_and_state",
+            ],
+        },
+        "field_namespace": "eia",
+        "sources": ["eia923"],
+        "etl_group": "eia923",
+    },
 }
 """EIA-923 resource attributes organized by PUDL identifier (``resource.name``).
 
