@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.metadata.dtypes &#8212; PUDL 2026.7.3.dev24 documentation</title>
+    <title>pudl.metadata.dtypes &#8212; PUDL 2026.7.3.dev25 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=5fedff02"></script>
+    <script src="../../../_static/documentation_options.js?v=f6ad8b64"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.7.3.dev24 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.7.3.dev24 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.7.3.dev25 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.7.3.dev25 documentation - Home"/>
   
   
 </a></div>
@@ -916,11 +916,11 @@ window.runMermaid = runMermaid;</script>
 <span class="n">FIELD_DTYPES_POLARS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">type</span><span class="p">[</span><span class="n">pl</span><span class="o">.</span><span class="n">DataType</span><span class="p">]</span> <span class="o">|</span> <span class="n">pl</span><span class="o">.</span><span class="n">DataType</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;boolean&quot;</span><span class="p">:</span> <span class="n">polars_datatypes</span><span class="o">.</span><span class="n">Boolean</span><span class="p">,</span>
     <span class="s2">&quot;date&quot;</span><span class="p">:</span> <span class="n">polars_datatypes</span><span class="o">.</span><span class="n">Date</span><span class="p">,</span>
-    <span class="s2">&quot;datetime&quot;</span><span class="p">:</span> <span class="n">polars_datatypes</span><span class="o">.</span><span class="n">Datetime</span><span class="p">(</span><span class="n">time_unit</span><span class="o">=</span><span class="s2">&quot;ms&quot;</span><span class="p">),</span>
+    <span class="s2">&quot;datetime&quot;</span><span class="p">:</span> <span class="n">polars_datatypes</span><span class="o">.</span><span class="n">Datetime</span><span class="p">(</span><span class="n">time_unit</span><span class="o">=</span><span class="s2">&quot;us&quot;</span><span class="p">),</span>
     <span class="s2">&quot;integer&quot;</span><span class="p">:</span> <span class="n">polars_datatypes</span><span class="o">.</span><span class="n">Int64</span><span class="p">,</span>
     <span class="s2">&quot;number&quot;</span><span class="p">:</span> <span class="n">polars_datatypes</span><span class="o">.</span><span class="n">Float64</span><span class="p">,</span>
     <span class="s2">&quot;string&quot;</span><span class="p">:</span> <span class="n">polars_datatypes</span><span class="o">.</span><span class="n">String</span><span class="p">,</span>
-    <span class="s2">&quot;year&quot;</span><span class="p">:</span> <span class="n">polars_datatypes</span><span class="o">.</span><span class="n">Datetime</span><span class="p">,</span>
+    <span class="s2">&quot;year&quot;</span><span class="p">:</span> <span class="n">polars_datatypes</span><span class="o">.</span><span class="n">Datetime</span><span class="p">(</span><span class="n">time_unit</span><span class="o">=</span><span class="s2">&quot;us&quot;</span><span class="p">),</span>
 <span class="p">}</span></div>
 
 <span class="sd">&quot;&quot;&quot;Polars data type by simplified PUDL field type.&quot;&quot;&quot;</span>
@@ -930,11 +930,11 @@ window.runMermaid = runMermaid;</script>
 <span class="n">FIELD_DTYPES_DUCKDB</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">sqltypes</span><span class="o">.</span><span class="n">DuckDBPyType</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;boolean&quot;</span><span class="p">:</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">sqltypes</span><span class="o">.</span><span class="n">BOOLEAN</span><span class="p">,</span>
     <span class="s2">&quot;date&quot;</span><span class="p">:</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">sqltypes</span><span class="o">.</span><span class="n">DATE</span><span class="p">,</span>
-    <span class="s2">&quot;datetime&quot;</span><span class="p">:</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">sqltypes</span><span class="o">.</span><span class="n">TIMESTAMP_MS</span><span class="p">,</span>
-    <span class="s2">&quot;integer&quot;</span><span class="p">:</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">sqltypes</span><span class="o">.</span><span class="n">INTEGER</span><span class="p">,</span>
+    <span class="s2">&quot;datetime&quot;</span><span class="p">:</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">sqltypes</span><span class="o">.</span><span class="n">TIMESTAMP</span><span class="p">,</span>
+    <span class="s2">&quot;integer&quot;</span><span class="p">:</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">sqltypes</span><span class="o">.</span><span class="n">BIGINT</span><span class="p">,</span>
     <span class="s2">&quot;number&quot;</span><span class="p">:</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">sqltypes</span><span class="o">.</span><span class="n">DOUBLE</span><span class="p">,</span>
     <span class="s2">&quot;string&quot;</span><span class="p">:</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">sqltypes</span><span class="o">.</span><span class="n">VARCHAR</span><span class="p">,</span>
-    <span class="s2">&quot;year&quot;</span><span class="p">:</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">sqltypes</span><span class="o">.</span><span class="n">TIMESTAMP_MS</span><span class="p">,</span>
+    <span class="s2">&quot;year&quot;</span><span class="p">:</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">sqltypes</span><span class="o">.</span><span class="n">TIMESTAMP</span><span class="p">,</span>
 <span class="p">}</span></div>
 
 <span class="sd">&quot;&quot;&quot;DuckDB data type by simplified PUDL field type.&quot;&quot;&quot;</span>
@@ -943,13 +943,13 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/dtypes/index.html#pudl.metadata.dtypes.FIELD_DTYPES_PANDAS">[docs]</a>
 <span class="n">FIELD_DTYPES_PANDAS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;boolean&quot;</span><span class="p">:</span> <span class="s2">&quot;boolean&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;date&quot;</span><span class="p">:</span> <span class="s2">&quot;datetime64[s]&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;datetime&quot;</span><span class="p">:</span> <span class="s2">&quot;datetime64[s]&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;date&quot;</span><span class="p">:</span> <span class="s2">&quot;datetime64[us]&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;datetime&quot;</span><span class="p">:</span> <span class="s2">&quot;datetime64[us]&quot;</span><span class="p">,</span>
     <span class="s2">&quot;geometry&quot;</span><span class="p">:</span> <span class="s2">&quot;geometry&quot;</span><span class="p">,</span>
     <span class="s2">&quot;integer&quot;</span><span class="p">:</span> <span class="s2">&quot;Int64&quot;</span><span class="p">,</span>
     <span class="s2">&quot;number&quot;</span><span class="p">:</span> <span class="s2">&quot;float64&quot;</span><span class="p">,</span>
     <span class="s2">&quot;string&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;year&quot;</span><span class="p">:</span> <span class="s2">&quot;datetime64[s]&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;year&quot;</span><span class="p">:</span> <span class="s2">&quot;datetime64[us]&quot;</span><span class="p">,</span>
 <span class="p">}</span></div>
 
 <span class="sd">&quot;&quot;&quot;Pandas data type by simplified PUDL field type.&quot;&quot;&quot;</span>
@@ -959,24 +959,22 @@ window.runMermaid = runMermaid;</script>
 <span class="n">FIELD_DTYPES_PYARROW</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pa</span><span class="o">.</span><span class="n">DataType</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;boolean&quot;</span><span class="p">:</span> <span class="n">pa</span><span class="o">.</span><span class="n">bool_</span><span class="p">(),</span>
     <span class="s2">&quot;date&quot;</span><span class="p">:</span> <span class="n">pa</span><span class="o">.</span><span class="n">date32</span><span class="p">(),</span>
-    <span class="s2">&quot;datetime&quot;</span><span class="p">:</span> <span class="n">pa</span><span class="o">.</span><span class="n">timestamp</span><span class="p">(</span><span class="s2">&quot;ms&quot;</span><span class="p">),</span>
+    <span class="s2">&quot;datetime&quot;</span><span class="p">:</span> <span class="n">pa</span><span class="o">.</span><span class="n">timestamp</span><span class="p">(</span><span class="s2">&quot;us&quot;</span><span class="p">),</span>
     <span class="s2">&quot;geometry&quot;</span><span class="p">:</span> <span class="n">ga</span><span class="o">.</span><span class="n">wkb</span><span class="p">(),</span>
-    <span class="s2">&quot;integer&quot;</span><span class="p">:</span> <span class="n">pa</span><span class="o">.</span><span class="n">int32</span><span class="p">(),</span>
-    <span class="s2">&quot;number&quot;</span><span class="p">:</span> <span class="n">pa</span><span class="o">.</span><span class="n">float32</span><span class="p">(),</span>
+    <span class="s2">&quot;integer&quot;</span><span class="p">:</span> <span class="n">pa</span><span class="o">.</span><span class="n">int64</span><span class="p">(),</span>
+    <span class="s2">&quot;number&quot;</span><span class="p">:</span> <span class="n">pa</span><span class="o">.</span><span class="n">float64</span><span class="p">(),</span>
     <span class="s2">&quot;string&quot;</span><span class="p">:</span> <span class="n">pa</span><span class="o">.</span><span class="n">string</span><span class="p">(),</span>
-    <span class="s2">&quot;year&quot;</span><span class="p">:</span> <span class="n">pa</span><span class="o">.</span><span class="n">int32</span><span class="p">(),</span>
+    <span class="s2">&quot;year&quot;</span><span class="p">:</span> <span class="n">pa</span><span class="o">.</span><span class="n">int64</span><span class="p">(),</span>
 <span class="p">}</span></div>
 
+<span class="sd">&quot;&quot;&quot;Pyarrow data type by simplified PUDL field type.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="FIELD_DTYPES_SQLITE">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/dtypes/index.html#pudl.metadata.dtypes.FIELD_DTYPES_SQLITE">[docs]</a>
 <span class="n">FIELD_DTYPES_SQLITE</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">type</span><span class="p">[</span><span class="n">SATypeEngine</span><span class="p">]</span> <span class="o">|</span> <span class="n">SATypeEngine</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;boolean&quot;</span><span class="p">:</span> <span class="n">sa</span><span class="o">.</span><span class="n">Boolean</span><span class="p">,</span>
     <span class="s2">&quot;date&quot;</span><span class="p">:</span> <span class="n">sa</span><span class="o">.</span><span class="n">Date</span><span class="p">,</span>
-    <span class="c1"># Ensure SQLite&#39;s string representation of datetime uses only whole seconds:</span>
-    <span class="s2">&quot;datetime&quot;</span><span class="p">:</span> <span class="n">SQLITE_DATETIME</span><span class="p">(</span>
-        <span class="n">storage_format</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%(year)04d</span><span class="s2">-</span><span class="si">%(month)02d</span><span class="s2">-</span><span class="si">%(day)02d</span><span class="s2"> </span><span class="si">%(hour)02d</span><span class="s2">:</span><span class="si">%(minute)02d</span><span class="s2">:</span><span class="si">%(second)02d</span><span class="s2">&quot;</span>
-    <span class="p">),</span>
+    <span class="s2">&quot;datetime&quot;</span><span class="p">:</span> <span class="n">SQLITE_DATETIME</span><span class="p">(),</span>
     <span class="s2">&quot;integer&quot;</span><span class="p">:</span> <span class="n">sa</span><span class="o">.</span><span class="n">Integer</span><span class="p">,</span>
     <span class="s2">&quot;number&quot;</span><span class="p">:</span> <span class="n">sa</span><span class="o">.</span><span class="n">Float</span><span class="p">,</span>
     <span class="s2">&quot;string&quot;</span><span class="p">:</span> <span class="n">sa</span><span class="o">.</span><span class="n">Text</span><span class="p">,</span>
@@ -1193,7 +1191,7 @@ window.runMermaid = runMermaid;</script>
     <span class="k">elif</span> <span class="n">dtype_backend</span> <span class="o">==</span> <span class="s2">&quot;sqlite&quot;</span><span class="p">:</span>
         <span class="c1"># Similarly SQLite is also missing the geometry dtype.</span>
         <span class="n">dtypes</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="n">field</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">field</span><span class="o">.</span><span class="n">to_sql_dtype</span><span class="p">()</span>
+            <span class="n">field</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">field</span><span class="o">.</span><span class="n">to_sqlite_dtype</span><span class="p">()</span>
             <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">resource_metadata</span><span class="o">.</span><span class="n">schema</span><span class="o">.</span><span class="n">fields</span>
             <span class="k">if</span> <span class="n">field</span><span class="o">.</span><span class="n">type</span> <span class="ow">in</span> <span class="n">FIELD_DTYPES_SQLITE</span>
         <span class="p">}</span>

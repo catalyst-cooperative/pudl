@@ -59,6 +59,16 @@ This is the upcoming quarterly PUDL release.
   data - previously, the Upper Great Plains West region FERC respondent was mapped
   to the Desert Southwest region EIA balancing authority information, and vice
   versa. See [#4644](https://github.com/catalyst-cooperative/pudl/issues/4644) and [#5408](https://github.com/catalyst-cooperative/pudl/pull/5408).
+* Fixed an exact-float merge bug in FERC1 “exploded tables” corrections. The
+  [`add_sizable_minority_corrections()`](autoapi/pudl/output/ferc1/index.md#pudl.output.ferc1.Exploder.add_sizable_minority_corrections) method matched
+  correction candidates by merging directly on floating point columns. Exact float
+  equality is extremely brittle, and moving from 32- to 64-bit floats
+  changed which utility/year pairs matched, producing extra rows and different
+  `ending_balance` sums in [out_ferc1_\_yearly_detailed_balance_sheet_assets](data_dictionaries/pudl_db.md#out-ferc1-yearly-detailed-balance-sheet-assets) and
+  [out_ferc1_\_yearly_rate_base](data_dictionaries/pudl_db.md#out-ferc1-yearly-rate-base). These were real matches being lost
+  due to the limited precision of 32-bit floats, on top of the brittleness of of merging
+  on floating point numbers. These are now being captured deterministically by merging
+  on values within a fixed tolerance of $5. See PR [#5350](https://github.com/catalyst-cooperative/pudl/pull/5350).
 
 ### Performance Improvements
 
@@ -81,6 +91,13 @@ This is the upcoming quarterly PUDL release.
   gracefully when only a subset of years is present, and is substantially easier to
   read, test, and extend than the compact form it replaces. See [#2628](https://github.com/catalyst-cooperative/pudl/issues/2628) and
   [#4568](https://github.com/catalyst-cooperative/pudl/pull/4568).
+
+### Developer Experience
+
+* Standardized numeric dtypes to always use 64-bit values, and datetime types to use
+  microsecond resolution in [`pudl.metadata.dtypes`](autoapi/pudl/metadata/dtypes/index.md#module-pudl.metadata.dtypes). The unused `compact` argument
+  to [`to_pandas_dtype()`](autoapi/pudl/metadata/classes/index.md#pudl.metadata.classes.Field.to_pandas_dtype) was retired. See PR
+  [#5350](https://github.com/catalyst-cooperative/pudl/pull/5350).
 
 <a id="release-v2026-7-2"></a>
 

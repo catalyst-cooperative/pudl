@@ -413,14 +413,11 @@ metadata, which permanently pins the physical dtype: any later attempt to scan
 that file with a different schema or even slightly different `Enum` fails
 instead of being coerced. `Categorical` round-trips through Parquet fine.
 
-#### to_pandas_dtype(compact: [bool](https://docs.python.org/3/library/functions.html#bool) = False) → [str](https://docs.python.org/3/library/stdtypes.html#str) | [pandas.CategoricalDtype](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.CategoricalDtype.html#pandas.CategoricalDtype)
+#### to_pandas_dtype() → [str](https://docs.python.org/3/library/stdtypes.html#str) | [pandas.CategoricalDtype](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.CategoricalDtype.html#pandas.CategoricalDtype)
 
 Return Pandas data type.
 
-* **Parameters:**
-  **compact** – Whether to return a low-memory data type (32-bit integer or float).
-
-#### to_sql_dtype() → [type](#pudl.metadata.classes.Field.type)
+#### to_sqlite_dtype() → [type](#pudl.metadata.classes.Field.type)
 
 Return SQLAlchemy data type.
 
@@ -1208,12 +1205,9 @@ Return Polars data type of each field by field name.
 
 Return Polars data type of each field by field name.
 
-#### to_pandas_dtypes(\*\*kwargs: Any) → [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str) | [pandas.CategoricalDtype](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.CategoricalDtype.html#pandas.CategoricalDtype)]
+#### to_pandas_dtypes() → [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str) | [pandas.CategoricalDtype](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.CategoricalDtype.html#pandas.CategoricalDtype)]
 
 Return Pandas data type of each field by field name.
-
-* **Parameters:**
-  **kwargs** – Arguments to [`Field.to_pandas_dtype()`](#pudl.metadata.classes.Field.to_pandas_dtype).
 
 #### match_primary_key(names: [collections.abc.Iterable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable)[[str](https://docs.python.org/3/library/stdtypes.html#str)]) → [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str)] | [None](https://docs.python.org/3/library/constants.html#None)
 
@@ -1266,7 +1260,7 @@ Traceback (most recent call last):
 ValueError: ... {'x_month', 'x_date'} match primary key field 'x_year'
 ```
 
-#### format_df(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame) | [geopandas.GeoDataFrame](https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame) | [None](https://docs.python.org/3/library/constants.html#None) = None, \*\*kwargs: Any) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame) | [geopandas.GeoDataFrame](https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame)
+#### format_df(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame) | [geopandas.GeoDataFrame](https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame) | [None](https://docs.python.org/3/library/constants.html#None) = None) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame) | [geopandas.GeoDataFrame](https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame)
 
 Format a dataframe according to the resources’s table schema.
 
@@ -1280,8 +1274,7 @@ Format a dataframe according to the resources’s table schema.
   ([`match_primary_key()`](#pudl.metadata.classes.Resource.match_primary_key)) or if `df=None`, an empty dataframe is returned.
 
 * **Parameters:**
-  * **df** – Dataframe to format.
-  * **kwargs** – Arguments to `Field.to_pandas_dtypes()`.
+  **df** – Dataframe to format.
 * **Returns:**
   Dataframe with column names and data types matching the resource fields.
 

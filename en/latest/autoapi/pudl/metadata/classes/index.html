@@ -18,7 +18,7 @@
     </script>
     
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
-    <title>pudl.metadata.classes &#8212; PUDL 2026.7.3.dev24 documentation</title>
+    <title>pudl.metadata.classes &#8212; PUDL 2026.7.3.dev25 documentation</title>
   
   
   
@@ -51,7 +51,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../../_static/documentation_options.js?v=5fedff02"></script>
+    <script src="../../../../_static/documentation_options.js?v=f6ad8b64"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -142,8 +142,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.7.3.dev24 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.7.3.dev24 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.7.3.dev25 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.7.3.dev25 documentation - Home"/>
   
   
 </a></div>
@@ -1489,18 +1489,13 @@ instead of being coerced. <code class="docutils literal notranslate"><span class
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pudl.metadata.classes.Field.to_pandas_dtype">
-<span class="sig-name descname"><span class="pre">to_pandas_dtype</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">compact</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.CategoricalDtype.html#pandas.CategoricalDtype" title="(in pandas v3.0.5)"><span class="pre">pandas.CategoricalDtype</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/classes.html#Field.to_pandas_dtype"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.classes.Field.to_pandas_dtype" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">to_pandas_dtype</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.CategoricalDtype.html#pandas.CategoricalDtype" title="(in pandas v3.0.5)"><span class="pre">pandas.CategoricalDtype</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/classes.html#Field.to_pandas_dtype"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.classes.Field.to_pandas_dtype" title="Link to this definition">#</a></dt>
 <dd><p>Return Pandas data type.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>compact</strong> – Whether to return a low-memory data type (32-bit integer or float).</p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="pudl.metadata.classes.Field.to_sql_dtype">
-<span class="sig-name descname"><span class="pre">to_sql_dtype</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pudl.metadata.classes.Field.type" title="pudl.metadata.classes.Field.type"><span class="pre">type</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/classes.html#Field.to_sql_dtype"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.classes.Field.to_sql_dtype" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="pudl.metadata.classes.Field.to_sqlite_dtype">
+<span class="sig-name descname"><span class="pre">to_sqlite_dtype</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pudl.metadata.classes.Field.type" title="pudl.metadata.classes.Field.type"><span class="pre">type</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/classes.html#Field.to_sqlite_dtype"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.classes.Field.to_sqlite_dtype" title="Link to this definition">#</a></dt>
 <dd><p>Return SQLAlchemy data type.</p>
 </dd></dl>
 
@@ -2611,13 +2606,8 @@ then expanded (<a class="reference internal" href="#pudl.metadata.classes.Contri
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pudl.metadata.classes.Resource.to_pandas_dtypes">
-<span class="sig-name descname"><span class="pre">to_pandas_dtypes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.CategoricalDtype.html#pandas.CategoricalDtype" title="(in pandas v3.0.5)"><span class="pre">pandas.CategoricalDtype</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/classes.html#Resource.to_pandas_dtypes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.classes.Resource.to_pandas_dtypes" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">to_pandas_dtypes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.CategoricalDtype.html#pandas.CategoricalDtype" title="(in pandas v3.0.5)"><span class="pre">pandas.CategoricalDtype</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/classes.html#Resource.to_pandas_dtypes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.classes.Resource.to_pandas_dtypes" title="Link to this definition">#</a></dt>
 <dd><p>Return Pandas data type of each field by field name.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>kwargs</strong> – Arguments to <a class="reference internal" href="#pudl.metadata.classes.Field.to_pandas_dtype" title="pudl.metadata.classes.Field.to_pandas_dtype"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Field.to_pandas_dtype()</span></code></a>.</p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -2674,7 +2664,7 @@ periodic names may also match a basename with a smaller period.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pudl.metadata.classes.Resource.format_df">
-<span class="sig-name descname"><span class="pre">format_df</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.5)"><span class="pre">pandas.DataFrame</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame" title="(in GeoPandas v1.1.4)"><span class="pre">geopandas.GeoDataFrame</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.5)"><span class="pre">pandas.DataFrame</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame" title="(in GeoPandas v1.1.4)"><span class="pre">geopandas.GeoDataFrame</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/classes.html#Resource.format_df"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.classes.Resource.format_df" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">format_df</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.5)"><span class="pre">pandas.DataFrame</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame" title="(in GeoPandas v1.1.4)"><span class="pre">geopandas.GeoDataFrame</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.5)"><span class="pre">pandas.DataFrame</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame" title="(in GeoPandas v1.1.4)"><span class="pre">geopandas.GeoDataFrame</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/classes.html#Resource.format_df"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.classes.Resource.format_df" title="Link to this definition">#</a></dt>
 <dd><p>Format a dataframe according to the resources’s table schema.</p>
 <ul class="simple">
 <li><p>DataFrame columns not in the schema are dropped.</p></li>
@@ -2688,10 +2678,7 @@ will be empty.</p></li>
 </ul>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>df</strong> – Dataframe to format.</p></li>
-<li><p><strong>kwargs</strong> – Arguments to <code class="xref py py-meth docutils literal notranslate"><span class="pre">Field.to_pandas_dtypes()</span></code>.</p></li>
-</ul>
+<dd class="field-odd"><p><strong>df</strong> – Dataframe to format.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Dataframe with column names and data types matching the resource fields.</p>
@@ -3236,7 +3223,7 @@ CODE_METADATA dictionary.</p>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.classes.Field.to_duckdb_dtype"><code class="docutils literal notranslate"><span class="pre">Field.to_duckdb_dtype()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.classes.Field.to_polars_dtype"><code class="docutils literal notranslate"><span class="pre">Field.to_polars_dtype()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.classes.Field.to_pandas_dtype"><code class="docutils literal notranslate"><span class="pre">Field.to_pandas_dtype()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.classes.Field.to_sql_dtype"><code class="docutils literal notranslate"><span class="pre">Field.to_sql_dtype()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.classes.Field.to_sqlite_dtype"><code class="docutils literal notranslate"><span class="pre">Field.to_sqlite_dtype()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.classes.Field.to_pyarrow_dtype"><code class="docutils literal notranslate"><span class="pre">Field.to_pyarrow_dtype()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.classes.Field.to_pyarrow"><code class="docutils literal notranslate"><span class="pre">Field.to_pyarrow()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.classes.Field.to_sql"><code class="docutils literal notranslate"><span class="pre">Field.to_sql()</span></code></a></li>

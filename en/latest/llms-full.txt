@@ -14261,18 +14261,37 @@ Calculate the inter-table non-total calculable xbrl_factoids.
 Identify and fix the utilities that report calcs off-by one other fact.
 
 We noticed that there are a sizable minority of utilities that report some
-calculated values with a different set of child subcomponents. Our tooling
-for these calculation expects all utilities to report in the same manner.
-So we have identified the handful of worst calculable `xbrl_factiod`
-offenders `self.off_by_facts`. This method identifies data corrections
-for those `self.off_by_facts` and adds them into the exploded data table.
+calculated values with a different set of child subcomponents. Our tooling for
+these calculation expects all utilities to report in the same manner. So we have
+identified the handful of worst calculable `xbrl_factoid` offenders
+`self.off_by_facts`. This method identifies data corrections for those
+`self.off_by_facts` and adds them into the exploded data table.
 
 The data corrections are identified by calculating the absolute difference
 between the reported value and calculable value from the standard set of
-subcomponents (via [`pudl.transform.ferc1.calculate_values_from_components()`](../../transform/ferc1/index.md#pudl.transform.ferc1.calculate_values_from_components))
-and finding the child factiods that have the same value as the absolute difference.
-This indicates that the calculable parent factiod is off by that corresponding
-child fact.
+subcomponents (via
+[`pudl.transform.ferc1.calculate_values_from_components()`](../../transform/ferc1/index.md#pudl.transform.ferc1.calculate_values_from_components)) and finding the
+child factoids that have (approximately) the same value as the absolute
+difference. This indicates that the calculable parent factoid is off by that
+corresponding child fact.
+
+We merge candidates on the report_year and utility_id_ferc1 keys restricting the
+candidate pool to a single utility-year. Then we compare the reported values
+with [`numpy.isclose()`](https://numpy.org/doc/stable/reference/generated/numpy.isclose.html#numpy.isclose) using an absolute tolerance of $5. `np.isclose`’s
+default *relative* tolerance is far too loose at the scale of these balances
+(hundreds of thousands to billions of dollars).
+
+The $5 absolute tolerance is empirically informed, and not related to the noise
+from floating point values. Across the full candidate pool, we find additional
+unique matches increase relatively rapidly up to a delta of ~$5, and then
+level off between $5 and a few thousand dollars. At larger deltas unrelated
+pairs of records start matching. Every candidate with a delta up to $5 pairs a
+large-magnitude value (tens of thousands to billions of dollars) with a small
+absolute gap, consistent with a rounding or trivial reporting difference between
+the two reported schedules, not a coincidental collision. Up to deltas of even
+thousands of dollars, no not-close row ever matches more than one off-by
+candidate, which would be the expected signature of spurious matches if they
+occurred.
 
 Relatedly, [`add_sizable_minority_corrections_to_calcs()`](#pudl.output.ferc1.Exploder.add_sizable_minority_corrections_to_calcs) adds these
 `self.off_by_facts` to `self.exploded_calcs`.
@@ -29015,7 +29034,7 @@ cycle.
 |--------------------------------------------------------------------------|-----------------------------------------------------------------------|
 | [`FIELD_DTYPES_DUCKDB`](#pudl.metadata.dtypes.FIELD_DTYPES_DUCKDB)       | DuckDB data type by simplified PUDL field type.                       |
 | [`FIELD_DTYPES_PANDAS`](#pudl.metadata.dtypes.FIELD_DTYPES_PANDAS)       | Pandas data type by simplified PUDL field type.                       |
-| [`FIELD_DTYPES_PYARROW`](#pudl.metadata.dtypes.FIELD_DTYPES_PYARROW)     |                                                                       |
+| [`FIELD_DTYPES_PYARROW`](#pudl.metadata.dtypes.FIELD_DTYPES_PYARROW)     | Pyarrow data type by simplified PUDL field type.                      |
 | [`FIELD_DTYPES_SQLITE`](#pudl.metadata.dtypes.FIELD_DTYPES_SQLITE)       | SQLAlchemy column types by simplified PUDL field type.                |
 | [`CONSTRAINT_DTYPES`](#pudl.metadata.dtypes.CONSTRAINT_DTYPES)           | Python types for field constraints by simplified PUDL field type.     |
 | [`PERIODS`](#pudl.metadata.dtypes.PERIODS)                               | Functions converting datetimes to period start times, by time period. |
@@ -29047,6 +29066,8 @@ DuckDB data type by simplified PUDL field type.
 Pandas data type by simplified PUDL field type.
 
 ### pudl.metadata.dtypes.FIELD_DTYPES_PYARROW *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [pyarrow.DataType](https://arrow.apache.org/docs/python/generated/pyarrow.DataType.html#pyarrow.DataType)]*
+
+Pyarrow data type by simplified PUDL field type.
 
 ### pudl.metadata.dtypes.FIELD_DTYPES_SQLITE *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [type](../classes/index.md#pudl.metadata.classes.Field.type)[[sqlalchemy.types.TypeEngine](https://docs.sqlalchemy.org/en/21/core/type_api.html#sqlalchemy.types.TypeEngine)] | [sqlalchemy.types.TypeEngine](https://docs.sqlalchemy.org/en/21/core/type_api.html#sqlalchemy.types.TypeEngine)]*
 
@@ -29687,14 +29708,11 @@ metadata, which permanently pins the physical dtype: any later attempt to scan
 that file with a different schema or even slightly different `Enum` fails
 instead of being coerced. `Categorical` round-trips through Parquet fine.
 
-#### to_pandas_dtype(compact: [bool](https://docs.python.org/3/library/functions.html#bool) = False) → [str](https://docs.python.org/3/library/stdtypes.html#str) | [pandas.CategoricalDtype](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.CategoricalDtype.html#pandas.CategoricalDtype)
+#### to_pandas_dtype() → [str](https://docs.python.org/3/library/stdtypes.html#str) | [pandas.CategoricalDtype](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.CategoricalDtype.html#pandas.CategoricalDtype)
 
 Return Pandas data type.
 
-* **Parameters:**
-  **compact** – Whether to return a low-memory data type (32-bit integer or float).
-
-#### to_sql_dtype() → [type](#pudl.metadata.classes.Field.type)
+#### to_sqlite_dtype() → [type](#pudl.metadata.classes.Field.type)
 
 Return SQLAlchemy data type.
 
@@ -30482,12 +30500,9 @@ Return Polars data type of each field by field name.
 
 Return Polars data type of each field by field name.
 
-#### to_pandas_dtypes(\*\*kwargs: Any) → [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str) | [pandas.CategoricalDtype](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.CategoricalDtype.html#pandas.CategoricalDtype)]
+#### to_pandas_dtypes() → [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str) | [pandas.CategoricalDtype](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.CategoricalDtype.html#pandas.CategoricalDtype)]
 
 Return Pandas data type of each field by field name.
-
-* **Parameters:**
-  **kwargs** – Arguments to [`Field.to_pandas_dtype()`](#pudl.metadata.classes.Field.to_pandas_dtype).
 
 #### match_primary_key(names: [collections.abc.Iterable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable)[[str](https://docs.python.org/3/library/stdtypes.html#str)]) → [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str)] | [None](https://docs.python.org/3/library/constants.html#None)
 
@@ -30540,7 +30555,7 @@ Traceback (most recent call last):
 ValueError: ... {'x_month', 'x_date'} match primary key field 'x_year'
 ```
 
-#### format_df(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame) | [geopandas.GeoDataFrame](https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame) | [None](https://docs.python.org/3/library/constants.html#None) = None, \*\*kwargs: Any) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame) | [geopandas.GeoDataFrame](https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame)
+#### format_df(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame) | [geopandas.GeoDataFrame](https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame) | [None](https://docs.python.org/3/library/constants.html#None) = None) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame) | [geopandas.GeoDataFrame](https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame)
 
 Format a dataframe according to the resources’s table schema.
 
@@ -30554,8 +30569,7 @@ Format a dataframe according to the resources’s table schema.
   ([`match_primary_key()`](#pudl.metadata.classes.Resource.match_primary_key)) or if `df=None`, an empty dataframe is returned.
 
 * **Parameters:**
-  * **df** – Dataframe to format.
-  * **kwargs** – Arguments to `Field.to_pandas_dtypes()`.
+  **df** – Dataframe to format.
 * **Returns:**
   Dataframe with column names and data types matching the resource fields.
 
@@ -75043,6 +75057,16 @@ This is the upcoming quarterly PUDL release.
   data - previously, the Upper Great Plains West region FERC respondent was mapped
   to the Desert Southwest region EIA balancing authority information, and vice
   versa. See [#4644](https://github.com/catalyst-cooperative/pudl/issues/4644) and [#5408](https://github.com/catalyst-cooperative/pudl/pull/5408).
+* Fixed an exact-float merge bug in FERC1 “exploded tables” corrections. The
+  [`add_sizable_minority_corrections()`](autoapi/pudl/output/ferc1/index.md#pudl.output.ferc1.Exploder.add_sizable_minority_corrections) method matched
+  correction candidates by merging directly on floating point columns. Exact float
+  equality is extremely brittle, and moving from 32- to 64-bit floats
+  changed which utility/year pairs matched, producing extra rows and different
+  `ending_balance` sums in [out_ferc1_\_yearly_detailed_balance_sheet_assets](data_dictionaries/pudl_db.md#out-ferc1-yearly-detailed-balance-sheet-assets) and
+  [out_ferc1_\_yearly_rate_base](data_dictionaries/pudl_db.md#out-ferc1-yearly-rate-base). These were real matches being lost
+  due to the limited precision of 32-bit floats, on top of the brittleness of of merging
+  on floating point numbers. These are now being captured deterministically by merging
+  on values within a fixed tolerance of $5. See PR [#5350](https://github.com/catalyst-cooperative/pudl/pull/5350).
 
 ### Performance Improvements
 
@@ -75065,6 +75089,13 @@ This is the upcoming quarterly PUDL release.
   gracefully when only a subset of years is present, and is substantially easier to
   read, test, and extend than the compact form it replaces. See [#2628](https://github.com/catalyst-cooperative/pudl/issues/2628) and
   [#4568](https://github.com/catalyst-cooperative/pudl/pull/4568).
+
+### Developer Experience
+
+* Standardized numeric dtypes to always use 64-bit values, and datetime types to use
+  microsecond resolution in [`pudl.metadata.dtypes`](autoapi/pudl/metadata/dtypes/index.md#module-pudl.metadata.dtypes). The unused `compact` argument
+  to [`to_pandas_dtype()`](autoapi/pudl/metadata/classes/index.md#pudl.metadata.classes.Field.to_pandas_dtype) was retired. See PR
+  [#5350](https://github.com/catalyst-cooperative/pudl/pull/5350).
 
 <a id="release-v2026-7-2"></a>
 

@@ -81,6 +81,8 @@ Module Contents
 .. py:data:: FIELD_DTYPES_PYARROW
    :type:  dict[str, pyarrow.DataType]
 
+   Pyarrow data type by simplified PUDL field type.
+
 .. py:data:: FIELD_DTYPES_SQLITE
    :type:  dict[str, type[sqlalchemy.types.TypeEngine] | sqlalchemy.types.TypeEngine]
 
