@@ -37512,7 +37512,7 @@ respective transform function.
 | Source Description              | The EIA Form 930 provides hourly demand and generation statistics by balancing area (or sub-balancing area in the case of some larger areas). These statistics include a breakdown by energy source (coal, gas, hydro, wind, solar, etc.) as well as interchange between the balancing areas, including international exchanges with Canada and Mexico. |
 | Respondents                     | All entities in the contiguous United States that are listed in the North American Electric Reliability Corporation’s (NERC) Compliance Registry as a balancing authority.                                                                                                                                                                              |
 | Source Format                   | Comma separated values (CSV)                                                                                                                                                                                                                                                                                                                            |
-| Download Size                   | 409 MB                                                                                                                                                                                                                                                                                                                                                  |
+| Download Size                   | 412 MB                                                                                                                                                                                                                                                                                                                                                  |
 | Temporal Coverage               | 2015half2-2026half2                                                                                                                                                                                                                                                                                                                                     |
 | PUDL Code                       | `eia930`                                                                                                                                                                                                                                                                                                                                                |
 | Unprocessed Source Data Archive | [10.5281/zenodo.10840077](https://doi.org/10.5281/zenodo.10840077)                                                                                                                                                                                                                                                                                      |
@@ -74996,6 +74996,10 @@ This is the upcoming quarterly PUDL release.
   first PUDL contribution!
 
 ### Expanded Data Coverage
+
+#### EIA-930
+
+* Updated [EIA-930](data_sources/eia930.md) data. See PR [#5445](https://github.com/catalyst-cooperative/pudl/pull/5445).
 
 #### EIA Electricity API
 

@@ -16,6 +16,10 @@ This is the upcoming quarterly PUDL release.
 
 ### Expanded Data Coverage
 
+#### EIA-930
+
+* Updated [EIA-930](data_sources/eia930.md) data. See PR [#5445](https://github.com/catalyst-cooperative/pudl/pull/5445).
+
 #### EIA Electricity API
 
 * Updated the [bulk EIA Electricity API](data_sources/eiaapi.md)

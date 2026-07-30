@@ -22,6 +22,11 @@ EIA-860M
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
+EIA-930
+~~~~~~~
+
+* Updated :doc:`EIA-930 <data_sources/eia930>` data. See PR :pr:`5445`.
+
 EIA Electricity API
 ~~~~~~~~~~~~~~~~~~~
 
