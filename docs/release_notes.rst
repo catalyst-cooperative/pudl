@@ -28,6 +28,39 @@ EIA-923
   source columns are reshaped into tall monthly records and the reported thousand-unit
   quantities are converted to base units. See issue :issue:`5081` and PR :pr:`5431`.
 
+Expanded Data Coverage
+^^^^^^^^^^^^^^^^^^^^^^
+
+EIA-930
+~~~~~~~
+
+* Updated :doc:`EIA-930 <data_sources/eia930>` data. See PR :pr:`5445`.
+
+FERC-714
+~~~~~~~~
+
+* Added 2025 XBRL data for :doc:`FERC-714 <data_sources/ferc714>`. See
+  :issue:`5424` and :pr:`5436`.
+
+EIA Electricity API
+~~~~~~~~~~~~~~~~~~~
+
+* Updated the :doc:`bulk EIA Electricity API <data_sources/eiaapi>`
+  data used to fill in redacted fuel prices. See PR :pr:`5441`.
+
+EPA CEMS
+~~~~~~~~
+
+* Updated the :doc:`EPA CEMS <data_sources/epacems>` data with
+  additional records through end of March 2026. See PR :pr:`5441`.
+
+FERC Form 6
+~~~~~~~~~~~
+
+* Updated the raw FERC Form 6 archives to include additional
+  2025 data. This data is converted to SQLite, but not deeply
+  integrated into PUDL. See PR :pr:`5441`.
+
 Documentation
 ^^^^^^^^^^^^^
 
@@ -49,10 +82,26 @@ Bug Fixes & Data Cleaning
   data - previously, the Upper Great Plains West region FERC respondent was mapped
   to the Desert Southwest region EIA balancing authority information, and vice
   versa. See :issue:`4644` and :pr:`5408`.
+* Fixed an exact-float merge bug in FERC1 "exploded tables" corrections. The
+  :meth:`~pudl.output.ferc1.Exploder.add_sizable_minority_corrections` method matched
+  correction candidates by merging directly on floating point columns. Exact float
+  equality is extremely brittle, and moving from 32- to 64-bit floats
+  changed which utility/year pairs matched, producing extra rows and different
+  ``ending_balance`` sums in :ref:`out_ferc1__yearly_detailed_balance_sheet_assets` and
+  :ref:`out_ferc1__yearly_rate_base`. These were real matches being lost
+  due to the limited precision of 32-bit floats, on top of the brittleness of of merging
+  on floating point numbers. These are now being captured deterministically by merging
+  on values within a fixed tolerance of $5. See PR :pr:`5350`.
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
+* Switched from using ``pl.Enum`` to unconstrained ``pl.Categorical`` types to preserve
+  lazy execution in :func:`~pudl.helpers.get_parquet_table_polars`. This allows running
+  schema checks on large tables, and Pandera's Polars backend never actually enforced
+  data content checks on ``pl.LazyFrame`` assets (99% of assets in PUDL). See PR
+  :pr:`5434`. Implementing efficient content validation for ``pl.LazyFrame`` assets is
+  left to PR :pr:`5432`.
 * The fast ETL now processes only two representative
   :doc:`EIA-861 <data_sources/eia861>` years instead of the entire time series, bringing
   it in line with how every other dataset is already handled and speeding up both local
@@ -66,6 +115,14 @@ Performance Improvements
   gracefully when only a subset of years is present, and is substantially easier to
   read, test, and extend than the compact form it replaces. See :issue:`2628` and
   :pr:`4568`.
+
+Developer Experience
+^^^^^^^^^^^^^^^^^^^^
+
+* Standardized numeric dtypes to always use 64-bit values, and datetime types to use
+  microsecond resolution in :mod:`pudl.metadata.dtypes`. The unused ``compact`` argument
+  to :meth:`~pudl.metadata.classes.Field.to_pandas_dtype` was retired. See PR
+  :pr:`5350`.
 
 .. _release-v2026.7.2:
 

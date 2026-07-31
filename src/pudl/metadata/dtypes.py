@@ -44,55 +44,53 @@ from pudl.metadata.fields import FIELD_METADATA, FIELD_METADATA_BY_NAMESPACE
 FIELD_DTYPES_POLARS: dict[str, type[pl.DataType] | pl.DataType] = {
     "boolean": polars_datatypes.Boolean,
     "date": polars_datatypes.Date,
-    "datetime": polars_datatypes.Datetime(time_unit="ms"),
+    "datetime": polars_datatypes.Datetime(time_unit="us"),
     "integer": polars_datatypes.Int64,
     "number": polars_datatypes.Float64,
     "string": polars_datatypes.String,
-    "year": polars_datatypes.Datetime,
+    "year": polars_datatypes.Datetime(time_unit="us"),
 }
 """Polars data type by simplified PUDL field type."""
 
 FIELD_DTYPES_DUCKDB: dict[str, duckdb.sqltypes.DuckDBPyType] = {
     "boolean": duckdb.sqltypes.BOOLEAN,
     "date": duckdb.sqltypes.DATE,
-    "datetime": duckdb.sqltypes.TIMESTAMP_MS,
-    "integer": duckdb.sqltypes.INTEGER,
+    "datetime": duckdb.sqltypes.TIMESTAMP,
+    "integer": duckdb.sqltypes.BIGINT,
     "number": duckdb.sqltypes.DOUBLE,
     "string": duckdb.sqltypes.VARCHAR,
-    "year": duckdb.sqltypes.TIMESTAMP_MS,
+    "year": duckdb.sqltypes.TIMESTAMP,
 }
 """DuckDB data type by simplified PUDL field type."""
 
 FIELD_DTYPES_PANDAS: dict[str, str] = {
     "boolean": "boolean",
-    "date": "datetime64[s]",
-    "datetime": "datetime64[s]",
+    "date": "datetime64[us]",
+    "datetime": "datetime64[us]",
     "geometry": "geometry",
     "integer": "Int64",
     "number": "float64",
     "string": "string",
-    "year": "datetime64[s]",
+    "year": "datetime64[us]",
 }
 """Pandas data type by simplified PUDL field type."""
 
 FIELD_DTYPES_PYARROW: dict[str, pa.DataType] = {
     "boolean": pa.bool_(),
     "date": pa.date32(),
-    "datetime": pa.timestamp("ms"),
+    "datetime": pa.timestamp("us"),
     "geometry": ga.wkb(),
-    "integer": pa.int32(),
-    "number": pa.float32(),
+    "integer": pa.int64(),
+    "number": pa.float64(),
     "string": pa.string(),
-    "year": pa.int32(),
+    "year": pa.int64(),
 }
+"""Pyarrow data type by simplified PUDL field type."""
 
 FIELD_DTYPES_SQLITE: dict[str, type[SATypeEngine] | SATypeEngine] = {
     "boolean": sa.Boolean,
     "date": sa.Date,
-    # Ensure SQLite's string representation of datetime uses only whole seconds:
-    "datetime": SQLITE_DATETIME(
-        storage_format="%(year)04d-%(month)02d-%(day)02d %(hour)02d:%(minute)02d:%(second)02d"
-    ),
+    "datetime": SQLITE_DATETIME(),
     "integer": sa.Integer,
     "number": sa.Float,
     "string": sa.Text,
@@ -285,7 +283,7 @@ def _get_pudl_resource_dtypes(
     elif dtype_backend == "sqlite":
         # Similarly SQLite is also missing the geometry dtype.
         dtypes = {
-            field.name: field.to_sql_dtype()
+            field.name: field.to_sqlite_dtype()
             for field in resource_metadata.schema.fields
             if field.type in FIELD_DTYPES_SQLITE
         }

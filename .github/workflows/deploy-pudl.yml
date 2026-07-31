@@ -28,9 +28,6 @@ jobs:
       # (either by a human via the UI, or by pudl_batch.sh's automated dispatch).
       GIT_TAG: ${{ inputs.git_tag }}
       DEPLOYMENT_ENVIRONMENT: ${{ inputs.deployment_environment }}
-      # Computed once and reused for both the container-env (so pudl_deploy can
-      # link to this job's own logs) and the actual job submission below.
-      BATCH_JOB_NAME: deploy-pudl-${{ github.run_id }}-${{ github.run_attempt }}
     steps:
       - name: Check out repository
         uses: actions/checkout@v7
@@ -96,6 +93,13 @@ jobs:
             echo "* [View this deploy-pudl.yml run]($RUN_URL)"
             echo "EOF"
           } >> "$GITHUB_ENV"
+
+      - name: Set batch ID
+        if: ${{ always() }}
+        run: |
+          BUILD_ID_RAW="deploy-${{ env.DEPLOYMENT_ENVIRONMENT }}-$(date +%Y-%m-%d-%H%M)-${{ env.GIT_TAG }}"
+          BUILD_ID_SANITIZED="$(echo $BUILD_ID_RAW | sed 's/[^[:alnum:]-]/-/g')"
+          echo "BUILD_ID=${BUILD_ID_SANITIZED:0:63}" >> "$GITHUB_ENV"
 
       - name: Notify Zulip of deployment start
         if: ${{ always() }}
@@ -168,14 +172,14 @@ jobs:
             --container-env AWS_DEFAULT_REGION=${{ secrets.AWS_DEFAULT_REGION }} \
             --container-env AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
             --container-env ZULIP_API_KEY=${{ secrets.ZULIP_API_KEY }} \
-            --container-env BATCH_JOB_NAME=${{ env.BATCH_JOB_NAME }} \
+            --container-env BATCH_JOB_NAME=${{ env.BUILD_ID }} \
             --vcpu=8 \
             --mem-gb=31 \
             --disk-gb=100 \
             --output batch_job.json
 
       - name: Kick off batch job
-        run: gcloud batch jobs submit ${{ env.BATCH_JOB_NAME }} --config batch_job.json --location us-east1
+        run: gcloud batch jobs submit ${{ env.BUILD_ID }} --config batch_job.json --location us-east1
 
       - name: Status emoji
         if: ${{ always() }}
