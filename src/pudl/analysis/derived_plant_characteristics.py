@@ -95,40 +95,6 @@ def consecutive_run_ids(datetime_col: str = "operating_datetime_utc") -> pl.Expr
     return pl.col(datetime_col).diff().dt.total_hours().ne(1).fill_null(True).cum_sum()
 
 
-def min_stable_level(
-    hourly_plant_unit: pl.LazyFrame,
-    consecutive_hours: int,
-    load_factor_bin_col: str,
-) -> tuple[object | float, float]:
-    """Find the smallest load-factor bin with a sufficiently long operating run."""
-    stable_level = hourly_plant_unit.sort("operating_datetime_utc")
-
-    bins = (
-        stable_level.select(pl.col(load_factor_bin_col).drop_nulls().unique().sort())
-        .collect()
-        .to_series()
-        .to_list()
-    )
-
-    for candidate_bin in bins[1:]:
-        candidate = stable_level.filter(
-            pl.col(load_factor_bin_col) == candidate_bin
-        ).with_columns(consecutive_run_ids().alias("run_id"))
-
-        max_run = (
-            candidate.group_by("run_id")
-            .len()
-            .select(pl.col("len").max())
-            .collect()
-            .item()
-        )
-
-        if max_run is not None and max_run >= consecutive_hours:
-            return candidate_bin, candidate_bin.left
-
-    return np.nan, np.nan
-
-
 def min_up_down_times(
     hourly_plant_unit: pd.DataFrame,
     min_stable_level_bin,  # TODO: What type is this?: pd.Interval,
@@ -282,7 +248,7 @@ def _add_run_id(
     state_col: str | None = None,
 ) -> pl.Series:
     """Generate run IDs for consecutive hourly observations within each unit."""
-    same_unit = lf.select(
+    same_unit_and_bin = lf.select(
         result=pl.all_horizontal([pl.col(c).eq(pl.col(c).shift()) for c in unit_cols])
     ).to_series()
     consecutive_hour = lf.select(
@@ -292,14 +258,14 @@ def _add_run_id(
     same_state = lf.select(
         True if state_col is None else pl.col(state_col).eq(pl.col(state_col).shift())
     ).to_series()
-    return (~(same_unit & consecutive_hour & same_state)).cum_sum()
+    return (~(same_unit_and_bin & consecutive_hour & same_state)).cum_sum()
 
 
-def _assign_groupwise_load_factor_bins(
+def assign_groupwise_load_factor_bins(
     cems_working: pl.LazyFrame,
     unit_cols: list[str],
     load_factor_col: str,
-) -> pl.DataFrame:
+):
     """Exact per-unit pd.cut(bins=10) using LazyFrame + minimal pandas fallback."""
     # compute group load factor
     stats = (
@@ -316,7 +282,7 @@ def _assign_groupwise_load_factor_bins(
     invalid = cems_working.filter(pl.col("load_factor_nunique") <= 1)
 
     # use pd.cut on the valid rows
-    valid_pd = valid.collect().to_pandas()
+    valid_pd = valid.collect().to_pandas(use_pyarrow_extension_array=True)
     valid_pd["load_factor_bin"] = valid_pd.groupby(unit_cols, group_keys=False)[
         load_factor_col
     ].apply(
@@ -497,7 +463,10 @@ def prep_output_df(
 def compute_stable_runs(
     binned_cems: pl.DataFrame, unit_cols: list[str], min_stable_consecutive_hours: int
 ) -> pl.DataFrame:
-    """Given a certain consecutive hour threshold, find runs with stable behavior."""
+    """Given a certain consecutive hour threshold, find runs with stable behavior.
+
+    We remove the lowest load factor bin for this.
+    """
     stable_runs = (
         binned_cems.filter(pl.col("load_factor_bin_ordinal") > 1)
         .group_by(
@@ -583,8 +552,14 @@ def calculate_min_up_or_down_times(
     unit_cols: list[str],
     up_or_down: Literal["up", "down"],
 ) -> pl.LazyFrame:
-    """Calculate minimum up or down times."""
+    """Calculate minimum up or down times.
+
+    Hourly data points are considered "up" when the ``load_factor_bin`` is greater than the
+    ``min_stable_bin`` (calculated in :func:`compute_stable_runs`).
+    """
     if up_or_down == "up":
+        # up times are considered up when the load_factor_bin is greater than the
+        # min_stable_bin (calculated in compute_stable_runs)
         runs = cems_with_stable_bins.filter(
             (pl.col("load_factor_bin").struct[0] >= pl.col("min_stable_bin").struct[0])
             & (
@@ -605,7 +580,8 @@ def calculate_min_up_or_down_times(
             .group_by(unit_cols)
             .agg(pl.col("len").min().alias(f"min_{up_or_down}_time_hours"))
         )
-
+        # the output already had all columns bc of prep_output_df including these min
+        # up or down time hours. So we join and then take the non-null value.
         output = (
             output.join(min_up_or_down_times, on=unit_cols, how="left", suffix="_y")
             .with_columns(
@@ -636,7 +612,7 @@ def estimate_operational_characteristics_by_unit(
     unit_cols = ["plant_id_epa", "emissions_unit_id_epa"]
     cems_working, col_dict = handle_adjustment_in_cems(cems, unit_cols, adjusted)
     # Assign groupwise load factor bins
-    cems_working = _assign_groupwise_load_factor_bins(
+    cems_working = assign_groupwise_load_factor_bins(
         cems_working=cems_working,
         unit_cols=unit_cols,
         load_factor_col=col_dict["load_factor_col"],
@@ -661,7 +637,9 @@ def estimate_operational_characteristics_by_unit(
 
     valid_cems = cems_working.join(valid_units, on=unit_cols, how="inner")
     binned_cems = valid_cems.filter(pl.col("load_factor_bin").is_not_null()).pipe(
-        lambda lf: lf.with_columns(bin_run_id=_add_run_id(lf, unit_cols=unit_cols))
+        lambda lf: lf.with_columns(
+            bin_run_id=_add_run_id(lf, unit_cols=unit_cols + ["load_factor_bin"])
+        )
     )
 
     # Compute stable runs
