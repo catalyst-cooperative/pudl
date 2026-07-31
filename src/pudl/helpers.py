@@ -2361,7 +2361,8 @@ def get_parquet_table(
             memory_map=True,
         )
         # geopandas' reader has no equivalent to pandas' dtype_backend, so this
-        # branch still needs enforce_schema's full re-cast.
+        # branch still needs enforce_schema's full re-cast (which also runs the
+        # primary-key check for a full read).
         df = (
             resource.enforce_schema(df)
             if full_read
@@ -2377,20 +2378,19 @@ def get_parquet_table(
             memory_map=True,
             dtype_backend="numpy_nullable",
         )
-
-    if not full_read:
-        # For specific columns, apply PUDL dtypes including resource-level overrides
-        df = apply_pudl_dtypes(df, resource=resource.name)
-    else:
-        # dtype_backend="numpy_nullable" already gets every column to PUDL's target
-        # dtype except for the few gaps _fix_residual_read_dtypes covers -- enforce_schema's
-        # full re-cast of every column, including enum fields, is redundant here: pandas'
-        # Categorical reconstructs a constrained dtype's full category list (even unused
-        # ones) straight from the Parquet dictionary page, with no PUDL-metadata-driven
-        # re-derivation needed. See tests/unit/helpers_test.py's
-        # test_constrained_categorical_cross_backend_parquet_roundtrip.
-        df = _fix_residual_read_dtypes(df, resource)
-        resource.check_primary_key(df)
+        if not full_read:
+            # For specific columns, apply PUDL dtypes including resource-level overrides
+            df = apply_pudl_dtypes(df, resource=resource.name)
+        else:
+            # dtype_backend="numpy_nullable" already gets every column to PUDL's target
+            # dtype except for the few gaps _fix_residual_read_dtypes covers -- enforce_schema's
+            # full re-cast of every column, including enum fields, is redundant here: pandas'
+            # Categorical reconstructs a constrained dtype's full category list (even unused
+            # ones) straight from the Parquet dictionary page, with no PUDL-metadata-driven
+            # re-derivation needed. See tests/unit/helpers_test.py's
+            # test_constrained_categorical_cross_backend_parquet_roundtrip.
+            df = _fix_residual_read_dtypes(df, resource)
+            resource.check_primary_key(df)
 
     return df
 
