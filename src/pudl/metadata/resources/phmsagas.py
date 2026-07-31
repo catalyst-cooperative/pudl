@@ -10,8 +10,13 @@ GENERIC_CLEANING_STATE_WARNING = {
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
     "core_phmsagas__yearly_distribution_by_install_decade": {
         "description": {
-            "additional_summary_text": "",
+            "additional_summary_text": (
+                "miles of mains and the number of services in operation at "
+                "the end of the year by install decade."
+            ),
+            "additional_source_text": "(Part B - System Description / Section 4)",
             "usage_warnings": [
+                "aggregation_hazard",
                 {
                     "type": "custom",
                     "description": (
@@ -22,7 +27,10 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                     ),
                 },
             ],
-            "additional_details_text": "",
+            "additional_details_text": (
+                "The records with an install decade of total_decade are a total - "
+                "beware of aggregating these values."
+            ),
         },
         "schema": {
             "fields": [
