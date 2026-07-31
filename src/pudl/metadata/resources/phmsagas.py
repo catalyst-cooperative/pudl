@@ -8,6 +8,45 @@ GENERIC_CLEANING_STATE_WARNING = {
 }
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
+    "core_phmsagas__yearly_distribution_by_install_decade": {
+        "description": {
+            "additional_summary_text": "",
+            "usage_warnings": [
+                {
+                    "type": "custom",
+                    "description": (
+                        "Some records report negative values for mains_miles or "
+                        "services. These values are preserved as reported because "
+                        "we have not determined that they are errors requiring "
+                        "correction."
+                    ),
+                },
+            ],
+            "additional_details_text": "",
+        },
+        "schema": {
+            "fields": [
+                "report_id",
+                "report_date",
+                "operator_id_phmsa",
+                "commodity",
+                "operating_state",
+                "install_decade",
+                "mains_miles",
+                "services",
+            ],
+            "primary_key": [
+                "report_id",
+                "report_date",
+                "operator_id_phmsa",
+                "operating_state",
+                "install_decade",
+            ],
+        },
+        "sources": ["phmsagas"],
+        "field_namespace": "phmsagas",
+        "etl_group": "phmsagas",
+    },
     "_core_phmsagas__yearly_distribution_filings": {
         "description": {
             "additional_summary_text": (
