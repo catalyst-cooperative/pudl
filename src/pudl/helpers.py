@@ -2245,69 +2245,29 @@ def get_parquet_table_polars(
         # Points to a directory of parquet files when there partitions is non None
         parquet_path = parquet_data.parquet_path
 
-    # Import here to avoid circular imports
-    from pudl.metadata.classes import Resource
-
-    resource = Resource.from_id(table_name)
-
-    # Scan without an explicit schema first to discover each column's actual
-    # on-disk dtype -- this is metadata-only (collect_schema()), no data is read.
-    # Enum-constrained string fields are stored as unconstrained Categorical (see
-    # Field.to_polars_dtype), but the physical on-disk type can still vary: DuckDB-
-    # produced files store these columns as plain String rather than Categorical
-    # (verified against real core_ferceqr__contracts output). Requesting a fixed
-    # schema up front fails outright for those columns the moment it doesn't match
-    # the on-disk type exactly, so this deliberately scans without one and only
-    # overrides the specific columns that actually need it below.
-    natural_schema = pl.scan_parquet(parquet_path).collect_schema()
-
-    # Parquet files still store integer/float columns as 32-bit (FIELD_DTYPES_PYARROW),
-    # narrower than the 64-bit Polars schema we're requesting here, so override just
-    # those columns to allow scan-time upcasting rather than the strict match
-    # scan_parquet defaults to. Every other column -- including Categorical/string
-    # ones -- passes through with its natural, on-disk dtype.
-    def _needs_numeric_upcast(on_disk: pl.DataType, target: pl.DataType) -> bool:
-        same_numeric_kind = (on_disk.is_integer() and target.is_integer()) or (
-            on_disk.is_float() and target.is_float()
-        )
-        return same_numeric_kind and on_disk != target
-
-    target_dtypes = resource.to_polars_dtypes()
-    schema = {
-        name: target_dtypes[name]
-        if name in target_dtypes and _needs_numeric_upcast(dtype, target_dtypes[name])
-        else dtype
-        for name, dtype in natural_schema.items()
-    }
-    return pl.scan_parquet(
-        parquet_path,
-        schema=schema,
-        cast_options=pl.ScanCastOptions(integer_cast="upcast", float_cast="upcast"),
-    )
+    return pl.scan_parquet(parquet_path)
 
 
-def _fix_residual_read_dtypes(df: pd.DataFrame, resource: "Resource") -> pd.DataFrame:
-    """Fix the handful of dtypes ``dtype_backend="numpy_nullable"`` can't get right.
+def _fix_residual_dtypes(df: pd.DataFrame, resource: "Resource") -> pd.DataFrame:
+    """Fix the two dtype gaps ``dtype_backend="numpy_nullable"`` can't get right.
 
-    Three gaps remain after a ``dtype_backend="numpy_nullable"`` read, none of them
-    fixable by that argument alone:
+    Integer and datetime columns already come back from a
+    ``dtype_backend="numpy_nullable"`` read matching their pandas targets (see
+    ``FIELD_DTYPES_PANDAS``) directly. Two gaps remain, neither fixable by
+    ``dtype_backend`` alone:
 
-    * integer/number columns are narrower on disk (e.g. 32-bit) than PUDL's pandas
-      targets (see ``FIELD_DTYPES_PYARROW``/``FIELD_DTYPES_PANDAS``);
-    * "date" columns (Arrow ``date32``) always come back as plain ``object`` --
-      pandas has no native nullable date-only dtype -- rather than PUDL's
-      ``datetime64[s]`` target;
-    * "datetime" columns come back at whatever timestamp resolution is stored on
-      disk (e.g. ``datetime64[ms]``), not PUDL's ``datetime64[s]`` target.
-
-    Every other field type -- including enum-constrained strings -- is already
-    correct after that read and needs no further casting.
+    * "number" columns come back as pandas' nullable ``Float64``, but PUDL's target
+      is plain (non-nullable) ``float64`` -- unlike integers, floats can already
+      represent missing values natively via ``NaN``, so PUDL doesn't use the
+      nullable dtype for them.
+    * "date" columns (Arrow ``date32``) always come back as plain ``object`` holding
+      Python ``datetime.date`` scalars, since pandas has no native nullable
+      date-only dtype.
     """
     fixes = {
         field.name: field.to_pandas_dtype()
         for field in resource.schema.fields
-        if field.type in ("integer", "number", "date", "datetime")
-        and field.name in df.columns
+        if field.type in ("number", "date") and field.name in df.columns
     }
     return df.astype(fixes) if fixes else df
 
@@ -2389,13 +2349,13 @@ def get_parquet_table(
             df = apply_pudl_dtypes(df, resource=resource.name)
         else:
             # dtype_backend="numpy_nullable" already gets every column to PUDL's target
-            # dtype except for the few gaps _fix_residual_read_dtypes covers -- enforce_schema's
+            # dtype except for the few gaps _fix_residual_dtypes covers -- enforce_schema's
             # full re-cast of every column, including enum fields, is redundant here: pandas'
             # Categorical reconstructs a constrained dtype's full category list (even unused
             # ones) straight from the Parquet dictionary page, with no PUDL-metadata-driven
             # re-derivation needed. See tests/unit/helpers_test.py's
             # test_constrained_categorical_cross_backend_parquet_roundtrip.
-            df = _fix_residual_read_dtypes(df, resource)
+            df = _fix_residual_dtypes(df, resource)
             resource.check_primary_key(df)
 
     return df
