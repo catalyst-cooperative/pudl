@@ -121,7 +121,7 @@ def test__core_eia923__yearly_fuel_stocks():
     stock_cols = (
         "coal_stock_tons",
         "petroleum_liquids_stock_barrels",
-        "petroleum_coke_stock_barrels",
+        "petroleum_coke_stock_tons",
     )
     for stock_col in stock_cols:
         assert pd.api.types.is_float_dtype(out[stock_col])
@@ -133,7 +133,7 @@ def test__core_eia923__yearly_fuel_stocks():
     # Thousand-unit values are converted to base units.
     assert ne_jan["coal_stock_tons"] == 10_000.0
     assert ne_jan["petroleum_liquids_stock_barrels"] == 1_000.0
-    assert ne_jan["petroleum_coke_stock_barrels"] == 0.0
+    assert ne_jan["petroleum_coke_stock_tons"] == 0.0
 
     ne_jun = out[
         (out["census_division_and_state"] == "New England")
@@ -141,14 +141,14 @@ def test__core_eia923__yearly_fuel_stocks():
     ].iloc[0]
     assert ne_jun["coal_stock_tons"] == 11_000.0
     # A "." raw value coerces to NaN.
-    assert pd.isna(ne_jun["petroleum_coke_stock_barrels"])
+    assert pd.isna(ne_jun["petroleum_coke_stock_tons"])
 
     ma_jun = out[
         (out["census_division_and_state"] == "Middle Atlantic")
         & (out["report_date"] == pd.Timestamp("2020-06-01"))
     ].iloc[0]
     # A "W" (redacted data) raw value coerces to NaN, just like ".".
-    assert pd.isna(ma_jun["petroleum_coke_stock_barrels"])
+    assert pd.isna(ma_jun["petroleum_coke_stock_tons"])
 
 
 def test___drop_duplicates__core_eia923__generation():

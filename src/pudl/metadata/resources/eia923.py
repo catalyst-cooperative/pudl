@@ -1181,8 +1181,8 @@ and consumption is the net generation."""
             "additional_details_text": (
                 "In the raw data all twelve months of stocks are reported in a "
                 "single wide record per region and year. Here they have been "
-                "reshaped into tall monthly records. Coal stocks are reported in "
-                "thousand tons and petroleum liquids and petroleum coke in thousand "
+                "reshaped into tall monthly records. Coal and petroleum coke stocks "
+                "are reported in thousand short tons and petroleum liquids in thousand "
                 "barrels in the source; they have been converted to short tons and "
                 "barrels respectively."
             ),
@@ -1193,7 +1193,7 @@ and consumption is the net generation."""
                 "census_division_and_state",
                 "coal_stock_tons",
                 "petroleum_liquids_stock_barrels",
-                "petroleum_coke_stock_barrels",
+                "petroleum_coke_stock_tons",
                 "data_maturity",
             ],
             "primary_key": [

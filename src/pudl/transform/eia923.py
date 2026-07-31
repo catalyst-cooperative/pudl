@@ -1869,13 +1869,13 @@ def _core_eia923__yearly_fuel_stocks(
         .pipe(pudl.helpers.convert_to_date)
     )
     df["census_division_and_state"] = df["census_division_and_state"].str.strip()
-    # The raw stocks are reported in thousands (coal in thousand tons, petroleum
-    # liquids and petroleum coke in thousand barrels). Convert to base units to
-    # match the rest of PUDL.
+    # The raw stocks are reported in thousands (coal and petroleum coke in
+    # thousand short tons, petroleum liquids in thousand barrels). Convert to base
+    # units to match the rest of PUDL.
     stock_cols = {
         "coal": "coal_stock_tons",
         "oil": "petroleum_liquids_stock_barrels",
-        "petcoke": "petroleum_coke_stock_barrels",
+        "petcoke": "petroleum_coke_stock_tons",
     }
     for raw_col, stock_col in stock_cols.items():
         df[stock_col] = pd.to_numeric(df[raw_col], errors="coerce") * 1000.0

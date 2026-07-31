@@ -6141,9 +6141,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Fraction of cooling load served by dry cooling components.",
         "type": "number",
     },
-    "petroleum_coke_stock_barrels": {
+    "petroleum_coke_stock_tons": {
         "type": "number",
-        "unit": "barrel",
+        "unit": "short_ton",
         "description": (
             "End-of-month petroleum coke stocks held at electric power sector "
             "generating facilities, aggregated by census division or state."
