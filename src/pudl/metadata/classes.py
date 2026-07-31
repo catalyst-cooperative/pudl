@@ -734,25 +734,25 @@ class Field(PudlMeta):
         that file with a different schema or even slightly different ``Enum`` fails
         instead of being coerced. ``Categorical`` round-trips through Parquet fine.
         """
-        if self.constraints.enum and self.type == "string":
+        if self.constraints.enum:
             return pl.Categorical()
         return FIELD_DTYPES_POLARS[self.type]
 
     def to_pandas_dtype(self) -> str | pd.CategoricalDtype:
         """Return Pandas data type."""
-        if self.constraints.enum and self.type == "string":
+        if self.constraints.enum:
             return pd.CategoricalDtype(self.constraints.enum)
         return FIELD_DTYPES_PANDAS[self.type]
 
     def to_sqlite_dtype(self) -> type:  # noqa: A003
         """Return SQLAlchemy data type."""
-        if self.constraints.enum and self.type == "string":
+        if self.constraints.enum:
             return sa.Enum(*self.constraints.enum)
         return FIELD_DTYPES_SQLITE[self.type]
 
     def to_pyarrow_dtype(self) -> pa.DataType:
         """Return PyArrow data type."""
-        if self.constraints.enum and self.type == "string":
+        if self.constraints.enum:
             return pa.dictionary(pa.int32(), pa.string(), ordered=False)
         return FIELD_DTYPES_PYARROW[self.type]
 
@@ -912,7 +912,7 @@ class Field(PudlMeta):
         """Encode this field def as a Pandera column."""
         constraints = self.constraints
         checks = constraints.to_pandera_checks(use_pandas_backend)
-        if constraints.enum and self.type == "string":
+        if constraints.enum:
             # The physical dtype is unconstrained Categorical/"category" (see
             # Field.to_polars_dtype / Field.to_pandas_dtype); the enum value
             # constraint itself is enforced by the `checks` (Check.isin) above,
@@ -1553,27 +1553,6 @@ class PudlResourceDescriptor(PudlMeta):
     extrapaths: list[str] | None = None
 
 
-# Tables large enough that checking composite primary-key uniqueness in a single
-# pass is worth chunking (see NOTE in `Resource.check_primary_key_polars` for the
-# memory measurements that motivated this). Maps resource name to a primary-key
-# field to chunk by: a date/datetime field chunks by year; anything else chunks by
-# each of its distinct values. Either way, the column must be part of the primary
-# key -- see `_chunk_filters` for why that's what makes chunking exact rather than
-# approximate.
-#
-# `core_ferceqr__transactions` is deliberately NOT listed here: its metadata
-# currently declares no primary key at all (see `additional_primary_key_text`
-# in `pudl.metadata.resources.ferceqr`), since real duplicate records were
-# found for the columns that would otherwise form one -- see
-# polars-comment.md and the PUDL issue tracking that investigation. Once that
-# investigation lands on a real, enforceable primary key, add it back here if
-# the table still needs chunking at that point.
-_CHUNKED_PK_CHECK_TABLES: dict[str, str] = {
-    "core_epacems__hourly_emissions": "operating_datetime_utc",
-    "out_vcerare__hourly_available_capacity_factor": "datetime_utc",
-}
-
-
 class Resource(PudlMeta):
     """Tabular data resource (`package.resources[...]`).
 
@@ -2131,101 +2110,155 @@ class Resource(PudlMeta):
             )
 
         df = self.format_df(df)
-        self.check_primary_key(df)
+        if errors := self.check_primary_key(df):
+            raise ValueError(
+                f"{self.name}: " + "\n".join(str(error) for error in errors)
+            )
         return df
 
     def check_primary_key(
-        self, data: pd.DataFrame | gpd.GeoDataFrame | pl.LazyFrame
-    ) -> list[SchemaError] | None:
-        """Validate this resource's primary key, dispatching on ``data``'s type.
+        self,
+        data: pd.DataFrame | gpd.GeoDataFrame | pl.LazyFrame,
+        chunk_field: str | None = None,
+    ) -> list[SchemaError]:
+        """Validate this resource's primary key for uniqueness and non-nullness.
 
-        A single entry point for both backends, so callers don't need to know
-        which backend-specific method to pick. The two backends differ in more
-        than just implementation, though -- their error-reporting contracts are
-        intentionally different, matching what each caller actually needs:
+        Primary keys are validated to be unique and non-null. Returns every violation
+        found as a list of :class:`pandera.errors.SchemaError` (empty list if none).
+        Callers that want a hard failure (e.g. :meth:`enforce_schema` and
+        :func:`pudl.helpers.get_parquet_table`) should check the returned list and raise
+        themselves; a Dagster asset check instead combines it with other schema/content
+        errors into one report rather than stopping at whichever is found first.
 
-        * For a pandas/geopandas ``data``, this raises a single ``ValueError``
-          immediately, combining every violation found (both duplicates and
-          nulls) into one message -- what :meth:`enforce_schema` and
-          :func:`pudl.helpers.get_parquet_table` want for a standalone check.
-        * For a Polars ``data``, this returns a list of
-          :class:`pandera.errors.SchemaError` instead of raising, so a Dagster
-          asset check can combine it with other schema/content errors into one
-          report rather than stopping at whichever is found first.
+        Args:
+            data: DataFrame, GeoDataFrame, or LazyFrame to check against the primary key
+                defined in this resource's schema.
+            chunk_field: Optional primary-key column to chunk the check by, for tables
+                large enough that checking uniqueness in a single pass is impractical
+                (see ``_chunk_filters``). Only meaningful for a Polars ``data``; ignored
+                for pandas/geopandas, which are already fully loaded into memory. Which
+                tables need this, if any, is an orchestration decision for the caller to
+                make -- this method doesn't know or care which tables are large.
+
+        Returns:
+            List of :class:`pandera.errors.SchemaError` for each primary key violation
+            found (empty if none).
         """
+        if not self.schema.primary_key:
+            return []
+
         if isinstance(data, pl.LazyFrame):
-            return self._check_primary_key_polars(data)
-        self._check_primary_key_pandas(data)
-        return None
+            return self._check_primary_key_polars(data, chunk_field=chunk_field)
+        return self._check_primary_key_pandas(data)
 
-    def _check_primary_key_pandas(self, df: pd.DataFrame | gpd.GeoDataFrame) -> None:
-        """Raise if this resource's primary key columns contain duplicates or nulls.
+    def _check_primary_key_pandas(
+        self, df: pd.DataFrame | gpd.GeoDataFrame
+    ) -> list[SchemaError]:
+        """Check a pandas DataFrame for primary key uniqueness and non-nullness.
 
-        Checks both conditions before raising, so a single run reports every
-        violation found instead of stopping at whichever is discovered first.
+        Does not do any chunking, since pandas DataFrames are already fully loaded into
+        memory.
 
-        Split out of :meth:`enforce_schema` so callers that skip the rest of that
-        method's full dtype re-casting (e.g. a Parquet read that already trusts the
-        dtypes it got) can still get this check.
+        Args:
+            df: DataFrame to check.
+
+        Returns:
+            List of :class:`pandera.errors.SchemaError` for each primary key violation
+            found (empty if none).
         """
         pk = self.schema.primary_key
-        if not pk:
-            return
+        schema = pr_pandas.DataFrameSchema(name=self.name)
+        errors: list[SchemaError] = []
 
-        errors = []
         dupes = df[df.duplicated(subset=pk, keep=False)].sort_values(pk)
         if not dupes.empty:
             errors.append(
-                f"{len(dupes)}/{len(df)} duplicate primary keys ({pk=}):\n"
-                f"{dupes.head()}{'\n...' if len(dupes) > 5 else ''}"
+                SchemaError(
+                    schema=schema,
+                    data=None,
+                    message=(
+                        f"{len(dupes)}/{len(df)} duplicate primary keys ({pk=}):\n"
+                        f"{dupes.head()}{'\n...' if len(dupes) > 5 else ''}"
+                    ),
+                    check="multiple_fields_uniqueness",
+                    reason_code=SchemaErrorReason.DUPLICATES,
+                    column_name=self.name,
+                )
             )
 
         nulls = df[df[pk].isna().any(axis=1)]
         if not nulls.empty:
-            errors.append(f"Null values found in primary key columns:\n{nulls}")
-
-        if errors:
-            raise ValueError(f"{self.name}: " + "\n".join(errors))
-
-    def _check_primary_key_polars(self, lf: pl.LazyFrame) -> list[SchemaError]:
-        """Validate composite primary-key uniqueness on a LazyFrame.
-
-        Never uses pandera's built-in composite-uniqueness check
-        (`DataFrameSchema(unique=...)`), which collects the same LazyFrame up to
-        three times and calls the eager, non-lazy `.is_duplicated()` -- see
-        `_find_duplicate_primary_keys` for the memory measurements that ruled
-        that out. For the handful of tables large enough to matter
-        (`_CHUNKED_PK_CHECK_TABLES`), this checks uniqueness one chunk at a time
-        instead of all at once, which is exact -- not an approximation -- as long
-        as the chunking column is part of the primary key (see `_chunk_filters`).
-        Every other table just runs the check once on the whole (already narrow,
-        primary-key-only) LazyFrame, which is fine at their scale.
-        """
-        primary_key = self.schema.primary_key
-        if not primary_key:
-            return []
-
-        narrow = lf.select(primary_key)
-        chunk_field = _CHUNKED_PK_CHECK_TABLES.get(self.name)
-        if chunk_field:
-            assert chunk_field in primary_key, (
-                f"_CHUNKED_PK_CHECK_TABLES lists {chunk_field!r} as the chunk column "
-                f"for {self.name!r}, but it isn't part of that resource's "
-                f"primary key ({primary_key!r}). Chunking is only exact when the "
-                "chunk column is part of the primary key -- see _chunk_filters."
+            errors.append(
+                SchemaError(
+                    schema=schema,
+                    data=None,
+                    message=f"Null values found in primary key columns:\n{nulls}",
+                    check="not_nullable",
+                    reason_code=SchemaErrorReason.SERIES_CONTAINS_NULLS,
+                    column_name=self.name,
+                )
             )
+
+        return errors
+
+    def _check_primary_key_polars(
+        self, lf: pl.LazyFrame, chunk_field: str | None = None
+    ) -> list[SchemaError]:
+        """Validate LazyFrame primary-key is unique and non-null.
+
+        Uses a single group-by/count/filter reduction, run with ``engine="streaming"``,
+        to minimize memory usage.
+
+        Args:
+            lf: LazyFrame to check.
+            chunk_field: Optional primary-key column to chunk the check by, for
+                tables large enough that checking uniqueness in a single pass is
+                impractical.
+
+        Returns:
+            List of :class:`pandera.errors.SchemaError` for each primary key violation
+            found (empty if none).
+
+        Raises:
+            ValueError: If ``chunk_field`` is given but isn't part of the primary key.
+        """
+        pk = self.schema.primary_key
+        narrow = lf.select(pk)
+
+        errors: list[SchemaError] = []
+
+        nulls = self._find_null_primary_keys(narrow, pk)
+        if nulls.height > 0:
+            errors.append(self._null_primary_key_error(nulls))
+
+        if chunk_field:
+            if chunk_field not in pk:
+                raise ValueError(
+                    f"{chunk_field!r} was given as the chunk column for "
+                    f"{self.name!r}, but it isn't part of that resource's "
+                    f"primary key ({pk!r}). Chunking is only exact when the "
+                    "chunk column is part of the primary key -- see _chunk_filters."
+                )
             chunks = [
                 narrow.filter(f) for f in self._chunk_filters(narrow, chunk_field)
             ]
         else:
             chunks = [narrow]
 
-        errors: list[SchemaError] = []
         for chunk in chunks:
-            duplicates = self._find_duplicate_primary_keys(chunk, primary_key)
+            duplicates = self._find_duplicate_primary_keys(chunk, pk)
             if duplicates.height > 0:
                 errors.append(self._duplicate_primary_key_error(duplicates))
         return errors
+
+    @staticmethod
+    def _find_null_primary_keys(
+        lf: pl.LazyFrame, primary_key: list[str]
+    ) -> pl.DataFrame:
+        """Return rows where any primary-key column is null."""
+        return lf.filter(
+            pl.any_horizontal(pl.col(c).is_null() for c in primary_key)
+        ).collect(engine="streaming")
 
     @staticmethod
     def _find_duplicate_primary_keys(
@@ -2233,17 +2266,21 @@ class Resource(PudlMeta):
     ) -> pl.DataFrame:
         """Return the primary-key combinations that appear more than once in ``lf``.
 
-        Uses a single group-by/count/filter reduction, run with
-        ``engine="streaming"``, rather than pandera's built-in composite-uniqueness
-        check (`DataFrameSchema(unique=...)`), which collects the same LazyFrame
-        up to three times and calls the eager, non-lazy `.is_duplicated()`. On our
-        largest table's largest quarterly partition (228M rows) this measured at
-        ~33GB / 3.4s, versus ~109GB / 152s for pandera's built-in check on the
-        exact same data -- see polars-comment.md.
+        Uses a single group-by/count/filter reduction, run with ``engine="streaming"``
+        to minimize memory usage. For comparison, on the largest quarter of EQR
+        transaction data (228M rows) this method uses ~33GB of memory and takes ~3.4s,
+        versus ~109GB and 152s for pandera's built-in check on the same data.
+
+        Args:
+            lf: LazyFrame to check.
+            primary_key: List of column names to check for uniqueness.
+
+        Returns:
+            DataFrame of primary-key combinations that appear more than once in ``lf``.
         """
         return (
             lf.group_by(primary_key)
-            .agg(pl.len().alias("_pk_count"))
+            .agg(_pk_count=pl.len())
             .filter(pl.col("_pk_count") > 1)
             .collect(engine="streaming")
         )
@@ -2286,8 +2323,8 @@ class Resource(PudlMeta):
 
         if dtype in (pl.Date, pl.Datetime) or isinstance(dtype, pl.Datetime):
             bounds = lf.select(
-                pl.col(chunk_field).min().alias("_min"),
-                pl.col(chunk_field).max().alias("_max"),
+                _min=pl.col(chunk_field).min(),
+                _max=pl.col(chunk_field).max(),
             ).collect(engine="streaming")
             min_year = bounds["_min"][0].year
             max_year = bounds["_max"][0].year
@@ -2312,17 +2349,7 @@ class Resource(PudlMeta):
         """Build a SchemaError describing duplicate primary-key combinations."""
         primary_key = self.schema.primary_key
         return SchemaError(
-            # pandera's polars backend unconditionally reads schema.name and
-            # check_output (see failure_cases_metadata in
-            # pandera/backends/polars/base.py) whenever failure_cases is a
-            # pl.DataFrame, crashing with an unhelpful AttributeError on the
-            # defaults (`schema=None`/`check_output=None`) this error would
-            # otherwise have. A minimal, columnless DataFrameSchema satisfies
-            # the `.name` access without needing this resource's real schema.
             schema=pr_polars.DataFrameSchema(name=self.name),
-            # None, not duplicates again: identical to failure_cases below, and
-            # pandera's own per-column errors leave data=None too -- callers
-            # that want the offending rows should look at failure_cases.
             data=None,
             # A short summary, not the full table -- callers that want the
             # actual offending rows should use failure_cases/failure_case_count
@@ -2340,8 +2367,30 @@ class Resource(PudlMeta):
             column_name=self.name,
         )
 
+    def _null_primary_key_error(self, nulls: pl.DataFrame) -> SchemaError:
+        """Build a SchemaError describing null primary-key values."""
+        primary_key = self.schema.primary_key
+        return SchemaError(
+            schema=pr_polars.DataFrameSchema(name=self.name),
+            data=None,
+            # A short summary, not the full table -- callers that want the
+            # actual offending rows should use failure_cases/failure_case_count
+            # (see asset_checks._process_schema_errors), not this string.
+            message=(
+                f"columns {tuple(primary_key)!r}: {nulls.height} rows with a "
+                "null primary-key value"
+            ),
+            check="not_nullable",
+            reason_code=SchemaErrorReason.SERIES_CONTAINS_NULLS,
+            failure_cases=nulls,
+            # Every row here already *is* a failure, so this is a same-length,
+            # all-False stand-in for a real per-row check_output.
+            check_output=pl.DataFrame({CHECK_OUTPUT_KEY: [False] * nulls.height}),
+            column_name=self.name,
+        )
+
     def aggregate_df(
-        self, df: pd.DataFrame, raised: bool = False, error: Callable = None
+        self, df: pd.DataFrame, raised: bool = False, error: Callable | None = None
     ) -> tuple[pd.DataFrame, dict]:
         """Aggregate dataframe by primary key.
 
