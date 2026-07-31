@@ -469,8 +469,9 @@ class PudlSqliteIOManager(SqliteIOManager):
 
         super().__init__(base_dir, db_name, md, timeout)
 
-        existing_schema_context = MigrationContext.configure(self.engine.connect())
-        metadata_diff = compare_metadata(existing_schema_context, self.md)
+        with self.engine.connect() as connection:
+            existing_schema_context = MigrationContext.configure(connection)
+            metadata_diff = compare_metadata(existing_schema_context, self.md)
         if metadata_diff:
             logger.info(f"Metadata diff:\n\n{metadata_diff}")
             raise RuntimeError(
