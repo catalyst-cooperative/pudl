@@ -2350,7 +2350,10 @@ def get_parquet_table(
             # re-derivation needed. See tests/unit/helpers_test.py's
             # test_constrained_categorical_cross_backend_parquet_roundtrip.
             df = _fix_residual_dtypes(df, resource)
-            resource.check_primary_key(df)
+            if errors := resource.check_primary_key(df):
+                raise ValueError(
+                    f"{resource.name}: " + "\n".join(str(error) for error in errors)
+                )
 
     return df
 

@@ -40,12 +40,30 @@ from pudl.dagster.assets import all_asset_modules, asset_keys
 from pudl.dagster.partitions import ferceqr_year_quarters
 from pudl.helpers import ParquetData, get_parquet_table_polars
 from pudl.metadata.classes import (
-    _CHUNKED_PK_CHECK_TABLES,
     PUDL_PACKAGE,
     Field,
     Package,
     Resource,
 )
+
+_CHUNKED_PK_CHECK_TABLES: dict[str, str] = {
+    "core_epacems__hourly_emissions": "operating_datetime_utc",
+    "out_vcerare__hourly_available_capacity_factor": "datetime_utc",
+}
+"""Tables large enough that their primary-key check needs to run in chunks.
+
+Keys are table names; values are the primary-key column to chunk by (see
+``Resource._chunk_filters`` for what makes a column a valid choice). This is an
+orchestration decision -- which of PUDL's tables are large enough that checking
+uniqueness in one pass isn't practical -- so it lives here rather than as a
+property of :class:`~pudl.metadata.classes.Resource` itself; ``check_primary_key``
+takes ``chunk_field`` as a plain parameter and doesn't know or care which tables
+are large.
+
+Note that `core_ferceqr__transactions` is deliberately NOT listed here because it
+does not currently have a primary key (2026-07-30). If we establish one, it should
+be added.
+"""
 
 
 def _collect_asset_metadata(asset_value) -> dict[str, Any]:
@@ -454,11 +472,8 @@ def _validate_polars_content(
     pk_start = time.perf_counter()
     primary_key = resource.schema.primary_key
     if primary_key and all(col in present_columns for col in primary_key):
-        # asset_value is unambiguously a LazyFrame here, so call the
-        # precisely-typed polars implementation directly rather than the
-        # public check_primary_key dispatcher, whose return type is
-        # broadened to accommodate its pandas branch (which returns None).
-        errors.extend(resource._check_primary_key_polars(asset_value))
+        chunk_field = _CHUNKED_PK_CHECK_TABLES.get(resource.name)
+        errors.extend(resource.check_primary_key(asset_value, chunk_field=chunk_field))
     timings["pk_check_seconds"] = time.perf_counter() - pk_start
 
     return errors, timings

@@ -19,7 +19,6 @@ from pandera.errors import SchemaErrors
 from shapely import Point
 
 from pudl.metadata.classes import (
-    _CHUNKED_PK_CHECK_TABLES,
     PUDL_PACKAGE,
     DataSource,
     Field,
@@ -209,14 +208,8 @@ def test_enum_constraint_order_is_deterministic() -> None:
     assert field.constraints.enum == ["a", "b", "m", "z"]
 
 
-def test_check_primary_key_reports_both_duplicates_and_nulls() -> None:
-    """check_primary_key should report every violation in one pass, not just the first.
-
-    Regression test: an earlier version raised on the first problem it found
-    (duplicates), so a caller fixing that would only discover the null-value
-    problem on a second run.
-    """
-    resource = Resource(
+def _pk_violation_resource() -> Resource:
+    return Resource(
         name="_test__check_primary_key",
         description="Synthetic resource for check_primary_key tests.",
         schema={
@@ -226,39 +219,100 @@ def test_check_primary_key_reports_both_duplicates_and_nulls() -> None:
             "primary_key": ["id"],
         },
     )
-    df = pd.DataFrame({"id": pd.array([1, 1, None], dtype="Int64")})
-    with pytest.raises(
-        ValueError, match=r"(?s)duplicate primary keys.*Null values"
-    ) as exc:
-        resource.check_primary_key(df)
-    assert "duplicate primary keys" in str(exc.value)
-    assert "Null values found" in str(exc.value)
 
 
-def test_check_primary_key_dispatches_by_type() -> None:
-    """check_primary_key routes to the pandas or polars implementation by type.
+def _pandas_pk_violation_data() -> pd.DataFrame:
+    """A single-column PK with both a duplicate (1, 1) and a null value."""
+    return pd.DataFrame({"id": pd.array([1, 1, None], dtype="Int64")})
 
-    Callers shouldn't have to remember two method names for the two backends --
-    this locks in that a single ``check_primary_key`` call works for either.
+
+def _polars_pk_violation_data() -> pl.LazyFrame:
+    """A single-column PK with both a duplicate (1, 1) and a null value."""
+    return pl.LazyFrame({"id": [1, 1, None]})
+
+
+@pytest.mark.parametrize(
+    "make_data",
+    [_pandas_pk_violation_data, _polars_pk_violation_data],
+    ids=["pandas", "polars"],
+)
+def test_check_primary_key_reports_duplicates_and_nulls(make_data) -> None:
+    """check_primary_key should report every violation type, for either backend.
+
+    Regression test: the pandas path used to raise on the first problem it
+    found (duplicates), so a caller fixing that would only discover the
+    null-value problem on a second run. The polars path separately never
+    checked for nulls at all -- a lone null primary-key value passed silently,
+    since ``_find_duplicate_primary_keys``'s group-by/count approach only ever
+    flags a null combination that happens to repeat (see
+    ``_find_null_primary_keys``). Both backends now report every violation
+    type found in one call, without raising.
     """
-    resource = Resource(
-        name="_test__check_primary_key_dispatch",
-        description="Synthetic resource for check_primary_key dispatch tests.",
-        schema={
-            "fields": [
-                {"name": "id", "type": "integer", "description": "Primary key."}
-            ],
-            "primary_key": ["id"],
-        },
-    )
-    # Pandas: raises directly, returns nothing.
-    with pytest.raises(ValueError, match="duplicate primary keys"):
-        resource.check_primary_key(pd.DataFrame({"id": [1, 1]}))
+    errors = _pk_violation_resource().check_primary_key(make_data())
+    messages = " ".join(str(error).lower() for error in errors)
+    assert "duplicate" in messages
+    assert "null" in messages
 
-    # Polars: returns a list of SchemaErrors instead of raising.
-    errors = resource.check_primary_key(pl.LazyFrame({"id": [1, 1]}))
-    assert isinstance(errors, list)
-    assert len(errors) > 0
+
+def test_check_primary_key_polars_catches_lone_null_without_duplicate() -> None:
+    """A single null primary-key value is caught even with no duplicate present.
+
+    Narrower regression test than the parametrized one above: isolates the
+    "null with no accompanying duplicate" case, which is the one
+    ``_find_duplicate_primary_keys``'s group-by/count approach can never catch
+    on its own, to make sure ``_find_null_primary_keys`` is doing real work
+    and not just piggybacking on a duplicate that happens to also be null.
+    """
+    resource = _pk_violation_resource()
+    errors = resource.check_primary_key(pl.LazyFrame({"id": [1, None, 3]}))
+    assert len(errors) == 1
+    assert "null" in str(errors[0]).lower()
+
+
+def test_enforce_schema_raises_combining_primary_key_violations() -> None:
+    """enforce_schema is the caller that wants a hard failure on any PK violation.
+
+    It combines every SchemaError ``check_primary_key`` returns into one
+    ``ValueError`` rather than raising on the first, so both duplicate and null
+    violations are visible in a single run instead of requiring a fix-and-rerun
+    cycle to discover the second one.
+    """
+    resource = _pk_violation_resource()
+    df = _pandas_pk_violation_data()
+    with pytest.raises(ValueError, match=r"(?s)duplicate primary keys.*[Nn]ull") as exc:
+        resource.enforce_schema(df)
+    assert "duplicate primary keys" in str(exc.value)
+    assert "null" in str(exc.value).lower()
+
+
+@pytest.mark.parametrize(
+    "make_data",
+    [_pandas_pk_violation_data, _polars_pk_violation_data],
+    ids=["pandas", "polars"],
+)
+def test_check_primary_key_errors_are_schema_errors_compatible(make_data) -> None:
+    """Every backend's SchemaErrors must survive being wrapped in a real SchemaErrors.
+
+    Regression test: pandera's backends unconditionally read attributes like
+    ``schema``/``check_output`` off of a SchemaError the moment it's collected
+    into a SchemaErrors, not just when displayed later (see
+    ``failure_cases_metadata`` in ``pandera/backends/{pandas,polars}/base.py``).
+    A manually-built duplicate-PK SchemaError once left both of those ``None``
+    for the polars backend, crashing with an opaque ``AttributeError`` -- as
+    first surfaced by a real duplicate-primary-key partition of
+    ``core_ferceqr__quarterly_index_pub``. Constructing a real SchemaErrors
+    here -- not just checking ``len(errors) > 0`` -- is what catches that; a
+    bare list of errors is not enough, since the crash only happens once
+    they're collected into a SchemaErrors.
+    """
+    data = make_data()
+    errors = _pk_violation_resource().check_primary_key(data)
+    schema_errors = SchemaErrors(
+        schema=errors[0].schema, schema_errors=errors, data=data
+    )
+    message = str(schema_errors).lower()
+    assert "duplicate" in message
+    assert "null" in message
 
 
 # ---------------------------------------------------------------------------
@@ -269,8 +323,10 @@ def test_check_primary_key_dispatches_by_type() -> None:
 # The polars path never uses pandera's built-in composite-uniqueness check
 # (too memory-hungry, see polars-comment.md); it always uses its own
 # group-by/count-based `Resource._find_duplicate_primary_keys`, optionally run
-# once per chunk instead of once on the whole table for PUDL's few oversized
-# tables (`_CHUNKED_PK_CHECK_TABLES`). Chunking is only correct because the
+# once per chunk instead of once on the whole table via a caller-supplied
+# `chunk_field` (which tables need this, if any, is an orchestration decision
+# made by the caller -- see `pudl.dagster.asset_checks._CHUNKED_PK_CHECK_TABLES`
+# for PUDL's few oversized tables). Chunking is only correct because the
 # chunking column is itself part of the primary key -- two rows with an
 # identical composite key necessarily share the same value of it, so
 # duplicates can never span chunk boundaries, whether the column is
@@ -314,8 +370,8 @@ def _categorical_pk_resource() -> Resource:
 def test_check_primary_key_polars_temporal_valid() -> None:
     """Repeated non-key values across different years are not false positives.
 
-    ``_temporal_pk_resource`` isn't in ``_CHUNKED_PK_CHECK_TABLES``, so this
-    exercises ``check_primary_key``'s default, unchunked polars dispatch path;
+    No ``chunk_field`` is passed here, so this exercises
+    ``check_primary_key``'s default, unchunked polars dispatch path;
     ``test_chunk_filters_temporal_*`` below separately verify the chunking
     mechanism itself preserves the same correctness.
     """
@@ -347,35 +403,6 @@ def test_check_primary_key_polars_temporal_catches_duplicate() -> None:
     )
     errors = resource._check_primary_key_polars(lf)
     assert len(errors) > 0
-
-
-def test_duplicate_primary_key_error_is_schema_errors_compatible() -> None:
-    """A duplicate-PK SchemaError must survive being wrapped in a real SchemaErrors.
-
-    Regression test: pandera's polars backend unconditionally reads
-    ``err.schema.name`` and ``err.check_output`` off of every error the moment a
-    ``SchemaErrors`` containing it is constructed (see ``failure_cases_metadata``
-    in ``pandera/backends/polars/base.py``), not just when the error is later
-    displayed. The two returned-list-only tests above (checking
-    ``len(errors) > 0``) never actually construct one, so they didn't catch that
-    the manually-built duplicate-PK ``SchemaError`` used to leave both of those
-    ``None``, crashing with an opaque ``AttributeError`` -- as first surfaced by
-    a real duplicate-primary-key partition of ``core_ferceqr__quarterly_index_pub``.
-    """
-    resource = _temporal_pk_resource()
-    lf = pl.LazyFrame(
-        {
-            "event_date": [date(2020, 1, 1), date(2020, 1, 1), date(2021, 1, 1)],
-            "unit_id": [1, 1, 1],
-        }
-    )
-    errors = resource._check_primary_key_polars(lf)
-    # Constructing SchemaErrors -- not just returning the list -- is what
-    # previously crashed; pandera does this eagerly in its own __init__.
-    schema_errors = SchemaErrors(
-        schema=resource.schema.to_pandera(), schema_errors=errors, data=lf
-    )
-    assert "not unique" in str(schema_errors)
 
 
 def test_check_primary_key_polars_categorical_valid() -> None:
@@ -429,23 +456,30 @@ def test_chunk_filters_categorical_partitions_by_value() -> None:
 
 
 def test_check_primary_key_polars_no_primary_key() -> None:
-    """Resources without a primary key are trivially valid."""
+    """Resources without a primary key are trivially valid.
+
+    Goes through the public ``check_primary_key`` dispatcher rather than
+    ``_check_primary_key_polars`` directly: the "no primary key" guard lives
+    only in the dispatcher (``_check_primary_key_polars`` assumes a non-empty
+    ``primary_key`` -- an empty one breaks ``pl.any_horizontal`` in the null
+    check), so calling the private method directly here would test a
+    combination that never happens in practice.
+    """
     resource = Resource(
         name="_test__no_pk",
         description="Synthetic resource without a primary key.",
         schema={"fields": [{"name": "x", "type": "integer", "description": "X."}]},
     )
     lf = pl.LazyFrame({"x": [1, 1, 1]})
-    assert resource._check_primary_key_polars(lf) == []
+    assert resource.check_primary_key(lf) == []
 
 
-def test_check_primary_key_polars_rejects_bad_chunk_field(mocker) -> None:
-    """A chunk field that isn't part of the primary key is a config error.
+def test_check_primary_key_polars_rejects_bad_chunk_field() -> None:
+    """A chunk field that isn't part of the primary key is a caller error.
 
     Chunking is only exact (see `Resource._chunk_filters`) when the chunk
-    column is part of the primary key -- if `_CHUNKED_PK_CHECK_TABLES` is ever
-    misconfigured with a column that isn't, that has to fail loudly rather
-    than silently produce an incomplete uniqueness check.
+    column is part of the primary key -- a caller passing one that isn't has
+    to fail loudly rather than silently produce an incomplete uniqueness check.
     """
     resource = Resource(
         name="_test__bad_chunk_field",
@@ -458,10 +492,9 @@ def test_check_primary_key_polars_rejects_bad_chunk_field(mocker) -> None:
             "primary_key": ["id"],
         },
     )
-    mocker.patch.dict(_CHUNKED_PK_CHECK_TABLES, {resource.name: "other"})
     lf = pl.LazyFrame({"id": [1, 2], "other": [1, 2]})
-    with pytest.raises(AssertionError, match="isn't part of"):
-        resource._check_primary_key_polars(lf)
+    with pytest.raises(ValueError, match="isn't part of"):
+        resource._check_primary_key_polars(lf, chunk_field="other")
 
 
 def test_find_duplicate_primary_keys() -> None:
@@ -472,21 +505,6 @@ def test_find_duplicate_primary_keys() -> None:
     assert duplicates["a"][0] == 1
     assert duplicates["b"][0] == "x"
     assert duplicates["_pk_count"][0] == 2
-
-
-def test_chunked_pk_check_tables_are_valid() -> None:
-    """Every entry in _CHUNKED_PK_CHECK_TABLES must name a real, matching field.
-
-    Guards against the mapping silently going stale if a listed resource's
-    primary key changes -- the chunking column must remain part of the
-    primary key, since that's what makes chunking by it exact rather than
-    approximate.
-    """
-    for resource_name, field_name in _CHUNKED_PK_CHECK_TABLES.items():
-        resource = PUDL_PACKAGE.get_resource(resource_name)
-        assert field_name in resource.schema.primary_key, (
-            f"{field_name} is not part of {resource_name}'s primary key"
-        )
 
 
 def test_field_unit_strings() -> None:
