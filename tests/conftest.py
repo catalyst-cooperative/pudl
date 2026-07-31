@@ -516,13 +516,20 @@ def dbt_target(global_data_config_path: Path) -> str:
 def ferc1_engine_dbf(
     ferc1_dbf_io_manager: FercDbfSqliteIOManager,
     dagster_instance: DagsterInstance,
-) -> sa.Engine:
-    """Return the SQLAlchemy engine for the prebuilt FERC Form 1 DBF database."""
-    return _initialize_ferc_engine(
+) -> Generator[sa.Engine]:
+    """Return the SQLAlchemy engine for the prebuilt FERC Form 1 DBF database.
+
+    Disposes the engine at session teardown -- see ``pudl_engine`` for why.
+    """
+    engine = _initialize_ferc_engine(
         ferc1_dbf_io_manager,
         asset_key="raw_ferc1_dbf__f1_respondent_id",
         dagster_instance=dagster_instance,
     )
+    try:
+        yield engine
+    finally:
+        engine.dispose()
 
 
 @pytest.fixture(scope="session")
@@ -549,7 +556,10 @@ def prebuilt_outputs(
     )
     md = PUDL_PACKAGE.to_sql()
     pudl_engine = sa.create_engine(pudl_test_paths.pudl_db)
-    md.create_all(pudl_engine)
+    try:
+        md.create_all(pudl_engine)
+    finally:
+        pudl_engine.dispose()
 
     _pudl_etl(dg_config_path, pudl_test_paths, dagster_home)
     _assert_prebuilt_ferc_sqlite_dbs(pudl_test_paths)
@@ -559,13 +569,20 @@ def prebuilt_outputs(
 def ferc1_engine_xbrl(
     ferc1_xbrl_io_manager: FercXbrlSqliteIOManager,
     dagster_instance: DagsterInstance,
-) -> sa.Engine:
-    """Return the SQLAlchemy engine for the prebuilt FERC Form 1 XBRL database."""
-    return _initialize_ferc_engine(
+) -> Generator[sa.Engine]:
+    """Return the SQLAlchemy engine for the prebuilt FERC Form 1 XBRL database.
+
+    Disposes the engine at session teardown -- see ``pudl_engine`` for why.
+    """
+    engine = _initialize_ferc_engine(
         ferc1_xbrl_io_manager,
         asset_key="raw_ferc1_xbrl__identification_001_duration",
         dagster_instance=dagster_instance,
     )
+    try:
+        yield engine
+    finally:
+        engine.dispose()
 
 
 @pytest.fixture(scope="session")
@@ -591,13 +608,20 @@ def ferc1_xbrl_taxonomy_metadata(
 def ferc714_engine_xbrl(
     ferc714_xbrl_io_manager: FercXbrlSqliteIOManager,
     dagster_instance: DagsterInstance,
-) -> sa.Engine:
-    """Return the SQLAlchemy engine for the prebuilt FERC Form 714 XBRL database."""
-    return _initialize_ferc_engine(
+) -> Generator[sa.Engine]:
+    """Return the SQLAlchemy engine for the prebuilt FERC Form 714 XBRL database.
+
+    Disposes the engine at session teardown -- see ``pudl_engine`` for why.
+    """
+    engine = _initialize_ferc_engine(
         ferc714_xbrl_io_manager,
         asset_key="raw_ferc714_xbrl__identification_and_certification_01_1_duration",
         dagster_instance=dagster_instance,
     )
+    try:
+        yield engine
+    finally:
+        engine.dispose()
 
 
 @pytest.fixture(scope="session")
@@ -621,9 +645,20 @@ def ferc714_xbrl_taxonomy_metadata(
 
 
 @pytest.fixture(scope="session")
-def pudl_engine(prebuilt_outputs, pudl_test_paths: PudlPaths) -> sa.Engine:
-    """Return the SQLAlchemy engine for the prepared PUDL integration database."""
-    return sa.create_engine(pudl_test_paths.pudl_db)
+def pudl_engine(prebuilt_outputs, pudl_test_paths: PudlPaths) -> Generator[sa.Engine]:
+    """Return the SQLAlchemy engine for the prepared PUDL integration database.
+
+    Disposes the engine at session teardown so its pooled sqlite3 connections are
+    closed explicitly, rather than left for the interpreter to garbage collect at
+    shutdown -- by then pytest's warnings-catching context has already exited, so
+    the ``ignore:unclosed database`` filter in ``pyproject.toml`` no longer
+    applies, and the resulting ``ResourceWarning`` prints raw to stderr.
+    """
+    engine = sa.create_engine(pudl_test_paths.pudl_db)
+    try:
+        yield engine
+    finally:
+        engine.dispose()
 
 
 @pytest.fixture(scope="session", autouse=True)
