@@ -87,7 +87,8 @@ def test__core_eia923__yearly_fuel_stocks():
     Covers the wired asset for issue #5081: the ``early_release`` flag is dropped,
     region labels are whitespace-stripped, the wide monthly columns are reshaped into
     one row per populated month with a ``report_date``, and the reported thousand-unit
-    stock quantities are converted to base units (with ``"."`` becoming NaN).
+    stock quantities are converted to base units (with non-numeric placeholders like
+    ``"."`` and the redacted-data marker ``"W"`` becoming NaN).
     """
     raw = pd.DataFrame(
         {
@@ -100,7 +101,7 @@ def test__core_eia923__yearly_fuel_stocks():
             "oil_january": ["1.0", "2.0"],
             "oil_june": ["1.5", "2.5"],
             "petcoke_january": ["0.0", "0.1"],
-            "petcoke_june": [".", "0.2"],
+            "petcoke_june": [".", "W"],
         }
     )
     out = eia923._core_eia923__yearly_fuel_stocks(raw)
@@ -141,6 +142,13 @@ def test__core_eia923__yearly_fuel_stocks():
     assert ne_jun["coal_stock_tons"] == 11_000.0
     # A "." raw value coerces to NaN.
     assert pd.isna(ne_jun["petroleum_coke_stock_barrels"])
+
+    ma_jun = out[
+        (out["census_division_and_state"] == "Middle Atlantic")
+        & (out["report_date"] == pd.Timestamp("2020-06-01"))
+    ].iloc[0]
+    # A "W" (redacted data) raw value coerces to NaN, just like ".".
+    assert pd.isna(ma_jun["petroleum_coke_stock_barrels"])
 
 
 def test___drop_duplicates__core_eia923__generation():
