@@ -29,6 +29,14 @@ Extractor for EIA form 191.
 
 Instance of metadata object to use with this extractor.
 
+#### source_filename(page: [str](https://docs.python.org/3/library/stdtypes.html#str), \*\*partition: [pudl.extract.extractor.PartitionSelection](../extractor/index.md#pudl.extract.extractor.PartitionSelection)) → [str](https://docs.python.org/3/library/stdtypes.html#str)
+
+Override filename selection.
+
+Since archive version 33.0.0, EIA-191 archives include both annual and monthly files for some years.
+All files specify whether they are annual or monthly.
+PUDL processes only monthly EIA-191 data.
+
 #### get_page_cols(page: [str](https://docs.python.org/3/library/stdtypes.html#str), partition_key: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]
 
 Get the columns for a particular page and partition key.

@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.dagster.asset_checks &#8212; PUDL 2026.7.3.dev16 documentation</title>
+    <title>pudl.dagster.asset_checks &#8212; PUDL 2026.7.3.dev26 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=e1e49be5"></script>
+    <script src="../../../_static/documentation_options.js?v=d61c118f"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.7.3.dev16 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.7.3.dev16 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.7.3.dev26 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.7.3.dev26 documentation - Home"/>
   
   
 </a></div>
@@ -1140,7 +1140,6 @@ window.runMermaid = runMermaid;</script>
     <span class="n">asset_key</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">AssetKey</span><span class="p">,</span>
     <span class="n">package</span><span class="p">:</span> <span class="n">Package</span><span class="p">,</span>
     <span class="n">duckdb_asset</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
-    <span class="n">high_memory_asset</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dg</span><span class="o">.</span><span class="n">AssetChecksDefinition</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a Dagster asset check based on the resource schema, if defined.</span>
 
@@ -1195,11 +1194,18 @@ window.runMermaid = runMermaid;</script>
 
         <span class="k">try</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">asset_value</span><span class="p">,</span> <span class="n">pl</span><span class="o">.</span><span class="n">LazyFrame</span><span class="p">):</span>
-                <span class="n">validated_schema</span> <span class="o">=</span> <span class="n">asset_value</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">pandera_schema</span><span class="o">.</span><span class="n">validate</span><span class="p">,</span> <span class="n">lazy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-                <span class="c1"># Only validate data contents if asset is not marked as high memory</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">high_memory_asset</span><span class="p">:</span>
-                    <span class="n">validated_schema</span><span class="o">.</span><span class="n">collect</span><span class="p">(</span><span class="n">engine</span><span class="o">=</span><span class="s2">&quot;streaming&quot;</span><span class="p">)</span>
+                <span class="c1"># NOTE: Pandera&#39;s polars backend only performs schema-level</span>
+                <span class="c1"># validation (column presence + dtype) for a `pl.LazyFrame`,</span>
+                <span class="c1"># via `collect_schema()` -- it does not run Check/unique/</span>
+                <span class="c1"># non-nullable content validation unless the validation depth</span>
+                <span class="c1"># is explicitly forced to `SCHEMA_AND_DATA`, which we do not</span>
+                <span class="c1"># currently do here. Content constraints declared in PUDL&#39;s</span>
+                <span class="c1"># metadata (enum values, ranges, uniqueness, etc.) are</span>
+                <span class="c1"># therefore NOT enforced for Polars LazyFrame assets today.</span>
+                <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pandera_schema</span><span class="p">,</span> <span class="n">pr_polars</span><span class="o">.</span><span class="n">DataFrameSchema</span><span class="p">)</span>
+                <span class="n">pandera_schema</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">asset_value</span><span class="p">,</span> <span class="n">lazy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
+                <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pandera_schema</span><span class="p">,</span> <span class="n">pr_pandas</span><span class="o">.</span><span class="n">DataFrameSchema</span><span class="p">)</span>
                 <span class="n">pandera_schema</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">asset_value</span><span class="p">,</span> <span class="n">lazy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">dg</span><span class="o">.</span><span class="n">AssetCheckResult</span><span class="p">(</span><span class="n">passed</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">)</span>
 
@@ -1299,15 +1305,6 @@ window.runMermaid = runMermaid;</script>
 <span class="p">]</span></div>
 
 
-<div class="viewcode-block" id="high_memory_assets">
-<a class="viewcode-back" href="../../../autoapi/pudl/dagster/asset_checks/index.html#pudl.dagster.asset_checks.high_memory_assets">[docs]</a>
-<span class="n">high_memory_assets</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s2">&quot;out_vcerare__hourly_available_capacity_factor&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;core_epacems__hourly_emissions&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;core_ferceqr__transactions&quot;</span><span class="p">,</span>
-<span class="p">]</span></div>
-
-
 <span class="n">default_asset_checks</span> <span class="o">+=</span> <span class="p">[</span>
     <span class="n">check</span>
     <span class="k">for</span> <span class="n">check</span> <span class="ow">in</span> <span class="p">(</span>
@@ -1315,7 +1312,6 @@ window.runMermaid = runMermaid;</script>
             <span class="n">asset_key</span><span class="p">,</span>
             <span class="n">PUDL_PACKAGE</span><span class="p">,</span>
             <span class="n">duckdb_asset</span><span class="o">=</span><span class="n">asset_key</span><span class="o">.</span><span class="n">to_user_string</span><span class="p">()</span> <span class="ow">in</span> <span class="n">duckdb_assets</span><span class="p">,</span>
-            <span class="n">high_memory_asset</span><span class="o">=</span><span class="n">asset_key</span><span class="o">.</span><span class="n">to_user_string</span><span class="p">()</span> <span class="ow">in</span> <span class="n">high_memory_assets</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">for</span> <span class="n">asset_key</span> <span class="ow">in</span> <span class="n">asset_keys</span>
     <span class="p">)</span>
@@ -1437,7 +1433,6 @@ window.runMermaid = runMermaid;</script>
     <span class="s2">&quot;group_mean_continuity_check&quot;</span><span class="p">,</span>
     <span class="s2">&quot;default_asset_checks&quot;</span><span class="p">,</span>
     <span class="s2">&quot;duckdb_assets&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;high_memory_assets&quot;</span><span class="p">,</span>
 <span class="p">]</span>
 </pre></div>
 

@@ -30,7 +30,7 @@ cycle.
 |--------------------------------------------------------------------------|-----------------------------------------------------------------------|
 | [`FIELD_DTYPES_DUCKDB`](#pudl.metadata.dtypes.FIELD_DTYPES_DUCKDB)       | DuckDB data type by simplified PUDL field type.                       |
 | [`FIELD_DTYPES_PANDAS`](#pudl.metadata.dtypes.FIELD_DTYPES_PANDAS)       | Pandas data type by simplified PUDL field type.                       |
-| [`FIELD_DTYPES_PYARROW`](#pudl.metadata.dtypes.FIELD_DTYPES_PYARROW)     |                                                                       |
+| [`FIELD_DTYPES_PYARROW`](#pudl.metadata.dtypes.FIELD_DTYPES_PYARROW)     | Pyarrow data type by simplified PUDL field type.                      |
 | [`FIELD_DTYPES_SQLITE`](#pudl.metadata.dtypes.FIELD_DTYPES_SQLITE)       | SQLAlchemy column types by simplified PUDL field type.                |
 | [`CONSTRAINT_DTYPES`](#pudl.metadata.dtypes.CONSTRAINT_DTYPES)           | Python types for field constraints by simplified PUDL field type.     |
 | [`PERIODS`](#pudl.metadata.dtypes.PERIODS)                               | Functions converting datetimes to period start times, by time period. |
@@ -62,6 +62,8 @@ DuckDB data type by simplified PUDL field type.
 Pandas data type by simplified PUDL field type.
 
 ### pudl.metadata.dtypes.FIELD_DTYPES_PYARROW *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [pyarrow.DataType](https://arrow.apache.org/docs/python/generated/pyarrow.DataType.html#pyarrow.DataType)]*
+
+Pyarrow data type by simplified PUDL field type.
 
 ### pudl.metadata.dtypes.FIELD_DTYPES_SQLITE *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [type](../classes/index.md#pudl.metadata.classes.Field.type)[[sqlalchemy.types.TypeEngine](https://docs.sqlalchemy.org/en/21/core/type_api.html#sqlalchemy.types.TypeEngine)] | [sqlalchemy.types.TypeEngine](https://docs.sqlalchemy.org/en/21/core/type_api.html#sqlalchemy.types.TypeEngine)]*
 

@@ -18,7 +18,7 @@
     </script>
     
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
-    <title>pudl.dagster.asset_checks &#8212; PUDL 2026.7.3.dev16 documentation</title>
+    <title>pudl.dagster.asset_checks &#8212; PUDL 2026.7.3.dev26 documentation</title>
   
   
   
@@ -51,7 +51,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../../_static/documentation_options.js?v=e1e49be5"></script>
+    <script src="../../../../_static/documentation_options.js?v=d61c118f"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -142,8 +142,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.7.3.dev16 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.7.3.dev16 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.7.3.dev26 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.7.3.dev26 documentation - Home"/>
   
   
 </a></div>
@@ -543,6 +543,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../extract/eiaaeo/index.html">pudl.extract.eiaaeo</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../extract/eiaapi/index.html">pudl.extract.eiaapi</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../extract/epacems/index.html">pudl.extract.epacems</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../extract/epamats/index.html">pudl.extract.epamats</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../extract/excel/index.html">pudl.extract.excel</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../extract/extractor/index.html">pudl.extract.extractor</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../extract/ferc/index.html">pudl.extract.ferc</a></li>
@@ -881,9 +882,6 @@ should go in dbt.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.asset_checks.duckdb_assets" title="pudl.dagster.asset_checks.duckdb_assets"><code class="xref py py-obj docutils literal notranslate"><span class="pre">duckdb_assets</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.asset_checks.high_memory_assets" title="pudl.dagster.asset_checks.high_memory_assets"><code class="xref py py-obj docutils literal notranslate"><span class="pre">high_memory_assets</span></code></a></p></td>
-<td><p></p></td>
-</tr>
 </tbody>
 </table>
 </div>
@@ -933,7 +931,7 @@ threshold.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pudl.dagster.asset_checks.asset_check_from_schema">
-<span class="sig-prename descclassname"><span class="pre">pudl.dagster.asset_checks.</span></span><span class="sig-name descname"><span class="pre">asset_check_from_schema</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">asset_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.dagster.io/api/dagster/assets/#dagster.AssetKey" title="(in Dagster)"><span class="pre">dagster.AssetKey</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">package</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../metadata/classes/index.html#pudl.metadata.classes.Package" title="pudl.metadata.classes.Package"><span class="pre">pudl.metadata.classes.Package</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">duckdb_asset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">high_memory_asset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.dagster.io/api/dagster/asset-checks/#dagster.AssetChecksDefinition" title="(in Dagster)"><span class="pre">dagster.AssetChecksDefinition</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/asset_checks.html#asset_check_from_schema"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.asset_checks.asset_check_from_schema" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">pudl.dagster.asset_checks.</span></span><span class="sig-name descname"><span class="pre">asset_check_from_schema</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">asset_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.dagster.io/api/dagster/assets/#dagster.AssetKey" title="(in Dagster)"><span class="pre">dagster.AssetKey</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">package</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../metadata/classes/index.html#pudl.metadata.classes.Package" title="pudl.metadata.classes.Package"><span class="pre">pudl.metadata.classes.Package</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">duckdb_asset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.dagster.io/api/dagster/asset-checks/#dagster.AssetChecksDefinition" title="(in Dagster)"><span class="pre">dagster.AssetChecksDefinition</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/asset_checks.html#asset_check_from_schema"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.asset_checks.asset_check_from_schema" title="Link to this definition">#</a></dt>
 <dd><p>Create a Dagster asset check based on the resource schema, if defined.</p>
 <p>The vast majority of assets will be loaded as Polars LazyFrames directly using
 the <code class="docutils literal notranslate"><span class="pre">PudlParquetIOManager</span></code> and validated with Pandera’s Polars backend, but
@@ -974,11 +972,6 @@ Dagster UI.</p></li>
 <dl class="py data">
 <dt class="sig sig-object py" id="pudl.dagster.asset_checks.duckdb_assets">
 <span class="sig-prename descclassname"><span class="pre">pudl.dagster.asset_checks.</span></span><span class="sig-name descname"><span class="pre">duckdb_assets</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['core_ferceqr__quarterly_identity',</span> <span class="pre">'core_ferceqr__contracts',...</span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/asset_checks.html#duckdb_assets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.asset_checks.duckdb_assets" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py data">
-<dt class="sig sig-object py" id="pudl.dagster.asset_checks.high_memory_assets">
-<span class="sig-prename descclassname"><span class="pre">pudl.dagster.asset_checks.</span></span><span class="sig-name descname"><span class="pre">high_memory_assets</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['out_vcerare__hourly_available_capacity_factor',</span> <span class="pre">'core_epacems__hourly_emissions',...</span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/asset_checks.html#high_memory_assets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.asset_checks.high_memory_assets" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
@@ -1060,7 +1053,6 @@ Dagster UI.</p></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.asset_checks.valid_datapackage_check"><code class="docutils literal notranslate"><span class="pre">valid_datapackage_check()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.asset_checks.default_asset_checks"><code class="docutils literal notranslate"><span class="pre">default_asset_checks</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.asset_checks.duckdb_assets"><code class="docutils literal notranslate"><span class="pre">duckdb_assets</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.asset_checks.high_memory_assets"><code class="docutils literal notranslate"><span class="pre">high_memory_assets</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.asset_checks.valid_datapackage_unit_strings_check"><code class="docutils literal notranslate"><span class="pre">valid_datapackage_unit_strings_check()</span></code></a></li>
 </ul>
 </li>

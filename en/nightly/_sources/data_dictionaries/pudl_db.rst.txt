@@ -15297,7 +15297,7 @@ Annual summary of demand and other information about FERC-714 respondents.
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -15588,7 +15588,7 @@ Hourly time series of electricity demand by planning area.
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -15722,7 +15722,7 @@ Annual respondents with the county FIPS IDs for their service territories.
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -15865,7 +15865,7 @@ Summarized demand statistics and FERC-714 respondent attributes by respondent-ye
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -42890,7 +42890,7 @@ Hourly time series of electricity demand by planning area.
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -43020,7 +43020,7 @@ Respondent identification.
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -43125,7 +43125,7 @@ Annual time series of 10-year forecasted summer and winter peak demand and annua
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:

@@ -1085,6 +1085,8 @@ Read a table from a parquet file and return as a polars LazyFrame.
   * **table_name** – Name of the table to read.
   * **partitions** – Optional dictionary of partitions to filter the data. See
     [`ParquetData`](#pudl.helpers.ParquetData) definition for details.
+  * **paths** – optional `PudlPaths`. By default, the default
+    `PudlPaths` will be used.
 * **Returns:**
   A polars LazyFrame representing the table.
 

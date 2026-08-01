@@ -12,9 +12,9 @@ FERC Form 714 -- Annual Electric Balancing Authority Area and Planning Area Repo
    * - Source Description
      - Electric transmitting utilities operating balancing authority areas and planning areas with annual peak demand over 200MW are required to file Form 714 with the Federal Energy Regulatory Commission (FERC), reporting balancing authority area generation, actual and scheduled inter-balancing authority area power transfers, and net energy for load, summer-winter generation peaks and system lambda.
    * - Download Size
-     - 194 MB
+     - 228 MB
    * - Temporal Coverage
-     - 2006-2024
+     - 2006-2025
    * - PUDL Code
      - ``ferc714``
    * - Unprocessed Source Data Archive

@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.output.ferc1 &#8212; PUDL 2026.7.3.dev16 documentation</title>
+    <title>pudl.output.ferc1 &#8212; PUDL 2026.7.3.dev26 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=e1e49be5"></script>
+    <script src="../../../_static/documentation_options.js?v=d61c118f"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.7.3.dev16 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.7.3.dev16 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.7.3.dev26 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.7.3.dev26 documentation - Home"/>
   
   
 </a></div>
@@ -2688,18 +2688,37 @@ window.runMermaid = runMermaid;</script>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Identify and fix the utilities that report calcs off-by one other fact.</span>
 
 <span class="sd">        We noticed that there are a sizable minority of utilities that report some</span>
-<span class="sd">        calculated values with a different set of child subcomponents. Our tooling</span>
-<span class="sd">        for these calculation expects all utilities to report in the same manner.</span>
-<span class="sd">        So we have identified the handful of worst calculable ``xbrl_factiod``</span>
-<span class="sd">        offenders :attr:`self.off_by_facts`. This method identifies data corrections</span>
-<span class="sd">        for those :attr:`self.off_by_facts` and adds them into the exploded data table.</span>
+<span class="sd">        calculated values with a different set of child subcomponents. Our tooling for</span>
+<span class="sd">        these calculation expects all utilities to report in the same manner. So we have</span>
+<span class="sd">        identified the handful of worst calculable ``xbrl_factoid`` offenders</span>
+<span class="sd">        :attr:`self.off_by_facts`. This method identifies data corrections for those</span>
+<span class="sd">        :attr:`self.off_by_facts` and adds them into the exploded data table.</span>
 
 <span class="sd">        The data corrections are identified by calculating the absolute difference</span>
 <span class="sd">        between the reported value and calculable value from the standard set of</span>
-<span class="sd">        subcomponents (via :func:`pudl.transform.ferc1.calculate_values_from_components`)</span>
-<span class="sd">        and finding the child factiods that have the same value as the absolute difference.</span>
-<span class="sd">        This indicates that the calculable parent factiod is off by that corresponding</span>
-<span class="sd">        child fact.</span>
+<span class="sd">        subcomponents (via</span>
+<span class="sd">        :func:`pudl.transform.ferc1.calculate_values_from_components`) and finding the</span>
+<span class="sd">        child factoids that have (approximately) the same value as the absolute</span>
+<span class="sd">        difference. This indicates that the calculable parent factoid is off by that</span>
+<span class="sd">        corresponding child fact.</span>
+
+<span class="sd">        We merge candidates on the report_year and utility_id_ferc1 keys restricting the</span>
+<span class="sd">        candidate pool to a single utility-year. Then we compare the reported values</span>
+<span class="sd">        with :func:`numpy.isclose` using an absolute tolerance of $5. ``np.isclose``&#39;s</span>
+<span class="sd">        default *relative* tolerance is far too loose at the scale of these balances</span>
+<span class="sd">        (hundreds of thousands to billions of dollars).</span>
+
+<span class="sd">        The $5 absolute tolerance is empirically informed, and not related to the noise</span>
+<span class="sd">        from floating point values. Across the full candidate pool, we find additional</span>
+<span class="sd">        unique matches increase relatively rapidly up to a delta of ~$5, and then</span>
+<span class="sd">        level off between $5 and a few thousand dollars. At larger deltas unrelated</span>
+<span class="sd">        pairs of records start matching. Every candidate with a delta up to $5 pairs a</span>
+<span class="sd">        large-magnitude value (tens of thousands to billions of dollars) with a small</span>
+<span class="sd">        absolute gap, consistent with a rounding or trivial reporting difference between</span>
+<span class="sd">        the two reported schedules, not a coincidental collision. Up to deltas of even</span>
+<span class="sd">        thousands of dollars, no not-close row ever matches more than one off-by</span>
+<span class="sd">        candidate, which would be the expected signature of spurious matches if they</span>
+<span class="sd">        occurred.</span>
 
 <span class="sd">        Relatedly, :meth:`add_sizable_minority_corrections_to_calcs` adds these</span>
 <span class="sd">        :attr:`self.off_by_facts` to :attr:`self.exploded_calcs`.</span>
@@ -2726,19 +2745,25 @@ window.runMermaid = runMermaid;</script>
             <span class="p">]</span>
             <span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
         <span class="p">)</span>
-        <span class="c1"># Identify the calculations with one missing other fact</span>
-        <span class="c1"># when the diff is the same as the value of another fact, then that</span>
-        <span class="c1"># calculated value could have been perfect with the addition of the</span>
-        <span class="c1"># missing facoid.</span>
+        <span class="c1"># Identify the calculations with one missing other fact: when the diff is</span>
+        <span class="c1"># (approximately) the same as the value of another fact, then that calculated</span>
+        <span class="c1"># value could have been perfect with the addition of the missing factoid.</span>
+        <span class="n">candidate_corrections</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+            <span class="n">left</span><span class="o">=</span><span class="n">not_close</span><span class="p">,</span>
+            <span class="n">right</span><span class="o">=</span><span class="n">off_by_fact</span><span class="p">,</span>
+            <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;report_year&quot;</span><span class="p">,</span> <span class="s2">&quot;utility_id_ferc1&quot;</span><span class="p">],</span>
+            <span class="n">how</span><span class="o">=</span><span class="s2">&quot;inner&quot;</span><span class="p">,</span>
+            <span class="n">suffixes</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;_off_by&quot;</span><span class="p">),</span>
+        <span class="p">)</span>
         <span class="n">data_corrections</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
-                <span class="n">left</span><span class="o">=</span><span class="n">not_close</span><span class="p">,</span>
-                <span class="n">right</span><span class="o">=</span><span class="n">off_by_fact</span><span class="p">,</span>
-                <span class="n">left_on</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;report_year&quot;</span><span class="p">,</span> <span class="s2">&quot;utility_id_ferc1&quot;</span><span class="p">,</span> <span class="s2">&quot;abs_diff&quot;</span><span class="p">],</span>
-                <span class="n">right_on</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;report_year&quot;</span><span class="p">,</span> <span class="s2">&quot;utility_id_ferc1&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">value_col</span><span class="p">],</span>
-                <span class="n">how</span><span class="o">=</span><span class="s2">&quot;inner&quot;</span><span class="p">,</span>
-                <span class="n">suffixes</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;_off_by&quot;</span><span class="p">),</span>
-            <span class="p">)</span>
+            <span class="n">candidate_corrections</span><span class="p">[</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span>
+                    <span class="n">candidate_corrections</span><span class="p">[</span><span class="s2">&quot;abs_diff&quot;</span><span class="p">],</span>
+                    <span class="n">candidate_corrections</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">value_col</span><span class="si">}</span><span class="s2">_off_by&quot;</span><span class="p">],</span>
+                    <span class="n">rtol</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+                    <span class="n">atol</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">]</span>
             <span class="c1"># use a dict/kwarg for assign so we can dynamically set the name of value_col</span>
             <span class="c1"># the correction value is the diff - not the abs_diff from not_close or value_col</span>
             <span class="c1"># from off_by_fact bc often the utility included a fact so this diff is negative</span>

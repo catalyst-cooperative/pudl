@@ -7615,7 +7615,7 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 Annual summary of demand and other information about FERC-714 respondents.
 
 Most-recent data:
-: 2024
+: 2025
 
 Processing:
 : Data has been expanded into a wide/denormalized format, with IDs and codes accompanied by human-readable names and descriptions.
@@ -7805,7 +7805,7 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 Hourly time series of electricity demand by planning area.
 
 Most-recent data:
-: 2024
+: 2025
 
 Processing:
 : Data is ready for use in analyses, but for practical reasons has not been denormalized and remains in narrow format.
@@ -7889,7 +7889,7 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 Annual respondents with the county FIPS IDs for their service territories.
 
 Most-recent data:
-: 2024
+: 2025
 
 Processing:
 : Data has been expanded into a wide/denormalized format, with IDs and codes accompanied by human-readable names and descriptions.
@@ -7973,7 +7973,7 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 Summarized demand statistics and FERC-714 respondent attributes by respondent-year.
 
 Most-recent data:
-: 2024
+: 2025
 
 Processing:
 : Data has been expanded into a wide/denormalized format, with IDs and codes accompanied by human-readable names and descriptions.
@@ -24624,7 +24624,7 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 Hourly time series of electricity demand by planning area.
 
 Most-recent data:
-: 2024
+: 2025
 
 Processing:
 : Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
@@ -24711,7 +24711,7 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 Respondent identification.
 
 Most-recent data:
-: 2024
+: 2025
 
 Processing:
 : Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
@@ -24785,7 +24785,7 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 Annual time series of 10-year forecasted summer and winter peak demand and annual net energy per planning area.
 
 Most-recent data:
-: 2024
+: 2025
 
 Processing:
 : Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.

@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.metadata.classes &#8212; PUDL 2026.7.3.dev16 documentation</title>
+    <title>pudl.metadata.classes &#8212; PUDL 2026.7.3.dev26 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=e1e49be5"></script>
+    <script src="../../../_static/documentation_options.js?v=d61c118f"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.7.3.dev16 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.7.3.dev16 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.7.3.dev26 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.7.3.dev26 documentation - Home"/>
   
   
 </a></div>
@@ -1797,33 +1797,32 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="Field.to_polars_dtype">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.Field.to_polars_dtype">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">to_polars_dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">DataType</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return polars data type.&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">enum</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">pl</span><span class="o">.</span><span class="n">Enum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">enum</span><span class="p">)</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return polars data type.</span>
+
+<span class="sd">        Enum-constrained string fields are stored as unconstrained</span>
+<span class="sd">        :class:`pl.Categorical` rather than :class:`pl.Enum`. Polars embeds a fixed,</span>
+<span class="sd">        ordered category list from an ``Enum`` column directly in the Parquet field</span>
+<span class="sd">        metadata, which permanently pins the physical dtype: any later attempt to scan</span>
+<span class="sd">        that file with a different schema or even slightly different ``Enum`` fails</span>
+<span class="sd">        instead of being coerced. ``Categorical`` round-trips through Parquet fine.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">enum</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;string&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">pl</span><span class="o">.</span><span class="n">Categorical</span>
         <span class="k">return</span> <span class="n">FIELD_DTYPES_POLARS</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">]</span></div>
 
 
 <div class="viewcode-block" id="Field.to_pandas_dtype">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.Field.to_pandas_dtype">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">to_pandas_dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">compact</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">CategoricalDtype</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return Pandas data type.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            compact: Whether to return a low-memory data type (32-bit integer or float).</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">enum</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_pandas_dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">CategoricalDtype</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return Pandas data type.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">enum</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;string&quot;</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">CategoricalDtype</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">enum</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">compact</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;integer&quot;</span><span class="p">:</span>
-                <span class="k">return</span> <span class="s2">&quot;Int32&quot;</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;number&quot;</span><span class="p">:</span>
-                <span class="k">return</span> <span class="s2">&quot;float32&quot;</span>
         <span class="k">return</span> <span class="n">FIELD_DTYPES_PANDAS</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">]</span></div>
 
 
-<div class="viewcode-block" id="Field.to_sql_dtype">
-<a class="viewcode-back" href="../../../autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.Field.to_sql_dtype">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">to_sql_dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">:</span>  <span class="c1"># noqa: A003</span>
+<div class="viewcode-block" id="Field.to_sqlite_dtype">
+<a class="viewcode-back" href="../../../autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.Field.to_sqlite_dtype">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_sqlite_dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">:</span>  <span class="c1"># noqa: A003</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return SQLAlchemy data type.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">enum</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;string&quot;</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">sa</span><span class="o">.</span><span class="n">Enum</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">enum</span><span class="p">)</span>
@@ -1882,7 +1881,28 @@ window.runMermaid = runMermaid;</script>
             <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;date&quot;</span><span class="p">:</span>
                 <span class="n">checks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> IS DATE(</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
             <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;datetime&quot;</span><span class="p">:</span>
-                <span class="n">checks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> IS DATETIME(</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+                <span class="c1"># A plain `{name} IS DATETIME({name})` can&#39;t validate a</span>
+                <span class="c1"># microsecond-precision string: SQLite&#39;s own DATETIME()</span>
+                <span class="c1"># function only round-trips whole-second precision (even its</span>
+                <span class="c1"># &#39;subsec&#39; modifier only adds milliseconds), so it would</span>
+                <span class="c1"># reject every value written at the microsecond resolution</span>
+                <span class="c1"># used everywhere else in PUDL. Instead, validate the</span>
+                <span class="c1"># YYYY-MM-DD HH:MM:SS portion for real calendar/time</span>
+                <span class="c1"># correctness via DATETIME(), and separately validate the</span>
+                <span class="c1"># fractional-seconds suffix is present and exactly six</span>
+                <span class="c1"># digits via GLOB -- SQLite&#39;s GLOB has no `{n}`-style</span>
+                <span class="c1"># repetition syntax, so the six-digit pattern is built here</span>
+                <span class="c1"># rather than spelled out character by character in the SQL</span>
+                <span class="c1"># string itself. NULL propagates through IS/AND/GLOB to a</span>
+                <span class="c1"># NULL check result, which SQLite (like standard SQL) treats</span>
+                <span class="c1"># as satisfying the constraint, so nullable columns still</span>
+                <span class="c1"># accept NULL.</span>
+                <span class="n">microseconds_pattern</span> <span class="o">=</span> <span class="s2">&quot;[0-9]&quot;</span> <span class="o">*</span> <span class="mi">6</span>
+                <span class="n">checks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;(SUBSTR(</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">, 1, 19) IS DATETIME(SUBSTR(</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">, 1, 19))) &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;AND (</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> GLOB SUBSTR(</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">, 1, 19) &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;|| &#39;.</span><span class="si">{</span><span class="n">microseconds_pattern</span><span class="si">}</span><span class="s2">&#39;)&quot;</span>
+                <span class="p">)</span>
         <span class="k">if</span> <span class="n">check_values</span><span class="p">:</span>
             <span class="c1"># Field constraints</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">min_length</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -1905,7 +1925,7 @@ window.runMermaid = runMermaid;</script>
                 <span class="n">checks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> IN (</span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">enum</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">sa</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">to_sql_dtype</span><span class="p">(),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">to_sqlite_dtype</span><span class="p">(),</span>
             <span class="o">*</span><span class="p">[</span>
                 <span class="n">sa</span><span class="o">.</span><span class="n">CheckConstraint</span><span class="p">(</span>
                     <span class="n">check</span><span class="p">,</span>
@@ -1987,9 +2007,11 @@ window.runMermaid = runMermaid;</script>
         <span class="n">constraints</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">constraints</span>
         <span class="n">checks</span> <span class="o">=</span> <span class="n">constraints</span><span class="o">.</span><span class="n">to_pandera_checks</span><span class="p">(</span><span class="n">use_pandas_backend</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">constraints</span><span class="o">.</span><span class="n">enum</span><span class="p">:</span>
-            <span class="n">column_type</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="s2">&quot;category&quot;</span> <span class="k">if</span> <span class="n">use_pandas_backend</span> <span class="k">else</span> <span class="n">pl</span><span class="o">.</span><span class="n">Enum</span><span class="p">(</span><span class="n">constraints</span><span class="o">.</span><span class="n">enum</span><span class="p">)</span>
-            <span class="p">)</span>
+            <span class="c1"># The physical dtype is unconstrained Categorical/&quot;category&quot; (see</span>
+            <span class="c1"># Field.to_polars_dtype / Field.to_pandas_dtype); the enum value</span>
+            <span class="c1"># constraint itself is enforced by the `checks` (Check.isin) above,</span>
+            <span class="c1"># not by the declared column dtype.</span>
+            <span class="n">column_type</span> <span class="o">=</span> <span class="s2">&quot;category&quot;</span> <span class="k">if</span> <span class="n">use_pandas_backend</span> <span class="k">else</span> <span class="n">pl</span><span class="o">.</span><span class="n">Categorical</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;geometry&quot;</span><span class="p">:</span>
             <span class="n">column_type</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">array</span><span class="o">.</span><span class="n">GeometryDtype</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
@@ -2181,7 +2203,7 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="Schema.to_pandera">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.Schema.to_pandera">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">to_pandera</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pr_polars</span><span class="o">.</span><span class="n">DataFrameSchema</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_pandera</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pr_polars</span><span class="o">.</span><span class="n">DataFrameSchema</span> <span class="o">|</span> <span class="n">pr_pandas</span><span class="o">.</span><span class="n">DataFrameSchema</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Turn PUDL Schema into Pandera schema, so dagster can understand it.&quot;&quot;&quot;</span>
         <span class="c1"># 2024-02-09: pr.Check doesn&#39;t have interop with Pydantic type system</span>
         <span class="c1"># yet, so we encode as Callable, then cast.</span>
@@ -3439,13 +3461,9 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="Resource.to_pandas_dtypes">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.Resource.to_pandas_dtypes">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">to_pandas_dtypes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">CategoricalDtype</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return Pandas data type of each field by field name.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            kwargs: Arguments to :meth:`Field.to_pandas_dtype`.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="p">{</span><span class="n">f</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">f</span><span class="o">.</span><span class="n">to_pandas_dtype</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="o">.</span><span class="n">fields</span><span class="p">}</span></div>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_pandas_dtypes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">CategoricalDtype</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return Pandas data type of each field by field name.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">f</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">f</span><span class="o">.</span><span class="n">to_pandas_dtype</span><span class="p">()</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="o">.</span><span class="n">fields</span><span class="p">}</span></div>
 
 
 <div class="viewcode-block" id="Resource.match_primary_key">
@@ -3528,7 +3546,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="Resource.format_df">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.Resource.format_df">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">format_df</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Format a dataframe according to the resources&#39;s table schema.</span>
 
@@ -3543,12 +3561,11 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">        Args:</span>
 <span class="sd">            df: Dataframe to format.</span>
-<span class="sd">            kwargs: Arguments to :meth:`Field.to_pandas_dtypes`.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            Dataframe with column names and data types matching the resource fields.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">dtypes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_pandas_dtypes</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">dtypes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_pandas_dtypes</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">df</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="n">n</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">d</span><span class="p">)</span> <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">dtypes</span><span class="o">.</span><span class="n">items</span><span class="p">()})</span>
         <span class="n">matches</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">match_primary_key</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
@@ -3566,17 +3583,16 @@ window.runMermaid = runMermaid;</script>
                 <span class="ow">and</span> <span class="n">pd</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">is_integer_dtype</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">field</span><span class="o">.</span><span class="n">name</span><span class="p">])</span>
             <span class="p">):</span>
                 <span class="n">df</span><span class="p">[</span><span class="n">field</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">field</span><span class="o">.</span><span class="n">name</span><span class="p">],</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;%Y&quot;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dtypes</span><span class="p">[</span><span class="n">field</span><span class="o">.</span><span class="n">name</span><span class="p">],</span> <span class="n">pd</span><span class="o">.</span><span class="n">CategoricalDtype</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">field</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">enum</span> <span class="ow">and</span> <span class="n">field</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;string&quot;</span> <span class="ow">and</span> <span class="n">field</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">df</span><span class="p">:</span>
                 <span class="n">uncategorized</span> <span class="o">=</span> <span class="p">[</span>
                     <span class="n">value</span>
                     <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">df</span><span class="p">[</span><span class="n">field</span><span class="o">.</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
-                    <span class="k">if</span> <span class="n">value</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dtypes</span><span class="p">[</span><span class="n">field</span><span class="o">.</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">categories</span>
+                    <span class="k">if</span> <span class="n">value</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">field</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">enum</span>
                 <span class="p">]</span>
                 <span class="k">if</span> <span class="n">uncategorized</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                         <span class="sa">f</span><span class="s2">&quot;Values in </span><span class="si">{</span><span class="n">field</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> column are not included in &quot;</span>
-                        <span class="s2">&quot;categorical values in field enum constraint &quot;</span>
-                        <span class="sa">f</span><span class="s2">&quot;and will be converted to nulls (</span><span class="si">{</span><span class="n">uncategorized</span><span class="si">}</span><span class="s2">).&quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;the field&#39;s enum constraint: </span><span class="si">{</span><span class="n">uncategorized</span><span class="si">}</span><span class="s2">.&quot;</span>
                     <span class="p">)</span>
         <span class="n">df</span> <span class="o">=</span> <span class="p">(</span>
             <span class="c1"># Reorder columns and insert missing columns</span>

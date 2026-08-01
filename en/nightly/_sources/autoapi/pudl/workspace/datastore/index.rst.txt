@@ -215,6 +215,10 @@ Module Contents
       :type:  ZenodoDoi
 
 
+   .. py:attribute:: epamats
+      :type:  ZenodoDoi
+
+
    .. py:attribute:: ferc1
       :type:  ZenodoDoi
 

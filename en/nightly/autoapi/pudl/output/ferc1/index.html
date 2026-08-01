@@ -18,7 +18,7 @@
     </script>
     
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
-    <title>pudl.output.ferc1 &#8212; PUDL 2026.7.3.dev16 documentation</title>
+    <title>pudl.output.ferc1 &#8212; PUDL 2026.7.3.dev26 documentation</title>
   
   
   
@@ -51,7 +51,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../../_static/documentation_options.js?v=e1e49be5"></script>
+    <script src="../../../../_static/documentation_options.js?v=d61c118f"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -142,8 +142,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.7.3.dev16 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.7.3.dev16 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.7.3.dev26 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.7.3.dev26 documentation - Home"/>
   
   
 </a></div>
@@ -543,6 +543,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../extract/eiaaeo/index.html">pudl.extract.eiaaeo</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../extract/eiaapi/index.html">pudl.extract.eiaapi</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../extract/epacems/index.html">pudl.extract.epacems</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../extract/epamats/index.html">pudl.extract.epamats</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../extract/excel/index.html">pudl.extract.excel</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../extract/extractor/index.html">pudl.extract.extractor</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../extract/ferc/index.html">pudl.extract.ferc</a></li>
@@ -1500,17 +1501,34 @@ output.</p>
 <span class="sig-name descname"><span class="pre">add_sizable_minority_corrections</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">calculated_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.5)"><span class="pre">pandas.DataFrame</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.5)"><span class="pre">pandas.DataFrame</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/output/ferc1.html#Exploder.add_sizable_minority_corrections"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.output.ferc1.Exploder.add_sizable_minority_corrections" title="Link to this definition">#</a></dt>
 <dd><p>Identify and fix the utilities that report calcs off-by one other fact.</p>
 <p>We noticed that there are a sizable minority of utilities that report some
-calculated values with a different set of child subcomponents. Our tooling
-for these calculation expects all utilities to report in the same manner.
-So we have identified the handful of worst calculable <code class="docutils literal notranslate"><span class="pre">xbrl_factiod</span></code>
-offenders <code class="xref py py-attr docutils literal notranslate"><span class="pre">self.off_by_facts</span></code>. This method identifies data corrections
-for those <code class="xref py py-attr docutils literal notranslate"><span class="pre">self.off_by_facts</span></code> and adds them into the exploded data table.</p>
+calculated values with a different set of child subcomponents. Our tooling for
+these calculation expects all utilities to report in the same manner. So we have
+identified the handful of worst calculable <code class="docutils literal notranslate"><span class="pre">xbrl_factoid</span></code> offenders
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">self.off_by_facts</span></code>. This method identifies data corrections for those
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">self.off_by_facts</span></code> and adds them into the exploded data table.</p>
 <p>The data corrections are identified by calculating the absolute difference
 between the reported value and calculable value from the standard set of
-subcomponents (via <a class="reference internal" href="../../transform/ferc1/index.html#pudl.transform.ferc1.calculate_values_from_components" title="pudl.transform.ferc1.calculate_values_from_components"><code class="xref py py-func docutils literal notranslate"><span class="pre">pudl.transform.ferc1.calculate_values_from_components()</span></code></a>)
-and finding the child factiods that have the same value as the absolute difference.
-This indicates that the calculable parent factiod is off by that corresponding
-child fact.</p>
+subcomponents (via
+<a class="reference internal" href="../../transform/ferc1/index.html#pudl.transform.ferc1.calculate_values_from_components" title="pudl.transform.ferc1.calculate_values_from_components"><code class="xref py py-func docutils literal notranslate"><span class="pre">pudl.transform.ferc1.calculate_values_from_components()</span></code></a>) and finding the
+child factoids that have (approximately) the same value as the absolute
+difference. This indicates that the calculable parent factoid is off by that
+corresponding child fact.</p>
+<p>We merge candidates on the report_year and utility_id_ferc1 keys restricting the
+candidate pool to a single utility-year. Then we compare the reported values
+with <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.isclose.html#numpy.isclose" title="(in NumPy v2.5)"><code class="xref py py-func docutils literal notranslate"><span class="pre">numpy.isclose()</span></code></a> using an absolute tolerance of $5. <code class="docutils literal notranslate"><span class="pre">np.isclose</span></code>’s
+default <em>relative</em> tolerance is far too loose at the scale of these balances
+(hundreds of thousands to billions of dollars).</p>
+<p>The $5 absolute tolerance is empirically informed, and not related to the noise
+from floating point values. Across the full candidate pool, we find additional
+unique matches increase relatively rapidly up to a delta of ~$5, and then
+level off between $5 and a few thousand dollars. At larger deltas unrelated
+pairs of records start matching. Every candidate with a delta up to $5 pairs a
+large-magnitude value (tens of thousands to billions of dollars) with a small
+absolute gap, consistent with a rounding or trivial reporting difference between
+the two reported schedules, not a coincidental collision. Up to deltas of even
+thousands of dollars, no not-close row ever matches more than one off-by
+candidate, which would be the expected signature of spurious matches if they
+occurred.</p>
 <p>Relatedly, <a class="reference internal" href="#pudl.output.ferc1.Exploder.add_sizable_minority_corrections_to_calcs" title="pudl.output.ferc1.Exploder.add_sizable_minority_corrections_to_calcs"><code class="xref py py-meth docutils literal notranslate"><span class="pre">add_sizable_minority_corrections_to_calcs()</span></code></a> adds these
 <code class="xref py py-attr docutils literal notranslate"><span class="pre">self.off_by_facts</span></code> to <code class="xref py py-attr docutils literal notranslate"><span class="pre">self.exploded_calcs</span></code>.</p>
 </dd></dl>
