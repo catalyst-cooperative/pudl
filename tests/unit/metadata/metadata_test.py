@@ -211,6 +211,50 @@ def test_enum_constraint_order_is_deterministic() -> None:
     assert field.constraints.enum == ["a", "b", "m", "z"]
 
 
+@pytest.mark.parametrize(
+    ("field_type", "constraints", "expected"),
+    [
+        ("integer", {}, False),
+        ("integer", {"required": True}, True),
+        ("integer", {"unique": True}, True),
+        ("integer", {"minimum": 0}, True),
+        ("integer", {"maximum": 100}, True),
+        ("string", {"min_length": 1}, True),
+        ("string", {"max_length": 10}, True),
+        ("string", {"pattern": r"^[a-z]+$"}, True),
+        ("string", {"enum": ["a", "b"]}, True),
+    ],
+    ids=[
+        "no_constraints",
+        "required",
+        "unique",
+        "minimum",
+        "maximum",
+        "min_length",
+        "max_length",
+        "pattern",
+        "enum",
+    ],
+)
+def test_field_has_content_constraints(field_type, constraints, expected) -> None:
+    """Each individual content constraint should independently flip the result.
+
+    ``has_content_constraints`` ORs together eight separate conditions; asserting
+    only on combinations that set several at once wouldn't catch a future edit
+    that accidentally drops one of them from the ``any([...])`` list, since the
+    others would still make the check pass. Each constraint is exercised alone,
+    plus the all-defaults case, so every arm of the ``any()`` is independently
+    load-bearing.
+    """
+    field = Field(
+        name="_test_field",
+        type=field_type,
+        description="Test field.",
+        constraints=constraints,
+    )
+    assert field.has_content_constraints() == expected
+
+
 def _pk_violation_resource() -> Resource:
     return Resource(
         name="_test__check_primary_key",

@@ -944,6 +944,22 @@ class Field(PudlMeta):
             unique=constraints.unique,
         )
 
+    def has_content_constraints(self) -> bool:
+        """Whether this field's constraints require reading its actual values to check."""
+        c = self.constraints
+        return any(
+            [
+                c.required,
+                c.unique,
+                c.minimum is not None,
+                c.maximum is not None,
+                c.min_length is not None,
+                c.max_length is not None,
+                c.pattern is not None,
+                bool(c.enum),
+            ]
+        )
+
 
 # ---- Classes: Resource ---- #
 
