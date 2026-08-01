@@ -393,6 +393,15 @@ class FieldConstraints(PudlMeta):
 
         return checks
 
+    def to_metadata_dict(self) -> dict[str, Any]:
+        """Build a JSON-safe summary of only the constraints actually set.
+
+        Used by callers (e.g. Dagster asset-check metadata) that want to show what's
+        being enforced on a column without cross-referencing the PUDL metadata source
+        or wading through every unset default.
+        """
+        return self.model_dump(exclude_defaults=True, mode="json")
+
 
 class FieldHarvest(PudlMeta):
     """Field harvest parameters (`resource.schema.fields[...].harvest`)."""
@@ -1001,6 +1010,8 @@ class Schema(PudlMeta):
     missing_values: list[StrictStr] = [""]
     primary_key: list[SnakeCase] = []
     foreign_keys: list[ForeignKey] = []
+    chunk_field: SnakeCase | None = None
+    """Primary-key column to use when chunking this table for processing, if any."""
 
     _check_unique = _validator(
         "missing_values", "primary_key", "foreign_keys", fn=_check_unique
@@ -1011,6 +1022,19 @@ class Schema(PudlMeta):
     def _check_field_names_unique(cls, fields: list[Field]):
         _check_unique([f.name for f in fields])
         return fields
+
+    @field_validator("chunk_field")
+    @classmethod
+    def _check_chunk_field_in_primary_key(cls, chunk_field, info: ValidationInfo):
+        """Verify that chunk_field, if set, is part of the primary key."""
+        pk = info.data.get("primary_key")
+        if chunk_field is not None and pk is not None and chunk_field not in pk:
+            raise ValueError(
+                f"{chunk_field!r} was given as the chunk_field, but it isn't part "
+                f"of this schema's primary key ({pk!r}). Chunking is only exact "
+                "when the chunk column is part of the primary key."
+            )
+        return chunk_field
 
     @field_validator("primary_key")
     @classmethod
@@ -1343,6 +1367,7 @@ class PudlResourceDescriptor(PudlMeta):
         field_ids: list[str] = pydantic.Field(alias="fields", default=[])
         primary_key_ids: list[str] = pydantic.Field(alias="primary_key", default=[])
         foreign_key_rules: PudlForeignKeyRules = PudlForeignKeyRules()
+        chunk_field: SnakeCase | None = None
 
     class PudlCodeMetadata(PudlMeta):
         """Describes a bunch of codes."""
@@ -1908,6 +1933,8 @@ class Resource(PudlMeta):
             primary_key=self.schema.primary_key,
             foreign_keys=[fk.to_frictionless() for fk in self.schema.foreign_keys],
         )
+        if self.schema.chunk_field:
+            schema.custom["chunk_field"] = self.schema.chunk_field
 
         resource = frictionless.Resource(
             name=self.name,
@@ -2119,7 +2146,6 @@ class Resource(PudlMeta):
     def check_primary_key(
         self,
         data: pd.DataFrame | gpd.GeoDataFrame | pl.LazyFrame,
-        chunk_field: str | None = None,
     ) -> list[SchemaError]:
         """Validate this resource's primary key for uniqueness and non-nullness.
 
@@ -2130,15 +2156,14 @@ class Resource(PudlMeta):
         themselves; a Dagster asset check instead combines it with other schema/content
         errors into one report rather than stopping at whichever is found first.
 
+        For tables large enough that checking uniqueness in a single pass is
+        impractical, the check is chunked by ``self.schema.chunk_field`` (see
+        ``_chunk_filters``) when set. Only meaningful for a Polars ``data``; ignored
+        for pandas/geopandas, which are already fully loaded into memory.
+
         Args:
             data: DataFrame, GeoDataFrame, or LazyFrame to check against the primary key
                 defined in this resource's schema.
-            chunk_field: Optional primary-key column to chunk the check by, for tables
-                large enough that checking uniqueness in a single pass is impractical
-                (see ``_chunk_filters``). Only meaningful for a Polars ``data``; ignored
-                for pandas/geopandas, which are already fully loaded into memory. Which
-                tables need this, if any, is an orchestration decision for the caller to
-                make -- this method doesn't know or care which tables are large.
 
         Returns:
             List of :class:`pandera.errors.SchemaError` for each primary key violation
@@ -2148,7 +2173,7 @@ class Resource(PudlMeta):
             return []
 
         if isinstance(data, pl.LazyFrame):
-            return self._check_primary_key_polars(data, chunk_field=chunk_field)
+            return self._check_primary_key_polars(data)
         return self._check_primary_key_pandas(data)
 
     def _check_primary_key_pandas(
@@ -2201,26 +2226,20 @@ class Resource(PudlMeta):
 
         return errors
 
-    def _check_primary_key_polars(
-        self, lf: pl.LazyFrame, chunk_field: str | None = None
-    ) -> list[SchemaError]:
+    def _check_primary_key_polars(self, lf: pl.LazyFrame) -> list[SchemaError]:
         """Validate LazyFrame primary-key is unique and non-null.
 
         Uses a single group-by/count/filter reduction, run with ``engine="streaming"``,
-        to minimize memory usage.
+        to minimize memory usage. For tables large enough that checking uniqueness in
+        a single pass is impractical, the check is chunked by ``self.schema.chunk_field``
+        when set.
 
         Args:
             lf: LazyFrame to check.
-            chunk_field: Optional primary-key column to chunk the check by, for
-                tables large enough that checking uniqueness in a single pass is
-                impractical.
 
         Returns:
             List of :class:`pandera.errors.SchemaError` for each primary key violation
             found (empty if none).
-
-        Raises:
-            ValueError: If ``chunk_field`` is given but isn't part of the primary key.
         """
         pk = self.schema.primary_key
         narrow = lf.select(pk)
@@ -2231,14 +2250,7 @@ class Resource(PudlMeta):
         if nulls.height > 0:
             errors.append(self._null_primary_key_error(nulls))
 
-        if chunk_field:
-            if chunk_field not in pk:
-                raise ValueError(
-                    f"{chunk_field!r} was given as the chunk column for "
-                    f"{self.name!r}, but it isn't part of that resource's "
-                    f"primary key ({pk!r}). Chunking is only exact when the "
-                    "chunk column is part of the primary key -- see _chunk_filters."
-                )
+        if chunk_field := self.schema.chunk_field:
             chunks = [
                 narrow.filter(f) for f in self._chunk_filters(narrow, chunk_field)
             ]
@@ -2321,7 +2333,7 @@ class Resource(PudlMeta):
         """
         dtype = lf.select(chunk_field).collect_schema()[chunk_field]
 
-        if dtype in (pl.Date, pl.Datetime) or isinstance(dtype, pl.Datetime):
+        if dtype in (pl.Date, pl.Datetime):
             bounds = lf.select(
                 _min=pl.col(chunk_field).min(),
                 _max=pl.col(chunk_field).max(),

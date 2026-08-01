@@ -13,6 +13,7 @@ import pandera.pandas as pr_pandas
 import pandera.polars as pr_polars
 import polars as pl
 import pyarrow as pa
+import pydantic
 import pytest
 import sqlalchemy as sa
 from pandera.errors import SchemaErrors
@@ -326,10 +327,10 @@ def test_check_primary_key_errors_are_schema_errors_compatible(make_data) -> Non
 # The polars path never uses pandera's built-in composite-uniqueness check
 # (too memory-hungry, see polars-comment.md); it always uses its own
 # group-by/count-based `Resource._find_duplicate_primary_keys`, optionally run
-# once per chunk instead of once on the whole table via a caller-supplied
-# `chunk_field` (which tables need this, if any, is an orchestration decision
-# made by the caller -- see `pudl.dagster.asset_checks._CHUNKED_PK_CHECK_TABLES`
-# for PUDL's few oversized tables). Chunking is only correct because the
+# once per chunk instead of once on the whole table via the resource's declared
+# `schema.chunk_field` (which tables need this, if any, is decided per-resource --
+# see `pudl.metadata.resources.epacems`/`vcerare` for PUDL's few oversized tables
+# that set it). Chunking is only correct because the
 # chunking column is itself part of the primary key -- two rows with an
 # identical composite key necessarily share the same value of it, so
 # duplicates can never span chunk boundaries, whether the column is
@@ -477,27 +478,31 @@ def test_check_primary_key_polars_no_primary_key() -> None:
     assert resource.check_primary_key(lf) == []
 
 
-def test_check_primary_key_polars_rejects_bad_chunk_field() -> None:
-    """A chunk field that isn't part of the primary key is a caller error.
+def test_schema_rejects_chunk_field_not_in_primary_key() -> None:
+    """A chunk field that isn't part of the primary key is a metadata error.
 
     Chunking is only exact (see `Resource._chunk_filters`) when the chunk
-    column is part of the primary key -- a caller passing one that isn't has
-    to fail loudly rather than silently produce an incomplete uniqueness check.
+    column is part of the primary key, so ``Schema`` itself rejects the
+    combination at construction time rather than letting it silently produce
+    an incomplete uniqueness check later in ``Resource._check_primary_key_polars``.
     """
-    resource = Resource(
-        name="_test__bad_chunk_field",
-        description="Synthetic resource for testing chunk-field misconfiguration.",
-        schema={
-            "fields": [
-                {"name": "id", "type": "integer", "description": "Primary key."},
-                {"name": "other", "type": "integer", "description": "Not in the PK."},
-            ],
-            "primary_key": ["id"],
-        },
-    )
-    lf = pl.LazyFrame({"id": [1, 2], "other": [1, 2]})
-    with pytest.raises(ValueError, match="isn't part of"):
-        resource._check_primary_key_polars(lf, chunk_field="other")
+    with pytest.raises(pydantic.ValidationError, match="isn't part of"):
+        Resource(
+            name="_test__bad_chunk_field",
+            description="Synthetic resource for testing chunk-field misconfiguration.",
+            schema={
+                "fields": [
+                    {"name": "id", "type": "integer", "description": "Primary key."},
+                    {
+                        "name": "other",
+                        "type": "integer",
+                        "description": "Not in the PK.",
+                    },
+                ],
+                "primary_key": ["id"],
+                "chunk_field": "other",
+            },
+        )
 
 
 def test_find_duplicate_primary_keys() -> None:
