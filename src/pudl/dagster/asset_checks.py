@@ -46,25 +46,6 @@ from pudl.metadata.classes import (
     Resource,
 )
 
-_CHUNKED_PK_CHECK_TABLES: dict[str, str] = {
-    "core_epacems__hourly_emissions": "operating_datetime_utc",
-    "out_vcerare__hourly_available_capacity_factor": "datetime_utc",
-}
-"""Tables large enough that their primary-key check needs to run in chunks.
-
-Keys are table names; values are the primary-key column to chunk by (see
-``Resource._chunk_filters`` for what makes a column a valid choice). This is an
-orchestration decision -- which of PUDL's tables are large enough that checking
-uniqueness in one pass isn't practical -- so it lives here rather than as a
-property of :class:`~pudl.metadata.classes.Resource` itself; ``check_primary_key``
-takes ``chunk_field`` as a plain parameter and doesn't know or care which tables
-are large.
-
-Note that `core_ferceqr__transactions` is deliberately NOT listed here because it
-does not currently have a primary key (2026-07-30). If we establish one, it should
-be added.
-"""
-
 
 def _collect_asset_metadata(asset_value) -> dict[str, Any]:
     """Collect basic metadata about the asset."""
@@ -126,35 +107,6 @@ def _field_has_content_constraints(field: Field) -> bool:
     )
 
 
-def _field_constraints_metadata(field: Field) -> dict[str, Any]:
-    """Build a JSON-safe summary of a field's declared constraints, if any.
-
-    Only constraints actually set (non-default) are included, so a caller can
-    tell at a glance what's being enforced on a column without cross-referencing
-    the PUDL metadata source. ``minimum``/``maximum`` can be dates, and
-    ``pattern`` is a compiled regex -- both are stringified for JSON safety.
-    """
-    c = field.constraints
-    constraints: dict[str, Any] = {}
-    if c.required:
-        constraints["required"] = True
-    if c.unique:
-        constraints["unique"] = True
-    if c.minimum is not None:
-        constraints["minimum"] = str(c.minimum)
-    if c.maximum is not None:
-        constraints["maximum"] = str(c.maximum)
-    if c.min_length is not None:
-        constraints["min_length"] = c.min_length
-    if c.max_length is not None:
-        constraints["max_length"] = c.max_length
-    if c.pattern is not None:
-        constraints["pattern"] = c.pattern.pattern
-    if c.enum:
-        constraints["enum"] = list(c.enum)
-    return constraints
-
-
 def _collect_dtype_metadata(
     asset_value: pl.LazyFrame | pd.DataFrame,
     resource: Resource,
@@ -209,7 +161,7 @@ def _collect_dtype_metadata(
             "expected_pandera_dtype": pandera_dtypes.get(field.name, "Unknown"),
             "actual_dtype": actual_dtypes.get(field.name, "Column not present"),
             "content_checked": _field_has_content_constraints(field),
-            "constraints": _field_constraints_metadata(field),
+            "constraints": field.constraints.to_metadata_dict(),
         }
         for field in resource.schema.fields
     }
@@ -273,8 +225,9 @@ def _collect_primary_key_metadata(
     """Describe the primary-key check that will run for this resource, if any.
 
     Whether a composite-uniqueness check is chunked (see
-    ``_CHUNKED_PK_CHECK_TABLES``) is a cheap name lookup, not a re-run of the
-    (potentially expensive, for our largest tables) chunking logic itself.
+    :attr:`~pudl.metadata.classes.Schema.chunk_field`) is a cheap attribute lookup,
+    not a re-run of the (potentially expensive, for our largest tables) chunking
+    logic itself.
     """
     primary_key = resource.schema.primary_key
     if not primary_key:
@@ -285,7 +238,7 @@ def _collect_primary_key_metadata(
         "primary_key": {
             "declared": True,
             "columns": primary_key,
-            "chunked": resource.name in _CHUNKED_PK_CHECK_TABLES,
+            "chunked": resource.schema.chunk_field is not None,
             "checked": not missing_columns,
             "missing_columns": missing_columns or None,
         }
@@ -472,8 +425,7 @@ def _validate_polars_content(
     pk_start = time.perf_counter()
     primary_key = resource.schema.primary_key
     if primary_key and all(col in present_columns for col in primary_key):
-        chunk_field = _CHUNKED_PK_CHECK_TABLES.get(resource.name)
-        errors.extend(resource.check_primary_key(asset_value, chunk_field=chunk_field))
+        errors.extend(resource.check_primary_key(asset_value))
     timings["pk_check_seconds"] = time.perf_counter() - pk_start
 
     return errors, timings

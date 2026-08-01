@@ -42,7 +42,6 @@ from dagster._core.definitions.asset_checks.asset_checks_definition import (
 from shapely.geometry import Point
 
 from pudl.dagster.asset_checks import (
-    _CHUNKED_PK_CHECK_TABLES,
     _build_registry_from_descriptor,
     _validate_datapackage_unit_strings,
     asset_check_from_schema,
@@ -416,7 +415,7 @@ def test_polars_lazyframe_uniqueness_checks(
 ) -> None:
     """Nullable and uniqueness violations should fail the generated asset check.
 
-    This resource isn't in ``_CHUNKED_PK_CHECK_TABLES``, so composite
+    This resource's schema doesn't set ``chunk_field``, so composite
     primary-key uniqueness goes through
     :meth:`Resource.check_primary_key_polars`'s normal, unchunked path (see
     ``tests/unit/metadata/metadata_test.py`` for the chunked path used by
@@ -520,18 +519,3 @@ def test_pandera_schema_check_combines_schema_and_content_errors() -> None:
     assert any("value" in m and "100" in m for m in messages), (
         f"Expected a value-constraint content error, got: {messages}"
     )
-
-
-def test_chunked_pk_check_tables_are_valid() -> None:
-    """Every entry in _CHUNKED_PK_CHECK_TABLES must name a real, matching field.
-
-    Guards against the mapping silently going stale if a listed resource's
-    primary key changes -- the chunking column must remain part of the
-    primary key, since that's what makes chunking by it exact rather than
-    approximate (see ``Resource._chunk_filters``).
-    """
-    for resource_name, field_name in _CHUNKED_PK_CHECK_TABLES.items():
-        resource = PUDL_PACKAGE.get_resource(resource_name)
-        assert field_name in resource.schema.primary_key, (
-            f"{field_name} is not part of {resource_name}'s primary key"
-        )
