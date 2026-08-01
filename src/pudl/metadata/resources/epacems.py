@@ -46,6 +46,7 @@ CEMS data.
                 "emissions_unit_id_epa",
                 "operating_datetime_utc",
             ],
+            "chunk_field": "operating_datetime_utc",
         },
         "sources": ["eia860", "epacems"],
         "field_namespace": "epacems",
