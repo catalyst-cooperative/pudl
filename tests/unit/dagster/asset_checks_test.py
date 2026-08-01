@@ -58,6 +58,7 @@ from pudl.metadata.units import PUDL_UNIT_DEFINITIONS
     [
         ("core_pudl__codes_subdivisions", False, pl.LazyFrame),
         ("core_ferceqr__contracts", True, ParquetData),
+        ("out_censusdp1tract__counties", False, gpd.GeoDataFrame),
     ],
 )
 def test_asset_checks_preserve_runtime_input_types(
@@ -230,6 +231,26 @@ def test_validate_datapackage_unit_strings_missing_registry() -> None:
 # unrelated metadata changes.
 
 
+def _build_check_fn(name: str, fields: list[dict], primary_key: list[str]):
+    """Build the generated ``pandera_schema_check`` function for a synthetic resource.
+
+    Shared by every synthetic-resource asset-check test below, so each one only
+    has to supply what actually varies: the resource name, its fields, and its
+    primary key.
+    """
+    resource = Resource(
+        name=name,
+        description="Synthetic resource for asset-check tests.",
+        schema={"fields": fields, "primary_key": primary_key},
+    )
+    package = Package(name="_test_package", resources=[resource])
+    check = asset_check_from_schema(
+        dg.AssetKey([resource.name]), package, duckdb_asset=False
+    )
+    assert check is not None
+    return check.node_def.compute_fn.decorated_fn
+
+
 def _content_check_fields(*, with_geometry: bool) -> list[dict]:
     """Shared field set for the polars and geopandas content-check fixtures."""
     fields = [
@@ -254,44 +275,27 @@ def _content_check_fields(*, with_geometry: bool) -> list[dict]:
     return fields
 
 
-def _content_check_fn(*, with_geometry: bool):
-    """Build the generated ``pandera_schema_check`` function for a synthetic resource."""
-    resource = Resource(
-        name="_test__geopandas_content_checks"
-        if with_geometry
-        else "_test__polars_content_checks",
-        description="Synthetic resource for asset-check content-validation tests.",
-        schema={
-            "fields": _content_check_fields(with_geometry=with_geometry),
-            "primary_key": ["id"],
-        },
-    )
-    package = Package(name="_test_package", resources=[resource])
-    check = asset_check_from_schema(
-        dg.AssetKey([resource.name]), package, duckdb_asset=False
-    )
-    assert check is not None
-    return check.node_def.compute_fn.decorated_fn
+_CONTENT_CHECK_CASES = [
+    (30, "a", True),
+    (150, "a", False),  # violates maximum=100
+    (30, "z", False),  # violates enum=["a", "b", "c"]
+]
+_CONTENT_CHECK_IDS = ["valid", "value_out_of_range", "code_not_in_enum"]
 
 
 @pytest.mark.parametrize(
-    ("value", "code", "expected_pass"),
-    [
-        (30, "a", True),
-        (150, "a", False),  # violates maximum=100
-        (30, "z", False),  # violates enum=["a", "b", "c"]
-    ],
-    ids=["valid", "value_out_of_range", "code_not_in_enum"],
+    ("value", "code", "expected_pass"), _CONTENT_CHECK_CASES, ids=_CONTENT_CHECK_IDS
 )
 def test_polars_lazyframe_content_checks(value, code, expected_pass) -> None:
     """Content (not just schema) violations should fail the generated asset check.
 
-    As of this writing, pandera's Polars backend does not enforce content-level
-    checks (Check.ge/le/isin/etc.) on ``pl.LazyFrame`` inputs by default, so the
-    two violation cases here are expected to incorrectly report ``passed=True``
-    until that is fixed.
+    All errors must produce SchemaErrors, not generic exceptions.
     """
-    fn = _content_check_fn(with_geometry=False)
+    fn = _build_check_fn(
+        "_test__polars_content_checks",
+        _content_check_fields(with_geometry=False),
+        ["id"],
+    )
     lf = pl.LazyFrame(
         {"id": [1, 2, 3], "value": [10, 20, value], "code": ["a", "b", code]}
     )
@@ -305,23 +309,18 @@ def test_polars_lazyframe_content_checks(value, code, expected_pass) -> None:
 
 
 @pytest.mark.parametrize(
-    ("value", "code", "expected_pass"),
-    [
-        (30, "a", True),
-        (150, "a", False),  # violates maximum=100
-        (30, "z", False),  # violates enum=["a", "b", "c"]
-    ],
-    ids=["valid", "value_out_of_range", "code_not_in_enum"],
+    ("value", "code", "expected_pass"), _CONTENT_CHECK_CASES, ids=_CONTENT_CHECK_IDS
 )
 def test_geopandas_content_checks(value, code, expected_pass) -> None:
     """Content violations are already correctly caught on the geopandas/pandas path.
 
-    Geometry-bearing tables use pandera's pandas backend
-    (:func:`pudl.metadata.classes.Schema.to_pandera`), which has no
-    LazyFrame-specific validation-depth override, so these checks already run
-    today and all three cases are expected to pass as written.
+    All errors must produce SchemaErrors, not generic exceptions.
     """
-    fn = _content_check_fn(with_geometry=True)
+    fn = _build_check_fn(
+        "_test__geopandas_content_checks",
+        _content_check_fields(with_geometry=True),
+        ["id"],
+    )
     gdf = gpd.GeoDataFrame(
         {
             "id": pd.array([1, 2, 3], dtype="Int64"),
@@ -373,26 +372,6 @@ def _uniqueness_check_fields(*, with_geometry: bool) -> list[dict]:
     return fields
 
 
-def _uniqueness_check_fn(*, with_geometry: bool):
-    """Build the generated ``pandera_schema_check`` function for a synthetic resource."""
-    resource = Resource(
-        name="_test__geopandas_uniqueness_checks"
-        if with_geometry
-        else "_test__polars_uniqueness_checks",
-        description="Synthetic resource for asset-check uniqueness-validation tests.",
-        schema={
-            "fields": _uniqueness_check_fields(with_geometry=with_geometry),
-            "primary_key": ["id", "id2"],
-        },
-    )
-    package = Package(name="_test_package", resources=[resource])
-    check = asset_check_from_schema(
-        dg.AssetKey([resource.name]), package, duckdb_asset=False
-    )
-    assert check is not None
-    return check.node_def.compute_fn.decorated_fn
-
-
 _UNIQUENESS_CASES = [
     ([1, 2, 3], [1, 2, 3], [1, 2, 3], [1, 2, 3], True),
     ([1, 2, 3], [1, 2, 3], [1, None, 3], [1, 2, 3], False),  # null required_field
@@ -417,13 +396,16 @@ def test_polars_lazyframe_uniqueness_checks(
 ) -> None:
     """Nullable and uniqueness violations should fail the generated asset check.
 
-    This resource's schema doesn't set ``chunk_field``, so composite
-    primary-key uniqueness goes through
-    :meth:`Resource.check_primary_key_polars`'s normal, unchunked path (see
-    ``tests/unit/metadata/metadata_test.py`` for the chunked path used by
-    PUDL's few oversized tables).
+    This resource's schema doesn't set ``chunk_field``, so composite primary-key
+    uniqueness goes through :meth:`Resource.check_primary_key_polars`'s normal,
+    unchunked path (see ``tests/unit/metadata/metadata_test.py`` for the chunked path
+    used by PUDL's few oversized tables).
     """
-    fn = _uniqueness_check_fn(with_geometry=False)
+    fn = _build_check_fn(
+        "_test__polars_uniqueness_checks",
+        _uniqueness_check_fields(with_geometry=False),
+        ["id", "id2"],
+    )
     lf = pl.LazyFrame(
         {
             "id": id_,
@@ -451,7 +433,11 @@ def test_geopandas_uniqueness_checks(
     """Nullable and uniqueness violations are already correctly caught on the
     geopandas/pandas path.
     """
-    fn = _uniqueness_check_fn(with_geometry=True)
+    fn = _build_check_fn(
+        "_test__geopandas_uniqueness_checks",
+        _uniqueness_check_fields(with_geometry=True),
+        ["id", "id2"],
+    )
     gdf = gpd.GeoDataFrame(
         {
             "id": pd.array(id_, dtype="Int64"),
@@ -469,42 +455,31 @@ def test_geopandas_uniqueness_checks(
 def test_pandera_schema_check_combines_schema_and_content_errors() -> None:
     """Schema-level and content-level errors are reported together, not either/or.
 
-    Regression test: a naive implementation runs pandera's schema-only pass
-    first and lets a `SchemaErrors` from it propagate immediately, which
-    skips the content checks entirely -- so a caller only ever sees whichever
-    kind of error happened to be found first, and has to fix-and-rerun to
-    discover the other. The two are independent, so both should show up in
-    one report.
+    Check that we don't let `SchemaErrors` from schema-only checks propagate
+    immediately, skipping the content checks entirely, meaning the caller only ever sees
+    whichever kind of error happened first, requiring them to to fix-and-rerun to
+    discover the other family of errors. The two are independent, so both should show up
+    in one error report.
     """
-    resource = Resource(
-        name="_test__combined_errors",
-        description="Synthetic resource with both a missing column and a "
-        "content-constraint violation.",
-        schema={
-            "fields": [
-                {"name": "id", "type": "integer", "description": "Primary key."},
-                {
-                    "name": "value",
-                    "type": "integer",
-                    "description": "Bounded value.",
-                    "constraints": {"minimum": 0, "maximum": 100},
-                },
-                {
-                    "name": "missing_field",
-                    "type": "string",
-                    "description": "A required field absent from the data.",
-                    "constraints": {"required": True},
-                },
-            ],
-            "primary_key": ["id"],
-        },
+    fn = _build_check_fn(
+        "_test__combined_errors",
+        [
+            {"name": "id", "type": "integer", "description": "Primary key."},
+            {
+                "name": "value",
+                "type": "integer",
+                "description": "Bounded value.",
+                "constraints": {"minimum": 0, "maximum": 100},
+            },
+            {
+                "name": "missing_field",
+                "type": "string",
+                "description": "A required field absent from the data.",
+                "constraints": {"required": True},
+            },
+        ],
+        ["id"],
     )
-    package = Package(name="_test_package", resources=[resource])
-    check = asset_check_from_schema(
-        dg.AssetKey([resource.name]), package, duckdb_asset=False
-    )
-    assert check is not None
-    fn = check.node_def.compute_fn.decorated_fn
 
     # `missing_field` is omitted entirely (schema error: column not present),
     # and `value=150` violates its maximum=100 constraint (content error).

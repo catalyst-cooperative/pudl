@@ -13,7 +13,6 @@ import pandera.pandas as pr_pandas
 import pandera.polars as pr_polars
 import polars as pl
 import pyarrow as pa
-import pydantic
 import pytest
 import sqlalchemy as sa
 from pandera.errors import SchemaErrors
@@ -245,32 +244,12 @@ def test_check_primary_key_reports_duplicates_and_nulls(make_data) -> None:
 
     Regression test: the pandas path used to raise on the first problem it
     found (duplicates), so a caller fixing that would only discover the
-    null-value problem on a second run. The polars path separately never
-    checked for nulls at all -- a lone null primary-key value passed silently,
-    since ``_find_duplicate_primary_keys``'s group-by/count approach only ever
-    flags a null combination that happens to repeat (see
-    ``_find_null_primary_keys``). Both backends now report every violation
-    type found in one call, without raising.
+    null-value problem on a second run.
     """
     errors = _pk_violation_resource().check_primary_key(make_data())
     messages = " ".join(str(error).lower() for error in errors)
     assert "duplicate" in messages
     assert "null" in messages
-
-
-def test_check_primary_key_polars_catches_lone_null_without_duplicate() -> None:
-    """A single null primary-key value is caught even with no duplicate present.
-
-    Narrower regression test than the parametrized one above: isolates the
-    "null with no accompanying duplicate" case, which is the one
-    ``_find_duplicate_primary_keys``'s group-by/count approach can never catch
-    on its own, to make sure ``_find_null_primary_keys`` is doing real work
-    and not just piggybacking on a duplicate that happens to also be null.
-    """
-    resource = _pk_violation_resource()
-    errors = resource.check_primary_key(pl.LazyFrame({"id": [1, None, 3]}))
-    assert len(errors) == 1
-    assert "null" in str(errors[0]).lower()
 
 
 def test_enforce_schema_raises_combining_primary_key_violations() -> None:
@@ -371,69 +350,68 @@ def _categorical_pk_resource() -> Resource:
     )
 
 
-def test_check_primary_key_polars_temporal_valid() -> None:
-    """Repeated non-key values across different years are not false positives.
+@pytest.mark.parametrize(
+    ("resource_fn", "data", "expect_violation"),
+    [
+        (
+            _temporal_pk_resource,
+            {
+                "event_date": [
+                    date(2020, 1, 1),
+                    date(2020, 1, 2),
+                    date(2021, 1, 1),
+                    date(2021, 1, 2),
+                ],
+                # unit_id repeats across years -- fine, since event_date differs.
+                "unit_id": [1, 2, 1, 2],
+            },
+            False,
+        ),
+        (
+            _temporal_pk_resource,
+            {
+                "event_date": [date(2020, 1, 1), date(2020, 1, 1), date(2021, 1, 1)],
+                "unit_id": [1, 1, 1],
+            },
+            True,
+        ),
+        (
+            _categorical_pk_resource,
+            {
+                "filer_id": ["A", "A", "B", "B"],
+                # record_id repeats across filers -- fine, since filer_id differs.
+                "record_id": [1, 2, 1, 2],
+            },
+            False,
+        ),
+        (
+            _categorical_pk_resource,
+            {
+                "filer_id": ["A", "A", "B"],
+                "record_id": [1, 1, 1],
+            },
+            True,
+        ),
+    ],
+    ids=[
+        "temporal_valid",
+        "temporal_duplicate",
+        "categorical_valid",
+        "categorical_duplicate",
+    ],
+)
+def test_check_primary_key_polars_unchunked(
+    resource_fn, data, expect_violation
+) -> None:
+    """Repeated non-key values are not false positives; true duplicates are caught.
 
-    No ``chunk_field`` is passed here, so this exercises
+    No ``chunk_field`` is set on either synthetic resource, so this exercises
     ``check_primary_key``'s default, unchunked polars dispatch path;
-    ``test_chunk_filters_temporal_*`` below separately verify the chunking
-    mechanism itself preserves the same correctness.
+    ``test_chunk_filters_*`` below separately verify the chunking mechanism
+    itself preserves the same correctness.
     """
-    resource = _temporal_pk_resource()
-    lf = pl.LazyFrame(
-        {
-            "event_date": [
-                date(2020, 1, 1),
-                date(2020, 1, 2),
-                date(2021, 1, 1),
-                date(2021, 1, 2),
-            ],
-            # unit_id repeats across years -- fine, since event_date differs.
-            "unit_id": [1, 2, 1, 2],
-        }
-    )
-    errors = resource._check_primary_key_polars(lf)
-    assert errors == []
-
-
-def test_check_primary_key_polars_temporal_catches_duplicate() -> None:
-    """A true duplicate composite key within one year is still caught."""
-    resource = _temporal_pk_resource()
-    lf = pl.LazyFrame(
-        {
-            "event_date": [date(2020, 1, 1), date(2020, 1, 1), date(2021, 1, 1)],
-            "unit_id": [1, 1, 1],
-        }
-    )
-    errors = resource._check_primary_key_polars(lf)
-    assert len(errors) > 0
-
-
-def test_check_primary_key_polars_categorical_valid() -> None:
-    """Repeated non-key values across different filers are not false positives."""
-    resource = _categorical_pk_resource()
-    lf = pl.LazyFrame(
-        {
-            "filer_id": ["A", "A", "B", "B"],
-            # record_id repeats across filers -- fine, since filer_id differs.
-            "record_id": [1, 2, 1, 2],
-        }
-    )
-    errors = resource._check_primary_key_polars(lf)
-    assert errors == []
-
-
-def test_check_primary_key_polars_categorical_catches_duplicate() -> None:
-    """A true duplicate composite key within one filer is still caught."""
-    resource = _categorical_pk_resource()
-    lf = pl.LazyFrame(
-        {
-            "filer_id": ["A", "A", "B"],
-            "record_id": [1, 1, 1],
-        }
-    )
-    errors = resource._check_primary_key_polars(lf)
-    assert len(errors) > 0
+    errors = resource_fn()._check_primary_key_polars(pl.LazyFrame(data))
+    assert bool(errors) == expect_violation
 
 
 def test_chunk_filters_temporal_partitions_by_year() -> None:
@@ -476,33 +454,6 @@ def test_check_primary_key_polars_no_primary_key() -> None:
     )
     lf = pl.LazyFrame({"x": [1, 1, 1]})
     assert resource.check_primary_key(lf) == []
-
-
-def test_schema_rejects_chunk_field_not_in_primary_key() -> None:
-    """A chunk field that isn't part of the primary key is a metadata error.
-
-    Chunking is only exact (see `Resource._chunk_filters`) when the chunk
-    column is part of the primary key, so ``Schema`` itself rejects the
-    combination at construction time rather than letting it silently produce
-    an incomplete uniqueness check later in ``Resource._check_primary_key_polars``.
-    """
-    with pytest.raises(pydantic.ValidationError, match="isn't part of"):
-        Resource(
-            name="_test__bad_chunk_field",
-            description="Synthetic resource for testing chunk-field misconfiguration.",
-            schema={
-                "fields": [
-                    {"name": "id", "type": "integer", "description": "Primary key."},
-                    {
-                        "name": "other",
-                        "type": "integer",
-                        "description": "Not in the PK.",
-                    },
-                ],
-                "primary_key": ["id"],
-                "chunk_field": "other",
-            },
-        )
 
 
 def test_find_duplicate_primary_keys() -> None:

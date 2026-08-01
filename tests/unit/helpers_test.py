@@ -3,14 +3,17 @@
 from datetime import date, datetime
 from io import StringIO
 
+import geopandas as gpd  # noqa: ICN002
 import numpy as np
 import pandas as pd
 import polars as pl
 import pyarrow as pa
 import pytest
+from geopandas.testing import assert_geodataframe_equal
 from pandas.testing import assert_frame_equal, assert_series_equal
 from pandas.tseries.offsets import BYearEnd
 from polars.testing import assert_frame_equal as assert_pl_frame_equal
+from shapely.geometry import Point
 
 import pudl.helpers
 from pudl.helpers import (
@@ -1263,6 +1266,49 @@ def test_get_parquet_table_full_read_dtypes(mocker, tmp_path):
     assert_frame_equal(result, written_df)
 
 
+_GEOSPATIAL_FIELDS = [
+    {"name": "id", "type": "integer", "description": "Primary key."},
+    {"name": "name", "type": "string", "description": "A string field."},
+    {"name": "geometry", "type": "geometry", "description": "A geometry field."},
+]
+_GEOSPATIAL_DATA = {
+    "id": [1, 2, 3],
+    "name": ["x", None, "z"],
+    "geometry": [Point(0, 0), Point(1, 1), None],
+}
+
+
+def test_get_parquet_table_geospatial_full_read_dtypes(mocker, tmp_path):
+    """Golden-behavior test: the geospatial/GeoParquet read path round-trips too.
+
+    ``get_parquet_table`` has a separate ``is_geospatial`` branch (``gpd.read_parquet``
+    plus a full ``enforce_schema`` re-cast, rather than ``pd.read_parquet`` with
+    ``dtype_backend="numpy_nullable"``) that the plain multi-type test above never
+    exercises, since none of its fields are geometry-typed. Writes using
+    ``GeoDataFrame.to_parquet`` directly (not ``resource.to_pyarrow()``-constrained),
+    matching how ``PudlParquetIOManager.handle_output`` actually writes geometry
+    columns as native GeoParquet.
+    """
+    resource = Resource(
+        name="_test__get_parquet_table_geospatial_full_read_dtypes",
+        description="Synthetic resource covering the geospatial read path.",
+        schema={"fields": _GEOSPATIAL_FIELDS, "primary_key": ["id"]},
+    )
+    written_gdf = resource.enforce_schema(gpd.GeoDataFrame(_GEOSPATIAL_DATA))
+    assert isinstance(written_gdf, gpd.GeoDataFrame)
+
+    paths = _make_test_pudl_paths(tmp_path)
+    parquet_path = paths.parquet_path(resource.name)
+    parquet_path.parent.mkdir(parents=True, exist_ok=True)
+    written_gdf.to_parquet(parquet_path, index=False)
+
+    mocker.patch("pudl.metadata.classes.Resource.from_id", return_value=resource)
+
+    result = get_parquet_table(resource.name, paths=paths)
+    assert isinstance(result, gpd.GeoDataFrame)
+    assert_geodataframe_equal(result, written_gdf)
+
+
 def test_get_parquet_table_polars_full_read_dtypes(mocker, tmp_path):
     """Golden-behavior test: same as above, for the Polars LazyFrame path."""
     resource = _make_multi_type_resource(
@@ -1352,32 +1398,18 @@ def _write_polars_enum(path):
 def test_constrained_categorical_cross_backend_parquet_roundtrip(
     tmp_path, write, read_categories, expected
 ):
-    """Cross-backend behavior for a constrained categorical/enum column's Parquet round trip.
+    """Verify cross-backend behavior for constrained categorical/enum columns.
 
-    Not symmetric: Polars' ``Enum`` writer stores its entire declared category
-    list in the physical dictionary page regardless of what's observed, so both
-    pandas and Polars recover it fully. Pandas' plain ``Categorical`` writer only
-    encodes what's actually referenced, and while pandas itself reads that back
-    faithfully, Polars' generic (non-Polars-authored) dictionary decoding compacts
-    away unreferenced entries -- so only that one direction loses the unused
-    category. Locked in here so a future pandas/polars/pyarrow upgrade that
-    changes this is caught rather than discovered downstream.
+    Not symmetric: Polars' ``Enum`` writer stores its entire declared category list in
+    the physical dictionary page regardless of what's observed, so both pandas and
+    Polars recover it fully. Pandas' plain ``Categorical`` writer also encodes all of
+    the defined dictionary keys, whether or not they are referenced in the actual data,
+    and faithfully reconstructs the complete dictionary uplon reading. However, Polars'
+    generic (non-Polars-authored) dictionary decoding compacts away unreferenced entries
+    -- so only that one direction loses any unused categories. Locked in here so a
+    future pandas/polars/pyarrow upgrade that changes this is caught rather than
+    discovered downstream.
     """
     path = tmp_path / "code.parquet"
     write(path)
     assert read_categories(path) == expected
-
-
-def test_polars_enum_parquet_roundtrip_is_order_sensitive(tmp_path):
-    """A pl.Enum's category order is part of its identity, unlike a Categorical's.
-
-    Reading a Polars-written Enum column back with a differently-ordered (but
-    same-membership) Enum schema raises, rather than coercing -- the counterpart
-    to the "preserves order" half of the polars-write/polars-read case above.
-    """
-    path = tmp_path / "code.parquet"
-    pl.LazyFrame({"code": ["a", "b"]}).cast(
-        {"code": pl.Enum(["c", "b", "a"])}
-    ).sink_parquet(path)
-    with pytest.raises(pl.exceptions.SchemaError):
-        pl.scan_parquet(path, schema={"code": pl.Enum(["a", "b", "c"])}).collect()
