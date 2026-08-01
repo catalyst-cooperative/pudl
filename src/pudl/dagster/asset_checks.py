@@ -41,7 +41,6 @@ from pudl.dagster.partitions import ferceqr_year_quarters
 from pudl.helpers import ParquetData, get_parquet_table_polars
 from pudl.metadata.classes import (
     PUDL_PACKAGE,
-    Field,
     Package,
     Resource,
 )
@@ -90,23 +89,6 @@ def _extract_actual_columns_and_dtypes(
     )
 
 
-def _field_has_content_constraints(field: Field) -> bool:
-    """Whether a field's constraints require reading its actual values to check."""
-    c = field.constraints
-    return any(
-        [
-            c.required,
-            c.unique,
-            c.minimum is not None,
-            c.maximum is not None,
-            c.min_length is not None,
-            c.max_length is not None,
-            c.pattern is not None,
-            bool(c.enum),
-        ]
-    )
-
-
 def _collect_dtype_metadata(
     asset_value: pl.LazyFrame | pd.DataFrame,
     resource: Resource,
@@ -123,7 +105,7 @@ def _collect_dtype_metadata(
         A metadata dictionary with:
         - ``field_details``: per-column expected/actual dtype details, declared
           constraints, and whether the column is content-checked (see
-          :func:`_field_has_content_constraints`).
+          :meth:`~pudl.metadata.classes.Field.has_content_constraints`).
         - ``column_comparison``: expected/actual column counts and optional missing
           or extra column lists.
         - ``type_mismatches``: only present when common columns have differing dtype
@@ -160,7 +142,7 @@ def _collect_dtype_metadata(
             "pudl_field_dtype": field.type,
             "expected_pandera_dtype": pandera_dtypes.get(field.name, "Unknown"),
             "actual_dtype": actual_dtypes.get(field.name, "Column not present"),
-            "content_checked": _field_has_content_constraints(field),
+            "content_checked": field.has_content_constraints(),
             "constraints": field.constraints.to_metadata_dict(),
         }
         for field in resource.schema.fields
@@ -411,7 +393,7 @@ def _validate_polars_content(
         for field in resource.schema.fields:
             if field.name not in present_columns:
                 continue
-            if not _field_has_content_constraints(field):
+            if not field.has_content_constraints():
                 continue
             column_schema = pr_polars.DataFrameSchema(
                 {field.name: field.to_pandera_column(use_pandas_backend=False)}
