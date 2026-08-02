@@ -10,11 +10,13 @@ import pytest
 
 from pudl.dagster.resources import FercEqrArchiveResource
 from pudl.extract.ferceqr import (
+    _clear_raw_table_partition,
     _csvs_to_parquet,
     _extract_other_table,
     _get_rejected_record_counts,
     extract_ferceqr,
 )
+from pudl.helpers import ParquetData
 
 
 def _touch(path: Path) -> Path:
@@ -399,3 +401,62 @@ def test_extract_ferceqr_collects_and_attaches_summary_stats(tmp_path):
         "indexPub": 0,
     }
     assert stats["rejected_record_counts"] == {"TOO MANY COLUMNS": 1}
+
+
+def test_clear_raw_table_partition_removes_existing_output():
+    """Clearing a raw table+quarter partition deletes any files already there.
+
+    Simulates a stale per-filing parquet file left behind by a previous
+    extraction run under a filing ID that no longer exists in the current
+    archive (e.g. because the filing was since amended and re-filed under a
+    new ID) -- nothing else would ever clean this up on its own.
+    """
+    directory = ParquetData(table_name="raw_ferceqr__ident_2024q1").parquet_directory
+    stale_file = directory / "CSV_2024_Q1_0000000_0000000.parquet"
+    stale_file.write_text("stale leftover from a previous run")
+    assert stale_file.exists()
+
+    _clear_raw_table_partition("ident", "2024q1")
+
+    assert not stale_file.exists()
+
+
+def test_clear_raw_table_partition_is_a_noop_when_nothing_exists():
+    """Clearing a partition that was never written to should not raise."""
+    _clear_raw_table_partition("contracts", "2099q1")
+
+
+def test_extract_ferceqr_removes_stale_output_from_a_previous_run(tmp_path):
+    """A leftover file from a filing ID no longer in the archive doesn't survive.
+
+    Regression test for the raw-output accumulation bug: without clearing each
+    table+quarter's output directory before extraction, a company's filing
+    from a prior archive pull would stick around under its old filing ID even
+    after being superseded by a resubmission under a new ID, silently
+    duplicating that company's records once both are read back together.
+    """
+    year_quarter = "2024q1"
+    archive_dir = tmp_path / "archive"
+    archive_dir.mkdir()
+    with zipfile.ZipFile(archive_dir / f"ferceqr-{year_quarter}.zip", "w") as outer:
+        outer.writestr(
+            "CSV_2024_Q1_1111111_1111111.zip",
+            _make_filing_zip({"ident.CSV": "company_identifier\nC001\n"}),
+        )
+
+    # Simulate leftover output from a previous run under a filing ID that is
+    # no longer present in the archive above (e.g. company C001 resubmitted).
+    stale_directory = ParquetData(
+        table_name="raw_ferceqr__ident_2024q1"
+    ).parquet_directory
+    stale_file = stale_directory / "CSV_2024_Q1_0000000_0000000.parquet"
+    stale_file.write_text("stale leftover from a previous run")
+
+    with dg.build_asset_context(partition_key=year_quarter) as context:
+        extract_ferceqr(
+            context=context,
+            ferceqr_archive=FercEqrArchiveResource(path=str(archive_dir)),
+        )
+
+    assert not stale_file.exists()
+    assert (stale_directory / "CSV_2024_Q1_1111111_1111111.parquet").exists()
