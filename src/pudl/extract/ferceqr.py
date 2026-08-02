@@ -1,6 +1,7 @@
 """Extract FERC EQR data."""
 
 import io
+import shutil
 import tempfile
 import zipfile
 from collections.abc import Generator
@@ -61,6 +62,27 @@ def _get_table_name(table_type: str, year_quarter: str) -> str:
     if table_type != "indexPub":
         return f"raw_ferceqr__{table_type}_{year_quarter}"
     return f"raw_ferceqr__index_pub_{year_quarter}"
+
+
+def _clear_raw_table_partition(table_type: str, year_quarter: str) -> None:
+    """Delete any existing per-filing parquet output for one raw table+quarter.
+
+    Each filing's output file is named after that filing's own ID, and a
+    company's filing ID changes every time it submits an amended/resubmitted
+    EQR filing for the same quarter (see :func:`_csvs_to_parquet`). Without
+    this, re-extracting a quarter after its archive picks up a resubmission
+    would leave the old filing ID's now-orphaned output sitting alongside the
+    new one indefinitely -- nothing else ever revisits or removes it -- so a
+    later rebuild of the raw table would silently combine both into duplicate
+    records for the same company. Clearing the whole directory before each
+    extraction run guarantees this quarter's output reflects only what's in
+    the archive right now, mirroring how the downstream core tables already
+    get fully overwritten (not merged into) on each rebuild.
+    """
+    directory = ParquetData(
+        table_name=_get_table_name(table_type, year_quarter)
+    ).parquet_directory
+    shutil.rmtree(directory, ignore_errors=True)
 
 
 def _extract_ident(
@@ -302,6 +324,13 @@ def extract_ferceqr(
     """
     # Get year/quarter from selected partition
     year_quarter = context.partition_key
+
+    # Clear any leftover per-filing output from a previous extraction of this same
+    # quarter before starting, so amended filings that changed ID between archive
+    # pulls can't leave stale, orphaned duplicates behind. See
+    # _clear_raw_table_partition for why this is necessary.
+    for table_type in _ALL_TABLE_TYPES:
+        _clear_raw_table_partition(table_type, year_quarter)
 
     table_file_counts = dict.fromkeys(_ALL_TABLE_TYPES, 0)
     corrupt_filing_count = 0
