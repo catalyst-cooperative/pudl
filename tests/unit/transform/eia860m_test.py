@@ -61,19 +61,21 @@ def test_core_eia860m__changelog_generators_includes_puerto_rico(mocker):
             }
         )
 
-    changelog = eia860m.core_eia860m__changelog_generators.node_def.compute_fn.decorated_fn(
-        raw_eia860m__generator_proposed=make_raw("proposed", 1),
-        raw_eia860m__puerto_rico_generator_proposed=make_raw(
-            "puerto_rico_proposed", 2
-        ),
-        raw_eia860m__generator_existing=make_raw("existing", 3),
-        raw_eia860m__puerto_rico_generator_existing=make_raw(
-            "puerto_rico_existing", 4
-        ),
-        raw_eia860m__generator_retired=make_raw("retired", 5),
-        raw_eia860m__puerto_rico_generator_retired=make_raw(
-            "puerto_rico_retired", 6
-        ),
+    changelog = (
+        eia860m.core_eia860m__changelog_generators.node_def.compute_fn.decorated_fn(
+            raw_eia860m__generator_proposed=make_raw("proposed", 1),
+            raw_eia860m__puerto_rico_generator_proposed=make_raw(
+                "puerto_rico_proposed", 2
+            ),
+            raw_eia860m__generator_existing=make_raw("existing", 3),
+            raw_eia860m__puerto_rico_generator_existing=make_raw(
+                "puerto_rico_existing", 4
+            ),
+            raw_eia860m__generator_retired=make_raw("retired", 5),
+            raw_eia860m__puerto_rico_generator_retired=make_raw(
+                "puerto_rico_retired", 6
+            ),
+        )
     )
 
     assert set(changelog.source_table) == {
