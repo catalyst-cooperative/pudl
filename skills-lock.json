@@ -11,7 +11,7 @@
       "source": "catalyst-cooperative/agent-skills",
       "sourceType": "github",
       "skillPath": "skills/datapackage/SKILL.md",
-      "computedHash": "aad64c8f8b0b80cffcca1d2dcf7264346bf0d53a44aa8558a528efb42bbd1413"
+      "computedHash": "ee9b9e47d0fb9fc00c8dfd4086262a42dc4039fc5ed137a12dc3aceebc0dfd79"
     },
     "dignified-python": {
       "source": "dagster-io/skills",
@@ -23,7 +23,7 @@
       "source": "catalyst-cooperative/agent-skills",
       "sourceType": "github",
       "skillPath": "skills/pudl/SKILL.md",
-      "computedHash": "5c99a42f328bd8fb3126ff06556d0e759e73f0ae1ef3879f1786c5f6ebb9597b"
+      "computedHash": "0f7b2540b842c9ad1cda8a0d77a1e6003f86e58a5a6ff8110377426e741d7fe4"
     }
   }
 }
