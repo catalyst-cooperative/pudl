@@ -201,6 +201,14 @@ marimo = ">=0.13"
 cmd = "pyrefly check --baseline .pyrefly-baseline.json"
 description = "Type-check with pyrefly against the tracked baseline"
 
+[tool.pixi.feature.dev.tasks.pyrefly-baseline-diff]
+cmd = "pyrefly_baseline_diff"
+description = """
+Diff .pyrefly-baseline.json against git HEAD by (file, code, description), ignoring \
+line/column churn. Run after `pyrefly check --baseline .pyrefly-baseline.json \
+--update-baseline` to sanity-check the regenerated baseline before committing it.
+"""
+
 [tool.pixi.environments]
 dev = { features = ["dev"], solve-group = "default" }
 
@@ -444,6 +452,7 @@ resource_description = "pudl.scripts.resource_description:main"
 update_zenodo_dois = "pudl.scripts.update_zenodo_dois:main"
 zenodo_data_release = "pudl.scripts.zenodo_data_release:main"
 generate_ferc_provenance = "pudl.scripts.generate_ferc_provenance:main"
+pyrefly_baseline_diff = "pudl.scripts.pyrefly_baseline_diff:main"
 
 [tool.ruff]
 # Configurations that apply to both the `format` and `lint` subcommands.
