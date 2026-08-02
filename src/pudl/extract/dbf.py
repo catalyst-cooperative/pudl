@@ -28,6 +28,149 @@ from pudl.workspace.datastore import Datastore
 logger = pudl.logging_helpers.get_logger(__name__)
 
 
+def _quote_sqlite_identifier(identifier: str) -> str:
+    """Quote a SQLite identifier for use in generated inspection SQL."""
+    return '"' + identifier.replace('"', '""') + '"'
+
+
+def _clean_frictionless_type(type_: str) -> str:
+    """Normalize types from SQLite to frictionless."""
+    type_ = type_.lower()
+    type_ = "string" if type_.startswith(("varchar", "text")) else type_
+    type_ = "number" if type_.startswith("float") else type_
+    return type_
+
+
+def get_dbf_datapackage_types(datapackage_path: Path) -> dict[tuple[str, str], str]:
+    """Read field types from a DBF SQLite datapackage descriptor."""
+    with Path(datapackage_path).open() as file:
+        datapackage = json.load(file)
+    return {
+        (resource["name"], field["name"]): field.get("type", "")
+        for resource in datapackage.get("resources", [])
+        for field in resource.get("schema", {}).get("fields", [])
+    }
+
+
+def _storage_type_counts(
+    conn: sa.Connection, table_name: str, column_name: str, row_limit: int | None
+) -> dict[str, int]:
+    """Summarize observed SQLite storage classes for a column."""
+    params = {}
+    limit_clause = ""
+    if row_limit is not None:
+        params["row_limit"] = row_limit
+        limit_clause = " LIMIT :row_limit"
+    table = _quote_sqlite_identifier(table_name)
+    column = _quote_sqlite_identifier(column_name)
+    rows = conn.execute(
+        sa.text(
+            f"""
+            SELECT typeof({column}) AS storage_type, COUNT(*) AS row_count
+            FROM (SELECT {column} FROM {table}{limit_clause})
+            GROUP BY storage_type
+            ORDER BY storage_type
+            """  # noqa: S608
+        ),
+        params,
+    )
+    return {storage_type: row_count for storage_type, row_count in rows}
+
+
+def _unparseable_date_values(
+    conn: sa.Connection, table_name: str, column_name: str, row_limit: int | None
+) -> int:
+    """Count non-null sampled values that pandas cannot parse as datetimes."""
+    params = {}
+    limit_clause = ""
+    if row_limit is not None:
+        params["row_limit"] = row_limit
+        limit_clause = " LIMIT :row_limit"
+    table = _quote_sqlite_identifier(table_name)
+    column = _quote_sqlite_identifier(column_name)
+    values = [
+        row[0]
+        for row in conn.execute(
+            sa.text(
+                f"""
+                SELECT {column}
+                FROM {table}
+                WHERE {column} IS NOT NULL
+                {limit_clause}
+                """  # noqa: S608
+            ),
+            params,
+        )
+    ]
+    if not values:
+        return 0
+    return int(pd.to_datetime(pd.Series(values), errors="coerce").isna().sum())
+
+
+def audit_dbf_datapackage_types(
+    sqlite_path: Path, datapackage_path: Path, row_limit: int | None = 10_000
+) -> pd.DataFrame:
+    """Compare DBF datapackage types to reflected and observed SQLite types.
+
+    The result is observational: it reports declared SQLite types, the compact
+    counts of SQLite ``typeof()`` storage classes found in the data, and simple
+    mismatch flags without claiming semantic truth about the underlying DBF fields.
+    """
+    datapackage_types = get_dbf_datapackage_types(datapackage_path)
+    sqlite_url = sa.engine.URL.create("sqlite", database=str(sqlite_path))
+    engine = sa.create_engine(sqlite_url)
+    metadata = sa.MetaData()
+    metadata.reflect(engine)
+    records = []
+    with engine.connect() as conn:
+        for table in metadata.sorted_tables:
+            for column in table.columns:
+                datapackage_type = datapackage_types.get(
+                    (table.name, column.name), ""
+                )
+                sqlite_declared_type = str(column.type)
+                normalized_sqlite_type = _clean_frictionless_type(
+                    sqlite_declared_type
+                )
+                storage_counts = _storage_type_counts(
+                    conn, table.name, column.name, row_limit
+                )
+                nonnull_storage_types = {
+                    type_ for type_ in storage_counts if type_ != "null"
+                }
+                mixed_storage_types = len(nonnull_storage_types) > 1
+                type_mismatch = datapackage_type != normalized_sqlite_type
+                is_date_type = datapackage_type in {"date", "datetime"} or (
+                    normalized_sqlite_type in {"date", "datetime"}
+                )
+                unparseable_dates = (
+                    _unparseable_date_values(conn, table.name, column.name, row_limit)
+                    if is_date_type
+                    else 0
+                )
+                records.append(
+                    {
+                        "table": table.name,
+                        "column": column.name,
+                        "datapackage_type": datapackage_type,
+                        "sqlite_declared_type": sqlite_declared_type,
+                        "normalized_sqlite_type": normalized_sqlite_type,
+                        "storage_type_counts": ",".join(
+                            f"{key}:{value}" for key, value in storage_counts.items()
+                        ),
+                        "mixed_storage_types": mixed_storage_types,
+                        "type_mismatch": type_mismatch,
+                        "unparseable_date_values": unparseable_dates,
+                        "mismatch": bool(
+                            type_mismatch
+                            or mixed_storage_types
+                            or unparseable_dates
+                        ),
+                    }
+                )
+    return pd.DataFrame.from_records(records)
+
+
 class DbcFileMissingError(Exception):
     """This is raised when the DBC index file is missing."""
 
@@ -474,10 +617,7 @@ class FercDbfExtractor:
 
     def _clean_frictionless_types(self, type_: str) -> str:
         """Normalize types from SQLite to frictionless."""
-        type_ = type_.lower()
-        type_ = "string" if type_.startswith(("varchar", "text")) else type_
-        type_ = "number" if type_.startswith("float") else type_
-        return type_
+        return _clean_frictionless_type(type_)
 
     @property
     def datapackage_path(self) -> Path:
