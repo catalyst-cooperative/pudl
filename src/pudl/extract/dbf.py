@@ -125,13 +125,9 @@ def audit_dbf_datapackage_types(
     with engine.connect() as conn:
         for table in metadata.sorted_tables:
             for column in table.columns:
-                datapackage_type = datapackage_types.get(
-                    (table.name, column.name), ""
-                )
+                datapackage_type = datapackage_types.get((table.name, column.name), "")
                 sqlite_declared_type = str(column.type)
-                normalized_sqlite_type = _clean_frictionless_type(
-                    sqlite_declared_type
-                )
+                normalized_sqlite_type = _clean_frictionless_type(sqlite_declared_type)
                 storage_counts = _storage_type_counts(
                     conn, table.name, column.name, row_limit
                 )
@@ -162,9 +158,7 @@ def audit_dbf_datapackage_types(
                         "type_mismatch": type_mismatch,
                         "unparseable_date_values": unparseable_dates,
                         "mismatch": bool(
-                            type_mismatch
-                            or mixed_storage_types
-                            or unparseable_dates
+                            type_mismatch or mixed_storage_types or unparseable_dates
                         ),
                     }
                 )
