@@ -1433,21 +1433,6 @@ def test_polars_enum_parquet_roundtrip_is_order_sensitive(tmp_path):
         pl.scan_parquet(path, schema={"code": pl.Enum(["a", "b", "c"])}).collect()
 
 
-def test_polars_enum_parquet_roundtrip_is_order_sensitive(tmp_path):
-    """A pl.Enum's category order is part of its identity, unlike a Categorical's.
-
-    Reading a Polars-written Enum column back with a differently-ordered (but
-    same-membership) Enum schema raises, rather than coercing -- the counterpart
-    to the "preserves order" half of the polars-write/polars-read case above.
-    """
-    path = tmp_path / "code.parquet"
-    pl.LazyFrame({"code": ["a", "b"]}).cast(
-        {"code": pl.Enum(["c", "b", "a"])}
-    ).sink_parquet(path)
-    with pytest.raises(pl.exceptions.SchemaError):
-        pl.scan_parquet(path, schema={"code": pl.Enum(["a", "b", "c"])}).collect()
-
-
 def test_persist_table_as_parquet_duckdb_enum_written_as_dictionary(
     tmp_path, monkeypatch
 ):
