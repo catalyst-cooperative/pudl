@@ -68,7 +68,7 @@ repos:
 
   # Spell check our documentation and code comments
   - repo: https://github.com/crate-ci/typos
-    rev: v1.48.0
+    rev: v1
     hooks:
       - id: typos
         exclude: |
@@ -85,7 +85,7 @@ repos:
 
   # Lint Dockerfiles for errors and to ensure best practices
   - repo: https://github.com/AleksaC/hadolint-py
-    rev: v2.14.0
+    rev: v2.15.1
     hooks:
       - id: hadolint
 
