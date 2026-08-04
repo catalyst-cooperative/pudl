@@ -10,6 +10,7 @@ import pytest
 
 from pudl.dagster.resources import FercEqrArchiveResource
 from pudl.extract.ferceqr import (
+    _clean_csv_name,
     _clear_raw_table_partition,
     _csvs_to_parquet,
     _extract_other_table,
@@ -34,6 +35,93 @@ def _warning_messages(mock_logger) -> str:
     not specific to these tests).
     """
     return " ".join(str(call.args[0]) for call in mock_logger.warning.call_args_list)
+
+
+@pytest.mark.parametrize(
+    ("dirty_name", "expected_clean_name"),
+    [
+        ("normal_file.csv", "normal_file.csv"),
+        ("file's_ident.CSV", "files_ident.CSV"),
+        ('file"with"doublequote.CSV', "filewithdoublequote.CSV"),
+        ("file*with*star.CSV", "filewithstar.CSV"),
+        ("file?with?question.CSV", "filewithquestion.CSV"),
+        ("file[with]brackets.CSV", "filewithbrackets.CSV"),
+        ("Palmer's_[weird]*file?.CSV", "Palmers_weirdfile.CSV"),
+        # Real characters observed in a scan of all 52 locally cached FERC EQR
+        # quarters (2013q3-2026q2) -- parens, '#', and mangled accented letters --
+        # none of which are unsafe here, so they're left untouched.
+        ("Just_Energy_(U.S.)_Corp._ident.CSV", "Just_Energy_(U.S.)_Corp._ident.CSV"),
+        ("Nevada_Cogeneration_#1_ident.CSV", "Nevada_Cogeneration_#1_ident.CSV"),
+        ("Double_ôCö_Limited_ident.CSV", "Double_ôCö_Limited_ident.CSV"),
+    ],
+    ids=[
+        "already-clean",
+        "apostrophe",
+        "double-quote",
+        "star",
+        "question-mark",
+        "brackets",
+        "multiple-unsafe-chars",
+        "parens-left-alone",
+        "hash-left-alone",
+        "accented-letters-left-alone",
+    ],
+)
+def test_clean_csv_name_strips_only_unsafe_characters(
+    tmp_path, dirty_name, expected_clean_name
+):
+    """Quote and glob-metacharacters are stripped; everything else survives untouched."""
+    dirty_path = _touch(tmp_path / dirty_name)
+
+    cleaned_path = _clean_csv_name(dirty_path)
+
+    assert cleaned_path.name == expected_clean_name
+    assert cleaned_path.exists()
+
+
+def test_clean_csv_name_does_not_rename_an_already_clean_file(tmp_path, mocker):
+    """A filename with nothing to strip is returned as-is, with no filesystem rename.
+
+    Guards against a regression that would call ``.rename()`` unconditionally --
+    harmless for the file itself, but wasteful and a hint the no-op check broke.
+    """
+    clean_path = _touch(tmp_path / "already_clean_ident.CSV")
+    rename_spy = mocker.patch.object(Path, "rename")
+
+    result = _clean_csv_name(clean_path)
+
+    assert result == clean_path
+    rename_spy.assert_not_called()
+
+
+def test_clean_csv_name_prevents_duckdb_glob_misdirection(tmp_path):
+    """Without cleaning, a bracket-containing filename gets duckdb to read the wrong file.
+
+    duckdb's ``read_csv`` interprets ``[``/``]`` as a glob character class even when
+    given a single literal path string (not a SQL string) -- ``[ab].csv`` matches
+    ``a.csv`` as a *pattern*, so if a sibling ``a.csv`` happens to exist, duckdb
+    silently reads its contents instead, with no error at all. This reproduces that
+    failure directly against a real duckdb connection, then confirms
+    ``_clean_csv_name`` closes it.
+    """
+    _touch(tmp_path / "a.csv").write_text("company_identifier\nWRONG\n")
+    bracket_path = tmp_path / "[ab].csv"
+    bracket_path.write_text("company_identifier\nCORRECT\n")
+
+    conn = duckdb.connect()
+
+    # Uncleaned: duckdb's glob expansion silently reads the wrong file.
+    misdirected = conn.read_csv(
+        str(bracket_path), all_varchar=True, store_rejects=True, ignore_errors=True
+    )
+    assert misdirected.select("company_identifier").fetchall() == [("WRONG",)]
+
+    # Cleaned: the literal, intended file is read.
+    cleaned_path = _clean_csv_name(bracket_path)
+    fixed = conn.read_csv(
+        str(cleaned_path), all_varchar=True, store_rejects=True, ignore_errors=True
+    )
+    assert fixed.select("company_identifier").fetchall() == [("CORRECT",)]
 
 
 def test_extract_other_table_uses_null_company_identifier_when_cid_is_none(mocker):
@@ -206,37 +294,40 @@ def test_csvs_to_parquet_processes_remaining_tables_when_one_other_table_missing
     mock_logger.warning.assert_not_called()
 
 
-def test_csvs_to_parquet_raises_on_multiple_ident_matches(tmp_path, mocker):
-    """Multiple identity-CSV matches raise rather than silently picking one.
-
-    This filing shape has never been observed in the wild, so there's no
-    established handling strategy for it -- a warning would be easy to miss
-    among the routine ones logged for expected cases, so it raises instead.
-    """
-    _touch(tmp_path / "202403_Some_Company_ident.CSV")
-    _touch(tmp_path / "202403_Some_Company_old_ident.CSV")
-    mocker.patch("pudl.extract.ferceqr._extract_ident", return_value="12345")
-
-    with pytest.raises(ValueError, match="2 identity CSVs, expected at most 1"):
-        _csvs_to_parquet(
-            csv_path=tmp_path,
-            year_quarter="2024q1",
-            filing_name="CSV_2024_Q1_test",
-            duckdb_connection=mocker.MagicMock(),
-        )
-
-
-def test_csvs_to_parquet_raises_on_multiple_matches_for_other_table_type(
-    tmp_path, mocker
+@pytest.mark.parametrize(
+    ("files", "expected_match"),
+    [
+        (
+            ["202403_Some_Company_ident.CSV", "202403_Some_Company_old_ident.CSV"],
+            "2 identity CSVs, expected at most 1",
+        ),
+        (
+            [
+                "202403_Some_Company_ident.CSV",
+                "202403_Some_Company_contracts.CSV",
+                "202403_Some_Company_old_contracts.CSV",
+            ],
+            "2 contracts CSVs, expected at most 1",
+        ),
+    ],
+    ids=["ident", "other-table-type"],
+)
+def test_csvs_to_parquet_raises_on_multiple_matches(
+    tmp_path, mocker, files, expected_match
 ):
-    """Two CSVs matching the same non-ident table type also raise, not silently pick one."""
-    _touch(tmp_path / "202403_Some_Company_ident.CSV")
-    _touch(tmp_path / "202403_Some_Company_contracts.CSV")
-    _touch(tmp_path / "202403_Some_Company_old_contracts.CSV")
+    """Two CSVs matching the same table type raise rather than silently picking one.
+
+    Covers both the ident branch and the (structurally separate) non-ident branch of
+    ``_csvs_to_parquet`` -- this filing shape has never been observed in the wild for
+    either, so there's no established handling strategy -- a warning would be easy to
+    miss among the routine ones logged for expected cases, so it raises instead.
+    """
+    for name in files:
+        _touch(tmp_path / name)
     mocker.patch("pudl.extract.ferceqr._extract_ident", return_value="12345")
     mocker.patch("pudl.extract.ferceqr._extract_other_table")
 
-    with pytest.raises(ValueError, match="2 contracts CSVs, expected at most 1"):
+    with pytest.raises(ValueError, match=expected_match):
         _csvs_to_parquet(
             csv_path=tmp_path,
             year_quarter="2024q1",
@@ -279,7 +370,7 @@ def test_csvs_to_parquet_skips_other_table_that_fails_to_parse(tmp_path, mocker)
 def test_csvs_to_parquet_processes_remaining_tables_when_ident_fails_with_duckdb_error(
     tmp_path, mocker
 ):
-    """A duckdb.Error (not just TypeError) parsing ident also degrades gracefully."""
+    """A duckdb.Error parsing ident degrades gracefully."""
     _touch(tmp_path / "202403_Some_Company_ident.CSV")
     _touch(tmp_path / "202403_Some_Company_contracts.CSV")
     mocker.patch(
