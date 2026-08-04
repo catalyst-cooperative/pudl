@@ -1,6 +1,7 @@
 """Extract FERC EQR data."""
 
 import io
+import re
 import shutil
 import tempfile
 import zipfile
@@ -57,14 +58,33 @@ def _get_csv(base_path: UPath, year_quarter: str) -> Generator[zipfile.ZipFile]:
             yield zf
 
 
+_UNSAFE_CSV_NAME_CHARS_REGEX: re.Pattern = re.compile(f"[{re.escape('\'"*?[]')}]")
+"""Characters stripped from an extracted CSV's filename before duckdb reads it.
+
+``*``, ``?``, ``[``, and ``]`` are glob metacharacters that duckdb's CSV reader
+interprets even when passed a single literal path (not a SQL string): a file literally
+named ``[ab].csv`` gets silently read as ``a.csv`` instead, if that file happens to
+exist alongside it -- no error, just wrong data. Quote characters are stripped
+defensively too, a long-standing precaution predating this docstring; the specific
+failure it was guarding against isn't reproducible against the current duckdb version,
+but real filings do contain apostrophes (e.g. "Citizens' Electric") so there's no reason
+to stop.
+
+As of 2026-08-03 none of the known to be unsafe characters appeared in the most recent
+batch of FERC EQR filenames in any of the 52 quarters (2013q3-2026q2, ~146k
+filings/~533k CSVs). Real filenames do contain parentheses, ``#``, and occasional
+encoding-mangled accented letters, none of which are unsafe here and are left alone.
+Stripping this set costs nothing and closes a silent-wrong-data failure mode before it
+has a chance to occur.
+"""
+
+
 def _clean_csv_name(csv_path: Path) -> Path:
-    """Standardize zip file names to avoid errors when opening."""
-    new_path = csv_path
-    if "'" in csv_path.name:
-        new_path = csv_path.rename(csv_path.parent / csv_path.name.replace("'", ""))
-    if '"' in csv_path.name:
-        new_path = csv_path.rename(csv_path.parent / csv_path.name.replace('"', ""))
-    return new_path
+    """Strip characters from an extracted CSV's filename that would confuse duckdb."""
+    cleaned_name = _UNSAFE_CSV_NAME_CHARS_REGEX.sub("", csv_path.name)
+    if cleaned_name == csv_path.name:
+        return csv_path
+    return csv_path.rename(csv_path.parent / cleaned_name)
 
 
 def _get_table_name(table_type: FercEqrTableType, year_quarter: str) -> str:
