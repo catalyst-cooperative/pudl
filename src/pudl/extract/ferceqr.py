@@ -7,6 +7,7 @@ import zipfile
 from collections.abc import Generator
 from contextlib import contextmanager
 from pathlib import Path
+from typing import Literal, get_args
 
 import dagster as dg
 import duckdb
@@ -27,7 +28,15 @@ Some quarters contain thousands of filings, each processed one at a time; withou
 this, a long-running extraction has no visible sign of progress in the logs.
 """
 
-_ALL_TABLE_TYPES = ("ident", "contracts", "transactions", "indexPub")
+FercEqrTableType = Literal["ident", "contracts", "transactions", "indexPub"]
+"""The four raw table types present in each FERC EQR filing."""
+
+_ALL_TABLE_TYPES: tuple[FercEqrTableType, ...] = get_args(FercEqrTableType)
+"""Canonical list of all :data:`FercEqrTableType` values, in extraction order.
+
+``ident`` is extracted first so its CID can be attached to the other tables; see
+:func:`_extract_ident`.
+"""
 
 
 @contextmanager
@@ -58,26 +67,21 @@ def _clean_csv_name(csv_path: Path) -> Path:
     return new_path
 
 
-def _get_table_name(table_type: str, year_quarter: str) -> str:
+def _get_table_name(table_type: FercEqrTableType, year_quarter: str) -> str:
     if table_type != "indexPub":
         return f"raw_ferceqr__{table_type}_{year_quarter}"
     return f"raw_ferceqr__index_pub_{year_quarter}"
 
 
-def _clear_raw_table_partition(table_type: str, year_quarter: str) -> None:
+def _clear_raw_table_partition(table_type: FercEqrTableType, year_quarter: str) -> None:
     """Delete any existing per-filing parquet output for one raw table+quarter.
 
-    Each filing's output file is named after that filing's own ID, and a
-    company's filing ID changes every time it submits an amended/resubmitted
-    EQR filing for the same quarter (see :func:`_csvs_to_parquet`). Without
-    this, re-extracting a quarter after its archive picks up a resubmission
-    would leave the old filing ID's now-orphaned output sitting alongside the
-    new one indefinitely -- nothing else ever revisits or removes it -- so a
-    later rebuild of the raw table would silently combine both into duplicate
-    records for the same company. Clearing the whole directory before each
-    extraction run guarantees this quarter's output reflects only what's in
-    the archive right now, mirroring how the downstream core tables already
-    get fully overwritten (not merged into) on each rebuild.
+    Each filing's output file is named after that filing's own ID. Filing IDs change
+    with every revision or resubmission. This means if we don't clear the extracted
+    parquet output for a quarter before re-extracting it, we can end up with multiple
+    duplicate filings for the same company and quarter. This is unlikely to be an
+    issue in the production builds, but is a problem for local development and
+    testing.
     """
     directory = ParquetData(
         table_name=_get_table_name(table_type, year_quarter)
@@ -90,11 +94,17 @@ def _extract_ident(
     year_quarter: str,
     filing_name: str,
     duckdb_connection: DuckDBPyConnection,
-) -> str:
+) -> str | None:
     """Extract data from ident csv, write to parquet, and return CID from table.
 
     This table is always extracted first so we can pull the CID from it and include
     a CID column in all other tables.
+
+    Returns:
+        The company identifier (CID) read from the ident table's first row, or
+        ``None`` if the CSV parsed but contained no rows -- in which case no
+        ``raw_ferceqr__ident`` parquet is written for this filing. A CSV that fails
+        to parse at all instead raises ``duckdb.Error``, left to the caller.
     """
     # Use duckdb to read CSV and write as parquet
     csv_rel = duckdb_connection.read_csv(
@@ -102,7 +112,7 @@ def _extract_ident(
     )
     row = csv_rel.select("company_identifier").limit(1).fetchone()
     if row is None:
-        raise TypeError(f"No rows found in identity CSV {ident_csv!r}.")
+        return None
     (cid,) = row
     persist_table_as_parquet(
         csv_rel.select(f"*, '{year_quarter}' AS year_quarter"),
@@ -113,7 +123,7 @@ def _extract_ident(
 
 
 def _extract_other_table(
-    table_type: str,
+    table_type: FercEqrTableType,
     csv_path: str | Path,
     year_quarter: str,
     cid: str | None,
@@ -140,12 +150,46 @@ def _extract_other_table(
     )
 
 
+def _resolve_cid(
+    ident_path: Path,
+    year_quarter: str,
+    filing_name: str,
+    duckdb_connection: DuckDBPyConnection,
+) -> str | None:
+    """Extract one filing's ident table and return its CID, or ``None``.
+
+    Warns (but does not raise) if the identity CSV fails to parse entirely or
+    parses with no rows -- either way the rest of the filing is still worth
+    extracting, just with a null company_identifier.
+    """
+    try:
+        cid = _extract_ident(
+            ident_csv=str(ident_path),
+            year_quarter=year_quarter,
+            filing_name=filing_name,
+            duckdb_connection=duckdb_connection,
+        )
+    except duckdb.Error as err:
+        logger.warning(
+            f"Failed to parse ident table from {ident_path.name} ({err}) -- "
+            "processing remaining tables with a null company_identifier."
+        )
+        return None
+    if cid is None:
+        logger.warning(
+            f"Identity CSV {ident_path.name!r} for filing {filing_name!r} "
+            f"({year_quarter}) contains no rows -- processing remaining "
+            "tables with a null company_identifier."
+        )
+    return cid
+
+
 def _csvs_to_parquet(
     csv_path: Path,
     year_quarter: str,
     filing_name: str,
     duckdb_connection: DuckDBPyConnection,
-) -> frozenset[str]:
+) -> frozenset[FercEqrTableType]:
     """Mirror CSVs in filing to a parquet file.
 
     Each filing is expected to contain a CSV for each of 4 EQR tables, extracted
@@ -155,18 +199,22 @@ def _csvs_to_parquet(
     indexPub CSV is routine -- many thousands of filings in a given quarter
     simply have no data of that type -- so it's counted in the return value
     rather than logged; logging a warning per filing for something this common
-    would flood the logs without conveying anything useful. A missing or
-    unparsable identity CSV, by contrast, is rare and more consequential (it
+    would flood the logs without conveying anything useful. A missing, empty,
+    or unparsable identity CSV, by contrast, is rare and more consequential (it
     means no company_identifier (CID) can be attached to the other tables), so
     it's still logged individually; the other tables are still extracted, with
-    a null CID rather than being dropped entirely. An unrecognized CSV, or one
-    that fails to parse due to quoting issues or corruption, is also logged
-    per filing since either is anomalous.
+    a null CID rather than being dropped entirely. A zip archive that fails to
+    parse due to corruption and unrecognized CSVs are also logged with a
+    warning per filing since it is relatively rare.
 
     More than one CSV matching the same table type has never been observed in
     the wild and has no established handling strategy, so it raises rather
     than silently guessing (e.g. by using the first match) -- a warning here
     would be easy to miss among the routine ones above.
+
+    Records rejected by DuckDB due to too many or too few columns, invalid
+    UTF-8 encoding, or other reasons are not fatal. The bad records are
+    loaded into their own parquet files for later inspection.
 
     Returns:
         The subset of ``_ALL_TABLE_TYPES`` whose CSV was present in this
@@ -179,7 +227,7 @@ def _csvs_to_parquet(
         csv_file for csv_file in csv_paths if csv_file.stem.endswith("ident")
     ]
 
-    found_table_types = set()
+    found_table_types: set[FercEqrTableType] = set()
     cid = None
     if not ident_matches:
         logger.warning(
@@ -199,28 +247,21 @@ def _csvs_to_parquet(
             )
         ident_path = ident_matches[0]
         csv_paths.remove(ident_path)
-
-        try:
-            # Extract ident table and return CID
-            cid = _extract_ident(
-                ident_csv=str(ident_path),
-                year_quarter=year_quarter,
-                filing_name=filing_name,
-                duckdb_connection=duckdb_connection,
-            )
-        except (TypeError, duckdb.Error) as err:
-            logger.warning(
-                f"Failed to parse ident table from {ident_path.name} ({err}) -- "
-                "processing remaining tables with a null company_identifier."
-            )
-            cid = None
+        cid = _resolve_cid(
+            ident_path=ident_path,
+            year_quarter=year_quarter,
+            filing_name=filing_name,
+            duckdb_connection=duckdb_connection,
+        )
 
     # Group remaining CSVs by table type, warning about anything unexpected: an
     # unrecognized CSV, or more than one matching CSV for the same table type.
     # A table with no matching CSV at all is routine and simply omitted from
     # the return value -- not warned about, see docstring.
-    other_table_types = ["contracts", "transactions", "indexPub"]
-    files_by_type: dict[str, list[Path]] = {t: [] for t in other_table_types}
+    other_table_types = tuple(t for t in _ALL_TABLE_TYPES if t != "ident")
+    files_by_type: dict[FercEqrTableType, list[Path]] = {
+        t: [] for t in other_table_types
+    }
     for file in csv_paths:
         table_type_matches = [
             key for key in other_table_types if file.stem.endswith(key)
@@ -276,6 +317,12 @@ def _get_rejected_record_counts(
     OVER MAXIMUM``, ``INVALID ENCODING``, and ``INVALID STATE``. In FERC EQR
     filings the two seen in practice are invalid UTF-8 encoding and a wrong
     column count from unescaped quotes within a field.
+
+    Returns:
+        A dict mapping each ``error_type`` string observed among rejected records
+        (e.g. ``"INVALID ENCODING"``) to the count of records rejected for that
+        reason, e.g. ``{"INVALID ENCODING": 12, "MISSING COLUMNS": 4}``. Error
+        types with no rejected records are simply absent from the dict.
     """
     rows = duckdb_connection.sql(
         "SELECT error_type, count(*) AS n FROM reject_errors GROUP BY error_type"
@@ -283,9 +330,19 @@ def _get_rejected_record_counts(
     return dict(rows)
 
 
-def _save_extract_errors(year_quarter: str, duckdb_connection: DuckDBPyConnection):
-    """Create parquet file with metadata on any CSV parsing errors."""
-    return persist_table_as_parquet(
+def _save_extract_errors(
+    year_quarter: str, duckdb_connection: DuckDBPyConnection
+) -> None:
+    """Persist DuckDB's CSV parsing errors for the quarter to parquet.
+
+    Joins DuckDB's ``reject_errors`` table (one row per rejected CSV record) against
+    ``reject_scans`` (one row per CSV file scanned) to attach the source filename to
+    each rejected record, then writes the result to the
+    ``raw_ferceqr__extract_errors`` table. ``extract_ferceqr`` builds its own
+    :class:`~pudl.helpers.ParquetData` pointing at this same table/quarter after
+    calling this function, the same way it does for the other four raw tables.
+    """
+    persist_table_as_parquet(
         duckdb_connection.table("reject_errors")
         .join(
             duckdb_connection.table("reject_scans"),
@@ -302,17 +359,17 @@ def _save_extract_errors(year_quarter: str, duckdb_connection: DuckDBPyConnectio
 @dg.multi_asset(
     partitions_def=ferceqr_year_quarters,
     outs={
-        "raw_ferceqr__ident": dg.AssetOut(),
-        "raw_ferceqr__contracts": dg.AssetOut(),
-        "raw_ferceqr__transactions": dg.AssetOut(),
-        "raw_ferceqr__index_pub": dg.AssetOut(),
-        "raw_ferceqr__extract_errors": dg.AssetOut(),
+        "raw_ferceqr__ident": dg.AssetOut(kinds={"duckdb"}),
+        "raw_ferceqr__contracts": dg.AssetOut(kinds={"duckdb"}),
+        "raw_ferceqr__transactions": dg.AssetOut(kinds={"duckdb"}),
+        "raw_ferceqr__index_pub": dg.AssetOut(kinds={"duckdb"}),
+        "raw_ferceqr__extract_errors": dg.AssetOut(kinds={"duckdb"}),
     },
 )
 def extract_ferceqr(
     context: dg.AssetExecutionContext,
     ferceqr_archive: FercEqrArchiveResource = FercEqrArchiveResource(),
-) -> tuple[ParquetData, ParquetData, ParquetData, ParquetData, ParquetData]:
+):
     """Extract year quarter from CSVs and load to parquet files.
 
     This method will loop through the nested EQR archive zipfiles and extract all tables
@@ -378,7 +435,7 @@ def extract_ferceqr(
         logger.info(
             f"Finished extracting {len(filing_names)} filings for {year_quarter}."
         )
-        metadata = _save_extract_errors(year_quarter, conn)
+        _save_extract_errors(year_quarter, conn)
         rejected_record_counts = _get_rejected_record_counts(conn)
 
     extraction_stats = {
@@ -394,9 +451,24 @@ def extract_ferceqr(
     )
 
     return (
-        ParquetData(table_name=_get_table_name("ident", year_quarter)),
-        ParquetData(table_name=_get_table_name("contracts", year_quarter)),
-        ParquetData(table_name=_get_table_name("transactions", year_quarter)),
-        ParquetData(table_name=_get_table_name("indexPub", year_quarter)),
-        metadata,
+        dg.Output(
+            output_name="raw_ferceqr__ident",
+            value=ParquetData(table_name=_get_table_name("ident", year_quarter)),
+        ),
+        dg.Output(
+            output_name="raw_ferceqr__contracts",
+            value=ParquetData(table_name=_get_table_name("contracts", year_quarter)),
+        ),
+        dg.Output(
+            output_name="raw_ferceqr__transactions",
+            value=ParquetData(table_name=_get_table_name("transactions", year_quarter)),
+        ),
+        dg.Output(
+            output_name="raw_ferceqr__index_pub",
+            value=ParquetData(table_name=_get_table_name("indexPub", year_quarter)),
+        ),
+        dg.Output(
+            output_name="raw_ferceqr__extract_errors",
+            value=ParquetData(table_name="raw_ferceqr__extract_errors"),
+        ),
     )
