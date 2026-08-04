@@ -163,7 +163,7 @@ def _recode_categoricals(
     return duckdb.SQLExpression(f"CASE {when_clauses} ELSE {col_name} END")
 
 
-@dg.asset(partitions_def=ferceqr_year_quarters)
+@dg.asset(partitions_def=ferceqr_year_quarters, kinds={"duckdb"})
 def core_ferceqr__quarterly_identity(
     context: dg.AssetExecutionContext, raw_ferceqr__ident: ParquetData
 ):
@@ -198,6 +198,7 @@ def core_ferceqr__quarterly_identity(
 
 @dg.asset(
     partitions_def=ferceqr_year_quarters,
+    kinds={"duckdb"},
 )
 def core_ferceqr__transactions(context, raw_ferceqr__transactions: ParquetData):
     """Transform the raw FERC EQR electricity transactions table."""
@@ -283,7 +284,7 @@ def core_ferceqr__transactions(context, raw_ferceqr__transactions: ParquetData):
         )
 
 
-@dg.asset(partitions_def=ferceqr_year_quarters)
+@dg.asset(partitions_def=ferceqr_year_quarters, kinds={"duckdb"})
 def core_ferceqr__contracts(context, raw_ferceqr__contracts: ParquetData):
     """Transform the raw FERC EQR electricity contracts table."""
     year_quarter = context.partition_key
@@ -360,7 +361,7 @@ def core_ferceqr__contracts(context, raw_ferceqr__contracts: ParquetData):
         )
 
 
-@dg.asset(partitions_def=ferceqr_year_quarters)
+@dg.asset(partitions_def=ferceqr_year_quarters, kinds={"duckdb"})
 def core_ferceqr__quarterly_index_pub(context, raw_ferceqr__index_pub: ParquetData):
     """Transform the raw FERC EQR index price publisher table."""
     year_quarter = context.partition_key
