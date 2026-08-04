@@ -55,10 +55,16 @@ CEMS data.
     "out_epacems__yearly_operational_characteristics": {
         "description": {
             "additional_summary_text": (
-                "estimated annual operational characteristics for EPA CEMS "
-                "emissions units."
+                "estimated operational characteristics for EPA CEMS emissions units."
             ),
-            "usage_warnings": ["estimated_values"],
+            "usage_warnings": [
+                "estimated_values",
+                "experimental_wip",
+                {
+                    "type": "custom",
+                    "description": "This table is estimating values from only the most recent three-full years of CEMS data.",
+                },
+            ],
             "additional_details_text": """This table summarizes several inferred
 operational characteristics for each EPA CEMS emissions unit using hourly CEMS
 gross load and fuel heat content over a three-year window.
