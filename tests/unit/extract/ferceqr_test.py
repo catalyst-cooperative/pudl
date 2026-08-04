@@ -113,13 +113,18 @@ def test_csvs_to_parquet_processes_remaining_tables_when_ident_missing(
     assert "transactions.CSV" in messages
 
 
-def test_csvs_to_parquet_processes_remaining_tables_when_ident_unparseable(
+def test_csvs_to_parquet_processes_remaining_tables_when_ident_has_no_rows(
     tmp_path, mocker
 ):
-    """A filing whose identity CSV fails to parse should still extract the rest."""
+    """A filing whose identity CSV parses but has no rows should still extract the rest.
+
+    ``_extract_ident`` returns ``None`` (rather than raising) when the CSV parses
+    cleanly but has zero data rows -- a genuinely unparseable CSV instead raises
+    ``duckdb.Error``, covered separately below.
+    """
     _touch(tmp_path / "202403_Some_Company_ident.CSV")
     _touch(tmp_path / "202403_Some_Company_contracts.CSV")
-    mocker.patch("pudl.extract.ferceqr._extract_ident", side_effect=TypeError)
+    mocker.patch("pudl.extract.ferceqr._extract_ident", return_value=None)
     extract_other = mocker.patch("pudl.extract.ferceqr._extract_other_table")
     mock_logger = mocker.patch("pudl.extract.ferceqr.logger")
 
@@ -133,10 +138,8 @@ def test_csvs_to_parquet_processes_remaining_tables_when_ident_unparseable(
     extract_other.assert_called_once()
     assert extract_other.call_args.kwargs["table_type"] == "contracts"
     assert extract_other.call_args.kwargs["cid"] is None
-    assert "processing remaining tables with a null company_identifier" in (
-        _warning_messages(mock_logger)
-    )
-    # The ident CSV was present (even though it failed to parse), so it still
+    assert "contains no rows" in _warning_messages(mock_logger)
+    # The ident CSV was present (even though it had no rows), so it still
     # counts as "found".
     assert found_table_types == {"ident", "contracts"}
 
