@@ -10,12 +10,6 @@ sources:
                 table_name: out_epacems__yearly_operational_characteristics
                 partition_expr: report_year
         columns:
-          - name: plant_id_epa
-          - name: emissions_unit_id_epa
-          - name: plant_id_eia
-          - name: report_year
-          - name: state
-          - name: max_gross_load_mw
           - name: min_stable_level
             data_tests:
               - dbt_expectations.expect_column_values_to_be_between:

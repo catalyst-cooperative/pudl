@@ -1,8 +1,8 @@
 """add new cems derived table
 
-Revision ID: 3eddeab5d6d9
+Revision ID: b979ecbe9119
 Revises: 9a8d47bd495e
-Create Date: 2026-07-28 17:00:36.579132
+Create Date: 2026-08-04 12:22:33.620391
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '3eddeab5d6d9'
+revision = 'b979ecbe9119'
 down_revision = '9a8d47bd495e'
 branch_labels = None
 depends_on = None
@@ -22,6 +22,8 @@ def upgrade() -> None:
     sa.Column('plant_id_epa', sa.Integer(), nullable=False, comment='The ORISPL ID used by EPA to refer to the plant. Usually but not always the same as plant_id_eia.'),
     sa.Column('emissions_unit_id_epa', sa.Text(), nullable=False, comment='Emissions (smokestack) unit monitored by EPA CEMS.'),
     sa.Column('plant_id_eia', sa.Integer(), nullable=True, comment='The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.'),
+    sa.Column('report_year', sa.Integer(), nullable=True, comment='Four-digit year in which the data was reported.'),
+    sa.Column('state', sa.Enum('PR', 'WY', 'ME', 'IL', 'HI', 'FL', 'LA', 'VT', 'KS', 'WI', 'RI', 'ID', 'AZ', 'WV', 'TN', 'OK', 'CT', 'MO', 'CO', 'OH', 'AK', 'NJ', 'PA', 'UT', 'KY', 'OR', 'ND', 'TX', 'WA', 'IA', 'MD', 'SD', 'MA', 'MN', 'SC', 'IN', 'DC', 'NE', 'MS', 'DE', 'NY', 'NH', 'CA', 'AL', 'MI', 'NC', 'NM', 'VA', 'AR', 'NV', 'MT', 'GA'), nullable=True, comment='Two letter US state abbreviation.'),
     sa.Column('max_gross_load_mw', sa.Float(), nullable=True, comment='Maximum observed gross load for an EPA CEMS emissions unit.'),
     sa.Column('min_stable_level', sa.Float(), nullable=True, comment='Estimated minimum stable operating level as a fraction of maximum gross load.'),
     sa.Column('min_up_time_hours', sa.Float(), nullable=True, comment='Minimum observed duration of a consecutive run at or above the minimum stable level.'),

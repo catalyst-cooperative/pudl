@@ -182,66 +182,6 @@ def heat_rate(
     return max_load_heat_rate, min_stable_heat_rate
 
 
-def calculate_ramp_rate(
-    hourly_plant_unit: pl.DataFrame,
-    generation_col: str,
-) -> tuple[float, float]:
-    """Estimate ramp-up and ramp-down rates from hourly generation changes.
-
-    There is no identical implementation of qcut in Polars, so we cast to Pandas
-    as needed.
-    """
-    ramp = (
-        hourly_plant_unit.sort("operating_datetime_utc")
-        .with_columns(
-            time_delta=(
-                pl.col("operating_datetime_utc").diff().dt.total_seconds() / 3600
-            ),
-            generation_delta=pl.col(generation_col).diff(),
-        )
-        .with_columns(ramp_rate=(pl.col("generation_delta") / pl.col("time_delta")))
-        .with_columns(pl.col("ramp_rate").replace([float("inf"), float("-inf")], None))
-        .drop_nulls("ramp_rate")
-    )
-
-    if ramp.is_empty():
-        return np.nan, np.nan
-
-    # Cast to pandas to qcut bins
-    ramp_pdf = ramp.select("ramp_rate").to_pandas(use_pyarrow_extension_array=True)
-
-    ramp_pdf["ramp_rate_bin"] = pd.qcut(
-        ramp_pdf["ramp_rate"],
-        q=min(20, ramp_pdf["ramp_rate"].nunique(dropna=True)),
-        duplicates="drop",
-    )
-
-    # convert bins back into Polars
-    ramp = ramp.with_columns(
-        pl.Series("ramp_rate_bin", ramp_pdf["ramp_rate_bin"].astype(str).to_numpy())
-    )
-
-    # extract ordered bins as strings
-    bins = sorted(ramp_pdf["ramp_rate_bin"].dropna().unique(), key=lambda x: x.left)
-
-    low_bin = str(bins[0])
-    high_bin = str(bins[-1])
-
-    ramp_down_rate = (
-        ramp.filter(pl.col("ramp_rate_bin") == low_bin)
-        .select(pl.col("ramp_rate").median())
-        .item()
-    )
-
-    ramp_up_rate = (
-        ramp.filter(pl.col("ramp_rate_bin") == high_bin)
-        .select(pl.col("ramp_rate").median())
-        .item()
-    )
-
-    return ramp_up_rate, ramp_down_rate
-
-
 def _add_run_id(
     lf: pl.LazyFrame,
     unit_cols: list[str],
@@ -328,13 +268,17 @@ def assign_groupwise_load_factor_bins(
 
 
 def _summarize_ramp_rates(
-    cems: pl.LazyFrame,
+    cems_with_stable_bins: pl.LazyFrame,
     unit_cols: list[str],
     generation_col: str,
 ) -> pl.LazyFrame:
     """Summarize exact per-unit ramp rates using the original qcut approach."""
     ramp_input = (
-        cems.sort(unit_cols + ["operating_datetime_utc"])  # Ensure proper diff order
+        # TODO: add in this line to remove startup time.
+        # filter_for_min_stable_bin(cems_with_stable_bins)
+        cems_with_stable_bins.sort(
+            unit_cols + ["operating_datetime_utc"]
+        )  # Ensure proper diff order
         .with_columns(
             (
                 pl.col("operating_datetime_utc")
@@ -348,19 +292,30 @@ def _summarize_ramp_rates(
         .with_columns(
             (pl.col("generation_delta") / pl.col("time_delta")).alias("ramp_rate")
         )
+        .with_columns(ramp_rate=(pl.col("generation_delta") / pl.col("time_delta")))
+        .with_columns(pl.col("ramp_rate").replace([float("inf"), float("-inf")], None))
+        .drop_nulls("ramp_rate")
     )
-
-    def summarize_unit(unit_df: pl.LazyFrame) -> pl.DataFrame:
-        ramp_up, ramp_down = calculate_ramp_rate(unit_df, generation_col=generation_col)
-        return pl.DataFrame(
-            {col: unit_df.select(pl.col(col).first()) for col in unit_cols}
-            | {
-                "ramp_up_rate": [ramp_up],
-                "ramp_down_rate": [ramp_down],
-            }
+    bin_expression = (pl.len() / 20).cast(pl.Int64)
+    return (
+        ramp_input.group_by(unit_cols)
+        .having(pl.len() >= 20)
+        .agg(
+            # ramp_down_rate: median of the bottom 5% of ramp_rate
+            pl.col("ramp_rate")
+            .sort()
+            .head(bin_expression)
+            .median()
+            .alias("ramp_down_rate"),
+            # ramp_up_rate: median of the top 5% of ramp_rate
+            pl.col("ramp_rate")
+            .sort()
+            .tail(bin_expression)
+            .median()
+            .alias("ramp_up_rate"),
         )
-
-    return ramp_input.group_by(unit_cols).map_groups(summarize_unit)
+        .cast({"ramp_up_rate": pl.Float64, "ramp_down_rate": pl.Float64})
+    )
 
 
 def handle_adjustment_in_cems(
@@ -546,6 +501,14 @@ def compute_min_stable_heat_rates(
     )
 
 
+def filter_for_min_stable_bin(df: pl.LazyFrame) -> pl.LazyFrame:
+    """Filter out records below the minimum stable bin."""
+    return df.filter(
+        (pl.col("load_factor_bin").struct[0] >= pl.col("min_stable_bin").struct[0])
+        & (pl.col("load_factor_bin").struct[1] >= pl.col("min_stable_bin").struct[1])
+    )
+
+
 def calculate_min_up_or_down_times(
     output: pl.LazyFrame,
     cems_with_stable_bins: pl.LazyFrame,
@@ -560,13 +523,7 @@ def calculate_min_up_or_down_times(
     if up_or_down == "up":
         # up times are considered up when the load_factor_bin is greater than the
         # min_stable_bin (calculated in compute_stable_runs)
-        runs = cems_with_stable_bins.filter(
-            (pl.col("load_factor_bin").struct[0] >= pl.col("min_stable_bin").struct[0])
-            & (
-                pl.col("load_factor_bin").struct[1]
-                >= pl.col("min_stable_bin").struct[1]
-            )
-        )
+        runs = filter_for_min_stable_bin(cems_with_stable_bins)
     else:
         runs = cems_with_stable_bins.filter(pl.col("load_factor_bin").is_null())
 
@@ -664,7 +621,7 @@ def estimate_operational_characteristics_by_unit(
         how="left",
     )
     ramp_rates = _summarize_ramp_rates(
-        cems=cems_working,
+        cems_with_stable_bins=cems_with_stable_bins,
         unit_cols=unit_cols,
         generation_col=col_dict["generation_col"],
     )
@@ -721,18 +678,18 @@ def estimate_operational_characteristics_by_unit(
             how="left",
         )
         .with_columns(
-            (pl.col("ramp_up_rate") / pl.col(col_dict["output_max_load_col"]) / 60)
-            .round(2)
-            .alias(
+            (
+                pl.col("ramp_up_rate") / pl.col(col_dict["output_max_load_col"]) / 60
+            ).alias(
                 f"ramp_up_rate_fraction_of_{col_dict['output_ramp_rate_col_suffix']}_per_min"
             ),
-            (pl.col("ramp_down_rate") / pl.col(col_dict["output_max_load_col"]) / 60)
-            .round(2)
-            .alias(
+            (
+                pl.col("ramp_down_rate") / pl.col(col_dict["output_max_load_col"]) / 60
+            ).alias(
                 f"ramp_down_rate_fraction_of_{col_dict['output_ramp_rate_col_suffix']}_per_min"
             ),
-            pl.col("heat_rate_at_max_load_factor_mmbtu_per_mwh").round(2),
-            pl.col("heat_rate_at_min_stable_level_mmbtu_per_mwh").round(2),
+            pl.col("heat_rate_at_max_load_factor_mmbtu_per_mwh"),
+            pl.col("heat_rate_at_min_stable_level_mmbtu_per_mwh"),
         )
     )
 
@@ -797,6 +754,10 @@ def operational_characteristics_factory(
             min_stable_consecutive_hours=heat_rate_config[
                 "min_stable_consecutive_hours"
             ],
+        )
+        state_lf = state_lf.with_columns(
+            pl.repeat(state, n=state_lf.height).alias("state"),
+            pl.repeat(max_full_year, n=state_lf.height).alias("report_year"),
         )
         return state_lf
 
