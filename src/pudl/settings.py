@@ -544,7 +544,9 @@ class EiaDataConfig(FrozenBaseModel):
             data["eia860"] = Eia860DataConfig(
                 years=[year for year in data["eia923"].years if year in available_years]
             )
-            # By default, this will also require some partitions of EIA 860M data.
+            # If we expect any EIA-860M data with EIA-860, this will require those partitions
+            # to be in the EIA-860M data, because EIA-860M is processed first is then fed
+            # into the EIA-860 ETL.
             if data["eia860"].eia860m and not data.get("eia860m"):
                 data["eia860m"] = Eia860mDataConfig(
                     year_months=data["eia860"].eia860m_year_months
