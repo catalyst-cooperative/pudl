@@ -105,6 +105,58 @@ def test_pyarrow_schemas() -> None:
         )
 
 
+@pytest.mark.parametrize(
+    ("value", "expected_valid"),
+    [
+        ("2019-04-23 10:00:00.000000", True),  # whole seconds, correctly formatted
+        ("2019-04-23 10:00:00.123456", True),  # real microsecond precision
+        ("2019-13-45 25:99:99.123456", False),  # correctly formatted, but not a real
+        # calendar date/time (month 13, day 45, hour 25, ...)
+        ("2019-04-23 10:00:00.12", False),  # fractional part is the wrong width
+        ("2019-04-23 10:00:00", False),  # missing fractional part entirely
+        ("not-a-real-datetime", False),  # not a datetime string at all
+    ],
+)
+def test_datetime_field_sql_check_constraint_accepts_real_values(
+    value: str, expected_valid: bool
+) -> None:
+    """A ``datetime``-typed field's own CHECK constraint must accept real values.
+
+    Regression test: ``Field.to_sql()`` validates ``datetime`` columns with a
+    CHECK constraint that has to accommodate PUDL's microsecond-precision
+    datetime strings (matching every other backend) while still rejecting
+    malformed values. This can't be done with a plain
+    ``col IS DATETIME(col)`` check, since SQLite's own ``DATETIME()``
+    function only round-trips whole-second precision (even its ``'subsec'``
+    modifier only adds milliseconds, never microseconds) -- so a naive fix
+    either breaks on any real value (the bug this guards against) or silently
+    truncates precision. This is something only an actual insert against a
+    real SQLite connection can catch; a bad CHECK expression is otherwise
+    perfectly valid Python/SQL and passes every other unit test.
+
+    Each ``value`` is inserted as a literal string via raw SQL, bypassing
+    SQLAlchemy's Python-side type coercion (which would reject a non-datetime
+    Python object before it ever reaches SQLite), so this exercises the CHECK
+    constraint itself rather than the ``bind_processor``.
+    """
+    field = Field(name="some_datetime", type="datetime", description="A timestamp.")
+    metadata = sa.MetaData()
+    sa.Table("t", metadata, field.to_sql())
+    engine = sa.create_engine("sqlite:///:memory:")
+    metadata.create_all(engine)
+
+    insert = sa.text("INSERT INTO t (some_datetime) VALUES (:value)")
+    if expected_valid:
+        with engine.begin() as conn:
+            conn.execute(insert, {"value": value})
+    else:
+        with (
+            engine.begin() as conn,
+            pytest.raises(sa.exc.IntegrityError, match="CHECK constraint failed"),
+        ):
+            conn.execute(insert, {"value": value})
+
+
 def test_encoders() -> None:
     """All Encoders work on the kinds of values they're supposed to."""
     failures = []
@@ -764,8 +816,8 @@ def test_get_pudl_dtypes_global_type() -> None:
         ("pandas", "Int64"),
         ("polars", pl.Int64),
         ("sqlite", sa.Integer),
-        ("duckdb", duckdb.sqltypes.INTEGER),
-        ("pyarrow", pa.int32()),
+        ("duckdb", duckdb.sqltypes.BIGINT),
+        ("pyarrow", pa.int64()),
     ],
 )
 def test_get_pudl_dtypes_named_backend(

@@ -170,6 +170,23 @@ class EpaCemsDataConfig(GenericDataConfig):
         return year_quarters
 
 
+class EpaMatsDataConfig(GenericDataConfig):
+    """An immutable pydantic model to validate EPA MATS data configuration."""
+
+    data_source: ClassVar[DataSource] = DataSource.from_id("epamats")
+
+    year_quarters: list[str] = data_source.working_partitions["year_quarters"]
+    """The list of years-quarters to validate."""
+
+    @field_validator("year_quarters")
+    @classmethod
+    def allow_all_keyword_year_quarters(cls, year_quarters):
+        """Allow users to specify ['all'] to get all quarters."""
+        if year_quarters == ["all"]:
+            year_quarters = cls.data_source.working_partitions["year_quarters"]
+        return year_quarters
+
+
 class PhmsaGasDataConfig(GenericDataConfig):
     """An immutable pydantic model to validate PHMSA data configuration."""
 
@@ -606,6 +623,7 @@ class PudlDataConfig(FrozenBaseModel):
 
     eia: EiaDataConfig | None = None
     epacems: EpaCemsDataConfig | None = None
+    epamats: EpaMatsDataConfig | None = None
     ferc1: Ferc1DataConfig | None = None
     ferc714: Ferc714DataConfig | None = None
     glue: GlueDataConfig | None = None
@@ -632,6 +650,7 @@ class PudlDataConfig(FrozenBaseModel):
         if not any(data.values()):
             data["eia"] = EiaDataConfig()
             data["epacems"] = EpaCemsDataConfig()
+            data["epamats"] = EpaMatsDataConfig()
             data["ferc1"] = Ferc1DataConfig()
             data["ferc714"] = Ferc714DataConfig()
             data["glue"] = GlueDataConfig()
