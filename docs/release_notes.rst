@@ -69,6 +69,11 @@ PHMSA
   reports :doc:`PHMSA <data_sources/phmsagas>` gas distribution mains miles and
   services by installation decade. See issue :issue:`5266` and PR :pr:`5443`.
 
+FERC EQR
+~~~~~~~~
+
+* Added full 2026Q2 data for :doc:`FERC EQR <data_sources/ferceqr>`. See PR :pr:`5442`.
+
 Bug Fixes & Data Cleaning
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -100,6 +105,15 @@ Bug Fixes & Data Cleaning
   With the fix, 788 records in ``out_pudl__yearly_assn_eia_ferc1_plant_parts`` which
   used to have a NULL ``report_date`` now appear with correct date information. See
   issue :issue:`4130` and PR :pr:`5503`
+* Improved the robustness of :doc:`FERC EQR <data_sources/ferceqr>` raw data extraction.
+  Filings that are missing one or more of the expected CSV files, or whose company
+  identity information is missing or unparsable, now have as much of their data
+  extracted as possible instead of being dropped entirely. Parquet outputs for FERC
+  EQR's constrained categorical columns also now preserve their full set of allowed
+  values, matching the behavior of other PUDL categorical columns. See PR :pr:`5442`.
+* Disabled primary key uniqueness enforcement on
+  :ref:`core_ferceqr__quarterly_index_pub`, which was found to contain duplicate primary
+  key values in FERC EQR filings from 2023 onward. See PR :pr:`5442`.
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
