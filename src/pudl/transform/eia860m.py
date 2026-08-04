@@ -23,8 +23,11 @@ logger = get_logger(__name__)
 )
 def core_eia860m__changelog_generators(
     raw_eia860m__generator_proposed: pd.DataFrame,
+    raw_eia860m__puerto_rico_generator_proposed: pd.DataFrame,
     raw_eia860m__generator_existing: pd.DataFrame,
+    raw_eia860m__puerto_rico_generator_existing: pd.DataFrame,
     raw_eia860m__generator_retired: pd.DataFrame,
+    raw_eia860m__puerto_rico_generator_retired: pd.DataFrame,
 ) -> pd.DataFrame:
     """Changelog of EIA-860M Generators based on operating status.
 
@@ -57,10 +60,34 @@ def core_eia860m__changelog_generators(
             ]
         ]
     )
+    generator_proposed = pd.concat(
+        [
+            raw_eia860m__generator_proposed,
+            raw_eia860m__puerto_rico_generator_proposed,
+        ],
+        ignore_index=True,
+        sort=True,
+    )
+    generator_existing = pd.concat(
+        [
+            raw_eia860m__generator_existing,
+            raw_eia860m__puerto_rico_generator_existing,
+        ],
+        ignore_index=True,
+        sort=True,
+    )
+    generator_retired = pd.concat(
+        [
+            raw_eia860m__generator_retired,
+            raw_eia860m__puerto_rico_generator_retired,
+        ],
+        ignore_index=True,
+        sort=True,
+    )
     eia860m_all = _core_eia860__generators(
-        raw_eia860__generator_proposed=raw_eia860m__generator_proposed,
-        raw_eia860__generator_existing=raw_eia860m__generator_existing,
-        raw_eia860__generator_retired=raw_eia860m__generator_retired.assign(
+        raw_eia860__generator_proposed=generator_proposed,
+        raw_eia860__generator_existing=generator_existing,
+        raw_eia860__generator_retired=generator_retired.assign(
             operational_status_code=pd.NA
         ),
         # pass an empty generator df here. 860 old years had one big gens tab
