@@ -1,7 +1,7 @@
 import marimo
 
 __generated_with = "0.23.16"
-app = marimo.App(width="columns")
+app = marimo.App(width="full")
 
 
 @app.cell(hide_code=True)
@@ -9,12 +9,14 @@ def _(mo):
     mo.md(r"""
     # Sylvan heat rates: old (pandas) vs. new (polars) operational-characteristics pipeline
 
-    This notebook compares outputs from the original Sylvan heat rates script that relied on pandas (`pudl_thermal_characterization_2026-03-10.py`), and our new Dagsterized module that uses polars. (`pudl.analysis.derived_plant_characteristics`). It runs the comparison **live**, against whatever EPA CEMS data is present under `$PUDL_OUTPUT/parquet/` on the machine that runs it (so make sure you've got some fresh CEMS outputs).
+    This notebook compares outputs from the original Sylvan heat rates script that relied on pandas (`pudl_thermal_characterization_2026-03-10.py`), and our new Dagsterized module that uses polars (`pudl.analysis.derived_plant_characteristics`). It runs the comparison **live**, against whatever EPA CEMS data is present under `$PUDL_OUTPUT/parquet/` on the machine that runs it (so make sure you've got some fresh CEMS outputs).
+
+    Use the **state dropdown in the sidebar** to select any single EPA CEMS state; the whole notebook re-runs against just that state's data (we are not comparing across states).
 
     It covers:
 
     - What the algorithm computes, and how the two implementations differ structurally.
-    - A same-input comparison of the old and new pipelines (California and Colorado), to separate real algorithmic divergence from data-vintage drift.
+    - A same-input comparison of the old and new pipelines for the selected state, to separate real algorithmic divergence from data-vintage drift.
     - Explanations for where and why they disagree when possible.
     - Side-by-side comparisons of the two open algorithmic choices we're deciding between (load-factor binning method, ramp-rate binning method), so we can look at the actual data before picking one.
     - Measured speedup and memory savings from the vectorized polars binning path vs. the original per-unit pandas fallback.
@@ -134,6 +136,79 @@ def _():
 
 @app.cell(hide_code=True)
 def _(mo):
+    ALL_STATES = [
+        "AK",
+        "AL",
+        "AR",
+        "AZ",
+        "CA",
+        "CO",
+        "CT",
+        "DC",
+        "DE",
+        "FL",
+        "GA",
+        "IA",
+        "ID",
+        "IL",
+        "IN",
+        "KS",
+        "KY",
+        "LA",
+        "MA",
+        "MD",
+        "ME",
+        "MI",
+        "MN",
+        "MO",
+        "MS",
+        "MT",
+        "NC",
+        "ND",
+        "NE",
+        "NH",
+        "NJ",
+        "NM",
+        "NV",
+        "NY",
+        "OH",
+        "OK",
+        "OR",
+        "PA",
+        "PR",
+        "RI",
+        "SC",
+        "SD",
+        "TN",
+        "TX",
+        "UT",
+        "VA",
+        "VT",
+        "WA",
+        "WI",
+        "WV",
+        "WY",
+    ]
+
+    STATE = mo.ui.dropdown(
+        options=ALL_STATES, value="CA", label="EPA CEMS state (2-letter)"
+    )
+
+    mo.sidebar(
+        [
+            mo.md(
+                "### Sylvan heat rates: old vs. new\n\n"
+                "Select a single EPA CEMS state. The whole notebook re-runs "
+                "the old-vs-new comparison for that one state."
+            ),
+            STATE,
+        ]
+    )
+    return (STATE,)
+
+
+@app.cell(hide_code=True)
+def _(mo):
     mo.md(r"""
     ## Comparing the two pipelines: same inputs, not a naive CSV diff
 
@@ -172,6 +247,16 @@ def _(MIN_STABLE_CONSECUTIVE_HOURS, UNIT_COLS, np, pd):
         return None, np.nan
 
     def _min_up_down_times(hourly_plant_unit_df, min_stbl_lvl):
+        # Original script's `>=` comparison against a pandas Categorical raises
+        # TypeError when no bin qualifies as stable (min_stbl_lvl is None) --
+        # verified against real CT CEMS data, where it hits 27/67 units. Original
+        # script never surfaced this because it was never run against a state
+        # where that many units lack a qualifying stable bin. `_heat_rate` avoids
+        # the same crash only because `==` (unlike `>=`) against None returns an
+        # empty, not an error -- so NaN is the behavior this mirrors.
+        if min_stbl_lvl is None:
+            return np.nan, np.nan
+
         d = hourly_plant_unit_df.sort_values("operating_datetime_utc").copy()
 
         up = d[d["load_factor_bin"] >= min_stbl_lvl]
@@ -370,39 +455,21 @@ def _(
 
 
 @app.cell(hide_code=True)
-def _(mo):
-    mo.md("""
-    ## Running the comparison: California
+def _(STATE, mo):
+    mo.md(f"""
+    ## Running the comparison: {STATE.value}
     """)
     return
 
 
 @app.cell(hide_code=True)
-def _(mo, run_all_configs_for_state):
-    ca = run_all_configs_for_state("CA")
+def _(STATE, mo, run_all_configs_for_state):
+    result = run_all_configs_for_state(STATE.value)
     mo.md(
-        f"**CA**: {ca['n_units']} plant-unit pairs, {ca['n_hourly_rows']:,} hourly rows. "
-        f"Original per-unit pandas algorithm: {ca['original_elapsed']:.1f}s."
+        f"**{STATE.value}**: {result['n_units']} plant-unit pairs, {result['n_hourly_rows']:,} hourly rows. "
+        f"Original per-unit pandas algorithm: {result['original_elapsed']:.1f}s."
     )
-    return (ca,)
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    mo.md("""
-    ## Running the comparison: Colorado
-    """)
-    return
-
-
-@app.cell(hide_code=True)
-def _(mo, run_all_configs_for_state):
-    co = run_all_configs_for_state("CO")
-    mo.md(
-        f"**CO**: {co['n_units']} plant-unit pairs, {co['n_hourly_rows']:,} hourly rows. "
-        f"Original per-unit pandas algorithm: {co['original_elapsed']:.1f}s."
-    )
-    return (co,)
+    return (result,)
 
 
 @app.cell(hide_code=True)
@@ -508,53 +575,44 @@ def _(UNIT_COLS, np, pd, plt):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    ## Old vs. new, same input rows: California and Colorado
+    ## Old vs. new, same input rows: the state selected in the sidebar
 
-    Both pipelines run against the exact same locally-filtered CEMS rows. The
-    new-pipeline results shown here use the *default* config
-    (`pandas_cut` + `rank_split`), i.e. the closest behavioral match to the
-    original script. Points on the dashed diagonal agree exactly; red points
-    diverge by more than 10%.
+    Both pipelines run against the exact same locally-filtered CEMS rows for the
+    state selected in the sidebar. The new-pipeline results shown here use the
+    config that most closely matches the original script
+    (`pandas_cut` + `qcut`) -- the baseline for "did we faithfully replicate the
+    script", before layering on the newer defaults. Points on the dashed diagonal
+    agree exactly; red points diverge by more than 10%.
     """)
     return
 
 
 @app.cell(hide_code=True)
-def _(FINAL_YEAR, NUM_YEARS, ca, merged_for_comparison, plot_comparison_grid):
-    _ca_default = ca["new_results"]["pandas_cut__rank_split"]
-    _ca_merged = merged_for_comparison(
-        ca["original_df"], _ca_default, "original", "new"
+def _(
+    FINAL_YEAR,
+    NUM_YEARS,
+    STATE,
+    merged_for_comparison,
+    plot_comparison_grid,
+    result,
+):
+    _default = result["new_results"]["pandas_cut__qcut"]
+    _oldnew_merged = merged_for_comparison(
+        result["original_df"], _default, "original", "new"
     )
-    fig_ca_oldnew = plot_comparison_grid(
-        _ca_merged,
+    fig_oldnew = plot_comparison_grid(
+        _oldnew_merged,
         "original",
         "new",
-        "California: original (pandas) vs. new (polars), default config",
-        subtitle=f"{ca['n_units']} plant-unit pairs, {FINAL_YEAR - NUM_YEARS}-{FINAL_YEAR}",
+        f"{STATE.value}: original (pandas) vs. new (polars), closest-matching config",
+        subtitle=f"{result['n_units']} plant-unit pairs, {FINAL_YEAR - NUM_YEARS}-{FINAL_YEAR}",
     )
-    fig_ca_oldnew
+    fig_oldnew
     return
 
 
 @app.cell(hide_code=True)
-def _(FINAL_YEAR, NUM_YEARS, co, merged_for_comparison, plot_comparison_grid):
-    _co_default = co["new_results"]["pandas_cut__rank_split"]
-    _co_merged = merged_for_comparison(
-        co["original_df"], _co_default, "original", "new"
-    )
-    fig_co_oldnew = plot_comparison_grid(
-        _co_merged,
-        "original",
-        "new",
-        "Colorado: original (pandas) vs. new (polars), default config",
-        subtitle=f"{co['n_units']} plant-unit pairs, {FINAL_YEAR - NUM_YEARS}-{FINAL_YEAR}",
-    )
-    fig_co_oldnew
-    return
-
-
-@app.cell(hide_code=True)
-def _(METRICS, ca, co, merged_for_comparison, np, pd, plt):
+def _(METRICS, STATE, merged_for_comparison, np, pd, plt, result):
     def divergence_summary(
         merged: pd.DataFrame, x_label: str, y_label: str, metrics: list[str] = METRICS
     ) -> pd.DataFrame:
@@ -613,25 +671,38 @@ def _(METRICS, ca, co, merged_for_comparison, np, pd, plt):
         fig.tight_layout()
         return fig
 
-    ca_oldnew_merged = merged_for_comparison(
-        ca["original_df"],
-        ca["new_results"]["pandas_cut__rank_split"],
+    oldnew_merged = merged_for_comparison(
+        result["original_df"],
+        result["new_results"]["pandas_cut__qcut"],
         "original",
         "new",
     )
-    co_oldnew_merged = merged_for_comparison(
-        co["original_df"],
-        co["new_results"]["pandas_cut__rank_split"],
-        "original",
-        "new",
-    )
-    _ca_oldnew_summary = divergence_summary(ca_oldnew_merged, "original", "new")
-    _co_oldnew_summary = divergence_summary(co_oldnew_merged, "original", "new")
+    _oldnew_summary = divergence_summary(oldnew_merged, "original", "new")
     fig_divergence_summary = plot_divergence_bars(
-        {"California": _ca_oldnew_summary, "Colorado": _co_oldnew_summary},
-        "Where do the two pipelines disagree most? (default config, same input rows)",
+        {STATE.value: _oldnew_summary},
+        "Where do the two pipelines disagree most? (closest-matching config, same input rows)",
     )
     fig_divergence_summary
+    return divergence_summary, plot_divergence_bars
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    **Why do `min_stable_level`, `min_up_time_hours`, and `min_down_time_hours`
+    show identical >1% and >10% bars?** Not a plotting bug -- these columns are
+    quantized. `min_up_time_hours`/`min_down_time_hours` are counts of whole
+    hours, and the runs involved are typically short (single digits to low tens
+    of hours), so the smallest possible nonzero disagreement -- off by one hour --
+    is already a large relative difference (e.g. 1 hour off on an 8-hour run is
+    12.5%). There's no way to land a discrepancy in the 1-10% range with counts
+    that small, so every nonzero disagreement clears both thresholds and the two
+    bars end up the same height. `min_stable_level` shows *zero* height for both
+    because it's a continuous bin-edge value computed identically by both
+    pipelines in this comparison (same `pandas_cut` binning method on both
+    sides). The >1%/>10% split is informative for continuous ratios (heat rates,
+    ramp rates) but not very meaningful for these two discrete columns.
+    """)
     return
 
 
@@ -640,22 +711,16 @@ def _(mo):
     mo.md(r"""
     ### Why do they disagree, and is it expected/acceptable?
 
-    **1. Ramp rates (the largest divergence, ~20% of units by > 1%): a genuine
-    methodology difference, not a bug.** The original script bins ramp rates
-    with `pandas.qcut(ramp_rate, q=20, duplicates="drop")` -- a true 20-quantile
-    split, where `duplicates="drop"` collapses adjacent bin edges that land on
-    the same value. That's the normal case here: a large share of hourly ramp
-    rates are exactly zero (the unit didn't change output that hour), so the
-    "bottom"/"top" bin the original script picks depends on how those ties
-    happen to collapse. The new pipeline's default (`rank_split`) instead takes
-    the median of the bottom/top 5% of ramp rates *by rank*, with no
-    duplicate-collapsing behavior. Both are defensible definitions of
-    "extreme ramp rate," but they aren't the same definition. **This is a real
-    decision to make, not something to "fix"** -- see the side-by-side
-    comparison below.
+    Because the "Old vs. new" baseline above uses the config that most closely
+    matches the original script (`pandas_cut` + `qcut`), the large
+    ramp-rate methodology gap is **not** the main story here -- it shows up
+    instead in the "ramp-rate binning: rank_split vs. qcut" section below. What
+    remains in the old-vs-new baseline is therefore the genuinely-implementation
+    divergence between the verbatim per-unit pandas reference and the vectorized
+    polars pipeline:
 
-    **2. `min_up_time_hours` / `min_down_time_hours`: found and fixed one real
-    bug in `_add_run_id` -- but it turned out not to be the main story.**
+    **`min_up_time_hours` / `min_down_time_hours`:** found and fixed one small
+    bug in `_add_run_id` -- but it turned out not to have much impact.
     `_add_run_id` built its "same unit/bin and consecutive hour" check with
     `pl.col(c).eq(pl.col(c).shift())`, which evaluates to `null` (not
     `True`/`False`) for the very first row of whatever frame it's called on --
@@ -663,23 +728,27 @@ def _(mo):
     guards against exactly this with `.fill_null(True)`; `_add_run_id` didn't,
     so `cum_sum()` propagated that null instead of starting run 0, splitting the
     first row of a run off into its own spurious length-1 "run" for whichever
-    plant-unit happened to sort first. **This is now fixed** (moving
-    `.fill_null(True)` onto the final combined expression, mirroring
-    `consecutive_run_ids()`), and pinned down by dedicated regression tests.
+    plant-unit happened to sort first.
 
-    **Correction to an earlier version of this analysis:** re-running the
-    same-input comparison *after* the fix produced identical divergence counts
-    to before it. This bug was real and worth fixing, but it can only ever
-    affect one unit per pipeline invocation, so it was never going to explain
-    7+ mismatched units out of 240 -- it was not, as first claimed, the
-    dominant cause. The real cause of most of these mismatches is still open.
-    One lead: `filter_for_min_stable_bin` compares `load_factor_bin`'s struct
-    fields against `min_stable_bin`'s with `>=`, which should be equivalent to
-    an ordinal comparison for well-formed bins, but floating-point precision
-    differences from the pipeline's joins/casts could make a numerically-identical
-    row fail that comparison by a hair -- several of the mismatched units show a
-    suspicious "off by exactly 1 hour" pattern consistent with this, but it
-    hasn't been confirmed.
+    Re-running the same-input comparison *after* the fix produced identical
+    divergence counts to before it. This bug can only ever affect one unit per
+    pipeline invocation, so it can't explain 7+ mismatched units out of 240. The
+    real cause of most of these mismatches is still open. One lead:
+    `filter_for_min_stable_bin` compares `load_factor_bin`'s struct fields against
+    `min_stable_bin`'s with `>=`, which should be equivalent to an ordinal
+    comparison for well-formed bins, but floating-point precision differences from
+    the pipeline's joins/casts could make a numerically-identical row fail that
+    comparison by a hair -- several of the mismatched units show a suspicious "off
+    by exactly 1 hour" pattern consistent with this, but it hasn't been confirmed.
+
+    **Ramp rates: a small, expected residual under the closest-matching
+    (`qcut`) config.** The original script passed *all* ramp-rate observations
+    (including `±inf` from zero-width time deltas) to `pd.qcut`; the new
+    pipeline drops non-finite ramp rates before binning, and it no longer rounds
+    heat-rate/ramp outputs to 2 decimal places. So even with `qcut`, a handful of
+    units can differ at the margins. The *big* ramp-rate story -- `rank_split`
+    vs. `qcut` being genuinely different definitions of "extreme ramp rate" --
+    is shown separately below.
     """)
     return
 
@@ -707,40 +776,21 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(ca, co, merged_for_comparison, plot_comparison_grid):
-    ca_binning_merged = merged_for_comparison(
-        ca["new_results"]["pandas_cut__rank_split"],
-        ca["new_results"]["vectorized__rank_split"],
+def _(STATE, merged_for_comparison, plot_comparison_grid, result):
+    binning_merged = merged_for_comparison(
+        result["new_results"]["pandas_cut__rank_split"],
+        result["new_results"]["vectorized__rank_split"],
         "pandas_cut",
         "vectorized",
     )
-    co_binning_merged = merged_for_comparison(
-        co["new_results"]["pandas_cut__rank_split"],
-        co["new_results"]["vectorized__rank_split"],
+    fig_binning_choice = plot_comparison_grid(
+        binning_merged,
         "pandas_cut",
         "vectorized",
-    )
-    fig_ca_binning_choice = plot_comparison_grid(
-        ca_binning_merged,
-        "pandas_cut",
-        "vectorized",
-        "California: load-factor binning method, pandas_cut vs. vectorized",
+        f"{STATE.value}: load-factor binning method, pandas_cut vs. vectorized",
         subtitle="Same ramp-rate method (rank_split) in both -- isolating just the binning choice",
     )
-    fig_ca_binning_choice
-    return (co_binning_merged,)
-
-
-@app.cell(hide_code=True)
-def _(co_binning_merged, plot_comparison_grid):
-    fig_co_binning_choice = plot_comparison_grid(
-        co_binning_merged,
-        "pandas_cut",
-        "vectorized",
-        "Colorado: load-factor binning method, pandas_cut vs. vectorized",
-        subtitle="Same ramp-rate method (rank_split) in both -- isolating just the binning choice",
-    )
-    fig_co_binning_choice
+    fig_binning_choice
     return
 
 
@@ -760,16 +810,10 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(ca, co, merged_for_comparison, plot_comparison_grid):
-    ca_ramp_merged = merged_for_comparison(
-        ca["new_results"]["pandas_cut__rank_split"],
-        ca["new_results"]["pandas_cut__qcut"],
-        "rank_split",
-        "qcut",
-    )
-    co_ramp_merged = merged_for_comparison(
-        co["new_results"]["pandas_cut__rank_split"],
-        co["new_results"]["pandas_cut__qcut"],
+def _(STATE, merged_for_comparison, plot_comparison_grid, result):
+    ramp_merged = merged_for_comparison(
+        result["new_results"]["pandas_cut__rank_split"],
+        result["new_results"]["pandas_cut__qcut"],
         "rank_split",
         "qcut",
     )
@@ -777,29 +821,34 @@ def _(ca, co, merged_for_comparison, plot_comparison_grid):
         "ramp_up_rate_fraction_of_max_gross_load_per_min",
         "ramp_down_rate_fraction_of_max_gross_load_per_min",
     ]
-    fig_ca_ramp_choice = plot_comparison_grid(
-        ca_ramp_merged,
+    fig_ramp_choice = plot_comparison_grid(
+        ramp_merged,
         "rank_split",
         "qcut",
-        "California: ramp-rate binning method, rank_split vs. qcut",
+        f"{STATE.value}: ramp-rate binning method, rank_split vs. qcut",
         subtitle="Same load-factor binning (pandas_cut) in both -- isolating just the ramp-rate choice",
         metrics=RAMP_METRICS,
     )
-    fig_ca_ramp_choice
-    return RAMP_METRICS, co_ramp_merged
+    fig_ramp_choice
+    return RAMP_METRICS, ramp_merged
 
 
 @app.cell(hide_code=True)
-def _(RAMP_METRICS, co_ramp_merged, plot_comparison_grid):
-    fig_co_ramp_choice = plot_comparison_grid(
-        co_ramp_merged,
-        "rank_split",
-        "qcut",
-        "Colorado: ramp-rate binning method, rank_split vs. qcut",
-        subtitle="Same load-factor binning (pandas_cut) in both -- isolating just the ramp-rate choice",
-        metrics=RAMP_METRICS,
+def _(
+    RAMP_METRICS,
+    STATE,
+    divergence_summary,
+    plot_divergence_bars,
+    ramp_merged,
+):
+    ramp_choice_summary = divergence_summary(
+        ramp_merged, "rank_split", "qcut", metrics=RAMP_METRICS
     )
-    fig_co_ramp_choice
+    fig_ramp_divergence_summary = plot_divergence_bars(
+        {STATE.value: ramp_choice_summary},
+        "Ramp-rate binning: how much do rank_split and qcut disagree? (same load-factor binning in both)",
+    )
+    fig_ramp_divergence_summary
     return
 
 
@@ -820,7 +869,7 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(UNIT_COLS, load_filtered_cems, np, opchar, pd, time, tracemalloc):
+def _(STATE, UNIT_COLS, load_filtered_cems, np, opchar, pd, time, tracemalloc):
     def benchmark_binning_step(state: str, n_reps: int = 5) -> dict:
         cems_lf, _ = load_filtered_cems(state)
         cems_working, col_dict = opchar.handle_adjustment_in_cems(
@@ -856,67 +905,57 @@ def _(UNIT_COLS, load_filtered_cems, np, opchar, pd, time, tracemalloc):
             }
         return results
 
-    ca_binning_bench = benchmark_binning_step("CA")
-    co_binning_bench = benchmark_binning_step("CO")
+    binning_bench = benchmark_binning_step(STATE.value)
 
     pd.DataFrame(
         {
-            (state, method): {
+            method: {
                 "median_seconds": r["median_seconds"],
                 "median_peak_MB": r["median_peak_mb"],
             }
-            for state, bench in [("CA", ca_binning_bench), ("CO", co_binning_bench)]
-            for method, r in bench.items()
+            for method, r in binning_bench.items()
         }
     ).T
-    return ca_binning_bench, co_binning_bench
+    return (binning_bench,)
 
 
 @app.cell(hide_code=True)
-def _(ca_binning_bench, co_binning_bench, np, plt):
-    def plot_binning_benchmark(benches: dict[str, dict], title: str):
-        states = list(benches.keys())
+def _(STATE, binning_bench, np, plt):
+    def plot_binning_benchmark(bench: dict, state: str, title: str):
         methods = ["pandas_cut", "vectorized"]
-        fig, (ax_time, ax_mem) = plt.subplots(1, 2, figsize=(18, 8))
-
-        x = np.arange(len(states))
-        bar_w = 0.35
+        fig, (ax_time, ax_mem) = plt.subplots(1, 2, figsize=(16, 7))
         colors = {"pandas_cut": "#e06c75", "vectorized": "#61afef"}
+        x = np.arange(len(methods))
 
-        for i, method in enumerate(methods):
-            times = [benches[s][method]["median_seconds"] for s in states]
-            offset = (i - 0.5) * bar_w
-            bars = ax_time.bar(
-                x + offset, times, width=bar_w, color=colors[method], label=method
-            )
-            ax_time.bar_label(bars, fmt="%.1fs", padding=3)
+        times = [bench[m]["median_seconds"] for m in methods]
+        bars = ax_time.bar(
+            x, times, width=0.55, color=[colors[m] for m in methods], label=methods
+        )
+        ax_time.bar_label(bars, fmt="%.1fs", padding=3)
         ax_time.set_xticks(x)
-        ax_time.set_xticklabels(states)
+        ax_time.set_xticklabels(methods)
         ax_time.set_ylabel("Median wall-clock seconds (5 reps)")
         ax_time.set_title("Time: assign_groupwise_load_factor_bins")
-        ax_time.legend()
 
-        for i, method in enumerate(methods):
-            mems = [benches[s][method]["median_peak_mb"] for s in states]
-            offset = (i - 0.5) * bar_w
-            bars = ax_mem.bar(
-                x + offset, mems, width=bar_w, color=colors[method], label=method
-            )
-            ax_mem.bar_label(bars, fmt="%.1f MB", padding=3)
+        mems = [bench[m]["median_peak_mb"] for m in methods]
+        bars = ax_mem.bar(
+            x, mems, width=0.55, color=[colors[m] for m in methods], label=methods
+        )
+        ax_mem.bar_label(bars, fmt="%.1f MB", padding=3)
         ax_mem.set_xticks(x)
         ax_mem.set_yscale("log")
-        ax_mem.set_xticklabels(states)
+        ax_mem.set_xticklabels(methods)
         ax_mem.set_ylabel("Median peak Python-heap allocation, MB (log scale)")
         ax_mem.set_title("Peak memory (tracemalloc): assign_groupwise_load_factor_bins")
-        ax_mem.legend()
 
         fig.suptitle(title, fontsize=20, y=1.05)
         fig.tight_layout(rect=[0, 0, 1, 0.95])
         return fig
 
     fig_binning_benchmark = plot_binning_benchmark(
-        {"CA": ca_binning_bench, "CO": co_binning_bench},
-        "pandas_cut vs. vectorized: the one remaining pandas bottleneck, isolated",
+        binning_bench,
+        STATE.value,
+        f"pandas_cut vs. vectorized: the one remaining pandas bottleneck, isolated ({STATE.value})",
     )
     fig_binning_benchmark
     return
@@ -985,8 +1024,8 @@ def _(mo):
        engineering one -- worth a short, explicit discussion rather than
        defaulting to whichever one happens to be more convenient to compute.
     4. Once that's settled, retire the original per-unit pandas script and
-       generalize the pipeline beyond California/Colorado to all 50 states and
-       (per the project's longer-term goal) additional years.
+       generalize the pipeline to all 50 states and (per the project's
+       longer-term goal) additional years.
 
     See `notebooks/work-in-progress/sylvan-heat-rates.md` for additional
     readability/maintainability suggestions (two dead functions, naming, a

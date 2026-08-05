@@ -54,6 +54,14 @@ def min_stable_level(hourly_plant_unit_df, consecutive_hours):
 
 def min_up_down_times(hourly_plant_unit_df, min_stbl_lvl):
     """Find the shortest observed run at/above the stable bin, and shortest outage."""
+    # min_stable_level() returns None when no load-factor bin has a qualifying
+    # run of consecutive hours. Comparing a pandas Categorical to None with
+    # `>=` raises TypeError (unlike `==`, which heat_rate() relies on to
+    # quietly return an empty match). Verified against real EPA CEMS data:
+    # 27/67 Connecticut units hit this case.
+    if min_stbl_lvl is None:
+        return np.nan, np.nan
+
     up_down_df = hourly_plant_unit_df.sort_values("operating_datetime_utc").copy()
 
     up_df = up_down_df[up_down_df["load_factor_bin"] >= min_stbl_lvl].copy()
