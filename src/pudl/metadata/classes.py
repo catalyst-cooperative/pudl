@@ -740,22 +740,13 @@ class Field(PudlMeta):
             return pl.Categorical
         return FIELD_DTYPES_POLARS[self.type]
 
-    def to_pandas_dtype(self, compact: bool = False) -> str | pd.CategoricalDtype:
-        """Return Pandas data type.
-
-        Args:
-            compact: Whether to return a low-memory data type (32-bit integer or float).
-        """
+    def to_pandas_dtype(self) -> str | pd.CategoricalDtype:
+        """Return Pandas data type."""
         if self.constraints.enum and self.type == "string":
             return pd.CategoricalDtype(self.constraints.enum)
-        if compact:
-            if self.type == "integer":
-                return "Int32"
-            if self.type == "number":
-                return "float32"
         return FIELD_DTYPES_PANDAS[self.type]
 
-    def to_sql_dtype(self) -> type:  # noqa: A003
+    def to_sqlite_dtype(self) -> type:  # noqa: A003
         """Return SQLAlchemy data type."""
         if self.constraints.enum and self.type == "string":
             return sa.Enum(*self.constraints.enum)
@@ -805,7 +796,28 @@ class Field(PudlMeta):
             elif self.type == "date":
                 checks.append(f"{name} IS DATE({name})")
             elif self.type == "datetime":
-                checks.append(f"{name} IS DATETIME({name})")
+                # A plain `{name} IS DATETIME({name})` can't validate a
+                # microsecond-precision string: SQLite's own DATETIME()
+                # function only round-trips whole-second precision (even its
+                # 'subsec' modifier only adds milliseconds), so it would
+                # reject every value written at the microsecond resolution
+                # used everywhere else in PUDL. Instead, validate the
+                # YYYY-MM-DD HH:MM:SS portion for real calendar/time
+                # correctness via DATETIME(), and separately validate the
+                # fractional-seconds suffix is present and exactly six
+                # digits via GLOB -- SQLite's GLOB has no `{n}`-style
+                # repetition syntax, so the six-digit pattern is built here
+                # rather than spelled out character by character in the SQL
+                # string itself. NULL propagates through IS/AND/GLOB to a
+                # NULL check result, which SQLite (like standard SQL) treats
+                # as satisfying the constraint, so nullable columns still
+                # accept NULL.
+                microseconds_pattern = "[0-9]" * 6
+                checks.append(
+                    f"(SUBSTR({name}, 1, 19) IS DATETIME(SUBSTR({name}, 1, 19))) "
+                    f"AND ({name} GLOB SUBSTR({name}, 1, 19) "
+                    f"|| '.{microseconds_pattern}')"
+                )
         if check_values:
             # Field constraints
             if self.constraints.min_length is not None:
@@ -828,7 +840,7 @@ class Field(PudlMeta):
                 checks.append(f"{name} IN ({', '.join(enum)})")
         return sa.Column(
             self.name,
-            self.to_sql_dtype(),
+            self.to_sqlite_dtype(),
             *[
                 sa.CheckConstraint(
                     check,
@@ -1935,13 +1947,9 @@ class Resource(PudlMeta):
         """Return Polars data type of each field by field name."""
         return {f.name: f.to_polars_dtype() for f in self.schema.fields}
 
-    def to_pandas_dtypes(self, **kwargs: Any) -> dict[str, str | pd.CategoricalDtype]:
-        """Return Pandas data type of each field by field name.
-
-        Args:
-            kwargs: Arguments to :meth:`Field.to_pandas_dtype`.
-        """
-        return {f.name: f.to_pandas_dtype(**kwargs) for f in self.schema.fields}
+    def to_pandas_dtypes(self) -> dict[str, str | pd.CategoricalDtype]:
+        """Return Pandas data type of each field by field name."""
+        return {f.name: f.to_pandas_dtype() for f in self.schema.fields}
 
     def match_primary_key(self, names: Iterable[str]) -> dict[str, str] | None:
         """Match primary key fields to input field names.
@@ -2018,7 +2026,7 @@ class Resource(PudlMeta):
         return matches if len(matches) == len(keys) else None
 
     def format_df(
-        self, df: pd.DataFrame | gpd.GeoDataFrame | None = None, **kwargs: Any
+        self, df: pd.DataFrame | gpd.GeoDataFrame | None = None
     ) -> pd.DataFrame | gpd.GeoDataFrame:
         """Format a dataframe according to the resources's table schema.
 
@@ -2033,12 +2041,11 @@ class Resource(PudlMeta):
 
         Args:
             df: Dataframe to format.
-            kwargs: Arguments to :meth:`Field.to_pandas_dtypes`.
 
         Returns:
             Dataframe with column names and data types matching the resource fields.
         """
-        dtypes = self.to_pandas_dtypes(**kwargs)
+        dtypes = self.to_pandas_dtypes()
         if df is None:
             return pd.DataFrame({n: pd.Series(dtype=d) for n, d in dtypes.items()})
         matches = self.match_primary_key(df.columns)
