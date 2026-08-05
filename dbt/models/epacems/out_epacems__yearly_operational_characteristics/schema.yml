@@ -16,7 +16,7 @@ sources:
           - name: report_year
           - name: state
           - name: max_gross_load_mw
-          - name: min_stable_level
+          - name: min_stable_load_factor
             data_tests:
               - dbt_expectations.expect_column_values_to_be_between:
                   arguments:
@@ -46,7 +46,7 @@ sources:
                     max_value: 18.0
                   config:
                     error_if: ">49"
-          - name: heat_rate_at_min_stable_level_mmbtu_per_mwh
+          - name: heat_rate_at_min_stable_load_factor_mmbtu_per_mwh
             data_tests:
               - dbt_expectations.expect_column_values_to_be_between:
                   arguments:
@@ -54,13 +54,13 @@ sources:
                     max_value: 25.0
                   config:
                     error_if: ">57"
-          - name: ramp_up_rate_fraction_of_max_gross_load_per_min
+          - name: ramp_up_rate_per_min
             data_tests:
               - dbt_expectations.expect_column_values_to_be_between:
                   arguments:
                     min_value: 0.0
                     max_value: 0.017
-          - name: ramp_down_rate_fraction_of_max_gross_load_per_min
+          - name: ramp_down_rate_per_min
             data_tests:
               - dbt_expectations.expect_column_values_to_be_between:
                   arguments:

@@ -2,13 +2,11 @@
 
 from typing import Any, Literal
 
-import numpy as np
 import pandas as pd
 import polars as pl
 from dagster import (
     AssetExecutionContext,
     AssetIn,
-    AssetsDefinition,
     Field,
     asset,
 )
@@ -95,93 +93,6 @@ def consecutive_run_ids(datetime_col: str = "operating_datetime_utc") -> pl.Expr
     return pl.col(datetime_col).diff().dt.total_hours().ne(1).fill_null(True).cum_sum()
 
 
-def min_up_down_times(
-    hourly_plant_unit: pd.DataFrame,
-    min_stable_level_bin,  # TODO: What type is this?: pd.Interval,
-    load_factor_col: str,
-    load_factor_bin_col: str,
-) -> tuple[float, float, Any, Any]:
-    """Estimate minimum up and down times from hourly plant-unit observations."""
-    if min_stable_level_bin is None:
-        return np.nan, np.nan, None, None
-
-    df = hourly_plant_unit.sort("operating_datetime_utc")
-
-    # Get minimum up times.
-    up = df.filter(pl.col(load_factor_bin_col) >= min_stable_level_bin).with_columns(
-        consecutive_run_ids().alias("run_id")
-    )
-
-    if not up.limit(1).collect().is_empty():
-        up_runs = up.group_by("run_id").agg(
-            [
-                pl.len().alias("run_size"),
-                pl.col("operating_datetime_utc").min().alias("start_time"),
-            ]
-        )
-
-        min_up = up_runs.sort("run_size").head(1)
-
-        min_up_time = min_up["run_size"][0]
-        min_up_datetime_utc = min_up["start_time"][0]
-    else:
-        min_up_time, min_up_datetime_utc = np.nan, None
-
-    # Get minimum down times.
-    down = df.filter(pl.col(load_factor_col).is_null()).with_columns(
-        consecutive_run_ids().alias("run_id")
-    )
-
-    if down.height > 0:
-        down_runs = down.group_by("run_id").agg(
-            [
-                pl.len().alias("run_size"),
-                pl.col("operating_datetime_utc").min().alias("start_time"),
-            ]
-        )
-
-        min_down = down_runs.sort("run_size").head(1)
-
-        min_down_time = min_down["run_size"][0]
-        min_down_datetime_utc = min_down["start_time"][0]
-    else:
-        min_down_time, min_down_datetime_utc = np.nan, None
-
-    return min_up_time, min_down_time, min_up_datetime_utc, min_down_datetime_utc
-
-
-def heat_rate(
-    hourly_plant_unit: pl.LazyFrame,
-    min_stable_level_bin,  # pd.Interval,
-    load_factor_col: str,
-    load_factor_bin_col: str,
-    heat_rate_col: str,
-) -> tuple[float, float]:
-    """Estimate median heat rates at maximum load and minimum stable load."""
-    heat_rates = hourly_plant_unit.filter(
-        pl.col(load_factor_col).is_not_null() & pl.col(heat_rate_col).is_not_null()
-    )
-
-    if heat_rates.limit(1).collect().is_empty() or min_stable_level_bin is None:
-        return np.nan, np.nan
-
-    max_load_factor_bin = heat_rates.select(pl.col(load_factor_bin_col).max()).item()
-
-    max_load_heat_rate = (
-        heat_rates.filter(pl.col(load_factor_bin_col) == max_load_factor_bin)
-        .select(pl.col(heat_rate_col).median())
-        .item()
-    )
-
-    min_stable_heat_rate = (
-        heat_rates.filter(pl.col(load_factor_bin_col) == min_stable_level_bin)
-        .select(pl.col(heat_rate_col).median())
-        .item()
-    )
-
-    return max_load_heat_rate, min_stable_heat_rate
-
-
 def _add_run_id(
     lf: pl.LazyFrame,
     unit_cols: list[str],
@@ -203,76 +114,6 @@ def _add_run_id(
     )
 
 
-def assign_groupwise_load_factor_bins_old(
-    cems_working: pl.LazyFrame,
-    unit_cols: list[str],
-    load_factor_col: str,
-) -> pl.DataFrame:
-    """Exact per-unit pd.cut(bins=10) using LazyFrame + minimal pandas fallback.
-
-    For each unit we want to define a "load factor bin". For this we use pandas'
-    cut with 10 bins. This is a step that we attempted to convert to polars, but
-    that resulted in material differences to the outputs.
-
-    ``pandas.cut`` generates equal-width bins for each unit's load factor.
-    """
-    # compute group load factor
-    cems_working = cems_working.with_columns(
-        pl.col(load_factor_col)
-        .drop_nulls()
-        .n_unique()
-        .over(unit_cols)
-        .alias("load_factor_nunique")
-    )
-
-    valid = cems_working.filter(pl.col("load_factor_nunique") > 1)
-    invalid = cems_working.filter(pl.col("load_factor_nunique") <= 1)
-
-    # use pd.cut on the valid rows
-    valid_pd = valid.collect().to_pandas(use_pyarrow_extension_array=True)
-    valid_pd["load_factor_bin"] = valid_pd.groupby(unit_cols, group_keys=False)[
-        load_factor_col
-    ].apply(
-        lambda s: pd.cut(
-            s,
-            bins=10,
-            right=True,
-            include_lowest=False,
-        )
-    )
-    valid_pl = pl.from_pandas(valid_pd).with_columns(
-        pl.col("state").cast(pl.Categorical),
-        pl.col("load_factor_bin").cast(
-            pl.Struct({"left": pl.Float64, "right": pl.Float64})
-        ),
-    )
-    result = (
-        # recombine with rest of rows
-        pl.concat(
-            [
-                valid_pl,
-                invalid.with_columns(
-                    pl.lit(None)
-                    .cast(valid_pl["load_factor_bin"].dtype)
-                    .alias("load_factor_bin")
-                ).collect(),
-            ]
-        )  # Rank bins for each set of unit_cols
-        .with_columns(
-            pl.col("load_factor_bin").struct[0].alias("load_factor_bin_left"),
-            pl.col("load_factor_bin").struct[1].alias("load_factor_bin_right"),
-        )
-        .with_columns(
-            pl.col("load_factor_bin_left")
-            .rank(method="dense")
-            .over(unit_cols)
-            .alias("load_factor_bin_ordinal")
-        )
-    )
-
-    return result
-
-
 def assign_groupwise_load_factor_bins(
     cems_working: pl.LazyFrame,
     unit_cols: list[str],
@@ -284,7 +125,7 @@ def assign_groupwise_load_factor_bins(
     in a ``load_factor_bin` `column with 10 unique values with a two dimensional
     structure as a datatype. The left value of the structure is the lower bound of the
     load factors within that bin and the right value it the higher bound. Using the
-    ``load_factor_bin`` we also assign ``load_factor_bin_ordinal`` which is the lower
+    ``load_factor_bin`` we also assign ``load_factor_bin_rank`` which is the lower
     bound of the lowest ``load_factor_bin``.
 
     This function uses polars but is attempting to directly reproduce
@@ -322,29 +163,29 @@ def assign_groupwise_load_factor_bins(
     ).is_not_null()
     # Only the lowest bin's left edge is padded -- the other nine bin widths are
     # exactly `width`, matching pandas' behavior of shifting only `bins[0]`.
-    bin_left = (
+    bin_lower = (
         pl.when(bin_idx == 1).then(lo - pad).otherwise(lo + (bin_idx - 1) * width)
     )
-    bin_right = lo + bin_idx * width
+    bin_upper = lo + bin_idx * width
 
     result = cems_working.with_columns(
-        pl.when(eligible).then(bin_left).alias("load_factor_bin_left"),
-        pl.when(eligible).then(bin_right).alias("load_factor_bin_right"),
+        pl.when(eligible).then(bin_lower).alias("load_factor_bin_lower"),
+        pl.when(eligible).then(bin_upper).alias("load_factor_bin_upper"),
         pl.col("state").cast(pl.Categorical),
     ).with_columns(
         pl.when(eligible)
         .then(
             pl.struct(
-                left=pl.col("load_factor_bin_left"),
-                right=pl.col("load_factor_bin_right"),
+                left=pl.col("load_factor_bin_lower"),
+                right=pl.col("load_factor_bin_upper"),
             )
         )
         .alias("load_factor_bin"),
         # Rank bins for each set of unit_cols
-        pl.col("load_factor_bin_left")
+        pl.col("load_factor_bin_lower")
         .rank(method="dense")
         .over(unit_cols)
-        .alias("load_factor_bin_ordinal"),
+        .alias("load_factor_bin_rank"),
     )
 
     return result.collect()
@@ -412,6 +253,10 @@ def handle_adjustment_in_cems(
 
     This returns a lazframe and a dictionary with keys of the column references
     and values of the column names to use.
+
+    TODO: Consider simplification or use of a dataclass or other lightweight data
+    structure. Implement changes when we implement
+    add_adjusted_net_generation_to_cems below.
     """
     cems_working = cems
 
@@ -421,7 +266,6 @@ def handle_adjustment_in_cems(
         heat_rate_col = "heat_rate_net_generation_cems"
         max_load_col = "max_cap_mw"
         output_max_load_col = "max_cap_mw"
-        output_ramp_rate_col_suffix = "max_cap_mw"
 
     else:
         # Calculate max gross load and derived columns
@@ -451,7 +295,6 @@ def handle_adjustment_in_cems(
         heat_rate_col = "heat_rate_mmbtu_per_mwh"
         max_load_col = "max_gross_load_mw"
         output_max_load_col = "max_gross_load_mw"
-        output_ramp_rate_col_suffix = "max_gross_load"
 
     return (
         cems_working.sort(unit_cols + ["operating_datetime_utc"]),
@@ -461,16 +304,12 @@ def handle_adjustment_in_cems(
             "heat_rate_col": heat_rate_col,
             "max_load_col": max_load_col,
             "output_max_load_col": output_max_load_col,
-            "output_ramp_rate_col_suffix": output_ramp_rate_col_suffix,
         },
     )
 
 
 def prep_output_df(
-    cems: pl.DataFrame,
-    unit_cols: list[str],
-    output_max_load_col: str,
-    output_ramp_rate_col_suffix: str,
+    cems: pl.DataFrame, unit_cols: list[str], output_max_load_col: str
 ) -> pl.DataFrame:
     """Set up aggregated output dataframe with empty calculated columns."""
     # The order of these columns matters. some states have no valid units
@@ -486,7 +325,7 @@ def prep_output_df(
         cems.group_by(unit_cols)
         .agg(**base_agg)
         .with_columns(
-            pl.lit(None).cast(pl.Float64).alias("min_stable_level"),
+            pl.lit(None).cast(pl.Float64).alias("min_stable_load_factor"),
             pl.lit(None).cast(pl.Float64).alias("min_up_time_hours"),
             pl.lit(None).cast(pl.Float64).alias("min_down_time_hours"),
             pl.lit(None)
@@ -494,13 +333,9 @@ def prep_output_df(
             .alias("heat_rate_at_max_load_factor_mmbtu_per_mwh"),
             pl.lit(None)
             .cast(pl.Float64)
-            .alias("heat_rate_at_min_stable_level_mmbtu_per_mwh"),
-            pl.lit(None)
-            .cast(pl.Float64)
-            .alias(f"ramp_up_rate_fraction_of_{output_ramp_rate_col_suffix}_per_min"),
-            pl.lit(None)
-            .cast(pl.Float64)
-            .alias(f"ramp_down_rate_fraction_of_{output_ramp_rate_col_suffix}_per_min"),
+            .alias("heat_rate_at_min_stable_load_factor_mmbtu_per_mwh"),
+            pl.lit(None).cast(pl.Float64).alias("ramp_up_rate_per_min"),
+            pl.lit(None).cast(pl.Float64).alias("ramp_down_rate_per_min"),
         )
     )
     return output
@@ -524,15 +359,15 @@ def compute_minimum_stable_bin(
     corresponds to the lowest ``load_factor_bin`` to get the minimum stable bin.
     """
     stable_runs = (
-        binned_cems.filter(pl.col("load_factor_bin_ordinal") > 1)
+        binned_cems.filter(pl.col("load_factor_bin_rank") > 1)
         .group_by(
             unit_cols
             + [
                 # these three load_factor_bin* columns are all derived from
                 # load_factor_bin (aka we want them in stable_runs but they are
                 # not adding to unique groups in this groupby).
-                "load_factor_bin_ordinal",
-                "load_factor_bin_left",
+                "load_factor_bin_rank",
+                "load_factor_bin_lower",
                 "load_factor_bin",
                 "bin_run_id",
             ]
@@ -543,17 +378,18 @@ def compute_minimum_stable_bin(
 
     stable_bins = (
         stable_runs.filter(pl.col("run_length") >= min_stable_consecutive_hours)
-        .sort(unit_cols + ["load_factor_bin_ordinal"])
+        .sort(unit_cols + ["load_factor_bin_rank"])
         .unique(subset=unit_cols, keep="first")
         .rename(
             {
-                "load_factor_bin_ordinal": "min_stable_bin_right",
-                "load_factor_bin_left": "min_stable_level",
+                "load_factor_bin_rank": "min_stable_bin_upper",
+                "load_factor_bin_lower": "min_stable_load_factor",
                 "load_factor_bin": "min_stable_bin",
             }
         )
         .select(
-            unit_cols + ["min_stable_bin_right", "min_stable_level", "min_stable_bin"]
+            unit_cols
+            + ["min_stable_bin_upper", "min_stable_load_factor", "min_stable_bin"]
         )
     )
 
@@ -567,12 +403,12 @@ def compute_heat_rate_at_max_load(
 ) -> pl.LazyFrame:
     """Compute the heat rate at the maximum load (by bin)."""
     max_bin = heat_rate_input.group_by(unit_cols).agg(
-        pl.col("load_factor_bin_ordinal").max().alias("max_load_bin_right")
+        pl.col("load_factor_bin_rank").max().alias("max_load_bin_upper")
     )
 
     return (
         heat_rate_input.join(max_bin, on=unit_cols)
-        .filter(pl.col("load_factor_bin_ordinal") == pl.col("max_load_bin_right"))
+        .filter(pl.col("load_factor_bin_rank") == pl.col("max_load_bin_upper"))
         .group_by(unit_cols)
         .agg(
             pl.col(heat_rate_col)
@@ -600,7 +436,7 @@ def compute_min_stable_heat_rates(
         .agg(
             pl.col(heat_rate_col)
             .median()
-            .alias("heat_rate_at_min_stable_level_mmbtu_per_mwh")
+            .alias("heat_rate_at_min_stable_load_factor_mmbtu_per_mwh")
         )
     )
 
@@ -656,7 +492,7 @@ def estimate_operational_characteristics_by_unit(
     cems: pl.LazyFrame,
     min_stable_consecutive_hours: int,
     adjusted: bool = False,
-) -> pl.LazyFrame:
+) -> pl.DataFrame:
     """Estimate operational characteristics for every EPA CEMS plant-unit pair.
 
     Most calculations are done in a dataframe-wide, vectorized manner. The
@@ -687,13 +523,12 @@ def estimate_operational_characteristics_by_unit(
         cems_working,
         unit_cols,
         col_dict["output_max_load_col"],
-        col_dict["output_ramp_rate_col_suffix"],
     )
     # If there aren't more than one unique load factor, the rest of the
     # calculations cannot be preformed, so return the output df now.
     # The load_factor_nunique column is assigned in assign_groupwise_load_factor_bins
     valid_cems = cems_working.filter(pl.col("load_factor_nunique") > 1)
-    if cems_working.is_empty():
+    if valid_cems.is_empty():
         return output
     binned_cems = valid_cems.filter(pl.col("load_factor_bin").is_not_null()).pipe(
         lambda lf: lf.with_columns(
@@ -716,7 +551,7 @@ def estimate_operational_characteristics_by_unit(
         heat_rate_input, min_stable_bins, unit_cols, col_dict["heat_rate_col"]
     )
     cems_with_stable_bins = valid_cems.join(
-        min_stable_bins.select(unit_cols + ["min_stable_bin_right", "min_stable_bin"]),
+        min_stable_bins.select(unit_cols + ["min_stable_bin_upper", "min_stable_bin"]),
         on=unit_cols,
         how="left",
     )
@@ -730,16 +565,9 @@ def estimate_operational_characteristics_by_unit(
         # Add stable bins back to the main output DF
         # bc we defined null version of all of the columns in output via prep_output_df
         # every time we merge in the derived data we drop that column first
-        output.drop(
-            [
-                "min_stable_level",
-                "heat_rate_at_max_load_factor_mmbtu_per_mwh",
-                "heat_rate_at_min_stable_level_mmbtu_per_mwh",
-            ]
-        )
-        .join(min_stable_bins, on=unit_cols, how="left")
-        .join(max_load_heat_rates, on=unit_cols, how="left")
-        .join(min_stable_heat_rates, on=unit_cols, how="left")
+        output.update(min_stable_bins, on=unit_cols, how="left")
+        .update(max_load_heat_rates, on=unit_cols, how="left")
+        .update(min_stable_heat_rates, on=unit_cols, how="left")
         .pipe(
             calculate_min_up_or_down_times,
             cems_with_stable_bins,
@@ -755,25 +583,13 @@ def estimate_operational_characteristics_by_unit(
         .join(ramp_rates, on=unit_cols, how="left")
         .with_columns(
             (
-                (
-                    pl.col("ramp_up_rate")
-                    / pl.col(col_dict["output_max_load_col"])
-                    / 60
-                ).alias(
-                    f"ramp_up_rate_fraction_of_{col_dict['output_ramp_rate_col_suffix']}_per_min"
-                )
-            ),
+                pl.col("ramp_up_rate") / pl.col(col_dict["output_max_load_col"]) / 60
+            ).alias("ramp_up_rate_per_min"),
             (
-                (
-                    pl.col("ramp_down_rate")
-                    / pl.col(col_dict["output_max_load_col"])
-                    / 60
-                ).alias(
-                    f"ramp_down_rate_fraction_of_{col_dict['output_ramp_rate_col_suffix']}_per_min"
-                )
-            ),
+                pl.col("ramp_down_rate") / pl.col(col_dict["output_max_load_col"]) / 60
+            ).alias("ramp_down_rate_per_min"),
             pl.col("heat_rate_at_max_load_factor_mmbtu_per_mwh"),
-            pl.col("heat_rate_at_min_stable_level_mmbtu_per_mwh"),
+            pl.col("heat_rate_at_min_stable_load_factor_mmbtu_per_mwh"),
         )
     )
 
@@ -782,47 +598,46 @@ def estimate_operational_characteristics_by_unit(
         "emissions_unit_id_epa",
         "plant_id_eia",
         col_dict["output_max_load_col"],
-        "min_stable_level",
+        "min_stable_load_factor",
         "min_up_time_hours",
         "min_down_time_hours",
         "heat_rate_at_max_load_factor_mmbtu_per_mwh",
-        "heat_rate_at_min_stable_level_mmbtu_per_mwh",
-        f"ramp_up_rate_fraction_of_{col_dict['output_ramp_rate_col_suffix']}_per_min",
-        f"ramp_down_rate_fraction_of_{col_dict['output_ramp_rate_col_suffix']}_per_min",
+        "heat_rate_at_min_stable_load_factor_mmbtu_per_mwh",
+        "ramp_up_rate_per_min",
+        "ramp_down_rate_per_min",
     ]
 
     return output.select(ordered_cols)
 
 
-def operational_characteristics_factory(state: str) -> AssetsDefinition:
-    """Produce state inputs for out_epacems__yearly_operational_characteristics."""
+@asset(
+    required_resource_keys={"global_data_config"},
+    ins={"core_epacems__hourly_emissions": AssetIn()},
+    config_schema=HEAT_RATE_ANALYSIS_CONFIG_SCHEMA,
+    io_manager_key="pudl_io_manager",
+)
+def out_epacems__yearly_operational_characteristics(
+    context: AssetExecutionContext,
+    core_epacems__hourly_emissions: pl.LazyFrame,
+) -> pd.DataFrame:
+    """Estimate EPA CEMS unit operational characteristics for one state.
 
-    @asset(
-        required_resource_keys={"global_data_config"},
-        name=f"_out_epacems__yearly_operational_characteristics_{state}",
-        ins={"core_epacems__hourly_emissions": AssetIn()},
-        config_schema=HEAT_RATE_ANALYSIS_CONFIG_SCHEMA,
-    )
-    def _out_epacems_state(
-        context: AssetExecutionContext,
-        core_epacems__hourly_emissions: pl.LazyFrame,
-    ) -> pl.DataFrame:
-        """Estimate EPA CEMS unit operational characteristics for one state.
-
-        This table corresponds to the script output named ``epa_op_char_output_df.csv``.
-        """
-        # read in config info from HEAT_RATE_ANALYSIS_CONFIG_SCHEMA
-        heat_rate_config = _get_heat_rate_analysis_config(context)
-        # Get the most recent full year of CEMS from the config. Grab all the
-        # year-quarters, then find the max year with q4 in it.
-        year_quarters = context.resources.global_data_config.pudl.epacems.year_quarters
-        max_full_year = int(
-            max(
-                year_quarter.removesuffix("q4")
-                for year_quarter in year_quarters
-                if year_quarter.endswith("q4")
-            )
+    This table corresponds to the script output named ``epa_op_char_output_df.csv``.
+    """
+    # read in config info from HEAT_RATE_ANALYSIS_CONFIG_SCHEMA
+    heat_rate_config = _get_heat_rate_analysis_config(context)
+    # Get the most recent full year of CEMS from the config. Grab all the
+    # year-quarters, then find the max year with q4 in it.
+    year_quarters = context.resources.global_data_config.pudl.epacems.year_quarters
+    max_full_year = int(
+        max(
+            year_quarter.removesuffix("q4")
+            for year_quarter in year_quarters
+            if year_quarter.endswith("q4")
         )
+    )
+    state_dfs = []
+    for state in EPACEMS_STATES:
         logger.info(
             f"Deriving unit-level operational characteristics from {state} EPA CEMS "
         )
@@ -838,39 +653,20 @@ def operational_characteristics_factory(state: str) -> AssetsDefinition:
         )
         # This step does the bulk of the work. The output here is a table with one
         # record per unit with all of the derived characteristics
-        state_lf = estimate_operational_characteristics_by_unit(
+        state_df = estimate_operational_characteristics_by_unit(
             cems=cems,
             min_stable_consecutive_hours=heat_rate_config[
                 "min_stable_consecutive_hours"
             ],
         )
         # add these two identifying columns for easier use.
-        state_lf = state_lf.with_columns(
-            pl.repeat(state, n=state_lf.height).alias("state"),
-            pl.repeat(max_full_year, n=state_lf.height).alias("report_year"),
+        state_df = state_df.with_columns(
+            pl.repeat(state, n=state_df.height).alias("state"),
+            pl.repeat(max_full_year, n=state_df.height).alias("report_year"),
         )
-        return state_lf
+        state_dfs.append(state_df)
 
-    return _out_epacems_state
-
-
-operational_characteristics_assets = [
-    operational_characteristics_factory(state) for state in EPACEMS_STATES
-]
-
-
-@asset(
-    name="out_epacems__yearly_operational_characteristics",
-    ins={
-        f"_out_epacems__yearly_operational_characteristics_{state}": AssetIn()
-        for state in EPACEMS_STATES
-    },
-    io_manager_key="pudl_io_manager",
-    compute_kind="Python",
-)
-def out_epacems__yearly_operational_characteristics(context, **kwargs) -> pd.DataFrame:
-    """Estimate EPA CEMS unit operational characteristics."""
-    return pl.concat(kwargs.values()).to_pandas()
+    return pl.concat(state_dfs).to_pandas()
 
 
 ##################

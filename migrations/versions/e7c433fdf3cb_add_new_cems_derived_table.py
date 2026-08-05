@@ -1,8 +1,8 @@
 """add new cems derived table
 
-Revision ID: b979ecbe9119
+Revision ID: e7c433fdf3cb
 Revises: 9a8d47bd495e
-Create Date: 2026-08-04 12:22:33.620391
+Create Date: 2026-08-05 17:50:15.198218
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'b979ecbe9119'
+revision = 'e7c433fdf3cb'
 down_revision = '9a8d47bd495e'
 branch_labels = None
 depends_on = None
@@ -23,15 +23,15 @@ def upgrade() -> None:
     sa.Column('emissions_unit_id_epa', sa.Text(), nullable=False, comment='Emissions (smokestack) unit monitored by EPA CEMS.'),
     sa.Column('plant_id_eia', sa.Integer(), nullable=True, comment='The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.'),
     sa.Column('report_year', sa.Integer(), nullable=True, comment='Four-digit year in which the data was reported.'),
-    sa.Column('state', sa.Enum('PR', 'WY', 'ME', 'IL', 'HI', 'FL', 'LA', 'VT', 'KS', 'WI', 'RI', 'ID', 'AZ', 'WV', 'TN', 'OK', 'CT', 'MO', 'CO', 'OH', 'AK', 'NJ', 'PA', 'UT', 'KY', 'OR', 'ND', 'TX', 'WA', 'IA', 'MD', 'SD', 'MA', 'MN', 'SC', 'IN', 'DC', 'NE', 'MS', 'DE', 'NY', 'NH', 'CA', 'AL', 'MI', 'NC', 'NM', 'VA', 'AR', 'NV', 'MT', 'GA'), nullable=True, comment='Two letter US state abbreviation.'),
+    sa.Column('state', sa.Enum('ND', 'LA', 'WY', 'KY', 'NE', 'TX', 'NY', 'MO', 'MT', 'NJ', 'OH', 'MD', 'IL', 'SC', 'WA', 'AZ', 'OR', 'ID', 'HI', 'MA', 'DC', 'PR', 'SD', 'MI', 'VT', 'GA', 'CT', 'MS', 'OK', 'UT', 'RI', 'ME', 'MN', 'KS', 'NV', 'WI', 'AL', 'VA', 'IN', 'DE', 'IA', 'WV', 'NM', 'AR', 'TN', 'NC', 'PA', 'FL', 'AK', 'NH', 'CO', 'CA'), nullable=True, comment='Two letter US state abbreviation.'),
     sa.Column('max_gross_load_mw', sa.Float(), nullable=True, comment='Maximum observed gross load for an EPA CEMS emissions unit.'),
-    sa.Column('min_stable_level', sa.Float(), nullable=True, comment='Estimated minimum stable operating level as a fraction of maximum gross load.'),
+    sa.Column('min_stable_load_factor', sa.Float(), nullable=True, comment='Estimated minimum stable operating level as a fraction of maximum gross load.'),
     sa.Column('min_up_time_hours', sa.Float(), nullable=True, comment='Minimum observed duration of a consecutive run at or above the minimum stable level.'),
     sa.Column('min_down_time_hours', sa.Float(), nullable=True, comment='Minimum observed duration of a consecutive non-operating run.'),
     sa.Column('heat_rate_at_max_load_factor_mmbtu_per_mwh', sa.Float(), nullable=True, comment='Estimated heat rate at the highest observed load-factor bin for an EPA CEMS emissions unit.'),
-    sa.Column('heat_rate_at_min_stable_level_mmbtu_per_mwh', sa.Float(), nullable=True, comment='Estimated heat rate at the minimum stable operating level for an EPA CEMS emissions unit.'),
-    sa.Column('ramp_up_rate_fraction_of_max_gross_load_per_min', sa.Float(), nullable=True, comment='Median ramp-up rate in the highest observed ramp bin, expressed as a fraction of maximum gross load per minute.'),
-    sa.Column('ramp_down_rate_fraction_of_max_gross_load_per_min', sa.Float(), nullable=True, comment='Median ramp-down rate in the lowest observed ramp bin, expressed as a fraction of maximum gross load per minute.'),
+    sa.Column('heat_rate_at_min_stable_load_factor_mmbtu_per_mwh', sa.Float(), nullable=True, comment='Estimated heat rate at the minimum stable operating level for an EPA CEMS emissions unit.'),
+    sa.Column('ramp_up_rate_per_min', sa.Float(), nullable=True, comment='Median ramp-up rate in the highest observed ramp bin, expressed as a fraction of maximum gross load per minute.'),
+    sa.Column('ramp_down_rate_per_min', sa.Float(), nullable=True, comment='Median ramp-down rate in the lowest observed ramp bin, expressed as a fraction of maximum gross load per minute.'),
     sa.ForeignKeyConstraint(['plant_id_eia'], ['core_eia__entity_plants.plant_id_eia'], name=op.f('fk_out_epacems__yearly_operational_characteristics_plant_id_eia_core_eia__entity_plants')),
     sa.PrimaryKeyConstraint('plant_id_epa', 'emissions_unit_id_epa', name=op.f('pk_out_epacems__yearly_operational_characteristics'))
     )

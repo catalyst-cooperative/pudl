@@ -4066,7 +4066,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
         "unit": "MMBTU / MWh",
     },
-    "heat_rate_at_min_stable_level_mmbtu_per_mwh": {
+    "heat_rate_at_min_stable_load_factor_mmbtu_per_mwh": {
         "type": "number",
         "description": (
             "Estimated heat rate at the minimum stable operating level for an EPA "
@@ -4881,7 +4881,7 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
         "unit": "hr",
     },
-    "min_stable_level": {
+    "min_stable_load_factor": {
         "type": "number",
         "description": (
             "Estimated minimum stable operating level as a fraction of maximum gross "
@@ -6679,14 +6679,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Identifier indicating original FERC Form 1 source record. format: {table_name}_{report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within FERC Form 1 DB tables which are not row-mapped."
         ),
     },
-    "ramp_down_rate_fraction_of_max_gross_load_per_min": {
+    "ramp_down_rate_per_min": {
         "type": "number",
         "description": (
             "Median ramp-down rate in the lowest observed ramp bin, expressed as a "
             "fraction of maximum gross load per minute."
         ),
     },
-    "ramp_up_rate_fraction_of_max_gross_load_per_min": {
+    "ramp_up_rate_per_min": {
         "type": "number",
         "description": (
             "Median ramp-up rate in the highest observed ramp bin, expressed as a "
