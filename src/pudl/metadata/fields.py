@@ -26,6 +26,7 @@ from pudl.metadata.enums import (
     ENERGY_USE_TYPES_EIAAEO,
     EPACEMS_MEASUREMENT_CODES,
     EPACEMS_STATES,
+    EPAMATS_MEASUREMENT_CODES,
     FUEL_CLASSES,
     FUEL_TYPES_EIAAEO,
     FUNCTIONAL_STATUS_CODES_CENSUS,
@@ -4015,8 +4016,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "hcl_mass_measurement_code": {
         "type": "string",
         "description": (
-            "Identifies whether the reported value of hydrogen chloride (HCl) emissions was measured or calculated."
+            "Identifies whether the reported value of hydrogen chloride (HCl) emissions was measured, calculated, startup or shutdown, or unavailable."
         ),
+        "constraints": {"enum": EPAMATS_MEASUREMENT_CODES},
     },
     "hcl_output_rate_lb_per_mwh": {
         "type": "number",
@@ -4103,8 +4105,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "hf_mass_measurement_code": {
         "type": "string",
         "description": (
-            "Identifies whether the reported value of hydrogen fluoride (HF) emissions was measured or calculated."
+            "Identifies whether the reported value of hydrogen fluoride (HF) emissions was measured, calculated, startup or shutdown, or unavailable."
         ),
+        "constraints": {"enum": EPAMATS_MEASUREMENT_CODES},
     },
     "hf_output_rate_lb_per_mwh": {
         "type": "number",
@@ -4128,8 +4131,9 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "hg_mass_measurement_code": {
         "type": "string",
         "description": (
-            "Identifies whether the reported value of mercury (Hg) emissions was measured or calculated."
+            "Identifies whether the reported value of mercury (Hg) emissions was measured, calculated, startup or shutdown, or unavailable."
         ),
+        "constraints": {"enum": EPAMATS_MEASUREMENT_CODES},
     },
     "hg_output_rate_lb_per_gwh": {
         "type": "number",
