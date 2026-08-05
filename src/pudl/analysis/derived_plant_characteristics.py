@@ -36,6 +36,34 @@ HEAT_RATE_ANALYSIS_CONFIG_SCHEMA = {
             "required for that bin to be considered a stable operating level."
         ),
     ),
+    "load_factor_binning_method": Field(
+        str,
+        default_value="vectorized",
+        description=(
+            "Method used to assign hourly load-factor bins. 'pandas_cut' uses the "
+            "original per-unit pandas groupby/pd.cut fallback "
+            "(assign_groupwise_load_factor_bins); 'vectorized' uses a fully "
+            "expression-based polars equivalent (assign_load_factor_bins_vectorized). "
+            "Both are expected to produce equivalent output -- this flag exists "
+            "to A/B test performance and correctness before retiring the pandas "
+            "fallback. See notebooks/work-in-progress/sylvan-heat-rates.md."
+        ),
+    ),
+    "ramp_rate_binning_method": Field(
+        str,
+        default_value="rank_split",
+        description=(
+            "Method used to summarize ramp-up/ramp-down rates. 'rank_split' takes "
+            "the median of the top/bottom 5% of ramp rates by rank (fast, fully "
+            "vectorized; _summarize_ramp_rates). 'qcut' reproduces the original "
+            "script's pandas.qcut(q=20, duplicates='drop') per-unit quantile "
+            "binning (_summarize_ramp_rates_qcut). The two methods diverge "
+            "meaningfully whenever there are tied/duplicate ramp-rate values "
+            "(the common case, since many hourly deltas are exactly zero) -- "
+            "this flag exists to A/B test them before settling on one. See "
+            "notebooks/work-in-progress/sylvan-heat-rates.md."
+        ),
+    ),
 }
 
 
@@ -46,6 +74,8 @@ def _get_heat_rate_analysis_config(context) -> dict[str, Any]:
         "min_stable_consecutive_hours": context.op_config[
             "min_stable_consecutive_hours"
         ],
+        "load_factor_binning_method": context.op_config["load_factor_binning_method"],
+        "ramp_rate_binning_method": context.op_config["ramp_rate_binning_method"],
     }
 
 
@@ -198,7 +228,14 @@ def _add_run_id(
     same_state = lf.select(
         True if state_col is None else pl.col(state_col).eq(pl.col(state_col).shift())
     ).to_series()
-    return (~(same_unit_and_bin & consecutive_hour & same_state)).cum_sum()
+    # The first row of the frame has no previous row to shift/diff against, so
+    # same_unit_and_bin and consecutive_hour are both null there, which would
+    # otherwise propagate as null through cum_sum() instead of starting run 0 --
+    # fill_null(True) says "the first row always starts a new run," mirroring
+    # consecutive_run_ids()'s .ne(1).fill_null(True) above.
+    return (
+        (~(same_unit_and_bin & consecutive_hour & same_state)).fill_null(True).cum_sum()
+    )
 
 
 def assign_groupwise_load_factor_bins(
@@ -267,6 +304,89 @@ def assign_groupwise_load_factor_bins(
     return result
 
 
+def assign_load_factor_bins_vectorized(
+    cems_working: pl.LazyFrame,
+    unit_cols: list[str],
+    load_factor_col: str,
+) -> pl.DataFrame:
+    """Fully vectorized, per-unit equal-width load-factor binning.
+
+    Alternate implementation of :func:`assign_groupwise_load_factor_bins` that
+    replaces its per-unit ``pandas`` ``groupby().apply(pd.cut)`` fallback with
+    polars window expressions, so no per-unit Python loop is required to compute
+    the bin edges themselves. It reproduces
+    ``pandas.cut(bins=10, right=True, include_lowest=False)`` computed
+    independently per unit: 10 equal-width bins spanning that unit's own observed
+    min/max ``load_factor_col`` (``width = (max - min) / 10``), except that only
+    the *lowest* bin's left edge is padded by 0.1% of the range (or by 0.001 when
+    the range is zero) so that the unit's minimum observation falls inside the
+    first (right-closed) bin rather than outside every bin -- matching pandas'
+    ``_bins_to_cuts`` behavior of shifting only ``bins[0]``, not redistributing
+    the padding across all ten bins.
+
+    Returns the same output schema as :func:`assign_groupwise_load_factor_bins`
+    (including the ``load_factor_bin`` struct and dense-ranked
+    ``load_factor_bin_ordinal``) so it's a drop-in replacement for callers.
+    This is intended for A/B comparison against the original implementation
+    before retiring the pandas fallback -- see
+    ``notebooks/work-in-progress/sylvan-heat-rates.md`` and
+    ``tests/unit/analysis/derived_plant_characteristics_test.py`` for the
+    empirical basis of that comparison.
+    """
+    stats = cems_working.group_by(unit_cols).agg(
+        pl.col(load_factor_col).drop_nulls().n_unique().alias("load_factor_nunique")
+    )
+    cems_working = cems_working.join(stats, on=unit_cols, how="left")
+
+    lo = pl.col(load_factor_col).min().over(unit_cols)
+    hi = pl.col(load_factor_col).max().over(unit_cols)
+    span = hi - lo
+    pad = pl.when(span == 0).then(0.001).otherwise(span * 0.001)
+    width = pl.when(span == 0).then(0.002 / 10).otherwise(span / 10)
+    # Round before ceil-ing: a value that lands exactly on a bin edge (e.g.
+    # x == lo + 3*width) can come out as 2.9999999999996 or 3.0000000000004
+    # depending on float rounding in the division, which would otherwise push it
+    # into the wrong bin.
+    bin_idx = (((pl.col(load_factor_col) - lo) / width).round(9)).ceil().clip(1, 10)
+
+    eligible = (pl.col("load_factor_nunique") > 1) & pl.col(
+        load_factor_col
+    ).is_not_null()
+    # Only the lowest bin's left edge is padded -- the other nine bin widths are
+    # exactly `width`, matching pandas' behavior of shifting only `bins[0]`.
+    bin_left = (
+        pl.when(bin_idx == 1).then(lo - pad).otherwise(lo + (bin_idx - 1) * width)
+    )
+    bin_right = lo + bin_idx * width
+
+    result = cems_working.with_columns(
+        pl.when(eligible).then(bin_left).alias("load_factor_bin_left"),
+        pl.when(eligible).then(bin_right).alias("load_factor_bin_right"),
+        pl.col("state").cast(pl.Categorical),
+    ).with_columns(
+        pl.when(eligible)
+        .then(
+            pl.struct(
+                left=pl.col("load_factor_bin_left"),
+                right=pl.col("load_factor_bin_right"),
+            )
+        )
+        .alias("load_factor_bin")
+    )
+
+    # Rank bins for each set of unit_cols, exactly as assign_groupwise_load_factor_bins
+    # does, so downstream ordinal-based logic (skip lowest bin, find max bin, etc.)
+    # behaves identically regardless of which binning method produced the edges.
+    result = result.with_columns(
+        pl.col("load_factor_bin_left")
+        .rank(method="dense")
+        .over(unit_cols)
+        .alias("load_factor_bin_ordinal")
+    )
+
+    return result.collect()
+
+
 def _summarize_ramp_rates(
     cems_with_stable_bins: pl.LazyFrame,
     unit_cols: list[str],
@@ -315,6 +435,72 @@ def _summarize_ramp_rates(
             .alias("ramp_up_rate"),
         )
         .cast({"ramp_up_rate": pl.Float64, "ramp_down_rate": pl.Float64})
+    )
+
+
+def _summarize_ramp_rates_qcut(
+    cems_with_stable_bins: pl.DataFrame | pl.LazyFrame,
+    unit_cols: list[str],
+    generation_col: str,
+) -> pl.DataFrame:
+    """Summarize per-unit ramp rates using the original script's qcut approach.
+
+    Reimplementation of the original pandas script's ``pandas.qcut(ramp_rate, q=20,
+    duplicates="drop")`` per-unit binning, provided as an A/B comparison against the
+    vectorized rank-based :func:`_summarize_ramp_rates`. ``duplicates="drop"`` collapses
+    adjacent quantile edges that land on the same value -- common here, since a large
+    share of hourly ramp rates are exactly zero -- so the two methods can diverge
+    meaningfully. This function requires a per-unit pandas ``groupby`` loop and is not
+    intended as a long-term implementation; it exists to empirically characterize that
+    divergence before choosing (and vectorizing) a final methodology. See
+    ``notebooks/work-in-progress/sylvan-heat-rates.md``.
+    """
+    ramp_input = (
+        cems_with_stable_bins.lazy()
+        .sort(unit_cols + ["operating_datetime_utc"])
+        .with_columns(
+            (
+                pl.col("operating_datetime_utc")
+                .diff()
+                .over(unit_cols)
+                .dt.total_seconds(fractional=True)
+                / 3600
+            ).alias("time_delta"),
+            pl.col(generation_col).diff().over(unit_cols).alias("generation_delta"),
+        )
+        .with_columns(ramp_rate=(pl.col("generation_delta") / pl.col("time_delta")))
+        .with_columns(pl.col("ramp_rate").replace([float("inf"), float("-inf")], None))
+        .drop_nulls("ramp_rate")
+        .select(unit_cols + ["ramp_rate"])
+        .collect()
+    )
+
+    ramp_pd = ramp_input.to_pandas()
+
+    records = []
+    for keys, group in ramp_pd.groupby(unit_cols, sort=False):
+        if not isinstance(keys, tuple):
+            keys = (keys,)
+        ramp_rate = group["ramp_rate"]
+        try:
+            bins = pd.qcut(ramp_rate, q=20, duplicates="drop")
+        except ValueError:
+            # Fewer than 2 distinct values -- qcut can't form any bins.
+            ramp_down_rate = ramp_up_rate = np.nan
+        else:
+            low_bin, high_bin = bins.min(), bins.max()
+            ramp_down_rate = ramp_rate[bins == low_bin].median()
+            ramp_up_rate = ramp_rate[bins == high_bin].median()
+        records.append(
+            dict(zip(unit_cols, keys, strict=True))
+            | {"ramp_down_rate": ramp_down_rate, "ramp_up_rate": ramp_up_rate}
+        )
+
+    summary_pd = pd.DataFrame.from_records(
+        records, columns=[*unit_cols, "ramp_down_rate", "ramp_up_rate"]
+    )
+    return pl.from_pandas(summary_pd).cast(
+        {"ramp_up_rate": pl.Float64, "ramp_down_rate": pl.Float64}
     )
 
 
@@ -416,8 +602,8 @@ def prep_output_df(
 
 
 def compute_stable_runs(
-    binned_cems: pl.DataFrame, unit_cols: list[str], min_stable_consecutive_hours: int
-) -> pl.DataFrame:
+    binned_cems: pl.LazyFrame, unit_cols: list[str], min_stable_consecutive_hours: int
+) -> pl.LazyFrame:
     """Given a certain consecutive hour threshold, find runs with stable behavior.
 
     We remove the lowest load factor bin for this.
@@ -457,7 +643,7 @@ def compute_stable_runs(
 
 
 def compute_heat_rate_at_max_load(
-    heat_rate_input: pl.DataFrame,
+    heat_rate_input: pl.LazyFrame,
     unit_cols: list[str],
     heat_rate_col: str,
 ) -> pl.LazyFrame:
@@ -558,22 +744,50 @@ def estimate_operational_characteristics_by_unit(
     cems: pl.LazyFrame,
     min_stable_consecutive_hours: int,
     adjusted: bool = False,
-) -> pl.LazyFrame:
+    load_factor_binning_method: Literal["pandas_cut", "vectorized"] = "vectorized",
+    ramp_rate_binning_method: Literal["rank_split", "qcut"] = "rank_split",
+) -> pl.DataFrame:
     """Estimate operational characteristics for every EPA CEMS plant-unit pair.
 
     Most calculations are done in a dataframe-wide, vectorized manner. Ramp-rate
     summaries still use a grouped helper so the output matches the original script's
     per-unit ``qcut`` behavior.
+
+    Args:
+        cems: Filtered hourly EPA CEMS records.
+        min_stable_consecutive_hours: Minimum number of consecutive hours in a
+            load-factor bin for that bin to count as a stable operating level.
+        adjusted: Whether to compute characteristics from EIA-adjusted net
+            generation instead of raw EPA CEMS gross load.
+        load_factor_binning_method: ``"vectorized"`` (default) uses
+            :func:`assign_load_factor_bins_vectorized`, a fully
+            expression-based polars equivalent of ``pandas.cut``. ``"pandas_cut"``
+            uses :func:`assign_groupwise_load_factor_bins`, the original per-unit
+            pandas fallback, kept for A/B comparison; see
+            ``notebooks/work-in-progress/sylvan-heat-rates.md``.
+        ramp_rate_binning_method: ``"rank_split"`` (default) uses
+            :func:`_summarize_ramp_rates`, the vectorized top/bottom-5%-by-rank
+            approach. ``"qcut"`` uses :func:`_summarize_ramp_rates_qcut`, which
+            reproduces the original script's ``pandas.qcut`` behavior. Exposed for A/B
+            comparison; see ``notebooks/work-in-progress/sylvan-heat-rates.md``.
+
     """
     # Filter and pre-process CEMS based on adjustment boolean
     unit_cols = ["plant_id_epa", "emissions_unit_id_epa"]
     cems_working, col_dict = handle_adjustment_in_cems(cems, unit_cols, adjusted)
     # Assign groupwise load factor bins
-    cems_working = assign_groupwise_load_factor_bins(
-        cems_working=cems_working,
-        unit_cols=unit_cols,
-        load_factor_col=col_dict["load_factor_col"],
-    )
+    if load_factor_binning_method == "vectorized":
+        cems_working = assign_load_factor_bins_vectorized(
+            cems_working=cems_working,
+            unit_cols=unit_cols,
+            load_factor_col=col_dict["load_factor_col"],
+        )
+    else:
+        cems_working = assign_groupwise_load_factor_bins(
+            cems_working=cems_working,
+            unit_cols=unit_cols,
+            load_factor_col=col_dict["load_factor_col"],
+        )
 
     # Set up dataframe with analytical columns
     output = prep_output_df(
@@ -620,7 +834,12 @@ def estimate_operational_characteristics_by_unit(
         on=unit_cols,
         how="left",
     )
-    ramp_rates = _summarize_ramp_rates(
+    ramp_rate_summary_fn = (
+        _summarize_ramp_rates_qcut
+        if ramp_rate_binning_method == "qcut"
+        else _summarize_ramp_rates
+    )
+    ramp_rates = ramp_rate_summary_fn(
         cems_with_stable_bins=cems_with_stable_bins,
         unit_cols=unit_cols,
         generation_col=col_dict["generation_col"],
@@ -754,6 +973,8 @@ def operational_characteristics_factory(
             min_stable_consecutive_hours=heat_rate_config[
                 "min_stable_consecutive_hours"
             ],
+            load_factor_binning_method=heat_rate_config["load_factor_binning_method"],
+            ramp_rate_binning_method=heat_rate_config["ramp_rate_binning_method"],
         )
         state_lf = state_lf.with_columns(
             pl.repeat(state, n=state_lf.height).alias("state"),
@@ -781,6 +1002,72 @@ operational_characteristics_assets = [
 def out_epacems__yearly_operational_characteristics(context, **kwargs) -> pd.DataFrame:
     """Estimate EPA CEMS unit operational characteristics."""
     return pl.concat(kwargs.values()).to_pandas()
+
+
+@asset(
+    name="out_epacems__yearly_operational_characteristics_single_asset",
+    required_resource_keys={"global_data_config"},
+    ins={"core_epacems__hourly_emissions": AssetIn()},
+    # Deliberately omits io_manager_key="pudl_io_manager": that IO manager requires
+    # the asset name to match a registered pudl.metadata.resources.Resource, which
+    # this experimental, not-a-real-output-table asset intentionally isn't. Falls
+    # back to Dagster's default (unconfigured) IO manager instead.
+    config_schema=HEAT_RATE_ANALYSIS_CONFIG_SCHEMA,
+    compute_kind="Python",
+)
+def out_epacems__yearly_operational_characteristics_single_asset(
+    context: AssetExecutionContext,
+    core_epacems__hourly_emissions: pl.LazyFrame,
+) -> pd.DataFrame:
+    """Estimate EPA CEMS unit operational characteristics for every state.
+
+    Alternative to :func:`operational_characteristics_factory` +
+    :func:`out_epacems__yearly_operational_characteristics`: rather than fanning
+    out into one Dagster asset per state (51 assets, each carrying its own
+    scheduling/IO overhead) plus a combiner asset, this loops over every state
+    within a single asset. With the vectorized binning path, even the largest
+    state (California) takes about a second to compute, so the per-asset
+    overhead of the fan-out plausibly outweighs the benefit of parallelizing
+    across states. Produces row-equivalent output (row order is not
+    guaranteed to match) to ``out_epacems__yearly_operational_characteristics``
+    for direct comparison.
+    """
+    heat_rate_config = _get_heat_rate_analysis_config(context)
+    year_quarters = context.resources.global_data_config.pudl.epacems.year_quarters
+    max_full_year = int(
+        max(
+            year_quarter.removesuffix("q4")
+            for year_quarter in year_quarters
+            if year_quarter.endswith("q4")
+        )
+    )
+
+    state_dfs = []
+    for state in sorted(EPACEMS_STATES):
+        logger.info(
+            f"Deriving unit-level operational characteristics from {state} EPA CEMS"
+        )
+        cems = filter_cems_for_heat_rate_analysis(
+            core_epacems__hourly_emissions=core_epacems__hourly_emissions,
+            final_year=max_full_year,
+            num_years=heat_rate_config["num_years"],
+            states=[state],
+        )
+        state_df = estimate_operational_characteristics_by_unit(
+            cems=cems,
+            min_stable_consecutive_hours=heat_rate_config[
+                "min_stable_consecutive_hours"
+            ],
+            load_factor_binning_method=heat_rate_config["load_factor_binning_method"],
+            ramp_rate_binning_method=heat_rate_config["ramp_rate_binning_method"],
+        )
+        state_df = state_df.with_columns(
+            pl.repeat(state, n=state_df.height).alias("state"),
+            pl.repeat(max_full_year, n=state_df.height).alias("report_year"),
+        )
+        state_dfs.append(state_df)
+
+    return pl.concat(state_dfs).to_pandas()
 
 
 ##################
