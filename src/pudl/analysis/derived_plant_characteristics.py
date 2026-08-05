@@ -198,28 +198,32 @@ def _add_run_id(
     same_state = lf.select(
         True if state_col is None else pl.col(state_col).eq(pl.col(state_col).shift())
     ).to_series()
-    return (~(same_unit_and_bin & consecutive_hour & same_state)).cum_sum()
+    return (
+        (~(same_unit_and_bin & consecutive_hour & same_state)).fill_null(True).cum_sum()
+    )
 
 
-def assign_groupwise_load_factor_bins(
+def assign_groupwise_load_factor_bins_old(
     cems_working: pl.LazyFrame,
     unit_cols: list[str],
     load_factor_col: str,
 ) -> pl.DataFrame:
     """Exact per-unit pd.cut(bins=10) using LazyFrame + minimal pandas fallback.
 
-    For each unit we want to
+    For each unit we want to define a "load factor bin". For this we use pandas'
+    cut with 10 bins. This is a step that we attempted to convert to polars, but
+    that resulted in material differences to the outputs.
+
+    ``pandas.cut`` generates equal-width bins for each unit's load factor.
     """
     # compute group load factor
-    stats = (
-        cems_working.sort(unit_cols + ["operating_datetime_utc"])
-        .group_by(unit_cols)
-        .agg(
-            # drop nulls before n_unique-ing so we don't get a bunch of null valid stats
-            pl.col(load_factor_col).drop_nulls().n_unique().alias("load_factor_nunique")
-        )
+    cems_working = cems_working.with_columns(
+        pl.col(load_factor_col)
+        .drop_nulls()
+        .n_unique()
+        .over(unit_cols)
+        .alias("load_factor_nunique")
     )
-    cems_working = cems_working.join(stats, on=unit_cols, how="left")
 
     valid = cems_working.filter(pl.col("load_factor_nunique") > 1)
     invalid = cems_working.filter(pl.col("load_factor_nunique") <= 1)
@@ -236,38 +240,114 @@ def assign_groupwise_load_factor_bins(
             include_lowest=False,
         )
     )
-    valid_pl = pl.from_pandas(valid_pd)
-    valid_pl = valid_pl.with_columns(
+    valid_pl = pl.from_pandas(valid_pd).with_columns(
         pl.col("state").cast(pl.Categorical),
         pl.col("load_factor_bin").cast(
             pl.Struct({"left": pl.Float64, "right": pl.Float64})
         ),
     )
-
-    # recombine with rest of rows
-    combined = pl.concat(
-        [
-            valid_pl,
-            invalid.with_columns(
-                pl.lit(None)
-                .cast(valid_pl["load_factor_bin"].dtype)
-                .alias("load_factor_bin")
-            ).collect(),
-        ]
-    )
-
-    # Rank bins for each set of unit_cols
-    result = combined.with_columns(
-        pl.col("load_factor_bin").struct[0].alias("load_factor_bin_left"),
-        pl.col("load_factor_bin").struct[1].alias("load_factor_bin_right"),
-    ).with_columns(
-        pl.col("load_factor_bin_left")
-        .rank(method="dense")
-        .over(unit_cols)
-        .alias("load_factor_bin_ordinal")
+    result = (
+        # recombine with rest of rows
+        pl.concat(
+            [
+                valid_pl,
+                invalid.with_columns(
+                    pl.lit(None)
+                    .cast(valid_pl["load_factor_bin"].dtype)
+                    .alias("load_factor_bin")
+                ).collect(),
+            ]
+        )  # Rank bins for each set of unit_cols
+        .with_columns(
+            pl.col("load_factor_bin").struct[0].alias("load_factor_bin_left"),
+            pl.col("load_factor_bin").struct[1].alias("load_factor_bin_right"),
+        )
+        .with_columns(
+            pl.col("load_factor_bin_left")
+            .rank(method="dense")
+            .over(unit_cols)
+            .alias("load_factor_bin_ordinal")
+        )
     )
 
     return result
+
+
+def assign_groupwise_load_factor_bins(
+    cems_working: pl.LazyFrame,
+    unit_cols: list[str],
+    load_factor_col: str,
+) -> pl.DataFrame:
+    """Fully vectorized, per-unit equal-width load-factor binning.
+
+    This uses polars but is replicating the ``pandas.cut`` methodology. This results
+    in a ``load_factor_bin` `column with 10 unique values with a two dimensional
+    structure as a datatype. The left value of the structure is the lower bound of the
+    load factors within that bin and the right value it the higher bound. Using the
+    ``load_factor_bin`` we also assign ``load_factor_bin_ordinal`` which is the lower
+    bound of the lowest ``load_factor_bin``.
+
+    This function uses polars but is attempting to directly reproduce
+    ``pandas.cut(bins=10, right=True, include_lowest=False)`` within each unit group.
+    The pandas methodology computes 10 equal-width bins spanning that unit's own
+    observed min/max ``load_factor_col`` (``width = (max - min) / 10``), except that
+    only the *lowest* bin's left edge is padded by 0.1% of the range (or by 0.001 when
+    the range is zero) so that the unit's minimum observation falls inside the
+    first (right-closed) bin rather than outside every bin -- matching pandas'
+    ``_bins_to_cuts`` behavior of shifting only ``bins[0]``, not redistributing
+    the padding across all ten bins.
+    """
+    # compute group load factor
+    cems_working = cems_working.with_columns(
+        pl.col(load_factor_col)
+        .drop_nulls()
+        .n_unique()
+        .over(unit_cols)
+        .alias("load_factor_nunique")
+    )
+
+    lo = pl.col(load_factor_col).min().over(unit_cols)
+    hi = pl.col(load_factor_col).max().over(unit_cols)
+    span = hi - lo
+    pad = pl.when(span == 0).then(0.001).otherwise(span * 0.001)
+    width = pl.when(span == 0).then(0.002 / 10).otherwise(span / 10)
+    # Round before ceil-ing: a value that lands exactly on a bin edge (e.g.
+    # x == lo + 3*width) can come out as 2.9999999999996 or 3.0000000000004
+    # depending on float rounding in the division, which would otherwise push it
+    # into the wrong bin.
+    bin_idx = (((pl.col(load_factor_col) - lo) / width).round(9)).ceil().clip(1, 10)
+
+    eligible = (pl.col("load_factor_nunique") > 1) & pl.col(
+        load_factor_col
+    ).is_not_null()
+    # Only the lowest bin's left edge is padded -- the other nine bin widths are
+    # exactly `width`, matching pandas' behavior of shifting only `bins[0]`.
+    bin_left = (
+        pl.when(bin_idx == 1).then(lo - pad).otherwise(lo + (bin_idx - 1) * width)
+    )
+    bin_right = lo + bin_idx * width
+
+    result = cems_working.with_columns(
+        pl.when(eligible).then(bin_left).alias("load_factor_bin_left"),
+        pl.when(eligible).then(bin_right).alias("load_factor_bin_right"),
+        pl.col("state").cast(pl.Categorical),
+    ).with_columns(
+        pl.when(eligible)
+        .then(
+            pl.struct(
+                left=pl.col("load_factor_bin_left"),
+                right=pl.col("load_factor_bin_right"),
+            )
+        )
+        .alias("load_factor_bin"),
+        # Rank bins for each set of unit_cols
+        pl.col("load_factor_bin_left")
+        .rank(method="dense")
+        .over(unit_cols)
+        .alias("load_factor_bin_ordinal"),
+    )
+
+    return result.collect()
 
 
 def summarize_ramp_rates(
@@ -541,8 +621,10 @@ def calculate_min_up_or_down_times(
 ) -> pl.LazyFrame:
     """Calculate minimum up or down times.
 
-    Hourly data points are considered "up" when the ``load_factor_bin`` is greater than the
-    ``min_stable_bin`` (calculated in :func:`compute_minimum_stable_bin`).
+    Hourly data points are considered "up" when the ``load_factor_bin`` is greater than
+    the ``min_stable_bin`` (calculated in :func:`compute_minimum_stable_bin`). Runs are
+    considered "down" when there is no load_factor_bin (which is equivalent to having no
+    load during that hour).
     """
     if up_or_down == "up":
         # up times are considered up when the load_factor_bin is greater than the
@@ -560,20 +642,12 @@ def calculate_min_up_or_down_times(
             .len()
             .group_by(unit_cols)
             .agg(pl.col("len").min().alias(f"min_{up_or_down}_time_hours"))
+            .cast({f"min_{up_or_down}_time_hours": pl.Float64})
         )
         # the output already had all columns bc of prep_output_df including these min
         # up or down time hours. So we join and then take the non-null value.
-        output = (
-            output.join(min_up_or_down_times, on=unit_cols, how="left", suffix="_y")
-            .with_columns(
-                pl.coalesce(
-                    [
-                        pl.col(f"min_{up_or_down}_time_hours_y"),
-                        pl.col(f"min_{up_or_down}_time_hours"),
-                    ]
-                ).alias(f"min_{up_or_down}_time_hours")
-            )
-            .drop(f"min_{up_or_down}_time_hours_y")
+        output = output.drop(f"min_{up_or_down}_time_hours").join(
+            min_up_or_down_times, on=unit_cols, how="left"
         )
     return output
 
@@ -681,14 +755,22 @@ def estimate_operational_characteristics_by_unit(
         .join(ramp_rates, on=unit_cols, how="left")
         .with_columns(
             (
-                pl.col("ramp_up_rate") / pl.col(col_dict["output_max_load_col"]) / 60
-            ).alias(
-                f"ramp_up_rate_fraction_of_{col_dict['output_ramp_rate_col_suffix']}_per_min"
+                (
+                    pl.col("ramp_up_rate")
+                    / pl.col(col_dict["output_max_load_col"])
+                    / 60
+                ).alias(
+                    f"ramp_up_rate_fraction_of_{col_dict['output_ramp_rate_col_suffix']}_per_min"
+                )
             ),
             (
-                pl.col("ramp_down_rate") / pl.col(col_dict["output_max_load_col"]) / 60
-            ).alias(
-                f"ramp_down_rate_fraction_of_{col_dict['output_ramp_rate_col_suffix']}_per_min"
+                (
+                    pl.col("ramp_down_rate")
+                    / pl.col(col_dict["output_max_load_col"])
+                    / 60
+                ).alias(
+                    f"ramp_down_rate_fraction_of_{col_dict['output_ramp_rate_col_suffix']}_per_min"
+                )
             ),
             pl.col("heat_rate_at_max_load_factor_mmbtu_per_mwh"),
             pl.col("heat_rate_at_min_stable_level_mmbtu_per_mwh"),
