@@ -19,6 +19,17 @@ class Extractor(CsvExtractor):
         self.METADATA = GenericMetadata("eia191")
         super().__init__(*args, **kwargs)
 
+    def source_filename(self, page: str, **partition: PartitionSelection) -> str:
+        """Override filename selection.
+
+        Since archive version 33.0.0, EIA-191 archives include both annual and monthly files for some years.
+        All files specify whether they are annual or monthly.
+        PUDL processes only monthly EIA-191 data.
+        """
+        return (
+            super().source_filename(page, **partition).replace(".csv", "_monthly.csv")
+        )
+
     def get_page_cols(self, page: str, partition_key: str) -> list[str]:
         """Get the columns for a particular page and partition key.
 
