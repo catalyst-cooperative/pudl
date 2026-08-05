@@ -66,7 +66,7 @@ FERC Form 6
 
 * Updated the raw FERC Form 6 archives to include additional
   2025 data. This data is converted to SQLite, but not deeply
-  integrated into PUDL. See PR :pr:`5441` and :pr:`5464`.
+  integrated into PUDL. See PR :pr:`5441`.
 
 Documentation
 ^^^^^^^^^^^^^
