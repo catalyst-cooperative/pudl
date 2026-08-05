@@ -31,7 +31,7 @@ EIA-860M
 
 EIA-923
 ~~~~~~~
-* Added :doc:`EIA-860M <data_sources/eia860>` data through May 2026. See
+* Added :doc:`EIA-923M <data_sources/eia923>` data through May 2026. See
   issue :issue:`5460` and PR :pr:`5468`.
 
 EIA-930
