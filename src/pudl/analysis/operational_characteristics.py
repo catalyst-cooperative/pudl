@@ -637,7 +637,7 @@ def out_epacems__yearly_operational_characteristics(
         )
     )
     state_dfs = []
-    for state in EPACEMS_STATES:
+    for state in sorted(EPACEMS_STATES):
         logger.info(
             f"Deriving unit-level operational characteristics from {state} EPA CEMS "
         )
