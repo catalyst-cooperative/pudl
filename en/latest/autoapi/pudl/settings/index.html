@@ -18,7 +18,7 @@
     </script>
     
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
-    <title>pudl.settings &#8212; PUDL 2026.7.3.dev28 documentation</title>
+    <title>pudl.settings &#8212; PUDL 2026.7.3.dev30 documentation</title>
   
   
   
@@ -51,7 +51,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=dd2b94ae"></script>
+    <script src="../../../_static/documentation_options.js?v=3307a040"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -142,8 +142,8 @@
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.7.3.dev28 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.7.3.dev28 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.7.3.dev30 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.7.3.dev30 documentation - Home"/>
   
   
 </a></div>
@@ -1741,6 +1741,14 @@ daily_weather are such that by default, all working partitions will be included.
 </dl>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.settings.EiaDataConfig.validate_eia860m_consistency">
+<span class="sig-name descname"><span class="pre">validate_eia860m_consistency</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/pudl/settings.html#EiaDataConfig.validate_eia860m_consistency"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.settings.EiaDataConfig.validate_eia860m_consistency" title="Link to this definition">#</a></dt>
+<dd><p>After-construction validation: ensure eia860/eia860m are consistent.</p>
+<p>Note: this only validates and raises; it does not attempt to inject a missing
+eia860m config (after-mode validators run after models are constructed).</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
@@ -2511,6 +2519,7 @@ XBRL to SQLite data config.</p>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.settings.EiaDataConfig.eiaaeo"><code class="docutils literal notranslate"><span class="pre">EiaDataConfig.eiaaeo</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.settings.EiaDataConfig.default_load_all"><code class="docutils literal notranslate"><span class="pre">EiaDataConfig.default_load_all()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.settings.EiaDataConfig.check_eia_dependencies"><code class="docutils literal notranslate"><span class="pre">EiaDataConfig.check_eia_dependencies()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.settings.EiaDataConfig.validate_eia860m_consistency"><code class="docutils literal notranslate"><span class="pre">EiaDataConfig.validate_eia860m_consistency()</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.settings.Rus7DataConfig"><code class="docutils literal notranslate"><span class="pre">Rus7DataConfig</span></code></a><ul class="nav section-nav flex-column">

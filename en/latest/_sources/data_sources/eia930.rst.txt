@@ -158,6 +158,8 @@ Download additional documentation
 
 * :download:`Eia930 Instructions 2026-07-31 (PDF) <eia930/eia930_instructions_2026-07-31.pdf>`
 
+* :download:`Eia930 Instructions 2029-07-31 (PDF) <eia930/eia930_instructions_2029-07-31.pdf>`
+
 
 
 

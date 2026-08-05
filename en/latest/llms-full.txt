@@ -1531,6 +1531,13 @@ Dependencies:
 * **Return type:**
   values (Dict[[str](https://docs.python.org/3/library/stdtypes.html#str), BaseModel])
 
+#### validate_eia860m_consistency()
+
+After-construction validation: ensure eia860/eia860m are consistent.
+
+Note: this only validates and raises; it does not attempt to inject a missing
+eia860m config (after-mode validators run after models are constructed).
+
 ### *class* pudl.settings.Rus7DataConfig(/, \*\*data: Any)
 
 Bases: [`GenericDataConfig`](#pudl.settings.GenericDataConfig)
@@ -16932,8 +16939,8 @@ This code is for use analyzing EIA Form 860 data.
 
 ## Functions
 
-| [`extract_eia860`](#pudl.extract.eia860.extract_eia860)(context, raw_eia860_\_all_dfs)   | Extract raw EIA data from excel sheets into dataframes.   |
-|------------------------------------------------------------------------------------------|-----------------------------------------------------------|
+| [`extract_eia860`](#pudl.extract.eia860.extract_eia860)(context, raw_eia860_\_all_dfs, ...)   | Extract raw EIA data from excel sheets into dataframes.   |
+|-----------------------------------------------------------------------------------------------|-----------------------------------------------------------|
 
 ## Module Contents
 
@@ -16968,7 +16975,7 @@ Returns dtypes for plant id columns.
 
 ### pudl.extract.eia860.raw_eia860_\_all_dfs
 
-### pudl.extract.eia860.extract_eia860(context, raw_eia860_\_all_dfs)
+### pudl.extract.eia860.extract_eia860(context, raw_eia860_\_all_dfs, raw_eia860m_\_all_dfs)
 
 Extract raw EIA data from excel sheets into dataframes.
 
@@ -32827,9 +32834,9 @@ Other research and publications relevant to the work we do.
 
 # Building the Documentation
 
-We use [Sphinx](https://www.sphinx-doc.org/) and
-[Read The Docs](https://readthedocs.io) to semi-automatically build and host
-our documentation.
+We use [Sphinx](https://www.sphinx-doc.org/) to build our documentation, and
+publish it to [GitHub Pages](https://docs.catalyst.coop/pudl) via the
+`build-deploy-docs` GitHub Action.
 
 Sphinx is tightly integrated with the Python programming language and needs
 to be able to import and parse the source code to do its job. Thus, it also
@@ -37118,6 +37125,8 @@ and are not considered as reliable as those in the annual form.
 * [`Eia860 Instructions 2017-05-31 (PDF)`](eia860/eia860_instructions_2017-05-31.pdf)
 * [`Eia860 Instructions 2020-03-31 (PDF)`](eia860/eia860_instructions_2020-03-31.pdf)
 * [`Eia860 Instructions 2023-05-31 (PDF)`](eia860/eia860_instructions_2023-05-31.pdf)
+* [`Eia860 Instructions 2026-07-31 (PDF)`](eia860/eia860_instructions_2026-07-31.pdf)
+* [`Eia860 Instructions 2029-07-31 (PDF)`](eia860/eia860_instructions_2029-07-31.pdf)
 
 ### Data available through PUDL
 
@@ -37259,7 +37268,8 @@ details, see the [official EIA-861 page](https://www.eia.gov/electricity/data/ei
 * [`Eia861 Instructions 2017-05-31 (PDF)`](eia861/eia861_instructions_2017-05-31.pdf)
 * [`Eia861 Instructions 2020-03-31 (PDF)`](eia861/eia861_instructions_2020-03-31.pdf)
 * [`Eia861 Instructions 2023-05-31 (PDF)`](eia861/eia861_instructions_2023-05-31.pdf)
-* [`Eia861 Instructions 2024-07-31 (PDF)`](eia861/eia861_instructions_2024-07-31.pdf)
+* [`Eia861 Instructions 2026-07-31 (PDF)`](eia861/eia861_instructions_2026-07-31.pdf)
+* [`Eia861 Instructions 2029-07-31 (PDF)`](eia861/eia861_instructions_2029-07-31.pdf)
 
 ### Data available through PUDL
 
@@ -37415,6 +37425,8 @@ As of 2019, the EIA-923 Form is organized into the following schedules:
 * [`Eia923 Instructions 2017-05-31 (PDF)`](eia923/eia923_instructions_2017-05-31.pdf)
 * [`Eia923 Instructions 2020-03-31 (PDF)`](eia923/eia923_instructions_2020-03-31.pdf)
 * [`Eia923 Instructions 2023-05-31 (PDF)`](eia923/eia923_instructions_2023-05-31.pdf)
+* [`Eia923 Instructions 2026-07-31 (PDF)`](eia923/eia923_instructions_2026-07-31.pdf)
+* [`Eia923 Instructions 2029-07-31 (PDF)`](eia923/eia923_instructions_2029-07-31.pdf)
 
 ### Data available through PUDL
 
@@ -37631,6 +37643,7 @@ indicate net outflows.
 ### Download additional documentation
 
 * [`Eia930 Instructions 2026-07-31 (PDF)`](eia930/eia930_instructions_2026-07-31.pdf)
+* [`Eia930 Instructions 2029-07-31 (PDF)`](eia930/eia930_instructions_2029-07-31.pdf)
 
 ### Data available through PUDL
 
@@ -78772,7 +78785,7 @@ data/code out into the world. By the end of this, we’d like for:
   `pudl.catalyst.coop/stable` buckets in GCS/S3.
 * An archive of the PUDL GitHub repository for the release on Zenodo.
 * A GitHub Release created for that tag with installation instructions.
-* Updated `stable` and `vYYYY.M.x` documentation on ReadTheDocs.
+* Updated `stable` and `vYYYY.M.x` documentation on GitHub Pages.
 
 ## Here’s how to do it!
 
@@ -78797,7 +78810,7 @@ data/code out into the world. By the end of this, we’d like for:
 6. Once the `deploy-pudl` action is complete, verify the following:
    * GCS/AWS distribution buckets have the appropriate data
    * `stable` and `vYYYY.M.x` point at the same Git ref
-   * ReadTheDocs for `stable` and `vYYYY.M.x` versions have the latest
+   * GitHub Pages for `stable` and `vYYYY.M.x` versions have the latest
      changes in the release notes
    * GitHub Releases has the new version with appropriate release notes.
 7. Verify that the Zenodo draft deposition has all the expected data (raw FERC

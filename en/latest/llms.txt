@@ -1,6 +1,6 @@
 # PUDL
 
-> PUDL 2026.7.3.dev28 documentation
+> PUDL 2026.7.3.dev30 documentation
 
 
 2016-2026, Catalyst Cooperative, CC-BY-4.0
@@ -247,7 +247,7 @@
 - [Contributing to PUDL](CONTRIBUTING.html.md): Welcome! We’re excited that you’re interested in contributing to the Public Utility
 - [The MIT License](LICENSE.html.md): Copyright 2017-2026 Catalyst Cooperative
 - [Bibliography](bibliography.html.md): Data, software, and analyses that we have published for public use. We self-archive
-- [Building the Documentation](dev/build_docs.html.md): We use [Sphinx](https://www.sphinx-doc.org/) and
+- [Building the Documentation](dev/build_docs.html.md): We use [Sphinx](https://www.sphinx-doc.org/) to build our documentation, and
 - [Census DP1 – Profile of General Demographic Characteristics](data_sources/censusdp1tract.html.md): | Source URL                      | [https://www.census.gov/geographies/mapping-files/2010/geo/tiger...
 - [Population Estimates Program's (PEP) Federal Information Processing Series (FIPS) Codes](data_sources/censuspep.html.md): | Source URL                      | [https://www.census.gov/geographies/reference-files/2023/demo/po...
 - [Converting raw FERC data to SQLite](dev/clone_ferc1.html.md): FERC publishes its data (e.g. [FERC Form 1 – Annual Report of Major Electric Utilities](../data_sour...

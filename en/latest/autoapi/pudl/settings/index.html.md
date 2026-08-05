@@ -568,6 +568,13 @@ Dependencies:
 * **Return type:**
   values (Dict[[str](https://docs.python.org/3/library/stdtypes.html#str), BaseModel])
 
+#### validate_eia860m_consistency()
+
+After-construction validation: ensure eia860/eia860m are consistent.
+
+Note: this only validates and raises; it does not attempt to inject a missing
+eia860m config (after-mode validators run after models are constructed).
+
 ### *class* pudl.settings.Rus7DataConfig(/, \*\*data: Any)
 
 Bases: [`GenericDataConfig`](#pudl.settings.GenericDataConfig)

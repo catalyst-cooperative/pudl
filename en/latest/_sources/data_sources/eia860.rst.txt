@@ -166,6 +166,8 @@ Download additional documentation
 * :download:`Eia860 Instructions 2017-05-31 (PDF) <eia860/eia860_instructions_2017-05-31.pdf>`
 * :download:`Eia860 Instructions 2020-03-31 (PDF) <eia860/eia860_instructions_2020-03-31.pdf>`
 * :download:`Eia860 Instructions 2023-05-31 (PDF) <eia860/eia860_instructions_2023-05-31.pdf>`
+* :download:`Eia860 Instructions 2026-07-31 (PDF) <eia860/eia860_instructions_2026-07-31.pdf>`
+* :download:`Eia860 Instructions 2029-07-31 (PDF) <eia860/eia860_instructions_2029-07-31.pdf>`
 
 
 

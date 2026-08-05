@@ -875,6 +875,15 @@ Module Contents
 
 
 
+   .. py:method:: validate_eia860m_consistency()
+
+      After-construction validation: ensure eia860/eia860m are consistent.
+
+      Note: this only validates and raises; it does not attempt to inject a missing
+      eia860m config (after-mode validators run after models are constructed).
+
+
+
 .. py:class:: Rus7DataConfig(/, **data: Any)
 
    Bases: :py:obj:`GenericDataConfig`
