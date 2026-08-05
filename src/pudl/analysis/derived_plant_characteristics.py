@@ -205,8 +205,11 @@ def assign_groupwise_load_factor_bins(
     cems_working: pl.LazyFrame,
     unit_cols: list[str],
     load_factor_col: str,
-):
-    """Exact per-unit pd.cut(bins=10) using LazyFrame + minimal pandas fallback."""
+) -> pl.DataFrame:
+    """Exact per-unit pd.cut(bins=10) using LazyFrame + minimal pandas fallback.
+
+    For each unit we want to
+    """
     # compute group load factor
     stats = (
         cems_working.sort(unit_cols + ["operating_datetime_utc"])
@@ -267,14 +270,14 @@ def assign_groupwise_load_factor_bins(
     return result
 
 
-def _summarize_ramp_rates(
+def summarize_ramp_rates(
     cems_with_stable_bins: pl.LazyFrame,
     unit_cols: list[str],
     generation_col: str,
 ) -> pl.LazyFrame:
     """Summarize exact per-unit ramp rates using the original qcut approach."""
     ramp_input = (
-        # TODO: add in this line to remove startup time.
+        # TODO: (Later) add in this line to remove startup time.
         # filter_for_min_stable_bin(cems_with_stable_bins)
         cems_with_stable_bins.sort(
             unit_cols + ["operating_datetime_utc"]
@@ -321,7 +324,15 @@ def _summarize_ramp_rates(
 def handle_adjustment_in_cems(
     cems: pl.LazyFrame, unit_cols: list[str], adjusted: bool = False
 ) -> (pl.LazyFrame, dict):
-    """Filter CEMS data, computing derived columns if not adjusted."""
+    """Filter CEMS data, computing derived columns if not adjusted.
+
+    This enables us to adjust the load factor based using net generation
+    instead of gross generation. Adjusting the load factor is not yet
+    implemented fully. A draft is below add_adjusted_net_generation_to_cems.
+
+    This returns a lazframe and a dictionary with keys of the column references
+    and values of the column names to use.
+    """
     cems_working = cems
 
     if adjusted:
@@ -415,18 +426,31 @@ def prep_output_df(
     return output
 
 
-def compute_stable_runs(
+def compute_minimum_stable_bin(
     binned_cems: pl.DataFrame, unit_cols: list[str], min_stable_consecutive_hours: int
 ) -> pl.DataFrame:
     """Given a certain consecutive hour threshold, find runs with stable behavior.
 
-    We remove the lowest load factor bin for this.
+    This function determines the minimum stable load load factor bin, which means the
+    lowest load factor which we see instances of consecutive running.
+
+    For every record above the first load_factor_bin (aka when a unit is effectively
+    off), first calculate how long any given "run" is. A "run" here is defined as
+    a set of consecutive hours that are within the same ``load_factor_bin`` within a
+    given unit.
+
+    Once we know how long all the runs are, we find all of the runs that are longer
+    than ``min_stable_consecutive_hours`` and we find the ``load_factor_bin`` which
+    corresponds to the lowest ``load_factor_bin`` to get the minimum stable bin.
     """
     stable_runs = (
         binned_cems.filter(pl.col("load_factor_bin_ordinal") > 1)
         .group_by(
             unit_cols
             + [
+                # these three load_factor_bin* columns are all derived from
+                # load_factor_bin (aka we want them in stable_runs but they are
+                # not adding to unique groups in this groupby).
                 "load_factor_bin_ordinal",
                 "load_factor_bin_left",
                 "load_factor_bin",
@@ -518,11 +542,11 @@ def calculate_min_up_or_down_times(
     """Calculate minimum up or down times.
 
     Hourly data points are considered "up" when the ``load_factor_bin`` is greater than the
-    ``min_stable_bin`` (calculated in :func:`compute_stable_runs`).
+    ``min_stable_bin`` (calculated in :func:`compute_minimum_stable_bin`).
     """
     if up_or_down == "up":
         # up times are considered up when the load_factor_bin is greater than the
-        # min_stable_bin (calculated in compute_stable_runs)
+        # min_stable_bin (calculated in compute_minimum_stable_bin)
         runs = filter_for_min_stable_bin(cems_with_stable_bins)
     else:
         runs = cems_with_stable_bins.filter(pl.col("load_factor_bin").is_null())
@@ -561,9 +585,10 @@ def estimate_operational_characteristics_by_unit(
 ) -> pl.LazyFrame:
     """Estimate operational characteristics for every EPA CEMS plant-unit pair.
 
-    Most calculations are done in a dataframe-wide, vectorized manner. Ramp-rate
-    summaries still use a grouped helper so the output matches the original script's
-    per-unit ``qcut`` behavior.
+    Most calculations are done in a dataframe-wide, vectorized manner. The
+    :func:`assign_groupwise_load_factor_bins` step includes one translation
+    from polars to pandas to use `pandas.cut` because testing of polar's version
+    of ``cut`` resulted in different results.
     """
     # Filter and pre-process CEMS based on adjustment boolean
     unit_cols = ["plant_id_epa", "emissions_unit_id_epa"]
@@ -575,52 +600,53 @@ def estimate_operational_characteristics_by_unit(
         load_factor_col=col_dict["load_factor_col"],
     )
 
-    # Set up dataframe with analytical columns
+    # Set up dataframe with analytical columns. This generates a dataframe
+    # of every unit (aka with the final primary keys) but nulls in all of the
+    # derived value columns. This enables us to produce the output in the
+    # correct shape for all states early and then populate the values for
+    # all of the columns. This is done early in order to return this output
+    # df if there are no units in a given batch (typically a state) which
+    # have units that have enough data.
+    # If we modified the processing to work with no valid runs (aka to run but
+    # produce null outputs we could avoid this)
     output = prep_output_df(
         cems_working,
         unit_cols,
         col_dict["output_max_load_col"],
         col_dict["output_ramp_rate_col_suffix"],
     )
-
-    valid_units = (
-        cems_working.filter(pl.col("load_factor_nunique") > 1)
-        .select(unit_cols)
-        .unique()
-    )
-
-    if valid_units.is_empty():
+    # If there aren't more than one unique load factor, the rest of the
+    # calculations cannot be preformed, so return the output df now.
+    # The load_factor_nunique column is assigned in assign_groupwise_load_factor_bins
+    valid_cems = cems_working.filter(pl.col("load_factor_nunique") > 1)
+    if cems_working.is_empty():
         return output
-
-    valid_cems = cems_working.join(valid_units, on=unit_cols, how="inner")
     binned_cems = valid_cems.filter(pl.col("load_factor_bin").is_not_null()).pipe(
         lambda lf: lf.with_columns(
             bin_run_id=_add_run_id(lf, unit_cols=unit_cols + ["load_factor_bin"])
         )
     )
 
-    # Compute stable runs
-    stable_runs = compute_stable_runs(
-        binned_cems, unit_cols, min_stable_consecutive_hours
-    )
-
     # Compute heat rates
     heat_rate_input = binned_cems.drop_nulls(
         [col_dict["load_factor_col"], col_dict["heat_rate_col"]]
     )
-
     max_load_heat_rates = compute_heat_rate_at_max_load(
         heat_rate_input, unit_cols, col_dict["heat_rate_col"]
     )
+    # Compute stable runs
+    min_stable_bins = compute_minimum_stable_bin(
+        binned_cems, unit_cols, min_stable_consecutive_hours
+    )
     min_stable_heat_rates = compute_min_stable_heat_rates(
-        heat_rate_input, stable_runs, unit_cols, col_dict["heat_rate_col"]
+        heat_rate_input, min_stable_bins, unit_cols, col_dict["heat_rate_col"]
     )
     cems_with_stable_bins = valid_cems.join(
-        stable_runs.select(unit_cols + ["min_stable_bin_right", "min_stable_bin"]),
+        min_stable_bins.select(unit_cols + ["min_stable_bin_right", "min_stable_bin"]),
         on=unit_cols,
         how="left",
     )
-    ramp_rates = _summarize_ramp_rates(
+    ramp_rates = summarize_ramp_rates(
         cems_with_stable_bins=cems_with_stable_bins,
         unit_cols=unit_cols,
         generation_col=col_dict["generation_col"],
@@ -628,38 +654,18 @@ def estimate_operational_characteristics_by_unit(
 
     output = (
         # Add stable bins back to the main output DF
-        output.join(
-            stable_runs,
-            on=unit_cols,
-            how="left",
-            suffix="_stable",
+        # bc we defined null version of all of the columns in output via prep_output_df
+        # every time we merge in the derived data we drop that column first
+        output.drop(
+            [
+                "min_stable_level",
+                "heat_rate_at_max_load_factor_mmbtu_per_mwh",
+                "heat_rate_at_min_stable_level_mmbtu_per_mwh",
+            ]
         )
-        .with_columns(
-            pl.coalesce(
-                [pl.col("min_stable_level_stable"), pl.col("min_stable_level")]
-            ).alias("min_stable_level")
-        )
-        .drop("min_stable_level_stable")
-        .join(max_load_heat_rates, on=unit_cols, how="left", suffix="_y")
-        .with_columns(
-            pl.coalesce(
-                [
-                    pl.col("heat_rate_at_max_load_factor_mmbtu_per_mwh_y"),
-                    pl.col("heat_rate_at_max_load_factor_mmbtu_per_mwh"),
-                ]
-            ).alias("heat_rate_at_max_load_factor_mmbtu_per_mwh")
-        )
-        .drop("heat_rate_at_max_load_factor_mmbtu_per_mwh_y")
-        .join(min_stable_heat_rates, on=unit_cols, how="left", suffix="_y")
-        .with_columns(
-            pl.coalesce(
-                [
-                    pl.col("heat_rate_at_min_stable_level_mmbtu_per_mwh_y"),
-                    pl.col("heat_rate_at_min_stable_level_mmbtu_per_mwh"),
-                ]
-            ).alias("heat_rate_at_min_stable_level_mmbtu_per_mwh")
-        )
-        .drop("heat_rate_at_min_stable_level_mmbtu_per_mwh_y")
+        .join(min_stable_bins, on=unit_cols, how="left")
+        .join(max_load_heat_rates, on=unit_cols, how="left")
+        .join(min_stable_heat_rates, on=unit_cols, how="left")
         .pipe(
             calculate_min_up_or_down_times,
             cems_with_stable_bins,
@@ -672,11 +678,7 @@ def estimate_operational_characteristics_by_unit(
             unit_cols=unit_cols,
             up_or_down="down",
         )
-        .join(
-            ramp_rates,
-            on=unit_cols,
-            how="left",
-        )
+        .join(ramp_rates, on=unit_cols, how="left")
         .with_columns(
             (
                 pl.col("ramp_up_rate") / pl.col(col_dict["output_max_load_col"]) / 60
@@ -710,27 +712,27 @@ def estimate_operational_characteristics_by_unit(
     return output.select(ordered_cols)
 
 
-def operational_characteristics_factory(
-    state: str,
-) -> AssetsDefinition:
-    """State partition of out_epacems__yearly_operational_characteristics."""
+def operational_characteristics_factory(state: str) -> AssetsDefinition:
+    """Produce state inputs for out_epacems__yearly_operational_characteristics."""
 
     @asset(
         required_resource_keys={"global_data_config"},
         name=f"_out_epacems__yearly_operational_characteristics_{state}",
         ins={"core_epacems__hourly_emissions": AssetIn()},
         config_schema=HEAT_RATE_ANALYSIS_CONFIG_SCHEMA,
-        # op_tags={"memory-use": "high"},
     )
     def _out_epacems_state(
         context: AssetExecutionContext,
         core_epacems__hourly_emissions: pl.LazyFrame,
     ) -> pl.DataFrame:
-        """Estimate EPA CEMS unit operational characteristics.
+        """Estimate EPA CEMS unit operational characteristics for one state.
 
         This table corresponds to the script output named ``epa_op_char_output_df.csv``.
         """
+        # read in config info from HEAT_RATE_ANALYSIS_CONFIG_SCHEMA
         heat_rate_config = _get_heat_rate_analysis_config(context)
+        # Get the most recent full year of CEMS from the config. Grab all the
+        # year-quarters, then find the max year with q4 in it.
         year_quarters = context.resources.global_data_config.pudl.epacems.year_quarters
         max_full_year = int(
             max(
@@ -742,19 +744,25 @@ def operational_characteristics_factory(
         logger.info(
             f"Deriving unit-level operational characteristics from {state} EPA CEMS "
         )
-
+        # Filtering the lazyframe first down to only one state and only the last few
+        # years (number of years based on the config stored in
+        # HEAT_RATE_ANALYSIS_CONFIG_SCHEMA). Filter first to ensure the full hourly
+        # cems data isn't loaded into memory.
         cems = filter_cems_for_heat_rate_analysis(
             core_epacems__hourly_emissions=core_epacems__hourly_emissions,
             final_year=max_full_year,
             num_years=heat_rate_config["num_years"],
             states=[state],
         )
+        # This step does the bulk of the work. The output here is a table with one
+        # record per unit with all of the derived characteristics
         state_lf = estimate_operational_characteristics_by_unit(
             cems=cems,
             min_stable_consecutive_hours=heat_rate_config[
                 "min_stable_consecutive_hours"
             ],
         )
+        # add these two identifying columns for easier use.
         state_lf = state_lf.with_columns(
             pl.repeat(state, n=state_lf.height).alias("state"),
             pl.repeat(max_full_year, n=state_lf.height).alias("report_year"),
