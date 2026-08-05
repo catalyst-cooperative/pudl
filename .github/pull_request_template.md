@@ -31,4 +31,4 @@ How did you make sure this worked? How can a reviewer verify this?
 - [ ] Run `pixi run prek-run` to run linters and static code analysis checks.
 - [ ] Run `pixi run pytest-ci` locally to ensure that the merge queue will accept your PR.
 - [ ] Review the PR yourself and call out any questions or issues you have.
-- [ ] For PRs that change the PUDL outputs significantly, run the full ETL locally and then [run the data validations](https://docs.catalyst.coop/pudl/en/nightly/dev/data_validation_quickstart.html) using dbt. If you can't run the ETL locally then run the `build-deploy-pudl` GitHub Action manually and ensure that it succeeds.
+- [ ] For PRs that change the PUDL outputs significantly, run the full ETL locally and then [run the data validations](https://docs.catalyst.coop/pudl/en/nightly/dev/data_validation_quickstart.html) using dbt. If you can't run the ETL locally then run the `build-pudl` GitHub Action manually and ensure that it succeeds.
