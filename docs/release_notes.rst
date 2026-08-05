@@ -53,8 +53,8 @@ EPA CEMS
 EPA MATS
 ~~~~~~~~
 
-* Updated the :doc:`EPA MATS <data_sources/epamats>` data with
-  additional records through end of June 2026. See PR :pr:`5464`.
+* Updated the EPA MATS data with additional records through end of June 2026. See PR
+  :pr:`5464`.
 
 PHMSA Natural Gas data
 ~~~~~~~~~~~~~~~~~~~~~~
