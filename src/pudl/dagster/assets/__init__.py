@@ -72,6 +72,7 @@ core_module_groups = {
     "core_eia923": [pudl.transform.eia923],
     "core_eia930": [pudl.transform.eia930],
     "core_epacems": [pudl.transform.epacems],
+    "core_epamats": [pudl.transform.epamats],
     "core_ferc1": [pudl.transform.ferc1],
     "core_ferc714": [pudl.transform.ferc714],
     "core_ferccid": [pudl.transform.ferccid],
