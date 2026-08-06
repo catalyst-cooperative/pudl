@@ -19,6 +19,7 @@ EIA-860M
   issue :issue:`4352` and PR :pr:`5360`. Shoutout to :user:`bsousa22` for making his
   first PUDL contribution!
 
+
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
 
@@ -26,6 +27,17 @@ EIA-191
 ~~~~~~~
 
 * Updated :doc:`EIA-191 <data_sources/eia191>` data. See PR :pr:`5464`.
+
+EIA-860M
+~~~~~~~~
+
+* Added :doc:`EIA-860M <data_sources/eia860>` data through June 2026. See
+  issue :issue:`5459` and PR :pr:`5468`.
+
+EIA-923
+~~~~~~~
+* Added :doc:`EIA-923M <data_sources/eia923>` data through May 2026. See
+  issue :issue:`5460` and PR :pr:`5468`.
 
 EIA-930
 ~~~~~~~
