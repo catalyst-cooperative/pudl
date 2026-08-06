@@ -1,6 +1,30 @@
 =======================================================================================
 PUDL Release Notes
 =======================================================================================
+.. _release-v2026.9.0:
+
+---------------------------------------------------------------------------------------
+v2026.9.0 (2026-09-xx)
+---------------------------------------------------------------------------------------
+
+This is the upcoming monthly PUDL release.
+
+New Data
+^^^^^^^^
+
+EPA CEMS
+~~~~~~~~
+
+* Added a new analysis output, :ref:`out_epacems__yearly_operational_characteristics`,
+  which estimates generator operational characteristics such as minimum stable operating
+  level, minimum up/down times, ramp rates, and heat rates at maximum and minimum load,
+  inferred from hourly :doc:`EPA CEMS <data_sources/epacems>` gross load and fuel heat
+  content data over a rolling three-year window. This dagsterizes and vectorizes an
+  analysis originally developed by `Sylvan Energy <https://sylvan.energy/>`__, making it
+  available for all reporting states rather than just California. The output is
+  experimental and marked accordingly, since we are soliciting feedback from the
+  community on the underlying methodology. See issue :issue:`5106` and PR :pr:`5190`.
+
 .. _release-v2026.8.x:
 
 ---------------------------------------------------------------------------------------
