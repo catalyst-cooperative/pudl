@@ -8,6 +8,10 @@ repos:
       - id: rst-directive-colons # Missing double-colons after directives
       - id: rst-inline-touching-normal # Inline code should never touch normal text
       - id: python-use-type-annotations # Use annotations not old-style type comments
+      - id: python-check-blanket-noqa # Require noqa comments to specify an error code.
+      - id: python-check-blanket-type-ignore # Require type: ignore to specify a code.
+      - id: python-no-log-warn # Use logger.warning() instead of deprecated logger.warn()
+      - id: python-no-eval # Flag uses of the eval() builtin.
 
   # Other file formatting, plus common Git mistakes & text file standardization:
   - repo: https://github.com/pre-commit/pre-commit-hooks
@@ -18,6 +22,8 @@ repos:
       - id: check-merge-conflict # Watch for lingering merge markers.
       - id: check-yaml # Validate all YAML files.
       - id: check-case-conflict # Avoid case sensitivity in file names.
+      - id: check-illegal-windows-names # Avoid filenames that break on Windows.
+      - id: destroyed-symlinks # Catch symlinks (e.g. CLAUDE.md) silently replaced with copies.
       - id: debug-statements # Watch for lingering debugger calls.
         exclude: "^devtools/check_against_nightly.py$"
       - id: mixed-line-ending # Use Unix line-endings to avoid big no-op CSV diffs.
@@ -31,14 +37,14 @@ repos:
   ####################################################################################
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.15.21
+    rev: v0.16.1
     hooks:
       - id: ruff-check
         args: [--fix]
       - id: ruff-format
 
   - repo: https://github.com/rbubley/mirrors-prettier
-    rev: v3.9.5
+    rev: v3.9.6
     hooks:
       - id: prettier
         types_or: [yaml]
@@ -61,7 +67,7 @@ repos:
   ####################################################################################
 
   # Spell check our documentation and code comments
-  - repo: https://github.com/adhtruong/mirrors-typos
+  - repo: https://github.com/crate-ci/typos
     rev: v1.48.0
     hooks:
       - id: typos
@@ -98,11 +104,11 @@ repos:
 
   # Scan for secrets and credentials
   - repo: https://github.com/trufflesecurity/trufflehog
-    rev: v3.95.9
+    rev: v3.96.0
     hooks:
       - id: trufflehog
         name: TruffleHog
-        entry: trufflehog git file://. --since-commit HEAD --fail
+        entry: trufflehog git file://. --since-commit HEAD --fail --exclude-paths trufflehog-exclude.txt
         language: golang
         pass_filenames: false
 

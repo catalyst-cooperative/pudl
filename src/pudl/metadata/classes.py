@@ -725,27 +725,26 @@ class Field(PudlMeta):
         return FIELD_DTYPES_DUCKDB[self.type]
 
     def to_polars_dtype(self) -> pl.DataType:
-        """Return polars data type."""
-        if self.constraints.enum:
-            return pl.Enum(self.constraints.enum)
+        """Return polars data type.
+
+        Enum-constrained string fields are stored as unconstrained
+        :class:`pl.Categorical` rather than :class:`pl.Enum`. Polars embeds a fixed,
+        ordered category list from an ``Enum`` column directly in the Parquet field
+        metadata, which permanently pins the physical dtype: any later attempt to scan
+        that file with a different schema or even slightly different ``Enum`` fails
+        instead of being coerced. ``Categorical`` round-trips through Parquet fine.
+        """
+        if self.constraints.enum and self.type == "string":
+            return pl.Categorical
         return FIELD_DTYPES_POLARS[self.type]
 
-    def to_pandas_dtype(self, compact: bool = False) -> str | pd.CategoricalDtype:
-        """Return Pandas data type.
-
-        Args:
-            compact: Whether to return a low-memory data type (32-bit integer or float).
-        """
-        if self.constraints.enum:
+    def to_pandas_dtype(self) -> str | pd.CategoricalDtype:
+        """Return Pandas data type."""
+        if self.constraints.enum and self.type == "string":
             return pd.CategoricalDtype(self.constraints.enum)
-        if compact:
-            if self.type == "integer":
-                return "Int32"
-            if self.type == "number":
-                return "float32"
         return FIELD_DTYPES_PANDAS[self.type]
 
-    def to_sql_dtype(self) -> type:  # noqa: A003
+    def to_sqlite_dtype(self) -> type:  # noqa: A003
         """Return SQLAlchemy data type."""
         if self.constraints.enum and self.type == "string":
             return sa.Enum(*self.constraints.enum)
@@ -795,7 +794,28 @@ class Field(PudlMeta):
             elif self.type == "date":
                 checks.append(f"{name} IS DATE({name})")
             elif self.type == "datetime":
-                checks.append(f"{name} IS DATETIME({name})")
+                # A plain `{name} IS DATETIME({name})` can't validate a
+                # microsecond-precision string: SQLite's own DATETIME()
+                # function only round-trips whole-second precision (even its
+                # 'subsec' modifier only adds milliseconds), so it would
+                # reject every value written at the microsecond resolution
+                # used everywhere else in PUDL. Instead, validate the
+                # YYYY-MM-DD HH:MM:SS portion for real calendar/time
+                # correctness via DATETIME(), and separately validate the
+                # fractional-seconds suffix is present and exactly six
+                # digits via GLOB -- SQLite's GLOB has no `{n}`-style
+                # repetition syntax, so the six-digit pattern is built here
+                # rather than spelled out character by character in the SQL
+                # string itself. NULL propagates through IS/AND/GLOB to a
+                # NULL check result, which SQLite (like standard SQL) treats
+                # as satisfying the constraint, so nullable columns still
+                # accept NULL.
+                microseconds_pattern = "[0-9]" * 6
+                checks.append(
+                    f"(SUBSTR({name}, 1, 19) IS DATETIME(SUBSTR({name}, 1, 19))) "
+                    f"AND ({name} GLOB SUBSTR({name}, 1, 19) "
+                    f"|| '.{microseconds_pattern}')"
+                )
         if check_values:
             # Field constraints
             if self.constraints.min_length is not None:
@@ -818,7 +838,7 @@ class Field(PudlMeta):
                 checks.append(f"{name} IN ({', '.join(enum)})")
         return sa.Column(
             self.name,
-            self.to_sql_dtype(),
+            self.to_sqlite_dtype(),
             *[
                 sa.CheckConstraint(
                     check,
@@ -891,9 +911,11 @@ class Field(PudlMeta):
         constraints = self.constraints
         checks = constraints.to_pandera_checks(use_pandas_backend)
         if constraints.enum:
-            column_type = (
-                "category" if use_pandas_backend else pl.Enum(constraints.enum)
-            )
+            # The physical dtype is unconstrained Categorical/"category" (see
+            # Field.to_polars_dtype / Field.to_pandas_dtype); the enum value
+            # constraint itself is enforced by the `checks` (Check.isin) above,
+            # not by the declared column dtype.
+            column_type = "category" if use_pandas_backend else pl.Categorical
         elif self.type == "geometry":
             column_type = gpd.array.GeometryDtype()
         else:
@@ -1019,7 +1041,7 @@ class Schema(PudlMeta):
                     )
         return self
 
-    def to_pandera(self: Self) -> pr_polars.DataFrameSchema:
+    def to_pandera(self: Self) -> pr_polars.DataFrameSchema | pr_pandas.DataFrameSchema:
         """Turn PUDL Schema into Pandera schema, so dagster can understand it."""
         # 2024-02-09: pr.Check doesn't have interop with Pydantic type system
         # yet, so we encode as Callable, then cast.
@@ -1923,13 +1945,9 @@ class Resource(PudlMeta):
         """Return Polars data type of each field by field name."""
         return {f.name: f.to_polars_dtype() for f in self.schema.fields}
 
-    def to_pandas_dtypes(self, **kwargs: Any) -> dict[str, str | pd.CategoricalDtype]:
-        """Return Pandas data type of each field by field name.
-
-        Args:
-            kwargs: Arguments to :meth:`Field.to_pandas_dtype`.
-        """
-        return {f.name: f.to_pandas_dtype(**kwargs) for f in self.schema.fields}
+    def to_pandas_dtypes(self) -> dict[str, str | pd.CategoricalDtype]:
+        """Return Pandas data type of each field by field name."""
+        return {f.name: f.to_pandas_dtype() for f in self.schema.fields}
 
     def match_primary_key(self, names: Iterable[str]) -> dict[str, str] | None:
         """Match primary key fields to input field names.
@@ -2006,7 +2024,7 @@ class Resource(PudlMeta):
         return matches if len(matches) == len(keys) else None
 
     def format_df(
-        self, df: pd.DataFrame | gpd.GeoDataFrame | None = None, **kwargs: Any
+        self, df: pd.DataFrame | gpd.GeoDataFrame | None = None
     ) -> pd.DataFrame | gpd.GeoDataFrame:
         """Format a dataframe according to the resources's table schema.
 
@@ -2021,12 +2039,11 @@ class Resource(PudlMeta):
 
         Args:
             df: Dataframe to format.
-            kwargs: Arguments to :meth:`Field.to_pandas_dtypes`.
 
         Returns:
             Dataframe with column names and data types matching the resource fields.
         """
-        dtypes = self.to_pandas_dtypes(**kwargs)
+        dtypes = self.to_pandas_dtypes()
         if df is None:
             return pd.DataFrame({n: pd.Series(dtype=d) for n, d in dtypes.items()})
         matches = self.match_primary_key(df.columns)
@@ -2044,17 +2061,16 @@ class Resource(PudlMeta):
                 and pd.api.types.is_integer_dtype(df[field.name])
             ):
                 df[field.name] = pd.to_datetime(df[field.name], format="%Y")
-            if isinstance(dtypes[field.name], pd.CategoricalDtype):
+            if field.constraints.enum and field.type == "string" and field.name in df:
                 uncategorized = [
                     value
                     for value in df[field.name].dropna().unique()
-                    if value not in dtypes[field.name].categories
+                    if value not in field.constraints.enum
                 ]
                 if uncategorized:
                     raise ValueError(
                         f"Values in {field.name} column are not included in "
-                        "categorical values in field enum constraint "
-                        f"and will be converted to nulls ({uncategorized})."
+                        f"the field's enum constraint: {uncategorized}."
                     )
         df = (
             # Reorder columns and insert missing columns

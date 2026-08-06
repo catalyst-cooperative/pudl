@@ -1,6 +1,145 @@
 =======================================================================================
 PUDL Release Notes
 =======================================================================================
+.. _release-v2026.8.x:
+
+---------------------------------------------------------------------------------------
+v2026.8.x (2026-08-xx)
+---------------------------------------------------------------------------------------
+
+This is the upcoming quarterly PUDL release.
+
+New Data
+^^^^^^^^
+
+EIA-176
+~~~~~~~
+
+* Added :ref:`core_eia176__yearly_company_characteristics` with company operation
+  type, ownership type, and company characteristic fields from EIA Form 176 Part 3
+  (Lines A-F). Includes ``alternative_fleet_size``,
+  ``customer_choice_residential_eligible``,
+  ``customer_choice_residential_participating``, ``has_sales_or_acquisitions``, and
+  ``natural_gas_pump_price_dollars_per_mcf`` (2014-2016 only). National-level
+  adjustment records (operating_state FX, MX, BL, OO) are excluded. The raw
+  ``is_other_ownership`` and ``is_other_ownership_2`` fields (which never co-occur)
+  are merged into a single ``is_other_ownership`` boolean.
+  See :issue:`4697` and :pr:`5197`.
+
+EIA-860M
+~~~~~~~~
+
+* Added Puerto Rico :doc:`EIA-860M <data_sources/eia860>` data into EIA 860 tables. See
+  issue :issue:`4352` and PR :pr:`5360`. Shoutout to :user:`bsousa22` for making his
+  first PUDL contribution!
+
+
+Expanded Data Coverage
+^^^^^^^^^^^^^^^^^^^^^^
+
+EIA-860M
+~~~~~~~~
+
+* Added :doc:`EIA-860M <data_sources/eia860>` data through June 2026. See
+  issue :issue:`5459` and PR :pr:`5468`.
+
+EIA-923
+~~~~~~~
+* Added :doc:`EIA-923M <data_sources/eia923>` data through May 2026. See
+  issue :issue:`5460` and PR :pr:`5468`.
+
+EIA-930
+~~~~~~~
+
+* Updated :doc:`EIA-930 <data_sources/eia930>` data. See PR :pr:`5445`.
+
+FERC-714
+~~~~~~~~
+
+* Added 2025 XBRL data for :doc:`FERC-714 <data_sources/ferc714>`. See
+  :issue:`5424` and :pr:`5436`.
+
+EIA Electricity API
+~~~~~~~~~~~~~~~~~~~
+
+* Updated the :doc:`bulk EIA Electricity API <data_sources/eiaapi>`
+  data used to fill in redacted fuel prices. See PR :pr:`5441`.
+
+EPA CEMS
+~~~~~~~~
+
+* Updated the :doc:`EPA CEMS <data_sources/epacems>` data with
+  additional records through end of March 2026. See PR :pr:`5441`.
+
+FERC Form 6
+~~~~~~~~~~~
+
+* Updated the raw FERC Form 6 archives to include additional
+  2025 data. This data is converted to SQLite, but not deeply
+  integrated into PUDL. See PR :pr:`5441`.
+
+Documentation
+^^^^^^^^^^^^^
+
+* Added LLM use guidelines and best practices to the
+  :doc:`contributor guide <CONTRIBUTING>` and :doc:`dev guide <dev/llm_best_practices>`.
+
+* Set up the `sphinx_llm <https://github.com/NVIDIA/sphinx-llm>`__ Sphinx extension to
+  generate a Markdown version of the PUDL documentation, suitable for consumption by
+  LLMs, based on the `llms.txt <https://llmstxt.org/>`__ convention. Each page now
+  advertises its Markdown counterpart via a ``<link rel="alternate"
+  type="text/markdown">`` tag, and the site footer links directly to ``llms.txt``, so
+  that agents browsing the rendered HTML docs can discover and prefer the Markdown
+  versions. See PRs :pr:`5381,5393`.
+
+Bug Fixes & Data Cleaning
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Fixed incorrectly mapped Western Area Power Authority BA codes in FERC 714
+  data - previously, the Upper Great Plains West region FERC respondent was mapped
+  to the Desert Southwest region EIA balancing authority information, and vice
+  versa. See :issue:`4644` and :pr:`5408`.
+* Fixed an exact-float merge bug in FERC1 "exploded tables" corrections. The
+  :meth:`~pudl.output.ferc1.Exploder.add_sizable_minority_corrections` method matched
+  correction candidates by merging directly on floating point columns. Exact float
+  equality is extremely brittle, and moving from 32- to 64-bit floats
+  changed which utility/year pairs matched, producing extra rows and different
+  ``ending_balance`` sums in :ref:`out_ferc1__yearly_detailed_balance_sheet_assets` and
+  :ref:`out_ferc1__yearly_rate_base`. These were real matches being lost
+  due to the limited precision of 32-bit floats, on top of the brittleness of of merging
+  on floating point numbers. These are now being captured deterministically by merging
+  on values within a fixed tolerance of $5. See PR :pr:`5350`.
+
+Performance Improvements
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Switched from using ``pl.Enum`` to unconstrained ``pl.Categorical`` types to preserve
+  lazy execution in :func:`~pudl.helpers.get_parquet_table_polars`. This allows running
+  schema checks on large tables, and Pandera's Polars backend never actually enforced
+  data content checks on ``pl.LazyFrame`` assets (99% of assets in PUDL). See PR
+  :pr:`5434`. Implementing efficient content validation for ``pl.LazyFrame`` assets is
+  left to PR :pr:`5432`.
+* The fast ETL now processes only two representative
+  :doc:`EIA-861 <data_sources/eia861>` years instead of the entire time series, bringing
+  it in line with how every other dataset is already handled and speeding up both local
+  development and CI. Processing all years was originally a workaround for discontinued
+  columns and data validation tests that couldn't tolerate partial coverage; those
+  limitations have since been resolved. This change surfaced an implicit assumption in
+  the :doc:`FERC-714 <data_sources/ferc714>` outputs that all EIA-861 years were always
+  available, in the logic that repairs known-bad balancing authority/utility
+  associations by copying data from a known-good year. That repair logic has been
+  rewritten as an explicit, validated mapping of per-year fixes, so it degrades
+  gracefully when only a subset of years is present, and is substantially easier to
+  read, test, and extend than the compact form it replaces. See :issue:`2628` and
+  :pr:`4568`.
+
+Developer Experience
+^^^^^^^^^^^^^^^^^^^^
+
+* Standardized numeric dtypes to always use 64-bit values, and datetime types to use
+  microsecond resolution in :mod:`pudl.metadata.dtypes`. The unused ``compact`` argument
+  to :meth:`~pudl.metadata.classes.Field.to_pandas_dtype` was retired. See PR
+  :pr:`5350`.
 
 .. _release-v2026.7.2:
 
@@ -21,7 +160,7 @@ Enhancements
 ^^^^^^^^^^^^
 
 * Added experimental Parquet outputs derived from the FERC DBF databases, and basic
-  ``datpackage.json`` metadata describing their schemas to support querying and preview
+  ``datapackage.json`` metadata describing their schemas to support querying and preview
   through the `PUDL Data Viewer <https://data.catalyst.coop>`__. See PR :pr:`5339`.
 * Standardized all unit strings in :mod:`pudl.metadata.fields` to
   `Pint expression syntax <https://pint.readthedocs.io/>`__, replacing ad-hoc
@@ -46,22 +185,14 @@ EIA-176
   gaseous fuel supplies, gas exports, and other gas disposition. See
   :issue:`5240` and :pr:`5245`.
 
-* Added :ref:`core_eia176__yearly_company_characteristics` with company operation
-  type, ownership type, and company characteristic fields from EIA Form 176 Part 3
-  (Lines A-F). Includes ``alternative_fleet_size``,
-  ``customer_choice_residential_eligible``,
-  ``customer_choice_residential_participating``, ``has_sales_or_acquisitions``, and
-  ``natural_gas_pump_price_dollars_per_mcf`` (2014-2016 only). National-level
-  adjustment records (operating_state FX, MX, BL, OO) are excluded. The raw
-  ``is_other_ownership`` and ``is_other_ownership_2`` fields (which never co-occur)
-  are merged into a single ``is_other_ownership`` boolean.
-  See :issue:`4697` and :pr:`5197`.
-
-FERC 1
-~~~~~~
-
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
+
+EIA-923
+~~~~~~~
+
+* Added early release data for EIA-923 2025. See issue :issue:`5372` and PR :pr:`5391`.
+* Added 2026 data through April for EIA-923. See :pr:`5391`.
 
 EIA-191
 ~~~~~~~
@@ -113,20 +244,12 @@ FERC CID
 * Updated the FERC company identifiers with data through end of
   June 2026. See PR :pr:`5396`.
 
-
 Documentation
 ^^^^^^^^^^^^^
 
 * Expanded the developer docs around metadata naming, typing, and updates to explain
   how unit annotations, field namespaces, and namespace/table-specific metadata
   overrides should be defined and maintained. See :pr:`5361`.
-* Set up the `sphinx_llm <https://github.com/NVIDIA/sphinx-llm>`__ Sphinx extension to
-  generate a Markdown version of the PUDL documentation, suitable for consumption by
-  LLMs, based on the `llms.txt <https://llmstxt.org/>`__ convention. Each page now
-  advertises its Markdown counterpart via a ``<link rel="alternate"
-  type="text/markdown">`` tag, and the site footer links directly to ``llms.txt``, so
-  that agents browsing the rendered HTML docs can discover and prefer the Markdown
-  versions. See PRs :pr:`5381,5393`.
 
 New Data Tests & Validations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^

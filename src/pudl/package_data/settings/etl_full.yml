@@ -117,7 +117,7 @@ ferc_to_sqlite:
   ferc60_xbrl:
     years: [2021, 2022, 2023, 2024, 2025]
   ferc714_xbrl:
-    years: [2021, 2022, 2023, 2024]
+    years: [2021, 2022, 2023, 2024, 2025]
 
 ###########################################################################
 # Settings for the main PUDL ETL
@@ -187,6 +187,7 @@ pudl:
         2022,
         2023,
         2024,
+        2025,
       ]
   eia:
     eia176:
@@ -268,6 +269,7 @@ pudl:
           2023,
           2024,
           2025,
+          2026,
         ]
     eia860:
       years:
@@ -337,6 +339,8 @@ pudl:
     # Note that the CEMS data relies on EIA 860 data for plant locations,
     # so if you're loading CEMS data for a particular year, you should
     # also load the EIA 860 data for that year if possible
+    year_quarters: ["all"]
+  epamats:
     year_quarters: ["all"]
   phmsagas:
     years:

@@ -144,6 +144,10 @@ TIMEZONE_OFFSET_CODE_FIXES_BY_YEAR = [
 ]
 
 DISCONTINUOUS_DATES = [
+    # 2025 DST: 3/09-11/2
+    # 2 1-hr gaps on 1/1
+    # 9 1-hr gaps on 3/9
+    {"report_year": 2025, "gap_count": 11},
     # 2024 DST: 3/10-11/3
     #  1 1-hr gap  on 3/1
     #  1 2-hr gap  on 3/9
@@ -177,9 +181,10 @@ DUPLICATED_DATETIMES = {
     2013: 2,
     2022: 4,
     2024: 1,
+    2025: 1,
 }
 """Identified duplicated UTC datetimes resulting from changes to a planning area's
-reporting timezone."""
+reporting timezone or duplicated reporting on Jan 1st in two report years."""
 
 BAD_RESPONDENTS = [
     2,
@@ -243,6 +248,15 @@ EIA_CODE_FIXES: dict[Literal["combined", "csv", "xbrl"], dict[int | str, int]] =
         201: 56090,  # Griffith Energy (bad id was 55124)
         205: 58790,  # Gridforce Energy Management (missing or 11378 in xbrl)
         213: 64898,  # GridLiance (missing)
+        # NOTE 2026-07-14: For the Western Area Power Administration: the EIA
+        # *BA code* and *utility code* for Upper Midwest / Desert Southwest are
+        # flipped from each other, and FERC 714 reports using the utility code.
+        # We want to keep them using the BA-world codes.
+        #
+        # See https://github.com/catalyst-cooperative/pudl/issues/4644
+        162: 25471,  # WAPA Lower Colorado has 25471 BA code and 19610 utility ID
+        163: 19610,  # WAPA Upper Missouri West has 19610 BA code, 25471 utility ID
+        217: 19610,  # WAPA Upper Great Plains has 19610 BA code, 25471 utility ID
     },
     "xbrl": {
         # FERC 714 Respondent ID XBRL: EIA BA or Utility ID
@@ -395,6 +409,9 @@ def _assign_respondent_id_ferc714(
     )
 
     df["respondent_id_ferc714"] = df[resp_id_col].map(resp_map_series)
+    assert df.respondent_id_ferc714.notnull().all(), (
+        "Some FERC714 respondent IDs are unmapped. You may need to update the respondent_id_ferc714 mapping spreadsheet."
+    )
     return df
 
 
@@ -571,7 +588,7 @@ class RespondentId:
             raise AssertionError(
                 "We expected 0 respondents with multiple different eia_code's "
                 f"reported for each respondent in {source} data, "
-                f"but we found {len(multiple_eia_codes)}"
+                f"but we found {len(multiple_eia_codes)}:\n\n{multiple_eia_codes}"
             )
         return df.drop(columns=["eia_code_count"])
 
@@ -1269,6 +1286,32 @@ class YearlyPlanningAreaDemandForecast:
                 f"We expected one or 0 NA forecast year, but found:\n{nulls}"
             )
         df = df[df["forecast_year"].notna()]
+
+        # [2026-july eb]
+        # in 2025, C003677 (PUD No. 2 of Grant County) reports data for 2034 forecasts two times in two rows
+        # (order_number 10 and 11), each with different values. The report should provide
+        # forecasts to 2035, so the latter value (order number 11) should have corresponded to 2035
+        # forecasts. This value is manually updated.
+        text_in_year_mask = (
+            (df.respondent_id_ferc714_xbrl == "C003677")
+            & (df.report_year == 2025)
+            & (df.forecast_year == 2034)
+            & (df.order_number == 11)
+        )
+        # this looks complicated but we do it this way for performance reasons
+        expect_bad_data: bool = (2025, "C003677") in df.loc[
+            :, ["report_year", "respondent_id_ferc714_xbrl"]
+        ].drop_duplicates().set_index(
+            ["report_year", "respondent_id_ferc714_xbrl"]
+        ).index
+        if expect_bad_data and not text_in_year_mask.any():
+            raise AssertionError(
+                "Expected to find invalid demand forecast data for (2025, C003677) but "
+                "text_in_year_mask selects no records. The data or filtering process may "
+                "have been revised and this spot fix can be removed."
+            )
+        df.loc[text_in_year_mask, "forecast_year"] = 2035  # Manually update this field
+
         # Convert YY to YYYY for respondent 107 (the culprit).
         # The earliest forecast year reported as YY is 22. Any numbers
         # lower than that would signify a transition into 2100.

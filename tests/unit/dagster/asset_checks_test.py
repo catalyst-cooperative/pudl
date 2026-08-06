@@ -65,7 +65,6 @@ def test_asset_checks_preserve_runtime_input_types(
         dg.AssetKey([asset_name]),
         PUDL_PACKAGE,
         duckdb_asset=duckdb_asset,
-        high_memory_asset=False,
     )
 
     assert check is not None

@@ -10,14 +10,14 @@ on:
     types: [created]
   issue_comment:
     types: [created]
-  pull_request:
+  pull_request_target:
     types: [opened]
 
 env:
   username: ""
   url: ""
   org: catalyst-cooperative
-  ignored_users: '["e-belfer", "krivard", "pre-commit-ci[bot]", "dependabot[bot]", "github-actions[bot]", "catalyst-workflow-triggerer[bot]"]'
+  ignored_users: '["e-belfer", "krivard"]'
 jobs:
   com-dev-notify:
     name: Notify Catalyst of community activity
@@ -48,7 +48,7 @@ jobs:
           echo "url=${{ github.event.comment.html_url }}" >> "${GITHUB_ENV}"
 
       - name: Get username if a pull request was opened
-        if: ${{ github.event_name == 'pull_request' }}
+        if: ${{ github.event_name == 'pull_request_target' }}
         run: |
           echo "username=${{ github.event.pull_request.user.login }}" >> "${GITHUB_ENV}"
           echo "url=${{ github.event.pull_request.html_url }}" >> "${GITHUB_ENV}"
@@ -63,7 +63,7 @@ jobs:
 
       - name: Send message to ComDev Zulip channel
         if: >-
-          ${{ steps.is_organization_member.outputs.result == 'false' && !contains(fromJSON(env.ignored_users), env.username) }}
+          ${{ steps.is_organization_member.outputs.result == 'false' && !contains(fromJSON(env.ignored_users), env.username) && !endsWith(env.username, '[bot]') }}
         uses: zulip/github-actions-zulip/send-message@v2
         with:
           api-key: ${{ secrets.ZULIP_API_KEY }}

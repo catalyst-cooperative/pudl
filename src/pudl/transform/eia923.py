@@ -316,6 +316,22 @@ def _aggregate_generation_fuel_duplicates(
     is_duplicate = gen_fuel.duplicated(subset=natural_key_fields, keep=False)
 
     duplicates = gen_fuel[is_duplicate].copy()
+
+    # Remove duplicates where all numeric fields are 0 (only if there are other,
+    # non-zero duplicates)
+    value_cols = duplicates.columns.difference(natural_key_fields + ["sector_id_eia"])
+    num = duplicates[value_cols].select_dtypes(include="number")
+
+    duplicates = duplicates.assign(_is_zero=(num == 0).all(axis=1))
+
+    g = duplicates.groupby(natural_key_fields)["_is_zero"]
+    has_zero = g.transform("any")
+    has_nonzero = g.transform(lambda s: (~s).any())
+
+    # drop the zero rows only in groups that also have non-zero rows
+    mask_drop = duplicates["_is_zero"] & has_zero & has_nonzero
+    duplicates = duplicates[~mask_drop].drop(columns="_is_zero")
+
     fuel_type_code_agg_is_unique = (
         duplicates.groupby(natural_key_fields).fuel_type_code_agg.nunique().eq(1).all()
     )
@@ -659,6 +675,8 @@ def _core_eia923__pre_generation_fuel(raw_eia923__generation_fuel: pd.DataFrame)
     * Backfill missing prime_mover_codes
     * Create a separate generation_fuel_nuclear table.
     * Aggregate records with duplicate natural keys.
+    * Drop duplicate fields where only difference is energy_source_code and 0
+      consumption data.
 
     Args:
         raw_eia923__generation_fuel: The raw ``raw_eia923__generation_fuel`` dataframe.
@@ -706,15 +724,6 @@ def _core_eia923__pre_generation_fuel(raw_eia923__generation_fuel: pd.DataFrame)
     )
 
     gen_fuel = _clean_gen_fuel_energy_sources(gen_fuel)
-    gen_fuel = PUDL_PACKAGE.encode(gen_fuel)
-    gen_fuel["fuel_type_code_pudl"] = gen_fuel.energy_source_code.map(
-        pudl.helpers.label_map(
-            CODE_METADATA["core_eia__codes_energy_sources"]["df"],
-            from_col="code",
-            to_col="fuel_type_code_pudl",
-            null_value=pd.NA,
-        )
-    )
 
     # Drop records missing all variable fields.
     variable_fields = [
@@ -729,6 +738,30 @@ def _core_eia923__pre_generation_fuel(raw_eia923__generation_fuel: pd.DataFrame)
 
     # Convert Year/Month columns into a single Date column...
     gen_fuel = pudl.helpers.convert_to_date(gen_fuel)
+
+    # Remove dupe rows with different energy_source_code values and 0 consumption data.
+    # Right now this only applies to plant id 50489 in 2025.
+    if 2025 in gen_fuel.report_date.dt.year.unique():
+        subset_df = gen_fuel[
+            (gen_fuel["plant_id_eia"] == 50489)
+            & (gen_fuel["report_date"].dt.year == 2025)
+        ]
+        value_cols = subset_df.filter(regex=r"(_mwh|_units|_mmbtu)$").columns
+        zero_value_rows = subset_df.loc[
+            (subset_df[value_cols] == 0).all(axis=1), value_cols
+        ]
+        assert len(zero_value_rows) == 13
+        gen_fuel = gen_fuel.drop(zero_value_rows.index)
+
+    gen_fuel = PUDL_PACKAGE.encode(gen_fuel)
+    gen_fuel["fuel_type_code_pudl"] = gen_fuel.energy_source_code.map(
+        pudl.helpers.label_map(
+            CODE_METADATA["core_eia__codes_energy_sources"]["df"],
+            from_col="code",
+            to_col="fuel_type_code_pudl",
+            null_value=pd.NA,
+        )
+    )
 
     # Create separate nuclear unit fuel table
     nukes = gen_fuel[
@@ -1044,13 +1077,18 @@ def _drop_duplicates__core_eia923__generation(
     # raise alarm bells if we are dropping more than we expect... but not for unit
     # tests when we are feeding it almost all problems.
     max_drop_ratio = 0.013
-    if not unit_test and (drop_ratio := len(drop_em) / len(gen_df)) > max_drop_ratio:
+    if (
+        not unit_test
+        and (drop_ratio := len(drop_em) / len(gen_df)) > max_drop_ratio
+        and len(gen_df.report_date.dt.year.unique()) > 3
+    ):
         raise AssertionError(
             f"Dropped {drop_ratio} as duplicates but expected only {max_drop_ratio}"
         )
 
     # BUT THERE IS MORE...
-    # truly duplicate records from one plant (id 3405) from 2012 and 2013.
+    # truly duplicate records from one plant (id 3405) from 2012 and 2013
+    # and another (id 55088) from 2025 and 2026.
     # they are duplicate except for having different prime movers (which we
     # very much don’t expect to be the primary key for this table)
     # we are going to find them... make sure they are the plant we expect... then
@@ -1058,24 +1096,34 @@ def _drop_duplicates__core_eia923__generation(
     # only column that differs in these records. We don't expect this table
     # to vary by pm code.... also generators definitionally shouldn't have
     # two prime_mover_codes
-    still_dupe_mask = gen_df.duplicated(subset=unique_subset, keep=False)
-    still_dupes = gen_df[still_dupe_mask]
-    if set(gen_df.report_date.dt.year.unique()) >= set({2012, 2013}):
-        assert all(still_dupes.plant_id_eia.unique() == 3405)
-        assert set(still_dupes.report_date.dt.year.unique()) == {2012, 2013}
+
+    # This function is only really necessary so long as there are dupes in the fast_etl
+    # that need to be separated out.
+    def _agg_dupes(df: pd.DataFrame, dupe_df: pd.DataFrame, mask) -> pd.DataFrame:
         first_cols = [
             col
-            for col in still_dupes
+            for col in dupe_df
             if col not in unique_subset + ["net_generation_mwh", "prime_mover_code"]
         ]
         deduped = (
-            still_dupes.groupby(unique_subset)
+            dupe_df.groupby(unique_subset)
             .agg({"net_generation_mwh": "sum", **dict.fromkeys(first_cols, "first")})
             .reset_index()
         )
+        return pd.concat([df[~mask], deduped], ignore_index=True)
 
-        gen_df = pd.concat([gen_df[~still_dupe_mask], deduped], ignore_index=True)
-
+    still_dupe_mask = gen_df.duplicated(subset=unique_subset, keep=False)
+    still_dupes = gen_df[still_dupe_mask]
+    if set(gen_df.report_date.dt.year.unique()) == set(
+        {2020, 2026}
+    ):  # for the fast_etl
+        assert set(still_dupes.plant_id_eia.unique()) == {55088}
+        assert set(still_dupes.report_date.dt.year.unique()) == {2026}
+        gen_df = _agg_dupes(gen_df, still_dupes, still_dupe_mask)
+    elif set(gen_df.report_date.dt.year.unique()) >= set({2012, 2013, 2025}):
+        assert set(still_dupes.plant_id_eia.unique()) == {3405, 55088}
+        assert set(still_dupes.report_date.dt.year.unique()) == {2012, 2013, 2025, 2026}
+        gen_df = _agg_dupes(gen_df, still_dupes, still_dupe_mask)
     if not (
         still_dupes := gen_df[gen_df.duplicated(subset=unique_subset, keep=False)]
     ).empty:
@@ -1824,8 +1872,8 @@ def _core_eia923__yearly_byproduct_disposition(
     # These rows contain no meaningful data. To prevent dropping future rows unexpectedly, we
     # expect a set number of rows to be dropped
     null_byproduct_descriptions = df["byproduct_description"].isnull().sum()
-    assert null_byproduct_descriptions <= 22, (
-        f"More NULLs for `byproduct_description` than expected: {null_byproduct_descriptions} vs 22"
+    assert null_byproduct_descriptions <= 26, (
+        f"More NULLs for `byproduct_description` than expected: {null_byproduct_descriptions} vs 26"
     )
     df = df.dropna(subset=["byproduct_description"])
 

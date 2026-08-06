@@ -170,6 +170,23 @@ class EpaCemsDataConfig(GenericDataConfig):
         return year_quarters
 
 
+class EpaMatsDataConfig(GenericDataConfig):
+    """An immutable pydantic model to validate EPA MATS data configuration."""
+
+    data_source: ClassVar[DataSource] = DataSource.from_id("epamats")
+
+    year_quarters: list[str] = data_source.working_partitions["year_quarters"]
+    """The list of years-quarters to validate."""
+
+    @field_validator("year_quarters")
+    @classmethod
+    def allow_all_keyword_year_quarters(cls, year_quarters):
+        """Allow users to specify ['all'] to get all quarters."""
+        if year_quarters == ["all"]:
+            year_quarters = cls.data_source.working_partitions["year_quarters"]
+        return year_quarters
+
+
 class PhmsaGasDataConfig(GenericDataConfig):
     """An immutable pydantic model to validate PHMSA data configuration."""
 
@@ -544,7 +561,45 @@ class EiaDataConfig(FrozenBaseModel):
             data["eia860"] = Eia860DataConfig(
                 years=[year for year in data["eia923"].years if year in available_years]
             )
+            # If we expect any EIA-860M data with EIA-860, this will require those partitions
+            # to be in the EIA-860M data, because EIA-860M is processed first is then fed
+            # into the EIA-860 ETL.
+            if data["eia860"].eia860m and not data.get("eia860m"):
+                data["eia860m"] = Eia860mDataConfig(
+                    year_months=data["eia860"].eia860m_year_months
+                )
         return data
+
+    @model_validator(mode="after")
+    def validate_eia860m_consistency(self):
+        """After-construction validation: ensure eia860/eia860m are consistent.
+
+        Note: this only validates and raises; it does not attempt to inject a missing
+        eia860m config (after-mode validators run after models are constructed).
+        """
+        # If eia860 is not present, nothing to validate
+        if not self.eia860:
+            return self
+
+        # If eia860 requests 860m months, ensure an eia860m config exists
+        if self.eia860.eia860m:
+            required_months = list(self.eia860.eia860m_year_months or [])
+            if not self.eia860m:
+                raise ValueError(
+                    "EIA860 configuration requests EIA860M months but no "
+                    "EIA860M configuration was provided. Provide eia.eia860m: true "
+                    f"and eia.eia860m.year_months that cover {required_months}."
+                )
+
+            provided_months = list(self.eia860m.year_months or [])
+            missing = [m for m in required_months if m not in provided_months]
+            if missing:
+                raise ValueError(
+                    f"EIA860 requests the following 860M months {required_months} "
+                    f"but the EIA860M configuration only includes {provided_months}; "
+                    f"missing: {missing}"
+                )
+        return self
 
 
 class Rus7DataConfig(GenericDataConfig):
@@ -568,6 +623,7 @@ class PudlDataConfig(FrozenBaseModel):
 
     eia: EiaDataConfig | None = None
     epacems: EpaCemsDataConfig | None = None
+    epamats: EpaMatsDataConfig | None = None
     ferc1: Ferc1DataConfig | None = None
     ferc714: Ferc714DataConfig | None = None
     glue: GlueDataConfig | None = None
@@ -594,6 +650,7 @@ class PudlDataConfig(FrozenBaseModel):
         if not any(data.values()):
             data["eia"] = EiaDataConfig()
             data["epacems"] = EpaCemsDataConfig()
+            data["epamats"] = EpaMatsDataConfig()
             data["ferc1"] = Ferc1DataConfig()
             data["ferc714"] = Ferc714DataConfig()
             data["glue"] = GlueDataConfig()

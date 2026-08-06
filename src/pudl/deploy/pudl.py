@@ -605,9 +605,11 @@ def get_build_from_tag(tag: str) -> UPath:
     # Loop through all builds associated with git ref and find most recent one
     most_recent_build_dt = datetime.min
     most_recent_build_path = None
-    build_path_pattern = re.compile(r"(\d{4}-\d{2}-\d{2}-\d{4})-([a-f|0-9]{9})")
+    build_path_pattern = re.compile(
+        r"(nightly|branch|stable)-(\d{4}-\d{2}-\d{2}-\d{4})-([a-f|0-9]{9})-.+"
+    )
     checked = []
-    for build_path in build_bucket.glob(f"*-{git_ref}"):
+    for build_path in build_bucket.glob(f"*-{git_ref}-*"):
         checked.append(str(build_path))
         if (match := build_path_pattern.search(str(build_path))) is None:
             raise RuntimeError(
@@ -615,7 +617,7 @@ def get_build_from_tag(tag: str) -> UPath:
             )
 
         if (
-            next_dt := datetime.strptime(match.group(1), "%Y-%m-%d-%H%M")
+            next_dt := datetime.strptime(match.group(2), "%Y-%m-%d-%H%M")
         ) > most_recent_build_dt:
             most_recent_build_dt = next_dt
             most_recent_build_path = build_path

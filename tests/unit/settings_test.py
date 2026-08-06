@@ -52,9 +52,9 @@ class TestGenericDataConfig:
             working_tables = ["table"]
 
             class Test(GenericDataConfig):
-                data_source: DataSource = DataSource(  # type: ignore  # noqa: PGH003
+                data_source: DataSource = DataSource(  # type: ignore[invalid-attribute-override, missing-argument]
                     working_partitions=working_partitions,
-                    working_tables=working_tables,  # type: ignore  # noqa: PGH003
+                    working_tables=working_tables,  # type: ignore[unknown-argument]
                 )
 
             Test()
@@ -79,7 +79,7 @@ class TestFerc1DataConfig:
     def test_none_years_raise(self: Self):
         """Test that null years raise a validation error."""
         with pytest.raises(ValidationError):
-            _ = Ferc1DataConfig(years=None)  # type: ignore  # noqa: PGH003
+            _ = Ferc1DataConfig(years=None)  # type: ignore[invalid-argument-type]
 
     def test_default_years(self: Self):
         """Test all years are used as default."""
@@ -134,7 +134,7 @@ class TestEpaCemsDataConfig:
     def test_none_quarters_raise(self: Self):
         """Test that setting a required partition to None raises an error."""
         with pytest.raises(ValidationError):
-            _ = EpaCemsDataConfig(quarters=None)  # type: ignore  # noqa: PGH003
+            _ = EpaCemsDataConfig(quarters=None)  # type: ignore[unknown-argument]
 
 
 class TestEia860DataConfig:
@@ -223,7 +223,7 @@ class TestEiaDataConfig:
 
     def test_eia860_dependency(self: Self):
         """Test that there is some overlap between EIA860 and EIA923 data."""
-        eia860_data_config = Eia860DataConfig()
+        eia860_data_config = Eia860DataConfig(eia860m=False)  # Ignore 860M requirements
         eia_data_config = EiaDataConfig(eia860=eia860_data_config)
         data_source: DataSource = DataSource.from_id("eia923")
         assert eia_data_config.eia923 is not None
@@ -235,6 +235,48 @@ class TestEiaDataConfig:
         # assert that there is some overlap between EIA years
         assert not set(eia923_years).isdisjoint(eia860_years_partition)
         assert not set(eia923_years).isdisjoint(eia860_years_data_config)
+
+    def test_eia860_eia860m_both_present_succeeds(self: Self):
+        """When both eia860 requests 860M months and eia860m is provided the model should validate."""
+        eia860 = Eia860DataConfig(eia860m=True)
+        # provided eia860m includes at least the required months
+        eia860m = Eia860mDataConfig(year_months=eia860.eia860m_year_months)
+
+        cfg = EiaDataConfig(eia860=eia860, eia860m=eia860m)
+
+        assert cfg.eia860 is not None
+        assert cfg.eia860m is not None
+        # required months must be present in the resolved eia860m year_months
+        assert set(cfg.eia860.eia860m_year_months) == set(cfg.eia860m.year_months)
+
+    def test_eia860_eia860m_missing_months_raises(self: Self):
+        """If eia860 requests specific 860M months but the provided eia860m config lacks them, validation should fail."""
+        eia860 = Eia860DataConfig(eia860m=True)
+        # provided eia860m is missing one of the required months
+        incomplete_eia860m = Eia860mDataConfig(year_months=["2020-01"])
+
+        with pytest.raises(ValidationError):
+            EiaDataConfig(eia860=eia860, eia860m=incomplete_eia860m)
+
+    def test_eia860_without_eia860m_raises(self: Self):
+        """If eia860 requests specific 860M months but the provided eia860m config lacks them, validation should fail."""
+        eia860 = Eia860DataConfig(eia860m=True)
+
+        with pytest.raises(ValidationError):
+            EiaDataConfig(eia860=eia860)
+
+    def test_eia923_requests_eia860m_auto_injected(self: Self):
+        """If eia860 requests 860M months but no eia860m config is provided, the validator should inject the necessary eia860m partition and the model should validate."""
+        eia923 = Eia923DataConfig()
+
+        # No explicit eia923 provided; the before-mode validator is expected to add it.
+        cfg = EiaDataConfig(eia923=eia923)
+
+        assert cfg.eia860 is not None
+        assert cfg.eia860m is not None, (
+            "Expected eia860m to be auto-injected when eia860 requests months"
+        )
+        assert set(cfg.eia860m.year_months) == (set(cfg.eia860.eia860m_year_months))
 
 
 class TestPudlDataConfig:
