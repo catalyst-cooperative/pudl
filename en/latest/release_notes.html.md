@@ -16,6 +16,16 @@ This is the upcoming quarterly PUDL release.
 
 ### Expanded Data Coverage
 
+#### EIA-860M
+
+* Added [EIA-860M](data_sources/eia860.md) data through June 2026. See
+  issue [#5459](https://github.com/catalyst-cooperative/pudl/issues/5459) and PR [#5468](https://github.com/catalyst-cooperative/pudl/pull/5468).
+
+#### EIA-923
+
+* Added [EIA-923M](data_sources/eia923.md) data through May 2026. See
+  issue [#5460](https://github.com/catalyst-cooperative/pudl/issues/5460) and PR [#5468](https://github.com/catalyst-cooperative/pudl/pull/5468).
+
 #### EIA-930
 
 * Updated [EIA-930](data_sources/eia930.md) data. See PR [#5445](https://github.com/catalyst-cooperative/pudl/pull/5445).

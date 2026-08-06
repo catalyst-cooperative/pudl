@@ -442,7 +442,7 @@ run all the integration tests against your live PUDL DB with:
 
 ```console
 $ pixi run pytest-integration-nightly
-$ pixi run pytest-data-validation-nightly
+$ pixi run pytest-validate-nightly
 ```
 
 We expect `tests/validate/data_test.py::test_dbt` to fail at this point,

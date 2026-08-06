@@ -37372,7 +37372,7 @@ respective transform function.
 | Respondents                     | Electric, CHP plants, and sometimes fuel transfer terminals with either 1MW+ or the ability to receive and deliver power to the grid.                                                             |
 | Records Liberated               | ~5 million                                                                                                                                                                                        |
 | Source Format                   | Microsoft Excel (.xls/.xlsx)                                                                                                                                                                      |
-| Download Size                   | 379 MB                                                                                                                                                                                            |
+| Download Size                   | 380 MB                                                                                                                                                                                            |
 | Temporal Coverage               | 2001-2026                                                                                                                                                                                         |
 | PUDL Code                       | `eia923`                                                                                                                                                                                          |
 | Unprocessed Source Data Archive | [10.5281/zenodo.4127039](https://doi.org/10.5281/zenodo.4127039)                                                                                                                                  |
@@ -38923,7 +38923,7 @@ run all the integration tests against your live PUDL DB with:
 
 ```console
 $ pixi run pytest-integration-nightly
-$ pixi run pytest-data-validation-nightly
+$ pixi run pytest-validate-nightly
 ```
 
 We expect `tests/validate/data_test.py::test_dbt` to fail at this point,
@@ -40958,7 +40958,7 @@ are configured to run the `builds/pudl_batch.sh` script. This script:
    Note: if the container is manually stopped, Zulip will not be notified.
 2. Runs `pixi run pudl-with-ferc-to-sqlite-nightly`.
 3. Runs `pixi run pytest-unit-nightly`, `pixi run pytest-integration-nightly`,
-   and `pixi run pytest-data-validation-nightly` as separate stages.
+   and `pixi run pytest-validate-nightly` as separate stages.
 4. Copies the outputs and logs to a directory in the `gs://builds.catalyst.coop`
    bucket, named `<YYYY-MM-DD-HHMM>-<short git SHA>-<git ref>`, and writes a
    `success` marker file there if every stage passed.
@@ -75026,6 +75026,16 @@ This is the upcoming quarterly PUDL release.
   first PUDL contribution!
 
 ### Expanded Data Coverage
+
+#### EIA-860M
+
+* Added [EIA-860M](data_sources/eia860.md) data through June 2026. See
+  issue [#5459](https://github.com/catalyst-cooperative/pudl/issues/5459) and PR [#5468](https://github.com/catalyst-cooperative/pudl/pull/5468).
+
+#### EIA-923
+
+* Added [EIA-923M](data_sources/eia923.md) data through May 2026. See
+  issue [#5460](https://github.com/catalyst-cooperative/pudl/issues/5460) and PR [#5468](https://github.com/catalyst-cooperative/pudl/pull/5468).
 
 #### EIA-930
 
