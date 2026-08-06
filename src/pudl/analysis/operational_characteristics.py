@@ -620,6 +620,7 @@ def estimate_operational_characteristics_by_unit(
     ins={"core_epacems__hourly_emissions": AssetIn()},
     config_schema=HEAT_RATE_ANALYSIS_CONFIG_SCHEMA,
     io_manager_key="pudl_io_manager",
+    op_tags={"memory-use": "high"},  # Peak of ~16 GB as of 2026-08-05
 )
 def out_epacems__yearly_operational_characteristics(
     context: AssetExecutionContext,
