@@ -13,7 +13,7 @@ data/code out into the world. By the end of this, we'd like for:
   ``pudl.catalyst.coop/stable`` buckets in GCS/S3.
 * An archive of the PUDL GitHub repository for the release on Zenodo.
 * A GitHub Release created for that tag with installation instructions.
-* Updated ``stable`` and ``vYYYY.M.x`` documentation on ReadTheDocs.
+* Updated ``stable`` and ``vYYYY.M.x`` documentation on GitHub Pages.
 
 Here's how to do it!
 --------------------
@@ -47,7 +47,7 @@ Here's how to do it!
 
    * GCS/AWS distribution buckets have the appropriate data
    * ``stable`` and ``vYYYY.M.x`` point at the same Git ref
-   * ReadTheDocs for ``stable`` and ``vYYYY.M.x`` versions have the latest
+   * GitHub Pages for ``stable`` and ``vYYYY.M.x`` versions have the latest
      changes in the release notes
    * GitHub Releases has the new version with appropriate release notes.
 
