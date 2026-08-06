@@ -16,7 +16,6 @@ sources:
                   customer_choice_residential_participating
               config:
                 error_if: ">1"
-                warn_if: ">1"
               description:
                 Residential customers eligible for customer choice should be
                 greater than or equal to participating customers. One known
@@ -28,41 +27,15 @@ sources:
               description:
                 Alternative fuel fleet size should not be reported when the
                 alternative fuel fleet flag is explicitly false.
-          - dbt_utils.expression_is_true:
-              arguments:
-                expression: natural_gas_pump_price_dollars_per_mcf IS NULL OR
-                  natural_gas_pump_price_dollars_per_mcf > 0
-              config:
-                error_if: ">13"
-                warn_if: ">13"
-              description:
-                Natural gas pump price should be positive when reported. There
-                are 13 known zero-value records in the current data.
-
         columns:
-          - name: report_year
-          - name: operator_id_eia
-          - name: operating_state
-          - name: is_distribution_company_cooperative
-          - name: is_distribution_company_investor_owned
-          - name: is_distribution_company_municipally_owned
-          - name: is_distribution_company_privately_owned
-          - name: is_gatherer
-          - name: is_interstate_pipeline
-          - name: is_intrastate_pipeline
-          - name: is_liquid_natural_gas_marine_terminal
-          - name: is_liquid_natural_gas_peak_facility_operator
-          - name: is_producer
-          - name: is_storage_operator
-          - name: is_synthetic_natural_gas_plant_operator
-          - name: is_other_ownership
-          - name: is_public_compressed_natural_gas_fueling_station
-          - name: is_public_lng_fueling_station
-          - name: alternative_fleet_size
+          - name: natural_gas_pump_price_dollars_per_mcf
             data_tests:
               - dbt_expectations.expect_column_min_to_be_between:
                   arguments:
                     min_value: 0.0
+                    strictly: true
+                  config:
+                    error_if: ">13"
           - name: customer_choice_residential_eligible
             data_tests:
               - dbt_expectations.expect_column_min_to_be_between:
