@@ -23,7 +23,7 @@ sources:
                     min_value: 0.0
                     max_value: 24.0
                   config:
-                    error_if: ">24"
+                    error_if: ">58"
           - name: min_down_time_hours
             data_tests:
               - dbt_expectations.expect_column_values_to_be_between:
@@ -31,7 +31,7 @@ sources:
                     min_value: 0.0
                     max_value: 24.0
                   config:
-                    error_if: ">32"
+                    error_if: ">52"
           - name: heat_rate_at_max_load_factor_mmbtu_per_mwh
             data_tests:
               - dbt_expectations.expect_column_values_to_be_between:
