@@ -316,6 +316,22 @@ def _aggregate_generation_fuel_duplicates(
     is_duplicate = gen_fuel.duplicated(subset=natural_key_fields, keep=False)
 
     duplicates = gen_fuel[is_duplicate].copy()
+
+    # Remove duplicates where all numeric fields are 0 (only if there are other,
+    # non-zero duplicates)
+    value_cols = duplicates.columns.difference(natural_key_fields + ["sector_id_eia"])
+    num = duplicates[value_cols].select_dtypes(include="number")
+
+    duplicates = duplicates.assign(_is_zero=(num == 0).all(axis=1))
+
+    g = duplicates.groupby(natural_key_fields)["_is_zero"]
+    has_zero = g.transform("any")
+    has_nonzero = g.transform(lambda s: (~s).any())
+
+    # drop the zero rows only in groups that also have non-zero rows
+    mask_drop = duplicates["_is_zero"] & has_zero & has_nonzero
+    duplicates = duplicates[~mask_drop].drop(columns="_is_zero")
+
     fuel_type_code_agg_is_unique = (
         duplicates.groupby(natural_key_fields).fuel_type_code_agg.nunique().eq(1).all()
     )

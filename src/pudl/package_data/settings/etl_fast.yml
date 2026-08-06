@@ -51,7 +51,7 @@ pudl:
       years: [2020, 2025]
       eia860m: true
     eia860m:
-      year_months: ["2026-04", "2026-05"]
+      year_months: ["2026-05", "2026-06"]
     eia861:
       # These years must overlap with FERC-714 to allow assets that depend on both to
       # be materialized. If you modify this list, be sure to update the matching
