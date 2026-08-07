@@ -697,10 +697,7 @@ def out_epacems__yearly_operational_characteristics(
     context: AssetExecutionContext,
     core_epacems__hourly_emissions: pl.LazyFrame,
 ) -> pd.DataFrame:
-    """Estimate EPA CEMS unit operational characteristics for every unit.
-
-    This table corresponds to the script output named ``epa_op_char_output_df.csv``.
-    """
+    """Estimate EPA CEMS unit operational characteristics for every unit."""
     heat_rate_config = _get_heat_rate_analysis_config(context)
     year_quarters = context.resources.global_data_config.pudl.epacems.year_quarters
     target_year_quarter = _select_target_year_quarter(year_quarters)
