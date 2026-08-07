@@ -19,7 +19,7 @@ Bug Fixes & Data Cleaning
   ``google-cloud-storage`` API to recursively hold every object under the prefix and
   verify after the fact that none were missed. Manually re-applied the hold to 4,000+
   previously published versioned release objects that had been missed by the original
-  bug. See PR pr:`5475`.
+  bug. See PR pr:`5477`.
 
 .. _release-v2026.8.0:
 
