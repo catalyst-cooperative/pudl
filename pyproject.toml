@@ -87,6 +87,7 @@ gdal = ">=3.13.2"
 geoarrow-pyarrow = ">=0.2"
 geopandas = ">=1.1.4"
 google-cloud-sdk = ">=535"
+google-cloud-storage = ">=3.13"
 # grpcio packages all need to have same version to avoid conflicts.
 # They are also compiled and finnicky. Check compatibility before upgrading.
 grpcio = "==1.78.1"
