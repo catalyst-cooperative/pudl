@@ -51,7 +51,7 @@ SOURCES: dict[str, Any] = {
             "These FIPS Codes are a subset of a broader Population Estimates dataset."
         ),
         "concept_doi": "10.5281/zenodo.14624611",
-        "working_partitions": {"years": [2009] + list(range(2011, 2025))},
+        "working_partitions": {"years": [2009] + list(range(2011, 2026))},
         "keywords": sorted(
             {"fips", "census", "county", "state", "geography", "geocodes"}
         ),
@@ -228,7 +228,7 @@ SOURCES: dict[str, Any] = {
         "working_partitions": {
             "year_months": [
                 str(q).lower()
-                for q in pd.period_range(start="2015-07", end="2026-05", freq="M")
+                for q in pd.period_range(start="2015-07", end="2026-06", freq="M")
             ],
         },
         "keywords": sorted(
@@ -488,7 +488,7 @@ SOURCES: dict[str, Any] = {
         },
         "working_partitions": {
             "year_quarters": _year_quarter_range(
-                start_quarter="1995q1", end_quarter="2026q1"
+                start_quarter="1995q1", end_quarter="2026q2"
             )
         },
         "contributors": [
@@ -538,7 +538,7 @@ SOURCES: dict[str, Any] = {
         },
         "working_partitions": {
             "year_quarters": _year_quarter_range(
-                start_quarter="2015q1", end_quarter="2026q1"
+                start_quarter="2015q1", end_quarter="2026q2"
             )
         },
         "contributors": [

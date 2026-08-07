@@ -19,31 +19,59 @@ EIA-860M
   issue :issue:`4352` and PR :pr:`5360`. Shoutout to :user:`bsousa22` for making his
   first PUDL contribution!
 
+
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
+
+EIA-191
+~~~~~~~
+
+* Updated :doc:`EIA-191 <data_sources/eia191>` data. See PR :pr:`5464`.
+
+EIA-860M
+~~~~~~~~
+
+* Added :doc:`EIA-860M <data_sources/eia860>` data through June 2026. See
+  issue :issue:`5459` and PR :pr:`5468`.
+
+EIA-923
+~~~~~~~
+* Added :doc:`EIA-923M <data_sources/eia923>` data through May 2026. See
+  issue :issue:`5460` and PR :pr:`5468`.
 
 EIA-930
 ~~~~~~~
 
-* Updated :doc:`EIA-930 <data_sources/eia930>` data. See PR :pr:`5445`.
+* Updated :doc:`EIA-930 <data_sources/eia930>` data. See PRs :pr:`5445` and :pr:`5464`.
 
 FERC-714
 ~~~~~~~~
 
 * Added 2025 XBRL data for :doc:`FERC-714 <data_sources/ferc714>`. See
-  :issue:`5424` and :pr:`5436`.
+  :issue:`5424` and PRs :pr:`5436`, :pr:`5464`.
 
 EIA Electricity API
 ~~~~~~~~~~~~~~~~~~~
 
 * Updated the :doc:`bulk EIA Electricity API <data_sources/eiaapi>`
-  data used to fill in redacted fuel prices. See PR :pr:`5441`.
+  data used to fill in redacted fuel prices. See PRs :pr:`5441` and :pr:`5464`.
 
 EPA CEMS
 ~~~~~~~~
 
 * Updated the :doc:`EPA CEMS <data_sources/epacems>` data with
-  additional records through end of March 2026. See PR :pr:`5441`.
+  additional records through end of June 2026. See PR :pr:`5441` and :pr:`5464`.
+
+EPA MATS
+~~~~~~~~
+
+* Updated the EPA MATS data with additional records through end of June 2026. See PR
+  :pr:`5464`.
+
+PHMSA Natural Gas data
+~~~~~~~~~~~~~~~~~~~~~~
+
+* Updated the :doc:`PHMSA natural gas <data_sources/phmsagas>` data. See PR :pr:`5464`.
 
 FERC Form 6
 ~~~~~~~~~~~
