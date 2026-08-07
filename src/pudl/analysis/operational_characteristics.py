@@ -65,6 +65,59 @@ def _ordinal_to_quarter_start(ordinal: int) -> pd.Timestamp:
     return pd.Timestamp(year=year, month=quarter * 3 + 1, day=1)
 
 
+def _ordinal_to_year_quarter(ordinal: int) -> str:
+    """Convert a zero-based quarter ordinal into its ``YYYYqN`` string."""
+    year, quarter = divmod(ordinal, 4)
+    return f"{year}q{quarter + 1}"
+
+
+def _assert_required_quarters_available(
+    year_quarters: list[str], target_year_quarter: str, num_quarters: int
+) -> None:
+    """Raise if the configured EPA CEMS quarters don't cover the trailing window.
+
+    ``EpaCemsDataConfig`` only validates that each configured year-quarter is a
+    real partition and that there are no duplicates -- it does not require the
+    list to be contiguous. Nothing downstream would otherwise notice a gap:
+    :func:`_select_target_year_quarter` only needs a max(), and
+    :func:`filter_cems_for_heat_rate_analysis` filters purely by timestamp
+    range, with no visibility into which quarters were actually requested. This
+    check makes a missing or discontinuous configuration fail loudly instead of
+    silently producing estimates from a partial window.
+    """
+    target_ordinal = _year_quarter_to_ordinal(target_year_quarter)
+    required_ordinals = range(target_ordinal - num_quarters + 1, target_ordinal + 1)
+    missing = sorted(
+        _ordinal_to_year_quarter(ordinal)
+        for ordinal in required_ordinals
+        if _ordinal_to_year_quarter(ordinal) not in year_quarters
+    )
+    if missing:
+        raise ValueError(
+            f"EPA CEMS year_quarters is missing quarters required for this "
+            f"analysis's trailing {num_quarters}-quarter window ending at "
+            f"{target_year_quarter}: {missing}."
+        )
+
+
+def _select_target_year_quarter(year_quarters: list[str]) -> str:
+    """Pick the year-quarter to treat as the end of the analysis window.
+
+    Prefers the most recent year-quarter ending in Q4 (i.e. the most recent
+    *complete* calendar year), which reproduces the historical whole-year
+    behavior of this analysis in production. Falls back to the single most
+    recent year-quarter of any kind when no Q4 is present -- e.g. in the fast
+    ETL / CI, which only has a single quarter of EPA CEMS data and can't
+    produce a Q4-ending window at all.
+    """
+    q4_years = [
+        year_quarter.removesuffix("q4")
+        for year_quarter in year_quarters
+        if year_quarter.endswith("q4")
+    ]
+    return f"{max(q4_years)}q4" if q4_years else max(year_quarters)
+
+
 def filter_cems_for_heat_rate_analysis(
     core_epacems__hourly_emissions: pl.LazyFrame,
     final_year_quarter: str,
@@ -651,18 +704,11 @@ def out_epacems__yearly_operational_characteristics(
     This table corresponds to the script output named ``epa_op_char_output_df.csv``.
     """
     heat_rate_config = _get_heat_rate_analysis_config(context)
-    # Prefer the most recent complete year (i.e. the most recent year-quarter
-    # ending in q4), which reproduces the historical whole-year behavior in
-    # production. Fall back to the single most recent year-quarter when no q4 is
-    # available -- e.g. the fast ETL / CI, which only has a single quarter of EPA
-    # CEMS data and can't produce a q4-ending window at all.
     year_quarters = context.resources.global_data_config.pudl.epacems.year_quarters
-    q4_years = [
-        year_quarter.removesuffix("q4")
-        for year_quarter in year_quarters
-        if year_quarter.endswith("q4")
-    ]
-    target_year_quarter = f"{max(q4_years)}q4" if q4_years else max(year_quarters)
+    target_year_quarter = _select_target_year_quarter(year_quarters)
+    _assert_required_quarters_available(
+        year_quarters, target_year_quarter, heat_rate_config["num_quarters"]
+    )
     report_year = int(target_year_quarter[:4])
 
     state_dfs = []
