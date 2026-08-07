@@ -28,6 +28,7 @@ Classes
    pudl.settings.Ferc1DataConfig
    pudl.settings.Ferc714DataConfig
    pudl.settings.EpaCemsDataConfig
+   pudl.settings.EpaMatsDataConfig
    pudl.settings.PhmsaGasDataConfig
    pudl.settings.Sec10kDataConfig
    pudl.settings.NrelAtbDataConfig
@@ -239,6 +240,34 @@ Module Contents
 
 
    An immutable pydantic model to validate EPA CEMS data configuration.
+
+
+   .. py:attribute:: data_source
+      :type:  ClassVar[pudl.metadata.classes.DataSource]
+
+      The DataSource metadata object for this dataset.
+
+
+   .. py:attribute:: year_quarters
+      :type:  list[str]
+
+      The list of years-quarters to validate.
+
+
+   .. py:method:: allow_all_keyword_year_quarters(year_quarters)
+      :classmethod:
+
+
+      Allow users to specify ['all'] to get all quarters.
+
+
+
+.. py:class:: EpaMatsDataConfig(/, **data: Any)
+
+   Bases: :py:obj:`GenericDataConfig`
+
+
+   An immutable pydantic model to validate EPA MATS data configuration.
 
 
    .. py:attribute:: data_source
@@ -846,6 +875,15 @@ Module Contents
 
 
 
+   .. py:method:: validate_eia860m_consistency()
+
+      After-construction validation: ensure eia860/eia860m are consistent.
+
+      Note: this only validates and raises; it does not attempt to inject a missing
+      eia860m config (after-mode validators run after models are constructed).
+
+
+
 .. py:class:: Rus7DataConfig(/, **data: Any)
 
    Bases: :py:obj:`GenericDataConfig`
@@ -902,6 +940,12 @@ Module Contents
 
    .. py:attribute:: epacems
       :type:  EpaCemsDataConfig | None
+      :value: None
+
+
+
+   .. py:attribute:: epamats
+      :type:  EpaMatsDataConfig | None
       :value: None
 
 

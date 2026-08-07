@@ -80,6 +80,7 @@
   * [Asset Naming Conventions](naming_conventions.md#asset-naming-conventions)
   * [Columns and Field Names](naming_conventions.md#columns-and-field-names)
   * [Naming Conventions in Code](naming_conventions.md#naming-conventions-in-code)
+* [Best practices for working with LLMs](llm_best_practices.md)
 * [Data and ETL Design Guidelines](data_guidelines.md)
   * [Input vs. Output Data](data_guidelines.md#input-vs-output-data)
   * [Minimize Data Alteration](data_guidelines.md#minimize-data-alteration)

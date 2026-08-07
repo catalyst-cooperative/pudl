@@ -49,6 +49,16 @@ Module Contents
       Instance of metadata object to use with this extractor.
 
 
+   .. py:method:: source_filename(page: str, **partition: pudl.extract.extractor.PartitionSelection) -> str
+
+      Override filename selection.
+
+      Since archive version 33.0.0, EIA-191 archives include both annual and monthly files for some years.
+      All files specify whether they are annual or monthly.
+      PUDL processes only monthly EIA-191 data.
+
+
+
    .. py:method:: get_page_cols(page: str, partition_key: str) -> list[str]
 
       Get the columns for a particular page and partition key.

@@ -1,5 +1,142 @@
 # PUDL Release Notes
 
+<a id="release-v2026-8-0"></a>
+
+## v2026.8.0 (2026-08-07)
+
+This is a regular quarterly PUDL release with a bunch of dataset updates. We’ve also
+added a new raw EPA MATS dataset, and Puerto Rico is now included in our EIA-860/860M
+data thanks to first-time contributor [@bsousa22](https://github.com/sponsors/bsousa22). We also tracked down and fixed a
+longstanding bug that had FERC Form 714 balancing authority data crossed between the
+Desert Southwest and Upper Great Plains West regions. See below for all the details.
+
+### New Data
+
+#### EIA-860M
+
+* Added Puerto Rico [EIA-860M](data_sources/eia860.md) data into EIA 860 tables. See
+  issue [#4352](https://github.com/catalyst-cooperative/pudl/issues/4352) and PR [#5360](https://github.com/catalyst-cooperative/pudl/pull/5360). Shoutout to [@bsousa22](https://github.com/sponsors/bsousa22) for making his
+  first PUDL contribution!
+
+#### EPA MATS
+
+* Added the EPA Mercury and Air Toxics Standards (MATS) dataset, extracted into a raw
+  table with additional records through end of June 2026. This data is not yet deeply
+  integrated into PUDL. See issue [#5358](https://github.com/catalyst-cooperative/pudl/issues/5358) and PRs [#5389](https://github.com/catalyst-cooperative/pudl/pull/5389), [#5464](https://github.com/catalyst-cooperative/pudl/pull/5464). Also
+  a contribution from [@bsousa22](https://github.com/sponsors/bsousa22).
+
+### Expanded Data Coverage
+
+#### EIA-191
+
+* Updated [EIA-191](data_sources/eia191.md) data. See PR [#5464](https://github.com/catalyst-cooperative/pudl/pull/5464).
+
+#### EIA-860M
+
+* Added [EIA-860M](data_sources/eia860.md) data through June 2026. See
+  issue [#5459](https://github.com/catalyst-cooperative/pudl/issues/5459) and PR [#5468](https://github.com/catalyst-cooperative/pudl/pull/5468).
+
+#### EIA-923
+
+* Added early release data for EIA-923 2025. See issue [#5372](https://github.com/catalyst-cooperative/pudl/issues/5372) and PR [#5391](https://github.com/catalyst-cooperative/pudl/pull/5391).
+* Added [EIA-923M](data_sources/eia923.md) data for April and May 2026. See issue
+  [#5460](https://github.com/catalyst-cooperative/pudl/issues/5460) and PRs [#5391](https://github.com/catalyst-cooperative/pudl/pull/5391), [#5468](https://github.com/catalyst-cooperative/pudl/pull/5468).
+
+#### EIA-930
+
+* Updated [EIA-930](data_sources/eia930.md) data. See PRs [#5445](https://github.com/catalyst-cooperative/pudl/pull/5445), [#5464](https://github.com/catalyst-cooperative/pudl/pull/5464).
+
+#### FERC-714
+
+* Added 2025 XBRL data for [FERC-714](data_sources/ferc714.md). See [#5424](https://github.com/catalyst-cooperative/pudl/issues/5424) and
+  PRs [#5436](https://github.com/catalyst-cooperative/pudl/pull/5436), [#5464](https://github.com/catalyst-cooperative/pudl/pull/5464).
+
+#### EIA Electricity API
+
+* Updated the [bulk EIA Electricity API](data_sources/eiaapi.md) data used to fill in
+  redacted fuel prices. See PRs [#5441](https://github.com/catalyst-cooperative/pudl/pull/5441), [#5464](https://github.com/catalyst-cooperative/pudl/pull/5464).
+
+#### EPA CEMS
+
+* Updated the [EPA CEMS](data_sources/epacems.md) data with additional records
+  through end of June 2026. See PRs [#5441](https://github.com/catalyst-cooperative/pudl/pull/5441), [#5464](https://github.com/catalyst-cooperative/pudl/pull/5464).
+
+#### PHMSA Natural Gas data
+
+* Updated the [PHMSA natural gas](data_sources/phmsagas.md) data. See PR [#5464](https://github.com/catalyst-cooperative/pudl/pull/5464).
+
+#### FERC Form 6
+
+* Updated the raw FERC Form 6 archives to include additional 2025 data. This data is
+  converted to SQLite, but not deeply integrated into PUDL. See PR [#5441](https://github.com/catalyst-cooperative/pudl/pull/5441).
+
+### Documentation
+
+* Added LLM use guidelines and best practices to the
+  [contributor guide](CONTRIBUTING.md) and [dev guide](dev/llm_best_practices.md).
+  See PR [#5395](https://github.com/catalyst-cooperative/pudl/pull/5395).
+* Set up the [sphinx_llm](https://github.com/NVIDIA/sphinx-llm) Sphinx extension to
+  generate a Markdown version of the PUDL documentation, suitable for consumption by
+  LLMs, based on the [llms.txt](https://llmstxt.org/) convention. Each page now
+  advertises its Markdown counterpart via a `<link rel="alternate"
+  type="text/markdown">` tag, and the site footer links directly to `llms.txt`, so
+  that agents browsing the rendered HTML docs can discover and prefer the Markdown
+  versions. See PRs [#5381](https://github.com/catalyst-cooperative/pudl/pull/5381), [#5393](https://github.com/catalyst-cooperative/pudl/pull/5393).
+
+### Bug Fixes & Data Cleaning
+
+* Fixed incorrectly mapped Western Area Power Authority BA codes in FERC 714
+  data - previously, the Upper Great Plains West region FERC respondent was mapped
+  to the Desert Southwest region EIA balancing authority information, and vice
+  versa. See [#4644](https://github.com/catalyst-cooperative/pudl/issues/4644) and [#5408](https://github.com/catalyst-cooperative/pudl/pull/5408).
+* Fixed an exact-float merge bug in FERC1 “exploded tables” corrections. The
+  [`add_sizable_minority_corrections()`](autoapi/pudl/output/ferc1/index.md#pudl.output.ferc1.Exploder.add_sizable_minority_corrections) method matched
+  correction candidates by merging directly on floating point columns. Exact float
+  equality is extremely brittle, and moving from 32- to 64-bit floats
+  changed which utility/year pairs matched, producing extra rows and different
+  `ending_balance` sums in [out_ferc1_\_yearly_detailed_balance_sheet_assets](data_dictionaries/pudl_db.md#out-ferc1-yearly-detailed-balance-sheet-assets) and
+  [out_ferc1_\_yearly_rate_base](data_dictionaries/pudl_db.md#out-ferc1-yearly-rate-base). These were real matches being lost
+  due to the limited precision of 32-bit floats, on top of the brittleness of of merging
+  on floating point numbers. These are now being captured deterministically by merging
+  on values within a fixed tolerance of $5. See PR [#5350](https://github.com/catalyst-cooperative/pudl/pull/5350).
+* Fixed the Dagster asset graph for [EIA-860](data_sources/eia860.md) to correctly
+  depend on [EIA-860M](data_sources/eia860.md), so selecting the `raw_eia860m`
+  asset group and its downstream assets now also captures the EIA-860 assets that
+  rely on it, instead of silently leaving them stale. See [#4327](https://github.com/catalyst-cooperative/pudl/issues/4327) and
+  PR [#5409](https://github.com/catalyst-cooperative/pudl/pull/5409).
+
+### Performance Improvements
+
+* Switched from using `pl.Enum` to unconstrained `pl.Categorical` types to preserve
+  lazy execution in [`get_parquet_table_polars()`](autoapi/pudl/helpers/index.md#pudl.helpers.get_parquet_table_polars). This allows running
+  schema checks on large tables, and Pandera’s Polars backend never actually enforced
+  data content checks on `pl.LazyFrame` assets (99% of assets in PUDL). See PR
+  [#5434](https://github.com/catalyst-cooperative/pudl/pull/5434). Implementing efficient content validation for `pl.LazyFrame` assets is
+  left to PR [#5432](https://github.com/catalyst-cooperative/pudl/pull/5432).
+* The fast ETL now processes only two representative
+  [EIA-861](data_sources/eia861.md) years instead of the entire time series, bringing
+  it in line with how every other dataset is already handled and speeding up both local
+  development and CI. Processing all years was originally a workaround for discontinued
+  columns and data validation tests that couldn’t tolerate partial coverage; those
+  limitations have since been resolved. This change surfaced an implicit assumption in
+  the [FERC-714](data_sources/ferc714.md) outputs that all EIA-861 years were always
+  available, in the logic that repairs known-bad balancing authority/utility
+  associations by copying data from a known-good year. That repair logic has been
+  rewritten as an explicit, validated mapping of per-year fixes, so it degrades
+  gracefully when only a subset of years is present, and is substantially easier to
+  read, test, and extend than the compact form it replaces. See [#2628](https://github.com/catalyst-cooperative/pudl/issues/2628) and
+  [#4568](https://github.com/catalyst-cooperative/pudl/pull/4568).
+
+### Developer Experience
+
+* Standardized numeric dtypes to always use 64-bit values, and datetime types to use
+  microsecond resolution in [`pudl.metadata.dtypes`](autoapi/pudl/metadata/dtypes/index.md#module-pudl.metadata.dtypes). The unused `compact` argument
+  to [`to_pandas_dtype()`](autoapi/pudl/metadata/classes/index.md#pudl.metadata.classes.Field.to_pandas_dtype) was retired. See PR
+  [#5350](https://github.com/catalyst-cooperative/pudl/pull/5350).
+* Sanitized the batch job IDs used by the deploy and build workflows so they always
+  meet Google Batch’s naming requirements, fixing failures we had previously worked
+  around by making the IDs more generic. See [#5411](https://github.com/catalyst-cooperative/pudl/issues/5411) and PR [#5429](https://github.com/catalyst-cooperative/pudl/pull/5429).
+
 <a id="release-v2026-7-2"></a>
 
 ## v2026.7.2 (2026-07-14)
@@ -16,7 +153,7 @@ bugfixes, and better signal:noise ratio in unit test logging outputs.
 ### Enhancements
 
 * Added experimental Parquet outputs derived from the FERC DBF databases, and basic
-  `datpackage.json` metadata describing their schemas to support querying and preview
+  `datapackage.json` metadata describing their schemas to support querying and preview
   through the [PUDL Data Viewer](https://data.catalyst.coop). See PR [#5339](https://github.com/catalyst-cooperative/pudl/pull/5339).
 * Standardized all unit strings in [`pudl.metadata.fields`](autoapi/pudl/metadata/fields/index.md#module-pudl.metadata.fields) to
   [Pint expression syntax](https://pint.readthedocs.io/), replacing ad-hoc
@@ -87,9 +224,6 @@ bugfixes, and better signal:noise ratio in unit test logging outputs.
 * Expanded the developer docs around metadata naming, typing, and updates to explain
   how unit annotations, field namespaces, and namespace/table-specific metadata
   overrides should be defined and maintained. See [#5361](https://github.com/catalyst-cooperative/pudl/pull/5361).
-* Set up the [sphinx_llm](https://github.com/NVIDIA/sphinx-llm) Sphinx extension to
-  generate a Markdown version of the PUDL documentation, suitable for consumption by
-  LLMs, based on the [llms.txt](https://llmstxt.org/) convention. See PR [#5381](https://github.com/catalyst-cooperative/pudl/pull/5381).
 
 ### New Data Tests & Validations
 

@@ -114,11 +114,6 @@ jurisdiction. See [18 CFR 35.10b Electric Quarterly Reports](https://www.ecfr.go
 
 ## Notable Irregularities
 
-#### WARNING
-As of 2026-01-15 integration of FERC EQR into PUDL is still underway, and the dataset
-should be considered a work in progress. You can check the status of issues linked
-below. See also tracking issues [#4850](https://github.com/catalyst-cooperative/pudl/issues/4850), [#4786](https://github.com/catalyst-cooperative/pudl/issues/4786)
-
 * A small percentage of the individual filing zip archives included in the quarterly
   FERC EQR bulk data are corrupted, and cannot be extracted. We assume this is due to
   errors in the filing process, and that these filings are likely revised and corrected

@@ -20,8 +20,8 @@ This code is for use analyzing EIA Form 860 data.
 
 ## Functions
 
-| [`extract_eia860`](#pudl.extract.eia860.extract_eia860)(context, raw_eia860_\_all_dfs)   | Extract raw EIA data from excel sheets into dataframes.   |
-|------------------------------------------------------------------------------------------|-----------------------------------------------------------|
+| [`extract_eia860`](#pudl.extract.eia860.extract_eia860)(context, raw_eia860_\_all_dfs, ...)   | Extract raw EIA data from excel sheets into dataframes.   |
+|-----------------------------------------------------------------------------------------------|-----------------------------------------------------------|
 
 ## Module Contents
 
@@ -39,7 +39,7 @@ Instance of metadata object to use with this extractor.
 
 #### cols_added *= []*
 
-#### process_raw(df, page, \*\*partition)
+#### process_raw(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), page: [str](https://docs.python.org/3/library/stdtypes.html#str), \*\*partition)
 
 Apply necessary pre-processing to the dataframe.
 
@@ -48,7 +48,7 @@ Apply necessary pre-processing to the dataframe.
 * Add a flag indicating if record came from EIA 860, or EIA 860M
 * Fix any generator_id values with leading zeroes.
 
-#### *static* get_dtypes(page, \*\*partition)
+#### *static* get_dtypes(page: [str](https://docs.python.org/3/library/stdtypes.html#str), \*\*partition)
 
 Returns dtypes for plant id columns.
 
@@ -56,7 +56,7 @@ Returns dtypes for plant id columns.
 
 ### pudl.extract.eia860.raw_eia860_\_all_dfs
 
-### pudl.extract.eia860.extract_eia860(context, raw_eia860_\_all_dfs)
+### pudl.extract.eia860.extract_eia860(context, raw_eia860_\_all_dfs, raw_eia860m_\_all_dfs)
 
 Extract raw EIA data from excel sheets into dataframes.
 

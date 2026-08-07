@@ -61,13 +61,13 @@ Module Contents
 
 
 
-   .. py:method:: process_raw(df, page, **partition)
+   .. py:method:: process_raw(df: pandas.DataFrame, page: str, **partition)
 
       Rename columns with location.
 
 
 
-   .. py:method:: process_renamed(df, page, **partition)
+   .. py:method:: process_renamed(df: pandas.DataFrame, page: str, **partition)
       :staticmethod:
 
 
@@ -75,7 +75,7 @@ Module Contents
 
 
 
-   .. py:method:: get_dtypes(page, **partition)
+   .. py:method:: get_dtypes(page: str, **partition)
       :staticmethod:
 
 

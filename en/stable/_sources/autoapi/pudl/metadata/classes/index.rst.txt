@@ -574,17 +574,22 @@ Module Contents
 
       Return polars data type.
 
+      Enum-constrained string fields are stored as unconstrained
+      :class:`pl.Categorical` rather than :class:`pl.Enum`. Polars embeds a fixed,
+      ordered category list from an ``Enum`` column directly in the Parquet field
+      metadata, which permanently pins the physical dtype: any later attempt to scan
+      that file with a different schema or even slightly different ``Enum`` fails
+      instead of being coerced. ``Categorical`` round-trips through Parquet fine.
 
 
-   .. py:method:: to_pandas_dtype(compact: bool = False) -> str | pandas.CategoricalDtype
+
+   .. py:method:: to_pandas_dtype() -> str | pandas.CategoricalDtype
 
       Return Pandas data type.
 
-      :param compact: Whether to return a low-memory data type (32-bit integer or float).
 
 
-
-   .. py:method:: to_sql_dtype() -> type
+   .. py:method:: to_sqlite_dtype() -> type
 
       Return SQLAlchemy data type.
 
@@ -750,7 +755,7 @@ Module Contents
 
 
 
-   .. py:method:: to_pandera() -> pandera.polars.DataFrameSchema
+   .. py:method:: to_pandera() -> pandera.polars.DataFrameSchema | pandera.pandas.DataFrameSchema
 
       Turn PUDL Schema into Pandera schema, so dagster can understand it.
 
@@ -1789,11 +1794,9 @@ Module Contents
 
 
 
-   .. py:method:: to_pandas_dtypes(**kwargs: Any) -> dict[str, str | pandas.CategoricalDtype]
+   .. py:method:: to_pandas_dtypes() -> dict[str, str | pandas.CategoricalDtype]
 
       Return Pandas data type of each field by field name.
-
-      :param kwargs: Arguments to :meth:`Field.to_pandas_dtype`.
 
 
 
@@ -1843,7 +1846,7 @@ Module Contents
 
 
 
-   .. py:method:: format_df(df: pandas.DataFrame | geopandas.GeoDataFrame | None = None, **kwargs: Any) -> pandas.DataFrame | geopandas.GeoDataFrame
+   .. py:method:: format_df(df: pandas.DataFrame | geopandas.GeoDataFrame | None = None) -> pandas.DataFrame | geopandas.GeoDataFrame
 
       Format a dataframe according to the resources's table schema.
 
@@ -1857,7 +1860,6 @@ Module Contents
         (:meth:`match_primary_key`) or if ``df=None``, an empty dataframe is returned.
 
       :param df: Dataframe to format.
-      :param kwargs: Arguments to :meth:`Field.to_pandas_dtypes`.
 
       :returns: Dataframe with column names and data types matching the resource fields.
 

@@ -16,6 +16,7 @@ Module for validating pudl ETL data configurations.
 | [`Ferc1DataConfig`](#pudl.settings.Ferc1DataConfig)                                     | An immutable pydantic model to validate Ferc1DataConfig.                          |
 | [`Ferc714DataConfig`](#pudl.settings.Ferc714DataConfig)                                 | An immutable pydantic model to validate Ferc714DataConfig.                        |
 | [`EpaCemsDataConfig`](#pudl.settings.EpaCemsDataConfig)                                 | An immutable pydantic model to validate EPA CEMS data configuration.              |
+| [`EpaMatsDataConfig`](#pudl.settings.EpaMatsDataConfig)                                 | An immutable pydantic model to validate EPA MATS data configuration.              |
 | [`PhmsaGasDataConfig`](#pudl.settings.PhmsaGasDataConfig)                               | An immutable pydantic model to validate PHMSA data configuration.                 |
 | [`Sec10kDataConfig`](#pudl.settings.Sec10kDataConfig)                                   | An immutable pydantic model to validate SEC 10-K data configuration.              |
 | [`NrelAtbDataConfig`](#pudl.settings.NrelAtbDataConfig)                                 | An immutable pydantic model to validate NREL ATB data configuration.              |
@@ -172,6 +173,24 @@ Return validated years for which XBRL data is available.
 Bases: [`GenericDataConfig`](#pudl.settings.GenericDataConfig)
 
 An immutable pydantic model to validate EPA CEMS data configuration.
+
+#### data_source *: ClassVar[[pudl.metadata.classes.DataSource](../metadata/classes/index.md#pudl.metadata.classes.DataSource)]*
+
+The DataSource metadata object for this dataset.
+
+#### year_quarters *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]*
+
+The list of years-quarters to validate.
+
+#### *classmethod* allow_all_keyword_year_quarters(year_quarters)
+
+Allow users to specify [‘all’] to get all quarters.
+
+### *class* pudl.settings.EpaMatsDataConfig(/, \*\*data: Any)
+
+Bases: [`GenericDataConfig`](#pudl.settings.GenericDataConfig)
+
+An immutable pydantic model to validate EPA MATS data configuration.
 
 #### data_source *: ClassVar[[pudl.metadata.classes.DataSource](../metadata/classes/index.md#pudl.metadata.classes.DataSource)]*
 
@@ -549,6 +568,13 @@ Dependencies:
 * **Return type:**
   values (Dict[[str](https://docs.python.org/3/library/stdtypes.html#str), BaseModel])
 
+#### validate_eia860m_consistency()
+
+After-construction validation: ensure eia860/eia860m are consistent.
+
+Note: this only validates and raises; it does not attempt to inject a missing
+eia860m config (after-mode validators run after models are constructed).
+
 ### *class* pudl.settings.Rus7DataConfig(/, \*\*data: Any)
 
 Bases: [`GenericDataConfig`](#pudl.settings.GenericDataConfig)
@@ -586,6 +612,8 @@ An immutable pydantic model to validate PUDL Dataset data configuration.
 #### eia *: [EiaDataConfig](#pudl.settings.EiaDataConfig) | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
 
 #### epacems *: [EpaCemsDataConfig](#pudl.settings.EpaCemsDataConfig) | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+
+#### epamats *: [EpaMatsDataConfig](#pudl.settings.EpaMatsDataConfig) | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
 
 #### ferc1 *: [Ferc1DataConfig](#pudl.settings.Ferc1DataConfig) | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
 

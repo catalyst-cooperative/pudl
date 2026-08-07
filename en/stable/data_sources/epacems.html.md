@@ -6,8 +6,8 @@
 | Respondents                     | Coal and high-sulfur fueled plants over 25MW                                                                                                                                     |
 | Records Liberated               | ~1 billion                                                                                                                                                                       |
 | Source Format                   | Comma Separated Value (.csv)                                                                                                                                                     |
-| Download Size                   | 10151 MB                                                                                                                                                                         |
-| Temporal Coverage               | 1995q1-2026q1                                                                                                                                                                    |
+| Download Size                   | 10218 MB                                                                                                                                                                         |
+| Temporal Coverage               | 1995q1-2026q2                                                                                                                                                                    |
 | PUDL Code                       | `epacems`                                                                                                                                                                        |
 | Unprocessed Source Data Archive | [10.5281/zenodo.10233185](https://doi.org/10.5281/zenodo.10233185)                                                                                                               |
 | Issues                          | [Open EPA Hourly Continuous Emission Monitoring System (CEMS) issues](https://github.com/catalyst-cooperative/pudl/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3Aepacems) |

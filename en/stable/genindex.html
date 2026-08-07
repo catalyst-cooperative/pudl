@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>Index &#8212; PUDL 2026.7.2 documentation</title>
+    <title>Index &#8212; PUDL 2026.8.0 documentation</title>
   
   
   
@@ -49,186 +49,21 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="_static/documentation_options.js?v=68e1031b"></script>
+    <script src="_static/documentation_options.js?v=949254a9"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/design-tabs.js?v=f930bc37"></script>
-    <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
     <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";
-
-
 
 
 
 const initStyles = () => {
     const defaultStyle = document.createElement('style');
-    defaultStyle.textContent = `pre.mermaid {
-    /* Same as .mermaid-container > pre */
-    display: block;
-    width: 100%;
-}
-
-pre.mermaid > svg {
-    /* Same as .mermaid-container > pre > svg */
-    height: 500px;
-    width: 100%;
-    max-width: 100% !important;
-}`;
+    defaultStyle.textContent = "pre.mermaid {\n    /* Same as .mermaid-container > pre */\n    display: block;\n    width: 100%;\n}\n\npre.mermaid > svg {\n    /* Same as .mermaid-container > pre > svg */\n    height: 500px;\n    width: 100%;\n    max-width: 100% !important;\n}";
     document.head.appendChild(defaultStyle);
 
     const fullscreenStyle = document.createElement('style');
-    fullscreenStyle.textContent = `.mermaid-container {
-    display: flex;
-    flex-direction: row;
-    width: 100%;
-}
-
-.mermaid-container > pre {
-    display: block;
-    width: 100%;
-}
-
-.mermaid-container > pre > svg {
-    height: 500px;
-    width: 100%;
-    max-width: 100% !important;
-}
-
-.mermaid-fullscreen-btn {
-    width: 28px;
-    height: 28px;
-    background: rgba(255, 255, 255, 0.95);
-    border: 1px solid rgba(0, 0, 0, 0.3);
-    border-radius: 4px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-    font-size: 14px;
-    line-height: 1;
-    padding: 0;
-    color: #333;
-}
-
-.mermaid-fullscreen-btn:hover {
-    opacity: 100% !important;
-    background: rgba(255, 255, 255, 1);
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
-    transform: scale(1.1);
-}
-
-.mermaid-fullscreen-btn.dark-theme {
-    background: rgba(50, 50, 50, 0.95);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    color: #e0e0e0;
-}
-
-.mermaid-fullscreen-btn.dark-theme:hover {
-    background: rgba(60, 60, 60, 1);
-    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);
-}
-
-.mermaid-fullscreen-modal {
-    display: none;
-    position: fixed !important;
-    top: 0 !important;
-    left: 0 !important;
-    width: 95vw;
-    height: 100vh;
-    background: rgba(255, 255, 255, 0.98);
-    z-index: 9999;
-    padding: 20px;
-    overflow: auto;
-}
-
-.mermaid-fullscreen-modal.dark-theme {
-    background: rgba(0, 0, 0, 0.98);
-}
-
-.mermaid-fullscreen-modal.active {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.mermaid-container-fullscreen {
-    position: relative;
-    width: 95vw;
-    height: 90vh;
-    max-width: 95vw;
-    max-height: 90vh;
-    background: white;
-    border-radius: 8px;
-    padding: 20px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-    overflow: auto;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.mermaid-container-fullscreen.dark-theme {
-    background: #1a1a1a;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
-}
-
-.mermaid-container-fullscreen pre.mermaid {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.mermaid-container-fullscreen .mermaid svg {
-    height: 100% !important;
-    width: 100% !important;
-    cursor: grab;
-}
-
-.mermaid-fullscreen-close {
-    position: fixed !important;
-    top: 20px !important;
-    right: 20px !important;
-    width: 40px;
-    height: 40px;
-    background: rgba(255, 255, 255, 0.95);
-    border: 1px solid rgba(0, 0, 0, 0.2);
-    border-radius: 50%;
-    cursor: pointer;
-    z-index: 10000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-    transition: all 0.2s;
-    font-size: 24px;
-    line-height: 1;
-    color: #333;
-}
-
-.mermaid-fullscreen-close:hover {
-    background: white;
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
-    transform: scale(1.1);
-}
-
-.mermaid-fullscreen-close.dark-theme {
-    background: rgba(50, 50, 50, 0.95);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: #e0e0e0;
-}
-
-.mermaid-fullscreen-close.dark-theme:hover {
-    background: rgba(60, 60, 60, 1);
-    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);
-}
-
-.mermaid-fullscreen-modal .mermaid-fullscreen-btn {
-    display: none !important;
-}`;
+    fullscreenStyle.textContent = ".mermaid-container {\n    position: relative;\n    display: flex;\n    flex-direction: row;\n    width: 100%;\n}\n\n.mermaid-container > pre {\n    display: block;\n    width: 100%;\n}\n\n.mermaid-container > pre > svg {\n    height: 500px;\n    width: 100%;\n    max-width: 100% !important;\n}\n\n.mermaid-fullscreen-btn {\n    position: absolute;\n    width: 28px;\n    height: 28px;\n    background: rgba(255, 255, 255, 0.95);\n    border: 1px solid rgba(0, 0, 0, 0.3);\n    border-radius: 4px;\n    cursor: pointer;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    transition: all 0.2s;\n    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);\n    font-size: 14px;\n    line-height: 1;\n    padding: 0;\n    color: #333;\n}\n\n.mermaid-fullscreen-btn:hover {\n    opacity: 100% !important;\n    background: rgba(255, 255, 255, 1);\n    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);\n    transform: scale(1.1);\n}\n\n.mermaid-fullscreen-btn.dark-theme {\n    background: rgba(50, 50, 50, 0.95);\n    border: 1px solid rgba(255, 255, 255, 0.3);\n    color: #e0e0e0;\n}\n\n.mermaid-fullscreen-btn.dark-theme:hover {\n    background: rgba(60, 60, 60, 1);\n    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);\n}\n\n.mermaid-fullscreen-modal {\n    display: none;\n    position: fixed !important;\n    top: 0 !important;\n    left: 0 !important;\n    width: 95vw;\n    height: 100vh;\n    background: rgba(255, 255, 255, 0.98);\n    z-index: 9999;\n    padding: 20px;\n    overflow: auto;\n}\n\n.mermaid-fullscreen-modal.dark-theme {\n    background: rgba(0, 0, 0, 0.98);\n}\n\n.mermaid-fullscreen-modal.active {\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen {\n    position: relative;\n    width: 95vw;\n    height: 90vh;\n    max-width: 95vw;\n    max-height: 90vh;\n    background: white;\n    border-radius: 8px;\n    padding: 20px;\n    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);\n    overflow: auto;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen.dark-theme {\n    background: #1a1a1a;\n    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);\n}\n\n.mermaid-container-fullscreen pre.mermaid {\n    width: 100%;\n    height: 100%;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen .mermaid svg {\n    height: 100% !important;\n    width: 100% !important;\n    cursor: grab;\n}\n\n.mermaid-fullscreen-close {\n    position: fixed !important;\n    top: 20px !important;\n    right: 20px !important;\n    width: 40px;\n    height: 40px;\n    background: rgba(255, 255, 255, 0.95);\n    border: 1px solid rgba(0, 0, 0, 0.2);\n    border-radius: 50%;\n    cursor: pointer;\n    z-index: 10000;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);\n    transition: all 0.2s;\n    font-size: 24px;\n    line-height: 1;\n    color: #333;\n}\n\n.mermaid-fullscreen-close:hover {\n    background: white;\n    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);\n    transform: scale(1.1);\n}\n\n.mermaid-fullscreen-close.dark-theme {\n    background: rgba(50, 50, 50, 0.95);\n    border: 1px solid rgba(255, 255, 255, 0.2);\n    color: #e0e0e0;\n}\n\n.mermaid-fullscreen-close.dark-theme:hover {\n    background: rgba(60, 60, 60, 1);\n    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);\n}\n\n.mermaid-fullscreen-modal .mermaid-fullscreen-btn {\n    display: none !important;\n}";
     document.head.appendChild(fullscreenStyle);
 }
 
@@ -275,6 +110,13 @@ let modalContent = null;
 let previousScrollOffset = [window.scrollX, window.scrollY];
 let _lazyObserver = null;
 let _renderQueue = Promise.resolve();
+let closeModal = () => {};
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal?.classList.contains('active')) {
+        closeModal();
+    }
+});
 
 // Apply d3 zoom to each SVG. Idempotent: an SVG already wrapped is skipped,
 // so this is safe to call both for the initial batch and for diagrams that
@@ -371,8 +213,10 @@ const runMermaid = async (rerun) => {
                                     el.removeAttribute('data-mermaid-deferred');
                                     // Apply zoom to the now-rendered diagram, matching
                                     // the decoration visible diagrams receive.
-                                    if ("False" === "True") {
-                                        addZoomToSvgs(d3.selectAll(""));
+                                    if (false) {
+                                        addZoomToSvgs(d3.selectAll("").select(function() {
+                                            return this.querySelector("svg");
+                                        }));
                                     }
                                 } catch (e) {
                                     console.error("Mermaid deferred rendering failed:", e);
@@ -393,10 +237,12 @@ const runMermaid = async (rerun) => {
     const mermaids_active = document.querySelectorAll(".mermaid:not([data-mermaid-deferred]):not([data-mermaid-render-failed])");
     const mermaids_processed = document.querySelectorAll(".mermaid:not([data-mermaid-deferred]):not([data-mermaid-render-failed])[data-processed='true']");
 
-    if ("False" === "True") {
-        const mermaids_to_add_zoom = -1 === -1 ? mermaids_active.length : -1;
+    if (false) {
+        const mermaids_to_add_zoom = 0 === -1 ? mermaids_active.length : 0;
         if(mermaids_to_add_zoom > 0) {
-            var svgs = d3.selectAll("");
+            var svgs = d3.selectAll("").select(function() {
+                return this.querySelector("svg");
+            });
             // Wait until every active (visible) diagram has rendered. Deferred
             // diagrams are excluded, so a fixed d3_node_count that counts a
             // hidden diagram no longer loops forever waiting for its SVG.
@@ -413,7 +259,7 @@ const runMermaid = async (rerun) => {
     }
 
     // Stop here if not adding fullscreen capability
-    if ("True" !== "True") return;
+    if (!true) return;
 
     if (modal !== null ) {
         // Destroy existing modal
@@ -436,7 +282,7 @@ const runMermaid = async (rerun) => {
     modalContent = modal.querySelector('.mermaid-container-fullscreen');
     const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
 
-    const closeModal = () => {
+    closeModal = () => {
         modal.classList.remove('active');
         modalContent.innerHTML = '';
         document.body.style.overflow = ''
@@ -447,12 +293,6 @@ const runMermaid = async (rerun) => {
     modal.addEventListener('click', (e) => {
         if (e.target === modal) closeModal();
     });
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && modal.classList.contains('active')) {
-            closeModal();
-        }
-    });
-
     document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
         if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
             mermaidDiv.closest('.mermaid-fullscreen-modal')) {
@@ -472,8 +312,8 @@ const runMermaid = async (rerun) => {
         const fullscreenBtn = document.createElement('button');
         fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
         fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
-        fullscreenBtn.textContent = '⛶';
-        fullscreenBtn.style.opacity = '50%';
+        fullscreenBtn.textContent = "\u26f6";
+        fullscreenBtn.style.opacity = "50%";
 
         // Calculate dynamic position based on diagram's margin and padding
         const diagramStyle = window.getComputedStyle(mermaidDiv);
@@ -485,7 +325,7 @@ const runMermaid = async (rerun) => {
         fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
 
         fullscreenBtn.addEventListener('click', () => {
-            previousScrollOffset = [window.scroll, window.scrollY];
+            previousScrollOffset = [window.scrollX, window.scrollY];
             const clone = mermaidDiv.cloneNode(true);
             modalContent.innerHTML = '';
             modalContent.appendChild(clone);
@@ -497,9 +337,9 @@ const runMermaid = async (rerun) => {
                 svg.style.width = '100%';
                 svg.style.height = 'auto';
                 svg.style.maxWidth = '100%';
-                svg.style.sdisplay = 'block';
+                svg.style.display = 'block';
 
-                if ("False" === "True") {
+                if (false) {
                     setTimeout(() => {
                         const g = svg.querySelector('g');
                         if (g) {
@@ -522,8 +362,11 @@ const runMermaid = async (rerun) => {
     });
 };
 
+
+
 const load = async () => {
     initStyles();
+
 
     await runMermaid(true);
 
@@ -533,10 +376,8 @@ const load = async () => {
             darkTheme = newDarkTheme;
             console.log("Theme change detected, re-running mermaid with", darkTheme ? "dark" : "default", "theme");
             await mermaid.initialize(
-                {...JSON.parse(
-                    `{"startOnLoad": false}`
-                ),
-                ...{ darkMode: darkTheme, theme: darkTheme ? 'dark' : 'default' },
+                {...{"startOnLoad": false},
+                ...{ darkMode: darkTheme, theme: darkTheme ? "dark" : "default" },
                 }
             );
             await runMermaid(true);
@@ -561,10 +402,8 @@ const load = async () => {
 
 console.log("Initializing mermaid with", darkTheme ? "dark" : "default", "theme");
 mermaid.initialize(
-    {...JSON.parse(
-        `{"startOnLoad": false}`
-    ),
-    ...{ darkMode: darkTheme, theme: darkTheme ? 'dark' : 'default' },
+    {...{"startOnLoad": false},
+    ...{ darkMode: darkTheme, theme: darkTheme ? "dark" : "default" },
     }
 );
 
@@ -655,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.7.2 documentation - Home"/>
-    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.7.2 documentation - Home"/>
+    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.0 documentation - Home"/>
+    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.0 documentation - Home"/>
   
   
 </a></div>
@@ -763,7 +602,51 @@ window.runMermaid = runMermaid;</script>
           
           
           
-          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://mastodon.energy/@catalystcoop" title="Mastodon" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-mastodon fa-lg" aria-hidden="true"></i><span class="visually-hidden">Mastodon</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://bsky.app/profile/catalyst.coop" title="Bluesky" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-bluesky fa-lg" aria-hidden="true"></i><span class="visually-hidden">Bluesky</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.linkedin.com/company/catalyst-cooperative/" title="LinkedIn" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-linkedin fa-lg" aria-hidden="true"></i><span class="visually-hidden">LinkedIn</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://opencollective.com/pudl" title="Support PUDL" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-donate fa-lg" aria-hidden="true"></i><span class="visually-hidden">Support PUDL</span></a>
         </li>
 </ul></div>
       
@@ -874,7 +757,51 @@ window.runMermaid = runMermaid;</script>
           
           
           
-          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+          <a href="https://github.com/catalyst-cooperative/pudl" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://mastodon.energy/@catalystcoop" title="Mastodon" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-mastodon fa-lg" aria-hidden="true"></i><span class="visually-hidden">Mastodon</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://bsky.app/profile/catalyst.coop" title="Bluesky" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-bluesky fa-lg" aria-hidden="true"></i><span class="visually-hidden">Bluesky</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.linkedin.com/company/catalyst-cooperative/" title="LinkedIn" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-linkedin fa-lg" aria-hidden="true"></i><span class="visually-hidden">LinkedIn</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://opencollective.com/pudl" title="Support PUDL" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-donate fa-lg" aria-hidden="true"></i><span class="visually-hidden">Support PUDL</span></a>
         </li>
 </ul></div>
         
@@ -1294,6 +1221,8 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="autoapi/pudl/analysis/record_linkage/name_cleaner/index.html#pudl.analysis.record_linkage.name_cleaner.CompanyNameCleaner._apply_cleaning_rules">_apply_cleaning_rules() (pudl.analysis.record_linkage.name_cleaner.CompanyNameCleaner method)</a>
 </li>
+      <li><a href="autoapi/pudl/output/ferc714/index.html#pudl.output.ferc714._apply_exclude_states">_apply_exclude_states() (in module pudl.output.ferc714)</a>
+</li>
       <li><a href="autoapi/pudl/analysis/record_linkage/name_cleaner/index.html#pudl.analysis.record_linkage.name_cleaner.CompanyNameCleaner._apply_normalization_of_legal_terms">_apply_normalization_of_legal_terms() (pudl.analysis.record_linkage.name_cleaner.CompanyNameCleaner method)</a>
 </li>
       <li><a href="autoapi/pudl/analysis/record_linkage/embed_dataframe/index.html#pudl.analysis.record_linkage.embed_dataframe._apply_numeric_similarity_func">_apply_numeric_similarity_func() (in module pudl.analysis.record_linkage.embed_dataframe)</a>
@@ -1377,6 +1306,8 @@ window.runMermaid = runMermaid;</script>
       <li><a href="autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.FercSqliteIOManagerBase._check_provenance">_check_provenance() (pudl.dagster.io_managers.FercSqliteIOManagerBase method)</a>
 </li>
       <li><a href="autoapi/pudl/scripts/check_path_permissions/index.html#pudl.scripts.check_path_permissions._check_single_path">_check_single_path() (in module pudl.scripts.check_path_permissions)</a>
+</li>
+      <li><a href="autoapi/pudl/output/ferc714/index.html#pudl.output.ferc714.BaFixMap._check_structure">_check_structure() (pudl.output.ferc714.BaFixMap method)</a>
 </li>
       <li><a href="autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.FieldConstraints._check_unique">_check_unique (pudl.metadata.classes.FieldConstraints attribute)</a>
 
@@ -1570,10 +1501,10 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="autoapi/pudl/transform/rus12/index.html#pudl.transform.rus12._core_rus12__yearly_plant_factors_and_maximum_demand">_core_rus12__yearly_plant_factors_and_maximum_demand() (in module pudl.transform.rus12)</a>
 </li>
-      <li><a href="autoapi/pudl/transform/rus12/index.html#pudl.transform.rus12._core_rus12__yearly_plant_labor">_core_rus12__yearly_plant_labor() (in module pudl.transform.rus12)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/pudl/transform/rus12/index.html#pudl.transform.rus12._core_rus12__yearly_plant_labor">_core_rus12__yearly_plant_labor() (in module pudl.transform.rus12)</a>
+</li>
       <li><a href="autoapi/pudl/transform/rus12/index.html#pudl.transform.rus12._core_rus12__yearly_plant_operations">_core_rus12__yearly_plant_operations() (in module pudl.transform.rus12)</a>
 </li>
       <li><a href="autoapi/pudl/transform/rus12/index.html#pudl.transform.rus12._core_rus12__yearly_renewable_plants">_core_rus12__yearly_renewable_plants() (in module pudl.transform.rus12)</a>
@@ -2389,7 +2320,11 @@ window.runMermaid = runMermaid;</script>
       <li><a href="autoapi/pudl/settings/index.html#pudl.settings.Eia860mDataConfig.allow_all_keyword_year_months">allow_all_keyword_year_months() (pudl.settings.Eia860mDataConfig class method)</a>
 </li>
       <li><a href="autoapi/pudl/settings/index.html#pudl.settings.EpaCemsDataConfig.allow_all_keyword_year_quarters">allow_all_keyword_year_quarters() (pudl.settings.EpaCemsDataConfig class method)</a>
+
+      <ul>
+        <li><a href="autoapi/pudl/settings/index.html#pudl.settings.EpaMatsDataConfig.allow_all_keyword_year_quarters">(pudl.settings.EpaMatsDataConfig class method)</a>
 </li>
+      </ul></li>
       <li><a href="autoapi/pudl/transform/classes/index.html#pudl.transform.classes.InvalidRows.allowed_invalid_cols">allowed_invalid_cols (pudl.transform.classes.InvalidRows attribute)</a>
 </li>
       <li><a href="autoapi/pudl/settings/index.html#pudl.settings.GridPathRaToolkitDataConfig.allowed_processing_levels">allowed_processing_levels() (pudl.settings.GridPathRaToolkitDataConfig class method)</a>
@@ -2532,8 +2467,6 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="autoapi/pudl/transform/ferc1/index.html#pudl.transform.ferc1.SmallPlantsTableTransformer.associate_notes_with_values">associate_notes_with_values() (pudl.transform.ferc1.SmallPlantsTableTransformer method)</a>
 </li>
-      <li><a href="autoapi/pudl/output/ferc714/index.html#pudl.output.ferc714.ASSOCIATIONS">ASSOCIATIONS (in module pudl.output.ferc714)</a>
-</li>
       <li><a href="autoapi/pudl/analysis/record_linkage/name_cleaner/index.html#pudl.analysis.record_linkage.name_cleaner.LegalTermLocation.AT_THE_END">AT_THE_END (pudl.analysis.record_linkage.name_cleaner.LegalTermLocation attribute)</a>
 </li>
       <li><a href="autoapi/pudl/analysis/plant_parts_eia/index.html#pudl.analysis.plant_parts_eia.AddAttribute.attribute_col">attribute_col (pudl.analysis.plant_parts_eia.AddAttribute attribute)</a>
@@ -2564,6 +2497,8 @@ window.runMermaid = runMermaid;</script>
 <h2 id="B">B</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/pudl/output/ferc714/index.html#pudl.output.ferc714.BA_FIXES">BA_FIXES (in module pudl.output.ferc714)</a>
+</li>
       <li><a href="autoapi/pudl/transform/eia861/index.html#pudl.transform.eia861.BA_ID_NAME_FIXES">BA_ID_NAME_FIXES (in module pudl.transform.eia861)</a>
 </li>
       <li><a href="autoapi/pudl/transform/eia861/index.html#pudl.transform.eia861.BA_NAME_FIXES">BA_NAME_FIXES (in module pudl.transform.eia861)</a>
@@ -2575,6 +2510,10 @@ window.runMermaid = runMermaid;</script>
       <li><a href="autoapi/pudl/transform/ferc714/index.html#pudl.transform.ferc714.BAD_RESPONDENTS">BAD_RESPONDENTS (in module pudl.transform.ferc714)</a>
 </li>
       <li><a href="autoapi/pudl/metadata/dfs/index.html#pudl.metadata.dfs.ImputationReasonCodes.BAD_YEAR">BAD_YEAR (pudl.metadata.dfs.ImputationReasonCodes attribute)</a>
+</li>
+      <li><a href="autoapi/pudl/output/ferc714/index.html#pudl.output.ferc714.BaFix">BaFix (class in pudl.output.ferc714)</a>
+</li>
+      <li><a href="autoapi/pudl/output/ferc714/index.html#pudl.output.ferc714.BaFixMap">BaFixMap (class in pudl.output.ferc714)</a>
 </li>
       <li><a href="autoapi/pudl/transform/ferc1/index.html#pudl.transform.ferc1.TableIdFerc1.BALANCE_SHEET_ASSETS">BALANCE_SHEET_ASSETS (pudl.transform.ferc1.TableIdFerc1 attribute)</a>
 </li>
@@ -2620,10 +2559,10 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="autoapi/pudl/analysis/record_linkage/eia_ferc1_model_config/index.html#pudl.analysis.record_linkage.eia_ferc1_model_config.blocking_rule_8">blocking_rule_8 (in module pudl.analysis.record_linkage.eia_ferc1_model_config)</a>
 </li>
-      <li><a href="autoapi/pudl/analysis/record_linkage/eia_ferc1_model_config/index.html#pudl.analysis.record_linkage.eia_ferc1_model_config.blocking_rule_9">blocking_rule_9 (in module pudl.analysis.record_linkage.eia_ferc1_model_config)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/pudl/analysis/record_linkage/eia_ferc1_model_config/index.html#pudl.analysis.record_linkage.eia_ferc1_model_config.blocking_rule_9">blocking_rule_9 (in module pudl.analysis.record_linkage.eia_ferc1_model_config)</a>
+</li>
       <li><a href="autoapi/pudl/analysis/record_linkage/eia_ferc1_model_config/index.html#pudl.analysis.record_linkage.eia_ferc1_model_config.BLOCKING_RULES">BLOCKING_RULES (in module pudl.analysis.record_linkage.eia_ferc1_model_config)</a>
 </li>
       <li><a href="autoapi/pudl/analysis/timeseries_cleaning/index.html#pudl.analysis.timeseries_cleaning.ImputeTimeseriesSettings.blocks">blocks (pudl.analysis.timeseries_cleaning.ImputeTimeseriesSettings attribute)</a>
@@ -3397,6 +3336,8 @@ window.runMermaid = runMermaid;</script>
 </li>
         <li><a href="autoapi/pudl/settings/index.html#pudl.settings.EpaCemsDataConfig.data_source">(pudl.settings.EpaCemsDataConfig attribute)</a>
 </li>
+        <li><a href="autoapi/pudl/settings/index.html#pudl.settings.EpaMatsDataConfig.data_source">(pudl.settings.EpaMatsDataConfig attribute)</a>
+</li>
         <li><a href="autoapi/pudl/settings/index.html#pudl.settings.Ferc1DataConfig.data_source">(pudl.settings.Ferc1DataConfig attribute)</a>
 </li>
         <li><a href="autoapi/pudl/settings/index.html#pudl.settings.Ferc1DbfToSqliteDataConfig.data_source">(pudl.settings.Ferc1DbfToSqliteDataConfig attribute)</a>
@@ -3503,6 +3444,8 @@ window.runMermaid = runMermaid;</script>
 </li>
         <li><a href="autoapi/pudl/extract/epacems/index.html#pudl.extract.epacems.EpaCemsDatastore.datastore">(pudl.extract.epacems.EpaCemsDatastore attribute)</a>
 </li>
+        <li><a href="autoapi/pudl/extract/epamats/index.html#pudl.extract.epamats.EpaMatsDatastore.datastore">(pudl.extract.epamats.EpaMatsDatastore attribute)</a>
+</li>
         <li><a href="autoapi/pudl/extract/xbrl/index.html#pudl.extract.xbrl.FercXbrlDatastore.datastore">(pudl.extract.xbrl.FercXbrlDatastore attribute)</a>
 </li>
       </ul></li>
@@ -3600,10 +3543,10 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="autoapi/pudl/dagster/io_managers/index.html#pudl.dagster.io_managers.default_io_managers">default_io_managers (in module pudl.dagster.io_managers)</a>
 </li>
-      <li><a href="autoapi/pudl/dagster/jobs/index.html#pudl.dagster.jobs.default_jobs">default_jobs (in module pudl.dagster.jobs)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/pudl/dagster/jobs/index.html#pudl.dagster.jobs.default_jobs">default_jobs (in module pudl.dagster.jobs)</a>
+</li>
       <li><a href="autoapi/pudl/settings/index.html#pudl.settings.EiaDataConfig.default_load_all">default_load_all() (pudl.settings.EiaDataConfig class method)</a>
 
       <ul>
@@ -3852,6 +3795,8 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="autoapi/pudl/extract/extractor/index.html#pudl.extract.extractor.GenericExtractor.ds">ds (pudl.extract.extractor.GenericExtractor attribute)</a>
 </li>
+      <li><a href="autoapi/pudl/extract/epamats/index.html#pudl.extract.epamats.DTYPE_DICT">DTYPE_DICT (in module pudl.extract.epamats)</a>
+</li>
       <li><a href="autoapi/pudl/dagster/asset_checks/index.html#pudl.dagster.asset_checks.duckdb_assets">duckdb_assets (in module pudl.dagster.asset_checks)</a>
 </li>
       <li><a href="autoapi/pudl/workspace/setup/index.html#pudl.workspace.setup.PudlPaths.duckdb_db_path">duckdb_db_path() (pudl.workspace.setup.PudlPaths method)</a>
@@ -4070,8 +4015,6 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="autoapi/pudl/workspace/datastore/index.html#pudl.workspace.datastore.ZenodoDoiSettings.epacamd_eia">epacamd_eia (pudl.workspace.datastore.ZenodoDoiSettings attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="autoapi/pudl/settings/index.html#pudl.settings.PudlDataConfig.epacems">epacems (pudl.settings.PudlDataConfig attribute)</a>
 
       <ul>
@@ -4080,6 +4023,8 @@ window.runMermaid = runMermaid;</script>
       </ul></li>
       <li><a href="autoapi/pudl/metadata/enums/index.html#pudl.metadata.enums.EPACEMS_MEASUREMENT_CODES">EPACEMS_MEASUREMENT_CODES (in module pudl.metadata.enums)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="autoapi/pudl/metadata/enums/index.html#pudl.metadata.enums.EPACEMS_STATES">EPACEMS_STATES (in module pudl.metadata.enums)</a>
 </li>
       <li><a href="autoapi/pudl/settings/index.html#pudl.settings.EpaCemsDataConfig">EpaCemsDataConfig (class in pudl.settings)</a>
@@ -4087,6 +4032,18 @@ window.runMermaid = runMermaid;</script>
       <li><a href="autoapi/pudl/extract/epacems/index.html#pudl.extract.epacems.EpaCemsDatastore">EpaCemsDatastore (class in pudl.extract.epacems)</a>
 </li>
       <li><a href="autoapi/pudl/extract/epacems/index.html#pudl.extract.epacems.EpaCemsPartition">EpaCemsPartition (class in pudl.extract.epacems)</a>
+</li>
+      <li><a href="autoapi/pudl/settings/index.html#pudl.settings.PudlDataConfig.epamats">epamats (pudl.settings.PudlDataConfig attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/pudl/workspace/datastore/index.html#pudl.workspace.datastore.ZenodoDoiSettings.epamats">(pudl.workspace.datastore.ZenodoDoiSettings attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/pudl/settings/index.html#pudl.settings.EpaMatsDataConfig">EpaMatsDataConfig (class in pudl.settings)</a>
+</li>
+      <li><a href="autoapi/pudl/extract/epamats/index.html#pudl.extract.epamats.EpaMatsDatastore">EpaMatsDatastore (class in pudl.extract.epamats)</a>
+</li>
+      <li><a href="autoapi/pudl/extract/epamats/index.html#pudl.extract.epamats.EpaMatsPartition">EpaMatsPartition (class in pudl.extract.epamats)</a>
 </li>
       <li><a href="autoapi/pudl/analysis/record_linkage/link_cross_year/index.html#pudl.analysis.record_linkage.link_cross_year.DBSCANConfig.eps">eps (pudl.analysis.record_linkage.link_cross_year.DBSCANConfig attribute)</a>
 </li>
@@ -4119,6 +4076,8 @@ window.runMermaid = runMermaid;</script>
       <li><a href="autoapi/pudl/validate/quality/index.html#pudl.validate.quality.ExcessiveNullRowsError">ExcessiveNullRowsError</a>
 </li>
       <li><a href="autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.PudlResourceDescriptor.PudlSchemaDescriptor.PudlForeignKeyRules.exclude_ids">exclude_ids (pudl.metadata.classes.PudlResourceDescriptor.PudlSchemaDescriptor.PudlForeignKeyRules attribute)</a>
+</li>
+      <li><a href="autoapi/pudl/output/ferc714/index.html#pudl.output.ferc714.BaFix.exclude_states">exclude_states (pudl.output.ferc714.BaFix attribute)</a>
 </li>
       <li><a href="autoapi/pudl/analysis/plant_parts_eia/index.html#pudl.analysis.plant_parts_eia.AddConsistentAttributes.execute">execute() (pudl.analysis.plant_parts_eia.AddConsistentAttributes method)</a>
 
@@ -4532,7 +4491,7 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="autoapi/pudl/output/ferc714/index.html#pudl.output.ferc714.filled_core_eia861__yearly_balancing_authority">filled_core_eia861__yearly_balancing_authority() (in module pudl.output.ferc714)</a>
 </li>
-      <li><a href="autoapi/pudl/output/ferc714/index.html#pudl.output.ferc714.filled_service_territory_eia861">filled_service_territory_eia861() (in module pudl.output.ferc714)</a>
+      <li><a href="autoapi/pudl/output/ferc714/index.html#pudl.output.ferc714.filled_core_eia861__yearly_service_territory">filled_core_eia861__yearly_service_territory() (in module pudl.output.ferc714)</a>
 </li>
       <li><a href="autoapi/pudl/transform/eia/index.html#pudl.transform.eia.fillna_balancing_authority_codes_via_names">fillna_balancing_authority_codes_via_names() (in module pudl.transform.eia)</a>
 </li>
@@ -4875,7 +4834,11 @@ window.runMermaid = runMermaid;</script>
 </li>
       </ul></li>
       <li><a href="autoapi/pudl/extract/epacems/index.html#pudl.extract.epacems.EpaCemsDatastore.get_data_frame">get_data_frame() (pudl.extract.epacems.EpaCemsDatastore method)</a>
+
+      <ul>
+        <li><a href="autoapi/pudl/extract/epamats/index.html#pudl.extract.epamats.EpaMatsDatastore.get_data_frame">(pudl.extract.epamats.EpaMatsDatastore method)</a>
 </li>
+      </ul></li>
       <li><a href="autoapi/pudl/workspace/datastore/index.html#pudl.workspace.datastore.Datastore.get_datapackage_descriptor">get_datapackage_descriptor() (pudl.workspace.datastore.Datastore method)</a>
 </li>
       <li><a href="autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.AbstractFercDbfReader.get_dataset">get_dataset() (pudl.extract.dbf.AbstractFercDbfReader method)</a>
@@ -4959,7 +4922,11 @@ window.runMermaid = runMermaid;</script>
       <li><a href="autoapi/pudl/extract/xbrl/index.html#pudl.extract.xbrl.FercXbrlDatastore.get_filings">get_filings() (pudl.extract.xbrl.FercXbrlDatastore method)</a>
 </li>
       <li><a href="autoapi/pudl/extract/epacems/index.html#pudl.extract.epacems.EpaCemsPartition.get_filters">get_filters() (pudl.extract.epacems.EpaCemsPartition method)</a>
+
+      <ul>
+        <li><a href="autoapi/pudl/extract/epamats/index.html#pudl.extract.epamats.EpaMatsPartition.get_filters">(pudl.extract.epamats.EpaMatsPartition method)</a>
 </li>
+      </ul></li>
       <li><a href="autoapi/pudl/extract/excel/index.html#pudl.extract.excel.ExcelMetadata.get_form">get_form() (pudl.extract.excel.ExcelMetadata method)</a>
 </li>
       <li><a href="autoapi/pudl/analysis/record_linkage/eia_ferc1_record_linkage/index.html#pudl.analysis.record_linkage.eia_ferc1_record_linkage.get_full_records_with_overrides">get_full_records_with_overrides() (in module pudl.analysis.record_linkage.eia_ferc1_record_linkage)</a>
@@ -5035,7 +5002,11 @@ window.runMermaid = runMermaid;</script>
       <li><a href="autoapi/pudl/metadata/dtypes/index.html#pudl.metadata.dtypes.get_pudl_dtypes">get_pudl_dtypes() (in module pudl.metadata.dtypes)</a>
 </li>
       <li><a href="autoapi/pudl/extract/epacems/index.html#pudl.extract.epacems.EpaCemsPartition.get_quarterly_file">get_quarterly_file() (pudl.extract.epacems.EpaCemsPartition method)</a>
+
+      <ul>
+        <li><a href="autoapi/pudl/extract/epamats/index.html#pudl.extract.epamats.EpaMatsPartition.get_quarterly_file">(pudl.extract.epamats.EpaMatsPartition method)</a>
 </li>
+      </ul></li>
       <li><a href="autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release.ZenodoClient.get_record">get_record() (pudl.scripts.zenodo_data_release.ZenodoClient method)</a>
 </li>
       <li><a href="autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.Package.get_resource">get_resource() (pudl.metadata.classes.Package method)</a>
@@ -5314,8 +5285,6 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="autoapi/pudl/analysis/mcoe/index.html#pudl.analysis.mcoe.heat_rate_by_unit">heat_rate_by_unit() (in module pudl.analysis.mcoe)</a>
 </li>
-      <li><a href="autoapi/pudl/dagster/asset_checks/index.html#pudl.dagster.asset_checks.high_memory_assets">high_memory_assets (in module pudl.dagster.asset_checks)</a>
-</li>
       <li><a href="autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.Package.homepage">homepage (pudl.metadata.classes.Package attribute)</a>
 </li>
       <li><a href="autoapi/pudl/transform/ferc714/index.html#pudl.transform.ferc714.HourlyPlanningAreaDemand">HourlyPlanningAreaDemand (class in pudl.transform.ferc714)</a>
@@ -5336,6 +5305,8 @@ window.runMermaid = runMermaid;</script>
 <h2 id="I">I</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/pudl/output/ferc714/index.html#pudl.output.ferc714.BaFix.id">id (pudl.output.ferc714.BaFix attribute)</a>
+</li>
       <li><a href="autoapi/pudl/scripts/zenodo_data_release/index.html#pudl.scripts.zenodo_data_release._LegacyDeposition.id_">id_ (pudl.scripts.zenodo_data_release._LegacyDeposition attribute)</a>
 
       <ul>
@@ -5535,6 +5506,8 @@ window.runMermaid = runMermaid;</script>
       <li><a href="autoapi/pudl/transform/ferc1/index.html#pudl.transform.ferc1.IsCloseTolerance.isclose_rtol">isclose_rtol (pudl.transform.ferc1.IsCloseTolerance attribute)</a>
 </li>
       <li><a href="autoapi/pudl/transform/ferc1/index.html#pudl.transform.ferc1.IsCloseTolerance">IsCloseTolerance (class in pudl.transform.ferc1)</a>
+</li>
+      <li><a href="autoapi/pudl/output/ferc714/index.html#pudl.output.ferc714.BaFixMap.items">items() (pudl.output.ferc714.BaFixMap method)</a>
 </li>
       <li><a href="autoapi/pudl/helpers/index.html#pudl.helpers.iterate_multivalue_dict">iterate_multivalue_dict() (in module pudl.helpers)</a>
 </li>
@@ -5788,6 +5761,8 @@ window.runMermaid = runMermaid;</script>
         <li><a href="autoapi/pudl/extract/eiaaeo/index.html#pudl.extract.eiaaeo.logger">(in module pudl.extract.eiaaeo)</a>
 </li>
         <li><a href="autoapi/pudl/extract/epacems/index.html#pudl.extract.epacems.logger">(in module pudl.extract.epacems)</a>
+</li>
+        <li><a href="autoapi/pudl/extract/epamats/index.html#pudl.extract.epamats.logger">(in module pudl.extract.epamats)</a>
 </li>
         <li><a href="autoapi/pudl/extract/excel/index.html#pudl.extract.excel.logger">(in module pudl.extract.excel)</a>
 </li>
@@ -6239,6 +6214,8 @@ window.runMermaid = runMermaid;</script>
 </li>
         <li><a href="autoapi/pudl/output/ferc1/index.html#pudl.output.ferc1.XbrlCalculationForestFerc1.model_config">(pudl.output.ferc1.XbrlCalculationForestFerc1 attribute)</a>
 </li>
+        <li><a href="autoapi/pudl/output/ferc714/index.html#pudl.output.ferc714.BaFix.model_config">(pudl.output.ferc714.BaFix attribute)</a>
+</li>
         <li><a href="autoapi/pudl/settings/index.html#pudl.settings.FrozenBaseModel.model_config">(pudl.settings.FrozenBaseModel attribute)</a>
 </li>
         <li><a href="autoapi/pudl/transform/classes/index.html#pudl.transform.classes.TransformParams.model_config">(pudl.transform.classes.TransformParams attribute)</a>
@@ -6383,6 +6360,8 @@ window.runMermaid = runMermaid;</script>
         <li><a href="autoapi/pudl/extract/eiaapi/index.html#module-pudl.extract.eiaapi">pudl.extract.eiaapi</a>
 </li>
         <li><a href="autoapi/pudl/extract/epacems/index.html#module-pudl.extract.epacems">pudl.extract.epacems</a>
+</li>
+        <li><a href="autoapi/pudl/extract/epamats/index.html#module-pudl.extract.epamats">pudl.extract.epamats</a>
 </li>
         <li><a href="autoapi/pudl/extract/excel/index.html#module-pudl.extract.excel">pudl.extract.excel</a>
 </li>
@@ -7974,6 +7953,13 @@ window.runMermaid = runMermaid;</script>
 </li>
       </ul></li>
       <li>
+    pudl.extract.epamats
+
+      <ul>
+        <li><a href="autoapi/pudl/extract/epamats/index.html#module-pudl.extract.epamats">module</a>
+</li>
+      </ul></li>
+      <li>
     pudl.extract.excel
 
       <ul>
@@ -9256,7 +9242,11 @@ window.runMermaid = runMermaid;</script>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="autoapi/pudl/extract/epacems/index.html#pudl.extract.epacems.EpaCemsPartition.quarter">quarter (pudl.extract.epacems.EpaCemsPartition property)</a>
+
+      <ul>
+        <li><a href="autoapi/pudl/extract/epamats/index.html#pudl.extract.epamats.EpaMatsPartition.quarter">(pudl.extract.epamats.EpaMatsPartition property)</a>
 </li>
+      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="autoapi/pudl/transform/ferc1/index.html#pudl.transform.ferc1.AssignQuarterlyDataToYearlyDbf.quarterly_filed_years">quarterly_filed_years (pudl.transform.ferc1.AssignQuarterlyDataToYearlyDbf attribute)</a>
@@ -9310,6 +9300,8 @@ window.runMermaid = runMermaid;</script>
       <li><a href="autoapi/pudl/extract/eia930/index.html#pudl.extract.eia930.raw_eia930__subregion">raw_eia930__subregion() (in module pudl.extract.eia930)</a>
 </li>
       <li><a href="autoapi/pudl/extract/eiaaeo/index.html#pudl.extract.eiaaeo.raw_eiaaeo">raw_eiaaeo() (in module pudl.extract.eiaaeo)</a>
+</li>
+      <li><a href="autoapi/pudl/extract/epamats/index.html#pudl.extract.epamats.raw_epamats__hourly_emissions">raw_epamats__hourly_emissions() (in module pudl.extract.epamats)</a>
 </li>
       <li><a href="autoapi/pudl/extract/ferc1/index.html#pudl.extract.ferc1.raw_ferc1_assets">raw_ferc1_assets (in module pudl.extract.ferc1)</a>
 </li>
@@ -9510,6 +9502,8 @@ window.runMermaid = runMermaid;</script>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="autoapi/pudl/transform/ferc1/index.html#pudl.transform.ferc1.Ferc1TableTransformParams.rename_columns_ferc1">rename_columns_ferc1 (pudl.transform.ferc1.Ferc1TableTransformParams attribute)</a>
+</li>
+      <li><a href="autoapi/pudl/extract/epamats/index.html#pudl.extract.epamats.RENAME_DICT">RENAME_DICT (in module pudl.extract.epamats)</a>
 </li>
       <li><a href="autoapi/pudl/transform/ferc1/index.html#pudl.transform.ferc1.Ferc1TableTransformParams.rename_dicts_xbrl">rename_dicts_xbrl (pudl.transform.ferc1.Ferc1TableTransformParams property)</a>
 
@@ -9926,6 +9920,8 @@ window.runMermaid = runMermaid;</script>
       <ul>
         <li><a href="autoapi/pudl/extract/eia176/index.html#pudl.extract.eia176.Extractor.source_filename">(pudl.extract.eia176.Extractor method)</a>
 </li>
+        <li><a href="autoapi/pudl/extract/eia191/index.html#pudl.extract.eia191.Extractor.source_filename">(pudl.extract.eia191.Extractor method)</a>
+</li>
         <li><a href="autoapi/pudl/extract/excel/index.html#pudl.extract.excel.ExcelExtractor.source_filename">(pudl.extract.excel.ExcelExtractor method)</a>
 </li>
         <li><a href="autoapi/pudl/extract/extractor/index.html#pudl.extract.extractor.GenericExtractor.source_filename">(pudl.extract.extractor.GenericExtractor method)</a>
@@ -9949,6 +9945,8 @@ window.runMermaid = runMermaid;</script>
         <li><a href="autoapi/pudl/transform/ferc1/index.html#pudl.transform.ferc1.IdentificationCertificationTableTransformer.source_table_primary_key">(pudl.transform.ferc1.IdentificationCertificationTableTransformer method)</a>
 </li>
       </ul></li>
+      <li><a href="autoapi/pudl/output/ferc714/index.html#pudl.output.ferc714.BaFix.source_year">source_year (pudl.output.ferc714.BaFix attribute)</a>
+</li>
       <li><a href="autoapi/pudl/transform/ferc1/index.html#pudl.transform.ferc1.SourceFerc1">SourceFerc1 (class in pudl.transform.ferc1)</a>
 </li>
       <li><a href="autoapi/pudl/metadata/sources/index.html#pudl.metadata.sources.SOURCES">SOURCES (in module pudl.metadata.sources)</a>
@@ -9961,10 +9959,10 @@ window.runMermaid = runMermaid;</script>
         <li><a href="autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.Resource.sources">(pudl.metadata.classes.Resource attribute)</a>
 </li>
       </ul></li>
-      <li><a href="autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.Resource.sphinx_ref_name">sphinx_ref_name (pudl.metadata.classes.Resource property)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.Resource.sphinx_ref_name">sphinx_ref_name (pudl.metadata.classes.Resource property)</a>
+</li>
       <li><a href="autoapi/pudl/output/eia930/index.html#pudl.output.eia930.split_ba_subregion_demand">split_ba_subregion_demand() (in module pudl.output.eia930)</a>
 </li>
       <li><a href="autoapi/pudl/analysis/record_linkage/link_cross_year/index.html#pudl.analysis.record_linkage.link_cross_year.split_clusters">split_clusters() (in module pudl.analysis.record_linkage.link_cross_year)</a>
@@ -10475,7 +10473,7 @@ window.runMermaid = runMermaid;</script>
         <li><a href="autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.Resource.to_sql">(pudl.metadata.classes.Resource method)</a>
 </li>
       </ul></li>
-      <li><a href="autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.Field.to_sql_dtype">to_sql_dtype() (pudl.metadata.classes.Field method)</a>
+      <li><a href="autoapi/pudl/metadata/classes/index.html#pudl.metadata.classes.Field.to_sqlite_dtype">to_sqlite_dtype() (pudl.metadata.classes.Field method)</a>
 </li>
       <li><a href="autoapi/pudl/transform/classes/index.html#pudl.transform.classes.UnitConversion.to_unit">to_unit (pudl.transform.classes.UnitConversion attribute)</a>
 </li>
@@ -10809,6 +10807,8 @@ window.runMermaid = runMermaid;</script>
 </li>
       <li><a href="autoapi/pudl/workspace/datastore/index.html#pudl.workspace.datastore.DatapackageDescriptor.validate_checksum">validate_checksum() (pudl.workspace.datastore.DatapackageDescriptor method)</a>
 </li>
+      <li><a href="autoapi/pudl/settings/index.html#pudl.settings.EiaDataConfig.validate_eia860m_consistency">validate_eia860m_consistency() (pudl.settings.EiaDataConfig method)</a>
+</li>
       <li><a href="autoapi/pudl/settings/index.html#pudl.settings.Eia860DataConfig.validate_eia860m_params">validate_eia860m_params() (pudl.settings.Eia860DataConfig class method)</a>
 </li>
       <li><a href="autoapi/pudl/dbt_schema/index.html#pudl.dbt_schema.DbtSchema.validate_humanity">validate_humanity() (pudl.dbt_schema.DbtSchema method)</a>
@@ -10976,15 +10976,27 @@ window.runMermaid = runMermaid;</script>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="autoapi/pudl/extract/epacems/index.html#pudl.extract.epacems.EpaCemsPartition.year">year (pudl.extract.epacems.EpaCemsPartition property)</a>
+
+      <ul>
+        <li><a href="autoapi/pudl/extract/epamats/index.html#pudl.extract.epamats.EpaMatsPartition.year">(pudl.extract.epamats.EpaMatsPartition property)</a>
 </li>
+      </ul></li>
       <li><a href="autoapi/pudl/settings/index.html#pudl.settings.Eia860mDataConfig.year_months">year_months (pudl.settings.Eia860mDataConfig attribute)</a>
 </li>
       <li><a href="autoapi/pudl/metadata/patterns/index.html#pudl.metadata.patterns.YEAR_QUARTER">YEAR_QUARTER (in module pudl.metadata.patterns)</a>
 </li>
       <li><a href="autoapi/pudl/extract/epacems/index.html#pudl.extract.epacems.EpaCemsPartition.year_quarter">year_quarter (pudl.extract.epacems.EpaCemsPartition attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/pudl/extract/epamats/index.html#pudl.extract.epamats.EpaMatsPartition.year_quarter">(pudl.extract.epamats.EpaMatsPartition attribute)</a>
 </li>
+      </ul></li>
       <li><a href="autoapi/pudl/settings/index.html#pudl.settings.EpaCemsDataConfig.year_quarters">year_quarters (pudl.settings.EpaCemsDataConfig attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/pudl/settings/index.html#pudl.settings.EpaMatsDataConfig.year_quarters">(pudl.settings.EpaMatsDataConfig attribute)</a>
 </li>
+      </ul></li>
       <li><a href="autoapi/pudl/transform/phmsagas/index.html#pudl.transform.phmsagas.YEARLY_DISTRIBUTION_FILING_COLUMNS">YEARLY_DISTRIBUTION_FILING_COLUMNS (in module pudl.transform.phmsagas)</a>
 </li>
       <li><a href="autoapi/pudl/transform/phmsagas/index.html#pudl.transform.phmsagas.YEARLY_DISTRIBUTION_IDX_ISH">YEARLY_DISTRIBUTION_IDX_ISH (in module pudl.transform.phmsagas)</a>
@@ -11189,6 +11201,11 @@ window.runMermaid = runMermaid;</script>
 <p class="theme-version">
   <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
   Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.20.0.
+</p></div>
+      
+        <div class="footer-item">
+<p class="llms-txt-link">
+  <a href="llms.txt"><span class="fa-solid fa-robot"></span> llms.txt</a>
 </p></div>
       
     </div>

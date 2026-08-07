@@ -62,7 +62,7 @@ Module Contents
 
 
 
-   .. py:method:: process_raw(df, page, **partition)
+   .. py:method:: process_raw(df: pandas.DataFrame, page: str, **partition)
 
       Apply necessary pre-processing to the dataframe.
 
@@ -73,7 +73,7 @@ Module Contents
 
 
 
-   .. py:method:: get_dtypes(page, **partition)
+   .. py:method:: get_dtypes(page: str, **partition)
       :staticmethod:
 
 
@@ -85,7 +85,7 @@ Module Contents
 
 .. py:data:: raw_eia860__all_dfs
 
-.. py:function:: extract_eia860(context, raw_eia860__all_dfs)
+.. py:function:: extract_eia860(context, raw_eia860__all_dfs, raw_eia860m__all_dfs)
 
    Extract raw EIA data from excel sheets into dataframes.
 

@@ -37,6 +37,7 @@ Submodules
    /autoapi/pudl/extract/eiaaeo/index
    /autoapi/pudl/extract/eiaapi/index
    /autoapi/pudl/extract/epacems/index
+   /autoapi/pudl/extract/epamats/index
    /autoapi/pudl/extract/excel/index
    /autoapi/pudl/extract/extractor/index
    /autoapi/pudl/extract/ferc/index

@@ -257,6 +257,8 @@ Transformations include:
 * Backfill missing prime_mover_codes
 * Create a separate generation_fuel_nuclear table.
 * Aggregate records with duplicate natural keys.
+* Drop duplicate fields where only difference is energy_source_code and 0
+  consumption data.
 
 * **Parameters:**
   **raw_eia923_\_generation_fuel** – The raw `raw_eia923__generation_fuel` dataframe.

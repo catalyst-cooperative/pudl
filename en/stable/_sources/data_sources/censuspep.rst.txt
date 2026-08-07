@@ -12,9 +12,9 @@ Population Estimates Program&#39;s (PEP) Federal Information Processing Series (
    * - Source Description
      - Reference files for Federal Information Processing Series (FIPS) Geographic Codes. These FIPS Codes are a subset of a broader Population Estimates dataset.
    * - Download Size
-     - 21 MB
+     - 23 MB
    * - Temporal Coverage
-     - 2009-2024
+     - 2009-2025
    * - PUDL Code
      - ``censuspep``
    * - Unprocessed Source Data Archive

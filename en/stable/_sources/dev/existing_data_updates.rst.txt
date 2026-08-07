@@ -362,6 +362,9 @@ of data. Common updates include:
   after investigating the new duplicates and confirming they occur on reasonable
   dates (usually when a respondent changes their UTC offset, whether due to daylight
   savings time or otherwise).
+* Note that ``out_ferc714__georeferenced_respondents`` is expected to have a small
+  partition for the most recent year of data if it is updated prior to EIA-861's annual
+  final release, as these datasets are both used to produce this table.
 
 5. Update the PUDL DB Schema
 ----------------------------
@@ -457,7 +460,7 @@ run all the integration tests against your live PUDL DB with:
 .. code-block:: console
 
     $ pixi run pytest-integration-nightly
-    $ pixi run pytest-data-validation-nightly
+    $ pixi run pytest-validate-nightly
 
 We expect ``tests/validate/data_test.py::test_dbt`` to fail at this point,
 but everything else should pass. Fix any remaining failures and we'll fix dbt in the

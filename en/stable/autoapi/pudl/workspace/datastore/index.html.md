@@ -140,6 +140,8 @@ Digital Object Identifiers pointing to currently used Zenodo archives.
 
 #### epacems *: [ZenodoDoi](#pudl.workspace.datastore.ZenodoDoi)*
 
+#### epamats *: [ZenodoDoi](#pudl.workspace.datastore.ZenodoDoi)*
+
 #### ferc1 *: [ZenodoDoi](#pudl.workspace.datastore.ZenodoDoi)*
 
 #### ferc2 *: [ZenodoDoi](#pudl.workspace.datastore.ZenodoDoi)*

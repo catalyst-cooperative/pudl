@@ -12,7 +12,7 @@ Pipelines and Hazardous Materials Safety Administration (PHMSA) Annual Natural G
    * - Source Description
      - Annual reports submitted to PHMSA from gas distribution, gas gathering, gas transmission, liquefied natural gas, and underground gas storage system operators. Annual reports include information such as total pipeline mileage, facilities, commodities transported, miles by material, and installation dates.
    * - Download Size
-     - 220 MB
+     - 236 MB
    * - Temporal Coverage
      - 1970-2024
    * - PUDL Code

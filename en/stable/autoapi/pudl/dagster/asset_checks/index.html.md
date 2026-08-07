@@ -26,7 +26,6 @@ should go in dbt.
 | [`default_asset_checks`](#pudl.dagster.asset_checks.default_asset_checks)   |    |
 |-----------------------------------------------------------------------------|----|
 | [`duckdb_assets`](#pudl.dagster.asset_checks.duckdb_assets)                 |    |
-| [`high_memory_assets`](#pudl.dagster.asset_checks.high_memory_assets)       |    |
 
 ## Functions
 
@@ -54,7 +53,7 @@ cooling systems didn’t jump by 10x from 2012-2013.”
   * **n_outliers_allowed** – how many data points are allowed to be above the
     threshold.
 
-### pudl.dagster.asset_checks.asset_check_from_schema(asset_key: [dagster.AssetKey](https://docs.dagster.io/api/dagster/assets/#dagster.AssetKey), package: [pudl.metadata.classes.Package](../../metadata/classes/index.md#pudl.metadata.classes.Package), duckdb_asset: [bool](https://docs.python.org/3/library/functions.html#bool), high_memory_asset: [bool](https://docs.python.org/3/library/functions.html#bool)) → [dagster.AssetChecksDefinition](https://docs.dagster.io/api/dagster/asset-checks/#dagster.AssetChecksDefinition) | [None](https://docs.python.org/3/library/constants.html#None)
+### pudl.dagster.asset_checks.asset_check_from_schema(asset_key: [dagster.AssetKey](https://docs.dagster.io/api/dagster/assets/#dagster.AssetKey), package: [pudl.metadata.classes.Package](../../metadata/classes/index.md#pudl.metadata.classes.Package), duckdb_asset: [bool](https://docs.python.org/3/library/functions.html#bool)) → [dagster.AssetChecksDefinition](https://docs.dagster.io/api/dagster/asset-checks/#dagster.AssetChecksDefinition) | [None](https://docs.python.org/3/library/constants.html#None)
 
 Create a Dagster asset check based on the resource schema, if defined.
 
@@ -86,8 +85,6 @@ resources, schemas, and fields against the frictionless spec using
 ### pudl.dagster.asset_checks.default_asset_checks
 
 ### pudl.dagster.asset_checks.duckdb_assets *= ['core_ferceqr_\_quarterly_identity', 'core_ferceqr_\_contracts',...*
-
-### pudl.dagster.asset_checks.high_memory_assets *= ['out_vcerare_\_hourly_available_capacity_factor', 'core_epacems_\_hourly_emissions',...*
 
 ### pudl.dagster.asset_checks.valid_datapackage_unit_strings_check(asset_key: [dagster.AssetKey](https://docs.dagster.io/api/dagster/assets/#dagster.AssetKey) | [str](https://docs.python.org/3/library/stdtypes.html#str), , description: [str](https://docs.python.org/3/library/stdtypes.html#str), blocking: [bool](https://docs.python.org/3/library/functions.html#bool) = True) → [dagster.AssetChecksDefinition](https://docs.dagster.io/api/dagster/asset-checks/#dagster.AssetChecksDefinition)
 

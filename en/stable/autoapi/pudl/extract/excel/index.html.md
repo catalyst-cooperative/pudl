@@ -79,7 +79,7 @@ Returns file name of given partition and page.
 
 Returns the form name for a given page.
 
-### *class* pudl.extract.excel.ExcelExtractor(ds)
+### *class* pudl.extract.excel.ExcelExtractor(ds: [pudl.workspace.datastore.Datastore](../../workspace/datastore/index.md#pudl.workspace.datastore.Datastore))
 
 Bases: [`pudl.extract.extractor.GenericExtractor`](../extractor/index.md#pudl.extract.extractor.GenericExtractor)
 

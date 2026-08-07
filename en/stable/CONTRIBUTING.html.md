@@ -60,6 +60,38 @@ If you’re **looking to help us integrate a specific dataset into PUDL**, find 
 [office hours](https://calend.ly/catalyst-cooperative/pudl-office-hours) and we
 can talk through next steps.
 
+<a id="llm-policy"></a>
+
+### LLM use policy
+
+1. **All PRs, internal and external, will be reviewed by a human.**
+
+> * 🏃 We don’t want the code to grow faster than we can understand it.
+> * 🧹 This is particularly important for data cleaning and subtle
+>   domain-informed decision making.
+
+> That means we need to optimize work for ease of human review:
+
+> * 💞 Reviewers are humans - respect their time.
+> * Review is the bottleneck, so let’s keep it going as smoothly as
+>   possible.
+1. **When reviewing and self-reviewing, make a human synthesis of the
+   work - what changed? Why? What did you learn?**
+
+> * 🏃 We need to make sure we understand what’s going into the
+>   codebase.
+> * 🧹 We need to make sure domain-specific changes are well-considered.
+1. **When making a PR with some LLM-generated content, briefly describe
+   the usage of LLMs so we know what to expect.** Examples:
+
+> * “I used an LLM to generate these tests, and cleaned them up by hand.”
+> * “I talked through my plan with an LLM, revised it, and then had it
+>   implement the plan.”
+1. **🗽In order to avoid vendor lock-in, we will reject additions to
+   Catalyst LLM tooling that require the use of one particular model
+   or harness.** We will actively engage with open tooling and openly
+   licensed models to avoid relying on proprietary solutions.
+
 ### Your first contribution
 
 **Setup**
