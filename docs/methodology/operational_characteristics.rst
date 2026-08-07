@@ -24,8 +24,11 @@ suit your use case. :ref:`feedback-welcome`!
 
 This analysis processes several years of hourly readings for every EPA CEMS unit in the
 country using `polars <https://pola.rs>`__, a vectorized DataFrame library, reading the
-input data from `Apache Parquet <https://parquet.apache.org/docs/>`__ files. The full
-calculation completes in 1-3 minutes and peaks at around 16 GB of memory.
+input data from `Apache Parquet <https://parquet.apache.org/docs/>`__ files. Computing a
+single calendar year's estimates for every state takes on the order of a minute; the
+full table, covering every calendar year with enough EPA CEMS history behind it, takes
+correspondingly longer, peaking at around 16 GB of memory regardless of how many years
+are included.
 
 Scope: EPA CEMS Units, Gross Generation
 -------------------------------------------------------------------------------
@@ -51,12 +54,22 @@ in PUDL.
 A Rolling Window
 -------------------------------------------------------------------------------
 
-This table recomputes a single snapshot of each unit's characteristics from a rolling
-window of the most recent EPA CEMS data available -- in production, the three most
-recently completed calendar years. The ``report_year`` column records the vintage of
-that snapshot (the most recent year included in the window). We plan to extend this
-methodology to cover all available years, rather than just the most recent window, in
-the near future.
+Each unit's characteristics for a given ``report_year`` are computed from a trailing
+window of EPA CEMS data ending in that year -- in production, the three most recently
+completed calendar years, so 2023 relies on 2021-2023 data, 2024 relies on 2022-2024,
+and so on. This is repeated independently for every calendar year that has a full
+trailing window of usable EPA CEMS data behind it.
+
+EPA CEMS's first three years of reporting, 1995-1997, have poor and inconsistent unit
+coverage and are excluded from this analysis entirely as unusable. Combined with the
+three-year trailing window, that makes 2000 the earliest available ``report_year`` in
+production, not 1997.
+
+Because neighboring years' windows overlap heavily (two of the three years feeding into
+2023 also feed into 2024), a unit's characteristics tend to change gradually from one
+``report_year`` to the next rather than jumping around, and a real shift in how a unit
+is operated will typically take a few years to fully show up in these estimates, rather
+than appearing immediately in the year it happened.
 
 .. _load-factor-bins:
 
