@@ -1,0 +1,97 @@
+pudl.scripts.pudl_deploy
+========================
+
+.. py:module:: pudl.scripts.pudl_deploy
+
+.. autoapi-nested-parse::
+
+   Deploy PUDL ETL outputs to cloud storage and update git branches.
+
+   This CLI orchestrates deployment of completed PUDL ETL builds to public cloud
+   storage (GCS and S3), git branch updates, Zenodo releases, and Cloud Run deployments.
+
+   The script takes a git tag, and an environment option to switch between 'staging' and
+   'production' deployments. It will use the git tag to identify builds associated with
+   the tag, and determine whether the deployment is intended to be a nightly, stable, or
+   branch deployment. It expects nightly deployments to have tags conforming to the pattern
+   'nightly-YYYY-MM-DD', 'branch-YYYY-MM-DD-HHMM-{GIT_HASH}-{MY_BRANCH_NAME}', or
+   'vYYYY.M.D'. If doing a staging deployment, outputs will be deployed to the same
+   distribution paths as a production deployment, but with a 'staging' prefix added to
+   the path (i.e. 's3://pudl.catalyst.coop/staging/nightly').
+
+   .. rubric:: Examples
+
+   Deploy nightly build to production:
+       pudl_deploy nightly-2025-02-05
+
+   Deploy stable release to production:
+       pudl_deploy v2025.2.3
+
+   Test deployment changes with staging mode:
+       pudl_deploy nightly-2025-02-05 --environment staging
+
+   Deploy branch build outputs to staging area for review:
+       pudl_deploy branch-2025-02-05-0600-abc123456-my-branch --environment staging
+
+   Staging mode uploads to staging/ prefixed paths and skips git operations, Zenodo
+   triggers, and Cloud Run deployments. This allows safe validation of deployment
+   changes before production use.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.scripts.pudl_deploy.logger
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.scripts.pudl_deploy._deploy_outputs
+   pudl.scripts.pudl_deploy.main
+
+
+Module Contents
+---------------
+
+.. py:data:: logger
+
+.. py:function:: _deploy_outputs(source_dir: pathlib.Path, plan: pudl.deploy.pudl.DeploymentPlan, github_token: str, stage_results: dict[pudl.deploy.pudl.DeployStage, pudl.deploy.pudl.StageResult])
+
+   Execute stable or nightly deployment workflow.
+
+   Every decision about what to do -- which paths to upload to, whether to
+   redeploy Eel Hole, update git branches, trigger a Zenodo release, or set a GCS
+   temporary hold -- comes from ``plan`` rather than being re-derived here.
+
+   ``stage_results`` records the status and duration of each stage for Zulip
+   reporting; "Upload outputs" is a hard prerequisite for the rest (a failure
+   there raises and aborts the remaining stages, leaving them recorded as
+   skipped), while the remaining stages are independent of one another.
+
+
+.. py:function:: main(ctx: click.Context, git_tag: str, environment: Literal['staging', 'production']) -> None
+
+   Deploy PUDL ETL outputs to cloud storage and external services.
+
+   Orchestrates the full deployment workflow:
+
+   0. Resolve the deployment plan and find the build associated with git_tag
+   1. Download build outputs from the builds bucket
+   2. Prepare outputs (compress SQLite, create parquet archive)
+   3. Upload to cloud storage (GCS and S3)
+   4. Redeploy the PUDL Viewer (nightly only)
+   5. Update git branches (skipped for branch builds)
+   6. Trigger Zenodo release (skipped for branch builds)
+   7. Set GCS temporary hold for versioned releases (stable + production only)
+
+   Saves a log of the deployment and a Zulip stage-status notification, mirroring
+   the nightly build's own reporting -- including if step 0 itself fails, e.g. due
+   to an invalid tag or a missing/failed build.
+
+

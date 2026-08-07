@@ -1,0 +1,11 @@
+pudl.package_data.ferc1.row_maps
+================================
+
+.. py:module:: pudl.package_data.ferc1.row_maps
+
+.. autoapi-nested-parse::
+
+   Metadata linking the semantic meaning of FERC 1 row numbers across years.
+
+
+

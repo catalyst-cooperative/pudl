@@ -1,0 +1,32 @@
+pudl.metadata.resources.eia860
+==============================
+
+.. py:module:: pudl.metadata.resources.eia860
+
+.. autoapi-nested-parse::
+
+   Definitions of data tables primarily coming from EIA-860.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.metadata.resources.eia860.RESOURCE_METADATA
+
+
+Module Contents
+---------------
+
+.. py:data:: RESOURCE_METADATA
+   :type:  dict[str, dict[str, Any]]
+
+   EIA-860 resource attributes organized by PUDL identifier (``resource.name``).
+
+   Keys are in alphabetical order.
+
+   See :func:`pudl.metadata.helpers.build_foreign_keys` for the expected format of
+   ``foreign_key_rules``.
+

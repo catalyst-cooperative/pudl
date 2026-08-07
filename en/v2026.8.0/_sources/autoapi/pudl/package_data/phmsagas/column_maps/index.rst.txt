@@ -1,0 +1,11 @@
+pudl.package_data.phmsagas.column_maps
+======================================
+
+.. py:module:: pudl.package_data.phmsagas.column_maps
+
+.. autoapi-nested-parse::
+
+   Metadata linking semantic meaning of PHMSA spreadsheet columns across years.
+
+
+

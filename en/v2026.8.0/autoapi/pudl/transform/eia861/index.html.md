@@ -1,0 +1,528 @@
+# pudl.transform.eia861
+
+Module to perform data cleaning functions on EIA861 data tables.
+
+All transformations include:
+- Replace . values with NA.
+
+## Attributes
+
+| [`logger`](#pudl.transform.eia861.logger)                               |    |
+|-------------------------------------------------------------------------|----|
+| [`BA_ID_NAME_FIXES`](#pudl.transform.eia861.BA_ID_NAME_FIXES)           |    |
+| [`EIA_FIPS_COUNTY_FIXES`](#pudl.transform.eia861.EIA_FIPS_COUNTY_FIXES) |    |
+| [`BA_NAME_FIXES`](#pudl.transform.eia861.BA_NAME_FIXES)                 |    |
+| [`NERC_SPELLCHECK`](#pudl.transform.eia861.NERC_SPELLCHECK)             |    |
+
+## Functions
+
+| [`_pre_process`](#pudl.transform.eia861._pre_process)(→ pandas.DataFrame)                                                                  | Pre-processing applied to all EIA-861 dataframes.                                |
+|--------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------|
+| [`_post_process`](#pudl.transform.eia861._post_process)(→ pandas.DataFrame)                                                                | Post-processing applied to all EIA-861 dataframes.                               |
+| [`_filter_class_cols`](#pudl.transform.eia861._filter_class_cols)(df, class_list)                                                          |                                                                                  |
+| [`_filter_non_class_cols`](#pudl.transform.eia861._filter_non_class_cols)(df, class_list)                                                  |                                                                                  |
+| [`add_backfilled_ba_code_column`](#pudl.transform.eia861.add_backfilled_ba_code_column)(→ pandas.DataFrame)                                | Make a backfilled Balancing Authority Code column based on codes in later years. |
+| [`backfill_ba_codes_by_ba_id`](#pudl.transform.eia861.backfill_ba_codes_by_ba_id)(→ pandas.DataFrame)                                      | Fill in missing BA Codes by backfilling based on BA ID.                          |
+| [`_tidy_class_dfs`](#pudl.transform.eia861._tidy_class_dfs)(→ pandas.DataFrame)                                                            | Stack multiple data columns and create a categorical column for filtering.       |
+| [`_drop_dupes`](#pudl.transform.eia861._drop_dupes)(df, df_name, subset)                                                                   |                                                                                  |
+| [`_check_for_dupes`](#pudl.transform.eia861._check_for_dupes)(→ pandas.DataFrame)                                                          |                                                                                  |
+| [`_compare_totals`](#pudl.transform.eia861._compare_totals)(data_cols, idx_cols, class_type, df_name)                                      | Compare reported totals with sum of component columns.                           |
+| [`clean_nerc`](#pudl.transform.eia861.clean_nerc)(→ pandas.DataFrame)                                                                      | Clean NERC region entries.                                                       |
+| [`_compare_nerc_physical_w_nerc_operational`](#pudl.transform.eia861._compare_nerc_physical_w_nerc_operational)(...)                       | Show df rows where physical NERC region does not match operational region.       |
+| [`_pct_to_mw`](#pudl.transform.eia861._pct_to_mw)(df, pct_col)                                                                             | Turn pct col into mw capacity using total capacity col.                          |
+| [`_make_yn_bool`](#pudl.transform.eia861._make_yn_bool)(df_object)                                                                         | Turn Y/N reporting into True or False boolean statements for df or series.       |
+| [`_thousand_to_one`](#pudl.transform.eia861._thousand_to_one)(df_object)                                                                   | Turn reporting in thousands of dollars to regular dollars for df or series.      |
+| [`_harvest_associations`](#pudl.transform.eia861._harvest_associations)(→ pandas.DataFrame)                                                | Compile all unique, non-null combinations of values `cols` within `dfs`.         |
+| [`_combine_88888_values`](#pudl.transform.eia861._combine_88888_values)(→ pandas.DataFrame)                                                | Combine 88888 utility_id_values.                                                 |
+| [`core_eia861__yearly_service_territory`](#pudl.transform.eia861.core_eia861__yearly_service_territory)(→ pandas.DataFrame)                | Transform the EIA 861 utility service territory table.                           |
+| [`_core_eia861__balancing_authority`](#pudl.transform.eia861._core_eia861__balancing_authority)(→ pandas.DataFrame)                        | Transform the EIA 861 Balancing Authority table.                                 |
+| [`core_eia861__yearly_sales`](#pudl.transform.eia861.core_eia861__yearly_sales)(→ pandas.DataFrame)                                        | Transform the EIA 861 Sales table.                                               |
+| [`core_eia861__yearly_short_form`](#pudl.transform.eia861.core_eia861__yearly_short_form)(→ pandas.DataFrame)                              | Transform the EIA 861 Short Form table.                                          |
+| [`core_eia861__yearly_advanced_metering_infrastructure`](#pudl.transform.eia861.core_eia861__yearly_advanced_metering_infrastructure)(...) | Transform the EIA 861 Advanced Metering Infrastructure table.                    |
+| [`core_eia861__yearly_demand_response`](#pudl.transform.eia861.core_eia861__yearly_demand_response)(...)                                   | Transform the EIA 861 Demand Response table.                                     |
+| [`core_demand_side_management_eia861`](#pudl.transform.eia861.core_demand_side_management_eia861)(...)                                     | Transform the EIA 861 Demand Side Management table.                              |
+| [`core_distributed_generation_eia861`](#pudl.transform.eia861.core_distributed_generation_eia861)(...)                                     | Transform the EIA 861 Distributed Generation table.                              |
+| [`core_eia861__yearly_distribution_systems`](#pudl.transform.eia861.core_eia861__yearly_distribution_systems)(...)                         | Transform the EIA 861 Distribution Systems table.                                |
+| [`core_eia861__yearly_dynamic_pricing`](#pudl.transform.eia861.core_eia861__yearly_dynamic_pricing)(→ pandas.DataFrame)                    | Transform the EIA 861 Dynamic Pricing table.                                     |
+| [`core_eia861__yearly_energy_efficiency`](#pudl.transform.eia861.core_eia861__yearly_energy_efficiency)(→ pandas.DataFrame)                | Transform the EIA 861 Energy Efficiency table.                                   |
+| [`core_eia861__yearly_green_pricing`](#pudl.transform.eia861.core_eia861__yearly_green_pricing)(→ pandas.DataFrame)                        | Transform the EIA 861 Green Pricing table.                                       |
+| [`core_eia861__yearly_mergers`](#pudl.transform.eia861.core_eia861__yearly_mergers)(→ pandas.DataFrame)                                    | Transform the EIA 861 Mergers table.                                             |
+| [`core_net_metering_eia861`](#pudl.transform.eia861.core_net_metering_eia861)(raw_eia861_\_net_metering)                                   | Transform the EIA 861 Net Metering table.                                        |
+| [`core_non_net_metering_eia861`](#pudl.transform.eia861.core_non_net_metering_eia861)(raw_eia861_\_non_net_metering)                       | Transform the EIA 861 Non-Net Metering table.                                    |
+| [`core_operational_data_eia861`](#pudl.transform.eia861.core_operational_data_eia861)(raw_eia861_\_operational_data)                       | Transform the EIA 861 Operational Data table.                                    |
+| [`core_eia861__yearly_reliability`](#pudl.transform.eia861.core_eia861__yearly_reliability)(→ pandas.DataFrame)                            | Transform the EIA 861 Reliability table.                                         |
+| [`core_utility_data_eia861`](#pudl.transform.eia861.core_utility_data_eia861)(raw_eia861_\_utility_data)                                   | Transform the EIA 861 Utility Data table.                                        |
+| [`core_eia861__assn_utility`](#pudl.transform.eia861.core_eia861__assn_utility)(→ pandas.DataFrame)                                        | Harvest a Utility-Date-State Association Table.                                  |
+| [`core_eia861__assn_balancing_authority`](#pudl.transform.eia861.core_eia861__assn_balancing_authority)(→ pandas.DataFrame)                | Compile a balancing authority, utility, state association table.                 |
+| [`core_eia861__yearly_balancing_authority`](#pudl.transform.eia861.core_eia861__yearly_balancing_authority)(→ pandas.DataFrame)            | Finish the normalization of the core_eia861_\_yearly_balancing_authority table.  |
+
+## Module Contents
+
+### pudl.transform.eia861.logger
+
+### pudl.transform.eia861.BA_ID_NAME_FIXES *: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)*
+
+### pudl.transform.eia861.EIA_FIPS_COUNTY_FIXES *: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)*
+
+### pudl.transform.eia861.BA_NAME_FIXES *: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)*
+
+### pudl.transform.eia861.NERC_SPELLCHECK *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str)]*
+
+### pudl.transform.eia861.\_pre_process(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), idx_cols: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+
+Pre-processing applied to all EIA-861 dataframes.
+
+* Standardize common NA values found in EIA spreadsheets.
+* Drop the `early_release` column, which only contains non-null values when the
+  data is an early release, and we extract this information from the filenames, as
+  it’s uniform across the whole dataset.
+* Convert report_year column to report_date.
+* If we’ve gotten an empty dataframe, make sure it has a data_maturity column.
+
+### pudl.transform.eia861.\_post_process(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), name: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+
+Post-processing applied to all EIA-861 dataframes.
+
+### pudl.transform.eia861.\_filter_class_cols(df, class_list)
+
+### pudl.transform.eia861.\_filter_non_class_cols(df, class_list)
+
+### pudl.transform.eia861.add_backfilled_ba_code_column(df, by_cols: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+
+Make a backfilled Balancing Authority Code column based on codes in later years.
+
+* **Parameters:**
+  * **df** – table with columns: `balancing_authority_code_eia`, `report_date` and
+    all `by_cols`
+  * **by_cols** – list of columns to use as `by` argument in `pd.groupby()`
+* **Returns:**
+  An altered version of `df` with an additional column
+  `balancing_authority_code_eia_bfilled`
+* **Return type:**
+  [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+
+### pudl.transform.eia861.backfill_ba_codes_by_ba_id(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+
+Fill in missing BA Codes by backfilling based on BA ID.
+
+#### NOTE
+The BA Code to ID mapping can change from year to year. If a Balancing Authority
+is bought by another entity, the code may change, but the old EIA BA ID will be
+retained.
+
+* **Parameters:**
+  **df** – The transformed EIA 861 Balancing Authority dataframe
+  (core_eia861_\_yearly_balancing_authority).
+* **Returns:**
+  The core_eia861_\_yearly_balancing_authority dataframe, but with many fewer
+  NA values in the balancing_authority_code_eia column.
+* **Return type:**
+  [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+
+### pudl.transform.eia861.\_tidy_class_dfs(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), df_name: [str](https://docs.python.org/3/library/stdtypes.html#str), idx_cols: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], class_list: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], class_type: [str](https://docs.python.org/3/library/stdtypes.html#str), keep_totals: [bool](https://docs.python.org/3/library/functions.html#bool) = False) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+
+Stack multiple data columns and create a categorical column for filtering.
+
+Many EIA-861 tables are reported in a wide format, with several columns reporting
+the same type of value, but within different categories. E.g. electricity sales by
+customer class, with each customer class in a separate column, and separate sets of
+customer class columns for the dollar value of sales, and the MWh of electricity
+sold.
+
+This function takes those groups of columns and stacks each of them into a single
+data column creating another categorical column describing the class to which each
+record pertains.
+
+Non-data columns are separated before the reshaping, and recombined with the
+reshaped data after the fact, broadcasting their values across all of the records
+that they pertain to.
+
+This function also checks for duplicate primary key values in the reshaped data, and
+consolidates them by summing the data values.
+
+* **Parameters:**
+  * **df** – The dataframe containing the data to be reshaped.
+  * **df_name** – A string describing the dataframe, for logging.
+  * **idx_cols** – The index (primary key) columns of the input dataframe. They must
+    identify unique records in the input data.
+  * **class_list** – List of values which will ultimately be found in the `class_type`
+    column, and which should initially be found as suffixes on the names of the
+    columns to be reshaped.
+  * **class_type** – The name of the categorical column produced by the reshaping.
+  * **keep_totals** – If True, retain total values which are the sum of all the
+    categories. If False (the default) these duplicative rows are dropped. In
+    either case the totals are checked using [`_compare_totals()`](#pudl.transform.eia861._compare_totals) and logging
+    output is generated at the DEBUG level.
+* **Returns:**
+  A tidier long-form version of the input dataframe.
+
+### pudl.transform.eia861.\_drop_dupes(df, df_name, subset)
+
+### pudl.transform.eia861.\_check_for_dupes(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), df_name: [str](https://docs.python.org/3/library/stdtypes.html#str), subset: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+
+### pudl.transform.eia861.\_compare_totals(data_cols, idx_cols, class_type, df_name)
+
+Compare reported totals with sum of component columns.
+
+* **Parameters:**
+  * **data_cols** (*pd.DataFrame*) – A DataFrame containing only the columns with
+    normalized information.
+  * **idx_cols** ([*list*](https://docs.python.org/3/library/stdtypes.html#list)) – A list of the primary keys for the given denormalized
+    DataFrame.
+  * **class_type** ([*str*](https://docs.python.org/3/library/stdtypes.html#str)) – The name (either ‘customer_class’ or ‘tech_class’) of
+    the column for which you’d like to compare totals to components.
+  * **df_name** ([*str*](https://docs.python.org/3/library/stdtypes.html#str)) – The name of the dataframe.
+
+### pudl.transform.eia861.clean_nerc(nerc_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), idx_cols: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+
+Clean NERC region entries.
+
+This function examines reported NERC regions and makes sure the output column of the
+same name has reliable, singular NERC region acronyms. To do so, this function
+identifies entries where there are two or more NERC regions specified in a single
+cell (such as SPP & ERCOT) and makes a standardized hybrid entry separated by an
+underscore (e.g., FRCC_SERC). It also converts non-recognized reported NERC regions
+to ‘UNK’.
+
+* **Parameters:**
+  * **nerc_df** – A DataFrame with the column ‘nerc_region’ to be cleaned.
+  * **idx_cols** – A list of the primary keys and nerc_region.
+* **Returns:**
+  A DataFrame with correct and clean NERC regions.
+
+### pudl.transform.eia861.\_compare_nerc_physical_w_nerc_operational(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+
+Show df rows where physical NERC region does not match operational region.
+
+In the Utility Data table, there is the ‘nerc_region’ index column, otherwise
+interpreted as nerc region in which the utility is physically located and the
+‘nerc_regions_of_operation’ column that depicts the nerc regions the utility
+operates in. In most cases, these two columns are the same, however there are
+certain instances where this is not true. There are also instances where a
+utility operates in multiple nerc regions in which case one row will match and
+another row will not. The output of this function in a table that shows only the
+utilities where the physical nerc region does not match the operational region
+ever, meaning there is no additional row for the same utility during the same
+year where there is a match between the cols.
+
+* **Parameters:**
+  **df** – core_eia861_\_yearly_utility_data_nerc table.
+* **Returns:**
+  A DataFrame with rows for utilities where NO listed operating nerc region
+  matches the “physical location” nerc region column that’s a part of the index.
+
+### pudl.transform.eia861.\_pct_to_mw(df, pct_col)
+
+Turn pct col into mw capacity using total capacity col.
+
+### pudl.transform.eia861.\_make_yn_bool(df_object)
+
+Turn Y/N reporting into True or False boolean statements for df or series.
+
+### pudl.transform.eia861.\_thousand_to_one(df_object)
+
+Turn reporting in thousands of dollars to regular dollars for df or series.
+
+### pudl.transform.eia861.\_harvest_associations(dfs: [list](https://docs.python.org/3/library/stdtypes.html#list)[[pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)], cols: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+
+Compile all unique, non-null combinations of values `cols` within `dfs`.
+
+Find all unique, non-null combinations of the columns `cols` in the dataframes
+`dfs` within records that are selected by `query`. All of `cols` must be
+present in each of the `dfs`.
+
+* **Parameters:**
+  * **dfs** – DataFrames to search for unique combinations of values.
+  * **cols** – Columns within which to find unique, non-null combinations of values.
+* **Raises:**
+  [**ValueError**](https://docs.python.org/3/library/exceptions.html#ValueError) – if no associations for cols are found in dfs.
+* **Returns:**
+  A dataframe containing all the unique, non-null combinations of values found in
+  `cols`.
+
+### pudl.transform.eia861.\_combine_88888_values(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), idx_cols: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+
+Combine 88888 utility_id_values.
+
+This function sums rows with a utility_id_eia of 88888 into a single row by
+primary key. It drops rows with a utility_id_eia of 88888 if there are non-numeric
+columns with different values that are impossible to combine. E.g.: boolean
+columns where one value is Y and the other is N. This results in a small loss of
+data, but is necessary to ensure that the primary key remains unique.
+
+There’s a similar de-duplication process happening in the `_tidy_class_dfs` function,
+but the procedure for 88888 has been abstracted out here to avoid confusion and the
+ability to treat these cases differently as we see fit. The 88888 utility_id_eia
+values are known withholdings whereas the duplicate primary key rows are unknown data
+quality issues.
+
+* **Parameters:**
+  * **df** – The dataframe to process.
+  * **idx_cols** – The index (primary key) columns of the input dataframe. They must
+    identify unique records in the input data.
+* **Returns:**
+  A dataframe with the combined or dropped 88888 utility_id_eia values and unique pks.
+
+### pudl.transform.eia861.core_eia861_\_yearly_service_territory(raw_eia861_\_service_territory: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), \_core_censuspep_\_yearly_geocodes: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+
+Transform the EIA 861 utility service territory table.
+
+Transformations include:
+
+* Homogenize spelling of county names.
+* Add field for state/county FIPS code.
+
+* **Parameters:**
+  **raw_eia861_\_service_territory** – Raw EIA-861 utility service territory dataframe.
+* **Returns:**
+  The cleaned utility service territory dataframe.
+
+### pudl.transform.eia861.\_core_eia861_\_balancing_authority(raw_eia861_\_balancing_authority: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+
+Transform the EIA 861 Balancing Authority table.
+
+Transformations include:
+
+* Fill in balancing authority IDs based on date, utility ID, and BA Name.
+* Backfill balancing authority codes based on BA ID.
+* Fix BA code and ID typos.
+* Combine 88888 utility ID EIA rows with duplicate primary keys.
+* Remove 88888 utility ID EIA rows with duplicate primary keys containing distinct,
+  non-consolidateable qualitative information. See \_combine_88888_values and
+  \_pre_process for details.
+
+### pudl.transform.eia861.core_eia861_\_yearly_sales(raw_eia861_\_sales: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+
+Transform the EIA 861 Sales table.
+
+Transformations include:
+
+* Tidy data by customer class.
+* Drop primary key duplicates.
+* Convert 1000s of dollars into dollars.
+* Convert data_observed field I/O into boolean.
+* Map full spelling onto code values.
+* Combine 88888 utility ID EIA rows with duplicate primary keys.
+* Remove 88888 utility ID EIA rows with duplicate primary keys containing distinct,
+  non-consolidateable qualitative information. See \_combine_88888_values and
+  \_pre_process for details.
+
+### pudl.transform.eia861.core_eia861_\_yearly_short_form(raw_eia861_\_short_form: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+
+Transform the EIA 861 Short Form table.
+
+Transformations include:
+
+* Drop primary key duplicates.
+* Convert N/Y values to boolean
+* Change NA BA codes to ‘UNK’
+
+### pudl.transform.eia861.core_eia861_\_yearly_advanced_metering_infrastructure(raw_eia861_\_advanced_metering_infrastructure: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+
+Transform the EIA 861 Advanced Metering Infrastructure table.
+
+Transformations include:
+
+* Tidy data by customer class.
+* Drop total_meters columns (it’s calculable with other fields).
+
+### pudl.transform.eia861.core_eia861_\_yearly_demand_response(raw_eia861_\_demand_response: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame))
+
+Transform the EIA 861 Demand Response table.
+
+Transformations include:
+
+* Fill in NA balancing authority codes with UNK (because it’s part of the primary
+  key).
+* Tidy subset of the data by customer class.
+* Drop duplicate rows based on primary keys.
+* Convert 1000s of dollars into dollars.
+
+### pudl.transform.eia861.core_demand_side_management_eia861(raw_eia861_\_demand_side_management: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame))
+
+Transform the EIA 861 Demand Side Management table.
+
+In 2013, the EIA changed the contents of the 861 form so that information pertaining
+to demand side management was no longer housed in a single table, but rather two
+separate ones pertaining to energy efficiency and demand response. While the pre and
+post 2013 tables contain similar information, one column in the pre-2013 demand side
+management table may not have an obvious column equivalent in the post-2013 energy
+efficiency or demand response data. We’ve addressed this by keeping the demand side
+management and energy efficiency and demand response tables separate. Use the DSM
+table for pre 2013 data and the EE / DR tables for post 2013 data. Despite the
+uncertainty of comparing across these years, the data are similar and we hope to
+provide a cohesive dataset in the future with all years and comparable columns
+combined.
+
+Transformations include:
+
+* Clean up NERC codes and ensure one per row.
+* Remove has_demand_side_management and data_observed columns (they are all the same).
+* Tidy subset of the data by customer class.
+* Convert Y/N columns to booleans.
+* Convert 1000s of dollars into dollars.
+
+### pudl.transform.eia861.core_distributed_generation_eia861(raw_eia861_\_distributed_generation: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame))
+
+Transform the EIA 861 Distributed Generation table.
+
+Transformations include:
+
+* Map full spelling onto code values.
+* Convert pre-2010 percent values in mw values.
+* Remove total columns calculable with other fields.
+* Tidy subset of the data by tech class.
+* Tidy subset of the data by fuel class.
+
+### pudl.transform.eia861.core_eia861_\_yearly_distribution_systems(raw_eia861_\_distribution_systems: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+
+Transform the EIA 861 Distribution Systems table.
+
+* No additional transformations.
+
+### pudl.transform.eia861.core_eia861_\_yearly_dynamic_pricing(raw_eia861_\_dynamic_pricing: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+
+Transform the EIA 861 Dynamic Pricing table.
+
+Transformations include:
+
+* Tidy subset of the data by customer class.
+* Convert Y/N columns to booleans.
+* Combine 88888 utility ID EIA rows with duplicate primary keys.
+* Remove 88888 utility ID EIA rows with duplicate primary keys containing distinct,
+  non-consolidateable qualitative information. See \_combine_88888_values and
+  \_pre_process for details.
+
+### pudl.transform.eia861.core_eia861_\_yearly_energy_efficiency(raw_eia861_\_energy_efficiency: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+
+Transform the EIA 861 Energy Efficiency table.
+
+Transformations include:
+
+* Tidy subset of the data by customer class.
+* Drop website column (almost no valid information).
+* Convert 1000s of dollars into dollars.
+
+### pudl.transform.eia861.core_eia861_\_yearly_green_pricing(raw_eia861_\_green_pricing: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+
+Transform the EIA 861 Green Pricing table.
+
+Transformations include:
+
+* Tidy subset of the data by customer class.
+* Convert 1000s of dollars into dollars.
+
+### pudl.transform.eia861.core_eia861_\_yearly_mergers(raw_eia861_\_mergers: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+
+Transform the EIA 861 Mergers table.
+
+### pudl.transform.eia861.core_net_metering_eia861(raw_eia861_\_net_metering: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame))
+
+Transform the EIA 861 Net Metering table.
+
+Transformations include:
+
+* Tidy subset of the data by customer class.
+* Tidy subset of the data by tech class.
+
+### pudl.transform.eia861.core_non_net_metering_eia861(raw_eia861_\_non_net_metering: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame))
+
+Transform the EIA 861 Non-Net Metering table.
+
+Transformations include:
+
+* Drop duplicate rows.
+* Tidy subset of the data by customer class.
+* Tidy subset of the data by tech class.
+
+### pudl.transform.eia861.core_operational_data_eia861(raw_eia861_\_operational_data: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame))
+
+Transform the EIA 861 Operational Data table.
+
+Transformations include:
+
+* Remove rows with NA utility id.
+* Clean up NERC codes and ensure one per row.
+* Convert data_observed field I/O into boolean.
+* Tidy subset of the data by revenue class.
+* Convert 1000s of dollars into dollars.
+* Combine 88888 utility ID EIA rows with duplicate primary keys.
+* Remove 88888 utility ID EIA rows with duplicate primary keys containing distinct,
+  non-consolidateable qualitative information. See \_combine_88888_values and
+  \_pre_process for details.
+
+### pudl.transform.eia861.core_eia861_\_yearly_reliability(raw_eia861_\_reliability: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+
+Transform the EIA 861 Reliability table.
+
+Transformations include:
+
+* Tidy subset of the data by reliability standard.
+* Convert Y/N columns to booleans.
+* Map full spelling onto code values.
+* Drop duplicate rows.
+
+### pudl.transform.eia861.core_utility_data_eia861(raw_eia861_\_utility_data: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame))
+
+Transform the EIA 861 Utility Data table.
+
+Transformations include:
+
+* Clean up NERC codes and ensure one per row.
+* Tidy subset of the data by NERC region.
+* Tidy subset of the data by RTO.
+* Convert Y/N columns to booleans.
+* Combine 88888 utility ID EIA rows with duplicate primary keys.
+* Remove 88888 utility ID EIA rows with duplicate primary keys containing distinct,
+  non-consolidateable qualitative information. See \_combine_88888_values and
+  \_pre_process for details.
+
+### pudl.transform.eia861.core_eia861_\_assn_utility(\*\*data_dfs: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+
+Harvest a Utility-Date-State Association Table.
+
+### pudl.transform.eia861.core_eia861_\_assn_balancing_authority(\*\*dfs: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+
+Compile a balancing authority, utility, state association table.
+
+For the years up through 2012, the only BA-Util information that’s available comes
+from the core_eia861_\_yearly_balancing_authority table, and it does not include any state-level
+information. However, there is utility-state association information in the
+core_eia861_\_yearly_sales and other data tables.
+
+For the years from 2013 onward, there’s explicit BA-Util-State information in the
+data tables (e.g. [core_eia861_\_yearly_sales](../../../../data_dictionaries/pudl_db.md#core-eia861-yearly-sales)). These observed associations can be compiled
+to give us a picture of which BA-Util-State associations exist. However, we need to
+merge in the balancing authority IDs since the data tables only contain the
+balancing authority codes.
+
+* **Parameters:**
+  **dfs** – A dictionary of transformed EIA 861 dataframes. This must include any
+  dataframes from which we want to compile BA-Util-State associations, which
+  means this function has to be called after all the basic transform functions
+  that depend on only a single raw table.
+* **Returns:**
+  An association table describing the annual linkages between balancing
+  authorities, states, and utilities. Becomes
+  [core_eia861_\_assn_balancing_authority](../../../../data_dictionaries/pudl_db.md#core-eia861-assn-balancing-authority).
+
+### pudl.transform.eia861.core_eia861_\_yearly_balancing_authority(\_core_eia861_\_balancing_authority: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+
+Finish the normalization of the core_eia861_\_yearly_balancing_authority table.
+
+The [core_eia861_\_assn_balancing_authority](../../../../data_dictionaries/pudl_db.md#core-eia861-assn-balancing-authority) table depends on information that is only
+available in the UN-normalized form of the [core_eia861_\_yearly_balancing_authority](../../../../data_dictionaries/pudl_db.md#core-eia861-yearly-balancing-authority) table,
+and also on having access to a bunch of transformed data tables, so it can compile
+the observed combinations of report dates, balancing authorities, states, and
+utilities.  This means that we have to hold off on the final normalization of the
+[core_eia861_\_yearly_balancing_authority](../../../../data_dictionaries/pudl_db.md#core-eia861-yearly-balancing-authority) table until the rest of the transform process is
+over.
+
+* **Parameters:**
+  **\_core_eia861_\_balancing_authority** – A cleaned up version of the originally
+  reported balancing authority table.
+* **Returns:**
+  The final, normalized version of the [core_eia861_\_yearly_balancing_authority](../../../../data_dictionaries/pudl_db.md#core-eia861-yearly-balancing-authority) table,
+  linking together balancing authorities and utility IDs by year, but without
+  information about what states they were operating in (which is captured in
+  [core_eia861_\_assn_balancing_authority](../../../../data_dictionaries/pudl_db.md#core-eia861-assn-balancing-authority)).

@@ -1,0 +1,28 @@
+pudl.metadata.resources.rus7
+============================
+
+.. py:module:: pudl.metadata.resources.rus7
+
+.. autoapi-nested-parse::
+
+   Table definitions for the RUS7 tables.
+
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.metadata.resources.rus7.RESOURCE_METADATA_BASE
+   pudl.metadata.resources.rus7.RESOURCE_METADATA
+
+
+Module Contents
+---------------
+
+.. py:data:: RESOURCE_METADATA_BASE
+   :type:  dict[str, dict[str, Any]]
+
+.. py:data:: RESOURCE_METADATA
+
