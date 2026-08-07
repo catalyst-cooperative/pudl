@@ -1,10 +1,14 @@
 FROM ghcr.io/prefix-dev/pixi:0.75.0-noble
 
-# The pixi base image uses 'ubuntu' as the non-root user (UID 1000)
+# The pixi base image uses 'ubuntu' as the non-root user (UID 1000). USER
+# switches below use the literal numeric UID rather than a name or variable --
+# hadolint can't resolve variables, and named/indirect users aren't guaranteed
+# resolvable by host tooling that inspects the container's USER -- while
+# PIXI_USER is kept around by name for path construction and chown.
 ENV PIXI_USER=ubuntu
 ENV CONTAINER_HOME=/home/$PIXI_USER
 
-USER root
+USER 0
 
 SHELL [ "/bin/bash", "-exo", "pipefail", "-c" ]
 
@@ -20,7 +24,7 @@ RUN apt-get update && \
 RUN printf '[GoogleCompute]\nservice_account = default' > /etc/boto.cfg
 
 # Switch back to being non-root user and get into the home directory
-USER $PIXI_USER
+USER 1000
 WORKDIR ${CONTAINER_HOME}
 
 ENV PUDL_ROOT_PATH=${CONTAINER_HOME}/pudl
