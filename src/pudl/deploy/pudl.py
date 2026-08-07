@@ -566,7 +566,7 @@ def update_pudl_viewer(
     logger.info("PUDL Viewer Cloud Run service updated")
 
 
-def set_gcs_temporary_hold(gcs_path: str, billing_project: str) -> None:
+def set_gcs_temporary_hold(gcs_path: str, billing_project: str = "") -> None:
     """Set temporary hold on GCS objects to prevent deletion.
 
     Applies a temporary hold to protect versioned release artifacts from
@@ -574,24 +574,37 @@ def set_gcs_temporary_hold(gcs_path: str, billing_project: str) -> None:
 
     Args:
         gcs_path: GCS path to objects (e.g., "gs://pudl.catalyst.coop/v2025.2.3/").
-        billing_project: which project to bill for Requester Pays buckets.
+        billing_project: which project to bill for Requester Pays access to this
+            bucket. If not given, falls back to whatever ``storage.Client()``
+            resolves via Application Default Credentials -- the ``GOOGLE_CLOUD_
+            PROJECT``/``GCLOUD_PROJECT`` env vars, a service account key file's
+            embedded project, the active ``gcloud config set project``, or GCE/
+            Cloud Run instance metadata, in that order. That's the same
+            resolution the ``gcloud`` CLI itself uses, so e.g. a local dev shell
+            with a configured ``gcloud`` project needs no explicit argument.
 
     Raises:
-        RuntimeError: If ``billing_project`` is empty, no objects are found at
-            ``gcs_path``, or a post-hold sweep finds objects still missing the
-            hold.
+        RuntimeError: If no billing project can be determined by any of the
+            above, no objects are found at ``gcs_path``, or a post-hold sweep
+            finds objects still missing the hold.
     """
-    if not billing_project:
-        raise RuntimeError(
-            "billing_project is required to access the Requester Pays "
-            "pudl.catalyst.coop bucket; is the GCP_BILLING_PROJECT env var set?"
-        )
-
     logger.info(f"Setting temporary hold on {gcs_path}")
 
     bucket_name, _, prefix = gcs_path.removeprefix("gs://").partition("/")
-    client = storage.Client(project=billing_project)
-    bucket = client.bucket(bucket_name, user_project=billing_project)
+    # Passing project=None explicitly (rather than omitting it) disables
+    # Application Default Credentials project auto-detection entirely, so the
+    # kwarg has to be left out when there's no explicit override.
+    client_kwargs = {"project": billing_project} if billing_project else {}
+    try:
+        client = storage.Client(**client_kwargs)
+    except OSError as e:
+        raise RuntimeError(
+            "Could not determine a billing project for the Requester Pays "
+            "pudl.catalyst.coop bucket. Set the GCP_BILLING_PROJECT env var, or "
+            "configure gcloud locally (`gcloud config set project ...` or "
+            "`gcloud auth application-default login`)."
+        ) from e
+    bucket = client.bucket(bucket_name, user_project=client.project)
 
     num_held = 0
     for blob in bucket.list_blobs(prefix=prefix):
