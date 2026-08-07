@@ -44,7 +44,7 @@ def update_yaml_dois(yaml_file: Path, datasets: tuple[str, ...]) -> dict[str, di
         data = yaml.safe_load(f)
 
     for dataset_name, current_doi in data.items():
-        if dataset_name in datasets:
+        if dataset_name in datasets or datasets == ("all",):
             # Extract record ID from DOI (e.g, grab 123456 from 10.5281/zenodo.123456)
             if (match := re.search(r"^10\.5281/zenodo\.(\d+)$", current_doi)) is None:
                 raise ValueError(
@@ -93,7 +93,7 @@ def update_yaml_dois(yaml_file: Path, datasets: tuple[str, ...]) -> dict[str, di
 )
 @click.pass_context
 def main(ctx: click.Context, datasets: tuple[str, ...]) -> None:  # pragma: no cover
-    """Auto-update Zenodo DOIs to the latest value."""
+    """Auto-update Zenodo DOIs to the latest value. Use 'all' to update all DOIs."""
     # Deferred to keep --help fast; see pudl/scripts/__init__.py for rationale.
 
     if not datasets:  # If no datasets to update
