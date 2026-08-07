@@ -16,6 +16,10 @@ This is the upcoming quarterly PUDL release.
 
 ### Expanded Data Coverage
 
+#### EIA-191
+
+* Updated [EIA-191](data_sources/eia191.md) data. See PR [#5464](https://github.com/catalyst-cooperative/pudl/pull/5464).
+
 #### EIA-860M
 
 * Added [EIA-860M](data_sources/eia860.md) data through June 2026. See
@@ -28,22 +32,31 @@ This is the upcoming quarterly PUDL release.
 
 #### EIA-930
 
-* Updated [EIA-930](data_sources/eia930.md) data. See PR [#5445](https://github.com/catalyst-cooperative/pudl/pull/5445).
+* Updated [EIA-930](data_sources/eia930.md) data. See PRs [#5445](https://github.com/catalyst-cooperative/pudl/pull/5445) and [#5464](https://github.com/catalyst-cooperative/pudl/pull/5464).
 
 #### FERC-714
 
 * Added 2025 XBRL data for [FERC-714](data_sources/ferc714.md). See
-  [#5424](https://github.com/catalyst-cooperative/pudl/issues/5424) and [#5436](https://github.com/catalyst-cooperative/pudl/pull/5436).
+  [#5424](https://github.com/catalyst-cooperative/pudl/issues/5424) and PRs [#5436](https://github.com/catalyst-cooperative/pudl/pull/5436), [#5464](https://github.com/catalyst-cooperative/pudl/pull/5464).
 
 #### EIA Electricity API
 
 * Updated the [bulk EIA Electricity API](data_sources/eiaapi.md)
-  data used to fill in redacted fuel prices. See PR [#5441](https://github.com/catalyst-cooperative/pudl/pull/5441).
+  data used to fill in redacted fuel prices. See PRs [#5441](https://github.com/catalyst-cooperative/pudl/pull/5441) and [#5464](https://github.com/catalyst-cooperative/pudl/pull/5464).
 
 #### EPA CEMS
 
 * Updated the [EPA CEMS](data_sources/epacems.md) data with
-  additional records through end of March 2026. See PR [#5441](https://github.com/catalyst-cooperative/pudl/pull/5441).
+  additional records through end of June 2026. See PR [#5441](https://github.com/catalyst-cooperative/pudl/pull/5441) and [#5464](https://github.com/catalyst-cooperative/pudl/pull/5464).
+
+#### EPA MATS
+
+* Updated the EPA MATS data with additional records through end of June 2026. See PR
+  [#5464](https://github.com/catalyst-cooperative/pudl/pull/5464).
+
+#### PHMSA Natural Gas data
+
+* Updated the [PHMSA natural gas](data_sources/phmsagas.md) data. See PR [#5464](https://github.com/catalyst-cooperative/pudl/pull/5464).
 
 #### FERC Form 6
 

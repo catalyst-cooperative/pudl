@@ -13,10 +13,10 @@ require hand mapping to extract in PUDL.
 
 ## Functions
 
-| [`get_latest_record_id`](#pudl.scripts.update_zenodo_dois.get_latest_record_id)(→ tuple[str | None, str | None])   | Get ID of the latest version of any Zenodo record.   |
-|--------------------------------------------------------------------------------------------------------------------|------------------------------------------------------|
-| [`update_yaml_dois`](#pudl.scripts.update_zenodo_dois.update_yaml_dois)(→ dict[str, dict])                         | Check all DOIs and update to latest record versions. |
-| [`main`](#pudl.scripts.update_zenodo_dois.main)(→ None)                                                            | Auto-update Zenodo DOIs to the latest value.         |
+| [`get_latest_record_id`](#pudl.scripts.update_zenodo_dois.get_latest_record_id)(→ tuple[str | None, str | None])   | Get ID of the latest version of any Zenodo record.                         |
+|--------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------|
+| [`update_yaml_dois`](#pudl.scripts.update_zenodo_dois.update_yaml_dois)(→ dict[str, dict])                         | Check all DOIs and update to latest record versions.                       |
+| [`main`](#pudl.scripts.update_zenodo_dois.main)(→ None)                                                            | Auto-update Zenodo DOIs to the latest value. Use 'all' to update all DOIs. |
 
 ## Module Contents
 
@@ -35,4 +35,4 @@ Check all DOIs and update to latest record versions.
 
 ### pudl.scripts.update_zenodo_dois.main(ctx: click.Context, datasets: [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[str](https://docs.python.org/3/library/stdtypes.html#str), Ellipsis]) → [None](https://docs.python.org/3/library/constants.html#None)
 
-Auto-update Zenodo DOIs to the latest value.
+Auto-update Zenodo DOIs to the latest value. Use ‘all’ to update all DOIs.

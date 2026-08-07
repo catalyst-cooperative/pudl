@@ -20154,10 +20154,10 @@ require hand mapping to extract in PUDL.
 
 ## Functions
 
-| [`get_latest_record_id`](#pudl.scripts.update_zenodo_dois.get_latest_record_id)(→ tuple[str | None, str | None])   | Get ID of the latest version of any Zenodo record.   |
-|--------------------------------------------------------------------------------------------------------------------|------------------------------------------------------|
-| [`update_yaml_dois`](#pudl.scripts.update_zenodo_dois.update_yaml_dois)(→ dict[str, dict])                         | Check all DOIs and update to latest record versions. |
-| [`main`](#pudl.scripts.update_zenodo_dois.main)(→ None)                                                            | Auto-update Zenodo DOIs to the latest value.         |
+| [`get_latest_record_id`](#pudl.scripts.update_zenodo_dois.get_latest_record_id)(→ tuple[str | None, str | None])   | Get ID of the latest version of any Zenodo record.                         |
+|--------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------|
+| [`update_yaml_dois`](#pudl.scripts.update_zenodo_dois.update_yaml_dois)(→ dict[str, dict])                         | Check all DOIs and update to latest record versions.                       |
+| [`main`](#pudl.scripts.update_zenodo_dois.main)(→ None)                                                            | Auto-update Zenodo DOIs to the latest value. Use 'all' to update all DOIs. |
 
 ## Module Contents
 
@@ -20176,7 +20176,7 @@ Check all DOIs and update to latest record versions.
 
 ### pudl.scripts.update_zenodo_dois.main(ctx: click.Context, datasets: [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[str](https://docs.python.org/3/library/stdtypes.html#str), Ellipsis]) → [None](https://docs.python.org/3/library/constants.html#None)
 
-Auto-update Zenodo DOIs to the latest value.
+Auto-update Zenodo DOIs to the latest value. Use ‘all’ to update all DOIs.
 
 
 # index.html.md
@@ -33017,8 +33017,8 @@ respective transform function.
 | Source URL                      | [https://www.census.gov/geographies/reference-files/2023/demo/popest/2023-fips.html](https://www.census.gov/geographies/reference-files/2023/demo/popest/2023-fips.html)                                           |
 |---------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | Source Description              | Reference files for Federal Information Processing Series (FIPS) Geographic Codes. These FIPS Codes are a subset of a broader Population Estimates dataset.                                                        |
-| Download Size                   | 21 MB                                                                                                                                                                                                              |
-| Temporal Coverage               | 2009-2024                                                                                                                                                                                                          |
+| Download Size                   | 23 MB                                                                                                                                                                                                              |
+| Temporal Coverage               | 2009-2025                                                                                                                                                                                                          |
 | PUDL Code                       | `censuspep`                                                                                                                                                                                                        |
 | Unprocessed Source Data Archive | [10.5281/zenodo.14624611](https://doi.org/10.5281/zenodo.14624611)                                                                                                                                                 |
 | Issues                          | [Open Population Estimates Program's (PEP) Federal Information Processing Series (FIPS) Codes issues](https://github.com/catalyst-cooperative/pudl/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3Acensuspep) |
@@ -37538,7 +37538,7 @@ respective transform function.
 | Source Description              | The EIA Form 930 provides hourly demand and generation statistics by balancing area (or sub-balancing area in the case of some larger areas). These statistics include a breakdown by energy source (coal, gas, hydro, wind, solar, etc.) as well as interchange between the balancing areas, including international exchanges with Canada and Mexico. |
 | Respondents                     | All entities in the contiguous United States that are listed in the North American Electric Reliability Corporation’s (NERC) Compliance Registry as a balancing authority.                                                                                                                                                                              |
 | Source Format                   | Comma separated values (CSV)                                                                                                                                                                                                                                                                                                                            |
-| Download Size                   | 412 MB                                                                                                                                                                                                                                                                                                                                                  |
+| Download Size                   | 413 MB                                                                                                                                                                                                                                                                                                                                                  |
 | Temporal Coverage               | 2015half2-2026half2                                                                                                                                                                                                                                                                                                                                     |
 | PUDL Code                       | `eia930`                                                                                                                                                                                                                                                                                                                                                |
 | Unprocessed Source Data Archive | [10.5281/zenodo.10840077](https://doi.org/10.5281/zenodo.10840077)                                                                                                                                                                                                                                                                                      |
@@ -37935,7 +37935,7 @@ respective transform function.
 |---------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | Source Description              | All data made available in bulk through the EIA Open Data API. At present, PUDL integrates only a few specific data series related to fuel receipts and costs figures from the Bulk Electricity API. |
 | Source Format                   | JSON                                                                                                                                                                                                 |
-| Download Size                   | 1595 MB                                                                                                                                                                                              |
+| Download Size                   | 1597 MB                                                                                                                                                                                              |
 | Temporal Coverage               |                                                                                                                                                                                                      |
 | PUDL Code                       | `eiaapi`                                                                                                                                                                                             |
 | Unprocessed Source Data Archive | [10.5281/zenodo.7067366](https://doi.org/10.5281/zenodo.7067366)                                                                                                                                     |
@@ -38371,8 +38371,8 @@ respective transform function.
 | Respondents                     | Coal and high-sulfur fueled plants over 25MW                                                                                                                                     |
 | Records Liberated               | ~1 billion                                                                                                                                                                       |
 | Source Format                   | Comma Separated Value (.csv)                                                                                                                                                     |
-| Download Size                   | 10151 MB                                                                                                                                                                         |
-| Temporal Coverage               | 1995q1-2026q1                                                                                                                                                                    |
+| Download Size                   | 10218 MB                                                                                                                                                                         |
+| Temporal Coverage               | 1995q1-2026q2                                                                                                                                                                    |
 | PUDL Code                       | `epacems`                                                                                                                                                                        |
 | Unprocessed Source Data Archive | [10.5281/zenodo.10233185](https://doi.org/10.5281/zenodo.10233185)                                                                                                               |
 | Issues                          | [Open EPA Hourly Continuous Emission Monitoring System (CEMS) issues](https://github.com/catalyst-cooperative/pudl/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3Aepacems) |
@@ -41284,7 +41284,7 @@ oil pipeline) such that they don’t fit into any of the above Forms 1, 2, or 6.
 | Source URL                      | [https://www.phmsa.dot.gov/data-and-statistics/pipeline/gas-distribution-gas-gathering-gas-transmission-hazardous-liquids](https://www.phmsa.dot.gov/data-and-statistics/pipeline/gas-distribution-gas-gathering-gas-transmission-hazardous-liquids)                                                              |
 |---------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | Source Description              | Annual reports submitted to PHMSA from gas distribution, gas gathering, gas transmission, liquefied natural gas, and underground gas storage system operators. Annual reports include information such as total pipeline mileage, facilities, commodities transported, miles by material, and installation dates. |
-| Download Size                   | 220 MB                                                                                                                                                                                                                                                                                                            |
+| Download Size                   | 236 MB                                                                                                                                                                                                                                                                                                            |
 | Temporal Coverage               | 1970-2024                                                                                                                                                                                                                                                                                                         |
 | PUDL Code                       | `phmsagas`                                                                                                                                                                                                                                                                                                        |
 | Unprocessed Source Data Archive | [10.5281/zenodo.7683351](https://doi.org/10.5281/zenodo.7683351)                                                                                                                                                                                                                                                  |
@@ -75027,6 +75027,10 @@ This is the upcoming quarterly PUDL release.
 
 ### Expanded Data Coverage
 
+#### EIA-191
+
+* Updated [EIA-191](data_sources/eia191.md) data. See PR [#5464](https://github.com/catalyst-cooperative/pudl/pull/5464).
+
 #### EIA-860M
 
 * Added [EIA-860M](data_sources/eia860.md) data through June 2026. See
@@ -75039,22 +75043,31 @@ This is the upcoming quarterly PUDL release.
 
 #### EIA-930
 
-* Updated [EIA-930](data_sources/eia930.md) data. See PR [#5445](https://github.com/catalyst-cooperative/pudl/pull/5445).
+* Updated [EIA-930](data_sources/eia930.md) data. See PRs [#5445](https://github.com/catalyst-cooperative/pudl/pull/5445) and [#5464](https://github.com/catalyst-cooperative/pudl/pull/5464).
 
 #### FERC-714
 
 * Added 2025 XBRL data for [FERC-714](data_sources/ferc714.md). See
-  [#5424](https://github.com/catalyst-cooperative/pudl/issues/5424) and [#5436](https://github.com/catalyst-cooperative/pudl/pull/5436).
+  [#5424](https://github.com/catalyst-cooperative/pudl/issues/5424) and PRs [#5436](https://github.com/catalyst-cooperative/pudl/pull/5436), [#5464](https://github.com/catalyst-cooperative/pudl/pull/5464).
 
 #### EIA Electricity API
 
 * Updated the [bulk EIA Electricity API](data_sources/eiaapi.md)
-  data used to fill in redacted fuel prices. See PR [#5441](https://github.com/catalyst-cooperative/pudl/pull/5441).
+  data used to fill in redacted fuel prices. See PRs [#5441](https://github.com/catalyst-cooperative/pudl/pull/5441) and [#5464](https://github.com/catalyst-cooperative/pudl/pull/5464).
 
 #### EPA CEMS
 
 * Updated the [EPA CEMS](data_sources/epacems.md) data with
-  additional records through end of March 2026. See PR [#5441](https://github.com/catalyst-cooperative/pudl/pull/5441).
+  additional records through end of June 2026. See PR [#5441](https://github.com/catalyst-cooperative/pudl/pull/5441) and [#5464](https://github.com/catalyst-cooperative/pudl/pull/5464).
+
+#### EPA MATS
+
+* Updated the EPA MATS data with additional records through end of June 2026. See PR
+  [#5464](https://github.com/catalyst-cooperative/pudl/pull/5464).
+
+#### PHMSA Natural Gas data
+
+* Updated the [PHMSA natural gas](data_sources/phmsagas.md) data. See PR [#5464](https://github.com/catalyst-cooperative/pudl/pull/5464).
 
 #### FERC Form 6
 

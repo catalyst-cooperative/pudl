@@ -51,6 +51,6 @@ Module Contents
 
 .. py:function:: main(ctx: click.Context, datasets: tuple[str, Ellipsis]) -> None
 
-   Auto-update Zenodo DOIs to the latest value.
+   Auto-update Zenodo DOIs to the latest value. Use 'all' to update all DOIs.
 
 
