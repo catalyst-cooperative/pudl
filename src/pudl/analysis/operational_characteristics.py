@@ -17,26 +17,6 @@ from pudl.metadata.enums import EPACEMS_STATES
 logger = pudl.logging_helpers.get_logger(__name__)
 
 
-HEAT_RATE_ANALYSIS_CONFIG_SCHEMA = {
-    "num_quarters": Field(
-        int,
-        default_value=12,
-        description=(
-            "Number of historical EPA CEMS quarters to include, counting backward "
-            "from the configured final year-quarter."
-        ),
-    ),
-    "min_stable_consecutive_hours": Field(
-        int,
-        default_value=8,
-        description=(
-            "Minimum number of consecutive operating hours in a load-factor bin "
-            "required for that bin to be considered a stable operating level."
-        ),
-    ),
-}
-
-
 def _get_heat_rate_analysis_config(
     context: AssetExecutionContext,
 ) -> dict[str, int]:
@@ -691,7 +671,25 @@ def estimate_operational_characteristics_by_unit(
 @asset(
     required_resource_keys={"global_data_config"},
     ins={"core_epacems__hourly_emissions": AssetIn()},
-    config_schema=HEAT_RATE_ANALYSIS_CONFIG_SCHEMA,
+    config_schema={
+        "num_quarters": Field(
+            int,
+            default_value=12,
+            description=(
+                "Number of historical EPA CEMS quarters to include, counting "
+                "backward from the configured final year-quarter."
+            ),
+        ),
+        "min_stable_consecutive_hours": Field(
+            int,
+            default_value=8,
+            description=(
+                "Minimum number of consecutive operating hours in a load-factor "
+                "bin required for that bin to be considered a stable operating "
+                "level."
+            ),
+        ),
+    },
     io_manager_key="pudl_io_manager",
     op_tags={"memory-use": "high"},  # Peak of ~16 GB as of 2026-08-05
 )
@@ -717,9 +715,8 @@ def out_epacems__yearly_operational_characteristics(
             f"Deriving unit-level operational characteristics from {state} EPA CEMS "
         )
         # Filtering the lazyframe first down to only one state and only the last few
-        # quarters (number of quarters based on the config stored in
-        # HEAT_RATE_ANALYSIS_CONFIG_SCHEMA). Filter first to ensure the full hourly
-        # cems data isn't loaded into memory.
+        # quarters (number of quarters based on the asset's num_quarters config).
+        # Filter first to ensure the full hourly cems data isn't loaded into memory.
         cems = filter_cems_for_heat_rate_analysis(
             core_epacems__hourly_emissions=core_epacems__hourly_emissions,
             final_year_quarter=target_year_quarter,
