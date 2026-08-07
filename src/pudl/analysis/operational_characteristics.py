@@ -18,12 +18,12 @@ logger = pudl.logging_helpers.get_logger(__name__)
 
 
 HEAT_RATE_ANALYSIS_CONFIG_SCHEMA = {
-    "num_years": Field(
+    "num_quarters": Field(
         int,
-        default_value=3,
+        default_value=12,
         description=(
-            "Number of historical EPA CEMS years to include, counting backward from "
-            "the configured final year."
+            "Number of historical EPA CEMS quarters to include, counting backward "
+            "from the configured final year-quarter."
         ),
     ),
     "min_stable_consecutive_hours": Field(
@@ -42,48 +42,68 @@ def _get_heat_rate_analysis_config(
 ) -> dict[str, int]:
     """Extract heat rate analysis settings from Dagster asset config."""
     return {
-        "num_years": context.op_config["num_years"],
+        "num_quarters": context.op_config["num_quarters"],
         "min_stable_consecutive_hours": context.op_config[
             "min_stable_consecutive_hours"
         ],
     }
 
 
+def _year_quarter_to_ordinal(year_quarter: str) -> int:
+    """Convert a ``YYYYqN`` string into a zero-based quarter ordinal."""
+    year, quarter = int(year_quarter[:4]), int(year_quarter[5])
+    return year * 4 + (quarter - 1)
+
+
+def _ordinal_to_quarter_start(ordinal: int) -> pd.Timestamp:
+    """Convert a zero-based quarter ordinal into its first UTC timestamp.
+
+    ``operating_datetime_utc`` is stored as a timezone-naive timestamp (already in
+    UTC), so this deliberately returns a naive ``Timestamp`` to compare against it.
+    """
+    year, quarter = divmod(ordinal, 4)
+    return pd.Timestamp(year=year, month=quarter * 3 + 1, day=1)
+
+
 def filter_cems_for_heat_rate_analysis(
     core_epacems__hourly_emissions: pl.LazyFrame,
-    final_year: int,
-    num_years: int,
+    final_year_quarter: str,
+    num_quarters: int,
     states: list[str] | None = None,
 ) -> pl.LazyFrame:
     """Filter hourly EPA CEMS records to the configured analysis window.
 
     Args:
         core_epacems__hourly_emissions: Hourly CEMS emissions and gross load data.
-        final_year: Final EPA CEMS year to include in the analysis.
-        num_years: Number of historical years to include, counting backward from
-            ``final_year``.
+        final_year_quarter: Final EPA CEMS year-quarter (e.g. ``"2024q1"``) to
+            include in the analysis.
+        num_quarters: Number of historical quarters to include, counting backward
+            from ``final_year_quarter``.
         states: Optional list of two-letter state abbreviations to include.
             Default is None, which will grab all states.
 
     Returns:
-        Hourly EPA CEMS records filtered to the requested years and states.
+        Hourly EPA CEMS records filtered to the requested quarters and states.
     """
-    start_year = final_year - num_years
+    final_ordinal = _year_quarter_to_ordinal(final_year_quarter)
+    start_ts = _ordinal_to_quarter_start(final_ordinal - num_quarters + 1)
+    end_ts = _ordinal_to_quarter_start(final_ordinal + 1)
     cems_columns = [
         "plant_id_eia",
         "plant_id_epa",
         "emissions_unit_id_epa",
         "operating_datetime_utc",
-        "year",
         "state",
         "operating_time_hours",
         "gross_load_mw",
         "heat_content_mmbtu",
     ]
 
-    # Apply filters
+    # A direct range comparison on operating_datetime_utc (rather than deriving a
+    # quarter number per row) keeps this filter eligible for parquet predicate
+    # pushdown / row-group pruning, the same way the old year-based filter was.
     cems_lf = core_epacems__hourly_emissions.select(cems_columns).filter(
-        pl.col("year").is_between(start_year, final_year, closed="both")
+        pl.col("operating_datetime_utc").is_between(start_ts, end_ts, closed="left")
     )
     if states:
         cems_lf = cems_lf.filter(pl.col("state").is_in(states))
@@ -631,29 +651,33 @@ def out_epacems__yearly_operational_characteristics(
     This table corresponds to the script output named ``epa_op_char_output_df.csv``.
     """
     heat_rate_config = _get_heat_rate_analysis_config(context)
-    # Get the most recent full year of CEMS from the config. Grab all the
-    # year-quarters, then find the max year with q4 in it.
+    # Prefer the most recent complete year (i.e. the most recent year-quarter
+    # ending in q4), which reproduces the historical whole-year behavior in
+    # production. Fall back to the single most recent year-quarter when no q4 is
+    # available -- e.g. the fast ETL / CI, which only has a single quarter of EPA
+    # CEMS data and can't produce a q4-ending window at all.
     year_quarters = context.resources.global_data_config.pudl.epacems.year_quarters
-    max_full_year = int(
-        max(
-            year_quarter.removesuffix("q4")
-            for year_quarter in year_quarters
-            if year_quarter.endswith("q4")
-        )
-    )
+    q4_years = [
+        year_quarter.removesuffix("q4")
+        for year_quarter in year_quarters
+        if year_quarter.endswith("q4")
+    ]
+    target_year_quarter = f"{max(q4_years)}q4" if q4_years else max(year_quarters)
+    report_year = int(target_year_quarter[:4])
+
     state_dfs = []
     for state in sorted(EPACEMS_STATES):
         logger.info(
             f"Deriving unit-level operational characteristics from {state} EPA CEMS "
         )
         # Filtering the lazyframe first down to only one state and only the last few
-        # years (number of years based on the config stored in
+        # quarters (number of quarters based on the config stored in
         # HEAT_RATE_ANALYSIS_CONFIG_SCHEMA). Filter first to ensure the full hourly
         # cems data isn't loaded into memory.
         cems = filter_cems_for_heat_rate_analysis(
             core_epacems__hourly_emissions=core_epacems__hourly_emissions,
-            final_year=max_full_year,
-            num_years=heat_rate_config["num_years"],
+            final_year_quarter=target_year_quarter,
+            num_quarters=heat_rate_config["num_quarters"],
             states=[state],
         )
         # This step does the bulk of the work. The output here is a table with one
@@ -668,6 +692,6 @@ def out_epacems__yearly_operational_characteristics(
 
     return (
         pl.concat(state_dfs)
-        .with_columns(pl.lit(max_full_year).alias("report_year"))
+        .with_columns(pl.lit(report_year).alias("report_year"))
         .to_pandas()
     )

@@ -62,12 +62,14 @@ CEMS data.
                 "experimental_wip",
                 {
                     "type": "custom",
-                    "description": "This table is estimating values from only the most recent three-full years of CEMS data.",
+                    "description": "This table estimates values from a configurable trailing window of EPA CEMS quarters ending at the most recent complete year (12 quarters, i.e. the most recent three full years, in production). Builds that only have a limited number of EPA CEMS quarters available, such as the fast ETL and CI, will produce estimates from a shorter, less accurate window.",
                 },
             ],
             "additional_details_text": """This table summarizes several inferred
 operational characteristics for each EPA CEMS emissions unit using hourly CEMS
-gross load and fuel heat content over a three-year window.
+gross load and fuel heat content over a trailing window of EPA CEMS quarters. In
+production this window is the most recent three full years (12 quarters) of data,
+ending at the most recent complete calendar year.
 
 The values are not directly reported by source agencies. They are derived from
 observed hourly operations, including load factor bins, consecutive operating
