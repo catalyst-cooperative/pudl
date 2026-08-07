@@ -67,8 +67,9 @@ repos:
   ####################################################################################
 
   # Spell check our documentation and code comments
-  - repo: https://github.com/crate-ci/typos
-    rev: v1
+  # Use mirror b/c upstream hook provides bad version pins
+  - repo: https://github.com/adhtruong/mirrors-typos
+    rev: v1.49.0
     hooks:
       - id: typos
         exclude: |
