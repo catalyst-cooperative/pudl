@@ -4,6 +4,7 @@ from logging.config import fileConfig
 from alembic import context
 from sqlalchemy import engine_from_config, pool
 
+from pudl.dagster.io_managers import ALEMBIC_AUTOGENERATE_PLUGINS
 from pudl.metadata.classes import PUDL_PACKAGE
 from pudl.workspace.setup import PudlPaths
 
@@ -48,6 +49,7 @@ def run_migrations_offline() -> None:
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
+        autogenerate_plugins=ALEMBIC_AUTOGENERATE_PLUGINS,
     )
 
     with context.begin_transaction():
@@ -68,7 +70,10 @@ def run_migrations_online() -> None:
 
     with connectable.connect() as connection:
         context.configure(
-            connection=connection, target_metadata=target_metadata, render_as_batch=True
+            connection=connection,
+            target_metadata=target_metadata,
+            render_as_batch=True,
+            autogenerate_plugins=ALEMBIC_AUTOGENERATE_PLUGINS,
         )
 
         with context.begin_transaction():

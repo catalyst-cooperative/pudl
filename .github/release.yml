@@ -3,8 +3,11 @@ changelog:
   exclude:
     authors:
       - catalyst-workflow-triggerer
+      - catalyst-workflow-triggerer[bot]
       - dependabot
+      - dependabot[bot]
       - pre-commit-ci
+      - pre-commit-ci[bot]
       - pudlbot
     labels:
       - conda-lock
