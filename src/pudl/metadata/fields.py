@@ -6682,16 +6682,16 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "ramp_down_rate_per_min": {
         "type": "number",
         "description": (
-            "Median ramp-down rate in the lowest observed ramp bin, expressed as a "
-            "fraction of maximum gross load per minute."
+            "Median ramp rate among the steepest 5% of observed downward ramps "
+            "expressed as a fraction of maximum gross load per minute."
         ),
         "unit": "1 / min",
     },
     "ramp_up_rate_per_min": {
         "type": "number",
         "description": (
-            "Median ramp-up rate in the highest observed ramp bin, expressed as a "
-            "fraction of maximum gross load per minute."
+            "Median ramp rate among the steepest 5% of observed upward ramps "
+            "expressed as a fraction of maximum gross load per minute."
         ),
         "unit": "1 / min",
     },

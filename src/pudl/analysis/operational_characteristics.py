@@ -1,4 +1,14 @@
-"""Use EPA CEMS and EIA data to estimate generator operational characteristics."""
+"""Use EPA CEMS and EIA data to estimate generator operational characteristics.
+
+Starting from hourly EPA CEMS gross load and fuel heat content, this module estimates,
+for every plant-unit, a single trailing-window snapshot of: minimum stable load,
+minimum up/down time, heat rate at maximum and minimum stable load, and ramp-up/-down
+rate. These are derived by combining several independent per-unit calculations --
+load-factor binning, run-length detection, and ramp-rate summarization -- into one
+output row per unit via :func:`estimate_operational_characteristics_by_unit`.
+
+See :doc:`/methodology/operational_characteristics` for a longer prose explanation.
+"""
 
 from typing import Literal
 
@@ -261,7 +271,13 @@ def summarize_ramp_rates(
     unit_cols: list[str],
     generation_col: str,
 ) -> pl.DataFrame:
-    """Summarize exact per-unit ramp rates using the original qcut approach."""
+    """Summarize per-unit ramp rates using the steepest 5% of observed ramp-up/down.
+
+    This bins on ``ramp_rate`` (change in ``load_factor``), not ``load_factor`` itself
+    and uses 20 equal-count (quantile) bins. Only the bottom and top bins (the steepest
+    5% of downward and upward ramps, respectively) are actually used, via
+    ``head``/``tail`` on the sorted values rather than an explicit bin column.
+    """
     ramp_input = (
         # TODO: (Later) add in this line to remove startup time.
         # filter_for_min_stable_bin(cems_with_stable_bins)

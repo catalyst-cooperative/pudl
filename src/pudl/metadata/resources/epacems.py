@@ -71,13 +71,12 @@ gross load and fuel heat content over a trailing window of EPA CEMS quarters. In
 production this window is the most recent three full years (12 quarters) of data,
 ending at the most recent complete calendar year.
 
-The values are not directly reported by source agencies. They are derived from
-observed hourly operations, including load factor bins, consecutive operating
-runs, and gross-load ramping behavior. As a result, the output should be treated
-as an analytical estimate rather than as reported plant characteristics.
+The values are not directly reported to source agencies. They are derived from observed
+hourly operations. These variables should be treated as an analytical estimate rather
+than as reported plant characteristics.
 
-For additional methodological details, see
-:doc:`/methodology/operational_characteristics`.""",
+For methodological details, see :doc:`/methodology/operational_characteristics`.
+""",
         },
         "schema": {
             "fields": [

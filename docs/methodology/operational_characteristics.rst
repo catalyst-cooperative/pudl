@@ -58,6 +58,8 @@ that snapshot (the most recent year included in the window). We plan to extend t
 methodology to cover all available years, rather than just the most recent window, in
 the near future.
 
+.. _load-factor-bins:
+
 Load Factor Bins
 -------------------------------------------------------------------------------
 
@@ -68,10 +70,11 @@ equal-width bins, and behavior is characterized within each bin (e.g. what fract
 hours fall in the lowest bin, how heat rate varies bin to bin).
 
 These bins are scaled to each unit's own observed operating range, rather than fixed,
-absolute bins shared across all units (e.g. 0-10% of some standard capacity, 10-20%,
-and so on). A large baseload steam plant and a small peaking combustion turbine
-typically operate over very different absolute ranges, and scaling the bins to each
-unit describes both in comparable, unit-specific terms.
+absolute bins shared across all units (e.g. 0-10% of some standard capacity, 10-20%, and
+so on). A large baseload steam plant and a small peaking combustion turbine typically
+operate over very different absolute ranges, and scaling the bins to each unit describes
+both in comparable, unit-specific terms. (Note that these load-factor bins are
+completely distinct from the ramp-rate bins described below in :ref:`ramp-rates`).
 
 Minimum Stable Load
 -------------------------------------------------------------------------------
@@ -118,6 +121,8 @@ to characterize everything in between. The median, rather than the mean, is used
 each bin to reduce the influence of unusual hours (e.g. startup transients) that don't
 reflect a unit's steady operation at that load level.
 
+.. _ramp-rates:
+
 Ramp Rates
 -------------------------------------------------------------------------------
 
@@ -136,6 +141,11 @@ achieve, rather than either an extreme outlier or its typical, more leisurely pa
 adjustment. Units that never operated flexibly enough during the window to produce a
 reasonable number of ramping events won't have a ramp rate estimate at all, rather than
 one based on too few observations to be meaningful.
+
+To find the fastest 5%, observed ramp rates are sorted and split into 20 equal-count
+(quantile) groups, and only the two extreme groups -- fastest upward and fastest
+downward -- are used. (Note that this is entirely distinct from the
+:ref:`load-factor-bins` above mentioned above).
 
 .. _feedback-welcome:
 
