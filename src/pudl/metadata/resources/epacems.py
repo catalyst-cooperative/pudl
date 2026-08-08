@@ -77,7 +77,7 @@ runs, and gross-load ramping behavior. As a result, the output should be treated
 as an analytical estimate rather than as reported plant characteristics.
 
 For additional methodological details, see
-:doc:`/methodology/operational_characteristics`."""
+:doc:`/methodology/operational_characteristics`.""",
         },
         "schema": {
             "fields": [
