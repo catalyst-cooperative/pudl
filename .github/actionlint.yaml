@@ -8,3 +8,10 @@ paths:
       # updated action metadata for this action.
       - 'missing input "app-id" which is required by action "actions/create-github-app-token@v3"'
       - 'input "client-id" is not defined in action "actions/create-github-app-token@v3"'
+# these are GitHub-hosted but for some reason actionlint couldn't find them
+self-hosted-runner:
+  labels:
+    - ubuntu-latest-4core
+    - ubuntu-latest-8core
+    - blacksmith-4vcpu-ubuntu-2404
+    - blacksmith-8vcpu-ubuntu-2404
