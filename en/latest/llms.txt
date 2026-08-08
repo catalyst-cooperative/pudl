@@ -1,6 +1,6 @@
 # PUDL
 
-> PUDL 2026.8.1.dev1 documentation
+> PUDL 2026.8.1.dev3 documentation
 
 
 2016-2026, Catalyst Cooperative, CC-BY-4.0
@@ -178,6 +178,7 @@
 - [pudl.workspace.datastore](autoapi/pudl/workspace/datastore/index.html.md): Datastore manages file retrieval for PUDL datasets.
 - [pudl.workspace.resource_cache](autoapi/pudl/workspace/resource_cache/index.html.md): Implementations of datastore resource caches.
 - [pudl.analysis.timeseries_evaluation](autoapi/pudl/analysis/timeseries_evaluation/index.html.md): Routines for evaluating and visualizing timeseries data.
+- [pudl.analysis.operational_characteristics](autoapi/pudl/analysis/operational_characteristics/index.html.md): Use EPA CEMS and EIA data to estimate generator operational characteristics.
 - [pudl.analysis.service_territory](autoapi/pudl/analysis/service_territory/index.html.md): Compile historical utility and balancing area territories.
 - [pudl.analysis.mcoe](autoapi/pudl/analysis/mcoe/index.html.md): A module with functions to aid generating MCOE.
 - [pudl.analysis.ml_tools](autoapi/pudl/analysis/ml_tools/index.html.md): Implements shared tooling for machine learning models in PUDL.
@@ -287,12 +288,13 @@
 - [Naming Conventions](dev/naming_conventions.html.md): > *There are only two hard problems in computer science: caching,
 - [Nightly Data Builds](dev/nightly_data_builds.html.md): The complete ETL and tests are run each night on a Google Batch-managed VM
 - [NREL Annual Technology Baseline (ATB) for Electricity](data_sources/nrelatb.html.md): | Source URL                      | [https://atb.nrel.gov/](https://atb.nrel.gov/)                  ...
+- [Generator Operational Characteristics](methodology/operational_characteristics.html.md): Production cost models, capacity expansion models, and other power system planning
 - [Other Data in PUDL](data_sources/other_data.html.md): This page describes minor datasets that are included in PUDL, datasets from which we’ve
 - [Pipelines and Hazardous Materials Safety Administration (PHMSA) Annual Natural Gas Report](data_sources/phmsagas.html.md): | Source URL                      | [https://www.phmsa.dot.gov/data-and-statistics/pipeline/gas-dist...
 - [Project Management](dev/project_management.html.md): The people working on PUDL are distributed all over North America. Collaboration takes
 - [PUDL Data Dictionary](data_dictionaries/pudl_db.html.md): The following data tables have been cleaned and transformed by our ETL process.
 - [PUDL ID Mapping](dev/pudl_id_mapping.html.md): Many of the same utilities are reporting data to FERC and EIA, but there is no official
-- [PUDL Release Notes](release_notes.html.md): This is a regular quarterly PUDL release with a bunch of dataset updates. We’ve also
+- [PUDL Release Notes](release_notes.html.md): This is the upcoming monthly PUDL release.
 - [Run a Versioned Release](dev/run_a_release.html.md): So the time has come and we would like to release a `stable` version of our
 - [Running the ETL Pipeline](dev/run_the_etl.html.md): So you want to run the PUDL data processing pipeline? This is the most involved way
 - [USDA RUS Form 12 – Financial and Operating Report: Electric Power Supply](data_sources/rus12.html.md): | Source URL                      | [https://www.rd.usda.gov/resources/forms/rus-forms](https://www....

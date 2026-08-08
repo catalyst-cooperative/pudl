@@ -19,9 +19,10 @@ descriptions of each of its fields. Due to the size of the CEMS data we do not p
 it as part of our SQLite database, but it is available through all of our other
 [data access methods](../data_access.md).
 
-| Data Dictionary                                                                                  | Browse Online                                                                                                                                     |
-|--------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------|
-| [core_epacems_\_hourly_emissions](../data_dictionaries/pudl_db.md#core-epacems-hourly-emissions) | [https://data.catalyst.coop/preview/pudl/core_epacems_\_hourly_emissions](https://data.catalyst.coop/preview/pudl/core_epacems__hourly_emissions) |
+| Data Dictionary                                                                                                                    | Browse Online                                                                                                                                                                       |
+|------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [core_epacems_\_hourly_emissions](../data_dictionaries/pudl_db.md#core-epacems-hourly-emissions)                                   | [https://data.catalyst.coop/preview/pudl/core_epacems_\_hourly_emissions](https://data.catalyst.coop/preview/pudl/core_epacems__hourly_emissions)                                   |
+| [out_epacems_\_yearly_operational_characteristics](../data_dictionaries/pudl_db.md#out-epacems-yearly-operational-characteristics) | [https://data.catalyst.coop/preview/pudl/out_epacems_\_yearly_operational_characteristics](https://data.catalyst.coop/preview/pudl/out_epacems__yearly_operational_characteristics) |
 
 ## Background
 

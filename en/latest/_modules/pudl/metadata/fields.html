@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.metadata.fields &#8212; PUDL 2026.8.1.dev1 documentation</title>
+    <title>pudl.metadata.fields &#8212; PUDL 2026.8.1.dev3 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=16f14548"></script>
+    <script src="../../../_static/documentation_options.js?v=9f00abc5"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev1 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev1 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev3 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev3 documentation - Home"/>
   
   
 </a></div>
@@ -4930,6 +4930,22 @@ window.runMermaid = runMermaid;</script>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Fuel content per unit of electricity generated.&quot;</span><span class="p">,</span>
         <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;MMBtu / MWh&quot;</span><span class="p">,</span>
     <span class="p">},</span>
+    <span class="s2">&quot;heat_rate_at_max_load_factor_mmbtu_per_mwh&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">&quot;Estimated heat rate at the highest observed load-factor bin for an EPA &quot;</span>
+            <span class="s2">&quot;CEMS emissions unit.&quot;</span>
+        <span class="p">),</span>
+        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;MMBTU / MWh&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;heat_rate_at_min_stable_load_factor_mmbtu_per_mwh&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">&quot;Estimated heat rate at the minimum stable operating level for an EPA &quot;</span>
+            <span class="s2">&quot;CEMS emissions unit.&quot;</span>
+        <span class="p">),</span>
+        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;MMBTU / MWh&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
     <span class="s2">&quot;heat_rate_penalty&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
@@ -5564,6 +5580,11 @@ window.runMermaid = runMermaid;</script>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Maximum discharge rate in MW.&quot;</span><span class="p">,</span>
         <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;MW&quot;</span><span class="p">,</span>
     <span class="p">},</span>
+    <span class="s2">&quot;max_gross_load_mw&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;Maximum observed gross load for an EPA CEMS emissions unit.&quot;</span><span class="p">),</span>
+        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;MW&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
     <span class="s2">&quot;max_fuel_mmbtu_per_unit&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Maximum heat content per physical unit of fuel in MMBTU.&quot;</span><span class="p">,</span>
@@ -5724,6 +5745,28 @@ window.runMermaid = runMermaid;</script>
             <span class="s2">&quot;The minimum load at which the generator can operate at continuosuly.&quot;</span>
         <span class="p">),</span>
         <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;MW&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;min_down_time_hours&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">&quot;Minimum observed duration of a consecutive non-operating run.&quot;</span>
+        <span class="p">),</span>
+        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;hr&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;min_stable_load_factor&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">&quot;Estimated minimum stable operating level as a fraction of maximum gross &quot;</span>
+            <span class="s2">&quot;load.&quot;</span>
+        <span class="p">),</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;min_up_time_hours&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">&quot;Minimum observed duration of a consecutive run at or above the minimum &quot;</span>
+            <span class="s2">&quot;stable level.&quot;</span>
+        <span class="p">),</span>
+        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;hr&quot;</span><span class="p">,</span>
     <span class="p">},</span>
     <span class="s2">&quot;model_case_eiaaeo&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
@@ -7507,6 +7550,22 @@ window.runMermaid = runMermaid;</script>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
             <span class="s2">&quot;Identifier indicating original FERC Form 1 source record. format: </span><span class="si">{table_name}</span><span class="s2">_</span><span class="si">{report_year}</span><span class="s2">_</span><span class="si">{report_prd}</span><span class="s2">_</span><span class="si">{respondent_id}</span><span class="s2">_</span><span class="si">{spplmnt_num}</span><span class="s2">_</span><span class="si">{row_number}</span><span class="s2">. Unique within FERC Form 1 DB tables which are not row-mapped.&quot;</span>
         <span class="p">),</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;ramp_down_rate_per_min&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">&quot;Median ramp rate among the steepest 5</span><span class="si">% o</span><span class="s2">f observed downward ramps &quot;</span>
+            <span class="s2">&quot;expressed as a fraction of maximum gross load per minute.&quot;</span>
+        <span class="p">),</span>
+        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;1 / min&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;ramp_up_rate_per_min&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">&quot;Median ramp rate among the steepest 5</span><span class="si">% o</span><span class="s2">f observed upward ramps &quot;</span>
+            <span class="s2">&quot;expressed as a fraction of maximum gross load per minute.&quot;</span>
+        <span class="p">),</span>
+        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;1 / min&quot;</span><span class="p">,</span>
     <span class="p">},</span>
     <span class="s2">&quot;record_id_eia&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>

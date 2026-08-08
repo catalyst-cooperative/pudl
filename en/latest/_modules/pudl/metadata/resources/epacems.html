@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.metadata.resources.epacems &#8212; PUDL 2026.8.1.dev1 documentation</title>
+    <title>pudl.metadata.resources.epacems &#8212; PUDL 2026.8.1.dev3 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../../_static/documentation_options.js?v=16f14548"></script>
+    <script src="../../../../_static/documentation_options.js?v=9f00abc5"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev1 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev1 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev3 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev3 documentation - Home"/>
   
   
 </a></div>
@@ -926,6 +926,54 @@ window.runMermaid = runMermaid;</script>
         <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;epacems&quot;</span><span class="p">,</span>
         <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;epacems&quot;</span><span class="p">,</span>
         <span class="s2">&quot;create_database_schema&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;out_epacems__yearly_operational_characteristics&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">&quot;estimated operational characteristics for EPA CEMS emissions units.&quot;</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;estimated_values&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;experimental_wip&quot;</span><span class="p">,</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;custom&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;This table estimates values from a configurable trailing window of EPA CEMS quarters ending at the most recent complete year (12 quarters, i.e. the most recent three full years, in production). Builds that only have a limited number of EPA CEMS quarters available, such as the fast ETL and CI, will produce estimates from a shorter, less accurate window.&quot;</span><span class="p">,</span>
+                <span class="p">},</span>
+            <span class="p">],</span>
+            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;&quot;This table summarizes several inferred</span>
+<span class="s2">operational characteristics for each EPA CEMS emissions unit using hourly CEMS</span>
+<span class="s2">gross load and fuel heat content over a trailing window of EPA CEMS quarters. In</span>
+<span class="s2">production this window is the most recent three full years (12 quarters) of data,</span>
+<span class="s2">ending at the most recent complete calendar year.</span>
+
+<span class="s2">The values are not directly reported to source agencies. They are derived from observed</span>
+<span class="s2">hourly operations. These variables should be treated as an analytical estimate rather</span>
+<span class="s2">than as reported plant characteristics.</span>
+
+<span class="s2">For methodological details, see :doc:`/methodology/operational_characteristics`.</span>
+<span class="s2">&quot;&quot;&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;plant_id_epa&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;emissions_unit_id_epa&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;report_year&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;state&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;max_gross_load_mw&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;min_stable_load_factor&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;min_up_time_hours&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;min_down_time_hours&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;heat_rate_at_max_load_factor_mmbtu_per_mwh&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;heat_rate_at_min_stable_load_factor_mmbtu_per_mwh&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;ramp_up_rate_per_min&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;ramp_down_rate_per_min&quot;</span><span class="p">,</span>
+            <span class="p">],</span>
+            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;plant_id_epa&quot;</span><span class="p">,</span> <span class="s2">&quot;emissions_unit_id_epa&quot;</span><span class="p">],</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;epacems&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;epacems&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;epacems&quot;</span><span class="p">,</span>
     <span class="p">},</span>
 <span class="p">}</span></div>
 

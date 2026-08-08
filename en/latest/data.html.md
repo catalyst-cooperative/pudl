@@ -44,6 +44,7 @@
   * [Entity Resolution](methodology/entity_resolution.md)
   * [Timeseries Imputation](methodology/timeseries_imputation.md)
   * [SEC 10-K Ownership Data Extraction Modeling](methodology/sec10k_modeling.md)
+  * [Generator Operational Characteristics](methodology/operational_characteristics.md)
 * [Bibliography](bibliography.md)
   * [Catalyst Publications](bibliography.md#catalyst-publications)
   * [Work Citing PUDL and other Catalyst Analyses](bibliography.md#work-citing-pudl-and-other-catalyst-analyses)

@@ -4607,6 +4607,104 @@ df <- read_parquet(
 | zip_code                           | string     |            | Five digit US Zip Code.                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 | zip_code_4                         | string     |            | Four digit US Zip Code suffix.                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 
+<a id="out-epacems-yearly-operational-characteristics"></a>
+
+## out_epacems_\_yearly_operational_characteristics
+
+Noticed any irregularities with this table? [File a report.](https://github.com/catalyst-cooperative/pudl/issues/new?template=data_bug_report.yml&table=out_epacems__yearly_operational_characteristics)
+
+Annual time series of estimated operational characteristics for EPA CEMS emissions units.
+
+Most-recent data:
+: 2025
+
+Processing:
+: Data has been expanded into a wide/denormalized format, with IDs and codes accompanied by human-readable names and descriptions.
+
+Source:
+: EPA Hourly Continuous Emission Monitoring System (CEMS)
+
+Primary key:
+: plant_id_epa, emissions_unit_id_epa
+
+### Usage Warnings
+
+* Contains estimated values.
+* This table is experimental and/or a work in progress and may change in the future.
+* This table estimates values from a configurable trailing window of EPA CEMS quarters ending at the most recent complete year (12 quarters, i.e. the most recent three full years, in production). Builds that only have a limited number of EPA CEMS quarters available, such as the fast ETL and CI, will produce estimates from a shorter, less accurate window.
+
+### Additional Details
+
+This table summarizes several inferred
+operational characteristics for each EPA CEMS emissions unit using hourly CEMS
+gross load and fuel heat content over a trailing window of EPA CEMS quarters. In
+production this window is the most recent three full years (12 quarters) of data,
+ending at the most recent complete calendar year.
+
+The values are not directly reported to source agencies. They are derived from observed
+hourly operations. These variables should be treated as an analytical estimate rather
+than as reported plant characteristics.
+
+For methodological details, see [Generator Operational Characteristics](../methodology/operational_characteristics.md).
+
+### Access methods
+
+* [Browse and query this table online](https://data.catalyst.coop/preview/pudl/out_epacems__yearly_operational_characteristics)
+* [Download this table as a Parquet file](https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/out_epacems__yearly_operational_characteristics.parquet)
+
+### pandas
+
+```python
+import pandas as pd
+df = pd.read_parquet(
+      "s3://pudl.catalyst.coop/nightly/out_epacems__yearly_operational_characteristics.parquet",
+      dtype_backend="pyarrow",
+)
+```
+
+### polars
+
+```python
+import polars as pl
+df = pl.read_parquet(
+      "s3://pudl.catalyst.coop/nightly/out_epacems__yearly_operational_characteristics.parquet",
+      storage_options={"aws_region": "us-west-2", "aws_skip_signature": "True"},
+)
+```
+
+### SQL (DuckDB)
+
+```sql
+SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_epacems__yearly_operational_characteristics.parquet';
+```
+
+### R
+
+```r
+library(arrow)
+df <- read_parquet(
+      "s3://pudl.catalyst.coop/nightly/out_epacems__yearly_operational_characteristics.parquet"
+)
+```
+
+### Columns
+
+| **Field Name**                                    | **Type**   | **Unit**    | **Description**                                                                                                                |
+|---------------------------------------------------|------------|-------------|--------------------------------------------------------------------------------------------------------------------------------|
+| emissions_unit_id_epa                             | string     |             | Emissions (smokestack) unit monitored by EPA CEMS.                                                                             |
+| heat_rate_at_max_load_factor_mmbtu_per_mwh        | number     | MMBTU / MWh | Estimated heat rate at the highest observed load-factor bin for an EPA CEMS emissions unit.                                    |
+| heat_rate_at_min_stable_load_factor_mmbtu_per_mwh | number     | MMBTU / MWh | Estimated heat rate at the minimum stable operating level for an EPA CEMS emissions unit.                                      |
+| max_gross_load_mw                                 | number     | MW          | Maximum observed gross load for an EPA CEMS emissions unit.                                                                    |
+| min_down_time_hours                               | number     | hr          | Minimum observed duration of a consecutive non-operating run.                                                                  |
+| min_stable_load_factor                            | number     |             | Estimated minimum stable operating level as a fraction of maximum gross load.                                                  |
+| min_up_time_hours                                 | number     | hr          | Minimum observed duration of a consecutive run at or above the minimum stable level.                                           |
+| plant_id_eia                                      | integer    |             | The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration. |
+| plant_id_epa                                      | integer    |             | The ORISPL ID used by EPA to refer to the plant. Usually but not always the same as plant_id_eia.                              |
+| ramp_down_rate_per_min                            | number     | 1 / min     | Median ramp rate among the steepest 5% of observed downward ramps expressed as a fraction of maximum gross load per minute.    |
+| ramp_up_rate_per_min                              | number     | 1 / min     | Median ramp rate among the steepest 5% of observed upward ramps expressed as a fraction of maximum gross load per minute.      |
+| report_year                                       | integer    |             | Four-digit year in which the data was reported.                                                                                |
+| state                                             | string     |             | Two letter US state abbreviation.                                                                                              |
+
 <a id="out-ferc1-yearly-all-plants"></a>
 
 ## out_ferc1_\_yearly_all_plants
