@@ -1,0 +1,17 @@
+paths:
+  .github/workflows/*.yml:
+    ignore:
+      # actionlint's bundled metadata for actions/create-github-app-token@v3
+      # predates the "client-id" input added upstream in v3.1.0 (2026-04-11),
+      # so it still reports app-id as required and client-id as unknown.
+      # Remove once actionlint ships a release newer than v1.7.12 with
+      # updated action metadata for this action.
+      - 'missing input "app-id" which is required by action "actions/create-github-app-token@v3"'
+      - 'input "client-id" is not defined in action "actions/create-github-app-token@v3"'
+# these are GitHub-hosted but for some reason actionlint couldn't find them
+self-hosted-runner:
+  labels:
+    - ubuntu-latest-4core
+    - ubuntu-latest-8core
+    - blacksmith-4vcpu-ubuntu-2404
+    - blacksmith-8vcpu-ubuntu-2404

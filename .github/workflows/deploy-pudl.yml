@@ -98,7 +98,7 @@ jobs:
         if: ${{ always() }}
         run: |
           BUILD_ID_RAW="deploy-${{ env.DEPLOYMENT_ENVIRONMENT }}-$(date +%Y-%m-%d-%H%M)-${{ env.GIT_TAG }}"
-          BUILD_ID_SANITIZED="$(echo $BUILD_ID_RAW | sed 's/[^[:alnum:]-]/-/g')"
+          BUILD_ID_SANITIZED="${BUILD_ID_RAW//[^[:alnum:]-]/-}"
           echo "BUILD_ID=${BUILD_ID_SANITIZED:0:63}" >> "$GITHUB_ENV"
 
       - name: Notify Zulip of deployment start

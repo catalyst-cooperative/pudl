@@ -28,7 +28,7 @@ jobs:
         uses: actions/create-github-app-token@v3
         id: generate-token
         with:
-          app-id: ${{ secrets.WORKFLOW_TRIGGERER_APP_ID }}
+          client-id: ${{ secrets.WORKFLOW_TRIGGERER_CLIENT_ID }}
           private-key: ${{ secrets.WORKFLOW_TRIGGERER_PRIVATE_KEY }}
           permission-contents: write
           permission-pull-requests: write
