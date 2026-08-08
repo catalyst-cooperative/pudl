@@ -31,6 +31,7 @@ on each generated check is the *exact* expected type object (using ``is``, not `
 import io
 
 import dagster as dg
+import geopandas as gpd  # noqa: ICN002
 import pandas as pd
 import pint
 import polars as pl
@@ -38,6 +39,7 @@ import pytest
 from dagster._core.definitions.asset_checks.asset_checks_definition import (
     AssetChecksDefinition,
 )
+from shapely.geometry import Point
 
 from pudl.dagster.asset_checks import (
     _build_registry_from_descriptor,
@@ -46,7 +48,7 @@ from pudl.dagster.asset_checks import (
     group_mean_continuity_check,
 )
 from pudl.helpers import ParquetData
-from pudl.metadata.classes import PUDL_PACKAGE
+from pudl.metadata.classes import PUDL_PACKAGE, Package, Resource
 from pudl.metadata.units import PUDL_UNIT_DEFINITIONS
 
 
@@ -55,6 +57,7 @@ from pudl.metadata.units import PUDL_UNIT_DEFINITIONS
     [
         ("core_pudl__codes_subdivisions", False, pl.LazyFrame),
         ("core_ferceqr__contracts", True, ParquetData),
+        ("out_censusdp1tract__counties", False, gpd.GeoDataFrame),
     ],
 )
 def test_asset_checks_preserve_runtime_input_types(
@@ -207,4 +210,287 @@ def test_validate_datapackage_unit_strings_missing_registry() -> None:
     assert len(errors) == 1
     assert "Could not build unit registry" in errors[0], (
         f"Unexpected error message: {errors[0]}"
+    )
+
+
+# ---------------------------------------------------------------------------
+# Tests for content-level (not just schema-level) validation
+# ---------------------------------------------------------------------------
+#
+# Pandera's Polars backend forces SCHEMA_ONLY validation depth for LazyFrame
+# inputs unless validation depth is explicitly configured (see
+# pandera.api.polars.utils.get_validation_depth). PUDL never configures it, so
+# pandera_schema_check currently verifies column presence and dtypes for every
+# Polars LazyFrame asset (the vast majority of PUDL tables), but silently skips
+# every Check.ge/Check.le/Check.isin/uniqueness constraint declared in PUDL's
+# metadata. The pandas/geopandas backend has no such override and already
+# enforces those checks. These tests use synthetic, minimal resources (rather
+# than real PUDL tables) so the fixtures stay small and independent of
+# unrelated metadata changes.
+
+
+def _build_check_fn(name: str, fields: list[dict], primary_key: list[str]):
+    """Build the generated ``pandera_schema_check`` function for a synthetic resource.
+
+    Shared by every synthetic-resource asset-check test below, so each one only
+    has to supply what actually varies: the resource name, its fields, and its
+    primary key.
+    """
+    resource = Resource(
+        name=name,
+        description="Synthetic resource for asset-check tests.",
+        schema={"fields": fields, "primary_key": primary_key},
+    )
+    package = Package(name="_test_package", resources=[resource])
+    check = asset_check_from_schema(
+        dg.AssetKey([resource.name]), package, duckdb_asset=False
+    )
+    assert check is not None
+    return check.node_def.compute_fn.decorated_fn
+
+
+def _content_check_fields(*, with_geometry: bool) -> list[dict]:
+    """Shared field set for the polars and geopandas content-check fixtures."""
+    fields = [
+        {"name": "id", "type": "integer", "description": "Primary key."},
+        {
+            "name": "value",
+            "type": "integer",
+            "description": "Value bounded to [0, 100].",
+            "constraints": {"minimum": 0, "maximum": 100},
+        },
+        {
+            "name": "code",
+            "type": "string",
+            "description": "Enum-constrained code.",
+            "constraints": {"enum": ["a", "b", "c"]},
+        },
+    ]
+    if with_geometry:
+        fields.append(
+            {"name": "geometry", "type": "geometry", "description": "Geometry."}
+        )
+    return fields
+
+
+_CONTENT_CHECK_CASES = [
+    (30, "a", True),
+    (150, "a", False),  # violates maximum=100
+    (30, "z", False),  # violates enum=["a", "b", "c"]
+]
+_CONTENT_CHECK_IDS = ["valid", "value_out_of_range", "code_not_in_enum"]
+
+
+@pytest.mark.parametrize(
+    ("value", "code", "expected_pass"), _CONTENT_CHECK_CASES, ids=_CONTENT_CHECK_IDS
+)
+def test_polars_lazyframe_content_checks(value, code, expected_pass) -> None:
+    """Content (not just schema) violations should fail the generated asset check.
+
+    All errors must produce SchemaErrors, not generic exceptions.
+    """
+    fn = _build_check_fn(
+        "_test__polars_content_checks",
+        _content_check_fields(with_geometry=False),
+        ["id"],
+    )
+    lf = pl.LazyFrame(
+        {"id": [1, 2, 3], "value": [10, 20, value], "code": ["a", "b", code]}
+    )
+    lf = lf.with_columns(pl.col("code").cast(pl.Categorical))
+    result = fn(lf)
+    assert result.passed == expected_pass
+    # Regression guard: a failure must go through the clean SchemaErrors path
+    # (populating detailed_errors), not fall through to the generic exception
+    # handler -- see Resource._duplicate_primary_key_error's history.
+    assert "unexpected_error" not in result.metadata
+
+
+@pytest.mark.parametrize(
+    ("value", "code", "expected_pass"), _CONTENT_CHECK_CASES, ids=_CONTENT_CHECK_IDS
+)
+def test_geopandas_content_checks(value, code, expected_pass) -> None:
+    """Content violations are already correctly caught on the geopandas/pandas path.
+
+    All errors must produce SchemaErrors, not generic exceptions.
+    """
+    fn = _build_check_fn(
+        "_test__geopandas_content_checks",
+        _content_check_fields(with_geometry=True),
+        ["id"],
+    )
+    gdf = gpd.GeoDataFrame(
+        {
+            "id": pd.array([1, 2, 3], dtype="Int64"),
+            "value": pd.array([10, 20, value], dtype="Int64"),
+            "code": pd.Categorical(["a", "b", code]),
+            "geometry": [Point(0, 0), Point(1, 1), Point(2, 2)],
+        }
+    )
+    result = fn(gdf)
+    assert result.passed == expected_pass
+    assert "unexpected_error" not in result.metadata
+
+
+# ---------------------------------------------------------------------------
+# Tests for nullable/uniqueness validation
+# ---------------------------------------------------------------------------
+#
+# These constraints are structurally different from the Check-based value/enum
+# constraints above: `required` maps to `Column(nullable=...)`, single-column
+# `unique` maps to `Column(unique=...)`, and the primary key maps to a
+# DataFrame-level `unique=[...]` composite check
+# (see Field.to_pandera_column and Schema.to_pandera). They go through
+# different pandera code than Check.ge/le/isin, so they're tested separately
+# rather than assumed to be fixed by the same code path.
+
+
+def _uniqueness_check_fields(*, with_geometry: bool) -> list[dict]:
+    """Shared field set for the polars and geopandas uniqueness-check fixtures."""
+    fields = [
+        {"name": "id", "type": "integer", "description": "Primary key, part 1."},
+        {"name": "id2", "type": "integer", "description": "Primary key, part 2."},
+        {
+            "name": "required_field",
+            "type": "integer",
+            "description": "Non-nullable, non-key field.",
+            "constraints": {"required": True},
+        },
+        {
+            "name": "unique_field",
+            "type": "integer",
+            "description": "Single-column uniqueness constraint.",
+            "constraints": {"unique": True},
+        },
+    ]
+    if with_geometry:
+        fields.append(
+            {"name": "geometry", "type": "geometry", "description": "Geometry."}
+        )
+    return fields
+
+
+_UNIQUENESS_CASES = [
+    ([1, 2, 3], [1, 2, 3], [1, 2, 3], [1, 2, 3], True),
+    ([1, 2, 3], [1, 2, 3], [1, None, 3], [1, 2, 3], False),  # null required_field
+    ([1, 2, 3], [1, 2, 3], [1, 2, 3], [1, 1, 3], False),  # duplicate unique_field
+    ([1, 1, 3], [1, 1, 3], [1, 2, 3], [1, 2, 3], False),  # duplicate composite PK
+]
+_UNIQUENESS_IDS = [
+    "valid",
+    "null_in_required_field",
+    "duplicate_unique_field",
+    "duplicate_primary_key",
+]
+
+
+@pytest.mark.parametrize(
+    ("id_", "id2", "required_field", "unique_field", "expected_pass"),
+    _UNIQUENESS_CASES,
+    ids=_UNIQUENESS_IDS,
+)
+def test_polars_lazyframe_uniqueness_checks(
+    id_, id2, required_field, unique_field, expected_pass
+) -> None:
+    """Nullable and uniqueness violations should fail the generated asset check.
+
+    This resource's schema doesn't set ``chunk_field``, so composite primary-key
+    uniqueness goes through :meth:`Resource.check_primary_key_polars`'s normal,
+    unchunked path (see ``tests/unit/metadata/metadata_test.py`` for the chunked path
+    used by PUDL's few oversized tables).
+    """
+    fn = _build_check_fn(
+        "_test__polars_uniqueness_checks",
+        _uniqueness_check_fields(with_geometry=False),
+        ["id", "id2"],
+    )
+    lf = pl.LazyFrame(
+        {
+            "id": id_,
+            "id2": id2,
+            "required_field": required_field,
+            "unique_field": unique_field,
+        }
+    )
+    result = fn(lf)
+    assert result.passed == expected_pass
+    # Regression guard: in particular, the "duplicate_primary_key" case must
+    # fail via the clean SchemaErrors path, not the generic exception handler
+    # -- see Resource._duplicate_primary_key_error's history.
+    assert "unexpected_error" not in result.metadata
+
+
+@pytest.mark.parametrize(
+    ("id_", "id2", "required_field", "unique_field", "expected_pass"),
+    _UNIQUENESS_CASES,
+    ids=_UNIQUENESS_IDS,
+)
+def test_geopandas_uniqueness_checks(
+    id_, id2, required_field, unique_field, expected_pass
+) -> None:
+    """Nullable and uniqueness violations are already correctly caught on the
+    geopandas/pandas path.
+    """
+    fn = _build_check_fn(
+        "_test__geopandas_uniqueness_checks",
+        _uniqueness_check_fields(with_geometry=True),
+        ["id", "id2"],
+    )
+    gdf = gpd.GeoDataFrame(
+        {
+            "id": pd.array(id_, dtype="Int64"),
+            "id2": pd.array(id2, dtype="Int64"),
+            "required_field": pd.array(required_field, dtype="Int64"),
+            "unique_field": pd.array(unique_field, dtype="Int64"),
+            "geometry": [Point(0, 0), Point(1, 1), Point(2, 2)],
+        }
+    )
+    result = fn(gdf)
+    assert result.passed == expected_pass
+    assert "unexpected_error" not in result.metadata
+
+
+def test_pandera_schema_check_combines_schema_and_content_errors() -> None:
+    """Schema-level and content-level errors are reported together, not either/or.
+
+    Check that we don't let `SchemaErrors` from schema-only checks propagate
+    immediately, skipping the content checks entirely, meaning the caller only ever sees
+    whichever kind of error happened first, requiring them to to fix-and-rerun to
+    discover the other family of errors. The two are independent, so both should show up
+    in one error report.
+    """
+    fn = _build_check_fn(
+        "_test__combined_errors",
+        [
+            {"name": "id", "type": "integer", "description": "Primary key."},
+            {
+                "name": "value",
+                "type": "integer",
+                "description": "Bounded value.",
+                "constraints": {"minimum": 0, "maximum": 100},
+            },
+            {
+                "name": "missing_field",
+                "type": "string",
+                "description": "A required field absent from the data.",
+                "constraints": {"required": True},
+            },
+        ],
+        ["id"],
+    )
+
+    # `missing_field` is omitted entirely (schema error: column not present),
+    # and `value=150` violates its maximum=100 constraint (content error).
+    lf = pl.LazyFrame({"id": [1, 2], "value": [10, 150]})
+    result = fn(lf)
+
+    assert result.passed is False
+    assert "unexpected_error" not in result.metadata
+    detailed_errors = result.metadata["detailed_errors"].data
+    messages = [e["error_message"] for e in detailed_errors]
+    assert any("missing_field" in m for m in messages), (
+        f"Expected a missing-column schema error, got: {messages}"
+    )
+    assert any("value" in m and "100" in m for m in messages), (
+        f"Expected a value-constraint content error, got: {messages}"
     )

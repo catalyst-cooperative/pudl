@@ -22,6 +22,7 @@ should go in dbt.
 
 import itertools
 import json
+import time
 from typing import Any
 
 import dagster as dg
@@ -32,12 +33,17 @@ import pandera.pandas as pr_pandas
 import pandera.polars as pr_polars
 import pint
 import polars as pl
-from pandera.errors import SchemaErrors
+from pandera.config import ValidationDepth, config_context
+from pandera.errors import SchemaError, SchemaErrors
 
 from pudl.dagster.assets import all_asset_modules, asset_keys
 from pudl.dagster.partitions import ferceqr_year_quarters
 from pudl.helpers import ParquetData, get_parquet_table_polars
-from pudl.metadata.classes import PUDL_PACKAGE, Package, Resource
+from pudl.metadata.classes import (
+    PUDL_PACKAGE,
+    Package,
+    Resource,
+)
 
 
 def _collect_asset_metadata(asset_value) -> dict[str, Any]:
@@ -97,7 +103,9 @@ def _collect_dtype_metadata(
 
     Returns:
         A metadata dictionary with:
-        - ``field_details``: per-column expected and actual dtype details.
+        - ``field_details``: per-column expected/actual dtype details, declared
+          constraints, and whether the column is content-checked (see
+          :meth:`~pudl.metadata.classes.Field.has_content_constraints`).
         - ``column_comparison``: expected/actual column counts and optional missing
           or extra column lists.
         - ``type_mismatches``: only present when common columns have differing dtype
@@ -134,6 +142,8 @@ def _collect_dtype_metadata(
             "pudl_field_dtype": field.type,
             "expected_pandera_dtype": pandera_dtypes.get(field.name, "Unknown"),
             "actual_dtype": actual_dtypes.get(field.name, "Column not present"),
+            "content_checked": field.has_content_constraints(),
+            "constraints": field.constraints.to_metadata_dict(),
         }
         for field in resource.schema.fields
     }
@@ -191,26 +201,104 @@ def _collect_geometry_metadata(asset_value) -> dict[str, Any]:
     return metadata
 
 
+def _collect_primary_key_metadata(
+    resource: Resource, actual_columns: list[str]
+) -> dict[str, Any]:
+    """Describe the primary-key check that will run for this resource, if any.
+
+    Whether a composite-uniqueness check is chunked (see
+    :attr:`~pudl.metadata.classes.Schema.chunk_field`) is a cheap attribute lookup,
+    not a re-run of the (potentially expensive, for our largest tables) chunking
+    logic itself.
+    """
+    primary_key = resource.schema.primary_key
+    if not primary_key:
+        return {"primary_key": {"declared": False}}
+
+    missing_columns = sorted(set(primary_key) - set(actual_columns))
+    return {
+        "primary_key": {
+            "declared": True,
+            "columns": primary_key,
+            "chunked": resource.schema.chunk_field is not None,
+            "checked": not missing_columns,
+            "missing_columns": missing_columns or None,
+        }
+    }
+
+
+_MAX_FAILURE_CASE_SAMPLE = 20
+"""Cap on how many failure-case rows to embed per error in check metadata.
+
+``failure_case_count`` always reflects the true total; this just bounds how
+much actual data gets rendered inline, so a violation affecting millions of
+rows doesn't balloon the check's metadata payload.
+"""
+
+
+def _failure_cases_sample(failure_cases: Any) -> tuple[int | None, Any]:
+    """Return ``(total_count, bounded_json_safe_sample)`` for an error's failure cases.
+
+    Structured (list of records) rather than a stringified table dump: the
+    latter embeds Polars' box-drawing-character table rendering as a giant
+    escaped-newline blob, unreadable once JSON-encoded for Dagster's UI. Falls
+    back to a plain string only for failure-case types we don't specifically
+    recognize.
+    """
+    if isinstance(failure_cases, pl.DataFrame):
+        return (
+            failure_cases.height,
+            failure_cases.head(_MAX_FAILURE_CASE_SAMPLE).to_dicts(),
+        )
+    if isinstance(failure_cases, pd.DataFrame):
+        return (
+            len(failure_cases),
+            failure_cases.head(_MAX_FAILURE_CASE_SAMPLE).to_dict(orient="records"),
+        )
+    if isinstance(failure_cases, pd.Series):
+        return (
+            len(failure_cases),
+            failure_cases.head(_MAX_FAILURE_CASE_SAMPLE).tolist(),
+        )
+    if isinstance(failure_cases, list):
+        return len(failure_cases), failure_cases[:_MAX_FAILURE_CASE_SAMPLE]
+    if failure_cases is None:
+        return None, None
+    return None, str(failure_cases)
+
+
 def _process_schema_errors(schema_errors: SchemaErrors) -> dict[str, Any]:
-    """Process Pandera schema errors into structured metadata."""
+    """Process Pandera schema errors into compact, structured metadata.
+
+    Each error is reduced to its essentials -- a one-line message, the reason
+    and check that triggered it, which column/table it came from, and a
+    bounded sample of the actual offending rows -- rather than several
+    overlapping stringified dumps of the same underlying data (as ``args``,
+    ``data``, and a table-formatted ``failure_cases`` all tend to be).
+    """
     detailed_errors = []
 
     for err in schema_errors.schema_errors:
-        error_info = {
-            "error_type": type(err).__name__,
-            "error_message": str(err),
-            "failure_cases": str(err.failure_cases)
-            if hasattr(err, "failure_cases")
-            else "No failure_cases",
-            "data": str(err.data) if hasattr(err, "data") else "No data",
-        }
+        failure_case_count, failure_cases_sample = _failure_cases_sample(
+            getattr(err, "failure_cases", None)
+        )
+        schema_obj = getattr(err, "schema", None)
 
-        # Add optional error attributes
-        for attr in ["schema", "check", "args"]:
-            if hasattr(err, attr):
-                error_info[f"{attr}_info"] = str(getattr(err, attr))
-
-        detailed_errors.append(error_info)
+        detailed_errors.append(
+            {
+                "error_type": type(err).__name__,
+                "reason_code": str(err.reason_code)
+                if getattr(err, "reason_code", None) is not None
+                else None,
+                "error_message": str(err),
+                "check": str(err.check)
+                if getattr(err, "check", None) is not None
+                else None,
+                "schema_name": getattr(schema_obj, "name", None),
+                "failure_case_count": failure_case_count,
+                "failure_cases_sample": failure_cases_sample,
+            }
+        )
 
     return {
         "detailed_errors": detailed_errors,
@@ -261,6 +349,70 @@ def group_mean_continuity_check(
     return dg.AssetCheckResult(passed=True, metadata=metadata)
 
 
+def _validate_polars_content(
+    asset_value: pl.LazyFrame, resource: Resource
+) -> tuple[list[SchemaError], dict[str, float]]:
+    """Validate per-column value constraints and primary-key uniqueness.
+
+    Returns the combined error list alongside a ``{"content_check_seconds": ...,
+    "pk_check_seconds": ...}`` timing breakdown, so slow phases are visible in
+    asset-check metadata without needing to reproduce the check locally.
+
+    Pandera's Polars backend only runs Check/nullable/unique validation
+    (as opposed to just column presence and dtype validation) when the
+    validation depth is explicitly forced to ``SCHEMA_AND_DATA``, and even
+    then it does so by repeatedly collecting the *entire* dataframe passed to
+    it -- once per check. For PUDL's largest tables (hundreds of millions to
+    billions of rows) collecting the full table is not tractable, even though
+    only a handful of columns actually carry constraints worth checking.
+
+    Instead, this validates one narrow slice at a time: for each field with an
+    actual constraint, ``.select()`` just that column before collecting.
+    Columns with no constraints at all are never read. This scales uniformly
+    regardless of table size, since a single narrow column is always small
+    enough to collect, even when the full table is not -- measured at ~1.2GB
+    peak memory total for all four checked columns on our billion-row table.
+    Composite primary-key uniqueness is handled separately -- see
+    `_validate_primary_key_uniqueness`.
+
+    Columns that are entirely missing from ``asset_value`` are skipped here
+    rather than selected: ``.select()`` on a genuinely absent column raises
+    immediately (a raw ``pl.exceptions.ColumnNotFoundError``, not a pandera
+    ``SchemaError``), and a missing column is already reported separately by
+    the schema-level check in ``pandera_schema_check``.
+
+    Composite primary-key uniqueness is handled separately -- see
+    :meth:`Resource.check_primary_key`.
+    """
+    errors: list[SchemaError] = []
+    timings: dict[str, float] = {}
+    present_columns = set(asset_value.collect_schema().names())
+
+    content_start = time.perf_counter()
+    with config_context(validation_depth=ValidationDepth.SCHEMA_AND_DATA):
+        for field in resource.schema.fields:
+            if field.name not in present_columns:
+                continue
+            if not field.has_content_constraints():
+                continue
+            column_schema = pr_polars.DataFrameSchema(
+                {field.name: field.to_pandera_column(use_pandas_backend=False)}
+            )
+            try:
+                column_schema.validate(asset_value.select(field.name), lazy=True)
+            except SchemaErrors as schema_errors:
+                errors.extend(schema_errors.schema_errors)
+    timings["content_check_seconds"] = time.perf_counter() - content_start
+
+    pk_start = time.perf_counter()
+    primary_key = resource.schema.primary_key
+    if primary_key and all(col in present_columns for col in primary_key):
+        errors.extend(resource.check_primary_key(asset_value))
+    timings["pk_check_seconds"] = time.perf_counter() - pk_start
+
+    return errors, timings
+
+
 def asset_check_from_schema(  # noqa: C901
     asset_key: dg.AssetKey,
     package: Package,
@@ -304,41 +456,85 @@ def asset_check_from_schema(  # noqa: C901
     def pandera_schema_check(
         asset_value: asset_type,  # type: ignore[valid-type]
     ) -> dg.AssetCheckResult:
+        source_partitions = (
+            asset_value.partitions if isinstance(asset_value, ParquetData) else None
+        )
         if isinstance(asset_value, ParquetData):
             asset_value = get_parquet_table_polars(
                 table_name=resource_id,
                 partitions=asset_value.partitions,
             )
 
-        # Collect all metadata
-        metadata = (
+        actual_columns, _, _ = _extract_actual_columns_and_dtypes(asset_value)
+
+        # Collect all metadata that's cheap and available regardless of outcome,
+        # up front -- so it's present on every return path below, including one
+        # that hits an entirely unexpected exception rather than a SchemaErrors.
+        metadata: dict[str, Any] = (
             _collect_asset_metadata(asset_value)
             | _collect_dtype_metadata(asset_value, resource)
             | _collect_geometry_metadata(asset_value)
+            | _collect_primary_key_metadata(resource, actual_columns)
         )
+        metadata["is_duckdb_asset"] = duckdb_asset
+        if source_partitions is not None:
+            metadata["partitions"] = source_partitions
+        timings: dict[str, float] = {}
 
         try:
             if isinstance(asset_value, pl.LazyFrame):
-                # NOTE: Pandera's polars backend only performs schema-level
-                # validation (column presence + dtype) for a `pl.LazyFrame`,
-                # via `collect_schema()` -- it does not run Check/unique/
-                # non-nullable content validation unless the validation depth
-                # is explicitly forced to `SCHEMA_AND_DATA`, which we do not
-                # currently do here. Content constraints declared in PUDL's
-                # metadata (enum values, ranges, uniqueness, etc.) are
-                # therefore NOT enforced for Polars LazyFrame assets today.
+                # Column presence and dtypes are checked here, using only the
+                # cheap `collect_schema()` metadata -- no data is read. Value
+                # constraints (ranges, enums, uniqueness, etc.) are checked
+                # separately below, one narrow column at a time, so that even
+                # PUDL's largest tables remain tractable to validate. Errors
+                # from both passes are collected and reported together,
+                # rather than stopping at whichever one fails first, since
+                # they're independent and a caller fixing one shouldn't have
+                # to re-run the check to discover the other.
                 assert isinstance(pandera_schema, pr_polars.DataFrameSchema)
-                pandera_schema.validate(asset_value, lazy=True)
+                errors: list[SchemaError] = []
+                schema_check_start = time.perf_counter()
+                try:
+                    pandera_schema.validate(asset_value, lazy=True)
+                except SchemaErrors as schema_errors:
+                    errors.extend(schema_errors.schema_errors)
+                finally:
+                    timings["schema_check_seconds"] = (
+                        time.perf_counter() - schema_check_start
+                    )
+
+                content_errors, content_timings = _validate_polars_content(
+                    asset_value, resource
+                )
+                errors.extend(content_errors)
+                timings.update(content_timings)
+
+                if errors:
+                    raise SchemaErrors(
+                        schema=pandera_schema,
+                        schema_errors=errors,
+                        data=asset_value,
+                    )
             else:
                 assert isinstance(pandera_schema, pr_pandas.DataFrameSchema)
-                pandera_schema.validate(asset_value, lazy=True)
+                schema_check_start = time.perf_counter()
+                try:
+                    pandera_schema.validate(asset_value, lazy=True)
+                finally:
+                    timings["schema_check_seconds"] = (
+                        time.perf_counter() - schema_check_start
+                    )
+            metadata["timing"] = timings
             return dg.AssetCheckResult(passed=True, metadata=metadata)
 
         except SchemaErrors as schema_errors:
+            metadata["timing"] = timings
             metadata.update(_process_schema_errors(schema_errors))
             return dg.AssetCheckResult(passed=False, metadata=metadata)
 
         except Exception as exc:
+            metadata["timing"] = timings
             metadata["unexpected_error"] = {
                 "error_type": type(exc).__name__,
                 "error_message": str(exc),
