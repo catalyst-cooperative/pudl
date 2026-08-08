@@ -1,0 +1,30 @@
+{
+  "lsp": {
+    "pyrefly": {
+      "binary": {
+        "path": "pixi",
+        "arguments": [
+          "run",
+          "--frozen",
+          "-e",
+          "dev",
+          "--executable",
+          "pyrefly",
+          "lsp"
+        ]
+      }
+    },
+    "ruff": {
+      "binary": {
+        "path": "pixi",
+        "arguments": [
+          "run",
+          "--frozen",
+          "--executable",
+          "ruff",
+          "server"
+        ]
+      }
+    }
+  }
+}

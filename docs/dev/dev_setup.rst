@@ -310,6 +310,74 @@ Linting and Formatting
   that corrects a typos), add ``# spellchecker:ignore`` as a comment to the end of the
   line.
 
+Type Checking with pyrefly
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+We use `pyrefly <https://pyrefly.org/>`__, a fast Rust-based Python type checker, to
+catch type errors before they reach CI. It isn't yet part of the standard pre-commit
+hooks or CI pipeline -- PUDL's codebase predates comprehensive type annotations, so for
+now pyrefly runs as a voluntary check for anyone gradually cleaning up typing issues in
+the code they touch.
+
+**Running the checks**
+
+pyrefly is a dev-only dependency, so always run it through the ``dev`` pixi environment:
+
+.. code-block:: console
+
+    $ pixi run pyrefly-check                                  # whole project, against the baseline
+    $ pixi run -e dev pyrefly check src/pudl/path/to/file.py   # quick check of one file
+
+``pyrefly-check`` lives in the ``dev`` feature's task table specifically so that plain
+``pixi run pyrefly-check`` always resolves to the project-pinned ``pyrefly`` binary,
+rather than silently falling back to a different version found on ``$PATH`` (e.g. one
+installed globally for editor or language-server integration).
+
+**The baseline**
+
+PUDL isn't enforcing full type-checking project-wide yet, so ``.pyrefly-baseline.json``
+records every pre-existing type error as of when it was last regenerated, and
+``pixi run pyrefly-check`` only fails on errors *not already in the baseline*. This
+makes it possible to catch newly introduced type errors in code you're touching without
+requiring the whole codebase to be error-free first.
+
+Regenerate the baseline when:
+
+* You've fixed one or more pre-existing errors, to shrink the baseline and prevent them
+  from regressing.
+* pyrefly's own version has been bumped, since a newer version's stricter (or simply
+  different) checks can surface errors in files you never touched.
+
+.. code-block:: console
+
+    $ pixi run -e dev pyrefly check --baseline .pyrefly-baseline.json --update-baseline
+
+Never hand-edit ``.pyrefly-baseline.json``, and never regenerate it just to make a
+*newly introduced* error in your own change disappear -- that defeats its purpose as a
+ratchet against regressions. Fix the error instead, or check with the team if you think
+it should legitimately be deferred.
+
+**Reviewing a baseline regeneration**
+
+A raw ``git diff .pyrefly-baseline.json`` after regenerating is nearly unreadable:
+fixing even one error, or bumping pyrefly's version, can shift line/column numbers on
+hundreds of unrelated entries without any error actually appearing or disappearing.
+
+Use ``pixi run pyrefly-baseline-diff`` (``src/pudl/scripts/pyrefly_baseline_diff.py``)
+instead. It diffs the baseline against ``HEAD`` by ``(file, error code, description)``
+rather than by line number, so the output only shows errors that were genuinely fixed or
+newly added:
+
+.. code-block:: console
+
+    $ pixi run -e dev pyrefly check --baseline .pyrefly-baseline.json --update-baseline
+    $ pixi run pyrefly-baseline-diff
+
+Run this every time you regenerate the baseline, before committing it. Confirm the
+"fixed" list matches what you intended to fix, and scrutinize the "newly baselined"
+list carefully -- it should only ever contain pre-existing issues you're knowingly
+deferring (e.g. ones surfaced by a version bump), never something your own change
+introduced.
+
 Linting Within Your Editor
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 If you are using an editor designed for Python development many of these code linting
