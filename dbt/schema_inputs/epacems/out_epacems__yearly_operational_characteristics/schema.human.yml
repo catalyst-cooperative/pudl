@@ -73,6 +73,7 @@ sources:
                     max_value: 25.0
                   config:
                     error_if: ">60"
+                    enabled: "{{ target.name == 'etl-full' }}"
           - name: ramp_up_rate_per_min
             data_tests:
               - dbt_expectations.expect_column_values_to_be_between:
