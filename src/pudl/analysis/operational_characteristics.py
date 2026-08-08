@@ -684,28 +684,31 @@ def estimate_operational_characteristics_by_unit(
     return output.select(ordered_cols)
 
 
+HEAT_RATE_ANALYSIS_CONFIG_SCHEMA = {
+    "num_quarters": Field(
+        int,
+        default_value=12,
+        description=(
+            "Number of historical EPA CEMS quarters to include, counting "
+            "backward from the configured final year-quarter."
+        ),
+    ),
+    "min_stable_consecutive_hours": Field(
+        int,
+        default_value=8,
+        description=(
+            "Minimum number of consecutive operating hours in a load-factor "
+            "bin required for that bin to be considered a stable operating "
+            "level."
+        ),
+    ),
+}
+
+
 @asset(
     required_resource_keys={"global_data_config"},
     ins={"core_epacems__hourly_emissions": AssetIn()},
-    config_schema={
-        "num_quarters": Field(
-            int,
-            default_value=12,
-            description=(
-                "Number of historical EPA CEMS quarters to include, counting "
-                "backward from the configured final year-quarter."
-            ),
-        ),
-        "min_stable_consecutive_hours": Field(
-            int,
-            default_value=8,
-            description=(
-                "Minimum number of consecutive operating hours in a load-factor "
-                "bin required for that bin to be considered a stable operating "
-                "level."
-            ),
-        ),
-    },
+    config_schema=HEAT_RATE_ANALYSIS_CONFIG_SCHEMA,
     io_manager_key="pudl_io_manager",
     op_tags={"memory-use": "high"},  # Peak of ~16 GB as of 2026-08-05
     kinds={"polars"},
@@ -767,6 +770,32 @@ def out_epacems__yearly_operational_characteristics(
 # derived from CEMS's most recent year. Bump this once a newer crosswalk vintage is
 # available.
 LATEST_EPACAMD_CROSSWALK_YEAR = 2024
+
+ADJUSTED_HEAT_RATE_ANALYSIS_CONFIG_SCHEMA = {
+    **HEAT_RATE_ANALYSIS_CONFIG_SCHEMA,
+    "eia_report_date": Field(
+        str,
+        is_required=False,
+        default_value=f"{LATEST_EPACAMD_CROSSWALK_YEAR}-12-01",
+        description=(
+            "EIA generator snapshot date (YYYY-MM-DD) used for capacity "
+            "denominators, e.g. max_cap_mw/max_mwh. Defaults to December of "
+            "LATEST_EPACAMD_CROSSWALK_YEAR, matching the crosswalk's own "
+            "vintage, rather than the most recent CEMS year."
+        ),
+    ),
+    "eia_epa_mapping_year": Field(
+        int,
+        is_required=False,
+        default_value=LATEST_EPACAMD_CROSSWALK_YEAR,
+        description=(
+            "Report year of the EPA/EIA crosswalk (core_epa__assn_eia_epacamd) "
+            "to use for mapping CEMS units to EIA generators. Defaults to "
+            "LATEST_EPACAMD_CROSSWALK_YEAR, the most recent year the crosswalk "
+            "actually covers."
+        ),
+    ),
+}
 
 
 def filter_eia_generators_for_heat_rate_analysis(
@@ -1164,47 +1193,7 @@ def add_adjusted_net_generation_to_cems(
         "core_epa__assn_eia_epacamd": AssetIn(),
         "core_eia923__monthly_generation_fuel": AssetIn(),
     },
-    config_schema={
-        "num_quarters": Field(
-            int,
-            default_value=12,
-            description=(
-                "Number of historical EPA CEMS quarters to include, counting "
-                "backward from the configured final year-quarter."
-            ),
-        ),
-        "min_stable_consecutive_hours": Field(
-            int,
-            default_value=8,
-            description=(
-                "Minimum number of consecutive operating hours in a load-factor "
-                "bin required for that bin to be considered a stable operating "
-                "level."
-            ),
-        ),
-        "eia_report_date": Field(
-            str,
-            is_required=False,
-            default_value=f"{LATEST_EPACAMD_CROSSWALK_YEAR}-12-01",
-            description=(
-                "EIA generator snapshot date (YYYY-MM-DD) used for capacity "
-                "denominators, e.g. max_cap_mw/max_mwh. Defaults to December of "
-                "LATEST_EPACAMD_CROSSWALK_YEAR, matching the crosswalk's own "
-                "vintage, rather than the most recent CEMS year."
-            ),
-        ),
-        "eia_epa_mapping_year": Field(
-            int,
-            is_required=False,
-            default_value=LATEST_EPACAMD_CROSSWALK_YEAR,
-            description=(
-                "Report year of the EPA/EIA crosswalk (core_epa__assn_eia_epacamd) "
-                "to use for mapping CEMS units to EIA generators. Defaults to "
-                "LATEST_EPACAMD_CROSSWALK_YEAR, the most recent year the crosswalk "
-                "actually covers."
-            ),
-        ),
-    },
+    config_schema=ADJUSTED_HEAT_RATE_ANALYSIS_CONFIG_SCHEMA,
     op_tags={"memory-use": "high"},
     kinds={"polars"},
 )
