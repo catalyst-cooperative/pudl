@@ -760,7 +760,7 @@ def out_epacems__yearly_operational_characteristics(
 
 
 def filter_eia_generators_for_heat_rate_analysis(
-    out_eia__monthly_generators: pd.DataFrame,
+    out_eia__monthly_generators: pl.LazyFrame,
     report_date: str,
     states: list[str] | None = None,
 ) -> pl.LazyFrame:
@@ -774,11 +774,12 @@ def filter_eia_generators_for_heat_rate_analysis(
     Returns:
         Monthly generator records filtered to the requested snapshot and states.
     """
-    report_timestamp = pd.Timestamp(report_date)
-    generators = (
-        pl.from_pandas(out_eia__monthly_generators)
-        .lazy()
-        .filter(pl.col("report_date").str.to_datetime() == report_timestamp)
+    # out_eia__monthly_generators.report_date is a native pl.Date column when read
+    # straight from Parquet, so we compare against a python date rather than
+    # parsing report_date as a string.
+    report_timestamp = pd.Timestamp(report_date).date()
+    generators = out_eia__monthly_generators.filter(
+        pl.col("report_date") == report_timestamp
     )
 
     if states:
@@ -788,7 +789,7 @@ def filter_eia_generators_for_heat_rate_analysis(
 
 
 def filter_eia_epa_mapping_for_heat_rate_analysis(
-    core_epa__assn_eia_epacamd: pd.DataFrame,
+    core_epa__assn_eia_epacamd: pl.LazyFrame,
     eia_epa_mapping_year: int,
 ) -> pl.LazyFrame:
     """Filter the EPA/EIA crosswalk to one configured report year.
@@ -802,9 +803,7 @@ def filter_eia_epa_mapping_for_heat_rate_analysis(
         Unique EPA unit to EIA generator mappings for the requested report year.
     """
     return (
-        pl.from_pandas(core_epa__assn_eia_epacamd)
-        .lazy()
-        .filter(pl.col("report_year") == eia_epa_mapping_year)
+        core_epa__assn_eia_epacamd.filter(pl.col("report_year") == eia_epa_mapping_year)
         .select(
             [
                 "plant_id_epa",
@@ -886,9 +885,9 @@ def summarize_eia_generators(
 
 
 def summarize_eia923_monthly_plant_fuel(
-    core_eia923__monthly_generation_fuel: pd.DataFrame,
+    core_eia923__monthly_generation_fuel: pl.LazyFrame,
     eia_plant_summary: pl.LazyFrame,
-    plant_ids_eia: pd.Series,
+    plant_ids_eia: pl.Series,
     start_year: int,
 ) -> pl.LazyFrame:
     """Summarize monthly EIA 923 plant generation and fuel consumption.
@@ -904,18 +903,13 @@ def summarize_eia923_monthly_plant_fuel(
         Monthly plant-level EIA 923 generation, fuel, heat rate, and load factor.
     """
     # Filter data to desired plants and
-    eia923 = (
-        pl.from_pandas(core_eia923__monthly_generation_fuel)
-        .lazy()
-        .with_columns(
-            year=pl.col("report_date").dt.year(),
-            month=pl.col("report_date").dt.month(),
-        )
-        .filter(
-            (pl.col("year") >= start_year)
-            & (pl.col("data_maturity") == "final")
-            & (pl.col("plant_id_eia").is_in(plant_ids_eia.dropna().unique()))
-        )
+    eia923 = core_eia923__monthly_generation_fuel.with_columns(
+        year=pl.col("report_date").dt.year(),
+        month=pl.col("report_date").dt.month(),
+    ).filter(
+        (pl.col("year") >= start_year)
+        & (pl.col("data_maturity") == "final")
+        & (pl.col("plant_id_eia").is_in(plant_ids_eia.drop_nulls().unique()))
     )
 
     monthly_plant = (
@@ -945,7 +939,7 @@ def summarize_eia923_monthly_plant_fuel(
 def summarize_cems_monthly_plant_operations(
     cems: pl.LazyFrame,
     eia_plant_summary: pl.LazyFrame,
-) -> pd.DataFrame:
+) -> pl.LazyFrame:
     """Summarize monthly EPA CEMS plant gross load and fuel consumption.
 
     Args:
@@ -977,6 +971,19 @@ def estimate_gross_to_net_conversion_factors(
 ) -> pl.LazyFrame:
     """Estimate plant-level conversion factors from CEMS gross load to net generation.
 
+    Fits one conversion factor per plant relating hourly CEMS gross load (and heat
+    input) to EIA-923-reported net generation (and fuel consumed for electricity),
+    so that ``add_adjusted_net_generation_to_cems`` can back out an estimated net
+    generation value for every CEMS hour.
+
+    Despite the ``a0``/``a1``/``fit_type`` and ``*_at_min_load_factor``/
+    ``*_at_max_load_factor`` naming -- which implies a load-factor-dependent linear
+    fit (``a0 + a1 * load_factor``) -- every plant currently gets ``fit_type ==
+    "constant"``, ``a1 == 0.0``, and identical min/max-load-factor values, all equal
+    to the plain mean of the observed monthly ratios. The linear-fit machinery is
+    scaffolded but not implemented; treat the conversion factor as a single
+    plant-level constant until that's filled in.
+
     Args:
         cems_monthly_plant_summary: Monthly plant-level CEMS summary.
         eia923_monthly_plant_summary: Monthly plant-level EIA 923 summary.
@@ -987,6 +994,12 @@ def estimate_gross_to_net_conversion_factors(
     conversion = (
         cems_monthly_plant_summary.join(
             eia923_monthly_plant_summary,
+            # NOTE: joining on capacity/max_mwh columns (not just the plant_id_eia,
+            # year, month identifiers) is fragile -- it silently relies on both
+            # summaries having been built from the exact same eia_plant_summary
+            # frame, so their capacity columns are float-for-float identical. A
+            # simple ID+time join with an explicit suffix on the overlapping
+            # capacity columns would be more robust.
             on=[
                 "plant_id_eia",
                 "year",
@@ -1053,6 +1066,15 @@ def add_adjusted_net_generation_to_cems(
     eia_plant_unit_summary: pl.LazyFrame,
 ) -> pl.LazyFrame:
     """Add estimated net generation and adjusted heat rates to hourly CEMS records.
+
+    Every hour is converted using
+    ``gen_cems_to_net_gen_conversion_factor_at_max_load_factor`` regardless of that
+    hour's own load factor. This is a no-op today because
+    ``estimate_gross_to_net_conversion_factors`` currently gives every plant a single
+    constant factor (see its docstring), but if that function is later extended to a
+    real load-factor-dependent fit, this will need to pick (or interpolate) the
+    factor using each hour's own load factor rather than always using the max-load
+    value.
 
     Args:
         cems: Filtered hourly EPA CEMS records.
