@@ -649,3 +649,21 @@ def _core_phmsagas__yearly_distribution_misc(
         .convert_dtypes()
     )
     return df
+
+
+@asset(io_manager_key="pudl_io_manager", compute_kind="pandas")
+def core_phmsagas__yearly_distribution_by_install_decade(
+    _core_phmsagas__yearly_distribution_by_install_decade: pd.DataFrame,
+) -> pd.DataFrame:
+    """Create core_phmsagas__yearly_distribution_by_install_decade."""
+    commodity_map = {
+        "OTHER GAS: Natural Gas": "Natural Gas",
+        "OTHER GAS: Nitrogen": "Nitrogen Gas",
+        "OTHER GAS: Propane Gas": "Propane Gas",
+        "OTHER GAS: nitrogen": "Nitrogen Gas",
+        "OTHER GAS: City of York": "unknown",  # Probably propane?
+    }
+
+    df = _core_phmsagas__yearly_distribution_by_install_decade.copy()
+    df["commodity"] = df["commodity"].replace(commodity_map)
+    return df

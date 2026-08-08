@@ -815,6 +815,16 @@ https://www.census.gov/library/reference/code-lists/functional-status-codes.html
 """
 
 
+COMMODITY_TYPES_PHMSAGAS = [
+    "Natural Gas",
+    "Propane Gas",
+    "Landfill Gas",
+    "Synthetic Gas",
+    "Hydrogen Gas",
+    "Nitrogen Gas",
+    "unknown",
+]
+
 MATERIAL_TYPES_PHMSAGAS = [
     "unprotected_steel_bare",
     "unprotected_steel_coated",
