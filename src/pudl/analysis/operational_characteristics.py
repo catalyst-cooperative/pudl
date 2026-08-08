@@ -768,47 +768,6 @@ def out_epacems__yearly_operational_characteristics(
 # available.
 LATEST_EPACAMD_CROSSWALK_YEAR = 2024
 
-ADJUSTED_HEAT_RATE_ANALYSIS_CONFIG_SCHEMA = {
-    "num_years": Field(
-        int,
-        default_value=3,
-        description=(
-            "Number of historical EPA CEMS years to include, counting backward "
-            "from the configured final year."
-        ),
-    ),
-    "min_stable_consecutive_hours": Field(
-        int,
-        default_value=8,
-        description=(
-            "Minimum number of consecutive operating hours in a load-factor bin "
-            "required for that bin to be considered a stable operating level."
-        ),
-    ),
-    "eia_report_date": Field(
-        str,
-        is_required=False,
-        default_value=f"{LATEST_EPACAMD_CROSSWALK_YEAR}-12-01",
-        description=(
-            "EIA generator snapshot date (YYYY-MM-DD) used for capacity "
-            "denominators, e.g. max_cap_mw/max_mwh. Defaults to December of "
-            "LATEST_EPACAMD_CROSSWALK_YEAR, matching the crosswalk's own vintage, "
-            "rather than the most recent CEMS year."
-        ),
-    ),
-    "eia_epa_mapping_year": Field(
-        int,
-        is_required=False,
-        default_value=LATEST_EPACAMD_CROSSWALK_YEAR,
-        description=(
-            "Report year of the EPA/EIA crosswalk (core_epa__assn_eia_epacamd) to "
-            "use for mapping CEMS units to EIA generators. Defaults to "
-            "LATEST_EPACAMD_CROSSWALK_YEAR, the most recent year the crosswalk "
-            "actually covers."
-        ),
-    ),
-}
-
 
 def filter_eia_generators_for_heat_rate_analysis(
     out_eia__monthly_generators: pl.LazyFrame,
@@ -1205,8 +1164,49 @@ def add_adjusted_net_generation_to_cems(
         "core_epa__assn_eia_epacamd": AssetIn(),
         "core_eia923__monthly_generation_fuel": AssetIn(),
     },
-    config_schema=ADJUSTED_HEAT_RATE_ANALYSIS_CONFIG_SCHEMA,
+    config_schema={
+        "num_quarters": Field(
+            int,
+            default_value=12,
+            description=(
+                "Number of historical EPA CEMS quarters to include, counting "
+                "backward from the configured final year-quarter."
+            ),
+        ),
+        "min_stable_consecutive_hours": Field(
+            int,
+            default_value=8,
+            description=(
+                "Minimum number of consecutive operating hours in a load-factor "
+                "bin required for that bin to be considered a stable operating "
+                "level."
+            ),
+        ),
+        "eia_report_date": Field(
+            str,
+            is_required=False,
+            default_value=f"{LATEST_EPACAMD_CROSSWALK_YEAR}-12-01",
+            description=(
+                "EIA generator snapshot date (YYYY-MM-DD) used for capacity "
+                "denominators, e.g. max_cap_mw/max_mwh. Defaults to December of "
+                "LATEST_EPACAMD_CROSSWALK_YEAR, matching the crosswalk's own "
+                "vintage, rather than the most recent CEMS year."
+            ),
+        ),
+        "eia_epa_mapping_year": Field(
+            int,
+            is_required=False,
+            default_value=LATEST_EPACAMD_CROSSWALK_YEAR,
+            description=(
+                "Report year of the EPA/EIA crosswalk (core_epa__assn_eia_epacamd) "
+                "to use for mapping CEMS units to EIA generators. Defaults to "
+                "LATEST_EPACAMD_CROSSWALK_YEAR, the most recent year the crosswalk "
+                "actually covers."
+            ),
+        ),
+    },
     op_tags={"memory-use": "high"},
+    kinds={"polars"},
 )
 def _out_epacems__yearly_operational_characteristics_adjusted(
     context: AssetExecutionContext,
@@ -1228,18 +1228,21 @@ def _out_epacems__yearly_operational_characteristics_adjusted(
     """
     heat_rate_config = _get_heat_rate_analysis_config(context)
     year_quarters = context.resources.global_data_config.pudl.epacems.year_quarters
-    max_full_year = int(
-        max(
-            year_quarter.removesuffix("q4")
-            for year_quarter in year_quarters
-            if year_quarter.endswith("q4")
-        )
+    target_year_quarter = _select_target_year_quarter(year_quarters)
+    _assert_required_quarters_available(
+        year_quarters, target_year_quarter, heat_rate_config["num_quarters"]
     )
-    start_year = max_full_year - heat_rate_config["num_years"]
-    # Deliberately not derived from max_full_year -- see the comment above
+    report_year = int(target_year_quarter[:4])
+    # Deliberately not derived from report_year -- see the comment above
     # LATEST_EPACAMD_CROSSWALK_YEAR.
     eia_report_date = context.op_config["eia_report_date"]
     eia_epa_mapping_year = context.op_config["eia_epa_mapping_year"]
+
+    # start_year is only used to filter EIA-923's monthly (not quarterly) data, so a
+    # year-level bound derived from the quarter window's start is precise enough.
+    target_ordinal = _year_quarter_to_ordinal(target_year_quarter)
+    start_ordinal = target_ordinal - heat_rate_config["num_quarters"] + 1
+    start_year = _ordinal_to_quarter_start(start_ordinal).year
 
     # The EIA/EPA capacity and crosswalk data is a single national snapshot (not
     # split by state), so this is computed once and reused across every state's
@@ -1262,8 +1265,8 @@ def _out_epacems__yearly_operational_characteristics_adjusted(
         )
         cems = filter_cems_for_heat_rate_analysis(
             core_epacems__hourly_emissions=core_epacems__hourly_emissions,
-            final_year=max_full_year,
-            num_years=heat_rate_config["num_years"],
+            final_year_quarter=target_year_quarter,
+            num_quarters=heat_rate_config["num_quarters"],
             states=[state],
         )
         cems_monthly = summarize_cems_monthly_plant_operations(
@@ -1296,6 +1299,6 @@ def _out_epacems__yearly_operational_characteristics_adjusted(
 
     return (
         pl.concat(state_dfs)
-        .with_columns(pl.lit(max_full_year).alias("report_year"))
+        .with_columns(pl.lit(report_year).alias("report_year"))
         .to_pandas()
     )
