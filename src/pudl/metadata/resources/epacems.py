@@ -74,7 +74,10 @@ ending at the most recent complete calendar year.
 The values are not directly reported by source agencies. They are derived from
 observed hourly operations, including load factor bins, consecutive operating
 runs, and gross-load ramping behavior. As a result, the output should be treated
-as an analytical estimate rather than as reported plant characteristics.""",
+as an analytical estimate rather than as reported plant characteristics.
+
+For additional methodological details, see
+:doc:`/methodology/operational_characteristics`."""
         },
         "schema": {
             "fields": [
