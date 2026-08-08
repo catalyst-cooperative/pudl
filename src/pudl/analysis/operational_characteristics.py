@@ -708,6 +708,7 @@ def estimate_operational_characteristics_by_unit(
     },
     io_manager_key="pudl_io_manager",
     op_tags={"memory-use": "high"},  # Peak of ~16 GB as of 2026-08-05
+    kinds={"polars"},
 )
 def out_epacems__yearly_operational_characteristics(
     context: AssetExecutionContext,
@@ -751,3 +752,345 @@ def out_epacems__yearly_operational_characteristics(
         .with_columns(pl.lit(report_year).alias("report_year"))
         .to_pandas()
     )
+
+
+##################
+## EIA-Based stuff
+##################
+
+
+def filter_eia_generators_for_heat_rate_analysis(
+    out_eia__monthly_generators: pd.DataFrame,
+    report_date: str,
+    states: list[str] | None = None,
+) -> pl.LazyFrame:
+    """Filter monthly EIA generator records to the configured snapshot.
+
+    Args:
+        out_eia__monthly_generators: Monthly EIA generator attributes.
+        report_date: Report date to use as the EIA generator snapshot.
+        states: Optional list of two-letter state abbreviations to include.
+
+    Returns:
+        Monthly generator records filtered to the requested snapshot and states.
+    """
+    report_timestamp = pd.Timestamp(report_date)
+    generators = (
+        pl.from_pandas(out_eia__monthly_generators)
+        .lazy()
+        .filter(pl.col("report_date").str.to_datetime() == report_timestamp)
+    )
+
+    if states:
+        generators = generators.filter(pl.col("state").is_in(states))
+
+    return generators
+
+
+def filter_eia_epa_mapping_for_heat_rate_analysis(
+    core_epa__assn_eia_epacamd: pd.DataFrame,
+    eia_epa_mapping_year: int,
+) -> pl.LazyFrame:
+    """Filter the EPA/EIA crosswalk to one configured report year.
+
+    Args:
+        core_epa__assn_eia_epacamd: EPA/EIA crosswalk table.
+        eia_epa_mapping_year: Report year to use when mapping EPA units to EIA
+            generators.
+
+    Returns:
+        Unique EPA unit to EIA generator mappings for the requested report year.
+    """
+    return (
+        pl.from_pandas(core_epa__assn_eia_epacamd)
+        .lazy()
+        .filter(pl.col("report_year") == eia_epa_mapping_year)
+        .select(
+            [
+                "plant_id_epa",
+                "emissions_unit_id_epa",
+                "plant_id_eia",
+                "generator_id",
+            ]
+        )
+        .unique()
+    )
+
+
+def summarize_eia_generators(
+    generators: pl.LazyFrame,
+    eia_epa_mapping: pl.LazyFrame,
+) -> dict[str, pl.LazyFrame]:
+    """Summarize EIA generator capacity at plant, generator, and EPA unit levels.
+
+    Args:
+        generators: Filtered monthly EIA generator records.
+        eia_epa_mapping: Filtered EPA/EIA crosswalk records.
+
+    Returns:
+        Dictionary containing plant-generator, plant, and plant-unit summaries.
+    """
+    generator_cols = [
+        "plant_id_eia",
+        "generator_id",
+        "report_date",
+        "prime_mover_code",
+        "capacity_mw",
+        "summer_capacity_mw",
+        "winter_capacity_mw",
+        "latitude",
+        "longitude",
+    ]
+
+    capacity_cols = ["capacity_mw", "summer_capacity_mw", "winter_capacity_mw"]
+
+    # Create a generator-level summary
+    plant_gen = (
+        generators.select(generator_cols)
+        .with_columns(
+            max_cap_mw=pl.max_horizontal(capacity_cols),
+        )
+        .join(
+            eia_epa_mapping,
+            on=["plant_id_eia", "generator_id"],
+            how="left",
+        )
+    )
+
+    # Create a plant-level summary
+    plant = (
+        generators.group_by(["plant_id_eia", "report_date"])
+        .agg(pl.col(capacity_cols).sum())
+        .with_columns(
+            max_cap_mw=pl.max_horizontal(capacity_cols),
+        )
+        .with_columns(
+            max_mwh=pl.col("max_cap_mw") * 24 * 30,
+        )
+    )
+
+    # Create an EPA unit-level summary
+    plant_unit = (
+        plant_gen.group_by(["plant_id_eia", "emissions_unit_id_epa"])
+        .agg(pl.col(capacity_cols).sum())
+        .with_columns(
+            max_cap_mw=pl.max_horizontal(capacity_cols),
+        )
+    )
+
+    return {
+        "plant_gen": plant_gen,
+        "plant": plant,
+        "plant_unit": plant_unit,
+    }
+
+
+def summarize_eia923_monthly_plant_fuel(
+    core_eia923__monthly_generation_fuel: pd.DataFrame,
+    eia_plant_summary: pl.LazyFrame,
+    plant_ids_eia: pd.Series,
+    start_year: int,
+) -> pl.LazyFrame:
+    """Summarize monthly EIA 923 plant generation and fuel consumption.
+
+    Args:
+        core_eia923__monthly_generation_fuel: Monthly plant fuel and generation
+            records.
+        eia_plant_summary: Plant-level generator capacity summary.
+        plant_ids_eia: EIA plant IDs to include.
+        start_year: First report year to include.
+
+    Returns:
+        Monthly plant-level EIA 923 generation, fuel, heat rate, and load factor.
+    """
+    # Filter data to desired plants and
+    eia923 = (
+        pl.from_pandas(core_eia923__monthly_generation_fuel)
+        .lazy()
+        .with_columns(
+            year=pl.col("report_date").dt.year(),
+            month=pl.col("report_date").dt.month(),
+        )
+        .filter(
+            (pl.col("year") >= start_year)
+            & (pl.col("data_maturity") == "final")
+            & (pl.col("plant_id_eia").is_in(plant_ids_eia.dropna().unique()))
+        )
+    )
+
+    monthly_plant = (
+        eia923.group_by(["plant_id_eia", "year", "month"])
+        .agg(
+            pl.col(
+                [
+                    "net_generation_mwh",
+                    "fuel_consumed_mmbtu",
+                    "fuel_consumed_for_electricity_mmbtu",
+                ]
+            ).sum()
+        )
+        .join(eia_plant_summary, on="plant_id_eia", how="left")
+        .with_columns(
+            heat_rate_mmbtu_per_mwh_net_generation=(
+                pl.col("fuel_consumed_for_electricity_mmbtu")
+                / pl.col("net_generation_mwh")
+            ),
+            load_factor_net_generation=pl.col("net_generation_mwh") / pl.col("max_mwh"),
+        )
+    )
+
+    return monthly_plant
+
+
+def summarize_cems_monthly_plant_operations(
+    cems: pl.LazyFrame,
+    eia_plant_summary: pl.LazyFrame,
+) -> pd.DataFrame:
+    """Summarize monthly EPA CEMS plant gross load and fuel consumption.
+
+    Args:
+        cems: Filtered hourly EPA CEMS records.
+        eia_plant_summary: Plant-level generator capacity summary.
+
+    Returns:
+        Monthly plant-level CEMS gross load, fuel, heat rate, and load factor.
+    """
+    monthly_plant = (
+        cems.with_columns(month=pl.col("operating_datetime_utc").dt.month())
+        .group_by(["plant_id_eia", "year", "month"])
+        .agg(pl.col(["gross_load_mw", "heat_content_mmbtu"]).sum())
+        .join(eia_plant_summary, on="plant_id_eia", how="left")  # TODO: Validate merge?
+        .with_columns(
+            heat_rate_mmbtu_per_mwh_gross_load=(
+                pl.col("heat_content_mmbtu") / pl.col("gross_load_mw")
+            ),
+            load_factor_gross_load=pl.col("gross_load_mw") / pl.col("max_mwh"),
+        )
+    )
+
+    return monthly_plant
+
+
+def estimate_gross_to_net_conversion_factors(
+    cems_monthly_plant_summary: pl.LazyFrame,
+    eia923_monthly_plant_summary: pl.LazyFrame,
+) -> pl.LazyFrame:
+    """Estimate plant-level conversion factors from CEMS gross load to net generation.
+
+    Args:
+        cems_monthly_plant_summary: Monthly plant-level CEMS summary.
+        eia923_monthly_plant_summary: Monthly plant-level EIA 923 summary.
+
+    Returns:
+        Plant-level conversion factor estimates and supporting fit metadata.
+    """
+    conversion = (
+        cems_monthly_plant_summary.join(
+            eia923_monthly_plant_summary,
+            on=[
+                "plant_id_eia",
+                "year",
+                "month",
+                "report_date",
+                "capacity_mw",
+                "summer_capacity_mw",
+                "winter_capacity_mw",
+                "max_cap_mw",
+                "max_mwh",
+            ],
+            how="left",
+            suffix="_eia923",
+        )
+        .with_columns(
+            gen_cems_to_net_gen_conversion_factor=(
+                pl.col("net_generation_mwh") / pl.col("gross_load_mw")
+            ),
+            fuel_cems_to_eia923_conversion_factor=(
+                pl.col("fuel_consumed_for_electricity_mmbtu")
+                / pl.col("heat_content_mmbtu")
+            ),
+        )
+        .with_columns(pl.all().replace([float("inf"), float("-inf")], None))
+        .drop_nulls(
+            [
+                "plant_id_eia",
+                "load_factor_gross_load",
+                "gen_cems_to_net_gen_conversion_factor",
+            ]
+        )
+        .filter(
+            pl.col("load_factor_gross_load").is_between(0, 1)
+            & pl.col("gen_cems_to_net_gen_conversion_factor").is_between(0, 1)
+        )
+    )
+
+    plant_fits = conversion.group_by("plant_id_eia").agg(
+        [
+            pl.lit(0.0).alias("a1"),
+            pl.col("gen_cems_to_net_gen_conversion_factor").mean().alias("a0"),
+            pl.lit("constant").alias("fit_type"),
+            pl.col("load_factor_gross_load").min().alias("min_obs_lf"),
+            pl.col("load_factor_gross_load").max().alias("max_obs_lf"),
+            pl.len().alias("n_obs"),
+            pl.col("fuel_cems_to_eia923_conversion_factor").mean(),
+            # same as a0
+            pl.col("gen_cems_to_net_gen_conversion_factor")
+            .mean()
+            .alias("gen_cems_to_net_gen_conversion_factor_at_min_load_factor"),
+            # same as a0
+            pl.col("gen_cems_to_net_gen_conversion_factor")
+            .mean()
+            .alias("gen_cems_to_net_gen_conversion_factor_at_max_load_factor"),
+        ]
+    )
+
+    return plant_fits
+
+
+def add_adjusted_net_generation_to_cems(
+    cems: pl.LazyFrame,
+    conversion_factors: pl.LazyFrame,
+    eia_plant_unit_summary: pl.LazyFrame,
+) -> pl.LazyFrame:
+    """Add estimated net generation and adjusted heat rates to hourly CEMS records.
+
+    Args:
+        cems: Filtered hourly EPA CEMS records.
+        conversion_factors: Plant-level gross-to-net and fuel conversion factors.
+        eia_plant_unit_summary: EIA capacity summary by plant and EPA emissions unit.
+
+    Returns:
+        Hourly CEMS records with estimated net generation, adjusted fuel, adjusted heat
+        rates, and adjusted load factors.
+    """
+    cems_adjusted = (
+        cems.join(conversion_factors, on="plant_id_eia", how="left")
+        .join(
+            eia_plant_unit_summary.select(
+                ["plant_id_eia", "emissions_unit_id_epa", "capacity_mw", "max_cap_mw"]
+            ),
+            on=["plant_id_eia", "emissions_unit_id_epa"],
+            how="left",
+        )
+        .with_columns(
+            net_generation_mwh_cems=(
+                pl.col("gross_load_mw")
+                * pl.col("gen_cems_to_net_gen_conversion_factor_at_max_load_factor")
+            ),
+            fuel_consumed_for_electricity_mmbtu_cems=(
+                pl.col("heat_content_mmbtu")
+                * pl.col("fuel_cems_to_eia923_conversion_factor")
+            ),
+        )
+        .with_columns(
+            heat_rate_net_generation_cems=(
+                pl.col("fuel_consumed_for_electricity_mmbtu_cems")
+                / pl.col("net_generation_mwh_cems")
+            ),
+            load_factor_adjusted_cems=(
+                pl.col("net_generation_mwh_cems") / pl.col("max_cap_mw")
+            ),
+        )
+    )
+
+    return cems_adjusted
