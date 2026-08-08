@@ -186,6 +186,11 @@ matplotx = ">=0.3.10"
 plotly = ">=6.6"
 ripgrep = ">=15" # Primarily for agent skills use
 pyrefly = ">=1.2.0" # Experimental, also for agent skills use
+types-pyyaml = ">=6.0.12"
+types-pytz = ">=2026.3.1"
+types-python-dateutil = ">=2.9.0"
+types-networkx = ">=3.6.1"
+types-shapely = ">=2.1.0"
 
 # linux-aarch64 (e.g. Docker via OrbStack on Apple Silicon) only has marimo <=0.13
 # available on conda-forge, so relax the version requirement for that platform only.

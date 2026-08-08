@@ -781,6 +781,42 @@
       "severity": "error"
     },
     {
+      "line": 45,
+      "column": 21,
+      "stop_line": 45,
+      "stop_column": 32,
+      "path": "src/pudl/analysis/spatial.py",
+      "code": -2,
+      "name": "missing-attribute",
+      "description": "Object of class `BaseGeometry` has no attribute `geoms`",
+      "concise_description": "Object of class `BaseGeometry` has no attribute `geoms`",
+      "severity": "error"
+    },
+    {
+      "line": 71,
+      "column": 30,
+      "stop_line": 71,
+      "stop_column": 31,
+      "path": "src/pudl/analysis/spatial.py",
+      "code": -2,
+      "name": "bad-argument-type",
+      "description": "Argument `MultiPolygon` is not assignable to parameter `iterable` with type `Iterable[Polygon]` in function `list.extend`\n  Protocol `Iterable` requires attribute `__iter__`",
+      "concise_description": "Argument `MultiPolygon` is not assignable to parameter `iterable` with type `Iterable[Polygon]` in function `list.extend`",
+      "severity": "error"
+    },
+    {
+      "line": 73,
+      "column": 22,
+      "stop_line": 73,
+      "stop_column": 26,
+      "path": "src/pudl/analysis/spatial.py",
+      "code": -2,
+      "name": "bad-argument-type",
+      "description": "Argument `MultiPolygon` is not assignable to parameter `iterable` with type `Iterable[Polygon]` in function `list.extend`\n  Protocol `Iterable` requires attribute `__iter__`",
+      "concise_description": "Argument `MultiPolygon` is not assignable to parameter `iterable` with type `Iterable[Polygon]` in function `list.extend`",
+      "severity": "error"
+    },
+    {
       "line": 85,
       "column": 60,
       "stop_line": 85,
@@ -790,6 +826,18 @@
       "name": "bad-function-definition",
       "description": "Default `None` is not assignable to parameter `ratios` with type `Iterable[str]`\n  Protocol `Iterable` requires attribute `__iter__`\n  The declared type does not allow `None`. Consider changing the declared type to `Iterable[str] | None`.",
       "concise_description": "Default `None` is not assignable to parameter `ratios` with type `Iterable[str]`",
+      "severity": "error"
+    },
+    {
+      "line": 106,
+      "column": 50,
+      "stop_line": 106,
+      "stop_column": 75,
+      "path": "src/pudl/analysis/spatial.py",
+      "code": -2,
+      "name": "no-matching-overload",
+      "description": "No matching overload found for function `pandas.core.series.Series.apply` called with arguments: ((self: CollectionOperator, geoms: OptGeoArrayLike) -> BaseGeometry)\n  Possible overloads:\n    (func: (...) -> Mapping[Unknown, Unknown] | NAType | Sequence[Unknown] | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | frozenset[Unknown] | int | integer | set[Unknown] | str | timedelta | timedelta64 | None, ...) -> Series [closest match]\n    (func: (...) -> BaseOffset, ...) -> Series[BaseOffset]\n    (func: (...) -> Series, ...) -> DataFrame\n  Argument `(self: CollectionOperator, geoms: OptGeoArrayLike) -> BaseGeometry` is not assignable to parameter `func` with type `(...) -> Mapping[Unknown, Unknown] | NAType | Sequence[Unknown] | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | frozenset[Unknown] | int | integer | set[Unknown] | str | timedelta | timedelta64 | None` in function `pandas.core.series.Series.apply`",
+      "concise_description": "No matching overload found for function `pandas.core.series.Series.apply` called with arguments: ((self: CollectionOperator, geoms: OptGeoArrayLike) -> BaseGeometry)",
       "severity": "error"
     },
     {
@@ -814,6 +862,18 @@
       "name": "bad-function-definition",
       "description": "Default `None` is not assignable to parameter `ratios` with type `Iterable[str]`\n  Protocol `Iterable` requires attribute `__iter__`\n  The declared type does not allow `None`. Consider changing the declared type to `Iterable[str] | None`.",
       "concise_description": "Default `None` is not assignable to parameter `ratios` with type `Iterable[str]`",
+      "severity": "error"
+    },
+    {
+      "line": 148,
+      "column": 30,
+      "stop_line": 148,
+      "stop_column": 64,
+      "path": "src/pudl/analysis/spatial.py",
+      "code": -2,
+      "name": "bad-argument-type",
+      "description": "Argument `GeometrySequence[GeometryCollection[Polygon]]` is not assignable to parameter `data` with type `Buffer | Geometry | IndexOpsMixin | Mapping[int, Geometry] | Mapping[str, Geometry] | Sequence[Geometry] | _NestedSequence[bytes | complex | str] | _NestedSequence[_SupportsArray[dtype]] | _SupportsArray[dtype] | bytes | complex | str | None` in function `geopandas.geoseries.GeoSeries.__new__`\n  Protocol `Buffer` requires attribute `__buffer__`",
+      "concise_description": "Argument `GeometrySequence[GeometryCollection[Polygon]]` is not assignable to parameter `data` with type `Buffer | Geometry | IndexOpsMixin | Mapping[int, Geometry] | Mapping[str, Geometry] | Sequence[Geometry] | _NestedSequence[bytes | complex | str] | _NestedSequence[_SupportsArray[dtype]] | _SupportsArray[dtype] | bytes | complex | str | None` in function `geopandas.geoseries.GeoSeries.__new__`",
       "severity": "error"
     },
     {
