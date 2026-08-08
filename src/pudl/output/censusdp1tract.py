@@ -135,7 +135,10 @@ WHERE table_name = ?
 
             return gdf
 
-        return get_layer(layer, dp1_engine)
+        try:
+            return get_layer(layer, dp1_engine)
+        finally:
+            dp1_engine.dispose()
 
     return census_layer
 
