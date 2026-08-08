@@ -18,7 +18,7 @@
     </script>
     
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
-    <title>pudl.dagster.io_managers &#8212; PUDL 2026.8.1.dev4 documentation</title>
+    <title>pudl.dagster.io_managers &#8212; PUDL 2026.8.1.dev5 documentation</title>
   
   
   
@@ -51,7 +51,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../../_static/documentation_options.js?v=7723ea75"></script>
+    <script src="../../../../_static/documentation_options.js?v=de639e13"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -142,8 +142,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev4 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev4 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev5 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev5 documentation - Home"/>
   
   
 </a></div>
@@ -876,22 +876,25 @@ module; it should focus on persistence, loading, and storage-compatibility conce
 <tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.io_managers.MINIMUM_SQLITE_VERSION" title="pudl.dagster.io_managers.MINIMUM_SQLITE_VERSION"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MINIMUM_SQLITE_VERSION</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.io_managers.pudl_mixed_format_io_manager" title="pudl.dagster.io_managers.pudl_mixed_format_io_manager"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pudl_mixed_format_io_manager</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.io_managers.ALEMBIC_AUTOGENERATE_PLUGINS" title="pudl.dagster.io_managers.ALEMBIC_AUTOGENERATE_PLUGINS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ALEMBIC_AUTOGENERATE_PLUGINS</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.io_managers.parquet_io_manager" title="pudl.dagster.io_managers.parquet_io_manager"><code class="xref py py-obj docutils literal notranslate"><span class="pre">parquet_io_manager</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.io_managers.pudl_mixed_format_io_manager" title="pudl.dagster.io_managers.pudl_mixed_format_io_manager"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pudl_mixed_format_io_manager</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.io_managers.ferc1_dbf_sqlite_io_manager" title="pudl.dagster.io_managers.ferc1_dbf_sqlite_io_manager"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ferc1_dbf_sqlite_io_manager</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.io_managers.parquet_io_manager" title="pudl.dagster.io_managers.parquet_io_manager"><code class="xref py py-obj docutils literal notranslate"><span class="pre">parquet_io_manager</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.io_managers.ferc1_xbrl_sqlite_io_manager" title="pudl.dagster.io_managers.ferc1_xbrl_sqlite_io_manager"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ferc1_xbrl_sqlite_io_manager</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.io_managers.ferc1_dbf_sqlite_io_manager" title="pudl.dagster.io_managers.ferc1_dbf_sqlite_io_manager"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ferc1_dbf_sqlite_io_manager</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.io_managers.ferc714_xbrl_sqlite_io_manager" title="pudl.dagster.io_managers.ferc714_xbrl_sqlite_io_manager"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ferc714_xbrl_sqlite_io_manager</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.io_managers.ferc1_xbrl_sqlite_io_manager" title="pudl.dagster.io_managers.ferc1_xbrl_sqlite_io_manager"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ferc1_xbrl_sqlite_io_manager</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.io_managers.default_io_managers" title="pudl.dagster.io_managers.default_io_managers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">default_io_managers</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.dagster.io_managers.ferc714_xbrl_sqlite_io_manager" title="pudl.dagster.io_managers.ferc714_xbrl_sqlite_io_manager"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ferc714_xbrl_sqlite_io_manager</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.dagster.io_managers.default_io_managers" title="pudl.dagster.io_managers.default_io_managers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">default_io_managers</span></code></a></p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -951,6 +954,11 @@ module; it should focus on persistence, loading, and storage-compatibility conce
 <dl class="py data">
 <dt class="sig sig-object py" id="pudl.dagster.io_managers.MINIMUM_SQLITE_VERSION">
 <span class="sig-prename descclassname"><span class="pre">pudl.dagster.io_managers.</span></span><span class="sig-name descname"><span class="pre">MINIMUM_SQLITE_VERSION</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'3.32.0'</span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/io_managers.html#MINIMUM_SQLITE_VERSION"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.io_managers.MINIMUM_SQLITE_VERSION" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pudl.dagster.io_managers.ALEMBIC_AUTOGENERATE_PLUGINS">
+<span class="sig-prename descclassname"><span class="pre">pudl.dagster.io_managers.</span></span><span class="sig-name descname"><span class="pre">ALEMBIC_AUTOGENERATE_PLUGINS</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['alembic.autogenerate.*',</span> <span class="pre">'~alembic.autogenerate.checkconstraint_byname']</span></span><a class="reference internal" href="../../../../_modules/pudl/dagster/io_managers.html#ALEMBIC_AUTOGENERATE_PLUGINS"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.dagster.io_managers.ALEMBIC_AUTOGENERATE_PLUGINS" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
@@ -1475,6 +1483,7 @@ prefix).</p></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.io_managers.logger"><code class="docutils literal notranslate"><span class="pre">logger</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.io_managers.MINIMUM_SQLITE_VERSION"><code class="docutils literal notranslate"><span class="pre">MINIMUM_SQLITE_VERSION</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.io_managers.ALEMBIC_AUTOGENERATE_PLUGINS"><code class="docutils literal notranslate"><span class="pre">ALEMBIC_AUTOGENERATE_PLUGINS</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.io_managers._get_dagster_instance_if_available"><code class="docutils literal notranslate"><span class="pre">_get_dagster_instance_if_available()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.io_managers.get_table_name_from_context"><code class="docutils literal notranslate"><span class="pre">get_table_name_from_context()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.dagster.io_managers.PudlMixedFormatIOManager"><code class="docutils literal notranslate"><span class="pre">PudlMixedFormatIOManager</span></code></a><ul class="nav section-nav flex-column">
