@@ -758,6 +758,57 @@ def out_epacems__yearly_operational_characteristics(
 ## EIA-Based stuff
 ##################
 
+# core_epa__assn_eia_epacamd (the EPA/EIA crosswalk) currently tops out at
+# report_year=2024, lagging behind the most recent CEMS/EIA-860/EIA-923 data. Filtering
+# to a later year silently returns an empty crosswalk (see
+# filter_eia_epa_mapping_for_heat_rate_analysis), which then nulls out every derived
+# column in the adjusted pipeline with no error raised anywhere -- so the EIA
+# generator snapshot and the crosswalk year are both pinned here rather than being
+# derived from CEMS's most recent year. Bump this once a newer crosswalk vintage is
+# available.
+LATEST_EPACAMD_CROSSWALK_YEAR = 2024
+
+ADJUSTED_HEAT_RATE_ANALYSIS_CONFIG_SCHEMA = {
+    "num_years": Field(
+        int,
+        default_value=3,
+        description=(
+            "Number of historical EPA CEMS years to include, counting backward "
+            "from the configured final year."
+        ),
+    ),
+    "min_stable_consecutive_hours": Field(
+        int,
+        default_value=8,
+        description=(
+            "Minimum number of consecutive operating hours in a load-factor bin "
+            "required for that bin to be considered a stable operating level."
+        ),
+    ),
+    "eia_report_date": Field(
+        str,
+        is_required=False,
+        default_value=f"{LATEST_EPACAMD_CROSSWALK_YEAR}-12-01",
+        description=(
+            "EIA generator snapshot date (YYYY-MM-DD) used for capacity "
+            "denominators, e.g. max_cap_mw/max_mwh. Defaults to December of "
+            "LATEST_EPACAMD_CROSSWALK_YEAR, matching the crosswalk's own vintage, "
+            "rather than the most recent CEMS year."
+        ),
+    ),
+    "eia_epa_mapping_year": Field(
+        int,
+        is_required=False,
+        default_value=LATEST_EPACAMD_CROSSWALK_YEAR,
+        description=(
+            "Report year of the EPA/EIA crosswalk (core_epa__assn_eia_epacamd) to "
+            "use for mapping CEMS units to EIA generators. Defaults to "
+            "LATEST_EPACAMD_CROSSWALK_YEAR, the most recent year the crosswalk "
+            "actually covers."
+        ),
+    ),
+}
+
 
 def filter_eia_generators_for_heat_rate_analysis(
     out_eia__monthly_generators: pl.LazyFrame,
@@ -829,10 +880,19 @@ def summarize_eia_generators(
     Returns:
         Dictionary containing plant-generator, plant, and plant-unit summaries.
     """
+    # `generators` has already been filtered down to a single snapshot report_date
+    # (see filter_eia_generators_for_heat_rate_analysis), so this is a constant
+    # value repeated on every row here -- it's the vintage of the capacity data,
+    # not a real monthly observation date. Rename it so it can't be confused with
+    # the genuinely time-varying `report_date` columns used elsewhere in this
+    # module (e.g. in summarize_eia923_monthly_plant_fuel and
+    # summarize_cems_monthly_plant_operations).
+    generators = generators.rename({"report_date": "capacity_report_date"})
+
     generator_cols = [
         "plant_id_eia",
         "generator_id",
-        "report_date",
+        "capacity_report_date",
         "prime_mover_code",
         "capacity_mw",
         "summer_capacity_mw",
@@ -853,12 +913,18 @@ def summarize_eia_generators(
             eia_epa_mapping,
             on=["plant_id_eia", "generator_id"],
             how="left",
+            # A single EIA generator can map to more than one EPA emissions unit
+            # (and vice versa) in core_epa__assn_eia_epacamd -- that table has no
+            # declared primary key precisely because the EIA/EPA unit relationship
+            # isn't 1:1. `generators` is unique per generator_id (single-snapshot
+            # filter), so this join can only fan out on the eia_epa_mapping side.
+            validate="1:m",
         )
     )
 
     # Create a plant-level summary
     plant = (
-        generators.group_by(["plant_id_eia", "report_date"])
+        generators.group_by(["plant_id_eia", "capacity_report_date"])
         .agg(pl.col(capacity_cols).sum())
         .with_columns(
             max_cap_mw=pl.max_horizontal(capacity_cols),
@@ -903,17 +969,14 @@ def summarize_eia923_monthly_plant_fuel(
         Monthly plant-level EIA 923 generation, fuel, heat rate, and load factor.
     """
     # Filter data to desired plants and
-    eia923 = core_eia923__monthly_generation_fuel.with_columns(
-        year=pl.col("report_date").dt.year(),
-        month=pl.col("report_date").dt.month(),
-    ).filter(
-        (pl.col("year") >= start_year)
+    eia923 = core_eia923__monthly_generation_fuel.filter(
+        (pl.col("report_date").dt.year() >= start_year)
         & (pl.col("data_maturity") == "final")
         & (pl.col("plant_id_eia").is_in(plant_ids_eia.drop_nulls().unique()))
     )
 
     monthly_plant = (
-        eia923.group_by(["plant_id_eia", "year", "month"])
+        eia923.group_by(["plant_id_eia", "report_date"])
         .agg(
             pl.col(
                 [
@@ -923,7 +986,10 @@ def summarize_eia923_monthly_plant_fuel(
                 ]
             ).sum()
         )
-        .join(eia_plant_summary, on="plant_id_eia", how="left")
+        # eia_plant_summary ("plant" from summarize_eia_generators) is a single
+        # generator-capacity snapshot, so it's one row per plant_id_eia -- not
+        # per report_date -- which is why this only joins on plant_id_eia.
+        .join(eia_plant_summary, on="plant_id_eia", how="left", validate="m:1")
         .with_columns(
             heat_rate_mmbtu_per_mwh_net_generation=(
                 pl.col("fuel_consumed_for_electricity_mmbtu")
@@ -949,11 +1015,21 @@ def summarize_cems_monthly_plant_operations(
     Returns:
         Monthly plant-level CEMS gross load, fuel, heat rate, and load factor.
     """
+    # core_epacems__hourly_emissions has no native monthly report_date (only
+    # hourly operating_datetime_utc), so it's synthesized here to match the real
+    # per-month report_date used by summarize_eia923_monthly_plant_fuel -- this is
+    # what lets estimate_gross_to_net_conversion_factors join the two on
+    # (plant_id_eia, report_date) instead of a wider, fragile key.
     monthly_plant = (
-        cems.with_columns(month=pl.col("operating_datetime_utc").dt.month())
-        .group_by(["plant_id_eia", "year", "month"])
+        cems.with_columns(
+            report_date=pl.col("operating_datetime_utc").dt.month_start().cast(pl.Date)
+        )
+        .group_by(["plant_id_eia", "report_date"])
         .agg(pl.col(["gross_load_mw", "heat_content_mmbtu"]).sum())
-        .join(eia_plant_summary, on="plant_id_eia", how="left")  # TODO: Validate merge?
+        # eia_plant_summary ("plant" from summarize_eia_generators) is a single
+        # generator-capacity snapshot, so it's one row per plant_id_eia -- not
+        # per report_date -- which is why this only joins on plant_id_eia.
+        .join(eia_plant_summary, on="plant_id_eia", how="left", validate="m:1")
         .with_columns(
             heat_rate_mmbtu_per_mwh_gross_load=(
                 pl.col("heat_content_mmbtu") / pl.col("gross_load_mw")
@@ -994,25 +1070,18 @@ def estimate_gross_to_net_conversion_factors(
     conversion = (
         cems_monthly_plant_summary.join(
             eia923_monthly_plant_summary,
-            # NOTE: joining on capacity/max_mwh columns (not just the plant_id_eia,
-            # year, month identifiers) is fragile -- it silently relies on both
-            # summaries having been built from the exact same eia_plant_summary
-            # frame, so their capacity columns are float-for-float identical. A
-            # simple ID+time join with an explicit suffix on the overlapping
-            # capacity columns would be more robust.
-            on=[
-                "plant_id_eia",
-                "year",
-                "month",
-                "report_date",
-                "capacity_mw",
-                "summer_capacity_mw",
-                "winter_capacity_mw",
-                "max_cap_mw",
-                "max_mwh",
-            ],
+            # Join only on the real identifying/time columns -- never on floats.
+            # Both summaries also carry identical capacity/max_mwh columns
+            # (tagged along from the same eia_plant_summary in
+            # summarize_cems_monthly_plant_operations and
+            # summarize_eia923_monthly_plant_fuel), but those aren't part of the
+            # join key: they just come along for the ride and get `_eia923`
+            # suffixed on the right-hand copy, same as any other overlapping
+            # non-key column.
+            on=["plant_id_eia", "report_date"],
             how="left",
             suffix="_eia923",
+            validate="1:1",
         )
         .with_columns(
             gen_cems_to_net_gen_conversion_factor=(
@@ -1023,7 +1092,12 @@ def estimate_gross_to_net_conversion_factors(
                 / pl.col("heat_content_mmbtu")
             ),
         )
-        .with_columns(pl.all().replace([float("inf"), float("-inf")], None))
+        .with_columns(
+            pl.col(
+                "gen_cems_to_net_gen_conversion_factor",
+                "fuel_cems_to_eia923_conversion_factor",
+            ).replace([float("inf"), float("-inf")], None)
+        )
         .drop_nulls(
             [
                 "plant_id_eia",
@@ -1086,13 +1160,18 @@ def add_adjusted_net_generation_to_cems(
         rates, and adjusted load factors.
     """
     cems_adjusted = (
-        cems.join(conversion_factors, on="plant_id_eia", how="left")
+        # conversion_factors is one row per plant_id_eia (grouped in
+        # estimate_gross_to_net_conversion_factors), cems is hourly.
+        cems.join(conversion_factors, on="plant_id_eia", how="left", validate="m:1")
         .join(
+            # plant_unit (from summarize_eia_generators) is one row per
+            # (plant_id_eia, emissions_unit_id_epa).
             eia_plant_unit_summary.select(
                 ["plant_id_eia", "emissions_unit_id_epa", "capacity_mw", "max_cap_mw"]
             ),
             on=["plant_id_eia", "emissions_unit_id_epa"],
             how="left",
+            validate="m:1",
         )
         .with_columns(
             net_generation_mwh_cems=(
@@ -1116,3 +1195,107 @@ def add_adjusted_net_generation_to_cems(
     )
 
     return cems_adjusted
+
+
+@asset(
+    required_resource_keys={"global_data_config"},
+    ins={
+        "core_epacems__hourly_emissions": AssetIn(),
+        "out_eia__monthly_generators": AssetIn(),
+        "core_epa__assn_eia_epacamd": AssetIn(),
+        "core_eia923__monthly_generation_fuel": AssetIn(),
+    },
+    config_schema=ADJUSTED_HEAT_RATE_ANALYSIS_CONFIG_SCHEMA,
+    op_tags={"memory-use": "high"},
+)
+def _out_epacems__yearly_operational_characteristics_adjusted(
+    context: AssetExecutionContext,
+    core_epacems__hourly_emissions: pl.LazyFrame,
+    out_eia__monthly_generators: pl.LazyFrame,
+    core_epa__assn_eia_epacamd: pl.LazyFrame,
+    core_eia923__monthly_generation_fuel: pl.LazyFrame,
+) -> pd.DataFrame:
+    """Estimate EPA CEMS unit operational characteristics using net generation.
+
+    Development-only counterpart to :func:`out_epacems__yearly_operational_characteristics`
+    that runs the same per-unit analysis on net-generation-adjusted CEMS records
+    instead of raw gross load, via the EIA-based conversion-factor pipeline
+    (:func:`estimate_gross_to_net_conversion_factors`,
+    :func:`add_adjusted_net_generation_to_cems`). Uses the default (pickled) IO
+    manager rather than ``parquet_io_manager``/``pudl_io_manager`` since it isn't
+    backed by a metadata ``Resource`` definition yet -- the leading underscore marks
+    it as an intermediate/dev asset, not a stable output table.
+    """
+    heat_rate_config = _get_heat_rate_analysis_config(context)
+    year_quarters = context.resources.global_data_config.pudl.epacems.year_quarters
+    max_full_year = int(
+        max(
+            year_quarter.removesuffix("q4")
+            for year_quarter in year_quarters
+            if year_quarter.endswith("q4")
+        )
+    )
+    start_year = max_full_year - heat_rate_config["num_years"]
+    # Deliberately not derived from max_full_year -- see the comment above
+    # LATEST_EPACAMD_CROSSWALK_YEAR.
+    eia_report_date = context.op_config["eia_report_date"]
+    eia_epa_mapping_year = context.op_config["eia_epa_mapping_year"]
+
+    # The EIA/EPA capacity and crosswalk data is a single national snapshot (not
+    # split by state), so this is computed once and reused across every state's
+    # CEMS slice below -- unlike CEMS, it's small enough not to need partitioning.
+    generators = filter_eia_generators_for_heat_rate_analysis(
+        out_eia__monthly_generators=out_eia__monthly_generators,
+        report_date=eia_report_date,
+    )
+    eia_epa_mapping = filter_eia_epa_mapping_for_heat_rate_analysis(
+        core_epa__assn_eia_epacamd=core_epa__assn_eia_epacamd,
+        eia_epa_mapping_year=eia_epa_mapping_year,
+    )
+    eia_summaries = summarize_eia_generators(generators, eia_epa_mapping)
+
+    state_dfs = []
+    for state in sorted(EPACEMS_STATES):
+        logger.info(
+            f"Deriving adjusted unit-level operational characteristics from "
+            f"{state} EPA CEMS "
+        )
+        cems = filter_cems_for_heat_rate_analysis(
+            core_epacems__hourly_emissions=core_epacems__hourly_emissions,
+            final_year=max_full_year,
+            num_years=heat_rate_config["num_years"],
+            states=[state],
+        )
+        cems_monthly = summarize_cems_monthly_plant_operations(
+            cems=cems, eia_plant_summary=eia_summaries["plant"]
+        )
+        plant_ids_eia = cems.select("plant_id_eia").unique().collect().to_series()
+        eia923_monthly = summarize_eia923_monthly_plant_fuel(
+            core_eia923__monthly_generation_fuel=core_eia923__monthly_generation_fuel,
+            eia_plant_summary=eia_summaries["plant"],
+            plant_ids_eia=plant_ids_eia,
+            start_year=start_year,
+        )
+        conversion_factors = estimate_gross_to_net_conversion_factors(
+            cems_monthly_plant_summary=cems_monthly,
+            eia923_monthly_plant_summary=eia923_monthly,
+        )
+        adjusted_cems = add_adjusted_net_generation_to_cems(
+            cems=cems,
+            conversion_factors=conversion_factors,
+            eia_plant_unit_summary=eia_summaries["plant_unit"],
+        )
+        state_df = estimate_operational_characteristics_by_unit(
+            cems=adjusted_cems,
+            min_stable_consecutive_hours=heat_rate_config[
+                "min_stable_consecutive_hours"
+            ],
+            adjusted=True,
+        )
+        state_dfs.append(state_df)
+
+    return (
+        pl.concat(state_dfs)
+        .with_columns(pl.lit(max_full_year).alias("report_year"))
+        .to_pandas()
+    )
