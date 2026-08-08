@@ -128,6 +128,7 @@ def _deploy_outputs(
             stage_results=stage_results,
             fail_hard=False,
             gcs_path=gcs_path,
+            billing_project=os.environ.get("GCP_BILLING_PROJECT", ""),
         )
 
 
