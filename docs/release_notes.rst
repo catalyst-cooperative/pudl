@@ -9,40 +9,6 @@ v2026.9.0 (2026-09-xx)
 
 This is the upcoming PUDL release.
 
-Bug Fixes & Data Cleaning
-^^^^^^^^^^^^^^^^^^^^^^^^^
-
-* Fixed ``set_gcs_temporary_hold`` only protecting the top level of a versioned
-  release path from deletion. It shelled out to ``gcloud storage objects update
-  gs://bucket/prefix/*``, and that glob only matches one path segment, so anything
-  nested in a subdirectory was silently left unheld. Updated the function to use the
-  ``google-cloud-storage`` API to recursively hold every object under the prefix and
-  verify after the fact that none were missed. Manually re-applied the hold to 4,000+
-  previously published versioned release objects that had been missed by the original
-  bug. See PR pr:`5477`.
-* Fixed EIA-176 extraction bug where ``raw_eia176__operation_types_and_sector_items``
-  was always empty due to a mismatched page key. See :issue:`4697` and :pr:`5412`.
-* Recovered dbt data validation tests that were being silently dropped from several
-  tables as their source ``schema.human.yml`` files still used the deprecated ``tests:``
-  key instead of ``data_tests:``, meaning ``dbt_helper`` silently discarded the tests
-  they contained instead of merging them into the generated ``schema.yml``. See PR
-  :pr:`5458`.
-
-Developer Experience
-^^^^^^^^^^^^^^^^^^^^
-
-* Fixed several issues with how ``dbt_helper update-tables`` renders ``schema.yml``
-  (:mod:`pudl.dbt_schema`): long ``description:`` fields are now wrapped into readable
-  paragraph blocks and strings that need quoting prefer double quotes. This now matches
-  Prettier's YAML conventions, minimizing the need for reformatting after generation.
-  Standardized multi-line ``description:`` fields across all ``schema.human.yml``
-  inputs. ``dbt_helper update-tables --schema --clobber all`` is now idempotent across
-  all tables. See PR :pr:`5458`.
-* Pydantic models representing ``dbt`` structures defined in  :mod:`pudl.dbt_schema`
-  now reject any unrecognized keys (like stray ``tests:`` instead of ``data_tests:``) at
-  parse time instead of silently discarding them. Whitespace in description fields is
-  also normalized at parse-time to avoid spurious diffs. See PR :pr:`5458`.
-
 New Data
 ^^^^^^^^
 
@@ -102,6 +68,49 @@ PHMSA
 * Added the ``core_phmsagas__yearly_distribution_by_install_decade`` table, which
   reports :doc:`PHMSA <data_sources/phmsagas>` gas distribution mains miles and
   services by installation decade. See issue :issue:`5266` and PR :pr:`5443`.
+
+Bug Fixes & Data Cleaning
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Fixed ``set_gcs_temporary_hold`` only protecting the top level of a versioned
+  release path from deletion. It shelled out to ``gcloud storage objects update
+  gs://bucket/prefix/*``, and that glob only matches one path segment, so anything
+  nested in a subdirectory was silently left unheld. Updated the function to use the
+  ``google-cloud-storage`` API to recursively hold every object under the prefix and
+  verify after the fact that none were missed. Manually re-applied the hold to 4,000+
+  previously published versioned release objects that had been missed by the original
+  bug. See PR pr:`5477`.
+* Fixed EIA-176 extraction bug where ``raw_eia176__operation_types_and_sector_items``
+  was always empty due to a mismatched page key. See :issue:`4697` and :pr:`5412`.
+* Recovered dbt data validation tests that were being silently dropped from several
+  tables as their source ``schema.human.yml`` files still used the deprecated ``tests:``
+  key instead of ``data_tests:``, meaning ``dbt_helper`` silently discarded the tests
+  they contained instead of merging them into the generated ``schema.yml``. See PR
+  :pr:`5458`.
+
+Developer Experience
+^^^^^^^^^^^^^^^^^^^^
+
+* Fixed several issues with how ``dbt_helper update-tables`` renders ``schema.yml``
+  (:mod:`pudl.dbt_schema`): long ``description:`` fields are now wrapped into readable
+  paragraph blocks and strings that need quoting prefer double quotes. This now matches
+  Prettier's YAML conventions, minimizing the need for reformatting after generation.
+  Standardized multi-line ``description:`` fields across all ``schema.human.yml``
+  inputs. ``dbt_helper update-tables --schema --clobber all`` is now idempotent across
+  all tables. See PR :pr:`5458`.
+* Pydantic models representing ``dbt`` structures defined in  :mod:`pudl.dbt_schema`
+  now reject any unrecognized keys (like stray ``tests:`` instead of ``data_tests:``) at
+  parse time instead of silently discarding them. Whitespace in description fields is
+  also normalized at parse-time to avoid spurious diffs. See PR :pr:`5458`.
+* Automated updating the Zenodo deposition metadata (creators, keywords, version,
+  description, and structured resource links) for monthly PUDL data releases, which
+  previously had to be hand-edited in the Zenodo web UI every month. Creators and
+  keywords are now read from ``.zenodo.json``, and the description is assembled from
+  the built release notes for that version plus a footer of release-specific resource
+  links (versioned docs, data dictionary, S3/GCS paths, the GitHub release, and the
+  corresponding GitHub-repo Zenodo software archive), which are also populated as
+  structured ``related_identifiers`` for better DataCite/OpenAIRE indexing. See issue
+  :issue:`3326`.
 
 .. _release-v2026.8.0:
 

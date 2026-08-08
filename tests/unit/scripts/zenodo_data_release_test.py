@@ -5,15 +5,21 @@ from types import SimpleNamespace
 
 import pytest
 import requests
+from click.testing import CliRunner
 
 from pudl.scripts.zenodo_data_release import (
     PRODUCTION,
     RETRYABLE_STATUS_CODES,
     SANDBOX,
+    ContentComplete,
     EmptyDraft,
+    InitialDataset,
     ZenodoClient,
     _LegacyDeposition,
+    _NewFile,
+    _NewRecord,
     build_zenodo_release_zulip_message,
+    main,
 )
 
 
@@ -202,6 +208,121 @@ def test_sync_directory_skips_top_level_directories_and_ignored_files(
         for call in zenodo_client.create_bucket_file.call_args_list
     ]
     assert uploaded_paths == ["keep.txt"]
+
+
+def test_get_existing_draft_does_not_touch_files(mocker, zenodo_client):
+    """get_existing_draft should reuse the draft record without deleting any files.
+
+    Unlike get_empty_draft, this is for updating metadata on a draft that already has
+    its data files uploaded (e.g. fixing up an in-review production draft), so it must
+    never call delete_deposition_file.
+    """
+    zenodo_client.get_record = mocker.Mock(return_value=_NewRecord(id=999, files=[]))
+    zenodo_client.new_record_version = mocker.Mock(
+        return_value=_NewRecord(id=888, files=[_NewFile(id="abc"), _NewFile(id="def")])
+    )
+    zenodo_client.delete_deposition_file = mocker.Mock()
+
+    content_complete = InitialDataset(
+        record_id=999, zenodo_client=zenodo_client
+    ).get_existing_draft()
+
+    assert isinstance(content_complete, ContentComplete)
+    assert content_complete.record_id == 888
+    zenodo_client.delete_deposition_file.assert_not_called()
+
+
+def test_main_requires_source_dir_unless_metadata_only(mocker):
+    """--source-dir should be required, except when --metadata-only is set.
+
+    ``send_zulip_message`` is mocked defensively: this UsageError currently fires
+    before main() reaches the Zulip-notification code, but mocking it here too means
+    a future reordering can't silently turn this into a live-notification-sending
+    test.
+    """
+    mocker.patch("pudl.scripts.zenodo_data_release.send_zulip_message")
+
+    result = CliRunner().invoke(
+        main,
+        ["--env", "sandbox", "--pudl-version", "v2026.8.0"],
+    )
+
+    assert result.exit_code != 0
+    assert "--source-dir is required" in result.output
+
+
+def test_main_rejects_metadata_only_with_source_dir(mocker):
+    """--metadata-only shouldn't be combined with --source-dir."""
+    mocker.patch("pudl.scripts.zenodo_data_release.send_zulip_message")
+
+    result = CliRunner().invoke(
+        main,
+        [
+            "--env",
+            "sandbox",
+            "--pudl-version",
+            "v2026.8.0",
+            "--metadata-only",
+            "--source-dir",
+            "s3://pudl.catalyst.coop/v2026.8.0/",
+        ],
+    )
+
+    assert result.exit_code != 0
+    assert "can't be combined with --source-dir" in result.output
+
+
+def test_main_checks_git_tag_only_for_production_unless_skipped(mocker):
+    """The git tag guardrail should run for production runs, skippable by flag.
+
+    Sandbox runs never check (they may intentionally use a stand-in version tag, see
+    load_citation_cff_version), and --skip-git-check is an explicit opt-out for
+    production. In both cases we stop the run right after the check (via a mocked
+    get_existing_draft) since we don't want to actually hit any Zenodo API here.
+
+    ``send_zulip_message`` is mocked too: main()'s ``finally`` block sends a real
+    Zulip notification whenever ``ZULIP_API_KEY`` is set in the environment, and this
+    test intentionally makes every invoke() call fail (via the mocked
+    get_existing_draft), which would otherwise fire a live notification if a
+    developer happens to have that key set locally.
+    """
+    mock_check = mocker.patch(
+        "pudl.scripts.zenodo_data_release.verify_git_tag_checked_out"
+    )
+    mocker.patch("pudl.scripts.zenodo_data_release.send_zulip_message")
+    mocker.patch.dict(os.environ, {"ZENODO_TOKEN_UPLOAD": "fake-token"})
+    mocker.patch(
+        "pudl.scripts.zenodo_data_release.InitialDataset.get_existing_draft",
+        side_effect=RuntimeError("stop here -- only the git check matters"),
+    )
+
+    CliRunner().invoke(
+        main,
+        ["--env", "production", "--pudl-version", "v2026.8.0", "--metadata-only"],
+    )
+    mock_check.assert_called_once()
+
+    mock_check.reset_mock()
+    CliRunner().invoke(
+        main,
+        [
+            "--env",
+            "production",
+            "--pudl-version",
+            "v2026.8.0",
+            "--metadata-only",
+            "--skip-git-check",
+        ],
+    )
+    mock_check.assert_not_called()
+
+    mock_check.reset_mock()
+    mocker.patch.dict(os.environ, {"ZENODO_SANDBOX_TOKEN_PUBLISH": "fake-token"})
+    CliRunner().invoke(
+        main,
+        ["--env", "sandbox", "--pudl-version", "v2026.8.0", "--metadata-only"],
+    )
+    mock_check.assert_not_called()
 
 
 def _deposition_payload(*, submitted: bool) -> dict:

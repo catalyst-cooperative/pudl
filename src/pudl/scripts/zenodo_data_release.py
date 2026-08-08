@@ -42,11 +42,27 @@ import fsspec
 import requests
 from pydantic import AnyHttpUrl, BaseModel, Field
 
+from pudl import PUDL_DOCS_PATH, PUDL_ROOT_PATH
 from pudl.deploy.pudl import send_zulip_message
+from pudl.deploy.zenodo_metadata import (
+    CONTACT_US_HTML,
+    build_related_resources,
+    get_data_license_id,
+    load_zenodo_json,
+    render_release_notes_html,
+    verify_git_tag_checked_out,
+)
 from pudl.logging_helpers import get_logger
 
 SANDBOX = "sandbox"
 PRODUCTION = "production"
+# Concept record ID of the GitHub-repo Zenodo *software* archive, auto-published by
+# GitHub's own Zenodo integration (see .zenodo.json) whenever a GitHub release is
+# tagged. This is a different concept from the PUDL *data* record this script
+# publishes to. GitHub's integration only ever publishes to production Zenodo, never
+# to sandbox.
+GITHUB_ARCHIVE_CONCEPT_ID = 3404014
+DATA_RECORD_TITLE = "Public Utility Data Liberation Project (PUDL) Data Release"
 RETRYABLE_STATUS_CODES = {
     408,  # Request Timeout
     500,  # Internal Server Error
@@ -76,9 +92,13 @@ class _LegacyMetadata(BaseModel):
     title: str
     access_right: str
     creators: list[dict]
+    keywords: list[str] = []
     license: str = "cc-by-4.0"  # noqa: A003
+    language: str = "eng"
+    version: str = ""
     publication_date: str = ""
     description: str = ""
+    related_identifiers: list[dict] = []
 
 
 class _LegacyDeposition(BaseModel):
@@ -95,7 +115,8 @@ class _NewFile(BaseModel):
 
 class _NewRecord(BaseModel):
     id_: int = Field(alias="id")
-    files: list[_NewFile]
+    doi: str = ""
+    files: list[_NewFile] = []
 
 
 class ZenodoClient:
@@ -133,6 +154,8 @@ class ZenodoClient:
         }
 
         logger.info(f"Using Zenodo token: {token[:4]}...{token[-4:]}")
+
+        self.env = env
 
     def retry_request(
         self,
@@ -344,6 +367,18 @@ class ZenodoClient:
         return _LegacyDeposition(**response.json())
 
 
+def get_github_archive_doi_url(zenodo_client: ZenodoClient) -> str | None:
+    """Look up the DOI of the latest GitHub-repo Zenodo software archive.
+
+    Returns ``None`` on the sandbox server, since GitHub's Zenodo integration only
+    ever publishes the software archive to production.
+    """
+    if zenodo_client.env != PRODUCTION:
+        return None
+    record = zenodo_client.get_record(GITHUB_ARCHIVE_CONCEPT_ID)
+    return f"https://doi.org/{record.doi}"
+
+
 @dataclass
 class State:
     """Parent class for dataset states.
@@ -365,15 +400,24 @@ class InitialDataset(State):
     we can do is try to get a fresh draft.
     """
 
+    def _get_or_create_draft(self) -> "_NewRecord":
+        """Get the existing draft for this dataset's concept, creating one if needed.
+
+        Uses the new API to get or create the draft; ``new_record_version`` is
+        idempotent, so if a draft already exists (e.g. an in-progress review) it's
+        returned as-is rather than creating another one.
+        """
+        logger.info(f"Getting new version for {self.record_id}")
+        latest_record = self.zenodo_client.get_record(self.record_id)
+        return self.zenodo_client.new_record_version(latest_record.id_)
+
     def get_empty_draft(self) -> "EmptyDraft":
         """Get an empty draft for this dataset.
 
         Use new API to get any draft, then use legacy API to delete any files
         in the draft.
         """
-        logger.info(f"Getting new version for {self.record_id}")
-        latest_record = self.zenodo_client.get_record(self.record_id)
-        new_version = self.zenodo_client.new_record_version(latest_record.id_)
+        new_version = self._get_or_create_draft()
         new_rec_id = new_version.id_
         existing_files = new_version.files
         logger.info(
@@ -382,6 +426,23 @@ class InitialDataset(State):
         for f in existing_files:
             self.zenodo_client.delete_deposition_file(new_rec_id, f.id_)
         return EmptyDraft(record_id=new_rec_id, zenodo_client=self.zenodo_client)
+
+    def get_existing_draft(self) -> "ContentComplete":
+        """Get the existing draft for this dataset, without touching its files.
+
+        For updating just the metadata on a draft that already has its data files in
+        place (e.g. fixing up a production draft's metadata before it's reviewed and
+        published) -- skips ``get_empty_draft``'s file deletion and the
+        ``sync_directory`` upload step entirely.
+        """
+        new_version = self._get_or_create_draft()
+        logger.info(
+            f"Using existing draft {new_version.id_} with "
+            f"{len(new_version.files)} files, metadata only"
+        )
+        return ContentComplete(
+            record_id=new_version.id_, zenodo_client=self.zenodo_client
+        )
 
 
 class EmptyDraft(State):
@@ -489,38 +550,54 @@ class EmptyDraft(State):
 class ContentComplete(State):
     """Now that we've uploaded all the data, we need to update metadata."""
 
-    def update_metadata(self):
-        """Copy over old metadata and update publication date.
+    def update_metadata(
+        self,
+        version_tag: str,
+        docs_html_dir: Path,
+        zenodo_json_path: Path,
+    ) -> "CompleteDraft":
+        """Build and set fresh deposition metadata for this release.
 
-        We need to make sure there is complete metadata, including a publication date.
+        Rather than blindly copying the previous version's metadata forward (the old
+        behavior -- and one that silently dropped ``keywords``/``version`` since
+        ``_LegacyMetadata`` didn't declare those fields), we rebuild metadata from its
+        actual sources of truth in the repo on every release:
 
-        To do this, we:
+        * creators & keywords: ``.zenodo.json``
+        * description: the built release notes HTML for ``version_tag``, plus a
+          footer of release-specific resource links and a static contact-us section
+        * license: ``pudl.metadata.sources.SOURCES["pudl"]["license_pudl"]``, the
+          authoritative record of what license PUDL's own data outputs are released
+          under (via ``get_data_license_id()``)
 
-        1. use the *legacy* API to get the concept record ID associated with the draft
-        2. use the *new* API to get the latest record associated with the concept
-        3. use the *legacy* API to get the metadata from the latest record
-        4. use the *legacy* API to update the draft's metadata
-
-        Since we are using the legacy API to publish, we need the legacy
-        metadata format. But the legacy concept DOI -> published record mapping
-        is broken, so we have to take a detour through the new API.
+        Args:
+            version_tag: The PUDL release version tag, e.g. ``"v2026.8.0"``.
+            docs_html_dir: Path to a built Sphinx HTML output directory (i.e.
+                ``docs/_build/html``), used to extract this version's release notes.
+            zenodo_json_path: Path to the repo's ``.zenodo.json``, used for creators
+                and keywords.
         """
-        deposition_info = self.zenodo_client.get_deposition(self.record_id)
-        concept_rec_id = deposition_info.conceptrecid
-        concept_info = self.zenodo_client.get_record(concept_rec_id)
-        latest_published_deposition = self.zenodo_client.get_deposition(
-            concept_info.id_
+        creators, keywords = load_zenodo_json(zenodo_json_path)
+        github_archive_doi_url = get_github_archive_doi_url(self.zenodo_client)
+        release_notes_html = render_release_notes_html(docs_html_dir, version_tag)
+        resources_html, related_identifiers = build_related_resources(
+            version_tag, github_archive_doi_url
         )
-        base_metadata = {
-            k: v
-            for k, v in latest_published_deposition.metadata.model_dump().items()
-            if k not in {"doi", "prereserve_doi", "publication_date"}
-        }
-        logger.info(
-            f"Using metadata from {latest_published_deposition.id_} to publish {self.record_id}..."
+        description = f"{release_notes_html}\n{resources_html}\n{CONTACT_US_HTML}"
+
+        metadata = _LegacyMetadata(
+            title=DATA_RECORD_TITLE,
+            access_right="open",
+            creators=creators,
+            keywords=keywords,
+            license=get_data_license_id(),
+            language="eng",
+            version=version_tag,
+            publication_date=datetime.date.today().isoformat(),
+            description=description,
+            related_identifiers=related_identifiers,
         )
-        pub_date = {"publication_date": datetime.date.today().isoformat()}
-        metadata = _LegacyMetadata(**(base_metadata | pub_date))
+        logger.info(f"Setting fresh metadata for {version_tag} on {self.record_id}...")
         self.zenodo_client.update_deposition_metadata(self.record_id, metadata=metadata)
         return CompleteDraft(record_id=self.record_id, zenodo_client=self.zenodo_client)
 
@@ -585,15 +662,23 @@ def build_zenodo_release_zulip_message(
 @click.option(
     "--source-dir",
     type=str,
-    required=True,
+    default=None,
     help="Path to a directory whose contents will be uploaded to Zenodo. "
     "Subdirectories are ignored. Accepts GCS or S3 URLs as well. Prefix remote paths "
-    "with e.g. gs:// or s3://.",
+    "with e.g. gs:// or s3://. Required unless --metadata-only is set.",
 )
 @click.option(
     "--ignore",
     multiple=True,
     help="Filenames that match these regex patterns will be ignored.",
+)
+@click.option(
+    "--metadata-only",
+    is_flag=True,
+    default=False,
+    help="Update metadata on the existing draft without touching its files or "
+    "--source-dir/--ignore. For fixing up a draft's metadata (e.g. after a review "
+    "comment) without re-uploading the data.",
 )
 @click.option(
     "--publish/--no-publish",
@@ -602,8 +687,60 @@ def build_zenodo_release_zulip_message(
     "draft to be reviewed and approved manually.",
     show_default=True,
 )
-def main(env: str, source_dir: str, publish: bool, ignore: tuple[str]) -> int:
+@click.option(
+    "--pudl-version",
+    type=str,
+    required=True,
+    help="The PUDL release version tag being published, e.g. 'v2026.8.0'. Used to set "
+    "the deposition's version, to select the matching section of the release notes, "
+    "and to build release-specific resource links.",
+)
+@click.option(
+    "--docs-html-dir",
+    type=click.Path(path_type=Path),
+    default=None,
+    help="Path to a built Sphinx HTML docs directory (i.e. 'docs/_build/html', "
+    "produced by 'pixi run docs-build'), used to extract this version's release "
+    "notes for the deposition description. Defaults to docs/_build/html within the "
+    "repository.",
+)
+@click.option(
+    "--skip-git-check",
+    is_flag=True,
+    default=False,
+    help="Skip verifying that the working tree's checked-out git commit matches "
+    "--pudl-version. Only used against production, where metadata is read live from "
+    "the working tree (release notes, creators, keywords), so a mismatched checkout "
+    "can silently produce incorrect metadata. Sandbox runs always skip this check, "
+    "since they intentionally use a stand-in version tag rather than a real release.",
+)
+def main(
+    env: str,
+    source_dir: str | None,
+    publish: bool,
+    ignore: tuple[str],
+    metadata_only: bool,
+    pudl_version: str,
+    docs_html_dir: Path | None,
+    skip_git_check: bool,
+) -> int:
     """Publish a new PUDL data release to Zenodo."""
+    if not metadata_only and source_dir is None:
+        raise click.UsageError(
+            "--source-dir is required unless --metadata-only is set."
+        )
+    if metadata_only and (source_dir is not None or ignore):
+        raise click.UsageError(
+            "--metadata-only can't be combined with --source-dir/--ignore."
+        )
+
+    if docs_html_dir is None:
+        docs_html_dir = PUDL_DOCS_PATH / "_build" / "html"
+    zenodo_json_path = PUDL_ROOT_PATH / ".zenodo.json"
+
+    if env == PRODUCTION and not skip_git_check:
+        verify_git_tag_checked_out(pudl_version, PUDL_ROOT_PATH)
+
     zenodo_client = ZenodoClient(env)
     if env == SANDBOX:
         rec_id = 5563
@@ -616,11 +753,18 @@ def main(env: str, source_dir: str, publish: bool, ignore: tuple[str]) -> int:
     record_url: str | None = None
     succeeded = False
     try:
-        completed_draft = (
-            InitialDataset(zenodo_client=zenodo_client, record_id=rec_id)
-            .get_empty_draft()
-            .sync_directory(source_dir, ignore)
-            .update_metadata()
+        initial_dataset = InitialDataset(zenodo_client=zenodo_client, record_id=rec_id)
+        if metadata_only:
+            content_complete = initial_dataset.get_existing_draft()
+        else:
+            assert source_dir is not None  # guaranteed by the check above
+            content_complete = initial_dataset.get_empty_draft().sync_directory(
+                source_dir, ignore
+            )
+        completed_draft = content_complete.update_metadata(
+            version_tag=pudl_version,
+            docs_html_dir=docs_html_dir,
+            zenodo_json_path=zenodo_json_path,
         )
 
         if publish:
