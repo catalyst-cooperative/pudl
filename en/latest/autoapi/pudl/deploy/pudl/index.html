@@ -18,7 +18,7 @@
     </script>
     
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
-    <title>pudl.deploy.pudl &#8212; PUDL 2026.8.1.dev5 documentation</title>
+    <title>pudl.deploy.pudl &#8212; PUDL 2026.8.1.dev6 documentation</title>
   
   
   
@@ -51,7 +51,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../../_static/documentation_options.js?v=de639e13"></script>
+    <script src="../../../../_static/documentation_options.js?v=fed204f8"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -142,8 +142,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev5 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev5 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev6 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev6 documentation - Home"/>
   
   
 </a></div>
@@ -1320,7 +1320,7 @@ path to data outputs which will populate zenodo deposition.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pudl.deploy.pudl.set_gcs_temporary_hold">
-<span class="sig-prename descclassname"><span class="pre">pudl.deploy.pudl.</span></span><span class="sig-name descname"><span class="pre">set_gcs_temporary_hold</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gcs_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/deploy/pudl.html#set_gcs_temporary_hold"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.deploy.pudl.set_gcs_temporary_hold" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">pudl.deploy.pudl.</span></span><span class="sig-name descname"><span class="pre">set_gcs_temporary_hold</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gcs_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">billing_project</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/deploy/pudl.html#set_gcs_temporary_hold"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.deploy.pudl.set_gcs_temporary_hold" title="Link to this definition">#</a></dt>
 <dd><p>Set temporary hold on GCS objects to prevent deletion.</p>
 <p>Applies a temporary hold to protect versioned release artifacts from
 accidental deletion or lifecycle policies.</p>
@@ -1328,8 +1328,20 @@ accidental deletion or lifecycle policies.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>gcs_path</strong> – GCS path to objects (e.g., “gs://pudl.catalyst.coop/v2025.2.3/”).</p></li>
-<li><p><strong>billing_project</strong> – which project to bill for Requester Pays buckets.</p></li>
+<li><p><strong>billing_project</strong> – which project to bill for Requester Pays access to this
+bucket. If not given, falls back to whatever <code class="docutils literal notranslate"><span class="pre">storage.Client()</span></code>
+resolves via Application Default Credentials – the <code class="docutils literal notranslate"><span class="pre">GOOGLE_CLOUD_</span>
+<span class="pre">PROJECT</span></code>/<code class="docutils literal notranslate"><span class="pre">GCLOUD_PROJECT</span></code> env vars, a service account key file’s
+embedded project, the active <code class="docutils literal notranslate"><span class="pre">gcloud</span> <span class="pre">config</span> <span class="pre">set</span> <span class="pre">project</span></code>, or GCE/
+Cloud Run instance metadata, in that order. That’s the same
+resolution the <code class="docutils literal notranslate"><span class="pre">gcloud</span></code> CLI itself uses, so e.g. a local dev shell
+with a configured <code class="docutils literal notranslate"><span class="pre">gcloud</span></code> project needs no explicit argument.</p></li>
 </ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#RuntimeError" title="(in Python v3.14)"><strong>RuntimeError</strong></a> – If no billing project can be determined by any of the
+above, no objects are found at <code class="docutils literal notranslate"><span class="pre">gcs_path</span></code>, or a post-hold sweep
+finds objects still missing the hold.</p>
 </dd>
 </dl>
 </dd></dl>

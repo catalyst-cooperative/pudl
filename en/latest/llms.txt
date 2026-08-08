@@ -1,6 +1,6 @@
 # PUDL
 
-> PUDL 2026.8.1.dev5 documentation
+> PUDL 2026.8.1.dev6 documentation
 
 
 2016-2026, Catalyst Cooperative, CC-BY-4.0
@@ -294,7 +294,7 @@
 - [Project Management](dev/project_management.html.md): The people working on PUDL are distributed all over North America. Collaboration takes
 - [PUDL Data Dictionary](data_dictionaries/pudl_db.html.md): The following data tables have been cleaned and transformed by our ETL process.
 - [PUDL ID Mapping](dev/pudl_id_mapping.html.md): Many of the same utilities are reporting data to FERC and EIA, but there is no official
-- [PUDL Release Notes](release_notes.html.md): This is the upcoming monthly PUDL release.
+- [PUDL Release Notes](release_notes.html.md): This is the upcoming PUDL release.
 - [Run a Versioned Release](dev/run_a_release.html.md): So the time has come and we would like to release a `stable` version of our
 - [Running the ETL Pipeline](dev/run_the_etl.html.md): So you want to run the PUDL data processing pipeline? This is the most involved way
 - [USDA RUS Form 12 – Financial and Operating Report: Electric Power Supply](data_sources/rus12.html.md): | Source URL                      | [https://www.rd.usda.gov/resources/forms/rus-forms](https://www....
