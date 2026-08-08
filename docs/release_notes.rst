@@ -1,13 +1,25 @@
 =======================================================================================
 PUDL Release Notes
 =======================================================================================
-.. _release-v2026.9.x:
+.. _release-v2026.9.0:
 
 ---------------------------------------------------------------------------------------
-v2026.9.x (2026-09-xx)
+v2026.9.0 (2026-09-xx)
 ---------------------------------------------------------------------------------------
 
-This is the upcoming monthly PUDL release.
+This is the upcoming PUDL release.
+
+Bug Fixes & Data Cleaning
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Fixed ``set_gcs_temporary_hold`` only protecting the top level of a versioned
+  release path from deletion. It shelled out to ``gcloud storage objects update
+  gs://bucket/prefix/*``, and that glob only matches one path segment, so anything
+  nested in a subdirectory was silently left unheld. Updated the function to use the
+  ``google-cloud-storage`` API to recursively hold every object under the prefix and
+  verify after the fact that none were missed. Manually re-applied the hold to 4,000+
+  previously published versioned release objects that had been missed by the original
+  bug. See PR pr:`5477`.
 
 New Data
 ^^^^^^^^
@@ -20,6 +32,19 @@ EIA-923
   generating facilities, aggregated by census division or state. The wide monthly
   source columns are reshaped into tall monthly records and the reported thousand-unit
   quantities are converted to base units. See issue :issue:`5081` and PR :pr:`5431`.
+
+EPA CEMS
+~~~~~~~~
+
+* Added a new analysis output, :ref:`out_epacems__yearly_operational_characteristics`,
+  which estimates generator operational characteristics such as minimum stable operating
+  level, minimum up/down times, ramp rates, and heat rates at maximum and minimum load,
+  inferred from hourly :doc:`EPA CEMS <data_sources/epacems>` gross load and fuel heat
+  content data over a rolling three-year window. This dagsterizes and vectorizes an
+  analysis originally developed by `Sylvan Energy <https://sylvan.energy/>`__, making it
+  available for all reporting states rather than just California. The output is
+  experimental and marked accordingly, since we are soliciting feedback from the
+  community on the underlying methodology. See issue :issue:`5106` and PR :pr:`5190`.
 
 .. _release-v2026.8.0:
 
