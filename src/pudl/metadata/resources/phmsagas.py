@@ -16,7 +16,6 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
             ),
             "additional_source_text": "(Part B - System Description / Section 4)",
             "usage_warnings": [
-                "aggregation_hazard",
                 {
                     "type": "custom",
                     "description": (
@@ -27,10 +26,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                     ),
                 },
             ],
-            "additional_details_text": (
-                "The records with an install decade of total_decade are a total - "
-                "beware of aggregating these values."
-            ),
+            "additional_details_text": "",
         },
         "schema": {
             "fields": [

@@ -1,8 +1,8 @@
 """Add PHMSA install decade table
 
-Revision ID: c0a780b47bdc
+Revision ID: 643995fcb3c0
 Revises: 9a8d47bd495e
-Create Date: 2026-07-31 10:23:29.928192
+Create Date: 2026-08-10 10:07:32.447404
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'c0a780b47bdc'
+revision = '643995fcb3c0'
 down_revision = '9a8d47bd495e'
 branch_labels = None
 depends_on = None
@@ -23,8 +23,8 @@ def upgrade() -> None:
     sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
     sa.Column('operator_id_phmsa', sa.Integer(), nullable=False, comment='PHMSA unique operator ID. A value of zero represents an unknown operator ID.'),
     sa.Column('commodity', sa.Enum('Natural Gas', 'Propane Gas', 'Landfill Gas', 'Synthetic Gas', 'Hydrogen Gas', 'Nitrogen Gas', 'unknown'), nullable=True, comment='The type of gas delivered by the distribution pipeline.'),
-    sa.Column('operating_state', sa.Text(), nullable=False, comment='State that the distribution utility is reporting for. Prior to 2004, this may be a list of states.'),
-    sa.Column('install_decade', sa.Text(), nullable=False, comment='The decade the distribution pipeline was installed.'),
+    sa.Column('operating_state', sa.Text(), nullable=False, comment='Two-letter postal abbreviation for the state or territory the distribution utility is reporting for.'),
+    sa.Column('install_decade', sa.Enum('pre_1940', '1940s', '1950s', '1960s', '1970s', '1980s', '1990s', '2000s', '2010s', '2020s', 'unknown_decade'), nullable=False, comment='The decade the distribution pipeline was installed.'),
     sa.Column('mains_miles', sa.Float(), nullable=True, comment='The miles of mains distribution pipeline.'),
     sa.Column('services', sa.Integer(), nullable=True, comment='Number of services in system at end of year.'),
     sa.ForeignKeyConstraint(['report_id', 'report_date', 'operator_id_phmsa'], ['core_phmsagas__yearly_distribution_operators.report_id', 'core_phmsagas__yearly_distribution_operators.report_date', 'core_phmsagas__yearly_distribution_operators.operator_id_phmsa'], name=op.f('fk_core_phmsagas__yearly_distribution_by_install_decade_report_id_core_phmsagas__yearly_distribution_operators')),

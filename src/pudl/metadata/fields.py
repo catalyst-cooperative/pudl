@@ -33,6 +33,7 @@ from pudl.metadata.enums import (
     GENERATION_ENERGY_SOURCES_EIA930,
     IMPUTATION_CODES,
     INCOME_TYPES_FERC1,
+    INSTALL_DECADES_PHMSAGAS,
     LEAK_SOURCE_PHMSAGAS,
     LIABILITY_TYPES_FERC1,
     LIABILITY_TYPES_RUS7,
@@ -10647,6 +10648,9 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
     "core_phmsagas__yearly_distribution_by_install_decade": {
         "commodity": {
             "constraints": {"enum": COMMODITY_TYPES_PHMSAGAS},
+        },
+        "install_decade": {
+            "constraints": {"enum": INSTALL_DECADES_PHMSAGAS},
         },
         "operating_state": {
             "description": (

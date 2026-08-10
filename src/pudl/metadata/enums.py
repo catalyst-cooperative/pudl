@@ -825,6 +825,20 @@ COMMODITY_TYPES_PHMSAGAS = [
     "unknown",
 ]
 
+INSTALL_DECADES_PHMSAGAS = [
+    "pre_1940",
+    "1940s",
+    "1950s",
+    "1960s",
+    "1970s",
+    "1980s",
+    "1990s",
+    "2000s",
+    "2010s",
+    "2020s",
+    "unknown_decade",
+]
+
 MATERIAL_TYPES_PHMSAGAS = [
     "unprotected_steel_bare",
     "unprotected_steel_coated",

@@ -112,6 +112,11 @@ YEARLY_DISTRIBUTION_IDX_ISH = [
     "operating_state",
 ]
 
+INSTALL_DECADE_TOTAL_MISMATCHES = {
+    "mains_miles": {"expected_mismatches": 37, "tolerance": 0.001},
+    "services": {"expected_mismatches": 5, "tolerance": 0},
+}
+
 MELT_PATTERNS = {
     "_core_phmsagas__yearly_distribution_by_material": {
         "main_pattern": rf"^main_({'|'.join(MATERIAL_TYPES_PHMSAGAS)})_miles$",
@@ -651,6 +656,48 @@ def _core_phmsagas__yearly_distribution_misc(
     return df
 
 
+def _assert_install_decade_totals_match_expected(df: pd.DataFrame) -> None:
+    """Assert known mismatch counts between reported and summed install decades."""
+    group_by_columns = [
+        "report_id",
+        "report_date",
+        "operator_id_phmsa",
+        "operating_state",
+    ]
+    total_label = "total_decades"
+
+    for value_column, params in INSTALL_DECADE_TOTAL_MISMATCHES.items():
+        grouped = (
+            df.groupby(
+                group_by_columns + ["install_decade"],
+                dropna=False,
+                observed=True,
+            )[value_column]
+            .sum(min_count=1)
+            .reset_index(name="total")
+        )
+        totals = grouped.loc[
+            grouped["install_decade"].eq(total_label),
+            [*group_by_columns, "total"],
+        ].rename(columns={"total": "grand_total"})
+        subcomponents = (
+            grouped.loc[~grouped["install_decade"].eq(total_label)]
+            .groupby(group_by_columns, dropna=False, observed=True)["total"]
+            .sum(min_count=1)
+            .reset_index(name="subcomponents_sum")
+        )
+        comparison = subcomponents.merge(totals, on=group_by_columns, how="outer")
+        mismatches = comparison.loc[
+            (comparison["subcomponents_sum"] - comparison["grand_total"]).abs()
+            > params["tolerance"]
+        ]
+
+        assert len(mismatches) == params["expected_mismatches"], (
+            f"Found {len(mismatches)} {value_column} total_decades mismatches, "
+            f"but expected {params['expected_mismatches']}."
+        )
+
+
 @asset(io_manager_key="pudl_io_manager", compute_kind="pandas")
 def core_phmsagas__yearly_distribution_by_install_decade(
     _core_phmsagas__yearly_distribution_by_install_decade: pd.DataFrame,
@@ -666,4 +713,5 @@ def core_phmsagas__yearly_distribution_by_install_decade(
 
     df = _core_phmsagas__yearly_distribution_by_install_decade.copy()
     df["commodity"] = df["commodity"].replace(commodity_map)
-    return df
+    _assert_install_decade_totals_match_expected(df)
+    return df.loc[~df["install_decade"].eq("total_decades")].copy()
