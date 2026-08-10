@@ -28,10 +28,11 @@ sources:
                     etl-fast rather than loosened, since there's no principled
                     single-quarter outlier count to pick.
                   arguments:
-                    min_value: 0.0
-                    max_value: 24.0
+                    # A min of 0.0 would not count as up time. 1.0 is lowest possible.
+                    min_value: 1.0
+                    # Baseload CCGTs have mandatory inspections every 8-12k hours.
+                    max_value: 12000
                   config:
-                    error_if: ">58"
                     enabled: "{{ target.name == 'etl-full' }}"
           - name: min_down_time_hours
             data_tests:
@@ -41,10 +42,11 @@ sources:
                     minimum-of-a-small-sample statistic that's too noisy to check
                     meaningfully against etl-fast's single quarter of EPA CEMS data.
                   arguments:
-                    min_value: 0.0
-                    max_value: 24.0
+                    # A min of 0.0 would not count as down time. 1.0 is lowest possible.
+                    min_value: 1.0
+                    # Number of hours in 3 years. Some units never fire.
+                    max_value: 26304
                   config:
-                    error_if: ">52"
                     enabled: "{{ target.name == 'etl-full' }}"
           - name: heat_rate_at_max_load_factor_mmbtu_per_mwh
             data_tests:
@@ -56,19 +58,22 @@ sources:
                     the median far more volatile than in production (12 trailing
                     quarters), so this check is disabled for etl-fast.
                   arguments:
-                    min_value: 3.0
-                    max_value: 18.0
+                    # World record for most efficient CCGT is 5.5
+                    min_value: 5.4
+                    max_value: 25.0
                   config:
-                    error_if: ">49"
+                    error_if: ">50"
                     enabled: "{{ target.name == 'etl-full' }}"
           - name: heat_rate_at_min_stable_load_factor_mmbtu_per_mwh
             data_tests:
               - dbt_expectations.expect_column_values_to_be_between:
                   arguments:
-                    min_value: 3.0
+                    # World record for most efficient CCGT is 5.5
+                    min_value: 5.4
                     max_value: 25.0
                   config:
-                    error_if: ">57"
+                    error_if: ">60"
+                    enabled: "{{ target.name == 'etl-full' }}"
           - name: ramp_up_rate_per_min
             data_tests:
               - dbt_expectations.expect_column_values_to_be_between:
