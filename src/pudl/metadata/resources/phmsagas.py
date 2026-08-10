@@ -43,7 +43,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "report_id",
                 "report_date",
                 "operator_id_phmsa",
-                "operating_state",
+                "commodity",
                 "install_decade",
             ],
         },

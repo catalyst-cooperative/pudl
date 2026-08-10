@@ -704,14 +704,21 @@ def core_phmsagas__yearly_distribution_by_install_decade(
 ) -> pd.DataFrame:
     """Create core_phmsagas__yearly_distribution_by_install_decade."""
     commodity_map = {
-        "OTHER GAS: Natural Gas": "Natural Gas",
-        "OTHER GAS: Nitrogen": "Nitrogen Gas",
-        "OTHER GAS: Propane Gas": "Propane Gas",
-        "OTHER GAS: nitrogen": "Nitrogen Gas",
-        "OTHER GAS: City of York": "unknown",  # Probably propane?
+        "Natural Gas": "natural_gas",
+        "Propane Gas": "propane_gas",
+        "Landfill Gas": "landfill_gas",
+        "Synthetic Gas": "synthetic_gas",
+        "Hydrogen Gas": "hydrogen_gas",
+        "Nitrogen Gas": "nitrogen_gas",
+        "OTHER GAS: Natural Gas": "natural_gas",
+        "OTHER GAS: Nitrogen": "nitrogen_gas",
+        "OTHER GAS: Propane Gas": "propane_gas",
+        "OTHER GAS: nitrogen": "nitrogen_gas",
+        "OTHER GAS: City of York": "other",
     }
 
     df = _core_phmsagas__yearly_distribution_by_install_decade.copy()
     df["commodity"] = df["commodity"].replace(commodity_map)
+    df["commodity"] = df["commodity"].fillna("all")
     _assert_install_decade_totals_match_expected(df)
     return df.loc[~df["install_decade"].eq("total_decades")].copy()

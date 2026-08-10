@@ -816,13 +816,14 @@ https://www.census.gov/library/reference/code-lists/functional-status-codes.html
 
 
 COMMODITY_TYPES_PHMSAGAS = [
-    "Natural Gas",
-    "Propane Gas",
-    "Landfill Gas",
-    "Synthetic Gas",
-    "Hydrogen Gas",
-    "Nitrogen Gas",
-    "unknown",
+    "all",
+    "natural_gas",
+    "propane_gas",
+    "landfill_gas",
+    "synthetic_gas",
+    "hydrogen_gas",
+    "nitrogen_gas",
+    "other",
 ]
 
 INSTALL_DECADES_PHMSAGAS = [
