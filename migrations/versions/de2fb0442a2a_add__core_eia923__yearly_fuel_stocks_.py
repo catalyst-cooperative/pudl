@@ -1,8 +1,8 @@
-"""add _core_eia923__yearly_fuel_stocks table
+"""Add _core_eia923__yearly_fuel_stocks table
 
-Revision ID: 0636821e0069
-Revises: 9a8d47bd495e
-Create Date: 2026-07-31 14:29:28.995624
+Revision ID: de2fb0442a2a
+Revises: e7c433fdf3cb
+Create Date: 2026-08-10 11:26:48.648107
 
 """
 from alembic import op
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '0636821e0069'
-down_revision = '9a8d47bd495e'
+revision = 'de2fb0442a2a'
+down_revision = 'e7c433fdf3cb'
 branch_labels = None
 depends_on = None
 
