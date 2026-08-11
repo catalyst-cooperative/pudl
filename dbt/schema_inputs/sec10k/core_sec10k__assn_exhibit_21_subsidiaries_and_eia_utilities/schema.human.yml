@@ -9,9 +9,9 @@ sources:
               config:
                 enabled: "{{ target.name == 'etl-full'}}"
               arguments:
-                # remote builds 2026-07-19:
-                min_value: 5724
-                # local builds 2026-07-19:
+                # remote builds 2026-08-07:
+                min_value: 5720
+                # local builds 2026-08-07:
                 max_value: 5730
         columns:
           - name: subsidiary_company_id_sec10k

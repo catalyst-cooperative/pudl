@@ -4085,6 +4085,22 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Fuel content per unit of electricity generated.",
         "unit": "MMBtu / MWh",
     },
+    "heat_rate_at_max_load_factor_mmbtu_per_mwh": {
+        "type": "number",
+        "description": (
+            "Estimated heat rate at the highest observed load-factor bin for an EPA "
+            "CEMS emissions unit."
+        ),
+        "unit": "MMBTU / MWh",
+    },
+    "heat_rate_at_min_stable_load_factor_mmbtu_per_mwh": {
+        "type": "number",
+        "description": (
+            "Estimated heat rate at the minimum stable operating level for an EPA "
+            "CEMS emissions unit."
+        ),
+        "unit": "MMBTU / MWh",
+    },
     "heat_rate_penalty": {
         "type": "number",
         "description": (
@@ -4783,6 +4799,11 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "Maximum discharge rate in MW.",
         "unit": "MW",
     },
+    "max_gross_load_mw": {
+        "type": "number",
+        "description": ("Maximum observed gross load for an EPA CEMS emissions unit."),
+        "unit": "MW",
+    },
     "max_fuel_mmbtu_per_unit": {
         "type": "number",
         "description": "Maximum heat content per physical unit of fuel in MMBTU.",
@@ -4943,6 +4964,28 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "The minimum load at which the generator can operate at continuosuly."
         ),
         "unit": "MW",
+    },
+    "min_down_time_hours": {
+        "type": "number",
+        "description": (
+            "Minimum observed duration of a consecutive non-operating run."
+        ),
+        "unit": "hr",
+    },
+    "min_stable_load_factor": {
+        "type": "number",
+        "description": (
+            "Estimated minimum stable operating level as a fraction of maximum gross "
+            "load."
+        ),
+    },
+    "min_up_time_hours": {
+        "type": "number",
+        "description": (
+            "Minimum observed duration of a consecutive run at or above the minimum "
+            "stable level."
+        ),
+        "unit": "hr",
     },
     "model_case_eiaaeo": {
         "type": "string",
@@ -6737,6 +6780,22 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "Identifier indicating original FERC Form 1 source record. format: {table_name}_{report_year}_{report_prd}_{respondent_id}_{spplmnt_num}_{row_number}. Unique within FERC Form 1 DB tables which are not row-mapped."
         ),
+    },
+    "ramp_down_rate_per_min": {
+        "type": "number",
+        "description": (
+            "Median ramp rate among the steepest 5% of observed downward ramps "
+            "expressed as a fraction of maximum gross load per minute."
+        ),
+        "unit": "1 / min",
+    },
+    "ramp_up_rate_per_min": {
+        "type": "number",
+        "description": (
+            "Median ramp rate among the steepest 5% of observed upward ramps "
+            "expressed as a fraction of maximum gross load per minute."
+        ),
+        "unit": "1 / min",
     },
     "record_id_eia": {
         "type": "string",

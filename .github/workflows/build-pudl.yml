@@ -64,7 +64,7 @@ jobs:
               echo "DEPLOYMENT_ENVIRONMENT=production" >> "$GITHUB_ENV"
               BUILD_ID_RAW="stable-$BUILD_ID_SUFFIX"
           fi
-          BUILD_ID_SANITIZED="$(echo $BUILD_ID_RAW | sed 's/[^[:alnum:]-]/-/g')"
+          BUILD_ID_SANITIZED="${BUILD_ID_RAW//[^[:alnum:]-]/-}"
           echo "BUILD_ID=${BUILD_ID_SANITIZED:0:63}" >> "$GITHUB_ENV"
 
       - name: Show freshly set envvars

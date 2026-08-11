@@ -1,13 +1,53 @@
 =======================================================================================
 PUDL Release Notes
 =======================================================================================
-.. _release-v2026.8.x:
+.. _release-v2026.9.0:
 
 ---------------------------------------------------------------------------------------
-v2026.8.x (2026-08-xx)
+v2026.9.0 (2026-09-xx)
 ---------------------------------------------------------------------------------------
 
-This is the upcoming quarterly PUDL release.
+This is the upcoming PUDL release.
+
+Bug Fixes & Data Cleaning
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Fixed ``set_gcs_temporary_hold`` only protecting the top level of a versioned
+  release path from deletion. It shelled out to ``gcloud storage objects update
+  gs://bucket/prefix/*``, and that glob only matches one path segment, so anything
+  nested in a subdirectory was silently left unheld. Updated the function to use the
+  ``google-cloud-storage`` API to recursively hold every object under the prefix and
+  verify after the fact that none were missed. Manually re-applied the hold to 4,000+
+  previously published versioned release objects that had been missed by the original
+  bug. See PR pr:`5477`.
+
+New Data
+^^^^^^^^
+
+EPA CEMS
+~~~~~~~~
+
+* Added a new analysis output, :ref:`out_epacems__yearly_operational_characteristics`,
+  which estimates generator operational characteristics such as minimum stable operating
+  level, minimum up/down times, ramp rates, and heat rates at maximum and minimum load,
+  inferred from hourly :doc:`EPA CEMS <data_sources/epacems>` gross load and fuel heat
+  content data over a rolling three-year window. This dagsterizes and vectorizes an
+  analysis originally developed by `Sylvan Energy <https://sylvan.energy/>`__, making it
+  available for all reporting states rather than just California. The output is
+  experimental and marked accordingly, since we are soliciting feedback from the
+  community on the underlying methodology. See issue :issue:`5106` and PR :pr:`5190`.
+
+.. _release-v2026.8.0:
+
+---------------------------------------------------------------------------------------
+v2026.8.0 (2026-08-07)
+---------------------------------------------------------------------------------------
+
+This is a regular quarterly PUDL release with a bunch of dataset updates. We've also
+added a new raw EPA MATS dataset, and Puerto Rico is now included in our EIA-860/860M
+data thanks to first-time contributor :user:`bsousa22`. We also tracked down and fixed a
+longstanding bug that had FERC Form 714 balancing authority data crossed between the
+Desert Southwest and Upper Great Plains West regions. See below for all the details.
 
 New Data
 ^^^^^^^^
@@ -33,9 +73,21 @@ EIA-860M
   issue :issue:`4352` and PR :pr:`5360`. Shoutout to :user:`bsousa22` for making his
   first PUDL contribution!
 
+EPA MATS
+~~~~~~~~
+
+* Added the EPA Mercury and Air Toxics Standards (MATS) dataset, extracted into a raw
+  table with additional records through end of June 2026. This data is not yet deeply
+  integrated into PUDL. See issue :issue:`5358` and PRs :pr:`5389`, :pr:`5464`. Also
+  a contribution from :user:`bsousa22`.
 
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
+
+EIA-191
+~~~~~~~
+
+* Updated :doc:`EIA-191 <data_sources/eia191>` data. See PR :pr:`5464`.
 
 EIA-860M
 ~~~~~~~~
@@ -45,45 +97,51 @@ EIA-860M
 
 EIA-923
 ~~~~~~~
-* Added :doc:`EIA-923M <data_sources/eia923>` data through May 2026. See
-  issue :issue:`5460` and PR :pr:`5468`.
+
+* Added early release data for EIA-923 2025. See issue :issue:`5372` and PR :pr:`5391`.
+* Added :doc:`EIA-923M <data_sources/eia923>` data for April and May 2026. See issue
+  :issue:`5460` and PRs :pr:`5391,5468`.
 
 EIA-930
 ~~~~~~~
 
-* Updated :doc:`EIA-930 <data_sources/eia930>` data. See PR :pr:`5445`.
+* Updated :doc:`EIA-930 <data_sources/eia930>` data. See PRs :pr:`5445,5464`.
 
 FERC-714
 ~~~~~~~~
 
-* Added 2025 XBRL data for :doc:`FERC-714 <data_sources/ferc714>`. See
-  :issue:`5424` and :pr:`5436`.
+* Added 2025 XBRL data for :doc:`FERC-714 <data_sources/ferc714>`. See :issue:`5424` and
+  PRs :pr:`5436,5464`.
 
 EIA Electricity API
 ~~~~~~~~~~~~~~~~~~~
 
-* Updated the :doc:`bulk EIA Electricity API <data_sources/eiaapi>`
-  data used to fill in redacted fuel prices. See PR :pr:`5441`.
+* Updated the :doc:`bulk EIA Electricity API <data_sources/eiaapi>` data used to fill in
+  redacted fuel prices. See PRs :pr:`5441,5464`.
 
 EPA CEMS
 ~~~~~~~~
 
-* Updated the :doc:`EPA CEMS <data_sources/epacems>` data with
-  additional records through end of March 2026. See PR :pr:`5441`.
+* Updated the :doc:`EPA CEMS <data_sources/epacems>` data with additional records
+  through end of June 2026. See PRs :pr:`5441,5464`.
+
+PHMSA Natural Gas data
+~~~~~~~~~~~~~~~~~~~~~~
+
+* Updated the :doc:`PHMSA natural gas <data_sources/phmsagas>` data. See PR :pr:`5464`.
 
 FERC Form 6
 ~~~~~~~~~~~
 
-* Updated the raw FERC Form 6 archives to include additional
-  2025 data. This data is converted to SQLite, but not deeply
-  integrated into PUDL. See PR :pr:`5441`.
+* Updated the raw FERC Form 6 archives to include additional 2025 data. This data is
+  converted to SQLite, but not deeply integrated into PUDL. See PR :pr:`5441`.
 
 Documentation
 ^^^^^^^^^^^^^
 
 * Added LLM use guidelines and best practices to the
   :doc:`contributor guide <CONTRIBUTING>` and :doc:`dev guide <dev/llm_best_practices>`.
-
+  See PR :pr:`5395`.
 * Set up the `sphinx_llm <https://github.com/NVIDIA/sphinx-llm>`__ Sphinx extension to
   generate a Markdown version of the PUDL documentation, suitable for consumption by
   LLMs, based on the `llms.txt <https://llmstxt.org/>`__ convention. Each page now
@@ -109,6 +167,11 @@ Bug Fixes & Data Cleaning
   due to the limited precision of 32-bit floats, on top of the brittleness of of merging
   on floating point numbers. These are now being captured deterministically by merging
   on values within a fixed tolerance of $5. See PR :pr:`5350`.
+* Fixed the Dagster asset graph for :doc:`EIA-860 <data_sources/eia860>` to correctly
+  depend on :doc:`EIA-860M <data_sources/eia860>`, so selecting the ``raw_eia860m``
+  asset group and its downstream assets now also captures the EIA-860 assets that
+  rely on it, instead of silently leaving them stale. See :issue:`4327` and
+  PR :pr:`5409`.
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -140,6 +203,9 @@ Developer Experience
   microsecond resolution in :mod:`pudl.metadata.dtypes`. The unused ``compact`` argument
   to :meth:`~pudl.metadata.classes.Field.to_pandas_dtype` was retired. See PR
   :pr:`5350`.
+* Sanitized the batch job IDs used by the deploy and build workflows so they always
+  meet Google Batch's naming requirements, fixing failures we had previously worked
+  around by making the IDs more generic. See :issue:`5411` and PR :pr:`5429`.
 
 .. _release-v2026.7.2:
 
@@ -187,12 +253,6 @@ EIA-176
 
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
-
-EIA-923
-~~~~~~~
-
-* Added early release data for EIA-923 2025. See issue :issue:`5372` and PR :pr:`5391`.
-* Added 2026 data through April for EIA-923. See :pr:`5391`.
 
 EIA-191
 ~~~~~~~
