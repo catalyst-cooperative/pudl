@@ -19,6 +19,13 @@ EIA-860M
   issue :issue:`4352` and PR :pr:`5360`. Shoutout to :user:`bsousa22` for making his
   first PUDL contribution!
 
+PHMSA
+~~~~~
+
+* Added the ``core_phmsagas__yearly_distribution_by_install_decade`` table, which
+  reports :doc:`PHMSA <data_sources/phmsagas>` gas distribution mains miles and
+  services by installation decade. See issue :issue:`5266` and PR :pr:`5443`.
+
 
 Expanded Data Coverage
 ^^^^^^^^^^^^^^^^^^^^^^
