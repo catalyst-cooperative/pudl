@@ -33,6 +33,10 @@ EIA-923
   source columns are reshaped into tall monthly records and the reported thousand-unit
   quantities are converted to base units. See issue :issue:`5081` and PR :pr:`5431`.
 
+* Added :ref:`out_eia923__monthly_energy_storage`, a denormalized monthly output for
+  EIA-923 energy storage operations with plant and utility metadata. See issue
+  :issue:`4311` and PR :pr:`5489`.
+
 EPA CEMS
 ~~~~~~~~
 
