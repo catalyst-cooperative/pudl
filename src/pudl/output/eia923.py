@@ -235,6 +235,18 @@ def out_eia923__generation_fuel_combined(
 
 
 @asset(io_manager_key="pudl_io_manager", compute_kind="Python")
+def out_eia923__monthly_energy_storage(
+    core_eia923__monthly_energy_storage: pd.DataFrame,
+    _out_eia__plants_utilities: pd.DataFrame,
+) -> pd.DataFrame:
+    """Denormalize the :ref:`core_eia923__monthly_energy_storage` table."""
+    return denorm_by_plant(
+        core_eia923__monthly_energy_storage,
+        pu=_out_eia__plants_utilities,
+    )
+
+
+@asset(io_manager_key="pudl_io_manager", compute_kind="Python")
 def out_eia923__boiler_fuel(
     core_eia923__monthly_boiler_fuel: pd.DataFrame,
     _out_eia__plants_utilities: pd.DataFrame,
