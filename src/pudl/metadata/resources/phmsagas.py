@@ -15,18 +15,12 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "the end of the year by install decade."
             ),
             "additional_source_text": "(Part B - System Description / Section 4)",
-            "usage_warnings": [
-                {
-                    "type": "custom",
-                    "description": (
-                        "Some records report negative values for mains_miles or "
-                        "services. These values are preserved as reported because "
-                        "we have not determined that they are errors requiring "
-                        "correction."
-                    ),
-                },
-            ],
-            "additional_details_text": "",
+            "additional_details_text": (
+                "PHMSA indicated that some operators may have reported negative "
+                "``mains_miles`` or ``services`` values to reconcile totals across "
+                "Parts B1 and B4, but that negative values are not valid. These "
+                "negative values have been replaced with zero."
+            ),
         },
         "schema": {
             "fields": [

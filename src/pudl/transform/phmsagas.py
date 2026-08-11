@@ -113,8 +113,8 @@ YEARLY_DISTRIBUTION_IDX_ISH = [
 ]
 
 INSTALL_DECADE_TOTAL_MISMATCHES = {
-    "mains_miles": {"expected_mismatches": 37, "tolerance": 0.001},
-    "services": {"expected_mismatches": 5, "tolerance": 0},
+    "mains_miles": {"expected_mismatches": 70, "tolerance": 0.001},
+    "services": {"expected_mismatches": 156, "tolerance": 0},
 }
 
 MELT_PATTERNS = {
@@ -720,5 +720,9 @@ def core_phmsagas__yearly_distribution_by_install_decade(
     df = _core_phmsagas__yearly_distribution_by_install_decade.copy()
     df["commodity"] = df["commodity"].replace(commodity_map)
     df["commodity"] = df["commodity"].fillna("all")
+    non_total_decade_mask = ~df["install_decade"].eq("total_decades")
+    df.loc[non_total_decade_mask, ["mains_miles", "services"]] = df.loc[
+        non_total_decade_mask, ["mains_miles", "services"]
+    ].clip(lower=0)
     _assert_install_decade_totals_match_expected(df)
-    return df.loc[~df["install_decade"].eq("total_decades")].copy()
+    return df.loc[non_total_decade_mask].copy()

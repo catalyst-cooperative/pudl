@@ -14,14 +14,8 @@ sources:
               - dbt_expectations.expect_column_values_to_be_between:
                   arguments:
                     min_value: 0.0
-                  config:
-                    warn_if: ">0"
-                    error_if: ">50"
           - name: services
             data_tests:
               - dbt_expectations.expect_column_values_to_be_between:
                   arguments:
                     min_value: 0.0
-                  config:
-                    warn_if: ">0"
-                    error_if: ">182"
