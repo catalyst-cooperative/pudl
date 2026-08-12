@@ -49,6 +49,16 @@ data thanks to first-time contributor :user:`bsousa22`. We also tracked down and
 longstanding bug that had FERC Form 714 balancing authority data crossed between the
 Desert Southwest and Upper Great Plains West regions. See below for all the details.
 
+Enhancements
+^^^^^^^^^^^^
+
+* In table ``out_ferc1__yearly_transmission_lines_sched422`` and ancestors, moved
+  ``supporting_structure_type`` to ``supporting_structure_type_original`` and split it
+  into separate structure type and structure material enums. Refer to
+  :ref:`ferc-structure-type-material` for transformation notes and edge cases. See issue
+  :issue:`4658` and PRs :pr:`4859,5263`. Shoutout to :user:`dd921` for this
+  contribution!
+
 New Data
 ^^^^^^^^
 
@@ -210,7 +220,6 @@ bugfixes, and better signal:noise ratio in unit test logging outputs.
 
 Enhancements
 ^^^^^^^^^^^^
-
 * Added experimental Parquet outputs derived from the FERC DBF databases, and basic
   ``datapackage.json`` metadata describing their schemas to support querying and preview
   through the `PUDL Data Viewer <https://data.catalyst.coop>`__. See PR :pr:`5339`.
