@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.transform.eia923 &#8212; PUDL 2026.8.1.dev9 documentation</title>
+    <title>pudl.transform.eia923 &#8212; PUDL 2026.8.1.dev10 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=5ca5f5bf"></script>
+    <script src="../../../_static/documentation_options.js?v=b8e28a50"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev9 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev9 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev10 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev10 documentation - Home"/>
   
   
 </a></div>
@@ -2800,6 +2800,67 @@ window.runMermaid = runMermaid;</script>
     <span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;mcf&quot;</span>
 
     <span class="k">return</span> <span class="n">es_df</span></div>
+
+
+
+<span class="nd">@asset</span><span class="p">(</span><span class="n">io_manager_key</span><span class="o">=</span><span class="s2">&quot;pudl_io_manager&quot;</span><span class="p">)</span>
+<div class="viewcode-block" id="_core_eia923__yearly_fuel_stocks">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/eia923/index.html#pudl.transform.eia923._core_eia923__yearly_fuel_stocks">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_core_eia923__yearly_fuel_stocks</span><span class="p">(</span>
+    <span class="n">raw_eia923__stocks</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Transform the EIA-923 fossil-fuel stocks table.</span>
+
+<span class="sd">    The raw table reports end-of-month coal, petroleum liquids and petroleum coke</span>
+<span class="sd">    stocks by census division / state, with one wide record per region and year</span>
+<span class="sd">    (twelve columns per fuel). This transform:</span>
+
+<span class="sd">    * standardizes null values,</span>
+<span class="sd">    * drops the ``early_release`` flag (dropped from all EIA-923 tables),</span>
+<span class="sd">    * reshapes the wide monthly stock columns into tall monthly records via</span>
+<span class="sd">      :func:`_yearly_to_monthly_records`, keeping one column per fuel type,</span>
+<span class="sd">    * builds a ``report_date`` from ``report_year`` and the reshaped month,</span>
+<span class="sd">    * strips the ``census_division_and_state`` labels (the raw values contain</span>
+<span class="sd">      trailing whitespace), and</span>
+<span class="sd">    * converts the reported thousand-unit stock quantities to base units (short</span>
+<span class="sd">      tons of coal, barrels of petroleum liquids and petroleum coke) following the</span>
+<span class="sd">      same thousand-to-base convention used elsewhere in EIA-923.</span>
+
+<span class="sd">    The ``census_division_and_state`` column is intentionally left as-is and</span>
+<span class="sd">    unconstrained: its raw values mix census divisions, individual states,</span>
+<span class="sd">    multi-state groupings and a national total, and standardizing them against</span>
+<span class="sd">    PUDL&#39;s state / census-region conventions is being handled separately (see</span>
+<span class="sd">    `issue #5081 &lt;https://github.com/catalyst-cooperative/pudl/issues/5081&gt;`__).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        raw_eia923__stocks: The raw ``raw_eia923__stocks`` dataframe.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A tall monthly fuel-stocks dataframe keyed on ``report_date`` and</span>
+<span class="sd">        ``census_division_and_state`` with one column per fuel stock type.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">pudl</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">standardize_na_values</span><span class="p">(</span><span class="n">raw_eia923__stocks</span><span class="p">)</span>
+        <span class="c1"># This column is dropped from all EIA-923 tables.</span>
+        <span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;early_release&quot;</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">_yearly_to_monthly_records</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">pudl</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">convert_to_date</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;census_division_and_state&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;census_division_and_state&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="c1"># The raw stocks are reported in thousands (coal and petroleum coke in</span>
+    <span class="c1"># thousand short tons, petroleum liquids in thousand barrels). Convert to base</span>
+    <span class="c1"># units to match the rest of PUDL.</span>
+    <span class="n">stock_cols</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;coal&quot;</span><span class="p">:</span> <span class="s2">&quot;coal_stock_tons&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;oil&quot;</span><span class="p">:</span> <span class="s2">&quot;petroleum_liquids_stock_barrels&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;petcoke&quot;</span><span class="p">:</span> <span class="s2">&quot;petroleum_coke_stock_tons&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="k">for</span> <span class="n">raw_col</span><span class="p">,</span> <span class="n">stock_col</span> <span class="ow">in</span> <span class="n">stock_cols</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">df</span><span class="p">[</span><span class="n">stock_col</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">raw_col</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1000.0</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">stock_cols</span><span class="p">))</span>
+    <span class="c1"># A handful of region-months carry no stock data at all; drop them.</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">stock_cols</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
 
 

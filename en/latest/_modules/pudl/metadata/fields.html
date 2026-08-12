@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.metadata.fields &#8212; PUDL 2026.8.1.dev9 documentation</title>
+    <title>pudl.metadata.fields &#8212; PUDL 2026.8.1.dev10 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=5ca5f5bf"></script>
+    <script src="../../../_static/documentation_options.js?v=b8e28a50"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev9 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev9 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev10 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev10 documentation - Home"/>
   
   
 </a></div>
@@ -2056,6 +2056,16 @@ window.runMermaid = runMermaid;</script>
             <span class="s2">&quot;Indicates whether the generator uses carbon capture technology.&quot;</span>
         <span class="p">),</span>
     <span class="p">},</span>
+    <span class="s2">&quot;census_division_and_state&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">&quot;Census division, state, or grouping of states as reported in the &quot;</span>
+            <span class="s2">&quot;EIA-923 fuel stocks table. The raw values mix census divisions, &quot;</span>
+            <span class="s2">&quot;individual states, multi-state groupings, and a national total, and &quot;</span>
+            <span class="s2">&quot;are not yet standardized against PUDL&#39;s state or census-region &quot;</span>
+            <span class="s2">&quot;conventions.&quot;</span>
+        <span class="p">),</span>
+    <span class="p">},</span>
     <span class="s2">&quot;central_index_key&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Identifier of the company in SEC database.&quot;</span><span class="p">,</span>
@@ -2121,6 +2131,14 @@ window.runMermaid = runMermaid;</script>
             <span class="s2">&quot;Coal heat content as a fraction (0-1) of overall fuel heat content, &quot;</span>
             <span class="s2">&quot;measured in MMBtu. The &#39;_mmbtu&#39; suffix indicates the denominator unit &quot;</span>
             <span class="s2">&quot;used to compute the fraction, not the unit of this field.&quot;</span>
+        <span class="p">),</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;coal_stock_tons&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;short_ton&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">&quot;End-of-month coal stocks held at electric power sector generating &quot;</span>
+            <span class="s2">&quot;facilities, aggregated by census division or state.&quot;</span>
         <span class="p">),</span>
     <span class="p">},</span>
     <span class="s2">&quot;coalmine_county_id_fips&quot;</span><span class="p">:</span> <span class="p">{</span>
@@ -7037,6 +7055,22 @@ window.runMermaid = runMermaid;</script>
     <span class="s2">&quot;dry_cooling_fraction&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Fraction of cooling load served by dry cooling components.&quot;</span><span class="p">,</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;petroleum_coke_stock_tons&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;short_ton&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">&quot;End-of-month petroleum coke stocks held at electric power sector &quot;</span>
+            <span class="s2">&quot;generating facilities, aggregated by census division or state.&quot;</span>
+        <span class="p">),</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;petroleum_liquids_stock_barrels&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;barrel&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">&quot;End-of-month petroleum liquids stocks held at electric power sector &quot;</span>
+            <span class="s2">&quot;generating facilities, aggregated by census division or state.&quot;</span>
+        <span class="p">),</span>
     <span class="p">},</span>
     <span class="s2">&quot;phone_extension&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>

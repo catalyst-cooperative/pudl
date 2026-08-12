@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.extract.eia923 &#8212; PUDL 2026.8.1.dev9 documentation</title>
+    <title>pudl.extract.eia923 &#8212; PUDL 2026.8.1.dev10 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=5ca5f5bf"></script>
+    <script src="../../../_static/documentation_options.js?v=b8e28a50"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev9 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev9 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev10 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev10 documentation - Home"/>
   
   
 </a></div>
@@ -955,6 +955,14 @@ window.runMermaid = runMermaid;</script>
                 <span class="sa">f</span><span class="s2">&quot;column with </span><span class="si">{</span><span class="n">partition</span><span class="p">[</span><span class="s1">&#39;year&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="p">)</span>
             <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">mask</span><span class="p">,</span> <span class="s2">&quot;report_year&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">partition</span><span class="p">[</span><span class="s2">&quot;year&quot;</span><span class="p">]</span>
+        <span class="c1"># The stocks page has no report_year column in its raw spreadsheets, so the</span>
+        <span class="c1"># fix above never runs for it and the year is lost when partitions are</span>
+        <span class="c1"># concatenated. Inject the partition year directly (as eia176/eia860m do for</span>
+        <span class="c1"># their year-less pages) so downstream transforms can build a report_date.</span>
+        <span class="c1"># See https://github.com/catalyst-cooperative/pudl/issues/5081</span>
+        <span class="k">if</span> <span class="n">page</span> <span class="o">==</span> <span class="s2">&quot;stocks&quot;</span> <span class="ow">and</span> <span class="s2">&quot;report_year&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;report_year&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">partition</span><span class="p">[</span><span class="s2">&quot;year&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cols_added</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;report_year&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">df</span></div>
 
 

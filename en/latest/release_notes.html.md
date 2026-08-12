@@ -19,6 +19,14 @@ This is the upcoming PUDL release.
 
 ### New Data
 
+#### EIA-923
+
+* Added the [\_core_eia923_\_yearly_fuel_stocks](data_dictionaries/pudl_db.md#i-core-eia923-yearly-fuel-stocks) table, which reports end-of-month
+  coal, petroleum liquids, and petroleum coke stocks held at electric power sector
+  generating facilities, aggregated by census division or state. The wide monthly
+  source columns are reshaped into tall monthly records and the reported thousand-unit
+  quantities are converted to base units. See issue [#5081](https://github.com/catalyst-cooperative/pudl/issues/5081) and PR [#5431](https://github.com/catalyst-cooperative/pudl/pull/5431).
+
 #### EPA CEMS
 
 * Added a new analysis output, [out_epacems_\_yearly_operational_characteristics](data_dictionaries/pudl_db.md#out-epacems-yearly-operational-characteristics),

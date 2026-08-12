@@ -32290,6 +32290,85 @@ df <- read_parquet(
 | so2_removal_efficiency_tested       | number     |            | The tested efficiency for the removal of sulfur dioxide at 100 percent load. If not tested at 100 percent load, then the load at which the test was conducted is included as a comment on Schedule 9. If no test was conducted, the test date and tested efficiency field should be blank. Ranges from 0 to 1.                                                                                                                                                                      |
 | so2_test_date                       | date       |            | Date of most recent test for sulfur dioxide removal efficiency.                                                                                                                                                                                                                                                                                                                                                                                                                     |
 
+<a id="i-core-eia923-yearly-fuel-stocks"></a>
+
+## \_core_eia923_\_yearly_fuel_stocks
+
+Noticed any irregularities with this table? [File a report.](https://github.com/catalyst-cooperative/pudl/issues/new?template=data_bug_report.yml&table=_core_eia923__yearly_fuel_stocks)
+
+Annual time series of end-of-month coal, petroleum liquids, and petroleum coke stocks held at electric power sector generating facilities, aggregated by census division or state.
+
+Most-recent data:
+: 2026
+
+Processing:
+: Data has been cleaned but not tidied/normalized. Published only temporarily and may be removed without notice.
+
+Source:
+: EIA Form 923 – Power Plant Operations Report (Fuel Stocks Data)
+
+Primary key:
+: report_date, census_division_and_state The census_division_and_state column is reported as free text and mixes census divisions, individual states, multi-state groupings, and a national total. It has not yet been standardized against PUDL’s state or census-region conventions, so it is stored as-is and left unconstrained.
+
+### Usage Warnings
+
+* This table is experimental and/or a work in progress and may change in the future.
+
+### Additional Details
+
+In the raw data all twelve months of stocks are reported in a single wide record per region and year. Here they have been reshaped into tall monthly records. Coal and petroleum coke stocks are reported in thousand short tons and petroleum liquids in thousand barrels in the source; they have been converted to short tons and barrels respectively.
+
+### Access methods
+
+* [Browse and query this table online](https://data.catalyst.coop/preview/pudl/_core_eia923__yearly_fuel_stocks)
+* [Download this table as a Parquet file](https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/_core_eia923__yearly_fuel_stocks.parquet)
+
+### pandas
+
+```python
+import pandas as pd
+df = pd.read_parquet(
+      "s3://pudl.catalyst.coop/nightly/_core_eia923__yearly_fuel_stocks.parquet",
+      dtype_backend="pyarrow",
+)
+```
+
+### polars
+
+```python
+import polars as pl
+df = pl.read_parquet(
+      "s3://pudl.catalyst.coop/nightly/_core_eia923__yearly_fuel_stocks.parquet",
+      storage_options={"aws_region": "us-west-2", "aws_skip_signature": "True"},
+)
+```
+
+### SQL (DuckDB)
+
+```sql
+SELECT * FROM 's3://pudl.catalyst.coop/nightly/_core_eia923__yearly_fuel_stocks.parquet';
+```
+
+### R
+
+```r
+library(arrow)
+df <- read_parquet(
+      "s3://pudl.catalyst.coop/nightly/_core_eia923__yearly_fuel_stocks.parquet"
+)
+```
+
+### Columns
+
+| **Field Name**                  | **Type**   | **Unit**   | **Description**                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+|---------------------------------|------------|------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| census_division_and_state       | string     |            | Census division, state, or grouping of states as reported in the EIA-923 fuel stocks table. The raw values mix census divisions, individual states, multi-state groupings, and a national total, and are not yet standardized against PUDL’s state or census-region conventions.                                                                                                                                                                                                    |
+| coal_stock_tons                 | number     | short_ton  | End-of-month coal stocks held at electric power sector generating facilities, aggregated by census division or state.                                                                                                                                                                                                                                                                                                                                                               |
+| data_maturity                   | string     |            | Maturity of the source data published by EIA that is reflected in this record. EIA releases data incrementally over time, including monthly updates, annual year-to-date updates, provisional early releases of annual data, and final annual release data that is not expected to change further. Records sourced from multiple upstream EIA datasets may have no well defined data maturity. Records whose values have been inferred within PUDL will also have no data maturity. |
+| petroleum_coke_stock_tons       | number     | short_ton  | End-of-month petroleum coke stocks held at electric power sector generating facilities, aggregated by census division or state.                                                                                                                                                                                                                                                                                                                                                     |
+| petroleum_liquids_stock_barrels | number     | barrel     | End-of-month petroleum liquids stocks held at electric power sector generating facilities, aggregated by census division or state.                                                                                                                                                                                                                                                                                                                                                  |
+| report_date                     | date       |            | Date reported.                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+
 <a id="i-core-eia-forensics-entity-resolution-boilers"></a>
 
 ## \_core_eia_\_forensics_entity_resolution_boilers

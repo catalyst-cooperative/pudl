@@ -18,7 +18,7 @@
     </script>
     
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
-    <title>pudl.transform.eia923 &#8212; PUDL 2026.8.1.dev9 documentation</title>
+    <title>pudl.transform.eia923 &#8212; PUDL 2026.8.1.dev10 documentation</title>
   
   
   
@@ -51,7 +51,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../../_static/documentation_options.js?v=5ca5f5bf"></script>
+    <script src="../../../../_static/documentation_options.js?v=b8e28a50"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -142,8 +142,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev9 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev9 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev10 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev10 documentation - Home"/>
   
   
 </a></div>
@@ -960,16 +960,19 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia923._core_eia923__energy_storage" title="pudl.transform.eia923._core_eia923__energy_storage"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_eia923__energy_storage</span></code></a>(→ pandas.DataFrame)</p></td>
 <td><p>Transforms the eia923_energy_storage table.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia923._core_eia923__yearly_byproduct_disposition" title="pudl.transform.eia923._core_eia923__yearly_byproduct_disposition"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_eia923__yearly_byproduct_disposition</span></code></a>(...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia923._core_eia923__yearly_fuel_stocks" title="pudl.transform.eia923._core_eia923__yearly_fuel_stocks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_eia923__yearly_fuel_stocks</span></code></a>(→ pandas.DataFrame)</p></td>
+<td><p>Transform the EIA-923 fossil-fuel stocks table.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia923._core_eia923__yearly_byproduct_disposition" title="pudl.transform.eia923._core_eia923__yearly_byproduct_disposition"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_eia923__yearly_byproduct_disposition</span></code></a>(...)</p></td>
 <td><p>Transforms the eia923__byproduct_disposition table.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia923.disposition_continuity_check" title="pudl.transform.eia923.disposition_continuity_check"><code class="xref py py-obj docutils literal notranslate"><span class="pre">disposition_continuity_check</span></code></a>(bpd)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia923.disposition_continuity_check" title="pudl.transform.eia923.disposition_continuity_check"><code class="xref py py-obj docutils literal notranslate"><span class="pre">disposition_continuity_check</span></code></a>(bpd)</p></td>
 <td><p>Check to see if columns vary as slowly as expected.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia923._core_eia923__yearly_byproduct_expenses_and_revenues" title="pudl.transform.eia923._core_eia923__yearly_byproduct_expenses_and_revenues"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_eia923__yearly_byproduct_expenses_and_revenues</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia923._core_eia923__yearly_byproduct_expenses_and_revenues" title="pudl.transform.eia923._core_eia923__yearly_byproduct_expenses_and_revenues"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_eia923__yearly_byproduct_expenses_and_revenues</span></code></a>(...)</p></td>
 <td><p>Transforms the eia923__byproduct_expenses_and_revenues table.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia923._core_eia923__yearly_emissions_control" title="pudl.transform.eia923._core_eia923__yearly_emissions_control"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_eia923__yearly_emissions_control</span></code></a>(→ pandas.DataFrame)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia923._core_eia923__yearly_emissions_control" title="pudl.transform.eia923._core_eia923__yearly_emissions_control"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_core_eia923__yearly_emissions_control</span></code></a>(→ pandas.DataFrame)</p></td>
 <td><p>Transforms the eia923__emissions_control table.</p></td>
 </tr>
 </tbody>
@@ -1591,6 +1594,41 @@ and EIA).</p></li>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="pudl.transform.eia923._core_eia923__yearly_fuel_stocks">
+<span class="sig-prename descclassname"><span class="pre">pudl.transform.eia923.</span></span><span class="sig-name descname"><span class="pre">_core_eia923__yearly_fuel_stocks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raw_eia923__stocks</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.5)"><span class="pre">pandas.DataFrame</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.5)"><span class="pre">pandas.DataFrame</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/transform/eia923.html#_core_eia923__yearly_fuel_stocks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.transform.eia923._core_eia923__yearly_fuel_stocks" title="Link to this definition">#</a></dt>
+<dd><p>Transform the EIA-923 fossil-fuel stocks table.</p>
+<p>The raw table reports end-of-month coal, petroleum liquids and petroleum coke
+stocks by census division / state, with one wide record per region and year
+(twelve columns per fuel). This transform:</p>
+<ul class="simple">
+<li><p>standardizes null values,</p></li>
+<li><p>drops the <code class="docutils literal notranslate"><span class="pre">early_release</span></code> flag (dropped from all EIA-923 tables),</p></li>
+<li><p>reshapes the wide monthly stock columns into tall monthly records via
+<a class="reference internal" href="#pudl.transform.eia923._yearly_to_monthly_records" title="pudl.transform.eia923._yearly_to_monthly_records"><code class="xref py py-func docutils literal notranslate"><span class="pre">_yearly_to_monthly_records()</span></code></a>, keeping one column per fuel type,</p></li>
+<li><p>builds a <code class="docutils literal notranslate"><span class="pre">report_date</span></code> from <code class="docutils literal notranslate"><span class="pre">report_year</span></code> and the reshaped month,</p></li>
+<li><p>strips the <code class="docutils literal notranslate"><span class="pre">census_division_and_state</span></code> labels (the raw values contain
+trailing whitespace), and</p></li>
+<li><p>converts the reported thousand-unit stock quantities to base units (short
+tons of coal, barrels of petroleum liquids and petroleum coke) following the
+same thousand-to-base convention used elsewhere in EIA-923.</p></li>
+</ul>
+<p>The <code class="docutils literal notranslate"><span class="pre">census_division_and_state</span></code> column is intentionally left as-is and
+unconstrained: its raw values mix census divisions, individual states,
+multi-state groupings and a national total, and standardizing them against
+PUDL’s state / census-region conventions is being handled separately (see
+<a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/5081">issue #5081</a>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>raw_eia923__stocks</strong> – The raw <code class="docutils literal notranslate"><span class="pre">raw_eia923__stocks</span></code> dataframe.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A tall monthly fuel-stocks dataframe keyed on <code class="docutils literal notranslate"><span class="pre">report_date</span></code> and
+<code class="docutils literal notranslate"><span class="pre">census_division_and_state</span></code> with one column per fuel stock type.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="pudl.transform.eia923._core_eia923__yearly_byproduct_disposition">
 <span class="sig-prename descclassname"><span class="pre">pudl.transform.eia923.</span></span><span class="sig-name descname"><span class="pre">_core_eia923__yearly_byproduct_disposition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raw_eia923__byproduct_disposition</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.5)"><span class="pre">pandas.DataFrame</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.5)"><span class="pre">pandas.DataFrame</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/transform/eia923.html#_core_eia923__yearly_byproduct_disposition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.transform.eia923._core_eia923__yearly_byproduct_disposition" title="Link to this definition">#</a></dt>
 <dd><p>Transforms the eia923__byproduct_disposition table.</p>
@@ -1753,6 +1791,7 @@ harvesting.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.transform.eia923._core_eia923__yearly_fgd_operation_maintenance"><code class="docutils literal notranslate"><span class="pre">_core_eia923__yearly_fgd_operation_maintenance()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.transform.eia923.fgd_continuity_check"><code class="docutils literal notranslate"><span class="pre">fgd_continuity_check()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.transform.eia923._core_eia923__energy_storage"><code class="docutils literal notranslate"><span class="pre">_core_eia923__energy_storage()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.transform.eia923._core_eia923__yearly_fuel_stocks"><code class="docutils literal notranslate"><span class="pre">_core_eia923__yearly_fuel_stocks()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.transform.eia923._core_eia923__yearly_byproduct_disposition"><code class="docutils literal notranslate"><span class="pre">_core_eia923__yearly_byproduct_disposition()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.transform.eia923.disposition_continuity_check"><code class="docutils literal notranslate"><span class="pre">disposition_continuity_check()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.transform.eia923._core_eia923__yearly_byproduct_expenses_and_revenues"><code class="docutils literal notranslate"><span class="pre">_core_eia923__yearly_byproduct_expenses_and_revenues()</span></code></a></li>

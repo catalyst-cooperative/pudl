@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.metadata.resources.eia923 &#8212; PUDL 2026.8.1.dev9 documentation</title>
+    <title>pudl.metadata.resources.eia923 &#8212; PUDL 2026.8.1.dev10 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../../_static/documentation_options.js?v=5ca5f5bf"></script>
+    <script src="../../../../_static/documentation_options.js?v=b8e28a50"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev9 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev9 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev10 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev10 documentation - Home"/>
   
   
 </a></div>
@@ -2034,6 +2034,49 @@ window.runMermaid = runMermaid;</script>
                 <span class="s2">&quot;so2_removal_efficiency_tested&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;so2_removal_efficiency_annual&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;so2_test_date&quot;</span><span class="p">,</span>
+            <span class="p">],</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;eia&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;eia923&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;eia923&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;_core_eia923__yearly_fuel_stocks&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">&quot;end-of-month coal, petroleum liquids, and petroleum coke stocks &quot;</span>
+                <span class="s2">&quot;held at electric power sector generating facilities, aggregated by &quot;</span>
+                <span class="s2">&quot;census division or state.&quot;</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;experimental_wip&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Fuel Stocks Data)&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;additional_primary_key_text&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">&quot;The census_division_and_state column is reported as free text and &quot;</span>
+                <span class="s2">&quot;mixes census divisions, individual states, multi-state groupings, &quot;</span>
+                <span class="s2">&quot;and a national total. It has not yet been standardized against &quot;</span>
+                <span class="s2">&quot;PUDL&#39;s state or census-region conventions, so it is stored as-is &quot;</span>
+                <span class="s2">&quot;and left unconstrained.&quot;</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">&quot;In the raw data all twelve months of stocks are reported in a &quot;</span>
+                <span class="s2">&quot;single wide record per region and year. Here they have been &quot;</span>
+                <span class="s2">&quot;reshaped into tall monthly records. Coal and petroleum coke stocks &quot;</span>
+                <span class="s2">&quot;are reported in thousand short tons and petroleum liquids in thousand &quot;</span>
+                <span class="s2">&quot;barrels in the source; they have been converted to short tons and &quot;</span>
+                <span class="s2">&quot;barrels respectively.&quot;</span>
+            <span class="p">),</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;census_division_and_state&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;coal_stock_tons&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;petroleum_liquids_stock_barrels&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;petroleum_coke_stock_tons&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;data_maturity&quot;</span><span class="p">,</span>
+            <span class="p">],</span>
+            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;census_division_and_state&quot;</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
         <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;eia&quot;</span><span class="p">,</span>

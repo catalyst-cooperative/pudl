@@ -5059,6 +5059,7 @@ Module to perform data cleaning functions on EIA923 data tables.
 | [`_core_eia923__yearly_fgd_operation_maintenance`](#pudl.transform.eia923._core_eia923__yearly_fgd_operation_maintenance)(...)             | Transforms the \_core_eia923_\_yearly_fgd_operation_maintenance table.                                                                         |
 | [`fgd_continuity_check`](#pudl.transform.eia923.fgd_continuity_check)(fgd)                                                                 | Check to see if columns vary as slowly as expected.                                                                                            |
 | [`_core_eia923__energy_storage`](#pudl.transform.eia923._core_eia923__energy_storage)(→ pandas.DataFrame)                                  | Transforms the eia923_energy_storage table.                                                                                                    |
+| [`_core_eia923__yearly_fuel_stocks`](#pudl.transform.eia923._core_eia923__yearly_fuel_stocks)(→ pandas.DataFrame)                          | Transform the EIA-923 fossil-fuel stocks table.                                                                                                |
 | [`_core_eia923__yearly_byproduct_disposition`](#pudl.transform.eia923._core_eia923__yearly_byproduct_disposition)(...)                     | Transforms the eia923_\_byproduct_disposition table.                                                                                           |
 | [`disposition_continuity_check`](#pudl.transform.eia923.disposition_continuity_check)(bpd)                                                 | Check to see if columns vary as slowly as expected.                                                                                            |
 | [`_core_eia923__yearly_byproduct_expenses_and_revenues`](#pudl.transform.eia923._core_eia923__yearly_byproduct_expenses_and_revenues)(...) | Transforms the eia923_\_byproduct_expenses_and_revenues table.                                                                                 |
@@ -5550,6 +5551,37 @@ Other cleaning that could be done:
 
 * Come up with an encoder for `fuel_unit` (tricky because different between FERC
   and EIA).
+
+### pudl.transform.eia923.\_core_eia923_\_yearly_fuel_stocks(raw_eia923_\_stocks: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+
+Transform the EIA-923 fossil-fuel stocks table.
+
+The raw table reports end-of-month coal, petroleum liquids and petroleum coke
+stocks by census division / state, with one wide record per region and year
+(twelve columns per fuel). This transform:
+
+* standardizes null values,
+* drops the `early_release` flag (dropped from all EIA-923 tables),
+* reshapes the wide monthly stock columns into tall monthly records via
+  [`_yearly_to_monthly_records()`](#pudl.transform.eia923._yearly_to_monthly_records), keeping one column per fuel type,
+* builds a `report_date` from `report_year` and the reshaped month,
+* strips the `census_division_and_state` labels (the raw values contain
+  trailing whitespace), and
+* converts the reported thousand-unit stock quantities to base units (short
+  tons of coal, barrels of petroleum liquids and petroleum coke) following the
+  same thousand-to-base convention used elsewhere in EIA-923.
+
+The `census_division_and_state` column is intentionally left as-is and
+unconstrained: its raw values mix census divisions, individual states,
+multi-state groupings and a national total, and standardizing them against
+PUDL’s state / census-region conventions is being handled separately (see
+[issue #5081](https://github.com/catalyst-cooperative/pudl/issues/5081)).
+
+* **Parameters:**
+  **raw_eia923_\_stocks** – The raw `raw_eia923__stocks` dataframe.
+* **Returns:**
+  A tall monthly fuel-stocks dataframe keyed on `report_date` and
+  `census_division_and_state` with one column per fuel stock type.
 
 ### pudl.transform.eia923.\_core_eia923_\_yearly_byproduct_disposition(raw_eia923_\_byproduct_disposition: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
@@ -37636,6 +37668,7 @@ the names and descriptions of each of its fields.
 | [\_core_eia923_\_yearly_byproduct_expenses_and_revenues](../data_dictionaries/pudl_db.md#i-core-eia923-yearly-byproduct-expenses-and-revenues) | [https://data.catalyst.coop/preview/pudl/_core_eia923_\_yearly_byproduct_expenses_and_revenues](https://data.catalyst.coop/preview/pudl/_core_eia923__yearly_byproduct_expenses_and_revenues) |
 | [\_core_eia923_\_yearly_emissions_control](../data_dictionaries/pudl_db.md#i-core-eia923-yearly-emissions-control)                             | [https://data.catalyst.coop/preview/pudl/_core_eia923_\_yearly_emissions_control](https://data.catalyst.coop/preview/pudl/_core_eia923__yearly_emissions_control)                             |
 | [\_core_eia923_\_yearly_fgd_operation_maintenance](../data_dictionaries/pudl_db.md#i-core-eia923-yearly-fgd-operation-maintenance)             | [https://data.catalyst.coop/preview/pudl/_core_eia923_\_yearly_fgd_operation_maintenance](https://data.catalyst.coop/preview/pudl/_core_eia923__yearly_fgd_operation_maintenance)             |
+| [\_core_eia923_\_yearly_fuel_stocks](../data_dictionaries/pudl_db.md#i-core-eia923-yearly-fuel-stocks)                                         | [https://data.catalyst.coop/preview/pudl/_core_eia923_\_yearly_fuel_stocks](https://data.catalyst.coop/preview/pudl/_core_eia923__yearly_fuel_stocks)                                         |
 | [core_eia923_\_entity_coalmine](../data_dictionaries/pudl_db.md#core-eia923-entity-coalmine)                                                   | [https://data.catalyst.coop/preview/pudl/core_eia923_\_entity_coalmine](https://data.catalyst.coop/preview/pudl/core_eia923__entity_coalmine)                                                 |
 | [core_eia923_\_fuel_receipts_costs](../data_dictionaries/pudl_db.md#core-eia923-fuel-receipts-costs)                                           | [https://data.catalyst.coop/preview/pudl/core_eia923_\_fuel_receipts_costs](https://data.catalyst.coop/preview/pudl/core_eia923__fuel_receipts_costs)                                         |
 | [core_eia923_\_monthly_boiler_fuel](../data_dictionaries/pudl_db.md#core-eia923-monthly-boiler-fuel)                                           | [https://data.catalyst.coop/preview/pudl/core_eia923_\_monthly_boiler_fuel](https://data.catalyst.coop/preview/pudl/core_eia923__monthly_boiler_fuel)                                         |
@@ -74143,6 +74176,85 @@ df <- read_parquet(
 | so2_removal_efficiency_tested       | number     |            | The tested efficiency for the removal of sulfur dioxide at 100 percent load. If not tested at 100 percent load, then the load at which the test was conducted is included as a comment on Schedule 9. If no test was conducted, the test date and tested efficiency field should be blank. Ranges from 0 to 1.                                                                                                                                                                      |
 | so2_test_date                       | date       |            | Date of most recent test for sulfur dioxide removal efficiency.                                                                                                                                                                                                                                                                                                                                                                                                                     |
 
+<a id="i-core-eia923-yearly-fuel-stocks"></a>
+
+## \_core_eia923_\_yearly_fuel_stocks
+
+Noticed any irregularities with this table? [File a report.](https://github.com/catalyst-cooperative/pudl/issues/new?template=data_bug_report.yml&table=_core_eia923__yearly_fuel_stocks)
+
+Annual time series of end-of-month coal, petroleum liquids, and petroleum coke stocks held at electric power sector generating facilities, aggregated by census division or state.
+
+Most-recent data:
+: 2026
+
+Processing:
+: Data has been cleaned but not tidied/normalized. Published only temporarily and may be removed without notice.
+
+Source:
+: EIA Form 923 – Power Plant Operations Report (Fuel Stocks Data)
+
+Primary key:
+: report_date, census_division_and_state The census_division_and_state column is reported as free text and mixes census divisions, individual states, multi-state groupings, and a national total. It has not yet been standardized against PUDL’s state or census-region conventions, so it is stored as-is and left unconstrained.
+
+### Usage Warnings
+
+* This table is experimental and/or a work in progress and may change in the future.
+
+### Additional Details
+
+In the raw data all twelve months of stocks are reported in a single wide record per region and year. Here they have been reshaped into tall monthly records. Coal and petroleum coke stocks are reported in thousand short tons and petroleum liquids in thousand barrels in the source; they have been converted to short tons and barrels respectively.
+
+### Access methods
+
+* [Browse and query this table online](https://data.catalyst.coop/preview/pudl/_core_eia923__yearly_fuel_stocks)
+* [Download this table as a Parquet file](https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/_core_eia923__yearly_fuel_stocks.parquet)
+
+### pandas
+
+```python
+import pandas as pd
+df = pd.read_parquet(
+      "s3://pudl.catalyst.coop/nightly/_core_eia923__yearly_fuel_stocks.parquet",
+      dtype_backend="pyarrow",
+)
+```
+
+### polars
+
+```python
+import polars as pl
+df = pl.read_parquet(
+      "s3://pudl.catalyst.coop/nightly/_core_eia923__yearly_fuel_stocks.parquet",
+      storage_options={"aws_region": "us-west-2", "aws_skip_signature": "True"},
+)
+```
+
+### SQL (DuckDB)
+
+```sql
+SELECT * FROM 's3://pudl.catalyst.coop/nightly/_core_eia923__yearly_fuel_stocks.parquet';
+```
+
+### R
+
+```r
+library(arrow)
+df <- read_parquet(
+      "s3://pudl.catalyst.coop/nightly/_core_eia923__yearly_fuel_stocks.parquet"
+)
+```
+
+### Columns
+
+| **Field Name**                  | **Type**   | **Unit**   | **Description**                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+|---------------------------------|------------|------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| census_division_and_state       | string     |            | Census division, state, or grouping of states as reported in the EIA-923 fuel stocks table. The raw values mix census divisions, individual states, multi-state groupings, and a national total, and are not yet standardized against PUDL’s state or census-region conventions.                                                                                                                                                                                                    |
+| coal_stock_tons                 | number     | short_ton  | End-of-month coal stocks held at electric power sector generating facilities, aggregated by census division or state.                                                                                                                                                                                                                                                                                                                                                               |
+| data_maturity                   | string     |            | Maturity of the source data published by EIA that is reflected in this record. EIA releases data incrementally over time, including monthly updates, annual year-to-date updates, provisional early releases of annual data, and final annual release data that is not expected to change further. Records sourced from multiple upstream EIA datasets may have no well defined data maturity. Records whose values have been inferred within PUDL will also have no data maturity. |
+| petroleum_coke_stock_tons       | number     | short_ton  | End-of-month petroleum coke stocks held at electric power sector generating facilities, aggregated by census division or state.                                                                                                                                                                                                                                                                                                                                                     |
+| petroleum_liquids_stock_barrels | number     | barrel     | End-of-month petroleum liquids stocks held at electric power sector generating facilities, aggregated by census division or state.                                                                                                                                                                                                                                                                                                                                                  |
+| report_date                     | date       |            | Date reported.                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+
 <a id="i-core-eia-forensics-entity-resolution-boilers"></a>
 
 ## \_core_eia_\_forensics_entity_resolution_boilers
@@ -75529,6 +75641,14 @@ This is the upcoming PUDL release.
   bug. See PR pr:5477.
 
 ### New Data
+
+#### EIA-923
+
+* Added the [\_core_eia923_\_yearly_fuel_stocks](data_dictionaries/pudl_db.md#i-core-eia923-yearly-fuel-stocks) table, which reports end-of-month
+  coal, petroleum liquids, and petroleum coke stocks held at electric power sector
+  generating facilities, aggregated by census division or state. The wide monthly
+  source columns are reshaped into tall monthly records and the reported thousand-unit
+  quantities are converted to base units. See issue [#5081](https://github.com/catalyst-cooperative/pudl/issues/5081) and PR [#5431](https://github.com/catalyst-cooperative/pudl/pull/5431).
 
 #### EPA CEMS
 
