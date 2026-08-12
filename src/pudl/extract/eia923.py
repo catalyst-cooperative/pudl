@@ -69,6 +69,14 @@ class Extractor(excel.ExcelExtractor):
                 f"column with {partition['year']}"
             )
             df.loc[mask, "report_year"] = partition["year"]
+        # The stocks page has no report_year column in its raw spreadsheets, so the
+        # fix above never runs for it and the year is lost when partitions are
+        # concatenated. Inject the partition year directly (as eia176/eia860m do for
+        # their year-less pages) so downstream transforms can build a report_date.
+        # See https://github.com/catalyst-cooperative/pudl/issues/5081
+        if page == "stocks" and "report_year" not in df.columns:
+            df["report_year"] = partition["year"]
+            self.cols_added.append("report_year")
         return df
 
     @staticmethod
