@@ -30,6 +30,19 @@ MEASUREMENT_CODE_COLS: list[str] = [
     "hf_mass_measurement_code",
 ]
 
+HF_COLUMNS: list[str] = [
+    "hf_output_rate_lb_per_mwh",
+    "hf_input_rate_lb_per_mmbtu",
+    "hf_mass_lbs",
+    "hf_mass_measurement_code",
+]
+"""HF emissions columns in the raw MATS data.
+
+MATS does not require reporting of hydrogen fluoride (HF) emissions, so these
+columns are expected to be entirely null. They are dropped from the core table;
+see :func:`_validate_and_drop_hf_columns`.
+"""
+
 
 def _map_measurement_codes(lf: pl.LazyFrame) -> pl.LazyFrame:
     """Map non-canonical measurement codes to canonical values.
@@ -50,6 +63,35 @@ def _map_measurement_codes(lf: pl.LazyFrame) -> pl.LazyFrame:
             expr = expr.when(col == old_val).then(pl.lit(new_val))
         lf = lf.with_columns(expr.otherwise(col).alias(col_name))
     return lf
+
+
+def _validate_and_drop_hf_columns(lf: pl.LazyFrame) -> pl.LazyFrame:
+    """Assert all HF columns are null, then drop them from the data.
+
+    TODO: MATS does not require reporting of hydrogen fluoride (HF) emissions,
+    so all four HF columns are entirely null in the raw data. Rather than
+    carrying them through the core table, we assert that they're empty and then
+    drop them. If EPA ever starts reporting HF emissions, this assertion will
+    fail loudly and we can decide whether to keep the columns.
+
+    Args:
+        lf: MATS hourly data as a Polars LazyFrame.
+
+    Returns:
+        The same data, without the four all-null HF columns.
+    """
+    # Count the non-null values in each HF column. This materializes only the
+    # four HF columns, which is cheap relative to the rest of the transform.
+    non_null_counts = (
+        lf.select([pl.col(col).count().alias(col) for col in HF_COLUMNS])
+        .collect()
+        .row(0)
+    )
+    assert all(count == 0 for count in non_null_counts), (
+        "Expected all HF columns to be null, but found non-null values: "
+        f"{dict(zip(HF_COLUMNS, non_null_counts, strict=True))}"
+    )
+    return lf.drop(HF_COLUMNS)
 
 
 def harmonize_eia_epa_orispl(
@@ -216,6 +258,7 @@ def transform_epamats(
     """
     return (
         raw_lf.pipe(_map_measurement_codes)
+        .pipe(_validate_and_drop_hf_columns)
         .pipe(apply_pudl_dtypes_polars, resource="core_epamats__hourly_emissions")
         .with_columns(
             emissions_unit_id_epa=pl.when(

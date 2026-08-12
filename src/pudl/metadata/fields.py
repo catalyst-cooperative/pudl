@@ -4092,28 +4092,6 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
         "unit": "MMBtu / MWh",
     },
-    "hf_input_rate_lb_per_mmbtu": {
-        "type": "number",
-        "description": "Hydrogen fluoride (HF) emissions per unit of heat content.",
-        "unit": "lb / MMBtu",
-    },
-    "hf_mass_lbs": {
-        "type": "number",
-        "description": "Hydrogen fluoride (HF) emissions in pounds.",
-        "unit": "pound",
-    },
-    "hf_mass_measurement_code": {
-        "type": "string",
-        "description": (
-            "Identifies whether the reported value of hydrogen fluoride (HF) emissions was measured, calculated, startup or shutdown, or unavailable."
-        ),
-        "constraints": {"enum": EPAMATS_MEASUREMENT_CODES},
-    },
-    "hf_output_rate_lb_per_mwh": {
-        "type": "number",
-        "description": "Hydrogen fluoride (HF) output emissions rate.",
-        "unit": "lb / MWh",
-    },
     "hg_controls": {
         "type": "string",
         "description": "Type of mercury (Hg) control technology installed.",
