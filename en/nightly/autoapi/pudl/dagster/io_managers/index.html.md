@@ -17,6 +17,7 @@ For the underlying Dagster concept, see [https://docs.dagster.io/guides/build/io
 | [`logger`](#pudl.dagster.io_managers.logger)                                                 |    |
 |----------------------------------------------------------------------------------------------|----|
 | [`MINIMUM_SQLITE_VERSION`](#pudl.dagster.io_managers.MINIMUM_SQLITE_VERSION)                 |    |
+| [`ALEMBIC_AUTOGENERATE_PLUGINS`](#pudl.dagster.io_managers.ALEMBIC_AUTOGENERATE_PLUGINS)     |    |
 | [`pudl_mixed_format_io_manager`](#pudl.dagster.io_managers.pudl_mixed_format_io_manager)     |    |
 | [`parquet_io_manager`](#pudl.dagster.io_managers.parquet_io_manager)                         |    |
 | [`ferc1_dbf_sqlite_io_manager`](#pudl.dagster.io_managers.ferc1_dbf_sqlite_io_manager)       |    |
@@ -46,6 +47,8 @@ For the underlying Dagster concept, see [https://docs.dagster.io/guides/build/io
 ### pudl.dagster.io_managers.logger
 
 ### pudl.dagster.io_managers.MINIMUM_SQLITE_VERSION *= '3.32.0'*
+
+### pudl.dagster.io_managers.ALEMBIC_AUTOGENERATE_PLUGINS *= ['alembic.autogenerate.\*', '~alembic.autogenerate.checkconstraint_byname']*
 
 ### pudl.dagster.io_managers.\_get_dagster_instance_if_available(context: [dagster.InputContext](https://docs.dagster.io/api/dagster/io-managers/#dagster.InputContext)) → [dagster.DagsterInstance](https://docs.dagster.io/api/dagster/internals/#dagster.DagsterInstance) | [None](https://docs.python.org/3/library/constants.html#None)
 

@@ -1,10 +1,53 @@
 # PUDL Release Notes
 
-<a id="release-v2026-8-x"></a>
+<a id="release-v2026-9-0"></a>
 
-## v2026.8.x (2026-08-xx)
+## v2026.9.0 (2026-09-xx)
 
-This is the upcoming quarterly PUDL release.
+This is the upcoming PUDL release.
+
+### Bug Fixes & Data Cleaning
+
+* Fixed `set_gcs_temporary_hold` only protecting the top level of a versioned
+  release path from deletion. It shelled out to `gcloud storage objects update
+  gs://bucket/prefix/*`, and that glob only matches one path segment, so anything
+  nested in a subdirectory was silently left unheld. Updated the function to use the
+  `google-cloud-storage` API to recursively hold every object under the prefix and
+  verify after the fact that none were missed. Manually re-applied the hold to 4,000+
+  previously published versioned release objects that had been missed by the original
+  bug. See PR pr:5477.
+
+### New Data
+
+#### EIA-923
+
+* Added the [\_core_eia923_\_yearly_fuel_stocks](data_dictionaries/pudl_db.md#i-core-eia923-yearly-fuel-stocks) table, which reports end-of-month
+  coal, petroleum liquids, and petroleum coke stocks held at electric power sector
+  generating facilities, aggregated by census division or state. The wide monthly
+  source columns are reshaped into tall monthly records and the reported thousand-unit
+  quantities are converted to base units. See issue [#5081](https://github.com/catalyst-cooperative/pudl/issues/5081) and PR [#5431](https://github.com/catalyst-cooperative/pudl/pull/5431).
+
+#### EPA CEMS
+
+* Added a new analysis output, [out_epacems_\_yearly_operational_characteristics](data_dictionaries/pudl_db.md#out-epacems-yearly-operational-characteristics),
+  which estimates generator operational characteristics such as minimum stable operating
+  level, minimum up/down times, ramp rates, and heat rates at maximum and minimum load,
+  inferred from hourly [EPA CEMS](data_sources/epacems.md) gross load and fuel heat
+  content data over a rolling three-year window. This dagsterizes and vectorizes an
+  analysis originally developed by [Sylvan Energy](https://sylvan.energy/), making it
+  available for all reporting states rather than just California. The output is
+  experimental and marked accordingly, since we are soliciting feedback from the
+  community on the underlying methodology. See issue [#5106](https://github.com/catalyst-cooperative/pudl/issues/5106) and PR [#5190](https://github.com/catalyst-cooperative/pudl/pull/5190).
+
+<a id="release-v2026-8-0"></a>
+
+## v2026.8.0 (2026-08-07)
+
+This is a regular quarterly PUDL release with a bunch of dataset updates. We’ve also
+added a new raw EPA MATS dataset, and Puerto Rico is now included in our EIA-860/860M
+data thanks to first-time contributor [@bsousa22](https://github.com/sponsors/bsousa22). We also tracked down and fixed a
+longstanding bug that had FERC Form 714 balancing authority data crossed between the
+Desert Southwest and Upper Great Plains West regions. See below for all the details.
 
 ### New Data
 
@@ -14,37 +57,63 @@ This is the upcoming quarterly PUDL release.
   issue [#4352](https://github.com/catalyst-cooperative/pudl/issues/4352) and PR [#5360](https://github.com/catalyst-cooperative/pudl/pull/5360). Shoutout to [@bsousa22](https://github.com/sponsors/bsousa22) for making his
   first PUDL contribution!
 
+#### EPA MATS
+
+* Added the EPA Mercury and Air Toxics Standards (MATS) dataset, extracted into a raw
+  table with additional records through end of June 2026. This data is not yet deeply
+  integrated into PUDL. See issue [#5358](https://github.com/catalyst-cooperative/pudl/issues/5358) and PRs [#5389](https://github.com/catalyst-cooperative/pudl/pull/5389), [#5464](https://github.com/catalyst-cooperative/pudl/pull/5464). Also
+  a contribution from [@bsousa22](https://github.com/sponsors/bsousa22).
+
 ### Expanded Data Coverage
+
+#### EIA-191
+
+* Updated [EIA-191](data_sources/eia191.md) data. See PR [#5464](https://github.com/catalyst-cooperative/pudl/pull/5464).
+
+#### EIA-860M
+
+* Added [EIA-860M](data_sources/eia860.md) data through June 2026. See
+  issue [#5459](https://github.com/catalyst-cooperative/pudl/issues/5459) and PR [#5468](https://github.com/catalyst-cooperative/pudl/pull/5468).
+
+#### EIA-923
+
+* Added early release data for EIA-923 2025. See issue [#5372](https://github.com/catalyst-cooperative/pudl/issues/5372) and PR [#5391](https://github.com/catalyst-cooperative/pudl/pull/5391).
+* Added [EIA-923M](data_sources/eia923.md) data for April and May 2026. See issue
+  [#5460](https://github.com/catalyst-cooperative/pudl/issues/5460) and PRs [#5391](https://github.com/catalyst-cooperative/pudl/pull/5391), [#5468](https://github.com/catalyst-cooperative/pudl/pull/5468).
 
 #### EIA-930
 
-* Updated [EIA-930](data_sources/eia930.md) data. See PR [#5445](https://github.com/catalyst-cooperative/pudl/pull/5445).
+* Updated [EIA-930](data_sources/eia930.md) data. See PRs [#5445](https://github.com/catalyst-cooperative/pudl/pull/5445), [#5464](https://github.com/catalyst-cooperative/pudl/pull/5464).
 
 #### FERC-714
 
-* Added 2025 XBRL data for [FERC-714](data_sources/ferc714.md). See
-  [#5424](https://github.com/catalyst-cooperative/pudl/issues/5424) and [#5436](https://github.com/catalyst-cooperative/pudl/pull/5436).
+* Added 2025 XBRL data for [FERC-714](data_sources/ferc714.md). See [#5424](https://github.com/catalyst-cooperative/pudl/issues/5424) and
+  PRs [#5436](https://github.com/catalyst-cooperative/pudl/pull/5436), [#5464](https://github.com/catalyst-cooperative/pudl/pull/5464).
 
 #### EIA Electricity API
 
-* Updated the [bulk EIA Electricity API](data_sources/eiaapi.md)
-  data used to fill in redacted fuel prices. See PR [#5441](https://github.com/catalyst-cooperative/pudl/pull/5441).
+* Updated the [bulk EIA Electricity API](data_sources/eiaapi.md) data used to fill in
+  redacted fuel prices. See PRs [#5441](https://github.com/catalyst-cooperative/pudl/pull/5441), [#5464](https://github.com/catalyst-cooperative/pudl/pull/5464).
 
 #### EPA CEMS
 
-* Updated the [EPA CEMS](data_sources/epacems.md) data with
-  additional records through end of March 2026. See PR [#5441](https://github.com/catalyst-cooperative/pudl/pull/5441).
+* Updated the [EPA CEMS](data_sources/epacems.md) data with additional records
+  through end of June 2026. See PRs [#5441](https://github.com/catalyst-cooperative/pudl/pull/5441), [#5464](https://github.com/catalyst-cooperative/pudl/pull/5464).
+
+#### PHMSA Natural Gas data
+
+* Updated the [PHMSA natural gas](data_sources/phmsagas.md) data. See PR [#5464](https://github.com/catalyst-cooperative/pudl/pull/5464).
 
 #### FERC Form 6
 
-* Updated the raw FERC Form 6 archives to include additional
-  2025 data. This data is converted to SQLite, but not deeply
-  integrated into PUDL. See PR [#5441](https://github.com/catalyst-cooperative/pudl/pull/5441).
+* Updated the raw FERC Form 6 archives to include additional 2025 data. This data is
+  converted to SQLite, but not deeply integrated into PUDL. See PR [#5441](https://github.com/catalyst-cooperative/pudl/pull/5441).
 
 ### Documentation
 
 * Added LLM use guidelines and best practices to the
   [contributor guide](CONTRIBUTING.md) and [dev guide](dev/llm_best_practices.md).
+  See PR [#5395](https://github.com/catalyst-cooperative/pudl/pull/5395).
 * Set up the [sphinx_llm](https://github.com/NVIDIA/sphinx-llm) Sphinx extension to
   generate a Markdown version of the PUDL documentation, suitable for consumption by
   LLMs, based on the [llms.txt](https://llmstxt.org/) convention. Each page now
@@ -69,6 +138,11 @@ This is the upcoming quarterly PUDL release.
   due to the limited precision of 32-bit floats, on top of the brittleness of of merging
   on floating point numbers. These are now being captured deterministically by merging
   on values within a fixed tolerance of $5. See PR [#5350](https://github.com/catalyst-cooperative/pudl/pull/5350).
+* Fixed the Dagster asset graph for [EIA-860](data_sources/eia860.md) to correctly
+  depend on [EIA-860M](data_sources/eia860.md), so selecting the `raw_eia860m`
+  asset group and its downstream assets now also captures the EIA-860 assets that
+  rely on it, instead of silently leaving them stale. See [#4327](https://github.com/catalyst-cooperative/pudl/issues/4327) and
+  PR [#5409](https://github.com/catalyst-cooperative/pudl/pull/5409).
 
 ### Performance Improvements
 
@@ -98,6 +172,9 @@ This is the upcoming quarterly PUDL release.
   microsecond resolution in [`pudl.metadata.dtypes`](autoapi/pudl/metadata/dtypes/index.md#module-pudl.metadata.dtypes). The unused `compact` argument
   to [`to_pandas_dtype()`](autoapi/pudl/metadata/classes/index.md#pudl.metadata.classes.Field.to_pandas_dtype) was retired. See PR
   [#5350](https://github.com/catalyst-cooperative/pudl/pull/5350).
+* Sanitized the batch job IDs used by the deploy and build workflows so they always
+  meet Google Batch’s naming requirements, fixing failures we had previously worked
+  around by making the IDs more generic. See [#5411](https://github.com/catalyst-cooperative/pudl/issues/5411) and PR [#5429](https://github.com/catalyst-cooperative/pudl/pull/5429).
 
 <a id="release-v2026-7-2"></a>
 
@@ -139,11 +216,6 @@ bugfixes, and better signal:noise ratio in unit test logging outputs.
   [#5240](https://github.com/catalyst-cooperative/pudl/issues/5240) and [#5245](https://github.com/catalyst-cooperative/pudl/pull/5245).
 
 ### Expanded Data Coverage
-
-#### EIA-923
-
-* Added early release data for EIA-923 2025. See issue [#5372](https://github.com/catalyst-cooperative/pudl/issues/5372) and PR [#5391](https://github.com/catalyst-cooperative/pudl/pull/5391).
-* Added 2026 data through April for EIA-923. See [#5391](https://github.com/catalyst-cooperative/pudl/pull/5391).
 
 #### EIA-191
 

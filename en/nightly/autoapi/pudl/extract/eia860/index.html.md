@@ -20,8 +20,8 @@ This code is for use analyzing EIA Form 860 data.
 
 ## Functions
 
-| [`extract_eia860`](#pudl.extract.eia860.extract_eia860)(context, raw_eia860_\_all_dfs)   | Extract raw EIA data from excel sheets into dataframes.   |
-|------------------------------------------------------------------------------------------|-----------------------------------------------------------|
+| [`extract_eia860`](#pudl.extract.eia860.extract_eia860)(context, raw_eia860_\_all_dfs, ...)   | Extract raw EIA data from excel sheets into dataframes.   |
+|-----------------------------------------------------------------------------------------------|-----------------------------------------------------------|
 
 ## Module Contents
 
@@ -56,7 +56,7 @@ Returns dtypes for plant id columns.
 
 ### pudl.extract.eia860.raw_eia860_\_all_dfs
 
-### pudl.extract.eia860.extract_eia860(context, raw_eia860_\_all_dfs)
+### pudl.extract.eia860.extract_eia860(context, raw_eia860_\_all_dfs, raw_eia860m_\_all_dfs)
 
 Extract raw EIA data from excel sheets into dataframes.
 

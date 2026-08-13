@@ -297,7 +297,7 @@ Update PUDL Viewer Cloud Run service to latest image.
   * **token** – the bearer token to authenticate to GitHub.
   * **environment** – deploy staging or production version of viewer.
 
-### pudl.deploy.pudl.set_gcs_temporary_hold(gcs_path: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [None](https://docs.python.org/3/library/constants.html#None)
+### pudl.deploy.pudl.set_gcs_temporary_hold(gcs_path: [str](https://docs.python.org/3/library/stdtypes.html#str), billing_project: [str](https://docs.python.org/3/library/stdtypes.html#str) = '') → [None](https://docs.python.org/3/library/constants.html#None)
 
 Set temporary hold on GCS objects to prevent deletion.
 
@@ -306,7 +306,18 @@ accidental deletion or lifecycle policies.
 
 * **Parameters:**
   * **gcs_path** – GCS path to objects (e.g., “gs://pudl.catalyst.coop/v2025.2.3/”).
-  * **billing_project** – which project to bill for Requester Pays buckets.
+  * **billing_project** – which project to bill for Requester Pays access to this
+    bucket. If not given, falls back to whatever `storage.Client()`
+    resolves via Application Default Credentials – the `GOOGLE_CLOUD_
+    PROJECT`/`GCLOUD_PROJECT` env vars, a service account key file’s
+    embedded project, the active `gcloud config set project`, or GCE/
+    Cloud Run instance metadata, in that order. That’s the same
+    resolution the `gcloud` CLI itself uses, so e.g. a local dev shell
+    with a configured `gcloud` project needs no explicit argument.
+* **Raises:**
+  [**RuntimeError**](https://docs.python.org/3/library/exceptions.html#RuntimeError) – If no billing project can be determined by any of the
+  above, no objects are found at `gcs_path`, or a post-hold sweep
+  finds objects still missing the hold.
 
 ### pudl.deploy.pudl.check_build_success(build_path: upath.UPath) → upath.UPath
 

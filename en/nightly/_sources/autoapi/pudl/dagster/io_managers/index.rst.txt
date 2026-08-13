@@ -26,6 +26,7 @@ Attributes
 
    pudl.dagster.io_managers.logger
    pudl.dagster.io_managers.MINIMUM_SQLITE_VERSION
+   pudl.dagster.io_managers.ALEMBIC_AUTOGENERATE_PLUGINS
    pudl.dagster.io_managers.pudl_mixed_format_io_manager
    pudl.dagster.io_managers.parquet_io_manager
    pudl.dagster.io_managers.ferc1_dbf_sqlite_io_manager
@@ -64,6 +65,10 @@ Module Contents
 
 .. py:data:: MINIMUM_SQLITE_VERSION
    :value: '3.32.0'
+
+
+.. py:data:: ALEMBIC_AUTOGENERATE_PLUGINS
+   :value: ['alembic.autogenerate.*', '~alembic.autogenerate.checkconstraint_byname']
 
 
 .. py:function:: _get_dagster_instance_if_available(context: dagster.InputContext) -> dagster.DagsterInstance | None

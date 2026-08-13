@@ -18,9 +18,9 @@ EPA Hourly Continuous Emission Monitoring System (CEMS)
    * - Source Format
      - Comma Separated Value (.csv)
    * - Download Size
-     - 10151 MB
+     - 10218 MB
    * - Temporal Coverage
-     - 1995q1-2026q1
+     - 1995q1-2026q2
    * - PUDL Code
      - ``epacems``
    * - Unprocessed Source Data Archive
@@ -45,6 +45,9 @@ it as part of our SQLite database, but it is available through all of our other
      - Browse Online
    * - :ref:`core_epacems__hourly_emissions`
      - https://data.catalyst.coop/preview/pudl/core_epacems__hourly_emissions
+   
+   * - :ref:`out_epacems__yearly_operational_characteristics`
+     - https://data.catalyst.coop/preview/pudl/out_epacems__yearly_operational_characteristics
    
 
 

@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.deploy.pudl &#8212; PUDL 2026.7.3.dev28 documentation</title>
+    <title>pudl.deploy.pudl &#8212; PUDL 2026.8.1.dev10 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=dd2b94ae"></script>
+    <script src="../../../_static/documentation_options.js?v=b8e28a50"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.7.3.dev28 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.7.3.dev28 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev10 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev10 documentation - Home"/>
   
   
 </a></div>
@@ -892,6 +892,7 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">import</span><span class="w"> </span><span class="nn">gcsfs</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">requests</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">s3fs</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">google.cloud</span><span class="w"> </span><span class="kn">import</span> <span class="n">storage</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span><span class="p">,</span> <span class="n">ConfigDict</span><span class="p">,</span> <span class="n">model_validator</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">upath</span><span class="w"> </span><span class="kn">import</span> <span class="n">UPath</span>
 
@@ -1224,7 +1225,11 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../../autoapi/pudl/deploy/pudl/index.html#pudl.deploy.pudl._run">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_run</span><span class="p">(</span><span class="n">cmd</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Wrap subprocess.run so we see error output.&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">stdout</span>  <span class="c1"># noqa: S603</span></div>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">stdout</span>  <span class="c1"># noqa: S603</span>
+    <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Command failed: </span><span class="si">{</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="si">{</span><span class="n">e</span><span class="o">.</span><span class="n">stderr</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">raise</span></div>
 
 
 
@@ -1526,7 +1531,7 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="set_gcs_temporary_hold">
 <a class="viewcode-back" href="../../../autoapi/pudl/deploy/pudl/index.html#pudl.deploy.pudl.set_gcs_temporary_hold">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">set_gcs_temporary_hold</span><span class="p">(</span><span class="n">gcs_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">set_gcs_temporary_hold</span><span class="p">(</span><span class="n">gcs_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">billing_project</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Set temporary hold on GCS objects to prevent deletion.</span>
 
 <span class="sd">    Applies a temporary hold to protect versioned release artifacts from</span>
@@ -1534,22 +1539,66 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">    Args:</span>
 <span class="sd">        gcs_path: GCS path to objects (e.g., &quot;gs://pudl.catalyst.coop/v2025.2.3/&quot;).</span>
-<span class="sd">        billing_project: which project to bill for Requester Pays buckets.</span>
+<span class="sd">        billing_project: which project to bill for Requester Pays access to this</span>
+<span class="sd">            bucket. If not given, falls back to whatever ``storage.Client()``</span>
+<span class="sd">            resolves via Application Default Credentials -- the ``GOOGLE_CLOUD_</span>
+<span class="sd">            PROJECT``/``GCLOUD_PROJECT`` env vars, a service account key file&#39;s</span>
+<span class="sd">            embedded project, the active ``gcloud config set project``, or GCE/</span>
+<span class="sd">            Cloud Run instance metadata, in that order. That&#39;s the same</span>
+<span class="sd">            resolution the ``gcloud`` CLI itself uses, so e.g. a local dev shell</span>
+<span class="sd">            with a configured ``gcloud`` project needs no explicit argument.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        RuntimeError: If no billing project can be determined by any of the</span>
+<span class="sd">            above, no objects are found at ``gcs_path``, or a post-hold sweep</span>
+<span class="sd">            finds objects still missing the hold.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Setting temporary hold on </span><span class="si">{</span><span class="n">gcs_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-    <span class="n">_run</span><span class="p">(</span>
-        <span class="p">[</span>
-            <span class="s2">&quot;gcloud&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;storage&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;objects&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;update&quot;</span><span class="p">,</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">gcs_path</span><span class="si">}</span><span class="s2">*&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;--temporary-hold&quot;</span><span class="p">,</span>
-        <span class="p">]</span>
-    <span class="p">)</span>
+    <span class="n">bucket_name</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">prefix</span> <span class="o">=</span> <span class="n">gcs_path</span><span class="o">.</span><span class="n">removeprefix</span><span class="p">(</span><span class="s2">&quot;gs://&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">partition</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
+    <span class="c1"># Passing project=None explicitly (rather than omitting it) disables</span>
+    <span class="c1"># Application Default Credentials project auto-detection entirely, so the</span>
+    <span class="c1"># kwarg has to be left out when there&#39;s no explicit override.</span>
+    <span class="n">client_kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;project&quot;</span><span class="p">:</span> <span class="n">billing_project</span><span class="p">}</span> <span class="k">if</span> <span class="n">billing_project</span> <span class="k">else</span> <span class="p">{}</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">client</span> <span class="o">=</span> <span class="n">storage</span><span class="o">.</span><span class="n">Client</span><span class="p">(</span><span class="o">**</span><span class="n">client_kwargs</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+            <span class="s2">&quot;Could not determine a billing project for the Requester Pays &quot;</span>
+            <span class="s2">&quot;pudl.catalyst.coop bucket. Set the GCP_BILLING_PROJECT env var, or &quot;</span>
+            <span class="s2">&quot;configure gcloud locally (`gcloud config set project ...` or &quot;</span>
+            <span class="s2">&quot;`gcloud auth application-default login`).&quot;</span>
+        <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+    <span class="n">bucket</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">bucket</span><span class="p">(</span><span class="n">bucket_name</span><span class="p">,</span> <span class="n">user_project</span><span class="o">=</span><span class="n">client</span><span class="o">.</span><span class="n">project</span><span class="p">)</span>
 
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Temporary hold set on </span><span class="si">{</span><span class="n">gcs_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+    <span class="n">num_held</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">blob</span> <span class="ow">in</span> <span class="n">bucket</span><span class="o">.</span><span class="n">list_blobs</span><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="n">prefix</span><span class="p">):</span>
+        <span class="n">blob</span><span class="o">.</span><span class="n">temporary_hold</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">blob</span><span class="o">.</span><span class="n">patch</span><span class="p">()</span>
+        <span class="n">num_held</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="k">if</span> <span class="n">num_held</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No objects found at </span><span class="si">{</span><span class="n">gcs_path</span><span class="si">}</span><span class="s2">; nothing to hold.&quot;</span><span class="p">)</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Temporary hold set on </span><span class="si">{</span><span class="n">num_held</span><span class="si">}</span><span class="s2"> object(s) at </span><span class="si">{</span><span class="n">gcs_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Re-list rather than trust the objects patched above: a patch() call could</span>
+    <span class="c1"># fail to actually persist despite not raising, and any object created</span>
+    <span class="c1"># concurrently with the loop above (e.g. a retried upload) wouldn&#39;t have been</span>
+    <span class="c1"># seen by it at all. Both would otherwise leave a &quot;protected&quot; release with</span>
+    <span class="c1"># unprotected objects in it.</span>
+    <span class="n">missing_hold</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">blob</span><span class="o">.</span><span class="n">name</span>
+        <span class="k">for</span> <span class="n">blob</span> <span class="ow">in</span> <span class="n">bucket</span><span class="o">.</span><span class="n">list_blobs</span><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="n">prefix</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">blob</span><span class="o">.</span><span class="n">temporary_hold</span>
+    <span class="p">]</span>
+    <span class="k">if</span> <span class="n">missing_hold</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Temporary hold verification failed for </span><span class="si">{</span><span class="n">gcs_path</span><span class="si">}</span><span class="s2">: &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">missing_hold</span><span class="p">)</span><span class="si">}</span><span class="s2"> object(s) still missing the hold: </span><span class="si">{</span><span class="n">missing_hold</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Verified temporary hold on all objects at </span><span class="si">{</span><span class="n">gcs_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
 
 
 

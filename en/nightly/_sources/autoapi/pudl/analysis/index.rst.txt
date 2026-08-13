@@ -24,6 +24,7 @@ Submodules
    /autoapi/pudl/analysis/fuel_by_plant/index
    /autoapi/pudl/analysis/mcoe/index
    /autoapi/pudl/analysis/ml_tools/index
+   /autoapi/pudl/analysis/operational_characteristics/index
    /autoapi/pudl/analysis/plant_parts_eia/index
    /autoapi/pudl/analysis/record_linkage/index
    /autoapi/pudl/analysis/service_territory/index

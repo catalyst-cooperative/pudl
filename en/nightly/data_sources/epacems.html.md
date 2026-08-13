@@ -6,8 +6,8 @@
 | Respondents                     | Coal and high-sulfur fueled plants over 25MW                                                                                                                                     |
 | Records Liberated               | ~1 billion                                                                                                                                                                       |
 | Source Format                   | Comma Separated Value (.csv)                                                                                                                                                     |
-| Download Size                   | 10151 MB                                                                                                                                                                         |
-| Temporal Coverage               | 1995q1-2026q1                                                                                                                                                                    |
+| Download Size                   | 10218 MB                                                                                                                                                                         |
+| Temporal Coverage               | 1995q1-2026q2                                                                                                                                                                    |
 | PUDL Code                       | `epacems`                                                                                                                                                                        |
 | Unprocessed Source Data Archive | [10.5281/zenodo.10233185](https://doi.org/10.5281/zenodo.10233185)                                                                                                               |
 | Issues                          | [Open EPA Hourly Continuous Emission Monitoring System (CEMS) issues](https://github.com/catalyst-cooperative/pudl/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3Aepacems) |
@@ -19,9 +19,10 @@ descriptions of each of its fields. Due to the size of the CEMS data we do not p
 it as part of our SQLite database, but it is available through all of our other
 [data access methods](../data_access.md).
 
-| Data Dictionary                                                                                  | Browse Online                                                                                                                                     |
-|--------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------|
-| [core_epacems_\_hourly_emissions](../data_dictionaries/pudl_db.md#core-epacems-hourly-emissions) | [https://data.catalyst.coop/preview/pudl/core_epacems_\_hourly_emissions](https://data.catalyst.coop/preview/pudl/core_epacems__hourly_emissions) |
+| Data Dictionary                                                                                                                    | Browse Online                                                                                                                                                                       |
+|------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [core_epacems_\_hourly_emissions](../data_dictionaries/pudl_db.md#core-epacems-hourly-emissions)                                   | [https://data.catalyst.coop/preview/pudl/core_epacems_\_hourly_emissions](https://data.catalyst.coop/preview/pudl/core_epacems__hourly_emissions)                                   |
+| [out_epacems_\_yearly_operational_characteristics](../data_dictionaries/pudl_db.md#out-epacems-yearly-operational-characteristics) | [https://data.catalyst.coop/preview/pudl/out_epacems_\_yearly_operational_characteristics](https://data.catalyst.coop/preview/pudl/out_epacems__yearly_operational_characteristics) |
 
 ## Background
 

@@ -13,6 +13,7 @@ post-ETL derived database tables for distribution at some point.
 * [pudl.analysis.fuel_by_plant](fuel_by_plant/index.md)
 * [pudl.analysis.mcoe](mcoe/index.md)
 * [pudl.analysis.ml_tools](ml_tools/index.md)
+* [pudl.analysis.operational_characteristics](operational_characteristics/index.md)
 * [pudl.analysis.plant_parts_eia](plant_parts_eia/index.md)
 * [pudl.analysis.record_linkage](record_linkage/index.md)
 * [pudl.analysis.service_territory](service_territory/index.md)

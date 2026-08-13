@@ -167,7 +167,9 @@ Download additional documentation
 
 * :download:`Eia861 Instructions 2023-05-31 (PDF) <eia861/eia861_instructions_2023-05-31.pdf>`
 
-* :download:`Eia861 Instructions 2024-07-31 (PDF) <eia861/eia861_instructions_2024-07-31.pdf>`
+* :download:`Eia861 Instructions 2026-07-31 (PDF) <eia861/eia861_instructions_2026-07-31.pdf>`
+
+* :download:`Eia861 Instructions 2029-07-31 (PDF) <eia861/eia861_instructions_2029-07-31.pdf>`
 
 
 

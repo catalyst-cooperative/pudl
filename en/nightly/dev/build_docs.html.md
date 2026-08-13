@@ -1,8 +1,8 @@
 # Building the Documentation
 
-We use [Sphinx](https://www.sphinx-doc.org/) and
-[Read The Docs](https://readthedocs.io) to semi-automatically build and host
-our documentation.
+We use [Sphinx](https://www.sphinx-doc.org/) to build our documentation, and
+publish it to [GitHub Pages](https://docs.catalyst.coop/pudl) via the
+`build-deploy-docs` GitHub Action.
 
 Sphinx is tightly integrated with the Python programming language and needs
 to be able to import and parse the source code to do its job. Thus, it also

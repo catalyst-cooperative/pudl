@@ -473,6 +473,16 @@ fleshing it out, in response to our 2025 PUDL User Survey.
   * [Matching SEC Subsidiary Companies to EIA Utilities](sec10k_modeling.md#matching-sec-subsidiary-companies-to-eia-utilities)
   * [Assumptions](sec10k_modeling.md#assumptions)
   * [Future Improvements](sec10k_modeling.md#future-improvements)
+* [Generator Operational Characteristics](operational_characteristics.md)
+  * [Overview](operational_characteristics.md#overview)
+  * [Scope: EPA CEMS Units, Gross Generation](operational_characteristics.md#scope-epa-cems-units-gross-generation)
+  * [A Rolling Window](operational_characteristics.md#a-rolling-window)
+  * [Load Factor Bins](operational_characteristics.md#load-factor-bins)
+  * [Minimum Stable Load](operational_characteristics.md#minimum-stable-load)
+  * [Minimum Up and Down Time](operational_characteristics.md#minimum-up-and-down-time)
+  * [Heat Rates](operational_characteristics.md#heat-rates)
+  * [Ramp Rates](operational_characteristics.md#ramp-rates)
+  * [Feedback Welcome](operational_characteristics.md#feedback-welcome)
 
 
 # index.html.md
@@ -890,6 +900,7 @@ post-ETL derived database tables for distribution at some point.
 * [pudl.analysis.fuel_by_plant](fuel_by_plant/index.md)
 * [pudl.analysis.mcoe](mcoe/index.md)
 * [pudl.analysis.ml_tools](ml_tools/index.md)
+* [pudl.analysis.operational_characteristics](operational_characteristics/index.md)
 * [pudl.analysis.plant_parts_eia](plant_parts_eia/index.md)
 * [pudl.analysis.record_linkage](record_linkage/index.md)
 * [pudl.analysis.service_territory](service_territory/index.md)
@@ -1531,6 +1542,13 @@ Dependencies:
 * **Return type:**
   values (Dict[[str](https://docs.python.org/3/library/stdtypes.html#str), BaseModel])
 
+#### validate_eia860m_consistency()
+
+After-construction validation: ensure eia860/eia860m are consistent.
+
+Note: this only validates and raises; it does not attempt to inject a missing
+eia860m config (after-mode validators run after models are constructed).
+
 ### *class* pudl.settings.Rus7DataConfig(/, \*\*data: Any)
 
 Bases: [`GenericDataConfig`](#pudl.settings.GenericDataConfig)
@@ -1673,7 +1691,7 @@ The list of years to validate.
 
 The reference year for the dataset.
 
-### *class* pudl.settings.FercGenericXbrlToSqliteDataConfig(\_case_sensitive: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_nested_model_default_partial_update: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_prefix: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_prefix_target: pydantic_settings.sources.EnvPrefixTarget | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_file: pydantic_settings.sources.DotenvType | [None](https://docs.python.org/3/library/constants.html#None) = ENV_FILE_SENTINEL, \_env_file_encoding: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_ignore_empty: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_nested_delimiter: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_nested_max_split: [int](https://docs.python.org/3/library/functions.html#int) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_parse_none_str: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_parse_enums: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_prog_name: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_parse_args: [bool](https://docs.python.org/3/library/functions.html#bool) | [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)] | [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[str](https://docs.python.org/3/library/stdtypes.html#str), Ellipsis] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_settings_source: [pydantic_settings.sources.CliSettingsSource](https://pydantic.dev/docs/validation/latest/api/pydantic_settings/#pydantic_settings.CliSettingsSource)[Any] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_parse_none_str: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_hide_none_type: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_avoid_json: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_enforce_required: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_use_class_docs_for_groups: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_exit_on_error: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_prefix: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_flag_prefix_char: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_implicit_flags: [bool](https://docs.python.org/3/library/functions.html#bool) | Literal['dual', 'toggle'] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_ignore_unknown_args: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_kebab_case: [bool](https://docs.python.org/3/library/functions.html#bool) | Literal['all', 'no_enums'] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_shortcuts: [collections.abc.Mapping](https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str) | [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_secrets_dir: pydantic_settings.sources.PathType | [None](https://docs.python.org/3/library/constants.html#None) = None, \_build_sources: [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[pydantic_settings.sources.PydanticBaseSettingsSource](https://pydantic.dev/docs/validation/latest/api/pydantic_settings/#pydantic_settings.PydanticBaseSettingsSource), Ellipsis], [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]] | [None](https://docs.python.org/3/library/constants.html#None) = None, \*\*values: Any)
+### *class* pudl.settings.FercGenericXbrlToSqliteDataConfig(\_case_sensitive: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_nested_model_default_partial_update: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_prefix: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_prefix_target: pydantic_settings.sources.EnvPrefixTarget | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_file: pydantic_settings.sources.DotenvType | [None](https://docs.python.org/3/library/constants.html#None) = ENV_FILE_SENTINEL, \_env_file_encoding: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_ignore_empty: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_nested_delimiter: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_nested_max_split: [int](https://docs.python.org/3/library/functions.html#int) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_parse_none_str: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_parse_enums: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_prog_name: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_parse_args: [bool](https://docs.python.org/3/library/functions.html#bool) | [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)] | [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[str](https://docs.python.org/3/library/stdtypes.html#str), Ellipsis] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_settings_source: [pydantic_settings.sources.CliSettingsSource](https://pydantic.dev/docs/validation/latest/api/pydantic_settings/#pydantic_settings.CliSettingsSource)[Any] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_parse_none_str: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_hide_none_type: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_avoid_json: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_enforce_required: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_use_class_docs_for_groups: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_show_env_vars: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_exit_on_error: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_prefix: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_flag_prefix_char: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_implicit_flags: [bool](https://docs.python.org/3/library/functions.html#bool) | Literal['dual', 'toggle'] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_ignore_unknown_args: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_kebab_case: [bool](https://docs.python.org/3/library/functions.html#bool) | Literal['all', 'no_enums'] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_shortcuts: [collections.abc.Mapping](https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str) | [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_secrets_dir: pydantic_settings.sources.PathType | [None](https://docs.python.org/3/library/constants.html#None) = None, \_build_sources: [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[pydantic_settings.sources.PydanticBaseSettingsSource](https://pydantic.dev/docs/validation/latest/api/pydantic_settings/#pydantic_settings.PydanticBaseSettingsSource), Ellipsis], [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]] | [None](https://docs.python.org/3/library/constants.html#None) = None, \*\*values: Any)
 
 Bases: [`pydantic_settings.BaseSettings`](https://pydantic.dev/docs/validation/latest/api/pydantic_settings/#pydantic_settings.BaseSettings)
 
@@ -1683,7 +1701,7 @@ An immutable pydantic model to validate Ferc1 to SQLite data config.
 
 The list of years to validate.
 
-### *class* pudl.settings.Ferc1XbrlToSqliteDataConfig(\_case_sensitive: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_nested_model_default_partial_update: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_prefix: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_prefix_target: pydantic_settings.sources.EnvPrefixTarget | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_file: pydantic_settings.sources.DotenvType | [None](https://docs.python.org/3/library/constants.html#None) = ENV_FILE_SENTINEL, \_env_file_encoding: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_ignore_empty: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_nested_delimiter: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_nested_max_split: [int](https://docs.python.org/3/library/functions.html#int) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_parse_none_str: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_parse_enums: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_prog_name: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_parse_args: [bool](https://docs.python.org/3/library/functions.html#bool) | [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)] | [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[str](https://docs.python.org/3/library/stdtypes.html#str), Ellipsis] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_settings_source: [pydantic_settings.sources.CliSettingsSource](https://pydantic.dev/docs/validation/latest/api/pydantic_settings/#pydantic_settings.CliSettingsSource)[Any] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_parse_none_str: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_hide_none_type: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_avoid_json: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_enforce_required: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_use_class_docs_for_groups: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_exit_on_error: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_prefix: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_flag_prefix_char: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_implicit_flags: [bool](https://docs.python.org/3/library/functions.html#bool) | Literal['dual', 'toggle'] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_ignore_unknown_args: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_kebab_case: [bool](https://docs.python.org/3/library/functions.html#bool) | Literal['all', 'no_enums'] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_shortcuts: [collections.abc.Mapping](https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str) | [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_secrets_dir: pydantic_settings.sources.PathType | [None](https://docs.python.org/3/library/constants.html#None) = None, \_build_sources: [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[pydantic_settings.sources.PydanticBaseSettingsSource](https://pydantic.dev/docs/validation/latest/api/pydantic_settings/#pydantic_settings.PydanticBaseSettingsSource), Ellipsis], [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]] | [None](https://docs.python.org/3/library/constants.html#None) = None, \*\*values: Any)
+### *class* pudl.settings.Ferc1XbrlToSqliteDataConfig(\_case_sensitive: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_nested_model_default_partial_update: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_prefix: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_prefix_target: pydantic_settings.sources.EnvPrefixTarget | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_file: pydantic_settings.sources.DotenvType | [None](https://docs.python.org/3/library/constants.html#None) = ENV_FILE_SENTINEL, \_env_file_encoding: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_ignore_empty: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_nested_delimiter: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_nested_max_split: [int](https://docs.python.org/3/library/functions.html#int) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_parse_none_str: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_parse_enums: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_prog_name: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_parse_args: [bool](https://docs.python.org/3/library/functions.html#bool) | [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)] | [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[str](https://docs.python.org/3/library/stdtypes.html#str), Ellipsis] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_settings_source: [pydantic_settings.sources.CliSettingsSource](https://pydantic.dev/docs/validation/latest/api/pydantic_settings/#pydantic_settings.CliSettingsSource)[Any] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_parse_none_str: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_hide_none_type: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_avoid_json: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_enforce_required: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_use_class_docs_for_groups: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_show_env_vars: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_exit_on_error: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_prefix: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_flag_prefix_char: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_implicit_flags: [bool](https://docs.python.org/3/library/functions.html#bool) | Literal['dual', 'toggle'] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_ignore_unknown_args: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_kebab_case: [bool](https://docs.python.org/3/library/functions.html#bool) | Literal['all', 'no_enums'] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_shortcuts: [collections.abc.Mapping](https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str) | [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_secrets_dir: pydantic_settings.sources.PathType | [None](https://docs.python.org/3/library/constants.html#None) = None, \_build_sources: [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[pydantic_settings.sources.PydanticBaseSettingsSource](https://pydantic.dev/docs/validation/latest/api/pydantic_settings/#pydantic_settings.PydanticBaseSettingsSource), Ellipsis], [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]] | [None](https://docs.python.org/3/library/constants.html#None) = None, \*\*values: Any)
 
 Bases: [`FercGenericXbrlToSqliteDataConfig`](#pudl.settings.FercGenericXbrlToSqliteDataConfig)
 
@@ -1695,7 +1713,7 @@ An immutable pydantic model to validate Ferc1 to SQLite data config.
 
 The list of years to validate.
 
-### *class* pudl.settings.Ferc2XbrlToSqliteDataConfig(\_case_sensitive: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_nested_model_default_partial_update: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_prefix: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_prefix_target: pydantic_settings.sources.EnvPrefixTarget | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_file: pydantic_settings.sources.DotenvType | [None](https://docs.python.org/3/library/constants.html#None) = ENV_FILE_SENTINEL, \_env_file_encoding: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_ignore_empty: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_nested_delimiter: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_nested_max_split: [int](https://docs.python.org/3/library/functions.html#int) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_parse_none_str: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_parse_enums: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_prog_name: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_parse_args: [bool](https://docs.python.org/3/library/functions.html#bool) | [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)] | [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[str](https://docs.python.org/3/library/stdtypes.html#str), Ellipsis] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_settings_source: [pydantic_settings.sources.CliSettingsSource](https://pydantic.dev/docs/validation/latest/api/pydantic_settings/#pydantic_settings.CliSettingsSource)[Any] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_parse_none_str: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_hide_none_type: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_avoid_json: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_enforce_required: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_use_class_docs_for_groups: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_exit_on_error: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_prefix: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_flag_prefix_char: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_implicit_flags: [bool](https://docs.python.org/3/library/functions.html#bool) | Literal['dual', 'toggle'] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_ignore_unknown_args: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_kebab_case: [bool](https://docs.python.org/3/library/functions.html#bool) | Literal['all', 'no_enums'] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_shortcuts: [collections.abc.Mapping](https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str) | [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_secrets_dir: pydantic_settings.sources.PathType | [None](https://docs.python.org/3/library/constants.html#None) = None, \_build_sources: [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[pydantic_settings.sources.PydanticBaseSettingsSource](https://pydantic.dev/docs/validation/latest/api/pydantic_settings/#pydantic_settings.PydanticBaseSettingsSource), Ellipsis], [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]] | [None](https://docs.python.org/3/library/constants.html#None) = None, \*\*values: Any)
+### *class* pudl.settings.Ferc2XbrlToSqliteDataConfig(\_case_sensitive: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_nested_model_default_partial_update: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_prefix: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_prefix_target: pydantic_settings.sources.EnvPrefixTarget | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_file: pydantic_settings.sources.DotenvType | [None](https://docs.python.org/3/library/constants.html#None) = ENV_FILE_SENTINEL, \_env_file_encoding: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_ignore_empty: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_nested_delimiter: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_nested_max_split: [int](https://docs.python.org/3/library/functions.html#int) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_parse_none_str: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_parse_enums: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_prog_name: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_parse_args: [bool](https://docs.python.org/3/library/functions.html#bool) | [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)] | [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[str](https://docs.python.org/3/library/stdtypes.html#str), Ellipsis] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_settings_source: [pydantic_settings.sources.CliSettingsSource](https://pydantic.dev/docs/validation/latest/api/pydantic_settings/#pydantic_settings.CliSettingsSource)[Any] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_parse_none_str: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_hide_none_type: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_avoid_json: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_enforce_required: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_use_class_docs_for_groups: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_show_env_vars: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_exit_on_error: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_prefix: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_flag_prefix_char: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_implicit_flags: [bool](https://docs.python.org/3/library/functions.html#bool) | Literal['dual', 'toggle'] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_ignore_unknown_args: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_kebab_case: [bool](https://docs.python.org/3/library/functions.html#bool) | Literal['all', 'no_enums'] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_shortcuts: [collections.abc.Mapping](https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str) | [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_secrets_dir: pydantic_settings.sources.PathType | [None](https://docs.python.org/3/library/constants.html#None) = None, \_build_sources: [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[pydantic_settings.sources.PydanticBaseSettingsSource](https://pydantic.dev/docs/validation/latest/api/pydantic_settings/#pydantic_settings.PydanticBaseSettingsSource), Ellipsis], [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]] | [None](https://docs.python.org/3/library/constants.html#None) = None, \*\*values: Any)
 
 Bases: [`FercGenericXbrlToSqliteDataConfig`](#pudl.settings.FercGenericXbrlToSqliteDataConfig)
 
@@ -1743,7 +1761,7 @@ The list of years to validate.
 
 The reference year for the dataset.
 
-### *class* pudl.settings.Ferc6XbrlToSqliteDataConfig(\_case_sensitive: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_nested_model_default_partial_update: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_prefix: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_prefix_target: pydantic_settings.sources.EnvPrefixTarget | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_file: pydantic_settings.sources.DotenvType | [None](https://docs.python.org/3/library/constants.html#None) = ENV_FILE_SENTINEL, \_env_file_encoding: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_ignore_empty: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_nested_delimiter: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_nested_max_split: [int](https://docs.python.org/3/library/functions.html#int) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_parse_none_str: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_parse_enums: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_prog_name: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_parse_args: [bool](https://docs.python.org/3/library/functions.html#bool) | [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)] | [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[str](https://docs.python.org/3/library/stdtypes.html#str), Ellipsis] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_settings_source: [pydantic_settings.sources.CliSettingsSource](https://pydantic.dev/docs/validation/latest/api/pydantic_settings/#pydantic_settings.CliSettingsSource)[Any] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_parse_none_str: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_hide_none_type: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_avoid_json: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_enforce_required: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_use_class_docs_for_groups: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_exit_on_error: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_prefix: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_flag_prefix_char: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_implicit_flags: [bool](https://docs.python.org/3/library/functions.html#bool) | Literal['dual', 'toggle'] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_ignore_unknown_args: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_kebab_case: [bool](https://docs.python.org/3/library/functions.html#bool) | Literal['all', 'no_enums'] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_shortcuts: [collections.abc.Mapping](https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str) | [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_secrets_dir: pydantic_settings.sources.PathType | [None](https://docs.python.org/3/library/constants.html#None) = None, \_build_sources: [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[pydantic_settings.sources.PydanticBaseSettingsSource](https://pydantic.dev/docs/validation/latest/api/pydantic_settings/#pydantic_settings.PydanticBaseSettingsSource), Ellipsis], [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]] | [None](https://docs.python.org/3/library/constants.html#None) = None, \*\*values: Any)
+### *class* pudl.settings.Ferc6XbrlToSqliteDataConfig(\_case_sensitive: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_nested_model_default_partial_update: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_prefix: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_prefix_target: pydantic_settings.sources.EnvPrefixTarget | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_file: pydantic_settings.sources.DotenvType | [None](https://docs.python.org/3/library/constants.html#None) = ENV_FILE_SENTINEL, \_env_file_encoding: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_ignore_empty: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_nested_delimiter: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_nested_max_split: [int](https://docs.python.org/3/library/functions.html#int) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_parse_none_str: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_parse_enums: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_prog_name: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_parse_args: [bool](https://docs.python.org/3/library/functions.html#bool) | [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)] | [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[str](https://docs.python.org/3/library/stdtypes.html#str), Ellipsis] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_settings_source: [pydantic_settings.sources.CliSettingsSource](https://pydantic.dev/docs/validation/latest/api/pydantic_settings/#pydantic_settings.CliSettingsSource)[Any] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_parse_none_str: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_hide_none_type: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_avoid_json: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_enforce_required: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_use_class_docs_for_groups: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_show_env_vars: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_exit_on_error: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_prefix: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_flag_prefix_char: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_implicit_flags: [bool](https://docs.python.org/3/library/functions.html#bool) | Literal['dual', 'toggle'] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_ignore_unknown_args: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_kebab_case: [bool](https://docs.python.org/3/library/functions.html#bool) | Literal['all', 'no_enums'] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_shortcuts: [collections.abc.Mapping](https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str) | [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_secrets_dir: pydantic_settings.sources.PathType | [None](https://docs.python.org/3/library/constants.html#None) = None, \_build_sources: [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[pydantic_settings.sources.PydanticBaseSettingsSource](https://pydantic.dev/docs/validation/latest/api/pydantic_settings/#pydantic_settings.PydanticBaseSettingsSource), Ellipsis], [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]] | [None](https://docs.python.org/3/library/constants.html#None) = None, \*\*values: Any)
 
 Bases: [`FercGenericXbrlToSqliteDataConfig`](#pudl.settings.FercGenericXbrlToSqliteDataConfig)
 
@@ -1773,7 +1791,7 @@ The list of years to validate.
 
 The reference year for the dataset.
 
-### *class* pudl.settings.Ferc60XbrlToSqliteDataConfig(\_case_sensitive: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_nested_model_default_partial_update: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_prefix: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_prefix_target: pydantic_settings.sources.EnvPrefixTarget | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_file: pydantic_settings.sources.DotenvType | [None](https://docs.python.org/3/library/constants.html#None) = ENV_FILE_SENTINEL, \_env_file_encoding: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_ignore_empty: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_nested_delimiter: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_nested_max_split: [int](https://docs.python.org/3/library/functions.html#int) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_parse_none_str: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_parse_enums: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_prog_name: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_parse_args: [bool](https://docs.python.org/3/library/functions.html#bool) | [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)] | [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[str](https://docs.python.org/3/library/stdtypes.html#str), Ellipsis] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_settings_source: [pydantic_settings.sources.CliSettingsSource](https://pydantic.dev/docs/validation/latest/api/pydantic_settings/#pydantic_settings.CliSettingsSource)[Any] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_parse_none_str: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_hide_none_type: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_avoid_json: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_enforce_required: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_use_class_docs_for_groups: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_exit_on_error: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_prefix: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_flag_prefix_char: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_implicit_flags: [bool](https://docs.python.org/3/library/functions.html#bool) | Literal['dual', 'toggle'] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_ignore_unknown_args: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_kebab_case: [bool](https://docs.python.org/3/library/functions.html#bool) | Literal['all', 'no_enums'] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_shortcuts: [collections.abc.Mapping](https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str) | [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_secrets_dir: pydantic_settings.sources.PathType | [None](https://docs.python.org/3/library/constants.html#None) = None, \_build_sources: [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[pydantic_settings.sources.PydanticBaseSettingsSource](https://pydantic.dev/docs/validation/latest/api/pydantic_settings/#pydantic_settings.PydanticBaseSettingsSource), Ellipsis], [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]] | [None](https://docs.python.org/3/library/constants.html#None) = None, \*\*values: Any)
+### *class* pudl.settings.Ferc60XbrlToSqliteDataConfig(\_case_sensitive: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_nested_model_default_partial_update: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_prefix: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_prefix_target: pydantic_settings.sources.EnvPrefixTarget | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_file: pydantic_settings.sources.DotenvType | [None](https://docs.python.org/3/library/constants.html#None) = ENV_FILE_SENTINEL, \_env_file_encoding: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_ignore_empty: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_nested_delimiter: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_nested_max_split: [int](https://docs.python.org/3/library/functions.html#int) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_parse_none_str: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_parse_enums: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_prog_name: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_parse_args: [bool](https://docs.python.org/3/library/functions.html#bool) | [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)] | [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[str](https://docs.python.org/3/library/stdtypes.html#str), Ellipsis] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_settings_source: [pydantic_settings.sources.CliSettingsSource](https://pydantic.dev/docs/validation/latest/api/pydantic_settings/#pydantic_settings.CliSettingsSource)[Any] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_parse_none_str: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_hide_none_type: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_avoid_json: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_enforce_required: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_use_class_docs_for_groups: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_show_env_vars: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_exit_on_error: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_prefix: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_flag_prefix_char: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_implicit_flags: [bool](https://docs.python.org/3/library/functions.html#bool) | Literal['dual', 'toggle'] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_ignore_unknown_args: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_kebab_case: [bool](https://docs.python.org/3/library/functions.html#bool) | Literal['all', 'no_enums'] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_shortcuts: [collections.abc.Mapping](https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str) | [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_secrets_dir: pydantic_settings.sources.PathType | [None](https://docs.python.org/3/library/constants.html#None) = None, \_build_sources: [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[pydantic_settings.sources.PydanticBaseSettingsSource](https://pydantic.dev/docs/validation/latest/api/pydantic_settings/#pydantic_settings.PydanticBaseSettingsSource), Ellipsis], [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]] | [None](https://docs.python.org/3/library/constants.html#None) = None, \*\*values: Any)
 
 Bases: [`FercGenericXbrlToSqliteDataConfig`](#pudl.settings.FercGenericXbrlToSqliteDataConfig)
 
@@ -1785,7 +1803,7 @@ An immutable pydantic model to validate FERC from 60 XBRL to SQLite data config.
 
 The list of years to validate.
 
-### *class* pudl.settings.Ferc714XbrlToSqliteDataConfig(\_case_sensitive: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_nested_model_default_partial_update: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_prefix: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_prefix_target: pydantic_settings.sources.EnvPrefixTarget | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_file: pydantic_settings.sources.DotenvType | [None](https://docs.python.org/3/library/constants.html#None) = ENV_FILE_SENTINEL, \_env_file_encoding: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_ignore_empty: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_nested_delimiter: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_nested_max_split: [int](https://docs.python.org/3/library/functions.html#int) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_parse_none_str: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_parse_enums: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_prog_name: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_parse_args: [bool](https://docs.python.org/3/library/functions.html#bool) | [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)] | [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[str](https://docs.python.org/3/library/stdtypes.html#str), Ellipsis] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_settings_source: [pydantic_settings.sources.CliSettingsSource](https://pydantic.dev/docs/validation/latest/api/pydantic_settings/#pydantic_settings.CliSettingsSource)[Any] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_parse_none_str: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_hide_none_type: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_avoid_json: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_enforce_required: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_use_class_docs_for_groups: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_exit_on_error: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_prefix: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_flag_prefix_char: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_implicit_flags: [bool](https://docs.python.org/3/library/functions.html#bool) | Literal['dual', 'toggle'] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_ignore_unknown_args: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_kebab_case: [bool](https://docs.python.org/3/library/functions.html#bool) | Literal['all', 'no_enums'] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_shortcuts: [collections.abc.Mapping](https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str) | [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_secrets_dir: pydantic_settings.sources.PathType | [None](https://docs.python.org/3/library/constants.html#None) = None, \_build_sources: [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[pydantic_settings.sources.PydanticBaseSettingsSource](https://pydantic.dev/docs/validation/latest/api/pydantic_settings/#pydantic_settings.PydanticBaseSettingsSource), Ellipsis], [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]] | [None](https://docs.python.org/3/library/constants.html#None) = None, \*\*values: Any)
+### *class* pudl.settings.Ferc714XbrlToSqliteDataConfig(\_case_sensitive: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_nested_model_default_partial_update: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_prefix: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_prefix_target: pydantic_settings.sources.EnvPrefixTarget | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_file: pydantic_settings.sources.DotenvType | [None](https://docs.python.org/3/library/constants.html#None) = ENV_FILE_SENTINEL, \_env_file_encoding: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_ignore_empty: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_nested_delimiter: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_nested_max_split: [int](https://docs.python.org/3/library/functions.html#int) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_parse_none_str: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_parse_enums: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_prog_name: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_parse_args: [bool](https://docs.python.org/3/library/functions.html#bool) | [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)] | [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[str](https://docs.python.org/3/library/stdtypes.html#str), Ellipsis] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_settings_source: [pydantic_settings.sources.CliSettingsSource](https://pydantic.dev/docs/validation/latest/api/pydantic_settings/#pydantic_settings.CliSettingsSource)[Any] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_parse_none_str: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_hide_none_type: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_avoid_json: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_enforce_required: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_use_class_docs_for_groups: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_show_env_vars: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_exit_on_error: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_prefix: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_flag_prefix_char: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_implicit_flags: [bool](https://docs.python.org/3/library/functions.html#bool) | Literal['dual', 'toggle'] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_ignore_unknown_args: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_kebab_case: [bool](https://docs.python.org/3/library/functions.html#bool) | Literal['all', 'no_enums'] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_shortcuts: [collections.abc.Mapping](https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str) | [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_secrets_dir: pydantic_settings.sources.PathType | [None](https://docs.python.org/3/library/constants.html#None) = None, \_build_sources: [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[pydantic_settings.sources.PydanticBaseSettingsSource](https://pydantic.dev/docs/validation/latest/api/pydantic_settings/#pydantic_settings.PydanticBaseSettingsSource), Ellipsis], [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]] | [None](https://docs.python.org/3/library/constants.html#None) = None, \*\*values: Any)
 
 Bases: [`FercGenericXbrlToSqliteDataConfig`](#pudl.settings.FercGenericXbrlToSqliteDataConfig)
 
@@ -1797,7 +1815,7 @@ An immutable pydantic model to validate FERC from 714 XBRL to SQLite data config
 
 The list of years to validate.
 
-### *class* pudl.settings.FercToSqliteDataConfig(\_case_sensitive: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_nested_model_default_partial_update: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_prefix: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_prefix_target: pydantic_settings.sources.EnvPrefixTarget | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_file: pydantic_settings.sources.DotenvType | [None](https://docs.python.org/3/library/constants.html#None) = ENV_FILE_SENTINEL, \_env_file_encoding: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_ignore_empty: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_nested_delimiter: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_nested_max_split: [int](https://docs.python.org/3/library/functions.html#int) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_parse_none_str: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_parse_enums: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_prog_name: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_parse_args: [bool](https://docs.python.org/3/library/functions.html#bool) | [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)] | [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[str](https://docs.python.org/3/library/stdtypes.html#str), Ellipsis] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_settings_source: [pydantic_settings.sources.CliSettingsSource](https://pydantic.dev/docs/validation/latest/api/pydantic_settings/#pydantic_settings.CliSettingsSource)[Any] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_parse_none_str: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_hide_none_type: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_avoid_json: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_enforce_required: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_use_class_docs_for_groups: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_exit_on_error: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_prefix: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_flag_prefix_char: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_implicit_flags: [bool](https://docs.python.org/3/library/functions.html#bool) | Literal['dual', 'toggle'] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_ignore_unknown_args: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_kebab_case: [bool](https://docs.python.org/3/library/functions.html#bool) | Literal['all', 'no_enums'] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_shortcuts: [collections.abc.Mapping](https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str) | [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_secrets_dir: pydantic_settings.sources.PathType | [None](https://docs.python.org/3/library/constants.html#None) = None, \_build_sources: [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[pydantic_settings.sources.PydanticBaseSettingsSource](https://pydantic.dev/docs/validation/latest/api/pydantic_settings/#pydantic_settings.PydanticBaseSettingsSource), Ellipsis], [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]] | [None](https://docs.python.org/3/library/constants.html#None) = None, \*\*values: Any)
+### *class* pudl.settings.FercToSqliteDataConfig(\_case_sensitive: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_nested_model_default_partial_update: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_prefix: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_prefix_target: pydantic_settings.sources.EnvPrefixTarget | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_file: pydantic_settings.sources.DotenvType | [None](https://docs.python.org/3/library/constants.html#None) = ENV_FILE_SENTINEL, \_env_file_encoding: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_ignore_empty: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_nested_delimiter: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_nested_max_split: [int](https://docs.python.org/3/library/functions.html#int) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_parse_none_str: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_parse_enums: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_prog_name: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_parse_args: [bool](https://docs.python.org/3/library/functions.html#bool) | [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)] | [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[str](https://docs.python.org/3/library/stdtypes.html#str), Ellipsis] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_settings_source: [pydantic_settings.sources.CliSettingsSource](https://pydantic.dev/docs/validation/latest/api/pydantic_settings/#pydantic_settings.CliSettingsSource)[Any] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_parse_none_str: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_hide_none_type: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_avoid_json: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_enforce_required: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_use_class_docs_for_groups: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_show_env_vars: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_exit_on_error: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_prefix: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_flag_prefix_char: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_implicit_flags: [bool](https://docs.python.org/3/library/functions.html#bool) | Literal['dual', 'toggle'] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_ignore_unknown_args: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_kebab_case: [bool](https://docs.python.org/3/library/functions.html#bool) | Literal['all', 'no_enums'] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_shortcuts: [collections.abc.Mapping](https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str) | [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_secrets_dir: pydantic_settings.sources.PathType | [None](https://docs.python.org/3/library/constants.html#None) = None, \_build_sources: [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[pydantic_settings.sources.PydanticBaseSettingsSource](https://pydantic.dev/docs/validation/latest/api/pydantic_settings/#pydantic_settings.PydanticBaseSettingsSource), Ellipsis], [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]] | [None](https://docs.python.org/3/library/constants.html#None) = None, \*\*values: Any)
 
 Bases: [`pydantic_settings.BaseSettings`](https://pydantic.dev/docs/validation/latest/api/pydantic_settings/#pydantic_settings.BaseSettings)
 
@@ -1838,7 +1856,7 @@ Look up extraction *years* by dataset (`fercX`) and data format (`dbf` or `xbrl`
 * **Raises:**
   [**ValueError**](https://docs.python.org/3/library/exceptions.html#ValueError) – if the dataset/format combination is not configured.
 
-### *class* pudl.settings.GlobalDataConfig(\_case_sensitive: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_nested_model_default_partial_update: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_prefix: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_prefix_target: pydantic_settings.sources.EnvPrefixTarget | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_file: pydantic_settings.sources.DotenvType | [None](https://docs.python.org/3/library/constants.html#None) = ENV_FILE_SENTINEL, \_env_file_encoding: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_ignore_empty: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_nested_delimiter: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_nested_max_split: [int](https://docs.python.org/3/library/functions.html#int) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_parse_none_str: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_parse_enums: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_prog_name: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_parse_args: [bool](https://docs.python.org/3/library/functions.html#bool) | [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)] | [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[str](https://docs.python.org/3/library/stdtypes.html#str), Ellipsis] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_settings_source: [pydantic_settings.sources.CliSettingsSource](https://pydantic.dev/docs/validation/latest/api/pydantic_settings/#pydantic_settings.CliSettingsSource)[Any] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_parse_none_str: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_hide_none_type: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_avoid_json: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_enforce_required: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_use_class_docs_for_groups: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_exit_on_error: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_prefix: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_flag_prefix_char: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_implicit_flags: [bool](https://docs.python.org/3/library/functions.html#bool) | Literal['dual', 'toggle'] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_ignore_unknown_args: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_kebab_case: [bool](https://docs.python.org/3/library/functions.html#bool) | Literal['all', 'no_enums'] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_shortcuts: [collections.abc.Mapping](https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str) | [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_secrets_dir: pydantic_settings.sources.PathType | [None](https://docs.python.org/3/library/constants.html#None) = None, \_build_sources: [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[pydantic_settings.sources.PydanticBaseSettingsSource](https://pydantic.dev/docs/validation/latest/api/pydantic_settings/#pydantic_settings.PydanticBaseSettingsSource), Ellipsis], [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]] | [None](https://docs.python.org/3/library/constants.html#None) = None, \*\*values: Any)
+### *class* pudl.settings.GlobalDataConfig(\_case_sensitive: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_nested_model_default_partial_update: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_prefix: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_prefix_target: pydantic_settings.sources.EnvPrefixTarget | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_file: pydantic_settings.sources.DotenvType | [None](https://docs.python.org/3/library/constants.html#None) = ENV_FILE_SENTINEL, \_env_file_encoding: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_ignore_empty: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_nested_delimiter: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_nested_max_split: [int](https://docs.python.org/3/library/functions.html#int) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_parse_none_str: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_parse_enums: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_prog_name: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_parse_args: [bool](https://docs.python.org/3/library/functions.html#bool) | [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)] | [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[str](https://docs.python.org/3/library/stdtypes.html#str), Ellipsis] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_settings_source: [pydantic_settings.sources.CliSettingsSource](https://pydantic.dev/docs/validation/latest/api/pydantic_settings/#pydantic_settings.CliSettingsSource)[Any] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_parse_none_str: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_hide_none_type: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_avoid_json: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_enforce_required: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_use_class_docs_for_groups: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_show_env_vars: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_exit_on_error: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_prefix: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_flag_prefix_char: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_implicit_flags: [bool](https://docs.python.org/3/library/functions.html#bool) | Literal['dual', 'toggle'] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_ignore_unknown_args: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_kebab_case: [bool](https://docs.python.org/3/library/functions.html#bool) | Literal['all', 'no_enums'] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_shortcuts: [collections.abc.Mapping](https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str) | [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_secrets_dir: pydantic_settings.sources.PathType | [None](https://docs.python.org/3/library/constants.html#None) = None, \_build_sources: [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[pydantic_settings.sources.PydanticBaseSettingsSource](https://pydantic.dev/docs/validation/latest/api/pydantic_settings/#pydantic_settings.PydanticBaseSettingsSource), Ellipsis], [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]] | [None](https://docs.python.org/3/library/constants.html#None) = None, \*\*values: Any)
 
 Bases: [`pydantic_settings.BaseSettings`](https://pydantic.dev/docs/validation/latest/api/pydantic_settings/#pydantic_settings.BaseSettings)
 
@@ -5041,6 +5059,7 @@ Module to perform data cleaning functions on EIA923 data tables.
 | [`_core_eia923__yearly_fgd_operation_maintenance`](#pudl.transform.eia923._core_eia923__yearly_fgd_operation_maintenance)(...)             | Transforms the \_core_eia923_\_yearly_fgd_operation_maintenance table.                                                                         |
 | [`fgd_continuity_check`](#pudl.transform.eia923.fgd_continuity_check)(fgd)                                                                 | Check to see if columns vary as slowly as expected.                                                                                            |
 | [`_core_eia923__energy_storage`](#pudl.transform.eia923._core_eia923__energy_storage)(→ pandas.DataFrame)                                  | Transforms the eia923_energy_storage table.                                                                                                    |
+| [`_core_eia923__yearly_fuel_stocks`](#pudl.transform.eia923._core_eia923__yearly_fuel_stocks)(→ pandas.DataFrame)                          | Transform the EIA-923 fossil-fuel stocks table.                                                                                                |
 | [`_core_eia923__yearly_byproduct_disposition`](#pudl.transform.eia923._core_eia923__yearly_byproduct_disposition)(...)                     | Transforms the eia923_\_byproduct_disposition table.                                                                                           |
 | [`disposition_continuity_check`](#pudl.transform.eia923.disposition_continuity_check)(bpd)                                                 | Check to see if columns vary as slowly as expected.                                                                                            |
 | [`_core_eia923__yearly_byproduct_expenses_and_revenues`](#pudl.transform.eia923._core_eia923__yearly_byproduct_expenses_and_revenues)(...) | Transforms the eia923_\_byproduct_expenses_and_revenues table.                                                                                 |
@@ -5532,6 +5551,37 @@ Other cleaning that could be done:
 
 * Come up with an encoder for `fuel_unit` (tricky because different between FERC
   and EIA).
+
+### pudl.transform.eia923.\_core_eia923_\_yearly_fuel_stocks(raw_eia923_\_stocks: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+
+Transform the EIA-923 fossil-fuel stocks table.
+
+The raw table reports end-of-month coal, petroleum liquids and petroleum coke
+stocks by census division / state, with one wide record per region and year
+(twelve columns per fuel). This transform:
+
+* standardizes null values,
+* drops the `early_release` flag (dropped from all EIA-923 tables),
+* reshapes the wide monthly stock columns into tall monthly records via
+  [`_yearly_to_monthly_records()`](#pudl.transform.eia923._yearly_to_monthly_records), keeping one column per fuel type,
+* builds a `report_date` from `report_year` and the reshaped month,
+* strips the `census_division_and_state` labels (the raw values contain
+  trailing whitespace), and
+* converts the reported thousand-unit stock quantities to base units (short
+  tons of coal, barrels of petroleum liquids and petroleum coke) following the
+  same thousand-to-base convention used elsewhere in EIA-923.
+
+The `census_division_and_state` column is intentionally left as-is and
+unconstrained: its raw values mix census divisions, individual states,
+multi-state groupings and a national total, and standardizing them against
+PUDL’s state / census-region conventions is being handled separately (see
+[issue #5081](https://github.com/catalyst-cooperative/pudl/issues/5081)).
+
+* **Parameters:**
+  **raw_eia923_\_stocks** – The raw `raw_eia923__stocks` dataframe.
+* **Returns:**
+  A tall monthly fuel-stocks dataframe keyed on `report_date` and
+  `census_division_and_state` with one column per fuel stock type.
 
 ### pudl.transform.eia923.\_core_eia923_\_yearly_byproduct_disposition(raw_eia923_\_byproduct_disposition: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
@@ -16932,8 +16982,8 @@ This code is for use analyzing EIA Form 860 data.
 
 ## Functions
 
-| [`extract_eia860`](#pudl.extract.eia860.extract_eia860)(context, raw_eia860_\_all_dfs)   | Extract raw EIA data from excel sheets into dataframes.   |
-|------------------------------------------------------------------------------------------|-----------------------------------------------------------|
+| [`extract_eia860`](#pudl.extract.eia860.extract_eia860)(context, raw_eia860_\_all_dfs, ...)   | Extract raw EIA data from excel sheets into dataframes.   |
+|-----------------------------------------------------------------------------------------------|-----------------------------------------------------------|
 
 ## Module Contents
 
@@ -16968,7 +17018,7 @@ Returns dtypes for plant id columns.
 
 ### pudl.extract.eia860.raw_eia860_\_all_dfs
 
-### pudl.extract.eia860.extract_eia860(context, raw_eia860_\_all_dfs)
+### pudl.extract.eia860.extract_eia860(context, raw_eia860_\_all_dfs, raw_eia860m_\_all_dfs)
 
 Extract raw EIA data from excel sheets into dataframes.
 
@@ -20147,10 +20197,10 @@ require hand mapping to extract in PUDL.
 
 ## Functions
 
-| [`get_latest_record_id`](#pudl.scripts.update_zenodo_dois.get_latest_record_id)(→ tuple[str | None, str | None])   | Get ID of the latest version of any Zenodo record.   |
-|--------------------------------------------------------------------------------------------------------------------|------------------------------------------------------|
-| [`update_yaml_dois`](#pudl.scripts.update_zenodo_dois.update_yaml_dois)(→ dict[str, dict])                         | Check all DOIs and update to latest record versions. |
-| [`main`](#pudl.scripts.update_zenodo_dois.main)(→ None)                                                            | Auto-update Zenodo DOIs to the latest value.         |
+| [`get_latest_record_id`](#pudl.scripts.update_zenodo_dois.get_latest_record_id)(→ tuple[str | None, str | None])   | Get ID of the latest version of any Zenodo record.                         |
+|--------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------|
+| [`update_yaml_dois`](#pudl.scripts.update_zenodo_dois.update_yaml_dois)(→ dict[str, dict])                         | Check all DOIs and update to latest record versions.                       |
+| [`main`](#pudl.scripts.update_zenodo_dois.main)(→ None)                                                            | Auto-update Zenodo DOIs to the latest value. Use 'all' to update all DOIs. |
 
 ## Module Contents
 
@@ -20169,7 +20219,7 @@ Check all DOIs and update to latest record versions.
 
 ### pudl.scripts.update_zenodo_dois.main(ctx: click.Context, datasets: [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[str](https://docs.python.org/3/library/stdtypes.html#str), Ellipsis]) → [None](https://docs.python.org/3/library/constants.html#None)
 
-Auto-update Zenodo DOIs to the latest value.
+Auto-update Zenodo DOIs to the latest value. Use ‘all’ to update all DOIs.
 
 
 # index.html.md
@@ -20420,6 +20470,7 @@ For the underlying Dagster concept, see [https://docs.dagster.io/guides/build/io
 | [`logger`](#pudl.dagster.io_managers.logger)                                                 |    |
 |----------------------------------------------------------------------------------------------|----|
 | [`MINIMUM_SQLITE_VERSION`](#pudl.dagster.io_managers.MINIMUM_SQLITE_VERSION)                 |    |
+| [`ALEMBIC_AUTOGENERATE_PLUGINS`](#pudl.dagster.io_managers.ALEMBIC_AUTOGENERATE_PLUGINS)     |    |
 | [`pudl_mixed_format_io_manager`](#pudl.dagster.io_managers.pudl_mixed_format_io_manager)     |    |
 | [`parquet_io_manager`](#pudl.dagster.io_managers.parquet_io_manager)                         |    |
 | [`ferc1_dbf_sqlite_io_manager`](#pudl.dagster.io_managers.ferc1_dbf_sqlite_io_manager)       |    |
@@ -20449,6 +20500,8 @@ For the underlying Dagster concept, see [https://docs.dagster.io/guides/build/io
 ### pudl.dagster.io_managers.logger
 
 ### pudl.dagster.io_managers.MINIMUM_SQLITE_VERSION *= '3.32.0'*
+
+### pudl.dagster.io_managers.ALEMBIC_AUTOGENERATE_PLUGINS *= ['alembic.autogenerate.\*', '~alembic.autogenerate.checkconstraint_byname']*
 
 ### pudl.dagster.io_managers.\_get_dagster_instance_if_available(context: [dagster.InputContext](https://docs.dagster.io/api/dagster/io-managers/#dagster.InputContext)) → [dagster.DagsterInstance](https://docs.dagster.io/api/dagster/internals/#dagster.DagsterInstance) | [None](https://docs.python.org/3/library/constants.html#None)
 
@@ -22361,7 +22414,7 @@ Update PUDL Viewer Cloud Run service to latest image.
   * **token** – the bearer token to authenticate to GitHub.
   * **environment** – deploy staging or production version of viewer.
 
-### pudl.deploy.pudl.set_gcs_temporary_hold(gcs_path: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [None](https://docs.python.org/3/library/constants.html#None)
+### pudl.deploy.pudl.set_gcs_temporary_hold(gcs_path: [str](https://docs.python.org/3/library/stdtypes.html#str), billing_project: [str](https://docs.python.org/3/library/stdtypes.html#str) = '') → [None](https://docs.python.org/3/library/constants.html#None)
 
 Set temporary hold on GCS objects to prevent deletion.
 
@@ -22370,7 +22423,18 @@ accidental deletion or lifecycle policies.
 
 * **Parameters:**
   * **gcs_path** – GCS path to objects (e.g., “gs://pudl.catalyst.coop/v2025.2.3/”).
-  * **billing_project** – which project to bill for Requester Pays buckets.
+  * **billing_project** – which project to bill for Requester Pays access to this
+    bucket. If not given, falls back to whatever `storage.Client()`
+    resolves via Application Default Credentials – the `GOOGLE_CLOUD_
+    PROJECT`/`GCLOUD_PROJECT` env vars, a service account key file’s
+    embedded project, the active `gcloud config set project`, or GCE/
+    Cloud Run instance metadata, in that order. That’s the same
+    resolution the `gcloud` CLI itself uses, so e.g. a local dev shell
+    with a configured `gcloud` project needs no explicit argument.
+* **Raises:**
+  [**RuntimeError**](https://docs.python.org/3/library/exceptions.html#RuntimeError) – If no billing project can be determined by any of the
+  above, no objects are found at `gcs_path`, or a post-hold sweep
+  finds objects still missing the hold.
 
 ### pudl.deploy.pudl.check_build_success(build_path: upath.UPath) → upath.UPath
 
@@ -22534,7 +22598,7 @@ Tools for setting up and managing PUDL workspaces.
 
 ### pudl.workspace.setup.logger
 
-### *class* pudl.workspace.setup.PudlPaths(\_case_sensitive: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_nested_model_default_partial_update: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_prefix: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_prefix_target: pydantic_settings.sources.EnvPrefixTarget | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_file: pydantic_settings.sources.DotenvType | [None](https://docs.python.org/3/library/constants.html#None) = ENV_FILE_SENTINEL, \_env_file_encoding: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_ignore_empty: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_nested_delimiter: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_nested_max_split: [int](https://docs.python.org/3/library/functions.html#int) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_parse_none_str: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_parse_enums: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_prog_name: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_parse_args: [bool](https://docs.python.org/3/library/functions.html#bool) | [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)] | [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[str](https://docs.python.org/3/library/stdtypes.html#str), Ellipsis] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_settings_source: [pydantic_settings.sources.CliSettingsSource](https://pydantic.dev/docs/validation/latest/api/pydantic_settings/#pydantic_settings.CliSettingsSource)[Any] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_parse_none_str: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_hide_none_type: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_avoid_json: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_enforce_required: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_use_class_docs_for_groups: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_exit_on_error: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_prefix: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_flag_prefix_char: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_implicit_flags: [bool](https://docs.python.org/3/library/functions.html#bool) | Literal['dual', 'toggle'] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_ignore_unknown_args: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_kebab_case: [bool](https://docs.python.org/3/library/functions.html#bool) | Literal['all', 'no_enums'] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_shortcuts: [collections.abc.Mapping](https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str) | [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_secrets_dir: pydantic_settings.sources.PathType | [None](https://docs.python.org/3/library/constants.html#None) = None, \_build_sources: [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[pydantic_settings.sources.PydanticBaseSettingsSource](https://pydantic.dev/docs/validation/latest/api/pydantic_settings/#pydantic_settings.PydanticBaseSettingsSource), Ellipsis], [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]] | [None](https://docs.python.org/3/library/constants.html#None) = None, \*\*values: Any)
+### *class* pudl.workspace.setup.PudlPaths(\_case_sensitive: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_nested_model_default_partial_update: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_prefix: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_prefix_target: pydantic_settings.sources.EnvPrefixTarget | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_file: pydantic_settings.sources.DotenvType | [None](https://docs.python.org/3/library/constants.html#None) = ENV_FILE_SENTINEL, \_env_file_encoding: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_ignore_empty: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_nested_delimiter: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_nested_max_split: [int](https://docs.python.org/3/library/functions.html#int) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_parse_none_str: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_env_parse_enums: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_prog_name: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_parse_args: [bool](https://docs.python.org/3/library/functions.html#bool) | [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)] | [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[str](https://docs.python.org/3/library/stdtypes.html#str), Ellipsis] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_settings_source: [pydantic_settings.sources.CliSettingsSource](https://pydantic.dev/docs/validation/latest/api/pydantic_settings/#pydantic_settings.CliSettingsSource)[Any] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_parse_none_str: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_hide_none_type: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_avoid_json: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_enforce_required: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_use_class_docs_for_groups: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_show_env_vars: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_exit_on_error: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_prefix: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_flag_prefix_char: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_implicit_flags: [bool](https://docs.python.org/3/library/functions.html#bool) | Literal['dual', 'toggle'] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_ignore_unknown_args: [bool](https://docs.python.org/3/library/functions.html#bool) | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_kebab_case: [bool](https://docs.python.org/3/library/functions.html#bool) | Literal['all', 'no_enums'] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_cli_shortcuts: [collections.abc.Mapping](https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str) | [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]] | [None](https://docs.python.org/3/library/constants.html#None) = None, \_secrets_dir: pydantic_settings.sources.PathType | [None](https://docs.python.org/3/library/constants.html#None) = None, \_build_sources: [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[pydantic_settings.sources.PydanticBaseSettingsSource](https://pydantic.dev/docs/validation/latest/api/pydantic_settings/#pydantic_settings.PydanticBaseSettingsSource), Ellipsis], [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]] | [None](https://docs.python.org/3/library/constants.html#None) = None, \*\*values: Any)
 
 Bases: [`pydantic_settings.BaseSettings`](https://pydantic.dev/docs/validation/latest/api/pydantic_settings/#pydantic_settings.BaseSettings)
 
@@ -23295,6 +23359,225 @@ Find non-null values to null to match a run-length distribution.
   Boolean mask of current non-null values to set to null.
 * **Raises:**
   [**ValueError**](https://docs.python.org/3/library/exceptions.html#ValueError) – Could not find space for run of length {length}.
+
+
+# index.html.md
+
+# pudl.analysis.operational_characteristics
+
+Use EPA CEMS and EIA data to estimate generator operational characteristics.
+
+Starting from hourly EPA CEMS gross load and fuel heat content, this module estimates,
+for every plant-unit, a single trailing-window snapshot of: minimum stable load,
+minimum up/down time, heat rate at maximum and minimum stable load, and ramp-up/-down
+rate. These are derived by combining several independent per-unit calculations –
+load-factor binning, run-length detection, and ramp-rate summarization – into one
+output row per unit via [`estimate_operational_characteristics_by_unit()`](#pudl.analysis.operational_characteristics.estimate_operational_characteristics_by_unit).
+
+See [Generator Operational Characteristics](../../../../methodology/operational_characteristics.md) for a longer prose explanation.
+
+## Attributes
+
+| [`logger`](#pudl.analysis.operational_characteristics.logger)   |    |
+|-----------------------------------------------------------------|----|
+
+## Functions
+
+| [`_get_heat_rate_analysis_config`](#pudl.analysis.operational_characteristics._get_heat_rate_analysis_config)(→ dict[str, int])                      | Extract heat rate analysis settings from Dagster asset config.                |
+|------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------|
+| [`_year_quarter_to_ordinal`](#pudl.analysis.operational_characteristics._year_quarter_to_ordinal)(→ int)                                             | Convert a `YYYYqN` string into a zero-based quarter ordinal.                  |
+| [`_ordinal_to_quarter_start`](#pudl.analysis.operational_characteristics._ordinal_to_quarter_start)(→ pandas.Timestamp)                              | Convert a zero-based quarter ordinal into its first UTC timestamp.            |
+| [`_ordinal_to_year_quarter`](#pudl.analysis.operational_characteristics._ordinal_to_year_quarter)(→ str)                                             | Convert a zero-based quarter ordinal into its `YYYYqN` string.                |
+| [`_assert_required_quarters_available`](#pudl.analysis.operational_characteristics._assert_required_quarters_available)(→ None)                      | Raise if the configured EPA CEMS quarters don't cover the trailing window.    |
+| [`_select_target_year_quarter`](#pudl.analysis.operational_characteristics._select_target_year_quarter)(→ str)                                       | Pick the year-quarter to treat as the end of the analysis window.             |
+| [`filter_cems_for_heat_rate_analysis`](#pudl.analysis.operational_characteristics.filter_cems_for_heat_rate_analysis)(→ polars.LazyFrame)            | Filter hourly EPA CEMS records to the configured analysis window.             |
+| [`_add_run_id_expr`](#pudl.analysis.operational_characteristics._add_run_id_expr)(→ polars.Expr)                                                     | Build an expression assigning run IDs to consecutive hourly observations.     |
+| [`assign_groupwise_load_factor_bins`](#pudl.analysis.operational_characteristics.assign_groupwise_load_factor_bins)(→ polars.DataFrame)              | Fully vectorized, per-unit equal-width load-factor binning.                   |
+| [`summarize_ramp_rates`](#pudl.analysis.operational_characteristics.summarize_ramp_rates)(→ polars.DataFrame)                                        | Summarize per-unit ramp rates using the steepest 5% of observed ramp-up/down. |
+| [`handle_adjustment_in_cems`](#pudl.analysis.operational_characteristics.handle_adjustment_in_cems)(→ tuple[polars.LazyFrame, ...)                   | Filter CEMS data, computing derived columns if not adjusted.                  |
+| [`prep_output_df`](#pudl.analysis.operational_characteristics.prep_output_df)(→ polars.DataFrame)                                                    | Set up aggregated output dataframe with empty calculated columns.             |
+| [`compute_minimum_stable_bin`](#pudl.analysis.operational_characteristics.compute_minimum_stable_bin)(→ polars.DataFrame)                            | Given a certain consecutive hour threshold, find runs with stable behavior.   |
+| [`compute_heat_rate_at_max_load`](#pudl.analysis.operational_characteristics.compute_heat_rate_at_max_load)(→ polars.DataFrame)                      | Compute the heat rate at the maximum load (by bin).                           |
+| [`compute_min_stable_heat_rates`](#pudl.analysis.operational_characteristics.compute_min_stable_heat_rates)(→ polars.DataFrame)                      | Compute the heat rate for the minimum stable run.                             |
+| [`filter_for_min_stable_bin`](#pudl.analysis.operational_characteristics.filter_for_min_stable_bin)(→ polars.DataFrame)                              | Filter out records below the minimum stable bin.                              |
+| [`calculate_min_up_or_down_times`](#pudl.analysis.operational_characteristics.calculate_min_up_or_down_times)(→ polars.DataFrame)                    | Calculate minimum up or down times.                                           |
+| [`estimate_operational_characteristics_by_unit`](#pudl.analysis.operational_characteristics.estimate_operational_characteristics_by_unit)(...)       | Estimate operational characteristics for every EPA CEMS plant-unit pair.      |
+| [`out_epacems__yearly_operational_characteristics`](#pudl.analysis.operational_characteristics.out_epacems__yearly_operational_characteristics)(...) | Estimate EPA CEMS unit operational characteristics for every unit.            |
+
+## Module Contents
+
+### pudl.analysis.operational_characteristics.logger
+
+### pudl.analysis.operational_characteristics.\_get_heat_rate_analysis_config(context: [dagster.AssetExecutionContext](https://docs.dagster.io/api/dagster/execution/#dagster.AssetExecutionContext)) → [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [int](https://docs.python.org/3/library/functions.html#int)]
+
+Extract heat rate analysis settings from Dagster asset config.
+
+### pudl.analysis.operational_characteristics.\_year_quarter_to_ordinal(year_quarter: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [int](https://docs.python.org/3/library/functions.html#int)
+
+Convert a `YYYYqN` string into a zero-based quarter ordinal.
+
+### pudl.analysis.operational_characteristics.\_ordinal_to_quarter_start(ordinal: [int](https://docs.python.org/3/library/functions.html#int)) → [pandas.Timestamp](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Timestamp.html#pandas.Timestamp)
+
+Convert a zero-based quarter ordinal into its first UTC timestamp.
+
+`operating_datetime_utc` is stored as a timezone-naive timestamp (already in
+UTC), so this deliberately returns a naive `Timestamp` to compare against it.
+
+### pudl.analysis.operational_characteristics.\_ordinal_to_year_quarter(ordinal: [int](https://docs.python.org/3/library/functions.html#int)) → [str](https://docs.python.org/3/library/stdtypes.html#str)
+
+Convert a zero-based quarter ordinal into its `YYYYqN` string.
+
+### pudl.analysis.operational_characteristics.\_assert_required_quarters_available(year_quarters: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], target_year_quarter: [str](https://docs.python.org/3/library/stdtypes.html#str), num_quarters: [int](https://docs.python.org/3/library/functions.html#int)) → [None](https://docs.python.org/3/library/constants.html#None)
+
+Raise if the configured EPA CEMS quarters don’t cover the trailing window.
+
+`EpaCemsDataConfig` only validates that each configured year-quarter is a
+real partition and that there are no duplicates – it does not require the
+list to be contiguous. Nothing downstream would otherwise notice a gap:
+[`_select_target_year_quarter()`](#pudl.analysis.operational_characteristics._select_target_year_quarter) only needs a max(), and
+[`filter_cems_for_heat_rate_analysis()`](#pudl.analysis.operational_characteristics.filter_cems_for_heat_rate_analysis) filters purely by timestamp
+range, with no visibility into which quarters were actually requested. This
+check makes a missing or discontinuous configuration fail loudly instead of
+silently producing estimates from a partial window.
+
+### pudl.analysis.operational_characteristics.\_select_target_year_quarter(year_quarters: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]) → [str](https://docs.python.org/3/library/stdtypes.html#str)
+
+Pick the year-quarter to treat as the end of the analysis window.
+
+Prefers the most recent year-quarter ending in Q4 (i.e. the most recent
+*complete* calendar year), which reproduces the historical whole-year
+behavior of this analysis in production. Falls back to the single most
+recent year-quarter of any kind when no Q4 is present – e.g. in the fast
+ETL / CI, which only has a single quarter of EPA CEMS data and can’t
+produce a Q4-ending window at all.
+
+### pudl.analysis.operational_characteristics.filter_cems_for_heat_rate_analysis(core_epacems_\_hourly_emissions: polars.LazyFrame, final_year_quarter: [str](https://docs.python.org/3/library/stdtypes.html#str), num_quarters: [int](https://docs.python.org/3/library/functions.html#int), states: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)] | [None](https://docs.python.org/3/library/constants.html#None) = None) → polars.LazyFrame
+
+Filter hourly EPA CEMS records to the configured analysis window.
+
+* **Parameters:**
+  * **core_epacems_\_hourly_emissions** – Hourly CEMS emissions and gross load data.
+  * **final_year_quarter** – Final EPA CEMS year-quarter (e.g. `"2024q1"`) to
+    include in the analysis.
+  * **num_quarters** – Number of historical quarters to include, counting backward
+    from `final_year_quarter`.
+  * **states** – Optional list of two-letter state abbreviations to include.
+    Default is None, which will grab all states.
+* **Returns:**
+  Hourly EPA CEMS records filtered to the requested quarters and states.
+
+### pudl.analysis.operational_characteristics.\_add_run_id_expr(unit_cols: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], state_col: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None) → polars.Expr
+
+Build an expression assigning run IDs to consecutive hourly observations.
+
+Assumes the frame is already sorted by `unit_cols` (and, implicitly,
+`operating_datetime_utc`), since it relies on `.shift()` to compare each row
+to its immediate predecessor.
+
+### pudl.analysis.operational_characteristics.assign_groupwise_load_factor_bins(cems_working: polars.LazyFrame, unit_cols: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], load_factor_col: [str](https://docs.python.org/3/library/stdtypes.html#str)) → polars.DataFrame
+
+Fully vectorized, per-unit equal-width load-factor binning.
+
+This uses polars but is replicating the `pandas.cut` methodology. This results
+in a `load_factor_bin` `column with 10 unique values with a two dimensional
+structure as a datatype. The left value of the structure is the lower bound of the
+load factors within that bin and the right value it the higher bound. Using the
+``load_factor_bin` we also assign `load_factor_bin_rank` which is the lower
+bound of the lowest `load_factor_bin`.
+
+This function uses polars but is attempting to directly reproduce
+`pandas.cut(bins=10, right=True, include_lowest=False)` within each unit group.
+The pandas methodology computes 10 equal-width bins spanning that unit’s own
+observed min/max `load_factor_col` (`width = (max - min) / 10`), except that
+only the *lowest* bin’s left edge is padded by 0.1% of the range (or by 0.001 when
+the range is zero) so that the unit’s minimum observation falls inside the
+first (right-closed) bin rather than outside every bin – matching pandas’
+`_bins_to_cuts` behavior of shifting only `bins[0]`, not redistributing
+the padding across all ten bins.
+
+### pudl.analysis.operational_characteristics.summarize_ramp_rates(cems_with_stable_bins: polars.DataFrame, unit_cols: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], generation_col: [str](https://docs.python.org/3/library/stdtypes.html#str)) → polars.DataFrame
+
+Summarize per-unit ramp rates using the steepest 5% of observed ramp-up/down.
+
+This bins on `ramp_rate` (change in `load_factor`), not `load_factor` itself
+and uses 20 equal-count (quantile) bins. Only the bottom and top bins (the steepest
+5% of downward and upward ramps, respectively) are actually used, via
+`head`/`tail` on the sorted values rather than an explicit bin column.
+
+### pudl.analysis.operational_characteristics.handle_adjustment_in_cems(cems: polars.LazyFrame, unit_cols: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], adjusted: [bool](https://docs.python.org/3/library/functions.html#bool) = False) → [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[polars.LazyFrame, [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str)]]
+
+Filter CEMS data, computing derived columns if not adjusted.
+
+This enables us to adjust the load factor based using net generation
+instead of gross generation. Adjusting the load factor is not yet
+implemented fully. A draft is below add_adjusted_net_generation_to_cems.
+
+This returns a lazframe and a dictionary with keys of the column references
+and values of the column names to use.
+
+TODO: Consider simplification or use of a dataclass or other lightweight data
+structure. Implement changes when we implement
+add_adjusted_net_generation_to_cems below.
+
+### pudl.analysis.operational_characteristics.prep_output_df(cems: polars.DataFrame, unit_cols: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], max_load_col: [str](https://docs.python.org/3/library/stdtypes.html#str)) → polars.DataFrame
+
+Set up aggregated output dataframe with empty calculated columns.
+
+Every unit gets a row here, even ones that don’t have enough distinct load
+factors to bin (e.g. constant-load units) – those come back all-null except for
+identifying columns and max load. Downstream steps merge their real values on top
+of this shell, so every unit is guaranteed to appear in the final output.
+
+### pudl.analysis.operational_characteristics.compute_minimum_stable_bin(binned_cems: polars.DataFrame, unit_cols: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], min_stable_consecutive_hours: [int](https://docs.python.org/3/library/functions.html#int)) → polars.DataFrame
+
+Given a certain consecutive hour threshold, find runs with stable behavior.
+
+This function determines the minimum stable load load factor bin, which means the
+lowest load factor which we see instances of consecutive running.
+
+For every record above the first load_factor_bin (aka when a unit is effectively
+off), first calculate how long any given “run” is. A “run” here is defined as
+a set of consecutive hours that are within the same `load_factor_bin` within a
+given unit.
+
+Once we know how long all the runs are, we find all of the runs that are longer
+than `min_stable_consecutive_hours` and we find the `load_factor_bin` which
+corresponds to the lowest `load_factor_bin` to get the minimum stable bin.
+
+### pudl.analysis.operational_characteristics.compute_heat_rate_at_max_load(heat_rate_input: polars.DataFrame, unit_cols: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], heat_rate_col: [str](https://docs.python.org/3/library/stdtypes.html#str)) → polars.DataFrame
+
+Compute the heat rate at the maximum load (by bin).
+
+### pudl.analysis.operational_characteristics.compute_min_stable_heat_rates(heat_rate_input: polars.DataFrame, min_stable_bins: polars.DataFrame, unit_cols: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], heat_rate_col: [str](https://docs.python.org/3/library/stdtypes.html#str)) → polars.DataFrame
+
+Compute the heat rate for the minimum stable run.
+
+### pudl.analysis.operational_characteristics.filter_for_min_stable_bin(df: polars.DataFrame) → polars.DataFrame
+
+Filter out records below the minimum stable bin.
+
+### pudl.analysis.operational_characteristics.calculate_min_up_or_down_times(output: polars.DataFrame, cems_with_stable_bins: polars.DataFrame, unit_cols: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], up_or_down: Literal['up', 'down']) → polars.DataFrame
+
+Calculate minimum up or down times.
+
+Hourly data points are considered “up” when the `load_factor_bin` is greater than
+the `min_stable_bin` (calculated in [`compute_minimum_stable_bin()`](#pudl.analysis.operational_characteristics.compute_minimum_stable_bin)). Runs are
+considered “down” when there is no load_factor_bin (which is equivalent to having no
+load during that hour).
+
+### pudl.analysis.operational_characteristics.estimate_operational_characteristics_by_unit(cems: polars.LazyFrame, min_stable_consecutive_hours: [int](https://docs.python.org/3/library/functions.html#int), adjusted: [bool](https://docs.python.org/3/library/functions.html#bool) = False) → polars.DataFrame
+
+Estimate operational characteristics for every EPA CEMS plant-unit pair.
+
+Everything through the initial load-factor binning step is lazily evaluated
+(see [`assign_groupwise_load_factor_bins()`](#pudl.analysis.operational_characteristics.assign_groupwise_load_factor_bins)). Everything after that operates
+on the resulting eager `DataFrame`, in a fully vectorized manner across every
+unit at once – there’s no per-unit or per-batch Python looping, and no
+`pandas` fallback.
+
+### pudl.analysis.operational_characteristics.out_epacems_\_yearly_operational_characteristics(context: [dagster.AssetExecutionContext](https://docs.dagster.io/api/dagster/execution/#dagster.AssetExecutionContext), core_epacems_\_hourly_emissions: polars.LazyFrame) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+
+Estimate EPA CEMS unit operational characteristics for every unit.
 
 
 # index.html.md
@@ -32827,9 +33110,9 @@ Other research and publications relevant to the work we do.
 
 # Building the Documentation
 
-We use [Sphinx](https://www.sphinx-doc.org/) and
-[Read The Docs](https://readthedocs.io) to semi-automatically build and host
-our documentation.
+We use [Sphinx](https://www.sphinx-doc.org/) to build our documentation, and
+publish it to [GitHub Pages](https://docs.catalyst.coop/pudl) via the
+`build-deploy-docs` GitHub Action.
 
 Sphinx is tightly integrated with the Python programming language and needs
 to be able to import and parse the source code to do its job. Thus, it also
@@ -33010,8 +33293,8 @@ respective transform function.
 | Source URL                      | [https://www.census.gov/geographies/reference-files/2023/demo/popest/2023-fips.html](https://www.census.gov/geographies/reference-files/2023/demo/popest/2023-fips.html)                                           |
 |---------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | Source Description              | Reference files for Federal Information Processing Series (FIPS) Geographic Codes. These FIPS Codes are a subset of a broader Population Estimates dataset.                                                        |
-| Download Size                   | 21 MB                                                                                                                                                                                                              |
-| Temporal Coverage               | 2009-2024                                                                                                                                                                                                          |
+| Download Size                   | 23 MB                                                                                                                                                                                                              |
+| Temporal Coverage               | 2009-2025                                                                                                                                                                                                          |
 | PUDL Code                       | `censuspep`                                                                                                                                                                                                        |
 | Unprocessed Source Data Archive | [10.5281/zenodo.14624611](https://doi.org/10.5281/zenodo.14624611)                                                                                                                                                 |
 | Issues                          | [Open Population Estimates Program's (PEP) Federal Information Processing Series (FIPS) Codes issues](https://github.com/catalyst-cooperative/pudl/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3Acensuspep) |
@@ -34712,6 +34995,7 @@ Code table containing descriptions of categorical codes for investment types.
   * [Entity Resolution](methodology/entity_resolution.md)
   * [Timeseries Imputation](methodology/timeseries_imputation.md)
   * [SEC 10-K Ownership Data Extraction Modeling](methodology/sec10k_modeling.md)
+  * [Generator Operational Characteristics](methodology/operational_characteristics.md)
 * [Bibliography](bibliography.md)
   * [Catalyst Publications](bibliography.md#catalyst-publications)
   * [Work Citing PUDL and other Catalyst Analyses](bibliography.md#work-citing-pudl-and-other-catalyst-analyses)
@@ -37118,6 +37402,8 @@ and are not considered as reliable as those in the annual form.
 * [`Eia860 Instructions 2017-05-31 (PDF)`](eia860/eia860_instructions_2017-05-31.pdf)
 * [`Eia860 Instructions 2020-03-31 (PDF)`](eia860/eia860_instructions_2020-03-31.pdf)
 * [`Eia860 Instructions 2023-05-31 (PDF)`](eia860/eia860_instructions_2023-05-31.pdf)
+* [`Eia860 Instructions 2026-07-31 (PDF)`](eia860/eia860_instructions_2026-07-31.pdf)
+* [`Eia860 Instructions 2029-07-31 (PDF)`](eia860/eia860_instructions_2029-07-31.pdf)
 
 ### Data available through PUDL
 
@@ -37259,7 +37545,8 @@ details, see the [official EIA-861 page](https://www.eia.gov/electricity/data/ei
 * [`Eia861 Instructions 2017-05-31 (PDF)`](eia861/eia861_instructions_2017-05-31.pdf)
 * [`Eia861 Instructions 2020-03-31 (PDF)`](eia861/eia861_instructions_2020-03-31.pdf)
 * [`Eia861 Instructions 2023-05-31 (PDF)`](eia861/eia861_instructions_2023-05-31.pdf)
-* [`Eia861 Instructions 2024-07-31 (PDF)`](eia861/eia861_instructions_2024-07-31.pdf)
+* [`Eia861 Instructions 2026-07-31 (PDF)`](eia861/eia861_instructions_2026-07-31.pdf)
+* [`Eia861 Instructions 2029-07-31 (PDF)`](eia861/eia861_instructions_2029-07-31.pdf)
 
 ### Data available through PUDL
 
@@ -37362,7 +37649,7 @@ respective transform function.
 | Respondents                     | Electric, CHP plants, and sometimes fuel transfer terminals with either 1MW+ or the ability to receive and deliver power to the grid.                                                             |
 | Records Liberated               | ~5 million                                                                                                                                                                                        |
 | Source Format                   | Microsoft Excel (.xls/.xlsx)                                                                                                                                                                      |
-| Download Size                   | 379 MB                                                                                                                                                                                            |
+| Download Size                   | 380 MB                                                                                                                                                                                            |
 | Temporal Coverage               | 2001-2026                                                                                                                                                                                         |
 | PUDL Code                       | `eia923`                                                                                                                                                                                          |
 | Unprocessed Source Data Archive | [10.5281/zenodo.4127039](https://doi.org/10.5281/zenodo.4127039)                                                                                                                                  |
@@ -37381,6 +37668,7 @@ the names and descriptions of each of its fields.
 | [\_core_eia923_\_yearly_byproduct_expenses_and_revenues](../data_dictionaries/pudl_db.md#i-core-eia923-yearly-byproduct-expenses-and-revenues) | [https://data.catalyst.coop/preview/pudl/_core_eia923_\_yearly_byproduct_expenses_and_revenues](https://data.catalyst.coop/preview/pudl/_core_eia923__yearly_byproduct_expenses_and_revenues) |
 | [\_core_eia923_\_yearly_emissions_control](../data_dictionaries/pudl_db.md#i-core-eia923-yearly-emissions-control)                             | [https://data.catalyst.coop/preview/pudl/_core_eia923_\_yearly_emissions_control](https://data.catalyst.coop/preview/pudl/_core_eia923__yearly_emissions_control)                             |
 | [\_core_eia923_\_yearly_fgd_operation_maintenance](../data_dictionaries/pudl_db.md#i-core-eia923-yearly-fgd-operation-maintenance)             | [https://data.catalyst.coop/preview/pudl/_core_eia923_\_yearly_fgd_operation_maintenance](https://data.catalyst.coop/preview/pudl/_core_eia923__yearly_fgd_operation_maintenance)             |
+| [\_core_eia923_\_yearly_fuel_stocks](../data_dictionaries/pudl_db.md#i-core-eia923-yearly-fuel-stocks)                                         | [https://data.catalyst.coop/preview/pudl/_core_eia923_\_yearly_fuel_stocks](https://data.catalyst.coop/preview/pudl/_core_eia923__yearly_fuel_stocks)                                         |
 | [core_eia923_\_entity_coalmine](../data_dictionaries/pudl_db.md#core-eia923-entity-coalmine)                                                   | [https://data.catalyst.coop/preview/pudl/core_eia923_\_entity_coalmine](https://data.catalyst.coop/preview/pudl/core_eia923__entity_coalmine)                                                 |
 | [core_eia923_\_fuel_receipts_costs](../data_dictionaries/pudl_db.md#core-eia923-fuel-receipts-costs)                                           | [https://data.catalyst.coop/preview/pudl/core_eia923_\_fuel_receipts_costs](https://data.catalyst.coop/preview/pudl/core_eia923__fuel_receipts_costs)                                         |
 | [core_eia923_\_monthly_boiler_fuel](../data_dictionaries/pudl_db.md#core-eia923-monthly-boiler-fuel)                                           | [https://data.catalyst.coop/preview/pudl/core_eia923_\_monthly_boiler_fuel](https://data.catalyst.coop/preview/pudl/core_eia923__monthly_boiler_fuel)                                         |
@@ -37415,6 +37703,8 @@ As of 2019, the EIA-923 Form is organized into the following schedules:
 * [`Eia923 Instructions 2017-05-31 (PDF)`](eia923/eia923_instructions_2017-05-31.pdf)
 * [`Eia923 Instructions 2020-03-31 (PDF)`](eia923/eia923_instructions_2020-03-31.pdf)
 * [`Eia923 Instructions 2023-05-31 (PDF)`](eia923/eia923_instructions_2023-05-31.pdf)
+* [`Eia923 Instructions 2026-07-31 (PDF)`](eia923/eia923_instructions_2026-07-31.pdf)
+* [`Eia923 Instructions 2029-07-31 (PDF)`](eia923/eia923_instructions_2029-07-31.pdf)
 
 ### Data available through PUDL
 
@@ -37526,7 +37816,7 @@ respective transform function.
 | Source Description              | The EIA Form 930 provides hourly demand and generation statistics by balancing area (or sub-balancing area in the case of some larger areas). These statistics include a breakdown by energy source (coal, gas, hydro, wind, solar, etc.) as well as interchange between the balancing areas, including international exchanges with Canada and Mexico. |
 | Respondents                     | All entities in the contiguous United States that are listed in the North American Electric Reliability Corporation’s (NERC) Compliance Registry as a balancing authority.                                                                                                                                                                              |
 | Source Format                   | Comma separated values (CSV)                                                                                                                                                                                                                                                                                                                            |
-| Download Size                   | 412 MB                                                                                                                                                                                                                                                                                                                                                  |
+| Download Size                   | 413 MB                                                                                                                                                                                                                                                                                                                                                  |
 | Temporal Coverage               | 2015half2-2026half2                                                                                                                                                                                                                                                                                                                                     |
 | PUDL Code                       | `eia930`                                                                                                                                                                                                                                                                                                                                                |
 | Unprocessed Source Data Archive | [10.5281/zenodo.10840077](https://doi.org/10.5281/zenodo.10840077)                                                                                                                                                                                                                                                                                      |
@@ -37631,6 +37921,7 @@ indicate net outflows.
 ### Download additional documentation
 
 * [`Eia930 Instructions 2026-07-31 (PDF)`](eia930/eia930_instructions_2026-07-31.pdf)
+* [`Eia930 Instructions 2029-07-31 (PDF)`](eia930/eia930_instructions_2029-07-31.pdf)
 
 ### Data available through PUDL
 
@@ -37922,7 +38213,7 @@ respective transform function.
 |---------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | Source Description              | All data made available in bulk through the EIA Open Data API. At present, PUDL integrates only a few specific data series related to fuel receipts and costs figures from the Bulk Electricity API. |
 | Source Format                   | JSON                                                                                                                                                                                                 |
-| Download Size                   | 1595 MB                                                                                                                                                                                              |
+| Download Size                   | 1597 MB                                                                                                                                                                                              |
 | Temporal Coverage               |                                                                                                                                                                                                      |
 | PUDL Code                       | `eiaapi`                                                                                                                                                                                             |
 | Unprocessed Source Data Archive | [10.5281/zenodo.7067366](https://doi.org/10.5281/zenodo.7067366)                                                                                                                                     |
@@ -38358,8 +38649,8 @@ respective transform function.
 | Respondents                     | Coal and high-sulfur fueled plants over 25MW                                                                                                                                     |
 | Records Liberated               | ~1 billion                                                                                                                                                                       |
 | Source Format                   | Comma Separated Value (.csv)                                                                                                                                                     |
-| Download Size                   | 10151 MB                                                                                                                                                                         |
-| Temporal Coverage               | 1995q1-2026q1                                                                                                                                                                    |
+| Download Size                   | 10218 MB                                                                                                                                                                         |
+| Temporal Coverage               | 1995q1-2026q2                                                                                                                                                                    |
 | PUDL Code                       | `epacems`                                                                                                                                                                        |
 | Unprocessed Source Data Archive | [10.5281/zenodo.10233185](https://doi.org/10.5281/zenodo.10233185)                                                                                                               |
 | Issues                          | [Open EPA Hourly Continuous Emission Monitoring System (CEMS) issues](https://github.com/catalyst-cooperative/pudl/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3Aepacems) |
@@ -38371,9 +38662,10 @@ descriptions of each of its fields. Due to the size of the CEMS data we do not p
 it as part of our SQLite database, but it is available through all of our other
 [data access methods](../data_access.md).
 
-| Data Dictionary                                                                                  | Browse Online                                                                                                                                     |
-|--------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------|
-| [core_epacems_\_hourly_emissions](../data_dictionaries/pudl_db.md#core-epacems-hourly-emissions) | [https://data.catalyst.coop/preview/pudl/core_epacems_\_hourly_emissions](https://data.catalyst.coop/preview/pudl/core_epacems__hourly_emissions) |
+| Data Dictionary                                                                                                                    | Browse Online                                                                                                                                                                       |
+|------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [core_epacems_\_hourly_emissions](../data_dictionaries/pudl_db.md#core-epacems-hourly-emissions)                                   | [https://data.catalyst.coop/preview/pudl/core_epacems_\_hourly_emissions](https://data.catalyst.coop/preview/pudl/core_epacems__hourly_emissions)                                   |
+| [out_epacems_\_yearly_operational_characteristics](../data_dictionaries/pudl_db.md#out-epacems-yearly-operational-characteristics) | [https://data.catalyst.coop/preview/pudl/out_epacems_\_yearly_operational_characteristics](https://data.catalyst.coop/preview/pudl/out_epacems__yearly_operational_characteristics) |
 
 ## Background
 
@@ -38910,7 +39202,7 @@ run all the integration tests against your live PUDL DB with:
 
 ```console
 $ pixi run pytest-integration-nightly
-$ pixi run pytest-data-validation-nightly
+$ pixi run pytest-validate-nightly
 ```
 
 We expect `tests/validate/data_test.py::test_dbt` to fail at this point,
@@ -40945,7 +41237,7 @@ are configured to run the `builds/pudl_batch.sh` script. This script:
    Note: if the container is manually stopped, Zulip will not be notified.
 2. Runs `pixi run pudl-with-ferc-to-sqlite-nightly`.
 3. Runs `pixi run pytest-unit-nightly`, `pixi run pytest-integration-nightly`,
-   and `pixi run pytest-data-validation-nightly` as separate stages.
+   and `pixi run pytest-validate-nightly` as separate stages.
 4. Copies the outputs and logs to a directory in the `gs://builds.catalyst.coop`
    bucket, named `<YYYY-MM-DD-HHMM>-<short git SHA>-<git ref>`, and writes a
    `success` marker file there if every stage passed.
@@ -41214,6 +41506,162 @@ docstrings for [`pudl.transform.nrelatb`](../autoapi/pudl/transform/nrelatb/inde
 respective transform function.
 
 
+# operational_characteristics.html.md
+
+# Generator Operational Characteristics
+
+## Overview
+
+Production cost models, capacity expansion models, and other power system planning
+tools generally need more than a generator’s nameplate capacity to represent how it
+actually behaves on the grid. They need estimates of things like how low a unit can
+run without shutting down, how long it tends to stay on or off once it starts a run,
+how quickly it can change output, and how its fuel efficiency changes across its
+operating range. These “operational characteristics” (sometimes called unit
+commitment parameters) aren’t reported directly by EIA or FERC, so PUDL estimates them
+empirically from [EPA Hourly Continuous Emission Monitoring System (CEMS)](../data_sources/epacems.md) hourly generation and fuel data, in the
+[out_epacems_\_yearly_operational_characteristics](../data_dictionaries/pudl_db.md#out-epacems-yearly-operational-characteristics) table.
+
+This methodology and its original implementation were generously contributed to PUDL by
+[Sylvan Energy](https://sylvan.energy), with support for integration from [GridLab](https://gridlab.org),. We’ve adapted Sylvan Energy’s analysis to run automatically
+across every EPA CEMS reporting unit in the country as part of the regular PUDL
+pipeline. The table is still marked experimental while this integration continues. We
+describe the specific choices behind these metrics below so you can judge whether they
+suit your use case. [Feedback Welcome](#feedback-welcome)!
+
+This analysis processes several years of hourly readings for every EPA CEMS unit in the
+country using [polars](https://pola.rs), a vectorized DataFrame library, reading the
+input data from [Apache Parquet](https://parquet.apache.org/docs/) files. The full
+calculation completes in 1-3 minutes and peaks at around 16 GB of memory.
+
+## Scope: EPA CEMS Units, Gross Generation
+
+These estimates describe individual EPA CEMS “emissions units” (aka smokestacks),
+identified by `plant_id_epa` and `emissions_unit_id_epa`, **not** EIA generators. A
+CEMS unit doesn’t always correspond one-to-one with an EIA generator; see
+[core_epa_\_assn_eia_epacamd](../data_dictionaries/pudl_db.md#core-epa-assn-eia-epacamd) if you need to connect these characteristics to EIA
+generator-level records.
+
+Only fossil-fuel combustion units over 25 MW are required to report to EPA CEMS, so
+this table only covers that population – it doesn’t include smaller fossil units, and
+it doesn’t include non-combustion generation (e.g. wind, solar, hydro, nuclear) at all.
+
+These characteristics are currently derived from CEMS’s directly monitored **gross**
+generation and fuel heat input, since that’s what CEMS reports hourly at the smokestack.
+Sylvan Energy has also contributed a method for converting gross to net generation,
+which is under active development and not yet integrated into PUDL. Once that lands,
+these tables will also offer net-generation-based versions of these characteristics,
+which will be more directly comparable to the net-generation accounting used elsewhere
+in PUDL.
+
+## A Rolling Window
+
+This table recomputes a single snapshot of each unit’s characteristics from a rolling
+window of the most recent EPA CEMS data available – in production, the three most
+recently completed calendar years. The `report_year` column records the vintage of
+that snapshot (the most recent year included in the window). We plan to extend this
+methodology to cover all available years, rather than just the most recent window, in
+the near future.
+
+<a id="load-factor-bins"></a>
+
+## Load Factor Bins
+
+Several of these characteristics are defined relative to a unit’s **load factor**:
+its gross load in a given hour, divided by the highest gross load it reached anywhere
+in the analysis window. Each unit’s own observed load factor range is divided into ten
+equal-width bins, and behavior is characterized within each bin (e.g. what fraction of
+hours fall in the lowest bin, how heat rate varies bin to bin).
+
+These bins are scaled to each unit’s own observed operating range, rather than fixed,
+absolute bins shared across all units (e.g. 0-10% of some standard capacity, 10-20%, and
+so on). A large baseload steam plant and a small peaking combustion turbine typically
+operate over very different absolute ranges, and scaling the bins to each unit describes
+both in comparable, unit-specific terms. (Note that these load-factor bins are
+completely distinct from the ramp-rate bins described below in [Ramp Rates](#ramp-rates)).
+
+## Minimum Stable Load
+
+A unit’s `min_stable_load_factor` is defined empirically: it’s the lowest load-factor
+bin in which the unit is observed sustaining operation for at least a minimum number of
+consecutive hours (8 hours by default, though this threshold is configurable). This
+reflects flexibility the unit has *actually demonstrated* during the window, rather than
+a nameplate turndown rating, which may be more or less conservative than what’s observed
+in practice.
+
+Because this is based on directly observed behavior, a unit that has simply never had
+occasion to run for very long at low output will show a higher (less flexible) minimum
+stable load than it might technically be able to sustain.
+
+## Minimum Up and Down Time
+
+Once a unit’s minimum stable load is known, every hour at or above that level counts as
+“up,” and every hour at zero load counts as “down.” Minimum up time and minimum down
+time are each the *shortest* uninterrupted run of “up” or “down” hours observed
+anywhere in the window, rather than a typical or median run length. These statistics
+are most often used as hard constraints in production cost and unit commitment models
+(e.g. a unit *cannot* turn off after less than its minimum up time), which is the main
+reason for reporting the shortest observed run rather than a typical one.
+
+Because it’s a minimum taken over many observed runs, a longer window that captures more
+up/down cycles is more likely to reveal a short, unusual run – so units may look like
+they’re becoming increasingly flexible as more historical data is included, independent
+of any real change in how the unit is operated.
+
+## Heat Rates
+
+Heat rate – fuel heat input divided by gross generation (MMBtu/MWh) – is a standard
+proxy for thermal efficiency; lower is more efficient. Rather than a unit’s full,
+continuous heat-rate curve across its entire operating range, two representative points
+are reported: the median heat rate observed while operating in the unit’s highest
+load-factor bin (`heat_rate_at_max_load_factor_mmbtu_per_mwh`), and the median heat
+rate observed while operating in its minimum stable bin
+(`heat_rate_at_min_stable_load_factor_mmbtu_per_mwh`). Comparing the two gives a sense
+of how much efficiency degrades at low output relative to full output, without claiming
+to characterize everything in between. The median, rather than the mean, is used within
+each bin to reduce the influence of unusual hours (e.g. startup transients) that don’t
+reflect a unit’s steady operation at that load level.
+
+<a id="ramp-rates"></a>
+
+## Ramp Rates
+
+Ramp rates describe how quickly a unit can change output, expressed here **as a fraction
+of its maximum observed capacity per minute**, which makes them comparable across units
+of very different sizes. They’re calculated only from hours when the unit was operating
+above its minimum stable level, which excludes the more extreme ramps associated with
+startup and shutdown events.
+
+Rather than the single fastest ramp ever observed (likely an unusual one-off event) or
+an average ramp rate (which would be dominated by the much more common, comparatively
+slow, steady-state adjustments), the **median of the fastest 5% of observed upward
+ramps** is reported, and separately the **median of the fastest 5% of observed downward
+ramps**. This is meant to represent a ramp rate the unit can practically and repeatedly
+achieve, rather than either an extreme outlier or its typical, more leisurely pace of
+adjustment. Units that never operated flexibly enough during the window to produce a
+reasonable number of ramping events won’t have a ramp rate estimate at all, rather than
+one based on too few observations to be meaningful.
+
+To find the fastest 5%, observed ramp rates are sorted and split into 20 equal-count
+(quantile) groups, and only the two extreme groups – fastest upward and fastest
+downward – are used. (Note that this is entirely distinct from the
+[Load Factor Bins](#load-factor-bins) above mentioned above).
+
+<a id="feedback-welcome"></a>
+
+## Feedback Welcome
+
+This is a newer, more experimental corner of PUDL, and for now we’ve focused on
+faithfully translating and productionizing Sylvan Energy’s original analysis rather than
+trying to evaluate any of the specific decisions it made. We don’t have as much domain
+expertise in power system operations and modeling as the people who actually use data
+like this every day, so we’d like to draw on the broader community of energy system data
+users to help evaluate and refine these choices – the rolling window length, the
+minimum-stable-level threshold, the ramp rate percentile, gross vs. net generation, or
+anything else described above. If any of it doesn’t match what you need, or you have
+ideas for how it could be improved, please get in touch!
+
+
 # other_data.html.md
 
 <a id="other-data"></a>
@@ -41271,7 +41719,7 @@ oil pipeline) such that they don’t fit into any of the above Forms 1, 2, or 6.
 | Source URL                      | [https://www.phmsa.dot.gov/data-and-statistics/pipeline/gas-distribution-gas-gathering-gas-transmission-hazardous-liquids](https://www.phmsa.dot.gov/data-and-statistics/pipeline/gas-distribution-gas-gathering-gas-transmission-hazardous-liquids)                                                              |
 |---------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | Source Description              | Annual reports submitted to PHMSA from gas distribution, gas gathering, gas transmission, liquefied natural gas, and underground gas storage system operators. Annual reports include information such as total pipeline mileage, facilities, commodities transported, miles by material, and installation dates. |
-| Download Size                   | 220 MB                                                                                                                                                                                                                                                                                                            |
+| Download Size                   | 236 MB                                                                                                                                                                                                                                                                                                            |
 | Temporal Coverage               | 1970-2024                                                                                                                                                                                                                                                                                                         |
 | PUDL Code                       | `phmsagas`                                                                                                                                                                                                                                                                                                        |
 | Unprocessed Source Data Archive | [10.5281/zenodo.7683351](https://doi.org/10.5281/zenodo.7683351)                                                                                                                                                                                                                                                  |
@@ -46044,6 +46492,104 @@ df <- read_parquet(
 | utility_name_eia                   | string     |            | The name of the utility.                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 | zip_code                           | string     |            | Five digit US Zip Code.                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 | zip_code_4                         | string     |            | Four digit US Zip Code suffix.                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+
+<a id="out-epacems-yearly-operational-characteristics"></a>
+
+## out_epacems_\_yearly_operational_characteristics
+
+Noticed any irregularities with this table? [File a report.](https://github.com/catalyst-cooperative/pudl/issues/new?template=data_bug_report.yml&table=out_epacems__yearly_operational_characteristics)
+
+Annual time series of estimated operational characteristics for EPA CEMS emissions units.
+
+Most-recent data:
+: 2025
+
+Processing:
+: Data has been expanded into a wide/denormalized format, with IDs and codes accompanied by human-readable names and descriptions.
+
+Source:
+: EPA Hourly Continuous Emission Monitoring System (CEMS)
+
+Primary key:
+: plant_id_epa, emissions_unit_id_epa
+
+### Usage Warnings
+
+* Contains estimated values.
+* This table is experimental and/or a work in progress and may change in the future.
+* This table estimates values from a configurable trailing window of EPA CEMS quarters ending at the most recent complete year (12 quarters, i.e. the most recent three full years, in production). Builds that only have a limited number of EPA CEMS quarters available, such as the fast ETL and CI, will produce estimates from a shorter, less accurate window.
+
+### Additional Details
+
+This table summarizes several inferred
+operational characteristics for each EPA CEMS emissions unit using hourly CEMS
+gross load and fuel heat content over a trailing window of EPA CEMS quarters. In
+production this window is the most recent three full years (12 quarters) of data,
+ending at the most recent complete calendar year.
+
+The values are not directly reported to source agencies. They are derived from observed
+hourly operations. These variables should be treated as an analytical estimate rather
+than as reported plant characteristics.
+
+For methodological details, see [Generator Operational Characteristics](../methodology/operational_characteristics.md).
+
+### Access methods
+
+* [Browse and query this table online](https://data.catalyst.coop/preview/pudl/out_epacems__yearly_operational_characteristics)
+* [Download this table as a Parquet file](https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/out_epacems__yearly_operational_characteristics.parquet)
+
+### pandas
+
+```python
+import pandas as pd
+df = pd.read_parquet(
+      "s3://pudl.catalyst.coop/nightly/out_epacems__yearly_operational_characteristics.parquet",
+      dtype_backend="pyarrow",
+)
+```
+
+### polars
+
+```python
+import polars as pl
+df = pl.read_parquet(
+      "s3://pudl.catalyst.coop/nightly/out_epacems__yearly_operational_characteristics.parquet",
+      storage_options={"aws_region": "us-west-2", "aws_skip_signature": "True"},
+)
+```
+
+### SQL (DuckDB)
+
+```sql
+SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_epacems__yearly_operational_characteristics.parquet';
+```
+
+### R
+
+```r
+library(arrow)
+df <- read_parquet(
+      "s3://pudl.catalyst.coop/nightly/out_epacems__yearly_operational_characteristics.parquet"
+)
+```
+
+### Columns
+
+| **Field Name**                                    | **Type**   | **Unit**    | **Description**                                                                                                                |
+|---------------------------------------------------|------------|-------------|--------------------------------------------------------------------------------------------------------------------------------|
+| emissions_unit_id_epa                             | string     |             | Emissions (smokestack) unit monitored by EPA CEMS.                                                                             |
+| heat_rate_at_max_load_factor_mmbtu_per_mwh        | number     | MMBTU / MWh | Estimated heat rate at the highest observed load-factor bin for an EPA CEMS emissions unit.                                    |
+| heat_rate_at_min_stable_load_factor_mmbtu_per_mwh | number     | MMBTU / MWh | Estimated heat rate at the minimum stable operating level for an EPA CEMS emissions unit.                                      |
+| max_gross_load_mw                                 | number     | MW          | Maximum observed gross load for an EPA CEMS emissions unit.                                                                    |
+| min_down_time_hours                               | number     | hr          | Minimum observed duration of a consecutive non-operating run.                                                                  |
+| min_stable_load_factor                            | number     |             | Estimated minimum stable operating level as a fraction of maximum gross load.                                                  |
+| min_up_time_hours                                 | number     | hr          | Minimum observed duration of a consecutive run at or above the minimum stable level.                                           |
+| plant_id_eia                                      | integer    |             | The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration. |
+| plant_id_epa                                      | integer    |             | The ORISPL ID used by EPA to refer to the plant. Usually but not always the same as plant_id_eia.                              |
+| ramp_down_rate_per_min                            | number     | 1 / min     | Median ramp rate among the steepest 5% of observed downward ramps expressed as a fraction of maximum gross load per minute.    |
+| ramp_up_rate_per_min                              | number     | 1 / min     | Median ramp rate among the steepest 5% of observed upward ramps expressed as a fraction of maximum gross load per minute.      |
+| report_year                                       | integer    |             | Four-digit year in which the data was reported.                                                                                |
+| state                                             | string     |             | Two letter US state abbreviation.                                                                                              |
 
 <a id="out-ferc1-yearly-all-plants"></a>
 
@@ -73630,6 +74176,85 @@ df <- read_parquet(
 | so2_removal_efficiency_tested       | number     |            | The tested efficiency for the removal of sulfur dioxide at 100 percent load. If not tested at 100 percent load, then the load at which the test was conducted is included as a comment on Schedule 9. If no test was conducted, the test date and tested efficiency field should be blank. Ranges from 0 to 1.                                                                                                                                                                      |
 | so2_test_date                       | date       |            | Date of most recent test for sulfur dioxide removal efficiency.                                                                                                                                                                                                                                                                                                                                                                                                                     |
 
+<a id="i-core-eia923-yearly-fuel-stocks"></a>
+
+## \_core_eia923_\_yearly_fuel_stocks
+
+Noticed any irregularities with this table? [File a report.](https://github.com/catalyst-cooperative/pudl/issues/new?template=data_bug_report.yml&table=_core_eia923__yearly_fuel_stocks)
+
+Annual time series of end-of-month coal, petroleum liquids, and petroleum coke stocks held at electric power sector generating facilities, aggregated by census division or state.
+
+Most-recent data:
+: 2026
+
+Processing:
+: Data has been cleaned but not tidied/normalized. Published only temporarily and may be removed without notice.
+
+Source:
+: EIA Form 923 – Power Plant Operations Report (Fuel Stocks Data)
+
+Primary key:
+: report_date, census_division_and_state The census_division_and_state column is reported as free text and mixes census divisions, individual states, multi-state groupings, and a national total. It has not yet been standardized against PUDL’s state or census-region conventions, so it is stored as-is and left unconstrained.
+
+### Usage Warnings
+
+* This table is experimental and/or a work in progress and may change in the future.
+
+### Additional Details
+
+In the raw data all twelve months of stocks are reported in a single wide record per region and year. Here they have been reshaped into tall monthly records. Coal and petroleum coke stocks are reported in thousand short tons and petroleum liquids in thousand barrels in the source; they have been converted to short tons and barrels respectively.
+
+### Access methods
+
+* [Browse and query this table online](https://data.catalyst.coop/preview/pudl/_core_eia923__yearly_fuel_stocks)
+* [Download this table as a Parquet file](https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/_core_eia923__yearly_fuel_stocks.parquet)
+
+### pandas
+
+```python
+import pandas as pd
+df = pd.read_parquet(
+      "s3://pudl.catalyst.coop/nightly/_core_eia923__yearly_fuel_stocks.parquet",
+      dtype_backend="pyarrow",
+)
+```
+
+### polars
+
+```python
+import polars as pl
+df = pl.read_parquet(
+      "s3://pudl.catalyst.coop/nightly/_core_eia923__yearly_fuel_stocks.parquet",
+      storage_options={"aws_region": "us-west-2", "aws_skip_signature": "True"},
+)
+```
+
+### SQL (DuckDB)
+
+```sql
+SELECT * FROM 's3://pudl.catalyst.coop/nightly/_core_eia923__yearly_fuel_stocks.parquet';
+```
+
+### R
+
+```r
+library(arrow)
+df <- read_parquet(
+      "s3://pudl.catalyst.coop/nightly/_core_eia923__yearly_fuel_stocks.parquet"
+)
+```
+
+### Columns
+
+| **Field Name**                  | **Type**   | **Unit**   | **Description**                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+|---------------------------------|------------|------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| census_division_and_state       | string     |            | Census division, state, or grouping of states as reported in the EIA-923 fuel stocks table. The raw values mix census divisions, individual states, multi-state groupings, and a national total, and are not yet standardized against PUDL’s state or census-region conventions.                                                                                                                                                                                                    |
+| coal_stock_tons                 | number     | short_ton  | End-of-month coal stocks held at electric power sector generating facilities, aggregated by census division or state.                                                                                                                                                                                                                                                                                                                                                               |
+| data_maturity                   | string     |            | Maturity of the source data published by EIA that is reflected in this record. EIA releases data incrementally over time, including monthly updates, annual year-to-date updates, provisional early releases of annual data, and final annual release data that is not expected to change further. Records sourced from multiple upstream EIA datasets may have no well defined data maturity. Records whose values have been inferred within PUDL will also have no data maturity. |
+| petroleum_coke_stock_tons       | number     | short_ton  | End-of-month petroleum coke stocks held at electric power sector generating facilities, aggregated by census division or state.                                                                                                                                                                                                                                                                                                                                                     |
+| petroleum_liquids_stock_barrels | number     | barrel     | End-of-month petroleum liquids stocks held at electric power sector generating facilities, aggregated by census division or state.                                                                                                                                                                                                                                                                                                                                                  |
+| report_date                     | date       |            | Date reported.                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+
 <a id="i-core-eia-forensics-entity-resolution-boilers"></a>
 
 ## \_core_eia_\_forensics_entity_resolution_boilers
@@ -74998,11 +75623,54 @@ you can all use the newly mapped PUDL IDs. But first, make sure to head back to 
 
 # PUDL Release Notes
 
-<a id="release-v2026-8-x"></a>
+<a id="release-v2026-9-0"></a>
 
-## v2026.8.x (2026-08-xx)
+## v2026.9.0 (2026-09-xx)
 
-This is the upcoming quarterly PUDL release.
+This is the upcoming PUDL release.
+
+### Bug Fixes & Data Cleaning
+
+* Fixed `set_gcs_temporary_hold` only protecting the top level of a versioned
+  release path from deletion. It shelled out to `gcloud storage objects update
+  gs://bucket/prefix/*`, and that glob only matches one path segment, so anything
+  nested in a subdirectory was silently left unheld. Updated the function to use the
+  `google-cloud-storage` API to recursively hold every object under the prefix and
+  verify after the fact that none were missed. Manually re-applied the hold to 4,000+
+  previously published versioned release objects that had been missed by the original
+  bug. See PR pr:5477.
+
+### New Data
+
+#### EIA-923
+
+* Added the [\_core_eia923_\_yearly_fuel_stocks](data_dictionaries/pudl_db.md#i-core-eia923-yearly-fuel-stocks) table, which reports end-of-month
+  coal, petroleum liquids, and petroleum coke stocks held at electric power sector
+  generating facilities, aggregated by census division or state. The wide monthly
+  source columns are reshaped into tall monthly records and the reported thousand-unit
+  quantities are converted to base units. See issue [#5081](https://github.com/catalyst-cooperative/pudl/issues/5081) and PR [#5431](https://github.com/catalyst-cooperative/pudl/pull/5431).
+
+#### EPA CEMS
+
+* Added a new analysis output, [out_epacems_\_yearly_operational_characteristics](data_dictionaries/pudl_db.md#out-epacems-yearly-operational-characteristics),
+  which estimates generator operational characteristics such as minimum stable operating
+  level, minimum up/down times, ramp rates, and heat rates at maximum and minimum load,
+  inferred from hourly [EPA CEMS](data_sources/epacems.md) gross load and fuel heat
+  content data over a rolling three-year window. This dagsterizes and vectorizes an
+  analysis originally developed by [Sylvan Energy](https://sylvan.energy/), making it
+  available for all reporting states rather than just California. The output is
+  experimental and marked accordingly, since we are soliciting feedback from the
+  community on the underlying methodology. See issue [#5106](https://github.com/catalyst-cooperative/pudl/issues/5106) and PR [#5190](https://github.com/catalyst-cooperative/pudl/pull/5190).
+
+<a id="release-v2026-8-0"></a>
+
+## v2026.8.0 (2026-08-07)
+
+This is a regular quarterly PUDL release with a bunch of dataset updates. We’ve also
+added a new raw EPA MATS dataset, and Puerto Rico is now included in our EIA-860/860M
+data thanks to first-time contributor [@bsousa22](https://github.com/sponsors/bsousa22). We also tracked down and fixed a
+longstanding bug that had FERC Form 714 balancing authority data crossed between the
+Desert Southwest and Upper Great Plains West regions. See below for all the details.
 
 ### New Data
 
@@ -75012,37 +75680,63 @@ This is the upcoming quarterly PUDL release.
   issue [#4352](https://github.com/catalyst-cooperative/pudl/issues/4352) and PR [#5360](https://github.com/catalyst-cooperative/pudl/pull/5360). Shoutout to [@bsousa22](https://github.com/sponsors/bsousa22) for making his
   first PUDL contribution!
 
+#### EPA MATS
+
+* Added the EPA Mercury and Air Toxics Standards (MATS) dataset, extracted into a raw
+  table with additional records through end of June 2026. This data is not yet deeply
+  integrated into PUDL. See issue [#5358](https://github.com/catalyst-cooperative/pudl/issues/5358) and PRs [#5389](https://github.com/catalyst-cooperative/pudl/pull/5389), [#5464](https://github.com/catalyst-cooperative/pudl/pull/5464). Also
+  a contribution from [@bsousa22](https://github.com/sponsors/bsousa22).
+
 ### Expanded Data Coverage
+
+#### EIA-191
+
+* Updated [EIA-191](data_sources/eia191.md) data. See PR [#5464](https://github.com/catalyst-cooperative/pudl/pull/5464).
+
+#### EIA-860M
+
+* Added [EIA-860M](data_sources/eia860.md) data through June 2026. See
+  issue [#5459](https://github.com/catalyst-cooperative/pudl/issues/5459) and PR [#5468](https://github.com/catalyst-cooperative/pudl/pull/5468).
+
+#### EIA-923
+
+* Added early release data for EIA-923 2025. See issue [#5372](https://github.com/catalyst-cooperative/pudl/issues/5372) and PR [#5391](https://github.com/catalyst-cooperative/pudl/pull/5391).
+* Added [EIA-923M](data_sources/eia923.md) data for April and May 2026. See issue
+  [#5460](https://github.com/catalyst-cooperative/pudl/issues/5460) and PRs [#5391](https://github.com/catalyst-cooperative/pudl/pull/5391), [#5468](https://github.com/catalyst-cooperative/pudl/pull/5468).
 
 #### EIA-930
 
-* Updated [EIA-930](data_sources/eia930.md) data. See PR [#5445](https://github.com/catalyst-cooperative/pudl/pull/5445).
+* Updated [EIA-930](data_sources/eia930.md) data. See PRs [#5445](https://github.com/catalyst-cooperative/pudl/pull/5445), [#5464](https://github.com/catalyst-cooperative/pudl/pull/5464).
 
 #### FERC-714
 
-* Added 2025 XBRL data for [FERC-714](data_sources/ferc714.md). See
-  [#5424](https://github.com/catalyst-cooperative/pudl/issues/5424) and [#5436](https://github.com/catalyst-cooperative/pudl/pull/5436).
+* Added 2025 XBRL data for [FERC-714](data_sources/ferc714.md). See [#5424](https://github.com/catalyst-cooperative/pudl/issues/5424) and
+  PRs [#5436](https://github.com/catalyst-cooperative/pudl/pull/5436), [#5464](https://github.com/catalyst-cooperative/pudl/pull/5464).
 
 #### EIA Electricity API
 
-* Updated the [bulk EIA Electricity API](data_sources/eiaapi.md)
-  data used to fill in redacted fuel prices. See PR [#5441](https://github.com/catalyst-cooperative/pudl/pull/5441).
+* Updated the [bulk EIA Electricity API](data_sources/eiaapi.md) data used to fill in
+  redacted fuel prices. See PRs [#5441](https://github.com/catalyst-cooperative/pudl/pull/5441), [#5464](https://github.com/catalyst-cooperative/pudl/pull/5464).
 
 #### EPA CEMS
 
-* Updated the [EPA CEMS](data_sources/epacems.md) data with
-  additional records through end of March 2026. See PR [#5441](https://github.com/catalyst-cooperative/pudl/pull/5441).
+* Updated the [EPA CEMS](data_sources/epacems.md) data with additional records
+  through end of June 2026. See PRs [#5441](https://github.com/catalyst-cooperative/pudl/pull/5441), [#5464](https://github.com/catalyst-cooperative/pudl/pull/5464).
+
+#### PHMSA Natural Gas data
+
+* Updated the [PHMSA natural gas](data_sources/phmsagas.md) data. See PR [#5464](https://github.com/catalyst-cooperative/pudl/pull/5464).
 
 #### FERC Form 6
 
-* Updated the raw FERC Form 6 archives to include additional
-  2025 data. This data is converted to SQLite, but not deeply
-  integrated into PUDL. See PR [#5441](https://github.com/catalyst-cooperative/pudl/pull/5441).
+* Updated the raw FERC Form 6 archives to include additional 2025 data. This data is
+  converted to SQLite, but not deeply integrated into PUDL. See PR [#5441](https://github.com/catalyst-cooperative/pudl/pull/5441).
 
 ### Documentation
 
 * Added LLM use guidelines and best practices to the
   [contributor guide](CONTRIBUTING.md) and [dev guide](dev/llm_best_practices.md).
+  See PR [#5395](https://github.com/catalyst-cooperative/pudl/pull/5395).
 * Set up the [sphinx_llm](https://github.com/NVIDIA/sphinx-llm) Sphinx extension to
   generate a Markdown version of the PUDL documentation, suitable for consumption by
   LLMs, based on the [llms.txt](https://llmstxt.org/) convention. Each page now
@@ -75067,6 +75761,11 @@ This is the upcoming quarterly PUDL release.
   due to the limited precision of 32-bit floats, on top of the brittleness of of merging
   on floating point numbers. These are now being captured deterministically by merging
   on values within a fixed tolerance of $5. See PR [#5350](https://github.com/catalyst-cooperative/pudl/pull/5350).
+* Fixed the Dagster asset graph for [EIA-860](data_sources/eia860.md) to correctly
+  depend on [EIA-860M](data_sources/eia860.md), so selecting the `raw_eia860m`
+  asset group and its downstream assets now also captures the EIA-860 assets that
+  rely on it, instead of silently leaving them stale. See [#4327](https://github.com/catalyst-cooperative/pudl/issues/4327) and
+  PR [#5409](https://github.com/catalyst-cooperative/pudl/pull/5409).
 
 ### Performance Improvements
 
@@ -75096,6 +75795,9 @@ This is the upcoming quarterly PUDL release.
   microsecond resolution in [`pudl.metadata.dtypes`](autoapi/pudl/metadata/dtypes/index.md#module-pudl.metadata.dtypes). The unused `compact` argument
   to [`to_pandas_dtype()`](autoapi/pudl/metadata/classes/index.md#pudl.metadata.classes.Field.to_pandas_dtype) was retired. See PR
   [#5350](https://github.com/catalyst-cooperative/pudl/pull/5350).
+* Sanitized the batch job IDs used by the deploy and build workflows so they always
+  meet Google Batch’s naming requirements, fixing failures we had previously worked
+  around by making the IDs more generic. See [#5411](https://github.com/catalyst-cooperative/pudl/issues/5411) and PR [#5429](https://github.com/catalyst-cooperative/pudl/pull/5429).
 
 <a id="release-v2026-7-2"></a>
 
@@ -75137,11 +75839,6 @@ bugfixes, and better signal:noise ratio in unit test logging outputs.
   [#5240](https://github.com/catalyst-cooperative/pudl/issues/5240) and [#5245](https://github.com/catalyst-cooperative/pudl/pull/5245).
 
 ### Expanded Data Coverage
-
-#### EIA-923
-
-* Added early release data for EIA-923 2025. See issue [#5372](https://github.com/catalyst-cooperative/pudl/issues/5372) and PR [#5391](https://github.com/catalyst-cooperative/pudl/pull/5391).
-* Added 2026 data through April for EIA-923. See [#5391](https://github.com/catalyst-cooperative/pudl/pull/5391).
 
 #### EIA-191
 
@@ -78772,7 +79469,7 @@ data/code out into the world. By the end of this, we’d like for:
   `pudl.catalyst.coop/stable` buckets in GCS/S3.
 * An archive of the PUDL GitHub repository for the release on Zenodo.
 * A GitHub Release created for that tag with installation instructions.
-* Updated `stable` and `vYYYY.M.x` documentation on ReadTheDocs.
+* Updated `stable` and `vYYYY.M.x` documentation on GitHub Pages.
 
 ## Here’s how to do it!
 
@@ -78797,7 +79494,7 @@ data/code out into the world. By the end of this, we’d like for:
 6. Once the `deploy-pudl` action is complete, verify the following:
    * GCS/AWS distribution buckets have the appropriate data
    * `stable` and `vYYYY.M.x` point at the same Git ref
-   * ReadTheDocs for `stable` and `vYYYY.M.x` versions have the latest
+   * GitHub Pages for `stable` and `vYYYY.M.x` versions have the latest
      changes in the release notes
    * GitHub Releases has the new version with appropriate release notes.
 7. Verify that the Zenodo draft deposition has all the expected data (raw FERC
