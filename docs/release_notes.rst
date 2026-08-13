@@ -46,6 +46,15 @@ EPA CEMS
   experimental and marked accordingly, since we are soliciting feedback from the
   community on the underlying methodology. See issue :issue:`5106` and PR :pr:`5190`.
 
+Expanded Data Coverage
+^^^^^^^^^^^^^^^^^^^^^^
+
+EIA-861
+~~~~~~~
+
+* Added early release data from 2025 for EIA 861. See issue :issue:`5492` and
+  PR :pr:`5493`.
+
 .. _release-v2026.8.0:
 
 ---------------------------------------------------------------------------------------
