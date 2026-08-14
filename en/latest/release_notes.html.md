@@ -26,6 +26,11 @@ This is the upcoming PUDL release.
   generating facilities, aggregated by census division or state. The wide monthly
   source columns are reshaped into tall monthly records and the reported thousand-unit
   quantities are converted to base units. See issue [#5081](https://github.com/catalyst-cooperative/pudl/issues/5081) and PR [#5431](https://github.com/catalyst-cooperative/pudl/pull/5431).
+* Added [out_eia923_\_energy_storage](data_dictionaries/pudl_db.md#out-eia923-energy-storage) for reported EIA-923 energy storage
+  operations, with [out_eia923_\_monthly_energy_storage](data_dictionaries/pudl_db.md#out-eia923-monthly-energy-storage) and
+  [out_eia923_\_yearly_energy_storage](data_dictionaries/pudl_db.md#out-eia923-yearly-energy-storage) providing monthly and yearly aggregations.
+  All three include plant and utility metadata. See issue [#4311](https://github.com/catalyst-cooperative/pudl/issues/4311) and PR
+  [#5489](https://github.com/catalyst-cooperative/pudl/pull/5489).
 
 #### EPA CEMS
 

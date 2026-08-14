@@ -3384,6 +3384,174 @@ Columns
     - 
     - The name of the utility.
 
+.. _out_eia923__energy_storage:
+
+-------------------------------------------------------------------------------
+out_eia923__energy_storage
+-------------------------------------------------------------------------------
+Noticed any irregularities with this table? `File a report. <https://github.com/catalyst-cooperative/pudl/issues/new?template=data_bug_report.yml&table=out_eia923__energy_storage>`__
+
+Monthly time series of energy consumed and discharged ("generated") by energy storage units.
+
+
+Most-recent data:
+  2026
+
+
+Processing:
+  Data has been expanded into a wide/denormalized format, with IDs and codes accompanied by human-readable names and descriptions.
+
+Source:
+  EIA Form 923 -- Power Plant Operations Report (Schedule 3)
+
+Primary key:
+  plant_id_eia, report_date, prime_mover_code, energy_source_code
+
+
+Usage Warnings
+^^^^^^^^^^^^^^
+
+
+* Date column arbitrarily uses the first of the month.
+
+* Data has been drawn from several EIA sources which are not always consistent with each other, and PUDL chooses the most consistent or relevant value to facilitate cross-referencing even if that means some values will differ from the raw sources. See `Harvesting <https://docs.catalyst.coop/pudl/en/latest/data_dictionaries/usage_warnings.html#harvested>`_ for details, and see `Entity Resolution Methodology <https://docs.catalyst.coop/pudl/en/latest/methodology/entity_resolution.html>`_ for a fuller conceptual overview.
+
+
+
+
+
+Additional Details
+^^^^^^^^^^^^^^^^^^
+
+The total MWh discharged from the energy storage unit during the
+reporting period is the gross generation and the difference between gross generation
+and consumption is the net generation.
+
+This table inherits canonicalized values for plants and utilities.
+EIA reports many attributes in many different tables across
+EIA-860 and EIA-923. In order to compile tidy, well-normalized database tables, PUDL
+collects all instances of these values and and chooses a canonical value. By default,
+PUDL chooses the most consistently reported value of a given attribute as long as it
+is at least 70% of the given instances reported. If an attribute was reported
+inconsistently across the original EIA tables, then it will show up as a
+null value. See :doc:`/methodology/entity_resolution` for a conceptual overview of
+this process.
+
+Access methods
+^^^^^^^^^^^^^^^
+
+* `Browse and query this table online <https://data.catalyst.coop/preview/pudl/out_eia923__energy_storage>`__
+* `Download this table as a Parquet file <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/out_eia923__energy_storage.parquet>`__
+
+.. tab-set::
+
+   .. tab-item:: pandas
+
+      .. code-block:: python
+
+         import pandas as pd
+         df = pd.read_parquet(
+               "s3://pudl.catalyst.coop/nightly/out_eia923__energy_storage.parquet",
+               dtype_backend="pyarrow",
+         )
+
+   .. tab-item:: polars
+
+      .. code-block:: python
+
+         import polars as pl
+         df = pl.read_parquet(
+               "s3://pudl.catalyst.coop/nightly/out_eia923__energy_storage.parquet",
+               storage_options={"aws_region": "us-west-2", "aws_skip_signature": "True"},
+         )
+
+   .. tab-item:: SQL (DuckDB)
+
+      .. code-block:: sql
+
+         SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_eia923__energy_storage.parquet';
+
+   .. tab-item:: R
+
+      .. code-block:: r
+
+         library(arrow)
+         df <- read_parquet(
+               "s3://pudl.catalyst.coop/nightly/out_eia923__energy_storage.parquet"
+         )
+
+Columns
+^^^^^^^
+
+.. list-table::
+  :widths: auto
+  :header-rows: 1
+
+  * - **Field Name**
+    - **Type**
+    - **Unit**
+    - **Description**
+  * - data_maturity
+    - string
+    - 
+    - Maturity of the source data published by EIA that is reflected in this record. EIA releases data incrementally over time, including monthly updates, annual year-to-date updates, provisional early releases of annual data, and final annual release data that is not expected to change further. Records sourced from multiple upstream EIA datasets may have no well defined data maturity. Records whose values have been inferred within PUDL will also have no data maturity.
+  * - energy_source_code
+    - string
+    - 
+    - A 2-3 letter code indicating the energy source (e.g. fuel type) associated with the record.
+  * - fuel_consumed_for_electricity_units
+    - number
+    - 
+    - Consumption for electric generation of the fuel type in physical unit.
+  * - fuel_consumed_units
+    - number
+    - 
+    - Consumption of the fuel type in physical unit. Note: this is the total quantity consumed for both electricity and, in the case of combined heat and power plants, process steam production.
+  * - fuel_units
+    - string
+    - 
+    - Reported unit of measure for fuel.
+  * - gross_generation_mwh
+    - number
+    - MWh
+    - Gross electricity generation for the specified period in megawatt-hours (MWh).
+  * - net_generation_mwh
+    - number
+    - MWh
+    - Net electricity generation for the specified period in megawatt-hours (MWh).
+  * - plant_id_eia
+    - integer
+    - 
+    - The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.
+  * - plant_id_pudl
+    - integer
+    - 
+    - A manually assigned PUDL plant ID. May not be constant over time.
+  * - plant_name_eia
+    - string
+    - 
+    - Plant name.
+  * - prime_mover_code
+    - string
+    - 
+    - Code for the type of prime mover (e.g. CT, CG)
+  * - report_date
+    - date
+    - 
+    - Date reported.
+  * - utility_id_eia
+    - integer
+    - 
+    - The EIA Utility Identification number.
+  * - utility_id_pudl
+    - integer
+    - 
+    - A manually assigned PUDL utility ID. May not be stable over time.
+  * - utility_name_eia
+    - string
+    - 
+    - The name of the utility.
+
 .. _out_eia923__fuel_receipts_costs:
 
 -------------------------------------------------------------------------------
@@ -4194,6 +4362,174 @@ Columns
     - integer
     - 
     - Dynamically assigned PUDL unit id. WARNING: This ID is not guaranteed to be static long term as the input data and algorithm may evolve over time.
+  * - utility_id_eia
+    - integer
+    - 
+    - The EIA Utility Identification number.
+  * - utility_id_pudl
+    - integer
+    - 
+    - A manually assigned PUDL utility ID. May not be stable over time.
+  * - utility_name_eia
+    - string
+    - 
+    - The name of the utility.
+
+.. _out_eia923__monthly_energy_storage:
+
+-------------------------------------------------------------------------------
+out_eia923__monthly_energy_storage
+-------------------------------------------------------------------------------
+Noticed any irregularities with this table? `File a report. <https://github.com/catalyst-cooperative/pudl/issues/new?template=data_bug_report.yml&table=out_eia923__monthly_energy_storage>`__
+
+Monthly time series of energy consumed and discharged ("generated") by energy storage units.
+
+
+Most-recent data:
+  2026
+
+
+Processing:
+  Data has been expanded into a wide/denormalized format, with IDs and codes accompanied by human-readable names and descriptions.
+
+Source:
+  EIA Form 923 -- Power Plant Operations Report (Schedule 3)
+
+Primary key:
+  plant_id_eia, report_date, prime_mover_code, energy_source_code
+
+
+Usage Warnings
+^^^^^^^^^^^^^^
+
+
+* Date column arbitrarily uses the first of the month.
+
+* Data has been drawn from several EIA sources which are not always consistent with each other, and PUDL chooses the most consistent or relevant value to facilitate cross-referencing even if that means some values will differ from the raw sources. See `Harvesting <https://docs.catalyst.coop/pudl/en/latest/data_dictionaries/usage_warnings.html#harvested>`_ for details, and see `Entity Resolution Methodology <https://docs.catalyst.coop/pudl/en/latest/methodology/entity_resolution.html>`_ for a fuller conceptual overview.
+
+
+
+
+
+Additional Details
+^^^^^^^^^^^^^^^^^^
+
+The total MWh discharged from the energy storage unit during the
+reporting period is the gross generation and the difference between gross generation
+and consumption is the net generation.
+
+This table inherits canonicalized values for plants and utilities.
+EIA reports many attributes in many different tables across
+EIA-860 and EIA-923. In order to compile tidy, well-normalized database tables, PUDL
+collects all instances of these values and and chooses a canonical value. By default,
+PUDL chooses the most consistently reported value of a given attribute as long as it
+is at least 70% of the given instances reported. If an attribute was reported
+inconsistently across the original EIA tables, then it will show up as a
+null value. See :doc:`/methodology/entity_resolution` for a conceptual overview of
+this process.
+
+Access methods
+^^^^^^^^^^^^^^^
+
+* `Browse and query this table online <https://data.catalyst.coop/preview/pudl/out_eia923__monthly_energy_storage>`__
+* `Download this table as a Parquet file <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/out_eia923__monthly_energy_storage.parquet>`__
+
+.. tab-set::
+
+   .. tab-item:: pandas
+
+      .. code-block:: python
+
+         import pandas as pd
+         df = pd.read_parquet(
+               "s3://pudl.catalyst.coop/nightly/out_eia923__monthly_energy_storage.parquet",
+               dtype_backend="pyarrow",
+         )
+
+   .. tab-item:: polars
+
+      .. code-block:: python
+
+         import polars as pl
+         df = pl.read_parquet(
+               "s3://pudl.catalyst.coop/nightly/out_eia923__monthly_energy_storage.parquet",
+               storage_options={"aws_region": "us-west-2", "aws_skip_signature": "True"},
+         )
+
+   .. tab-item:: SQL (DuckDB)
+
+      .. code-block:: sql
+
+         SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_eia923__monthly_energy_storage.parquet';
+
+   .. tab-item:: R
+
+      .. code-block:: r
+
+         library(arrow)
+         df <- read_parquet(
+               "s3://pudl.catalyst.coop/nightly/out_eia923__monthly_energy_storage.parquet"
+         )
+
+Columns
+^^^^^^^
+
+.. list-table::
+  :widths: auto
+  :header-rows: 1
+
+  * - **Field Name**
+    - **Type**
+    - **Unit**
+    - **Description**
+  * - data_maturity
+    - string
+    - 
+    - Maturity of the source data published by EIA that is reflected in this record. EIA releases data incrementally over time, including monthly updates, annual year-to-date updates, provisional early releases of annual data, and final annual release data that is not expected to change further. Records sourced from multiple upstream EIA datasets may have no well defined data maturity. Records whose values have been inferred within PUDL will also have no data maturity.
+  * - energy_source_code
+    - string
+    - 
+    - A 2-3 letter code indicating the energy source (e.g. fuel type) associated with the record.
+  * - fuel_consumed_for_electricity_units
+    - number
+    - 
+    - Consumption for electric generation of the fuel type in physical unit.
+  * - fuel_consumed_units
+    - number
+    - 
+    - Consumption of the fuel type in physical unit. Note: this is the total quantity consumed for both electricity and, in the case of combined heat and power plants, process steam production.
+  * - fuel_units
+    - string
+    - 
+    - Reported unit of measure for fuel.
+  * - gross_generation_mwh
+    - number
+    - MWh
+    - Gross electricity generation for the specified period in megawatt-hours (MWh).
+  * - net_generation_mwh
+    - number
+    - MWh
+    - Net electricity generation for the specified period in megawatt-hours (MWh).
+  * - plant_id_eia
+    - integer
+    - 
+    - The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.
+  * - plant_id_pudl
+    - integer
+    - 
+    - A manually assigned PUDL plant ID. May not be constant over time.
+  * - plant_name_eia
+    - string
+    - 
+    - Plant name.
+  * - prime_mover_code
+    - string
+    - 
+    - Code for the type of prime mover (e.g. CT, CG)
+  * - report_date
+    - date
+    - 
+    - Date reported.
   * - utility_id_eia
     - integer
     - 
@@ -5293,6 +5629,174 @@ Columns
     - integer
     - 
     - Dynamically assigned PUDL unit id. WARNING: This ID is not guaranteed to be static long term as the input data and algorithm may evolve over time.
+  * - utility_id_eia
+    - integer
+    - 
+    - The EIA Utility Identification number.
+  * - utility_id_pudl
+    - integer
+    - 
+    - A manually assigned PUDL utility ID. May not be stable over time.
+  * - utility_name_eia
+    - string
+    - 
+    - The name of the utility.
+
+.. _out_eia923__yearly_energy_storage:
+
+-------------------------------------------------------------------------------
+out_eia923__yearly_energy_storage
+-------------------------------------------------------------------------------
+Noticed any irregularities with this table? `File a report. <https://github.com/catalyst-cooperative/pudl/issues/new?template=data_bug_report.yml&table=out_eia923__yearly_energy_storage>`__
+
+Annual time series of energy consumed and discharged ("generated") by energy storage units.
+
+
+Most-recent data:
+  2025
+
+
+Processing:
+  Data has been expanded into a wide/denormalized format, with IDs and codes accompanied by human-readable names and descriptions.
+
+Source:
+  EIA Form 923 -- Power Plant Operations Report (Schedule 3)
+
+Primary key:
+  plant_id_eia, report_date, prime_mover_code, energy_source_code
+
+
+Usage Warnings
+^^^^^^^^^^^^^^
+
+
+* Date column arbitrarily uses the first of the month.
+
+* Data has been drawn from several EIA sources which are not always consistent with each other, and PUDL chooses the most consistent or relevant value to facilitate cross-referencing even if that means some values will differ from the raw sources. See `Harvesting <https://docs.catalyst.coop/pudl/en/latest/data_dictionaries/usage_warnings.html#harvested>`_ for details, and see `Entity Resolution Methodology <https://docs.catalyst.coop/pudl/en/latest/methodology/entity_resolution.html>`_ for a fuller conceptual overview.
+
+
+
+
+
+Additional Details
+^^^^^^^^^^^^^^^^^^
+
+The total MWh discharged from the energy storage unit during the
+reporting period is the gross generation and the difference between gross generation
+and consumption is the net generation.
+
+This table inherits canonicalized values for plants and utilities.
+EIA reports many attributes in many different tables across
+EIA-860 and EIA-923. In order to compile tidy, well-normalized database tables, PUDL
+collects all instances of these values and and chooses a canonical value. By default,
+PUDL chooses the most consistently reported value of a given attribute as long as it
+is at least 70% of the given instances reported. If an attribute was reported
+inconsistently across the original EIA tables, then it will show up as a
+null value. See :doc:`/methodology/entity_resolution` for a conceptual overview of
+this process.
+
+Access methods
+^^^^^^^^^^^^^^^
+
+* `Browse and query this table online <https://data.catalyst.coop/preview/pudl/out_eia923__yearly_energy_storage>`__
+* `Download this table as a Parquet file <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/out_eia923__yearly_energy_storage.parquet>`__
+
+.. tab-set::
+
+   .. tab-item:: pandas
+
+      .. code-block:: python
+
+         import pandas as pd
+         df = pd.read_parquet(
+               "s3://pudl.catalyst.coop/nightly/out_eia923__yearly_energy_storage.parquet",
+               dtype_backend="pyarrow",
+         )
+
+   .. tab-item:: polars
+
+      .. code-block:: python
+
+         import polars as pl
+         df = pl.read_parquet(
+               "s3://pudl.catalyst.coop/nightly/out_eia923__yearly_energy_storage.parquet",
+               storage_options={"aws_region": "us-west-2", "aws_skip_signature": "True"},
+         )
+
+   .. tab-item:: SQL (DuckDB)
+
+      .. code-block:: sql
+
+         SELECT * FROM 's3://pudl.catalyst.coop/nightly/out_eia923__yearly_energy_storage.parquet';
+
+   .. tab-item:: R
+
+      .. code-block:: r
+
+         library(arrow)
+         df <- read_parquet(
+               "s3://pudl.catalyst.coop/nightly/out_eia923__yearly_energy_storage.parquet"
+         )
+
+Columns
+^^^^^^^
+
+.. list-table::
+  :widths: auto
+  :header-rows: 1
+
+  * - **Field Name**
+    - **Type**
+    - **Unit**
+    - **Description**
+  * - data_maturity
+    - string
+    - 
+    - Maturity of the source data published by EIA that is reflected in this record. EIA releases data incrementally over time, including monthly updates, annual year-to-date updates, provisional early releases of annual data, and final annual release data that is not expected to change further. Records sourced from multiple upstream EIA datasets may have no well defined data maturity. Records whose values have been inferred within PUDL will also have no data maturity.
+  * - energy_source_code
+    - string
+    - 
+    - A 2-3 letter code indicating the energy source (e.g. fuel type) associated with the record.
+  * - fuel_consumed_for_electricity_units
+    - number
+    - 
+    - Consumption for electric generation of the fuel type in physical unit.
+  * - fuel_consumed_units
+    - number
+    - 
+    - Consumption of the fuel type in physical unit. Note: this is the total quantity consumed for both electricity and, in the case of combined heat and power plants, process steam production.
+  * - fuel_units
+    - string
+    - 
+    - Reported unit of measure for fuel.
+  * - gross_generation_mwh
+    - number
+    - MWh
+    - Gross electricity generation for the specified period in megawatt-hours (MWh).
+  * - net_generation_mwh
+    - number
+    - MWh
+    - Net electricity generation for the specified period in megawatt-hours (MWh).
+  * - plant_id_eia
+    - integer
+    - 
+    - The unique six-digit facility identification number, also called an ORISPL, assigned by the Energy Information Administration.
+  * - plant_id_pudl
+    - integer
+    - 
+    - A manually assigned PUDL plant ID. May not be constant over time.
+  * - plant_name_eia
+    - string
+    - 
+    - Plant name.
+  * - prime_mover_code
+    - string
+    - 
+    - Code for the type of prime mover (e.g. CT, CG)
+  * - report_date
+    - date
+    - 
+    - Date reported.
   * - utility_id_eia
     - integer
     - 

@@ -1,6 +1,6 @@
 # PUDL
 
-> PUDL 2026.8.1.dev10 documentation
+> PUDL 2026.8.1.dev11 documentation
 
 
 2016-2026, Catalyst Cooperative, CC-BY-4.0
@@ -8,243 +8,243 @@
 ## Pages
 
 - [The Public Utility Data Liberation Project](index.html.md): PUDL (pronounced puddle) is a data processing pipeline created by [Catalyst Cooperative](https://cat...
-- [Developer Guide](dev/index.html.md): * [Development Setup](dev_setup.md)
 - [Data Dictionaries](data_dictionaries/index.html.md): The PUDL data dictionary provides detailed metadata for the tables
 - [Methodology](methodology/index.html.md): This section of the PUDL documentation describes our methodologies for more involved
 - [Data Sources](data_sources/index.html.md): The following data sources serve as the foundation for our data pipeline.
+- [Developer Guide](dev/index.html.md): * [Development Setup](dev_setup.md)
 - [pudl](autoapi/pudl/index.html.md): The Public Utility Data Liberation (PUDL) Project.
-- [pudl.glue](autoapi/pudl/glue/index.html.md): Tools for integrating & reconciling different PUDL datasets with each other.
-- [pudl.dbt_schema](autoapi/pudl/dbt_schema/index.html.md): Define dbt schema types and merging logic.
-- [pudl.metadata](autoapi/pudl/metadata/index.html.md): Metadata constants and methods.
-- [pudl.analysis](autoapi/pudl/analysis/index.html.md): Modules providing programmatic analyses that make use of PUDL data.
-- [pudl.workspace](autoapi/pudl/workspace/index.html.md): Tools for acquiring PUDL’s original input data and organizing it locally.
-- [pudl._version](autoapi/pudl/_version/index.html.md): | [`version`](#pudl._version.version)                     |    |
-- [pudl.deploy](autoapi/pudl/deploy/index.html.md): Deployment helpers for publishing PUDL build artifacts and services.
-- [pudl.settings](autoapi/pudl/settings/index.html.md): Module for validating pudl ETL data configurations.
-- [pudl.helpers](autoapi/pudl/helpers/index.html.md): General utility functions that are used in a variety of contexts.
-- [pudl.dagster](autoapi/pudl/dagster/index.html.md): Top-level Dagster orchestration package for PUDL.
-- [pudl.scripts](autoapi/pudl/scripts/index.html.md): Command line interface scripts for PUDL.
-- [pudl.validate](autoapi/pudl/validate/index.html.md): PUDL data validation tooling.
-- [pudl.extract](autoapi/pudl/extract/index.html.md): Modules implementing the “Extract” step of the PUDL ETL pipeline.
-- [pudl.package_data](autoapi/pudl/package_data/index.html.md): Importable (dummy) package to include PUDL metadata structures.
-- [pudl.definitions](autoapi/pudl/definitions/index.html.md): Stable Dagster code location module for dg-compatible loading.
-- [pudl.output](autoapi/pudl/output/index.html.md): Useful post-processing and denormalized outputs based on PUDL core tables.
-- [pudl.transform](autoapi/pudl/transform/index.html.md): Modules implementing the “Transform” step of the PUDL ETL pipeline.
 - [pudl.logging_helpers](autoapi/pudl/logging_helpers/index.html.md): Configure logging for the PUDL package.
-- [pudl.transform.sec10k](autoapi/pudl/transform/sec10k/index.html.md): Transformations and standardizations for SEC 10-K data tables.
-- [pudl.transform.eia861](autoapi/pudl/transform/eia861/index.html.md): Module to perform data cleaning functions on EIA861 data tables.
-- [pudl.transform.ferc714](autoapi/pudl/transform/ferc714/index.html.md): Transformation of the FERC Form 714 data.
-- [pudl.transform.eia176](autoapi/pudl/transform/eia176/index.html.md): Module to perform data cleaning functions on EIA176 data tables.
-- [pudl.transform.eia923](autoapi/pudl/transform/eia923/index.html.md): Module to perform data cleaning functions on EIA923 data tables.
-- [pudl.transform.params](autoapi/pudl/transform/params/index.html.md): A subpackage for defining data source-specific transformation parameters.
-- [pudl.transform.rus7](autoapi/pudl/transform/rus7/index.html.md): Transform the RUS7 tables.
-- [pudl.transform.censuspep](autoapi/pudl/transform/censuspep/index.html.md): Transform Census PEP FIPS codes data.
-- [pudl.transform.ferccid](autoapi/pudl/transform/ferccid/index.html.md): Clean the FERC Company Identifier table.
-- [pudl.transform.phmsagas](autoapi/pudl/transform/phmsagas/index.html.md): Classes & functions to process PHMSA natural gas data before loading into the PUDL DB.
-- [pudl.transform.gridpathratoolkit](autoapi/pudl/transform/gridpathratoolkit/index.html.md): Transformations of the GridPath RA Toolkit renewable generation profiles.
+- [pudl.workspace](autoapi/pudl/workspace/index.html.md): Tools for acquiring PUDL’s original input data and organizing it locally.
+- [pudl.package_data](autoapi/pudl/package_data/index.html.md): Importable (dummy) package to include PUDL metadata structures.
+- [pudl.metadata](autoapi/pudl/metadata/index.html.md): Metadata constants and methods.
+- [pudl.helpers](autoapi/pudl/helpers/index.html.md): General utility functions that are used in a variety of contexts.
+- [pudl.analysis](autoapi/pudl/analysis/index.html.md): Modules providing programmatic analyses that make use of PUDL data.
+- [pudl.extract](autoapi/pudl/extract/index.html.md): Modules implementing the “Extract” step of the PUDL ETL pipeline.
+- [pudl.glue](autoapi/pudl/glue/index.html.md): Tools for integrating & reconciling different PUDL datasets with each other.
+- [pudl.output](autoapi/pudl/output/index.html.md): Useful post-processing and denormalized outputs based on PUDL core tables.
+- [pudl.deploy](autoapi/pudl/deploy/index.html.md): Deployment helpers for publishing PUDL build artifacts and services.
+- [pudl.transform](autoapi/pudl/transform/index.html.md): Modules implementing the “Transform” step of the PUDL ETL pipeline.
+- [pudl.validate](autoapi/pudl/validate/index.html.md): PUDL data validation tooling.
+- [pudl._version](autoapi/pudl/_version/index.html.md): | [`version`](#pudl._version.version)                     |    |
+- [pudl.settings](autoapi/pudl/settings/index.html.md): Module for validating pudl ETL data configurations.
+- [pudl.definitions](autoapi/pudl/definitions/index.html.md): Stable Dagster code location module for dg-compatible loading.
+- [pudl.scripts](autoapi/pudl/scripts/index.html.md): Command line interface scripts for PUDL.
+- [pudl.dbt_schema](autoapi/pudl/dbt_schema/index.html.md): Define dbt schema types and merging logic.
+- [pudl.dagster](autoapi/pudl/dagster/index.html.md): Top-level Dagster orchestration package for PUDL.
+- [pudl.dagster.build](autoapi/pudl/dagster/build/index.html.md): Assembles Dagster Definitions from default values and specified overrides.
+- [pudl.dagster.partitions](autoapi/pudl/dagster/partitions/index.html.md): Dagster partition definitions for PUDL.
+- [pudl.dagster.io_managers](autoapi/pudl/dagster/io_managers/index.html.md): Dagster IO managers used by PUDL assets.
+- [pudl.dagster.sensors](autoapi/pudl/dagster/sensors/index.html.md): Dagster sensors for PUDL.
+- [pudl.dagster.provenance](autoapi/pudl/dagster/provenance/index.html.md): Helpers for recording asset provenance and checking compatibility.
+- [pudl.dagster.resources](autoapi/pudl/dagster/resources/index.html.md): Dagster resources for PUDL.
+- [pudl.dagster.assets](autoapi/pudl/dagster/assets/index.html.md): Dagster asset loading and grouping for PUDL.
+- [pudl.dagster.config](autoapi/pudl/dagster/config/index.html.md): Dagster run configuration helpers for PUDL.
+- [pudl.dagster.jobs](autoapi/pudl/dagster/jobs/index.html.md): Dagster jobs for PUDL.
+- [pudl.dagster.asset_checks](autoapi/pudl/dagster/asset_checks/index.html.md): Programmatically defined Dagster asset checks for PUDL.
+- [pudl.dagster.assets.deploy](autoapi/pudl/dagster/assets/deploy/index.html.md): Dagster assets dedicated to deploying data build products.
+- [pudl.dagster.assets.core](autoapi/pudl/dagster/assets/core/index.html.md): Core Dagster asset-definition modules for PUDL.
+- [pudl.dagster.assets.raw](autoapi/pudl/dagster/assets/raw/index.html.md): Raw Dagster asset-definition modules for PUDL.
+- [pudl.dagster.assets.raw.ferc_to_sqlite](autoapi/pudl/dagster/assets/raw/ferc_to_sqlite/index.html.md): Dagster asset definitions for granular FERC-to-SQLite extraction.
+- [pudl.dagster.assets.core.datapackage](autoapi/pudl/dagster/assets/core/datapackage/index.html.md): Dagster asset that generates the PUDL frictionless datapackage descriptor.
+- [pudl.dagster.assets.core.glue](autoapi/pudl/dagster/assets/core/glue/index.html.md): Dagster assets for cross-dataset glue tables.
+- [pudl.dagster.assets.core.eiaapi_electricity](autoapi/pudl/dagster/assets/core/eiaapi_electricity/index.html.md): Dagster assets for EIA API electricity aggregates.
+- [pudl.dagster.assets.core.static](autoapi/pudl/dagster/assets/core/static/index.html.md): Dagster assets for static reference tables.
+- [pudl.dagster.assets.deploy.ferceqr](autoapi/pudl/dagster/assets/deploy/ferceqr/index.html.md): Define deployment helper assets for publishing FERC EQR outputs.
+- [pudl.scripts.pudl_datastore](autoapi/pudl/scripts/pudl_datastore/index.html.md): CLI for managing raw data inputs to the PUDL data processing pipeline.
+- [pudl.scripts.pudl_check_for_build](autoapi/pudl/scripts/pudl_check_for_build/index.html.md): Check if there are build outputs associated with a git tag.
+- [pudl.scripts.resource_description](autoapi/pudl/scripts/resource_description/index.html.md): Tiny CLI for showing table descriptions without building the full docs.
+- [pudl.scripts.auto_match_utilities](autoapi/pudl/scripts/auto_match_utilities/index.html.md): A CLI tool for matching FERC and EIA utilities.
+- [pudl.scripts.generate_ferc_provenance](autoapi/pudl/scripts/generate_ferc_provenance/index.html.md): CLI for generating FERC SQLite provenance requirements for caching.
+- [pudl.scripts.pudl_check_fks](autoapi/pudl/scripts/pudl_check_fks/index.html.md): Check that foreign key constraints in the PUDL database are respected.
+- [pudl.scripts.generate_pudl_duckdb](autoapi/pudl/scripts/generate_pudl_duckdb/index.html.md): Basic script to generate a duckdb file with views to local/nightly parquet files.
+- [pudl.scripts.zenodo_data_release](autoapi/pudl/scripts/zenodo_data_release/index.html.md): Upload a prepared PUDL data release directory to Zenodo.
+- [pudl.scripts.check_path_permissions](autoapi/pudl/scripts/check_path_permissions/index.html.md): Check read, write, and delete permissions for local or remote paths.
+- [pudl.scripts.dghome](autoapi/pudl/scripts/dghome/index.html.md): Manage UUID-named directories in a Dagster storage directory.
+- [pudl.scripts.pudl_service_territories](autoapi/pudl/scripts/pudl_service_territories/index.html.md): CLI for compiling historical utility and balancing area service territory geometries.
+- [pudl.scripts.pudl_deploy](autoapi/pudl/scripts/pudl_deploy/index.html.md): Deploy PUDL ETL outputs to cloud storage and update git branches.
+- [pudl.scripts.update_zenodo_dois](autoapi/pudl/scripts/update_zenodo_dois/index.html.md): Script to check each DOI in zenodo_dois.yml against Zenodo’s /versions/latest endpoint.
+- [pudl.scripts.metadata_to_rst](autoapi/pudl/scripts/metadata_to_rst/index.html.md): Export PUDL table and field metadata to RST for use in documentation.
+- [pudl.scripts.dbt_helper](autoapi/pudl/scripts/dbt_helper/index.html.md): A basic CLI to autogenerate dbt data test configurations.
+- [pudl.scripts.pudl_null_cols](autoapi/pudl/scripts/pudl_null_cols/index.html.md): A CLI tool for generating expect_column_not_all_null dbt test conditions.
+- [pudl.validate.dbt](autoapi/pudl/validate/dbt/index.html.md): Wrap DBT invocations so we can get custom behavior.
+- [pudl.validate.quality](autoapi/pudl/validate/quality/index.html.md): Bespoke data quality checking utilities for PUDL data.
+- [pudl.validate.integrity](autoapi/pudl/validate/integrity/index.html.md): Database integrity validation checks for PUDL data.
 - [pudl.transform.ferc](autoapi/pudl/transform/ferc/index.html.md): Module for shared helpers for FERC Form transforms.
-- [pudl.transform.eia930](autoapi/pudl/transform/eia930/index.html.md): Module to perform data cleaning functions on EIA930 data tables.
-- [pudl.transform.epacems](autoapi/pudl/transform/epacems/index.html.md): Module to perform data cleaning functions on EPA CEMS data tables.
-- [pudl.transform.ferceqr](autoapi/pudl/transform/ferceqr/index.html.md): Transform FERC Electric Quarterly Report (EQR) data.
+- [pudl.transform.ferc714](autoapi/pudl/transform/ferc714/index.html.md): Transformation of the FERC Form 714 data.
+- [pudl.transform.gridpathratoolkit](autoapi/pudl/transform/gridpathratoolkit/index.html.md): Transformations of the GridPath RA Toolkit renewable generation profiles.
+- [pudl.transform.rus7](autoapi/pudl/transform/rus7/index.html.md): Transform the RUS7 tables.
 - [pudl.transform.rus](autoapi/pudl/transform/rus/index.html.md): Code for transforming RUS data that pertains to more than one RUS Form.
-- [pudl.transform.eia860](autoapi/pudl/transform/eia860/index.html.md): Module to perform data cleaning functions on EIA860 data tables.
-- [pudl.transform.eia191](autoapi/pudl/transform/eia191/index.html.md): Transform EIA Form 191 monthly underground natural gas storage data.
 - [pudl.transform.rus12](autoapi/pudl/transform/rus12/index.html.md): Transform the RUS12 tables.
-- [pudl.transform.eiaaeo](autoapi/pudl/transform/eiaaeo/index.html.md): Transform raw AEO tables into normalized assets.
-- [pudl.transform.classes](autoapi/pudl/transform/classes/index.html.md): Classes for defining & coordinating the transformation of tabular data sources.
-- [pudl.transform.eia860m](autoapi/pudl/transform/eia860m/index.html.md): Module to perform data cleaning functions on EIA860m data tables.
+- [pudl.transform.eia191](autoapi/pudl/transform/eia191/index.html.md): Transform EIA Form 191 monthly underground natural gas storage data.
+- [pudl.transform.params](autoapi/pudl/transform/params/index.html.md): A subpackage for defining data source-specific transformation parameters.
+- [pudl.transform.ferceqr](autoapi/pudl/transform/ferceqr/index.html.md): Transform FERC Electric Quarterly Report (EQR) data.
 - [pudl.transform.vcerare](autoapi/pudl/transform/vcerare/index.html.md): Transformations of the Vibrant Clean Energy Resource Adequacy Renewable Energy (RARE) Power Dataset.
-- [pudl.transform.nrelatb](autoapi/pudl/transform/nrelatb/index.html.md): Transform NREL ATB data into well normalized, cleaned tables.
+- [pudl.transform.eia930](autoapi/pudl/transform/eia930/index.html.md): Module to perform data cleaning functions on EIA930 data tables.
 - [pudl.transform.eia](autoapi/pudl/transform/eia/index.html.md): Code for transforming EIA data that pertains to more than one EIA Form.
+- [pudl.transform.eiaaeo](autoapi/pudl/transform/eiaaeo/index.html.md): Transform raw AEO tables into normalized assets.
+- [pudl.transform.sec10k](autoapi/pudl/transform/sec10k/index.html.md): Transformations and standardizations for SEC 10-K data tables.
+- [pudl.transform.nrelatb](autoapi/pudl/transform/nrelatb/index.html.md): Transform NREL ATB data into well normalized, cleaned tables.
+- [pudl.transform.eia860m](autoapi/pudl/transform/eia860m/index.html.md): Module to perform data cleaning functions on EIA860m data tables.
 - [pudl.transform.eiaapi](autoapi/pudl/transform/eiaapi/index.html.md): Clean and normalize EIA bulk electricity data.
 - [pudl.transform.ferc1](autoapi/pudl/transform/ferc1/index.html.md): Classes & functions to process FERC Form 1 data before loading into the PUDL DB.
+- [pudl.transform.classes](autoapi/pudl/transform/classes/index.html.md): Classes for defining & coordinating the transformation of tabular data sources.
+- [pudl.transform.ferccid](autoapi/pudl/transform/ferccid/index.html.md): Clean the FERC Company Identifier table.
+- [pudl.transform.eia861](autoapi/pudl/transform/eia861/index.html.md): Module to perform data cleaning functions on EIA861 data tables.
+- [pudl.transform.eia860](autoapi/pudl/transform/eia860/index.html.md): Module to perform data cleaning functions on EIA860 data tables.
+- [pudl.transform.censuspep](autoapi/pudl/transform/censuspep/index.html.md): Transform Census PEP FIPS codes data.
+- [pudl.transform.eia923](autoapi/pudl/transform/eia923/index.html.md): Module to perform data cleaning functions on EIA923 data tables.
+- [pudl.transform.phmsagas](autoapi/pudl/transform/phmsagas/index.html.md): Classes & functions to process PHMSA natural gas data before loading into the PUDL DB.
+- [pudl.transform.eia176](autoapi/pudl/transform/eia176/index.html.md): Module to perform data cleaning functions on EIA176 data tables.
+- [pudl.transform.epacems](autoapi/pudl/transform/epacems/index.html.md): Module to perform data cleaning functions on EPA CEMS data tables.
 - [pudl.transform.params.ferc1](autoapi/pudl/transform/params/ferc1/index.html.md): FERC 1 specific transformation parameters.
+- [pudl.deploy.pudl](autoapi/pudl/deploy/pudl/index.html.md): Distribute PUDL ETL outputs to cloud storage and update git branches.
+- [pudl.output.ferc714](autoapi/pudl/output/ferc714/index.html.md): Functions & classes for compiling derived aspects of the FERC Form 714 data.
+- [pudl.output.rus](autoapi/pudl/output/rus/index.html.md): Create output tables for RUS-7 and RUS-12.
+- [pudl.output.eia930](autoapi/pudl/output/eia930/index.html.md): Functions for compiling derived aspects of the EIA 930 data.
+- [pudl.output.eia](autoapi/pudl/output/eia/index.html.md): A collection of denormalized EIA assets.
 - [pudl.output.censusdp1tract](autoapi/pudl/output/censusdp1tract/index.html.md): Functions for reading data out of the Census DP1 SQLite Database.
 - [pudl.output.sec10k](autoapi/pudl/output/sec10k/index.html.md): Denormalized output tables for the SEC 10-K assets.
-- [pudl.output.ferc714](autoapi/pudl/output/ferc714/index.html.md): Functions & classes for compiling derived aspects of the FERC Form 714 data.
-- [pudl.output.eia923](autoapi/pudl/output/eia923/index.html.md): Denormalized, aggregated, and filled versions of the basic EIA-923 tables.
-- [pudl.output.eia930](autoapi/pudl/output/eia930/index.html.md): Functions for compiling derived aspects of the EIA 930 data.
-- [pudl.output.rus](autoapi/pudl/output/rus/index.html.md): Create output tables for RUS-7 and RUS-12.
-- [pudl.output.eia860](autoapi/pudl/output/eia860/index.html.md): Denormalized versions of the EIA 860 tables.
-- [pudl.output.eia](autoapi/pudl/output/eia/index.html.md): A collection of denormalized EIA assets.
 - [pudl.output.eiaapi](autoapi/pudl/output/eiaapi/index.html.md): Interim and output tables derived from the EIA Bulk Electricity data.
 - [pudl.output.ferc1](autoapi/pudl/output/ferc1/index.html.md): A collection of denormalized FERC assets and helper functions.
-- [pudl.package_data.glue](autoapi/pudl/package_data/glue/index.html.md): Importable (dummy) package to enable distribution of PUDL metadata structures.
-- [pudl.package_data.eia861](autoapi/pudl/package_data/eia861/index.html.md): Excel spreadsheet extraction maps for EIA 861.
-- [pudl.package_data.eia176](autoapi/pudl/package_data/eia176/index.html.md): CSV file extraction maps for EIA 176.
-- [pudl.package_data.eia923](autoapi/pudl/package_data/eia923/index.html.md): Excel spreadsheet extraction maps for EIA 923.
-- [pudl.package_data.settings](autoapi/pudl/package_data/settings/index.html.md): Importable (dummy) package to enable distribution of PUDL metadata structures.
+- [pudl.output.eia860](autoapi/pudl/output/eia860/index.html.md): Denormalized versions of the EIA 860 tables.
+- [pudl.output.eia923](autoapi/pudl/output/eia923/index.html.md): Denormalized, aggregated, and filled versions of the basic EIA-923 tables.
+- [pudl.glue.ferc714](autoapi/pudl/glue/ferc714/index.html.md): Extract and transform glue tables between FERC Form 714’s CSV and XBRL raw sources.
+- [pudl.glue.ferc1_eia](autoapi/pudl/glue/ferc1_eia/index.html.md): Extract and transform glue tables between FERC Form 1 and EIA 860/923.
+- [pudl.extract.ferc](autoapi/pudl/extract/ferc/index.html.md): Hooks to integrate ferc to sqlite functionality into dagster graph.
+- [pudl.extract.ferc60](autoapi/pudl/extract/ferc60/index.html.md): Extract FERC Form 60 data from DBF archives.
+- [pudl.extract.ferc714](autoapi/pudl/extract/ferc714/index.html.md): Routines used for extracting the raw FERC 714 data.
+- [pudl.extract.gridpathratoolkit](autoapi/pudl/extract/gridpathratoolkit/index.html.md): Extract GridPath RA Toolkit renewable energy generation profiles from zipped CSVs.
+- [pudl.extract.rus7](autoapi/pudl/extract/rus7/index.html.md): Extract USDA RUS Form 7 data from CSVs.
+- [pudl.extract.ferc2](autoapi/pudl/extract/ferc2/index.html.md): Extract FERC Form 2 data from SQLite DBs derived from original DBF files.
+- [pudl.extract.ferc6](autoapi/pudl/extract/ferc6/index.html.md): Extract FERC Form 6 data from DBF archives.
+- [pudl.extract.rus12](autoapi/pudl/extract/rus12/index.html.md): Extract USDA RUS Form 12 data from CSVs.
+- [pudl.extract.epamats](autoapi/pudl/extract/epamats/index.html.md): Retrieve data from EPA MATS hourly zipped CSVs.
+- [pudl.extract.eia191](autoapi/pudl/extract/eia191/index.html.md): Extract EIA Form 191 data from CSVs.
+- [pudl.extract.ferceqr](autoapi/pudl/extract/ferceqr/index.html.md): Extract FERC EQR data.
+- [pudl.extract.vcerare](autoapi/pudl/extract/vcerare/index.html.md): Extract VCE Resource Adequacy Renewable Energy (RARE) Power Dataset.
+- [pudl.extract.eia930](autoapi/pudl/extract/eia930/index.html.md): Extract EIA Form 930 data from CSVs.
+- [pudl.extract.eia757a](autoapi/pudl/extract/eia757a/index.html.md): Extract EIA Form 757a data from CSVs.
+- [pudl.extract.excel](autoapi/pudl/extract/excel/index.html.md): Load excel metadata CSV files form a python data package.
+- [pudl.extract.extractor](autoapi/pudl/extract/extractor/index.html.md): Generic functionality for extractors.
+- [pudl.extract.censusdp1tract](autoapi/pudl/extract/censusdp1tract/index.html.md): Extract the US Census DP1 ESRI GeoDatabase into an SQLite Database.
+- [pudl.extract.eiaaeo](autoapi/pudl/extract/eiaaeo/index.html.md): Extract EIA AEO data from the bulk JSON.
+- [pudl.extract.sec10k](autoapi/pudl/extract/sec10k/index.html.md): Load pre-processed SEC 10-K assets from Google Cloud Storage.
+- [pudl.extract.parquet](autoapi/pudl/extract/parquet/index.html.md): Extractor for Parquet data.
+- [pudl.extract.csv](autoapi/pudl/extract/csv/index.html.md): Extractor for CSV data.
+- [pudl.extract.nrelatb](autoapi/pudl/extract/nrelatb/index.html.md): Routines used for extracting the raw NREL ATB data.
+- [pudl.extract.dbf](autoapi/pudl/extract/dbf/index.html.md): Generalized DBF extractor for FERC data.
+- [pudl.extract.eia860m](autoapi/pudl/extract/eia860m/index.html.md): Retrieve data from EIA Form 860M spreadsheets for analysis.
+- [pudl.extract.xbrl](autoapi/pudl/extract/xbrl/index.html.md): Generic extractor for all FERC XBRL data.
+- [pudl.extract.eiaapi](autoapi/pudl/extract/eiaapi/index.html.md): Module to extract aggregate data from the EIA bulk electricity download.
+- [pudl.extract.ferc1](autoapi/pudl/extract/ferc1/index.html.md): Extract FERC Form 1 data from SQLite DBs derived from original DBF or XBRL files.
+- [pudl.extract.ferccid](autoapi/pudl/extract/ferccid/index.html.md): This module extracts the raw FERC Company Identifier (CID) table.
+- [pudl.extract.eia861](autoapi/pudl/extract/eia861/index.html.md): Retrieve data from EIA Form 861 spreadsheets for analysis.
+- [pudl.extract.eia860](autoapi/pudl/extract/eia860/index.html.md): Retrieve data from EIA Form 860 spreadsheets for analysis.
+- [pudl.extract.censuspep](autoapi/pudl/extract/censuspep/index.html.md): Retrieve data from Census PEP spreadsheets.
+- [pudl.extract.eia923](autoapi/pudl/extract/eia923/index.html.md): Retrieves data from EIA Form 923 spreadsheets for analysis.
+- [pudl.extract.phmsagas](autoapi/pudl/extract/phmsagas/index.html.md): Retrieves data from PHMSA natural gas spreadsheets for analysis.
+- [pudl.extract.eia176](autoapi/pudl/extract/eia176/index.html.md): Extract EIA Form 176 data from CSVs.
+- [pudl.extract.epacems](autoapi/pudl/extract/epacems/index.html.md): Retrieve data from EPA CEMS hourly zipped CSVs.
+- [pudl.analysis.timeseries_cleaning](autoapi/pudl/analysis/timeseries_cleaning/index.html.md): Screen timeseries for anomalies and impute missing and anomalous values.
+- [pudl.analysis.operational_characteristics](autoapi/pudl/analysis/operational_characteristics/index.html.md): Use EPA CEMS and EIA data to estimate generator operational characteristics.
+- [pudl.analysis.fuel_by_plant](autoapi/pudl/analysis/fuel_by_plant/index.html.md): Calculates useful FERC Form 1 fuel metrics on a per plant-year basis.
+- [pudl.analysis.timeseries_evaluation](autoapi/pudl/analysis/timeseries_evaluation/index.html.md): Routines for evaluating and visualizing timeseries data.
+- [pudl.analysis.service_territory](autoapi/pudl/analysis/service_territory/index.html.md): Compile historical utility and balancing area territories.
+- [pudl.analysis.record_linkage](autoapi/pudl/analysis/record_linkage/index.html.md): This module implements models for various forms of record linkage.
+- [pudl.analysis.state_demand](autoapi/pudl/analysis/state_demand/index.html.md): Estimate historical hourly state-level electricity demand.
+- [pudl.analysis.allocate_gen_fuel](autoapi/pudl/analysis/allocate_gen_fuel/index.html.md): Allocate data from [core_eia923_\_monthly_generation_fuel](../../../../data_dictionaries/pudl_db.md#...
+- [pudl.analysis.mcoe](autoapi/pudl/analysis/mcoe/index.html.md): A module with functions to aid generating MCOE.
+- [pudl.analysis.spatial](autoapi/pudl/analysis/spatial/index.html.md): Spatial operations for demand allocation.
+- [pudl.analysis.plant_parts_eia](autoapi/pudl/analysis/plant_parts_eia/index.html.md): Aggregate plant parts to make an EIA master plant-part table.
+- [pudl.analysis.ml_tools](autoapi/pudl/analysis/ml_tools/index.html.md): Implements shared tooling for machine learning models in PUDL.
+- [pudl.analysis.ml_tools.models](autoapi/pudl/analysis/ml_tools/models/index.html.md): Provides tooling for developing/tracking ML models within PUDL.
+- [pudl.analysis.ml_tools.experiment_tracking](autoapi/pudl/analysis/ml_tools/experiment_tracking/index.html.md): This module implements experiment tracking tooling using mlflow as a backend.
+- [pudl.analysis.record_linkage.eia_ferc1_inputs](autoapi/pudl/analysis/record_linkage/eia_ferc1_inputs/index.html.md): Prepare the inputs to the FERC1 to EIA record linkage model.
+- [pudl.analysis.record_linkage.eia_ferc1_train](autoapi/pudl/analysis/record_linkage/eia_ferc1_train/index.html.md): Create spreadsheets for manually mapping FERC-EIA records and validate matches.
+- [pudl.analysis.record_linkage.embed_dataframe](autoapi/pudl/analysis/record_linkage/embed_dataframe/index.html.md): Tools for embedding a DataFrame to create feature matrix for models.
+- [pudl.analysis.record_linkage.link_cross_year](autoapi/pudl/analysis/record_linkage/link_cross_year/index.html.md): Define a record linkage model interface and implement common functionality.
+- [pudl.analysis.record_linkage.eia_ferc1_model_config](autoapi/pudl/analysis/record_linkage/eia_ferc1_model_config/index.html.md): The model parameters for the FERC1 to EIA splink record linkage model.
+- [pudl.analysis.record_linkage.classify_plants_ferc1](autoapi/pudl/analysis/record_linkage/classify_plants_ferc1/index.html.md): Scikit-Learn classification pipeline for identifying related FERC 1 plant records.
+- [pudl.analysis.record_linkage.name_cleaner](autoapi/pudl/analysis/record_linkage/name_cleaner/index.html.md): This module contains the implementation of CompanyNameCleaner class from OS-Climate’s financial-enti...
+- [pudl.analysis.record_linkage.eia_ferc1_record_linkage](autoapi/pudl/analysis/record_linkage/eia_ferc1_record_linkage/index.html.md): Connect FERC1 plant tables to EIA’s plant-parts with record linkage.
+- [pudl.metadata.dfs](autoapi/pudl/metadata/dfs/index.html.md): Static database tables.
+- [pudl.metadata.codes](autoapi/pudl/metadata/codes/index.html.md): Metadata for cleaning, re-encoding, and documenting coded data columns.
+- [pudl.metadata.enums](autoapi/pudl/metadata/enums/index.html.md): Enumerations of valid field values.
+- [pudl.metadata.warnings](autoapi/pudl/metadata/warnings/index.html.md): Standard usage warnings to reference in dynamic table descriptions.
+- [pudl.metadata.fields](autoapi/pudl/metadata/fields/index.html.md): Field metadata.
+- [pudl.metadata.helpers](autoapi/pudl/metadata/helpers/index.html.md): Functions for manipulating metadata constants.
+- [pudl.metadata.sources](autoapi/pudl/metadata/sources/index.html.md): Metadata and operational constants.
+- [pudl.metadata.patterns](autoapi/pudl/metadata/patterns/index.html.md): Reusable regex pattern constraints for fields in the PUDL metadata.
+- [pudl.metadata.labels](autoapi/pudl/metadata/labels/index.html.md): Descriptive labels for coded field values.
+- [pudl.metadata.resources](autoapi/pudl/metadata/resources/index.html.md): A subpackage to define and organize PUDL database tables by data group.
+- [pudl.metadata.dtypes](autoapi/pudl/metadata/dtypes/index.html.md): Canonical PUDL dtype mappings and dtype-application helpers.
+- [pudl.metadata.classes](autoapi/pudl/metadata/classes/index.html.md): Metadata data classes.
+- [pudl.metadata.resource_helpers](autoapi/pudl/metadata/resource_helpers/index.html.md): Functions for resource metadata.
+- [pudl.metadata.descriptions](autoapi/pudl/metadata/descriptions/index.html.md): Mechanisms and constants for setting standard resource descriptions.
+- [pudl.metadata.constants](autoapi/pudl/metadata/constants/index.html.md): Metadata and operational constants.
+- [pudl.metadata.units](autoapi/pudl/metadata/units/index.html.md): PUDL unit registry built on top of Pint’s default registry.
+- [pudl.metadata.resources.ferc714](autoapi/pudl/metadata/resources/ferc714/index.html.md): Tables definitions for data coming from the FERC Form 714.
+- [pudl.metadata.resources.gridpathratoolkit](autoapi/pudl/metadata/resources/gridpathratoolkit/index.html.md): Table definitions for data coming from the GridPath Resource Adequacy Toolkit.
+- [pudl.metadata.resources.rus7](autoapi/pudl/metadata/resources/rus7/index.html.md): Table definitions for the RUS7 tables.
+- [pudl.metadata.resources.rus](autoapi/pudl/metadata/resources/rus/index.html.md): Table definitions for the RUS tables.
+- [pudl.metadata.resources.rus12](autoapi/pudl/metadata/resources/rus12/index.html.md): Table definitions for the RUS12 tables.
+- [pudl.metadata.resources.eia191](autoapi/pudl/metadata/resources/eia191/index.html.md): Definitions of data tables primarily coming from EIA-191.
+- [pudl.metadata.resources.ferceqr](autoapi/pudl/metadata/resources/ferceqr/index.html.md): Table definitions for the FERC EQR data group.
+- [pudl.metadata.resources.vcerare](autoapi/pudl/metadata/resources/vcerare/index.html.md): Table definitions for data coming from the Vibrant Clean Energy Renewable Generation Profiles.
+- [pudl.metadata.resources.eia930](autoapi/pudl/metadata/resources/eia930/index.html.md): Definitions of data tables derived from the EIA-930.
+- [pudl.metadata.resources.eia](autoapi/pudl/metadata/resources/eia/index.html.md): Definitions of data tables primarily coming from EIA 860/861/923.
+- [pudl.metadata.resources.ferc1_eia_record_linkage](autoapi/pudl/metadata/resources/ferc1_eia_record_linkage/index.html.md): Definitions for the connection between FERC1 and EIA.
+- [pudl.metadata.resources.glue](autoapi/pudl/metadata/resources/glue/index.html.md): Definitions for the glue/crosswalk tables that connect data groups.
+- [pudl.metadata.resources.censusdp1tract](autoapi/pudl/metadata/resources/censusdp1tract/index.html.md): Resources derived from the US Census Demographic Profile 1 dataset.
+- [pudl.metadata.resources.allocate_gen_fuel](autoapi/pudl/metadata/resources/allocate_gen_fuel/index.html.md): Resource metadata for the allocate_gen_fuel tables.
+- [pudl.metadata.resources.eiaaeo](autoapi/pudl/metadata/resources/eiaaeo/index.html.md): Table definitions for EIA AEO resources.
+- [pudl.metadata.resources.sec10k](autoapi/pudl/metadata/resources/sec10k/index.html.md): Table definitions for the SEC10k tables.
+- [pudl.metadata.resources.nrelatb](autoapi/pudl/metadata/resources/nrelatb/index.html.md): Table definitions for the NREL ATB data .
+- [pudl.metadata.resources.eia860m](autoapi/pudl/metadata/resources/eia860m/index.html.md): Definitions of data tables primarily coming from EIA-860m.
+- [pudl.metadata.resources.eiaapi](autoapi/pudl/metadata/resources/eiaapi/index.html.md): Tables definitions for data from the EIA bulk electricity aggregates.
+- [pudl.metadata.resources.ferc1](autoapi/pudl/metadata/resources/ferc1/index.html.md): Table definitions for the FERC Form 1 data group.
+- [pudl.metadata.resources.ferccid](autoapi/pudl/metadata/resources/ferccid/index.html.md): Table definitions for the FERC Company Identifier table.
+- [pudl.metadata.resources.eia861](autoapi/pudl/metadata/resources/eia861/index.html.md): Definitions of data tables primarily coming from EIA-861.
+- [pudl.metadata.resources.eia860](autoapi/pudl/metadata/resources/eia860/index.html.md): Definitions of data tables primarily coming from EIA-860.
+- [pudl.metadata.resources.eia923](autoapi/pudl/metadata/resources/eia923/index.html.md): Definitions of data tables primarily coming from EIA-923.
+- [pudl.metadata.resources.phmsagas](autoapi/pudl/metadata/resources/phmsagas/index.html.md): Tables definitions for data coming from PHMSA natural gas data.
+- [pudl.metadata.resources.pudl](autoapi/pudl/metadata/resources/pudl/index.html.md): Definitions for the connection between PUDL-specific IDs and other datasets.
+- [pudl.metadata.resources.eia176](autoapi/pudl/metadata/resources/eia176/index.html.md): Definitions of data tables primarily coming from EIA-176.
+- [pudl.metadata.resources.epacems](autoapi/pudl/metadata/resources/epacems/index.html.md): Table definitions for the EPA CEMS data group.
 - [pudl.package_data.rus7](autoapi/pudl/package_data/rus7/index.html.md): CSV extraction maps for RUS 7 data.
-- [pudl.package_data.censuspep](autoapi/pudl/package_data/censuspep/index.html.md): Excel spreadsheet extraction maps for Census PEP FIPS codes, plus territories to add.
-- [pudl.package_data.phmsagas](autoapi/pudl/package_data/phmsagas/index.html.md): Excel spreadsheet extraction maps for PHMSA gas data.
+- [pudl.package_data.rus12](autoapi/pudl/package_data/rus12/index.html.md): Excel spreadsheet extraction maps for RUS 12 data.
+- [pudl.package_data.eia191](autoapi/pudl/package_data/eia191/index.html.md): CSV file extraction maps for EIA 191.
+- [pudl.package_data.vcerare](autoapi/pudl/package_data/vcerare/index.html.md): CSV file extraction maps for VCE RARE Power Dataset.
 - [pudl.package_data.eia930](autoapi/pudl/package_data/eia930/index.html.md): CSV file extraction maps for EIA 930.
 - [pudl.package_data.eia757a](autoapi/pudl/package_data/eia757a/index.html.md): CSV file extraction maps for EIA 757a.
-- [pudl.package_data.epacems](autoapi/pudl/package_data/epacems/index.html.md): Additional data required for integration of the EPA CEMS hourly data.
-- [pudl.package_data.eia860](autoapi/pudl/package_data/eia860/index.html.md): Excel spreadsheet extraction maps for EIA 860.
-- [pudl.package_data.eia191](autoapi/pudl/package_data/eia191/index.html.md): CSV file extraction maps for EIA 191.
-- [pudl.package_data.rus12](autoapi/pudl/package_data/rus12/index.html.md): Excel spreadsheet extraction maps for RUS 12 data.
+- [pudl.package_data.glue](autoapi/pudl/package_data/glue/index.html.md): Importable (dummy) package to enable distribution of PUDL metadata structures.
 - [pudl.package_data.eia860m](autoapi/pudl/package_data/eia860m/index.html.md): Excel spreadsheet extraction maps for EIA 860M.
 - [pudl.package_data.test](autoapi/pudl/package_data/test/index.html.md): Excel spreadsheet extraction maps for testing.
-- [pudl.package_data.vcerare](autoapi/pudl/package_data/vcerare/index.html.md): CSV file extraction maps for VCE RARE Power Dataset.
+- [pudl.package_data.settings](autoapi/pudl/package_data/settings/index.html.md): Importable (dummy) package to enable distribution of PUDL metadata structures.
 - [pudl.package_data.ferc1](autoapi/pudl/package_data/ferc1/index.html.md): Metadata required for extracting data from the FERC Form 1.
+- [pudl.package_data.eia861](autoapi/pudl/package_data/eia861/index.html.md): Excel spreadsheet extraction maps for EIA 861.
+- [pudl.package_data.eia860](autoapi/pudl/package_data/eia860/index.html.md): Excel spreadsheet extraction maps for EIA 860.
+- [pudl.package_data.censuspep](autoapi/pudl/package_data/censuspep/index.html.md): Excel spreadsheet extraction maps for Census PEP FIPS codes, plus territories to add.
+- [pudl.package_data.eia923](autoapi/pudl/package_data/eia923/index.html.md): Excel spreadsheet extraction maps for EIA 923.
+- [pudl.package_data.phmsagas](autoapi/pudl/package_data/phmsagas/index.html.md): Excel spreadsheet extraction maps for PHMSA gas data.
+- [pudl.package_data.eia176](autoapi/pudl/package_data/eia176/index.html.md): CSV file extraction maps for EIA 176.
+- [pudl.package_data.epacems](autoapi/pudl/package_data/epacems/index.html.md): Additional data required for integration of the EPA CEMS hourly data.
+- [pudl.package_data.eia176.column_maps](autoapi/pudl/package_data/eia176/column_maps/index.html.md): Metadata linking semantic meaning of EIA 176 CSV file columns across years.
+- [pudl.package_data.phmsagas.column_maps](autoapi/pudl/package_data/phmsagas/column_maps/index.html.md): Metadata linking semantic meaning of PHMSA spreadsheet columns across years.
+- [pudl.package_data.eia923.column_maps](autoapi/pudl/package_data/eia923/column_maps/index.html.md): Metadata linking semantic meaning of EIA 923 spreadsheet columns across years.
+- [pudl.package_data.censuspep.column_maps](autoapi/pudl/package_data/censuspep/column_maps/index.html.md): Metadata linking semantic meaning of Census PEP FIPS codes spreadsheet columns across years.
+- [pudl.package_data.eia860.column_maps](autoapi/pudl/package_data/eia860/column_maps/index.html.md): Metadata linking semantic meaning of EIA 860 spreadsheet columns across years.
+- [pudl.package_data.eia861.column_maps](autoapi/pudl/package_data/eia861/column_maps/index.html.md): Metadata linking semantic meaning of EIA 861 spreadsheet columns across years.
 - [pudl.package_data.ferc1.row_maps](autoapi/pudl/package_data/ferc1/row_maps/index.html.md): Metadata linking the semantic meaning of FERC 1 row numbers across years.
 - [pudl.package_data.test.column_maps](autoapi/pudl/package_data/test/column_maps/index.html.md): Metadata linking semantic meaning of Testing spreadsheet columns across years.
 - [pudl.package_data.eia860m.column_maps](autoapi/pudl/package_data/eia860m/column_maps/index.html.md): Metadata linking semantic meaning of EIA 860M spreadsheet columns across years.
-- [pudl.package_data.rus12.column_maps](autoapi/pudl/package_data/rus12/column_maps/index.html.md): Metadata linking semantic meaning of RUS 12 spreadsheet columns across years.
-- [pudl.package_data.eia191.column_maps](autoapi/pudl/package_data/eia191/column_maps/index.html.md): Metadata linking semantic meaning of EIA 191 CSV file columns across years.
-- [pudl.package_data.eia860.column_maps](autoapi/pudl/package_data/eia860/column_maps/index.html.md): Metadata linking semantic meaning of EIA 860 spreadsheet columns across years.
 - [pudl.package_data.eia757a.column_maps](autoapi/pudl/package_data/eia757a/column_maps/index.html.md): Metadata linking semantic meaning of EIA 757a CSV file columns across years.
 - [pudl.package_data.eia930.column_maps](autoapi/pudl/package_data/eia930/column_maps/index.html.md): Metadata linking semantic meaning of EIA 930 CSV file columns across years.
-- [pudl.package_data.phmsagas.column_maps](autoapi/pudl/package_data/phmsagas/column_maps/index.html.md): Metadata linking semantic meaning of PHMSA spreadsheet columns across years.
-- [pudl.package_data.censuspep.column_maps](autoapi/pudl/package_data/censuspep/column_maps/index.html.md): Metadata linking semantic meaning of Census PEP FIPS codes spreadsheet columns across years.
-- [pudl.package_data.eia923.column_maps](autoapi/pudl/package_data/eia923/column_maps/index.html.md): Metadata linking semantic meaning of EIA 923 spreadsheet columns across years.
-- [pudl.package_data.eia176.column_maps](autoapi/pudl/package_data/eia176/column_maps/index.html.md): Metadata linking semantic meaning of EIA 176 CSV file columns across years.
-- [pudl.package_data.eia861.column_maps](autoapi/pudl/package_data/eia861/column_maps/index.html.md): Metadata linking semantic meaning of EIA 861 spreadsheet columns across years.
-- [pudl.extract.dbf](autoapi/pudl/extract/dbf/index.html.md): Generalized DBF extractor for FERC data.
-- [pudl.extract.censusdp1tract](autoapi/pudl/extract/censusdp1tract/index.html.md): Extract the US Census DP1 ESRI GeoDatabase into an SQLite Database.
-- [pudl.extract.excel](autoapi/pudl/extract/excel/index.html.md): Load excel metadata CSV files form a python data package.
-- [pudl.extract.sec10k](autoapi/pudl/extract/sec10k/index.html.md): Load pre-processed SEC 10-K assets from Google Cloud Storage.
-- [pudl.extract.eia861](autoapi/pudl/extract/eia861/index.html.md): Retrieve data from EIA Form 861 spreadsheets for analysis.
-- [pudl.extract.ferc714](autoapi/pudl/extract/ferc714/index.html.md): Routines used for extracting the raw FERC 714 data.
-- [pudl.extract.eia176](autoapi/pudl/extract/eia176/index.html.md): Extract EIA Form 176 data from CSVs.
-- [pudl.extract.eia923](autoapi/pudl/extract/eia923/index.html.md): Retrieves data from EIA Form 923 spreadsheets for analysis.
-- [pudl.extract.csv](autoapi/pudl/extract/csv/index.html.md): Extractor for CSV data.
-- [pudl.extract.rus7](autoapi/pudl/extract/rus7/index.html.md): Extract USDA RUS Form 7 data from CSVs.
-- [pudl.extract.censuspep](autoapi/pudl/extract/censuspep/index.html.md): Retrieve data from Census PEP spreadsheets.
-- [pudl.extract.epamats](autoapi/pudl/extract/epamats/index.html.md): Retrieve data from EPA MATS hourly zipped CSVs.
-- [pudl.extract.ferccid](autoapi/pudl/extract/ferccid/index.html.md): This module extracts the raw FERC Company Identifier (CID) table.
-- [pudl.extract.ferc6](autoapi/pudl/extract/ferc6/index.html.md): Extract FERC Form 6 data from DBF archives.
-- [pudl.extract.phmsagas](autoapi/pudl/extract/phmsagas/index.html.md): Retrieves data from PHMSA natural gas spreadsheets for analysis.
-- [pudl.extract.gridpathratoolkit](autoapi/pudl/extract/gridpathratoolkit/index.html.md): Extract GridPath RA Toolkit renewable energy generation profiles from zipped CSVs.
-- [pudl.extract.ferc](autoapi/pudl/extract/ferc/index.html.md): Hooks to integrate ferc to sqlite functionality into dagster graph.
-- [pudl.extract.eia930](autoapi/pudl/extract/eia930/index.html.md): Extract EIA Form 930 data from CSVs.
-- [pudl.extract.eia757a](autoapi/pudl/extract/eia757a/index.html.md): Extract EIA Form 757a data from CSVs.
-- [pudl.extract.parquet](autoapi/pudl/extract/parquet/index.html.md): Extractor for Parquet data.
-- [pudl.extract.epacems](autoapi/pudl/extract/epacems/index.html.md): Retrieve data from EPA CEMS hourly zipped CSVs.
-- [pudl.extract.ferceqr](autoapi/pudl/extract/ferceqr/index.html.md): Extract FERC EQR data.
-- [pudl.extract.eia860](autoapi/pudl/extract/eia860/index.html.md): Retrieve data from EIA Form 860 spreadsheets for analysis.
-- [pudl.extract.eia191](autoapi/pudl/extract/eia191/index.html.md): Extract EIA Form 191 data from CSVs.
-- [pudl.extract.rus12](autoapi/pudl/extract/rus12/index.html.md): Extract USDA RUS Form 12 data from CSVs.
-- [pudl.extract.eiaaeo](autoapi/pudl/extract/eiaaeo/index.html.md): Extract EIA AEO data from the bulk JSON.
-- [pudl.extract.ferc60](autoapi/pudl/extract/ferc60/index.html.md): Extract FERC Form 60 data from DBF archives.
-- [pudl.extract.eia860m](autoapi/pudl/extract/eia860m/index.html.md): Retrieve data from EIA Form 860M spreadsheets for analysis.
-- [pudl.extract.ferc2](autoapi/pudl/extract/ferc2/index.html.md): Extract FERC Form 2 data from SQLite DBs derived from original DBF files.
-- [pudl.extract.vcerare](autoapi/pudl/extract/vcerare/index.html.md): Extract VCE Resource Adequacy Renewable Energy (RARE) Power Dataset.
-- [pudl.extract.nrelatb](autoapi/pudl/extract/nrelatb/index.html.md): Routines used for extracting the raw NREL ATB data.
-- [pudl.extract.eiaapi](autoapi/pudl/extract/eiaapi/index.html.md): Module to extract aggregate data from the EIA bulk electricity download.
-- [pudl.extract.xbrl](autoapi/pudl/extract/xbrl/index.html.md): Generic extractor for all FERC XBRL data.
-- [pudl.extract.ferc1](autoapi/pudl/extract/ferc1/index.html.md): Extract FERC Form 1 data from SQLite DBs derived from original DBF or XBRL files.
-- [pudl.extract.extractor](autoapi/pudl/extract/extractor/index.html.md): Generic functionality for extractors.
-- [pudl.validate.quality](autoapi/pudl/validate/quality/index.html.md): Bespoke data quality checking utilities for PUDL data.
-- [pudl.validate.dbt](autoapi/pudl/validate/dbt/index.html.md): Wrap DBT invocations so we can get custom behavior.
-- [pudl.validate.integrity](autoapi/pudl/validate/integrity/index.html.md): Database integrity validation checks for PUDL data.
-- [pudl.scripts.pudl_datastore](autoapi/pudl/scripts/pudl_datastore/index.html.md): CLI for managing raw data inputs to the PUDL data processing pipeline.
-- [pudl.scripts.pudl_check_for_build](autoapi/pudl/scripts/pudl_check_for_build/index.html.md): Check if there are build outputs associated with a git tag.
-- [pudl.scripts.dbt_helper](autoapi/pudl/scripts/dbt_helper/index.html.md): A basic CLI to autogenerate dbt data test configurations.
-- [pudl.scripts.generate_ferc_provenance](autoapi/pudl/scripts/generate_ferc_provenance/index.html.md): CLI for generating FERC SQLite provenance requirements for caching.
-- [pudl.scripts.zenodo_data_release](autoapi/pudl/scripts/zenodo_data_release/index.html.md): Upload a prepared PUDL data release directory to Zenodo.
-- [pudl.scripts.generate_pudl_duckdb](autoapi/pudl/scripts/generate_pudl_duckdb/index.html.md): Basic script to generate a duckdb file with views to local/nightly parquet files.
-- [pudl.scripts.check_path_permissions](autoapi/pudl/scripts/check_path_permissions/index.html.md): Check read, write, and delete permissions for local or remote paths.
-- [pudl.scripts.resource_description](autoapi/pudl/scripts/resource_description/index.html.md): Tiny CLI for showing table descriptions without building the full docs.
-- [pudl.scripts.metadata_to_rst](autoapi/pudl/scripts/metadata_to_rst/index.html.md): Export PUDL table and field metadata to RST for use in documentation.
-- [pudl.scripts.pudl_check_fks](autoapi/pudl/scripts/pudl_check_fks/index.html.md): Check that foreign key constraints in the PUDL database are respected.
-- [pudl.scripts.pudl_deploy](autoapi/pudl/scripts/pudl_deploy/index.html.md): Deploy PUDL ETL outputs to cloud storage and update git branches.
-- [pudl.scripts.dghome](autoapi/pudl/scripts/dghome/index.html.md): Manage UUID-named directories in a Dagster storage directory.
-- [pudl.scripts.auto_match_utilities](autoapi/pudl/scripts/auto_match_utilities/index.html.md): A CLI tool for matching FERC and EIA utilities.
-- [pudl.scripts.pudl_null_cols](autoapi/pudl/scripts/pudl_null_cols/index.html.md): A CLI tool for generating expect_column_not_all_null dbt test conditions.
-- [pudl.scripts.update_zenodo_dois](autoapi/pudl/scripts/update_zenodo_dois/index.html.md): Script to check each DOI in zenodo_dois.yml against Zenodo’s /versions/latest endpoint.
-- [pudl.scripts.pudl_service_territories](autoapi/pudl/scripts/pudl_service_territories/index.html.md): CLI for compiling historical utility and balancing area service territory geometries.
-- [pudl.dagster.provenance](autoapi/pudl/dagster/provenance/index.html.md): Helpers for recording asset provenance and checking compatibility.
-- [pudl.dagster.build](autoapi/pudl/dagster/build/index.html.md): Assembles Dagster Definitions from default values and specified overrides.
-- [pudl.dagster.sensors](autoapi/pudl/dagster/sensors/index.html.md): Dagster sensors for PUDL.
-- [pudl.dagster.io_managers](autoapi/pudl/dagster/io_managers/index.html.md): Dagster IO managers used by PUDL assets.
-- [pudl.dagster.resources](autoapi/pudl/dagster/resources/index.html.md): Dagster resources for PUDL.
-- [pudl.dagster.config](autoapi/pudl/dagster/config/index.html.md): Dagster run configuration helpers for PUDL.
-- [pudl.dagster.jobs](autoapi/pudl/dagster/jobs/index.html.md): Dagster jobs for PUDL.
-- [pudl.dagster.partitions](autoapi/pudl/dagster/partitions/index.html.md): Dagster partition definitions for PUDL.
-- [pudl.dagster.asset_checks](autoapi/pudl/dagster/asset_checks/index.html.md): Programmatically defined Dagster asset checks for PUDL.
-- [pudl.dagster.assets](autoapi/pudl/dagster/assets/index.html.md): Dagster asset loading and grouping for PUDL.
-- [pudl.dagster.assets.deploy](autoapi/pudl/dagster/assets/deploy/index.html.md): Dagster assets dedicated to deploying data build products.
-- [pudl.dagster.assets.raw](autoapi/pudl/dagster/assets/raw/index.html.md): Raw Dagster asset-definition modules for PUDL.
-- [pudl.dagster.assets.core](autoapi/pudl/dagster/assets/core/index.html.md): Core Dagster asset-definition modules for PUDL.
-- [pudl.dagster.assets.core.glue](autoapi/pudl/dagster/assets/core/glue/index.html.md): Dagster assets for cross-dataset glue tables.
-- [pudl.dagster.assets.core.eiaapi_electricity](autoapi/pudl/dagster/assets/core/eiaapi_electricity/index.html.md): Dagster assets for EIA API electricity aggregates.
-- [pudl.dagster.assets.core.datapackage](autoapi/pudl/dagster/assets/core/datapackage/index.html.md): Dagster asset that generates the PUDL frictionless datapackage descriptor.
-- [pudl.dagster.assets.core.static](autoapi/pudl/dagster/assets/core/static/index.html.md): Dagster assets for static reference tables.
-- [pudl.dagster.assets.raw.ferc_to_sqlite](autoapi/pudl/dagster/assets/raw/ferc_to_sqlite/index.html.md): Dagster asset definitions for granular FERC-to-SQLite extraction.
-- [pudl.dagster.assets.deploy.ferceqr](autoapi/pudl/dagster/assets/deploy/ferceqr/index.html.md): Define deployment helper assets for publishing FERC EQR outputs.
-- [pudl.deploy.pudl](autoapi/pudl/deploy/pudl/index.html.md): Distribute PUDL ETL outputs to cloud storage and update git branches.
-- [pudl.workspace.setup](autoapi/pudl/workspace/setup/index.html.md): Tools for setting up and managing PUDL workspaces.
+- [pudl.package_data.eia191.column_maps](autoapi/pudl/package_data/eia191/column_maps/index.html.md): Metadata linking semantic meaning of EIA 191 CSV file columns across years.
+- [pudl.package_data.rus12.column_maps](autoapi/pudl/package_data/rus12/column_maps/index.html.md): Metadata linking semantic meaning of RUS 12 spreadsheet columns across years.
 - [pudl.workspace.datastore](autoapi/pudl/workspace/datastore/index.html.md): Datastore manages file retrieval for PUDL datasets.
 - [pudl.workspace.resource_cache](autoapi/pudl/workspace/resource_cache/index.html.md): Implementations of datastore resource caches.
-- [pudl.analysis.timeseries_evaluation](autoapi/pudl/analysis/timeseries_evaluation/index.html.md): Routines for evaluating and visualizing timeseries data.
-- [pudl.analysis.operational_characteristics](autoapi/pudl/analysis/operational_characteristics/index.html.md): Use EPA CEMS and EIA data to estimate generator operational characteristics.
-- [pudl.analysis.service_territory](autoapi/pudl/analysis/service_territory/index.html.md): Compile historical utility and balancing area territories.
-- [pudl.analysis.mcoe](autoapi/pudl/analysis/mcoe/index.html.md): A module with functions to aid generating MCOE.
-- [pudl.analysis.ml_tools](autoapi/pudl/analysis/ml_tools/index.html.md): Implements shared tooling for machine learning models in PUDL.
-- [pudl.analysis.plant_parts_eia](autoapi/pudl/analysis/plant_parts_eia/index.html.md): Aggregate plant parts to make an EIA master plant-part table.
-- [pudl.analysis.state_demand](autoapi/pudl/analysis/state_demand/index.html.md): Estimate historical hourly state-level electricity demand.
-- [pudl.analysis.allocate_gen_fuel](autoapi/pudl/analysis/allocate_gen_fuel/index.html.md): Allocate data from [core_eia923_\_monthly_generation_fuel](../../../../data_dictionaries/pudl_db.md#...
-- [pudl.analysis.record_linkage](autoapi/pudl/analysis/record_linkage/index.html.md): This module implements models for various forms of record linkage.
-- [pudl.analysis.timeseries_cleaning](autoapi/pudl/analysis/timeseries_cleaning/index.html.md): Screen timeseries for anomalies and impute missing and anomalous values.
-- [pudl.analysis.spatial](autoapi/pudl/analysis/spatial/index.html.md): Spatial operations for demand allocation.
-- [pudl.analysis.fuel_by_plant](autoapi/pudl/analysis/fuel_by_plant/index.html.md): Calculates useful FERC Form 1 fuel metrics on a per plant-year basis.
-- [pudl.analysis.record_linkage.eia_ferc1_record_linkage](autoapi/pudl/analysis/record_linkage/eia_ferc1_record_linkage/index.html.md): Connect FERC1 plant tables to EIA’s plant-parts with record linkage.
-- [pudl.analysis.record_linkage.classify_plants_ferc1](autoapi/pudl/analysis/record_linkage/classify_plants_ferc1/index.html.md): Scikit-Learn classification pipeline for identifying related FERC 1 plant records.
-- [pudl.analysis.record_linkage.link_cross_year](autoapi/pudl/analysis/record_linkage/link_cross_year/index.html.md): Define a record linkage model interface and implement common functionality.
-- [pudl.analysis.record_linkage.name_cleaner](autoapi/pudl/analysis/record_linkage/name_cleaner/index.html.md): This module contains the implementation of CompanyNameCleaner class from OS-Climate’s financial-enti...
-- [pudl.analysis.record_linkage.eia_ferc1_train](autoapi/pudl/analysis/record_linkage/eia_ferc1_train/index.html.md): Create spreadsheets for manually mapping FERC-EIA records and validate matches.
-- [pudl.analysis.record_linkage.embed_dataframe](autoapi/pudl/analysis/record_linkage/embed_dataframe/index.html.md): Tools for embedding a DataFrame to create feature matrix for models.
-- [pudl.analysis.record_linkage.eia_ferc1_model_config](autoapi/pudl/analysis/record_linkage/eia_ferc1_model_config/index.html.md): The model parameters for the FERC1 to EIA splink record linkage model.
-- [pudl.analysis.record_linkage.eia_ferc1_inputs](autoapi/pudl/analysis/record_linkage/eia_ferc1_inputs/index.html.md): Prepare the inputs to the FERC1 to EIA record linkage model.
-- [pudl.analysis.ml_tools.models](autoapi/pudl/analysis/ml_tools/models/index.html.md): Provides tooling for developing/tracking ML models within PUDL.
-- [pudl.analysis.ml_tools.experiment_tracking](autoapi/pudl/analysis/ml_tools/experiment_tracking/index.html.md): This module implements experiment tracking tooling using mlflow as a backend.
-- [pudl.metadata.codes](autoapi/pudl/metadata/codes/index.html.md): Metadata for cleaning, re-encoding, and documenting coded data columns.
-- [pudl.metadata.enums](autoapi/pudl/metadata/enums/index.html.md): Enumerations of valid field values.
-- [pudl.metadata.fields](autoapi/pudl/metadata/fields/index.html.md): Field metadata.
-- [pudl.metadata.patterns](autoapi/pudl/metadata/patterns/index.html.md): Reusable regex pattern constraints for fields in the PUDL metadata.
-- [pudl.metadata.helpers](autoapi/pudl/metadata/helpers/index.html.md): Functions for manipulating metadata constants.
-- [pudl.metadata.constants](autoapi/pudl/metadata/constants/index.html.md): Metadata and operational constants.
-- [pudl.metadata.labels](autoapi/pudl/metadata/labels/index.html.md): Descriptive labels for coded field values.
-- [pudl.metadata.dtypes](autoapi/pudl/metadata/dtypes/index.html.md): Canonical PUDL dtype mappings and dtype-application helpers.
-- [pudl.metadata.resources](autoapi/pudl/metadata/resources/index.html.md): A subpackage to define and organize PUDL database tables by data group.
-- [pudl.metadata.classes](autoapi/pudl/metadata/classes/index.html.md): Metadata data classes.
-- [pudl.metadata.descriptions](autoapi/pudl/metadata/descriptions/index.html.md): Mechanisms and constants for setting standard resource descriptions.
-- [pudl.metadata.warnings](autoapi/pudl/metadata/warnings/index.html.md): Standard usage warnings to reference in dynamic table descriptions.
-- [pudl.metadata.resource_helpers](autoapi/pudl/metadata/resource_helpers/index.html.md): Functions for resource metadata.
-- [pudl.metadata.sources](autoapi/pudl/metadata/sources/index.html.md): Metadata and operational constants.
-- [pudl.metadata.dfs](autoapi/pudl/metadata/dfs/index.html.md): Static database tables.
-- [pudl.metadata.units](autoapi/pudl/metadata/units/index.html.md): PUDL unit registry built on top of Pint’s default registry.
-- [pudl.metadata.resources.glue](autoapi/pudl/metadata/resources/glue/index.html.md): Definitions for the glue/crosswalk tables that connect data groups.
-- [pudl.metadata.resources.censusdp1tract](autoapi/pudl/metadata/resources/censusdp1tract/index.html.md): Resources derived from the US Census Demographic Profile 1 dataset.
-- [pudl.metadata.resources.ferc1_eia_record_linkage](autoapi/pudl/metadata/resources/ferc1_eia_record_linkage/index.html.md): Definitions for the connection between FERC1 and EIA.
-- [pudl.metadata.resources.sec10k](autoapi/pudl/metadata/resources/sec10k/index.html.md): Table definitions for the SEC10k tables.
-- [pudl.metadata.resources.eia861](autoapi/pudl/metadata/resources/eia861/index.html.md): Definitions of data tables primarily coming from EIA-861.
-- [pudl.metadata.resources.ferc714](autoapi/pudl/metadata/resources/ferc714/index.html.md): Tables definitions for data coming from the FERC Form 714.
-- [pudl.metadata.resources.eia176](autoapi/pudl/metadata/resources/eia176/index.html.md): Definitions of data tables primarily coming from EIA-176.
-- [pudl.metadata.resources.eia923](autoapi/pudl/metadata/resources/eia923/index.html.md): Definitions of data tables primarily coming from EIA-923.
-- [pudl.metadata.resources.rus7](autoapi/pudl/metadata/resources/rus7/index.html.md): Table definitions for the RUS7 tables.
-- [pudl.metadata.resources.allocate_gen_fuel](autoapi/pudl/metadata/resources/allocate_gen_fuel/index.html.md): Resource metadata for the allocate_gen_fuel tables.
-- [pudl.metadata.resources.ferccid](autoapi/pudl/metadata/resources/ferccid/index.html.md): Table definitions for the FERC Company Identifier table.
-- [pudl.metadata.resources.phmsagas](autoapi/pudl/metadata/resources/phmsagas/index.html.md): Tables definitions for data coming from PHMSA natural gas data.
-- [pudl.metadata.resources.gridpathratoolkit](autoapi/pudl/metadata/resources/gridpathratoolkit/index.html.md): Table definitions for data coming from the GridPath Resource Adequacy Toolkit.
-- [pudl.metadata.resources.pudl](autoapi/pudl/metadata/resources/pudl/index.html.md): Definitions for the connection between PUDL-specific IDs and other datasets.
-- [pudl.metadata.resources.eia930](autoapi/pudl/metadata/resources/eia930/index.html.md): Definitions of data tables derived from the EIA-930.
-- [pudl.metadata.resources.epacems](autoapi/pudl/metadata/resources/epacems/index.html.md): Table definitions for the EPA CEMS data group.
-- [pudl.metadata.resources.ferceqr](autoapi/pudl/metadata/resources/ferceqr/index.html.md): Table definitions for the FERC EQR data group.
-- [pudl.metadata.resources.rus](autoapi/pudl/metadata/resources/rus/index.html.md): Table definitions for the RUS tables.
-- [pudl.metadata.resources.eia860](autoapi/pudl/metadata/resources/eia860/index.html.md): Definitions of data tables primarily coming from EIA-860.
-- [pudl.metadata.resources.eia191](autoapi/pudl/metadata/resources/eia191/index.html.md): Definitions of data tables primarily coming from EIA-191.
-- [pudl.metadata.resources.rus12](autoapi/pudl/metadata/resources/rus12/index.html.md): Table definitions for the RUS12 tables.
-- [pudl.metadata.resources.eiaaeo](autoapi/pudl/metadata/resources/eiaaeo/index.html.md): Table definitions for EIA AEO resources.
-- [pudl.metadata.resources.eia860m](autoapi/pudl/metadata/resources/eia860m/index.html.md): Definitions of data tables primarily coming from EIA-860m.
-- [pudl.metadata.resources.vcerare](autoapi/pudl/metadata/resources/vcerare/index.html.md): Table definitions for data coming from the Vibrant Clean Energy Renewable Generation Profiles.
-- [pudl.metadata.resources.nrelatb](autoapi/pudl/metadata/resources/nrelatb/index.html.md): Table definitions for the NREL ATB data .
-- [pudl.metadata.resources.eia](autoapi/pudl/metadata/resources/eia/index.html.md): Definitions of data tables primarily coming from EIA 860/861/923.
-- [pudl.metadata.resources.eiaapi](autoapi/pudl/metadata/resources/eiaapi/index.html.md): Tables definitions for data from the EIA bulk electricity aggregates.
-- [pudl.metadata.resources.ferc1](autoapi/pudl/metadata/resources/ferc1/index.html.md): Table definitions for the FERC Form 1 data group.
-- [pudl.glue.ferc714](autoapi/pudl/glue/ferc714/index.html.md): Extract and transform glue tables between FERC Form 714’s CSV and XBRL raw sources.
-- [pudl.glue.ferc1_eia](autoapi/pudl/glue/ferc1_eia/index.html.md): Extract and transform glue tables between FERC Form 1 and EIA 860/923.
+- [pudl.workspace.setup](autoapi/pudl/workspace/setup/index.html.md): Tools for setting up and managing PUDL workspaces.
 - [Contributing to PUDL](CONTRIBUTING.html.md): Welcome! We’re excited that you’re interested in contributing to the Public Utility
 - [The MIT License](LICENSE.html.md): Copyright 2017-2026 Catalyst Cooperative
 - [Bibliography](bibliography.html.md): Data, software, and analyses that we have published for public use. We self-archive
