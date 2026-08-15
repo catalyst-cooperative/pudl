@@ -11,17 +11,18 @@ Denormalized, aggregated, and filled versions of the basic EIA-923 tables.
 
 ## Functions
 
-| [`denorm_by_plant`](#pudl.output.eia923.denorm_by_plant)(→ pandas.DataFrame)                                           | Denormalize a table that is reported on a per-plant basis.                                                                           |
-|------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------|
-| [`denorm_by_gen`](#pudl.output.eia923.denorm_by_gen)(→ pandas.DataFrame)                                               | Denormalize a table that is reported on a per-generator basis.                                                                       |
-| [`denorm_by_boil`](#pudl.output.eia923.denorm_by_boil)(→ pandas.DataFrame)                                             | Denormalize a table that is reported on a per-boiler basis.                                                                          |
-| [`_fill_fuel_costs_by_state`](#pudl.output.eia923._fill_fuel_costs_by_state)(→ pandas.DataFrame)                       | Fill in missing fuel costs with state-level averages.                                                                                |
-| [`drop_ytd_for_annual_tables`](#pudl.output.eia923.drop_ytd_for_annual_tables)(→ pandas.DataFrame)                     | Drop records in annual tables where data_maturity is incremental_ytd.                                                                |
-| [`out_eia923__generation`](#pudl.output.eia923.out_eia923__generation)(→ pandas.DataFrame)                             | Denormalize the [core_eia923_\_monthly_generation](../../../../data_dictionaries/pudl_db.md#core-eia923-monthly-generation) table.   |
-| [`out_eia923__generation_fuel_combined`](#pudl.output.eia923.out_eia923__generation_fuel_combined)(→ pandas.DataFrame) | Denormalize the generation_fuel_combined_eia923 table.                                                                               |
-| [`out_eia923__boiler_fuel`](#pudl.output.eia923.out_eia923__boiler_fuel)(→ pandas.DataFrame)                           | Denormalize the [core_eia923_\_monthly_boiler_fuel](../../../../data_dictionaries/pudl_db.md#core-eia923-monthly-boiler-fuel) table. |
-| [`out_eia923__fuel_receipts_costs`](#pudl.output.eia923.out_eia923__fuel_receipts_costs)(→ pandas.DataFrame)           | Denormalize the [core_eia923_\_fuel_receipts_costs](../../../../data_dictionaries/pudl_db.md#core-eia923-fuel-receipts-costs) table. |
-| [`time_aggregated_eia923_asset_factory`](#pudl.output.eia923.time_aggregated_eia923_asset_factory)(...)                | Build EIA-923 asset definitions, aggregated by year or month.                                                                        |
+| [`denorm_by_plant`](#pudl.output.eia923.denorm_by_plant)(→ pandas.DataFrame)                                           | Denormalize a table that is reported on a per-plant basis.                                                                                 |
+|------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------|
+| [`denorm_by_gen`](#pudl.output.eia923.denorm_by_gen)(→ pandas.DataFrame)                                               | Denormalize a table that is reported on a per-generator basis.                                                                             |
+| [`denorm_by_boil`](#pudl.output.eia923.denorm_by_boil)(→ pandas.DataFrame)                                             | Denormalize a table that is reported on a per-boiler basis.                                                                                |
+| [`_fill_fuel_costs_by_state`](#pudl.output.eia923._fill_fuel_costs_by_state)(→ pandas.DataFrame)                       | Fill in missing fuel costs with state-level averages.                                                                                      |
+| [`drop_ytd_for_annual_tables`](#pudl.output.eia923.drop_ytd_for_annual_tables)(→ pandas.DataFrame)                     | Drop records in annual tables where data_maturity is incremental_ytd.                                                                      |
+| [`out_eia923__generation`](#pudl.output.eia923.out_eia923__generation)(→ pandas.DataFrame)                             | Denormalize the [core_eia923_\_monthly_generation](../../../../data_dictionaries/pudl_db.md#core-eia923-monthly-generation) table.         |
+| [`out_eia923__generation_fuel_combined`](#pudl.output.eia923.out_eia923__generation_fuel_combined)(→ pandas.DataFrame) | Denormalize the generation_fuel_combined_eia923 table.                                                                                     |
+| [`out_eia923__energy_storage`](#pudl.output.eia923.out_eia923__energy_storage)(→ pandas.DataFrame)                     | Denormalize the [core_eia923_\_monthly_energy_storage](../../../../data_dictionaries/pudl_db.md#core-eia923-monthly-energy-storage) table. |
+| [`out_eia923__boiler_fuel`](#pudl.output.eia923.out_eia923__boiler_fuel)(→ pandas.DataFrame)                           | Denormalize the [core_eia923_\_monthly_boiler_fuel](../../../../data_dictionaries/pudl_db.md#core-eia923-monthly-boiler-fuel) table.       |
+| [`out_eia923__fuel_receipts_costs`](#pudl.output.eia923.out_eia923__fuel_receipts_costs)(→ pandas.DataFrame)           | Denormalize the [core_eia923_\_fuel_receipts_costs](../../../../data_dictionaries/pudl_db.md#core-eia923-fuel-receipts-costs) table.       |
+| [`time_aggregated_eia923_asset_factory`](#pudl.output.eia923.time_aggregated_eia923_asset_factory)(...)                | Build EIA-923 asset definitions, aggregated by year or month.                                                                              |
 
 ## Module Contents
 
@@ -77,6 +78,10 @@ columns.
 
 This table contains the records at their originally reported temporal resolution,
 so it’s outside of [`time_aggregated_eia923_asset_factory()`](#pudl.output.eia923.time_aggregated_eia923_asset_factory).
+
+### pudl.output.eia923.out_eia923_\_energy_storage(core_eia923_\_monthly_energy_storage: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), \_out_eia_\_plants_utilities: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+
+Denormalize the [core_eia923_\_monthly_energy_storage](../../../../data_dictionaries/pudl_db.md#core-eia923-monthly-energy-storage) table.
 
 ### pudl.output.eia923.out_eia923_\_boiler_fuel(core_eia923_\_monthly_boiler_fuel: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), \_out_eia_\_plants_utilities: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), core_eia860_\_assn_boiler_generator: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
