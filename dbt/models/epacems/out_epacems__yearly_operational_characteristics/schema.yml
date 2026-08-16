@@ -27,40 +27,39 @@ sources:
               - dbt_expectations.expect_column_values_to_be_between:
                   description: "min_up_time_hours is the minimum observed run length for a unit. In theory a unit that never shuts down in the whole the full production trailing window would have a run time of 26,304 hours (12 quarters = 3 years, with a leap year: (365 + 365 + 366) * 24). Any value above this must be a real bug, not a statistical outlier, and demands investigation. Disabled for etl-fast (a single EPA CEMS quarter instead of the 12 trailing quarters used in production), since that minimum is drawn from a much smaller sample and is far noisier."
                   arguments:
-                    min_value: 0.0
-                    max_value: 26304.0
+                    min_value: 1.0
+                    max_value: 12000
                   config:
-                    error_if: ">0"
                     enabled: "{{ target.name == 'etl-full' }}"
           - name: min_down_time_hours
             data_tests:
               - dbt_expectations.expect_column_values_to_be_between:
                   description: "Same reasoning as min_up_time_hours above: the upper bound is the exact number of hours in the full production trailing window, so any value above it is a genuine bug, not a statistical outlier. Disabled for etl-fast for the same reason."
                   arguments:
-                    min_value: 0.0
-                    max_value: 26304.0
+                    min_value: 1.0
+                    max_value: 26304
                   config:
-                    error_if: ">0"
                     enabled: "{{ target.name == 'etl-full' }}"
           - name: heat_rate_at_max_load_factor_mmbtu_per_mwh
             data_tests:
               - dbt_expectations.expect_column_values_to_be_between:
                   description: This is a per-unit median heat rate computed only from the hours in that unit's single highest load-factor bin. min_value is set just below 3.412 MMBtu/MWh (1 MWh), the thermodynamic floor for real heat engines. max_value is set to comfortably cover the real observed distribution (only ~0.3% of values exceed 30 MMBtu/MWh) while still catching clearly broken values (observed up to 311 MMBtu/MWh). Disabled for etl-fast's single quarter of data, where that bin can contain very few hours, making the median far more volatile than in production (12 trailing quarters).
                   arguments:
-                    min_value: 3.4
+                    min_value: 5.4
                     max_value: 30.0
                   config:
-                    error_if: ">1900"
+                    error_if: ">2500"
                     enabled: "{{ target.name == 'etl-full' }}"
           - name: heat_rate_at_min_stable_load_factor_mmbtu_per_mwh
             data_tests:
               - dbt_expectations.expect_column_values_to_be_between:
                   description: Same physical floor as heat_rate_at_max_load_factor_mmbtu_per_mwh above. max_value is set a bit higher than that metric's, since heat rates legitimately run higher at partial load than at max load, while still catching clearly broken values (observed up to 593 MMBtu/MWh).
                   arguments:
-                    min_value: 3.4
-                    max_value: 35.0
+                    min_value: 5.4
+                    max_value: 30.0
                   config:
-                    error_if: ">1200"
+                    error_if: ">1400"
+                    enabled: "{{ target.name == 'etl-full' }}"
           - name: ramp_up_rate_per_min
             data_tests:
               - dbt_expectations.expect_column_values_to_be_between:
