@@ -7,16 +7,16 @@ can [create a GitHub discussion](https://github.com/orgs/catalyst-cooperative/di
 
 We recommend working with tables with the `out_` prefix, as these tables contain the
 most complete and easiest to work with data. For more information about the different
-types of tables, read through [PUDL’s naming conventions](dev/naming_conventions.md#asset-naming).
+types of tables, read through [PUDL’s naming conventions](dev/naming_conventions.html.md#asset-naming).
 
 ## Quick Reference
 
-| [Platform](#access-platform)       | [Format](#access-format)   | [Version](#access-version)   | User Types                                                         | Use Cases                                                                                                                                                                                                                                                                                                                                         |
-|------------------------------------|----------------------------|------------------------------|--------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [PUDL Data Viewer](#access-viewer) | Parquet, CSV               | `nightly`                    | Data Explorer, Spreadsheet Analyst, Jupyter Notebook User          | Explore PUDL data interactively in a web browser, including hourly<br/>timeseries data. Select data to download as CSVs for local analysis in<br/>spreadsheets. Download full tables as Parquet files to play with<br/>programmatically.                                                                                                          |
-| [Kaggle](#access-kaggle)           | SQLite, Parquet            | `nightly`                    | Data Scientist, Data Analyst, Jupyter Notebook User                | Work with PUDL data products in Jupyter Notebooks via the web with minimal setup.<br/>Explore curated and contributed analyses and visualizations using PUDL data.<br/>notebooks.<br/>Create and share your own interactive notebooks using PUDL data.                                                                                            |
-| [Cloud Storage](#access-cloud)     | SQLite, Parquet            | `nightly`, `stable`          | Data Scientist, Analytics Engineer, Data Engineer, Cloud Developer | Performant remote queries of clearly versioned PUDL Parquet outputs from cloud<br/>computing platforms or GitHub Actions.<br/>Fast bulk download of SQLite or Parquet outputs for local use.<br/>Parquet based data warehouse for large-scale data analysis in the cloud.<br/>Integrates well with Pandas, DuckDB, and other dataframe libraries. |
-| [Zenodo Archives](#access-zenodo)  | SQLite, Parquet            | `stable`                     | Researcher, Publisher, Archivist                                   | Access a specific, immutable version of the PUDL data by DOI for citation in<br/>academic publications or other applications where long-term reproducibility is<br/>needed. Web-based bulk download of data for local analysis.                                                                                                                   |
+| [Platform](#access-platform)         | [Format](#access-format)   | [Version](#access-version)   | User Types                                                         | Use Cases                                                                                                                                                                                                                                                                                                                                         |
+|-----------------------------------------------------------------|---------------------------------------------------------|----------------------------------------------------------|--------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [PUDL Data Viewer](#access-viewer) | Parquet, CSV                                            | `nightly`                                                | Data Explorer, Spreadsheet Analyst, Jupyter Notebook User          | Explore PUDL data interactively in a web browser, including hourly<br/>timeseries data. Select data to download as CSVs for local analysis in<br/>spreadsheets. Download full tables as Parquet files to play with<br/>programmatically.                                                                                                          |
+| [Kaggle](#access-kaggle)           | SQLite, Parquet                                         | `nightly`                                                | Data Scientist, Data Analyst, Jupyter Notebook User                | Work with PUDL data products in Jupyter Notebooks via the web with minimal setup.<br/>Explore curated and contributed analyses and visualizations using PUDL data.<br/>notebooks.<br/>Create and share your own interactive notebooks using PUDL data.                                                                                            |
+| [Cloud Storage](#access-cloud)    | SQLite, Parquet                                         | `nightly`, `stable`                                      | Data Scientist, Analytics Engineer, Data Engineer, Cloud Developer | Performant remote queries of clearly versioned PUDL Parquet outputs from cloud<br/>computing platforms or GitHub Actions.<br/>Fast bulk download of SQLite or Parquet outputs for local use.<br/>Parquet based data warehouse for large-scale data analysis in the cloud.<br/>Integrates well with Pandas, DuckDB, and other dataframe libraries. |
+| [Zenodo Archives](#access-zenodo)  | SQLite, Parquet                                         | `stable`                                                 | Researcher, Publisher, Archivist                                   | Access a specific, immutable version of the PUDL data by DOI for citation in<br/>academic publications or other applications where long-term reproducibility is<br/>needed. Web-based bulk download of data for local analysis.                                                                                                                   |
 
 <a id="access-modes"></a>
 
@@ -268,7 +268,7 @@ with `pandas.read_sql()` and other libraries that understand DBAPI connections.
 ### FERC EQR (EXPERIMENTAL)
 
 In early 2026 we started processing and distributing the
-[FERC Electric Quarterly Reports (EQR)](data_sources/ferceqr.md) dataset as a
+[FERC Electric Quarterly Reports (EQR)](data_sources/ferceqr.html.md) dataset as a
 partitioned Apache Parquet dataset. Even as Parquet the EQR is close to 100 GB, so
 unlike the other PUDL data products, we can’t archive it on Zenodo or provide access to
 multiple historical versions through S3. Instead, we update a single set of outputs in
@@ -279,18 +279,18 @@ aws s3 ls --no-sign-request s3://pudl.catalyst.coop/ferceqr/
 ```
 
 Each of the subdirectories corresponds to a table. Like the main PUDL database, these
-tables are documented in the [PUDL Data Dictionary](data_dictionaries/pudl_db.md):
+tables are documented in the [PUDL Data Dictionary](data_dictionaries/pudl_db.html.md):
 
-> * [core_ferceqr_\_contracts](data_dictionaries/pudl_db.md#core-ferceqr-contracts)
-> * [core_ferceqr_\_quarterly_identity](data_dictionaries/pudl_db.md#core-ferceqr-quarterly-identity)
-> * [core_ferceqr_\_quarterly_index_pub](data_dictionaries/pudl_db.md#core-ferceqr-quarterly-index-pub)
-> * [core_ferceqr_\_transactions](data_dictionaries/pudl_db.md#core-ferceqr-transactions)
+> * [core_ferceqr_\_contracts](data_dictionaries/pudl_db.html.md#core-ferceqr-contracts)
+> * [core_ferceqr_\_quarterly_identity](data_dictionaries/pudl_db.html.md#core-ferceqr-quarterly-identity)
+> * [core_ferceqr_\_quarterly_index_pub](data_dictionaries/pudl_db.html.md#core-ferceqr-quarterly-index-pub)
+> * [core_ferceqr_\_transactions](data_dictionaries/pudl_db.html.md#core-ferceqr-transactions)
 
 The subdirectories contain a number of Parquet files (`2025q3.parquet`,
 `2025q2.parquet`, etc.), each containing one quarter of data for that table. Most
 tools for reading Parquet files out of cloud storage are able to query and read from
 many files sharing the same schema at the same time, typically with file globbing
-wildcards. Note that the EQR tables (particularly [core_ferceqr_\_transactions](data_dictionaries/pudl_db.md#core-ferceqr-transactions)) can
+wildcards. Note that the EQR tables (particularly [core_ferceqr_\_transactions](data_dictionaries/pudl_db.html.md#core-ferceqr-transactions)) can
 be much larger than memory, so you will need to select only a subset of the data and/or
 use tools that are designed to work with large data efficiently like [DuckDB](https://duckdb.org/docs/stable/) or [Polars](https://docs.pola.rs/). Some brief
 examples:
@@ -376,8 +376,8 @@ that, these datasets are unmodified.
 If you want to run the PUDL data processing pipeline yourself from scratch, run the
 software tests, or make changes to the source code, you’ll need to set up our
 development environment. This is a bit involved, so it has its
-[own separate documentation](dev/dev_setup.md).
+[own separate documentation](dev/dev_setup.html.md).
 
 Most users shouldn’t need to do this, and will probably find working with the
 pre-processed data via one of the other access modes easier. But if you want to
-[contribute to the project](CONTRIBUTING.md), please give it a shot!
+[contribute to the project](CONTRIBUTING.html.md), please give it a shot!

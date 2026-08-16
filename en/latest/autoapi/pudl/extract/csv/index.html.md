@@ -5,20 +5,20 @@ Extractor for CSV data.
 ## Attributes
 
 | [`logger`](#pudl.extract.csv.logger)   |    |
-|----------------------------------------|----|
+|-----------------------------------------------------------|----|
 
 ## Classes
 
 | [`CsvExtractor`](#pudl.extract.csv.CsvExtractor)   | Class for extracting dataframes from CSV files.   |
-|----------------------------------------------------|---------------------------------------------------|
+|-----------------------------------------------------------------|---------------------------------------------------|
 
 ## Module Contents
 
 ### pudl.extract.csv.logger
 
-### *class* pudl.extract.csv.CsvExtractor(ds: [pudl.workspace.datastore.Datastore](../../workspace/datastore/index.md#pudl.workspace.datastore.Datastore))
+### *class* pudl.extract.csv.CsvExtractor(ds: [pudl.workspace.datastore.Datastore](../../workspace/datastore/index.html.md#pudl.workspace.datastore.Datastore))
 
-Bases: [`pudl.extract.extractor.GenericExtractor`](../extractor/index.md#pudl.extract.extractor.GenericExtractor)
+Bases: [`pudl.extract.extractor.GenericExtractor`](../extractor/index.html.md#pudl.extract.extractor.GenericExtractor)
 
 Class for extracting dataframes from CSV files.
 
@@ -39,7 +39,7 @@ arguments will be applied to all pages. This still allows some flexibility becau
 some `pandas.read_csv()` arguments like `dtype` don’t raise errors if the
 columns they apply to aren’t present.
 
-#### source_filename(page: [str](https://docs.python.org/3/library/stdtypes.html#str), \*\*partition: [pudl.extract.extractor.PartitionSelection](../extractor/index.md#pudl.extract.extractor.PartitionSelection)) → [str](https://docs.python.org/3/library/stdtypes.html#str)
+#### source_filename(page: [str](https://docs.python.org/3/library/stdtypes.html#str), \*\*partition: [pudl.extract.extractor.PartitionSelection](../extractor/index.html.md#pudl.extract.extractor.PartitionSelection)) → [str](https://docs.python.org/3/library/stdtypes.html#str)
 
 Produce the source CSV file name as it will appear in the archive.
 
@@ -59,7 +59,7 @@ how to do this in the CSV extractor framework, see the RUS extractors.
 * **Returns:**
   string name of the CSV file
 
-#### load_source(page: [str](https://docs.python.org/3/library/stdtypes.html#str), \*\*partition: [pudl.extract.extractor.PartitionSelection](../extractor/index.md#pudl.extract.extractor.PartitionSelection)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+#### load_source(page: [str](https://docs.python.org/3/library/stdtypes.html#str), \*\*partition: [pudl.extract.extractor.PartitionSelection](../extractor/index.html.md#pudl.extract.extractor.PartitionSelection)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Produce the dataframe object for the given partition.
 

@@ -4,48 +4,48 @@ Metadata data classes.
 
 ## Attributes
 
-| [`logger`](#pudl.metadata.classes.logger)                     |                                                                                                                       |
-|---------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------|
-| [`String`](#pudl.metadata.classes.String)                     | Non-empty [`str`](https://docs.python.org/3/library/stdtypes.html#str) with no trailing or leading whitespace.        |
-| [`SnakeCase`](#pudl.metadata.classes.SnakeCase)               | Snake-case variable name [`str`](https://docs.python.org/3/library/stdtypes.html#str) (e.g. 'pudl', 'entity_eia860'). |
-| [`PositiveInt`](#pudl.metadata.classes.PositiveInt)           | Positive [`int`](https://docs.python.org/3/library/functions.html#int).                                               |
-| [`PositiveFloat`](#pudl.metadata.classes.PositiveFloat)       | Positive [`float`](https://docs.python.org/3/library/functions.html#float).                                           |
-| [`T`](#pudl.metadata.classes.T)                               |                                                                                                                       |
-| [`StrictList`](#pudl.metadata.classes.StrictList)             | Non-empty [`list`](https://docs.python.org/3/library/stdtypes.html#list).                                             |
-| [`FieldNamespace`](#pudl.metadata.classes.FieldNamespace)     | Canonical field namespace identifiers used by PUDL resources.                                                         |
+| [`logger`](#pudl.metadata.classes.logger)           |                                                                                                                       |
+|-------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------|
+| [`String`](#pudl.metadata.classes.String)           | Non-empty [`str`](https://docs.python.org/3/library/stdtypes.html#str) with no trailing or leading whitespace.        |
+| [`SnakeCase`](#pudl.metadata.classes.SnakeCase)        | Snake-case variable name [`str`](https://docs.python.org/3/library/stdtypes.html#str) (e.g. 'pudl', 'entity_eia860'). |
+| [`PositiveInt`](#pudl.metadata.classes.PositiveInt)      | Positive [`int`](https://docs.python.org/3/library/functions.html#int).                                               |
+| [`PositiveFloat`](#pudl.metadata.classes.PositiveFloat)    | Positive [`float`](https://docs.python.org/3/library/functions.html#float).                                           |
+| [`T`](#pudl.metadata.classes.T)                |                                                                                                                       |
+| [`StrictList`](#pudl.metadata.classes.StrictList)       | Non-empty [`list`](https://docs.python.org/3/library/stdtypes.html#list).                                             |
+| [`FieldNamespace`](#pudl.metadata.classes.FieldNamespace)   | Canonical field namespace identifiers used by PUDL resources.                                                         |
 | [`FIELD_NAMESPACES`](#pudl.metadata.classes.FIELD_NAMESPACES) | All valid PUDL field namespace identifiers.                                                                           |
-| [`EtlGroup`](#pudl.metadata.classes.EtlGroup)                 | Canonical ETL group identifiers used by PUDL resources.                                                               |
-| [`ETL_GROUPS`](#pudl.metadata.classes.ETL_GROUPS)             | All valid PUDL ETL group identifiers.                                                                                 |
-| [`PUDL_PACKAGE`](#pudl.metadata.classes.PUDL_PACKAGE)         | Define a global PUDL package object for use across the entire codebase.                                               |
+| [`EtlGroup`](#pudl.metadata.classes.EtlGroup)         | Canonical ETL group identifiers used by PUDL resources.                                                               |
+| [`ETL_GROUPS`](#pudl.metadata.classes.ETL_GROUPS)       | All valid PUDL ETL group identifiers.                                                                                 |
+| [`PUDL_PACKAGE`](#pudl.metadata.classes.PUDL_PACKAGE)     | Define a global PUDL package object for use across the entire codebase.                                               |
 
 ## Classes
 
-| [`PudlMeta`](#pudl.metadata.classes.PudlMeta)                             | A base model that configures some options for PUDL metadata classes.    |
-|---------------------------------------------------------------------------|-------------------------------------------------------------------------|
-| [`FieldConstraints`](#pudl.metadata.classes.FieldConstraints)             | Field constraints (resource.schema.fields[...].constraints).            |
-| [`FieldHarvest`](#pudl.metadata.classes.FieldHarvest)                     | Field harvest parameters (resource.schema.fields[...].harvest).         |
-| [`Encoder`](#pudl.metadata.classes.Encoder)                               | A class that allows us to standardize reported categorical codes.       |
-| [`Field`](#pudl.metadata.classes.Field)                                   | Field (resource.schema.fields[...]).                                    |
-| [`ForeignKeyReference`](#pudl.metadata.classes.ForeignKeyReference)       | Foreign key reference (resource.schema.foreign_keys[...].reference).    |
-| [`ForeignKey`](#pudl.metadata.classes.ForeignKey)                         | Foreign key (resource.schema.foreign_keys[...]).                        |
-| [`Schema`](#pudl.metadata.classes.Schema)                                 | Table schema (resource.schema).                                         |
-| [`License`](#pudl.metadata.classes.License)                               | Data license (package|resource.licenses[...]).                          |
-| [`Contributor`](#pudl.metadata.classes.Contributor)                       | Data contributor (package.contributors[...]).                           |
-| [`DataSource`](#pudl.metadata.classes.DataSource)                         | A data source that has been integrated into PUDL.                       |
-| [`ResourceHarvest`](#pudl.metadata.classes.ResourceHarvest)               | Resource harvest parameters (resource.harvest).                         |
+| [`PudlMeta`](#pudl.metadata.classes.PudlMeta)               | A base model that configures some options for PUDL metadata classes.    |
+|-------------------------------------------------------------------------|-------------------------------------------------------------------------|
+| [`FieldConstraints`](#pudl.metadata.classes.FieldConstraints)       | Field constraints (resource.schema.fields[...].constraints).            |
+| [`FieldHarvest`](#pudl.metadata.classes.FieldHarvest)           | Field harvest parameters (resource.schema.fields[...].harvest).         |
+| [`Encoder`](#pudl.metadata.classes.Encoder)                | A class that allows us to standardize reported categorical codes.       |
+| [`Field`](#pudl.metadata.classes.Field)                  | Field (resource.schema.fields[...]).                                    |
+| [`ForeignKeyReference`](#pudl.metadata.classes.ForeignKeyReference)    | Foreign key reference (resource.schema.foreign_keys[...].reference).    |
+| [`ForeignKey`](#pudl.metadata.classes.ForeignKey)             | Foreign key (resource.schema.foreign_keys[...]).                        |
+| [`Schema`](#pudl.metadata.classes.Schema)                 | Table schema (resource.schema).                                         |
+| [`License`](#pudl.metadata.classes.License)                | Data license (package|resource.licenses[...]).                          |
+| [`Contributor`](#pudl.metadata.classes.Contributor)            | Data contributor (package.contributors[...]).                           |
+| [`DataSource`](#pudl.metadata.classes.DataSource)             | A data source that has been integrated into PUDL.                       |
+| [`ResourceHarvest`](#pudl.metadata.classes.ResourceHarvest)        | Resource harvest parameters (resource.harvest).                         |
 | [`PudlResourceDescriptor`](#pudl.metadata.classes.PudlResourceDescriptor) | The form we expect the RESOURCE_METADATA elements to take.              |
-| [`Resource`](#pudl.metadata.classes.Resource)                             | Tabular data resource (package.resources[...]).                         |
-| [`Package`](#pudl.metadata.classes.Package)                               | Tabular data package.                                                   |
-| [`CodeMetadata`](#pudl.metadata.classes.CodeMetadata)                     | A list of Encoders for standardizing and documenting categorical codes. |
+| [`Resource`](#pudl.metadata.classes.Resource)               | Tabular data resource (package.resources[...]).                         |
+| [`Package`](#pudl.metadata.classes.Package)                | Tabular data package.                                                   |
+| [`CodeMetadata`](#pudl.metadata.classes.CodeMetadata)           | A list of Encoders for standardizing and documenting categorical codes. |
 
 ## Functions
 
-| [`_unique`](#pudl.metadata.classes._unique)(→ list)                                       | Return a list of all unique values, in order of first appearance.   |
-|-------------------------------------------------------------------------------------------|---------------------------------------------------------------------|
-| [`_format_for_sql`](#pudl.metadata.classes._format_for_sql)(→ str)                        | Format value for use in raw SQL(ite).                               |
+| [`_unique`](#pudl.metadata.classes._unique)(→ list)                        | Return a list of all unique values, in order of first appearance.   |
+|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------|
+| [`_format_for_sql`](#pudl.metadata.classes._format_for_sql)(→ str)                 | Format value for use in raw SQL(ite).                               |
 | [`_get_jinja_environment`](#pudl.metadata.classes._get_jinja_environment)([template_dir]) |                                                                     |
-| [`_check_unique`](#pudl.metadata.classes._check_unique)(→ list | None)                    | Check that input list has unique values.                            |
-| [`_validator`](#pudl.metadata.classes._validator)(→ collections.abc.Callable)             | Construct reusable Pydantic validator.                              |
+| [`_check_unique`](#pudl.metadata.classes._check_unique)(→ list | None)           | Check that input list has unique values.                            |
+| [`_validator`](#pudl.metadata.classes._validator)(→ collections.abc.Callable) | Construct reusable Pydantic validator.                              |
 
 ## Module Contents
 
@@ -239,7 +239,7 @@ data-entry errors. The codes have also evolved over the years.
 In order to allow easy comparison of records across all years and tables, we define
 a standard set of codes, a mapping from non-standard codes to standard codes (where
 possible), and a set of known but unfixable codes which will be ignored and replaced
-with NA values. These definitions can be found in [`pudl.metadata.codes`](../codes/index.md#module-pudl.metadata.codes) and we
+with NA values. These definitions can be found in [`pudl.metadata.codes`](../codes/index.html.md#module-pudl.metadata.codes) and we
 refer to these as coding tables.
 
 In our metadata structures, each coding table is defined just like any other DB
@@ -617,7 +617,7 @@ See [https://specs.frictionlessdata.io/data-package/#sources](https://specs.fric
 
 #### license_pudl *: [License](#pudl.metadata.classes.License)*
 
-#### concept_doi *: [pudl.workspace.datastore.ZenodoDoi](../../workspace/datastore/index.md#pudl.workspace.datastore.ZenodoDoi) | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### concept_doi *: [pudl.workspace.datastore.ZenodoDoi](../../workspace/datastore/index.html.md#pudl.workspace.datastore.ZenodoDoi) | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
 
 #### working_partitions *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[SnakeCase](#pudl.metadata.classes.SnakeCase), Any]*
 
@@ -637,11 +637,11 @@ Return a list of temporal partitions encoding the time span covered by the data 
 
 Return a string describing the time span covered by the data source.
 
-#### add_datastore_metadata(datastore: [pudl.workspace.datastore.Datastore](../../workspace/datastore/index.md#pudl.workspace.datastore.Datastore) | [None](https://docs.python.org/3/library/constants.html#None) = None) → [None](https://docs.python.org/3/library/constants.html#None)
+#### add_datastore_metadata(datastore: [pudl.workspace.datastore.Datastore](../../workspace/datastore/index.html.md#pudl.workspace.datastore.Datastore) | [None](https://docs.python.org/3/library/constants.html#None) = None) → [None](https://docs.python.org/3/library/constants.html#None)
 
 Get source file metadata from the datastore.
 
-#### to_rst(docs_dir: pydantic.DirectoryPath, source_resources: [list](https://docs.python.org/3/library/stdtypes.html#list)[[Resource](#pudl.metadata.classes.Resource)], extra_resources: [list](https://docs.python.org/3/library/stdtypes.html#list)[[Resource](#pudl.metadata.classes.Resource)], output_path: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, datastore: [pudl.workspace.datastore.Datastore](../../workspace/datastore/index.md#pudl.workspace.datastore.Datastore) | [None](https://docs.python.org/3/library/constants.html#None) = None) → [None](https://docs.python.org/3/library/constants.html#None)
+#### to_rst(docs_dir: pydantic.DirectoryPath, source_resources: [list](https://docs.python.org/3/library/stdtypes.html#list)[[Resource](#pudl.metadata.classes.Resource)], extra_resources: [list](https://docs.python.org/3/library/stdtypes.html#list)[[Resource](#pudl.metadata.classes.Resource)], output_path: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None, datastore: [pudl.workspace.datastore.Datastore](../../workspace/datastore/index.html.md#pudl.workspace.datastore.Datastore) | [None](https://docs.python.org/3/library/constants.html#None) = None) → [None](https://docs.python.org/3/library/constants.html#None)
 
 Output a representation of the data source in RST for documentation.
 
@@ -818,7 +818,7 @@ encounter, and list lighter or edge-case problems in
 The list can contain two kinds of entries:
 
 * a string, which should match one of the keys in
-  [`USAGE_WARNINGS`](../warnings/index.md#pudl.metadata.warnings.USAGE_WARNINGS)
+  [`USAGE_WARNINGS`](../warnings/index.html.md#pudl.metadata.warnings.USAGE_WARNINGS)
 * a dict, which should contain two keys:
   * “type” - a short code for the warning, which doesn’t need to be unique and
     will only appear in preview & debugging tooling, not to users
@@ -1458,7 +1458,7 @@ any duplicates. We may also get values directly from the Package inputs.
 Construct a collection of Resources from PUDL identifiers (resource.name).
 
 Identify any fields that have foreign key relationships referencing the
-coding tables defined in [`pudl.metadata.codes`](../codes/index.md#module-pudl.metadata.codes) and if so, associate the
+coding tables defined in [`pudl.metadata.codes`](../codes/index.html.md#module-pudl.metadata.codes) and if so, associate the
 coding table’s encoder with those columns for later use cleaning them up.
 
 The result is cached, since we so often need to generate the metadata for

@@ -5,7 +5,7 @@ Table definitions for the NREL ATB data .
 ## Attributes
 
 | [`RESOURCE_METADATA`](#pudl.metadata.resources.nrelatb.RESOURCE_METADATA)   |    |
-|-----------------------------------------------------------------------------|----|
+|----------------------------------------------------------------------|----|
 
 ## Module Contents
 

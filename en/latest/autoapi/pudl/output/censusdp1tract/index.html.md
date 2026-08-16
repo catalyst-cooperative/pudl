@@ -4,19 +4,19 @@ Functions for reading data out of the Census DP1 SQLite Database.
 
 ## Attributes
 
-| [`logger`](#pudl.output.censusdp1tract.logger)                       |    |
-|----------------------------------------------------------------------|----|
+| [`logger`](#pudl.output.censusdp1tract.logger)            |    |
+|--------------------------------------------------------------------|----|
 | [`census_dp1_layers`](#pudl.output.censusdp1tract.census_dp1_layers) |    |
 
 ## Classes
 
 | [`LayerParams`](#pudl.output.censusdp1tract.LayerParams)   | Simple class defining the expected structure of the layer processing params.   |
-|------------------------------------------------------------|--------------------------------------------------------------------------------|
+|----------------------------------------------------------------|--------------------------------------------------------------------------------|
 
 ## Functions
 
 | [`census_asset_factory`](#pudl.output.censusdp1tract.census_asset_factory)(→ dagster.AssetsDefinition)   | An asset factory for finished EIA tables.   |
-|----------------------------------------------------------------------------------------------------------|---------------------------------------------|
+|-----------------------------------------------------------------------------------------------------|---------------------------------------------|
 
 ## Module Contents
 

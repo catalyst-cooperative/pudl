@@ -13,7 +13,7 @@ For the underlying Dagster concept, see
 ## Attributes
 
 | [`ferceqr_year_quarters`](#pudl.dagster.partitions.ferceqr_year_quarters)   |    |
-|-----------------------------------------------------------------------------|----|
+|--------------------------------------------------------------------------|----|
 
 ## Module Contents
 

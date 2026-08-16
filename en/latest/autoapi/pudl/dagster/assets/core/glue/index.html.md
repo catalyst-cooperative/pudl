@@ -10,27 +10,27 @@ rather than the domain-specific transforms for any one source dataset.
 ## Attributes
 
 | [`logger`](#pudl.dagster.assets.core.glue.logger)   |    |
-|-----------------------------------------------------|----|
+|-----------------------------------------------------------|----|
 
 ## Functions
 
-| [`create_glue_tables`](#pudl.dagster.assets.core.glue.create_glue_tables)(context)                                                      | Extract, transform and load CSVs for the FERC-EIA Glue tables.                   |
-|-----------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------|
-| [`raw_pudl__assn_eia_epacamd`](#pudl.dagster.assets.core.glue.raw_pudl__assn_eia_epacamd)(→ pandas.DataFrame)                           | Extract the EPACAMD-EIA Crosswalk from the Datastore.                            |
-| [`core_epa__assn_eia_epacamd`](#pudl.dagster.assets.core.glue.core_epa__assn_eia_epacamd)(→ pandas.DataFrame)                           | Clean up the EPACAMD-EIA Crosswalk file.                                         |
-| [`_core_epa__assn_eia_epacamd_unique`](#pudl.dagster.assets.core.glue._core_epa__assn_eia_epacamd_unique)(→ pandas.DataFrame)           | Intermediate asset that contains all unique core_epa_\_assn_eia_epacamd matches. |
-| [`correct_epa_eia_plant_id_mapping`](#pudl.dagster.assets.core.glue.correct_epa_eia_plant_id_mapping)(→ pandas.DataFrame)               | Manually correct one plant ID.                                                   |
+| [`create_glue_tables`](#pudl.dagster.assets.core.glue.create_glue_tables)(context)                                 | Extract, transform and load CSVs for the FERC-EIA Glue tables.                   |
+|--------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------|
+| [`raw_pudl__assn_eia_epacamd`](#pudl.dagster.assets.core.glue.raw_pudl__assn_eia_epacamd)(→ pandas.DataFrame)              | Extract the EPACAMD-EIA Crosswalk from the Datastore.                            |
+| [`core_epa__assn_eia_epacamd`](#pudl.dagster.assets.core.glue.core_epa__assn_eia_epacamd)(→ pandas.DataFrame)              | Clean up the EPACAMD-EIA Crosswalk file.                                         |
+| [`_core_epa__assn_eia_epacamd_unique`](#pudl.dagster.assets.core.glue._core_epa__assn_eia_epacamd_unique)(→ pandas.DataFrame)      | Intermediate asset that contains all unique core_epa_\_assn_eia_epacamd matches. |
+| [`correct_epa_eia_plant_id_mapping`](#pudl.dagster.assets.core.glue.correct_epa_eia_plant_id_mapping)(→ pandas.DataFrame)        | Manually correct one plant ID.                                                   |
 | [`core_epa__assn_eia_epacamd_subplant_ids`](#pudl.dagster.assets.core.glue.core_epa__assn_eia_epacamd_subplant_ids)(→ pandas.DataFrame) | Groups units and generators into unique subplant groups.                         |
-| [`augment_crosswalk_with_generators_eia860`](#pudl.dagster.assets.core.glue.augment_crosswalk_with_generators_eia860)(...)              | Merge any plants that are missing from the EPA crosswalk but appear in EIA-860.  |
-| [`augment_crosswalk_with_epacamd_ids`](#pudl.dagster.assets.core.glue.augment_crosswalk_with_epacamd_ids)(→ pandas.DataFrame)           | Merge all EPA CAMD IDs into the crosswalk.                                       |
-| [`augment_crosswalk_with_bga_eia860`](#pudl.dagster.assets.core.glue.augment_crosswalk_with_bga_eia860)(→ pandas.DataFrame)             | Merge all EIA Unit IDs into the crosswalk.                                       |
-| [`_prep_for_networkx`](#pudl.dagster.assets.core.glue._prep_for_networkx)(→ pandas.DataFrame)                                           | Make surrogate keys for combustors and generators.                               |
-| [`_subplant_ids_from_prepped_crosswalk`](#pudl.dagster.assets.core.glue._subplant_ids_from_prepped_crosswalk)(→ pandas.DataFrame)       | Use networkx graph analysis to create subplant IDs from crosswalk edge list.     |
-| [`_convert_global_id_to_composite_id`](#pudl.dagster.assets.core.glue._convert_global_id_to_composite_id)(→ pandas.DataFrame)           | Convert global_subplant_id to a composite key (plant_id_eia, subplant_id).       |
-| [`make_subplant_ids`](#pudl.dagster.assets.core.glue.make_subplant_ids)(→ pandas.DataFrame)                                             | Identify sub-plants in the EPA/EIA crosswalk graph.                              |
-| [`update_subplant_ids`](#pudl.dagster.assets.core.glue.update_subplant_ids)(→ pandas.DataFrame)                                         | Ensure a complete and accurate subplant_id mapping for all generators.           |
-| [`connect_ids`](#pudl.dagster.assets.core.glue.connect_ids)(→ pandas.DataFrame)                                                         | Corrects an id value if it is connected by an id value in another column.        |
-| [`manually_update_subplant_id`](#pudl.dagster.assets.core.glue.manually_update_subplant_id)(→ pandas.DataFrame)                         | Manually update the subplant_id for `plant_id_eia` 1391.                         |
+| [`augment_crosswalk_with_generators_eia860`](#pudl.dagster.assets.core.glue.augment_crosswalk_with_generators_eia860)(...)               | Merge any plants that are missing from the EPA crosswalk but appear in EIA-860.  |
+| [`augment_crosswalk_with_epacamd_ids`](#pudl.dagster.assets.core.glue.augment_crosswalk_with_epacamd_ids)(→ pandas.DataFrame)      | Merge all EPA CAMD IDs into the crosswalk.                                       |
+| [`augment_crosswalk_with_bga_eia860`](#pudl.dagster.assets.core.glue.augment_crosswalk_with_bga_eia860)(→ pandas.DataFrame)       | Merge all EIA Unit IDs into the crosswalk.                                       |
+| [`_prep_for_networkx`](#pudl.dagster.assets.core.glue._prep_for_networkx)(→ pandas.DataFrame)                      | Make surrogate keys for combustors and generators.                               |
+| [`_subplant_ids_from_prepped_crosswalk`](#pudl.dagster.assets.core.glue._subplant_ids_from_prepped_crosswalk)(→ pandas.DataFrame)    | Use networkx graph analysis to create subplant IDs from crosswalk edge list.     |
+| [`_convert_global_id_to_composite_id`](#pudl.dagster.assets.core.glue._convert_global_id_to_composite_id)(→ pandas.DataFrame)      | Convert global_subplant_id to a composite key (plant_id_eia, subplant_id).       |
+| [`make_subplant_ids`](#pudl.dagster.assets.core.glue.make_subplant_ids)(→ pandas.DataFrame)                       | Identify sub-plants in the EPA/EIA crosswalk graph.                              |
+| [`update_subplant_ids`](#pudl.dagster.assets.core.glue.update_subplant_ids)(→ pandas.DataFrame)                     | Ensure a complete and accurate subplant_id mapping for all generators.           |
+| [`connect_ids`](#pudl.dagster.assets.core.glue.connect_ids)(→ pandas.DataFrame)                             | Corrects an id value if it is connected by an id value in another column.        |
+| [`manually_update_subplant_id`](#pudl.dagster.assets.core.glue.manually_update_subplant_id)(→ pandas.DataFrame)             | Manually update the subplant_id for `plant_id_eia` 1391.                         |
 
 ## Module Contents
 
@@ -92,7 +92,7 @@ The plant discrepancies depend on which generator ids it’s referring to. This 
 for all fields. Be careful, and do some due diligence before eliminating columns.
 
 We talk more about the complexities regarding EPA “units” in our [Data Source
-documentation page for EPACEMS](../../../../../../data_sources/epacems.md).
+documentation page for EPACEMS](../../../../../../data_sources/epacems.html.md).
 
 In it’s original format, the crosswalk is a static file - however, we manually
 run the crosswalk code for each year of EIA data, adding the report_date field
@@ -188,9 +188,9 @@ Merge all EIA Unit IDs into the crosswalk.
 Make surrogate keys for combustors and generators.
 
 * **Parameters:**
-  **crosswalk** – The [core_epa_\_assn_eia_epacamd](../../../../../../data_dictionaries/pudl_db.md#core-epa-assn-eia-epacamd) crosswalk
+  **crosswalk** – The [core_epa_\_assn_eia_epacamd](../../../../../../data_dictionaries/pudl_db.html.md#core-epa-assn-eia-epacamd) crosswalk
 * **Returns:**
-  A copy of [core_epa_\_assn_eia_epacamd](../../../../../../data_dictionaries/pudl_db.md#core-epa-assn-eia-epacamd) crosswalk with new surrogate ID
+  A copy of [core_epa_\_assn_eia_epacamd](../../../../../../data_dictionaries/pudl_db.html.md#core-epa-assn-eia-epacamd) crosswalk with new surrogate ID
   columns combustor_id and generator_id.
 
 ### pudl.dagster.assets.core.glue.\_subplant_ids_from_prepped_crosswalk(prepped: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)

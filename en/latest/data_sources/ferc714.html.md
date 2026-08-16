@@ -15,12 +15,12 @@ We’ve segmented the processed data into the following normalized data tables.
 Clicking on the links will show you a description of the table as well as
 the names and descriptions of each of its fields.
 
-| Data Dictionary                                                                                                                          | Browse Online                                                                                                                                                                             |
-|------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [core_ferc714_\_hourly_planning_area_demand](../data_dictionaries/pudl_db.md#core-ferc714-hourly-planning-area-demand)                   | [https://data.catalyst.coop/preview/pudl/core_ferc714_\_hourly_planning_area_demand](https://data.catalyst.coop/preview/pudl/core_ferc714__hourly_planning_area_demand)                   |
-| [core_ferc714_\_respondent_id](../data_dictionaries/pudl_db.md#core-ferc714-respondent-id)                                               | [https://data.catalyst.coop/preview/pudl/core_ferc714_\_respondent_id](https://data.catalyst.coop/preview/pudl/core_ferc714__respondent_id)                                               |
-| [core_ferc714_\_yearly_planning_area_demand_forecast](../data_dictionaries/pudl_db.md#core-ferc714-yearly-planning-area-demand-forecast) | [https://data.catalyst.coop/preview/pudl/core_ferc714_\_yearly_planning_area_demand_forecast](https://data.catalyst.coop/preview/pudl/core_ferc714__yearly_planning_area_demand_forecast) |
-| [out_ferc714_\_hourly_planning_area_demand](../data_dictionaries/pudl_db.md#out-ferc714-hourly-planning-area-demand)                     | [https://data.catalyst.coop/preview/pudl/out_ferc714_\_hourly_planning_area_demand](https://data.catalyst.coop/preview/pudl/out_ferc714__hourly_planning_area_demand)                     |
+| Data Dictionary                                                                                                                                      | Browse Online                                                                                                                                                                             |
+|------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [core_ferc714_\_hourly_planning_area_demand](../data_dictionaries/pudl_db.html.md#core-ferc714-hourly-planning-area-demand)                   | [https://data.catalyst.coop/preview/pudl/core_ferc714_\_hourly_planning_area_demand](https://data.catalyst.coop/preview/pudl/core_ferc714__hourly_planning_area_demand)                   |
+| [core_ferc714_\_respondent_id](../data_dictionaries/pudl_db.html.md#core-ferc714-respondent-id)                                               | [https://data.catalyst.coop/preview/pudl/core_ferc714_\_respondent_id](https://data.catalyst.coop/preview/pudl/core_ferc714__respondent_id)                                               |
+| [core_ferc714_\_yearly_planning_area_demand_forecast](../data_dictionaries/pudl_db.html.md#core-ferc714-yearly-planning-area-demand-forecast) | [https://data.catalyst.coop/preview/pudl/core_ferc714_\_yearly_planning_area_demand_forecast](https://data.catalyst.coop/preview/pudl/core_ferc714__yearly_planning_area_demand_forecast) |
+| [out_ferc714_\_hourly_planning_area_demand](../data_dictionaries/pudl_db.html.md#out-ferc714-hourly-planning-area-demand)                     | [https://data.catalyst.coop/preview/pudl/out_ferc714_\_hourly_planning_area_demand](https://data.catalyst.coop/preview/pudl/out_ferc714__hourly_planning_area_demand)                     |
 
 ## Background
 
@@ -42,17 +42,17 @@ The data we’ve integrated from FERC Form 714 includes:
 * Annual demand forecast.
 * A table identifying the form respondents including their EIA utility or balancing
   authority ID, which allows us to link the FERC-714 data to other information
-  reported in [EIA Form 860 – Annual Electric Generator Report](eia860.md) and [EIA Form 861 – Annual Electric Power Industry Report](eia861.md).
+  reported in [EIA Form 860 – Annual Electric Generator Report](eia860.html.md) and [EIA Form 861 – Annual Electric Power Industry Report](eia861.html.md).
 
 With the EIA IDs we can link the hourly electricity demand to a particular geographic
 region at the county level because utilities and balancing authorities report their
-service territories in [core_eia861_\_yearly_service_territory](../data_dictionaries/pudl_db.md#core-eia861-yearly-service-territory). From that
+service territories in [core_eia861_\_yearly_service_territory](../data_dictionaries/pudl_db.html.md#core-eia861-yearly-service-territory). From that
 information we estimate historical hourly electricity demand by state.
 
-Plant operators reported in [core_eia860_\_scd_plants](../data_dictionaries/pudl_db.md#core-eia860-scd-plants) and generator ownership
-information reported in [core_eia860_\_scd_ownership](../data_dictionaries/pudl_db.md#core-eia860-scd-ownership) are linked to
-[core_eia860_\_scd_utilities](../data_dictionaries/pudl_db.md#core-eia860-scd-utilities) and [core_eia861_\_yearly_balancing_authority](../data_dictionaries/pudl_db.md#core-eia861-yearly-balancing-authority) and
-can therefore be linked to the [core_ferc714_\_respondent_id](../data_dictionaries/pudl_db.md#core-ferc714-respondent-id) table.
+Plant operators reported in [core_eia860_\_scd_plants](../data_dictionaries/pudl_db.html.md#core-eia860-scd-plants) and generator ownership
+information reported in [core_eia860_\_scd_ownership](../data_dictionaries/pudl_db.html.md#core-eia860-scd-ownership) are linked to
+[core_eia860_\_scd_utilities](../data_dictionaries/pudl_db.html.md#core-eia860-scd-utilities) and [core_eia861_\_yearly_balancing_authority](../data_dictionaries/pudl_db.html.md#core-eia861-yearly-balancing-authority) and
+can therefore be linked to the [core_ferc714_\_respondent_id](../data_dictionaries/pudl_db.html.md#core-ferc714-respondent-id) table.
 
 ### Who submits this data?
 
@@ -103,7 +103,7 @@ demand, we provide a column with anomalous and missing values replaced by impute
 so the data can be more easily used in capacity expansion modeling and other
 applications where having complete and plausible (if not exactly correct) values is
 desirable. For an overview of that process and links to additional references, see
-[Timeseries Imputation](../methodology/timeseries_imputation.md)
+[Timeseries Imputation](../methodology/timeseries_imputation.html.md)
 
 ### Respondent-to-balancing-authority inconsistencies
 
@@ -111,13 +111,13 @@ Because utilities and balancing authorities occasionally change their service
 territories or merge, the demand reported by any individual “respondent” may correspond
 to wildly different consumers in different years. To make it at least somewhat possible
 to compare the reported data across time, we’ve also compiled historical service
-territory maps for the respondents based on data reported in [EIA Form 861 – Annual Electric Power Industry Report](eia861.md). However,
+territory maps for the respondents based on data reported in [EIA Form 861 – Annual Electric Power Industry Report](eia861.html.md). However,
 it’s not always easy to identify which EIA utility or balancing authority corresponds to
 a FERC-714 respondent. See the `pudl.output.ferc714.Respondent` class for some
 tooling that we’ve built to address this issue. Other code that underlies this work can
-be found in [`pudl.analysis.service_territory`](../autoapi/pudl/analysis/service_territory/index.md#module-pudl.analysis.service_territory) and [`pudl.analysis.spatial`](../autoapi/pudl/analysis/spatial/index.md#module-pudl.analysis.spatial).
+be found in [`pudl.analysis.service_territory`](../autoapi/pudl/analysis/service_territory/index.html.md#module-pudl.analysis.service_territory) and [`pudl.analysis.spatial`](../autoapi/pudl/analysis/spatial/index.html.md#module-pudl.analysis.spatial).
 
-The [`pudl.analysis.state_demand`](../autoapi/pudl/analysis/state_demand/index.md#module-pudl.analysis.state_demand) script brings together all of the above to
+The [`pudl.analysis.state_demand`](../autoapi/pudl/analysis/state_demand/index.html.md#module-pudl.analysis.state_demand) script brings together all of the above to
 estimate historical hourly electricity demand by state for 2006-2020.
 
 ### Combining XBRL and CSV data
@@ -151,5 +151,5 @@ name and location. Some quirks to note:
 ## PUDL Data Transformations
 
 To see the transformations applied to the data in each table, you can read the
-docstrings for [`pudl.transform.ferc714`](../autoapi/pudl/transform/ferc714/index.md#module-pudl.transform.ferc714) created for each table’s
+docstrings for [`pudl.transform.ferc714`](../autoapi/pudl/transform/ferc714/index.html.md#module-pudl.transform.ferc714) created for each table’s
 respective transform function.

@@ -4,4 +4,4 @@ Deployment helpers for publishing PUDL build artifacts and services.
 
 ## Submodules
 
-* [pudl.deploy.pudl](pudl/index.md)
+* [pudl.deploy.pudl](pudl/index.html.md)

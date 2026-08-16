@@ -17,24 +17,24 @@ In addition there’s a table of daily weather data, which is also stored as a s
 
 ## Attributes
 
-| [`logger`](#pudl.extract.gridpathratoolkit.logger)                                             |    |
-|------------------------------------------------------------------------------------------------|----|
+| [`logger`](#pudl.extract.gridpathratoolkit.logger)                       |    |
+|-------------------------------------------------------------------------------|----|
 | [`raw_gridpathratoolkit_assets`](#pudl.extract.gridpathratoolkit.raw_gridpathratoolkit_assets) |    |
 
 ## Functions
 
-| [`_extract_csv`](#pudl.extract.gridpathratoolkit._extract_csv)(→ pandas.DataFrame)                                |                                                                      |
-|-------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------|
-| [`_extract_capacity_factor`](#pudl.extract.gridpathratoolkit._extract_capacity_factor)(→ pandas.DataFrame)        |                                                                      |
-| [`raw_gridpathratoolkit_asset_factory`](#pudl.extract.gridpathratoolkit.raw_gridpathratoolkit_asset_factory)(...) | An asset factory for GridPath RA Toolkit hourly generation profiles. |
+| [`_extract_csv`](#pudl.extract.gridpathratoolkit._extract_csv)(→ pandas.DataFrame)             |                                                                      |
+|-----------------------------------------------------------------------------------------------|----------------------------------------------------------------------|
+| [`_extract_capacity_factor`](#pudl.extract.gridpathratoolkit._extract_capacity_factor)(→ pandas.DataFrame) |                                                                      |
+| [`raw_gridpathratoolkit_asset_factory`](#pudl.extract.gridpathratoolkit.raw_gridpathratoolkit_asset_factory)(...)     | An asset factory for GridPath RA Toolkit hourly generation profiles. |
 
 ## Module Contents
 
 ### pudl.extract.gridpathratoolkit.logger
 
-### pudl.extract.gridpathratoolkit.\_extract_csv(part: [str](https://docs.python.org/3/library/stdtypes.html#str), ds: [pudl.workspace.datastore.Datastore](../../workspace/datastore/index.md#pudl.workspace.datastore.Datastore)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.extract.gridpathratoolkit.\_extract_csv(part: [str](https://docs.python.org/3/library/stdtypes.html#str), ds: [pudl.workspace.datastore.Datastore](../../workspace/datastore/index.html.md#pudl.workspace.datastore.Datastore)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
-### pudl.extract.gridpathratoolkit.\_extract_capacity_factor(part: [str](https://docs.python.org/3/library/stdtypes.html#str), ds: [pudl.workspace.datastore.Datastore](../../workspace/datastore/index.md#pudl.workspace.datastore.Datastore)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.extract.gridpathratoolkit.\_extract_capacity_factor(part: [str](https://docs.python.org/3/library/stdtypes.html#str), ds: [pudl.workspace.datastore.Datastore](../../workspace/datastore/index.html.md#pudl.workspace.datastore.Datastore)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 ### pudl.extract.gridpathratoolkit.raw_gridpathratoolkit_asset_factory(part: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [dagster.AssetsDefinition](https://docs.dagster.io/api/dagster/assets/#dagster.AssetsDefinition)
 

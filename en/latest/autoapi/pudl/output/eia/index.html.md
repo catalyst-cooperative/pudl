@@ -5,26 +5,26 @@ A collection of denormalized EIA assets.
 ## Attributes
 
 | [`logger`](#pudl.output.eia.logger)   |    |
-|---------------------------------------|----|
+|-----------------------------------------------------------|----|
 
 ## Functions
 
-| [`out_eia__yearly_utilities`](#pudl.output.eia.out_eia__yearly_utilities)(→ pandas.DataFrame)                         | Pull all fields from the EIA Utilities table.                                   |
-|-----------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------|
-| [`out_eia__yearly_plants`](#pudl.output.eia.out_eia__yearly_plants)(→ pandas.DataFrame)                               | Pull all fields from the EIA Plants tables.                                     |
-| [`_out_eia__yearly_generators`](#pudl.output.eia._out_eia__yearly_generators)(→ pandas.DataFrame)                     | Pull all fields from the EIA Utilities table.                                   |
-| [`out_eia__yearly_boilers`](#pudl.output.eia.out_eia__yearly_boilers)(→ pandas.DataFrame)                             | Pull all fields reported in the EIA boilers tables.                             |
-| [`_out_eia__plants_utilities`](#pudl.output.eia._out_eia__plants_utilities)(→ pandas.DataFrame)                       | Create a dataframe of plant and utility IDs and names from EIA 860.             |
-| [`add_consistent_ba_code_column`](#pudl.output.eia.add_consistent_ba_code_column)(→ pandas.DataFrame)                 | Make a column containing each plant's most consistently reported BA code.       |
-| [`fill_in_missing_ba_codes`](#pudl.output.eia.fill_in_missing_ba_codes)(→ pandas.DataFrame)                           | Fill in missing `balancing_authority_code_eia` values.                          |
+| [`out_eia__yearly_utilities`](#pudl.output.eia.out_eia__yearly_utilities)(→ pandas.DataFrame)             | Pull all fields from the EIA Utilities table.                                   |
+|------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------|
+| [`out_eia__yearly_plants`](#pudl.output.eia.out_eia__yearly_plants)(→ pandas.DataFrame)                | Pull all fields from the EIA Plants tables.                                     |
+| [`_out_eia__yearly_generators`](#pudl.output.eia._out_eia__yearly_generators)(→ pandas.DataFrame)           | Pull all fields from the EIA Utilities table.                                   |
+| [`out_eia__yearly_boilers`](#pudl.output.eia.out_eia__yearly_boilers)(→ pandas.DataFrame)               | Pull all fields reported in the EIA boilers tables.                             |
+| [`_out_eia__plants_utilities`](#pudl.output.eia._out_eia__plants_utilities)(→ pandas.DataFrame)            | Create a dataframe of plant and utility IDs and names from EIA 860.             |
+| [`add_consistent_ba_code_column`](#pudl.output.eia.add_consistent_ba_code_column)(→ pandas.DataFrame)         | Make a column containing each plant's most consistently reported BA code.       |
+| [`fill_in_missing_ba_codes`](#pudl.output.eia.fill_in_missing_ba_codes)(→ pandas.DataFrame)              | Fill in missing `balancing_authority_code_eia` values.                          |
 | [`fill_generator_technology_description`](#pudl.output.eia.fill_generator_technology_description)(→ pandas.DataFrame) | Fill in missing `technology_description` based by unique mapping & backfilling. |
-| [`assign_unit_ids`](#pudl.output.eia.assign_unit_ids)(→ pandas.DataFrame)                                             | Group generators into operational units using various heuristics.               |
-| [`fill_unit_ids`](#pudl.output.eia.fill_unit_ids)(→ pandas.DataFrame)                                                 | Back and forward fill Unit IDs for each plant / gen combination.                |
-| [`max_unit_id_by_plant`](#pudl.output.eia.max_unit_id_by_plant)(→ pandas.DataFrame)                                   | Identify the largest unit ID associated with each plant so we don't overlap.    |
-| [`_append_masked_units`](#pudl.output.eia._append_masked_units)(→ pandas.DataFrame)                                   | Replace rows with new PUDL Unit IDs in the original dataframe.                  |
-| [`assign_single_gen_unit_ids`](#pudl.output.eia.assign_single_gen_unit_ids)(→ pandas.DataFrame)                       | Assign a unique PUDL Unit ID to each generator of a given prime mover type.     |
-| [`assign_cc_unit_ids`](#pudl.output.eia.assign_cc_unit_ids)(→ pandas.DataFrame)                                       | Assign PUDL Unit IDs for combined cycle generation units.                       |
-| [`assign_prime_fuel_unit_ids`](#pudl.output.eia.assign_prime_fuel_unit_ids)(→ pandas.DataFrame)                       | Assign a PUDL Unit ID to all generators with a given prime mover and fuel.      |
+| [`assign_unit_ids`](#pudl.output.eia.assign_unit_ids)(→ pandas.DataFrame)                       | Group generators into operational units using various heuristics.               |
+| [`fill_unit_ids`](#pudl.output.eia.fill_unit_ids)(→ pandas.DataFrame)                         | Back and forward fill Unit IDs for each plant / gen combination.                |
+| [`max_unit_id_by_plant`](#pudl.output.eia.max_unit_id_by_plant)(→ pandas.DataFrame)                  | Identify the largest unit ID associated with each plant so we don't overlap.    |
+| [`_append_masked_units`](#pudl.output.eia._append_masked_units)(→ pandas.DataFrame)                  | Replace rows with new PUDL Unit IDs in the original dataframe.                  |
+| [`assign_single_gen_unit_ids`](#pudl.output.eia.assign_single_gen_unit_ids)(→ pandas.DataFrame)            | Assign a unique PUDL Unit ID to each generator of a given prime mover type.     |
+| [`assign_cc_unit_ids`](#pudl.output.eia.assign_cc_unit_ids)(→ pandas.DataFrame)                    | Assign PUDL Unit IDs for combined cycle generation units.                       |
+| [`assign_prime_fuel_unit_ids`](#pudl.output.eia.assign_prime_fuel_unit_ids)(→ pandas.DataFrame)            | Assign a PUDL Unit ID to all generators with a given prime mover and fuel.      |
 
 ## Module Contents
 

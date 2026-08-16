@@ -4,10 +4,10 @@ Field metadata.
 
 ## Attributes
 
-| [`FIELD_METADATA`](#pudl.metadata.fields.FIELD_METADATA)                           | Field attributes by PUDL identifier (field.name).                        |
-|------------------------------------------------------------------------------------|--------------------------------------------------------------------------|
+| [`FIELD_METADATA`](#pudl.metadata.fields.FIELD_METADATA)              | Field attributes by PUDL identifier (field.name).                        |
+|------------------------------------------------------------------------------|--------------------------------------------------------------------------|
 | [`FIELD_METADATA_BY_NAMESPACE`](#pudl.metadata.fields.FIELD_METADATA_BY_NAMESPACE) | Field attributes by resource group (resource.group) and PUDL identifier. |
-| [`FIELD_METADATA_BY_RESOURCE`](#pudl.metadata.fields.FIELD_METADATA_BY_RESOURCE)   |                                                                          |
+| [`FIELD_METADATA_BY_RESOURCE`](#pudl.metadata.fields.FIELD_METADATA_BY_RESOURCE)  |                                                                          |
 
 ## Module Contents
 

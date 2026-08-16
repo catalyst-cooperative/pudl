@@ -5,7 +5,7 @@ Table definitions for the FERC Company Identifier table.
 ## Attributes
 
 | [`RESOURCE_METADATA`](#pudl.metadata.resources.ferccid.RESOURCE_METADATA)   |    |
-|-----------------------------------------------------------------------------|----|
+|----------------------------------------------------------------------|----|
 
 ## Module Contents
 

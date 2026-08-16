@@ -21,23 +21,23 @@ This is the upcoming PUDL release.
 
 #### EIA-923
 
-* Added the [\_core_eia923_\_yearly_fuel_stocks](data_dictionaries/pudl_db.md#i-core-eia923-yearly-fuel-stocks) table, which reports end-of-month
+* Added the [\_core_eia923_\_yearly_fuel_stocks](data_dictionaries/pudl_db.html.md#i-core-eia923-yearly-fuel-stocks) table, which reports end-of-month
   coal, petroleum liquids, and petroleum coke stocks held at electric power sector
   generating facilities, aggregated by census division or state. The wide monthly
   source columns are reshaped into tall monthly records and the reported thousand-unit
   quantities are converted to base units. See issue [#5081](https://github.com/catalyst-cooperative/pudl/issues/5081) and PR [#5431](https://github.com/catalyst-cooperative/pudl/pull/5431).
-* Added [out_eia923_\_energy_storage](data_dictionaries/pudl_db.md#out-eia923-energy-storage) for reported EIA-923 energy storage
-  operations, with [out_eia923_\_monthly_energy_storage](data_dictionaries/pudl_db.md#out-eia923-monthly-energy-storage) and
-  [out_eia923_\_yearly_energy_storage](data_dictionaries/pudl_db.md#out-eia923-yearly-energy-storage) providing monthly and yearly aggregations.
+* Added [out_eia923_\_energy_storage](data_dictionaries/pudl_db.html.md#out-eia923-energy-storage) for reported EIA-923 energy storage
+  operations, with [out_eia923_\_monthly_energy_storage](data_dictionaries/pudl_db.html.md#out-eia923-monthly-energy-storage) and
+  [out_eia923_\_yearly_energy_storage](data_dictionaries/pudl_db.html.md#out-eia923-yearly-energy-storage) providing monthly and yearly aggregations.
   All three include plant and utility metadata. See issue [#4311](https://github.com/catalyst-cooperative/pudl/issues/4311) and PR
   [#5489](https://github.com/catalyst-cooperative/pudl/pull/5489).
 
 #### EPA CEMS
 
-* Added a new analysis output, [out_epacems_\_yearly_operational_characteristics](data_dictionaries/pudl_db.md#out-epacems-yearly-operational-characteristics),
+* Added a new analysis output, [out_epacems_\_yearly_operational_characteristics](data_dictionaries/pudl_db.html.md#out-epacems-yearly-operational-characteristics),
   which estimates generator operational characteristics such as minimum stable operating
   level, minimum up/down times, ramp rates, and heat rates at maximum and minimum load,
-  inferred from hourly [EPA CEMS](data_sources/epacems.md) gross load and fuel heat
+  inferred from hourly [EPA CEMS](data_sources/epacems.html.md) gross load and fuel heat
   content data over a rolling three-year window. This dagsterizes and vectorizes an
   analysis originally developed by [Sylvan Energy](https://sylvan.energy/), making it
   available for all reporting states rather than just California. The output is
@@ -58,7 +58,7 @@ Desert Southwest and Upper Great Plains West regions. See below for all the deta
 
 #### EIA-860M
 
-* Added Puerto Rico [EIA-860M](data_sources/eia860.md) data into EIA 860 tables. See
+* Added Puerto Rico [EIA-860M](data_sources/eia860.html.md) data into EIA 860 tables. See
   issue [#4352](https://github.com/catalyst-cooperative/pudl/issues/4352) and PR [#5360](https://github.com/catalyst-cooperative/pudl/pull/5360). Shoutout to [@bsousa22](https://github.com/sponsors/bsousa22) for making his
   first PUDL contribution!
 
@@ -73,41 +73,41 @@ Desert Southwest and Upper Great Plains West regions. See below for all the deta
 
 #### EIA-191
 
-* Updated [EIA-191](data_sources/eia191.md) data. See PR [#5464](https://github.com/catalyst-cooperative/pudl/pull/5464).
+* Updated [EIA-191](data_sources/eia191.html.md) data. See PR [#5464](https://github.com/catalyst-cooperative/pudl/pull/5464).
 
 #### EIA-860M
 
-* Added [EIA-860M](data_sources/eia860.md) data through June 2026. See
+* Added [EIA-860M](data_sources/eia860.html.md) data through June 2026. See
   issue [#5459](https://github.com/catalyst-cooperative/pudl/issues/5459) and PR [#5468](https://github.com/catalyst-cooperative/pudl/pull/5468).
 
 #### EIA-923
 
 * Added early release data for EIA-923 2025. See issue [#5372](https://github.com/catalyst-cooperative/pudl/issues/5372) and PR [#5391](https://github.com/catalyst-cooperative/pudl/pull/5391).
-* Added [EIA-923M](data_sources/eia923.md) data for April and May 2026. See issue
+* Added [EIA-923M](data_sources/eia923.html.md) data for April and May 2026. See issue
   [#5460](https://github.com/catalyst-cooperative/pudl/issues/5460) and PRs [#5391](https://github.com/catalyst-cooperative/pudl/pull/5391), [#5468](https://github.com/catalyst-cooperative/pudl/pull/5468).
 
 #### EIA-930
 
-* Updated [EIA-930](data_sources/eia930.md) data. See PRs [#5445](https://github.com/catalyst-cooperative/pudl/pull/5445), [#5464](https://github.com/catalyst-cooperative/pudl/pull/5464).
+* Updated [EIA-930](data_sources/eia930.html.md) data. See PRs [#5445](https://github.com/catalyst-cooperative/pudl/pull/5445), [#5464](https://github.com/catalyst-cooperative/pudl/pull/5464).
 
 #### FERC-714
 
-* Added 2025 XBRL data for [FERC-714](data_sources/ferc714.md). See [#5424](https://github.com/catalyst-cooperative/pudl/issues/5424) and
+* Added 2025 XBRL data for [FERC-714](data_sources/ferc714.html.md). See [#5424](https://github.com/catalyst-cooperative/pudl/issues/5424) and
   PRs [#5436](https://github.com/catalyst-cooperative/pudl/pull/5436), [#5464](https://github.com/catalyst-cooperative/pudl/pull/5464).
 
 #### EIA Electricity API
 
-* Updated the [bulk EIA Electricity API](data_sources/eiaapi.md) data used to fill in
+* Updated the [bulk EIA Electricity API](data_sources/eiaapi.html.md) data used to fill in
   redacted fuel prices. See PRs [#5441](https://github.com/catalyst-cooperative/pudl/pull/5441), [#5464](https://github.com/catalyst-cooperative/pudl/pull/5464).
 
 #### EPA CEMS
 
-* Updated the [EPA CEMS](data_sources/epacems.md) data with additional records
+* Updated the [EPA CEMS](data_sources/epacems.html.md) data with additional records
   through end of June 2026. See PRs [#5441](https://github.com/catalyst-cooperative/pudl/pull/5441), [#5464](https://github.com/catalyst-cooperative/pudl/pull/5464).
 
 #### PHMSA Natural Gas data
 
-* Updated the [PHMSA natural gas](data_sources/phmsagas.md) data. See PR [#5464](https://github.com/catalyst-cooperative/pudl/pull/5464).
+* Updated the [PHMSA natural gas](data_sources/phmsagas.html.md) data. See PR [#5464](https://github.com/catalyst-cooperative/pudl/pull/5464).
 
 #### FERC Form 6
 
@@ -117,7 +117,7 @@ Desert Southwest and Upper Great Plains West regions. See below for all the deta
 ### Documentation
 
 * Added LLM use guidelines and best practices to the
-  [contributor guide](CONTRIBUTING.md) and [dev guide](dev/llm_best_practices.md).
+  [contributor guide](CONTRIBUTING.html.md) and [dev guide](dev/llm_best_practices.html.md).
   See PR [#5395](https://github.com/catalyst-cooperative/pudl/pull/5395).
 * Set up the [sphinx_llm](https://github.com/NVIDIA/sphinx-llm) Sphinx extension to
   generate a Markdown version of the PUDL documentation, suitable for consumption by
@@ -134,17 +134,17 @@ Desert Southwest and Upper Great Plains West regions. See below for all the deta
   to the Desert Southwest region EIA balancing authority information, and vice
   versa. See [#4644](https://github.com/catalyst-cooperative/pudl/issues/4644) and [#5408](https://github.com/catalyst-cooperative/pudl/pull/5408).
 * Fixed an exact-float merge bug in FERC1 “exploded tables” corrections. The
-  [`add_sizable_minority_corrections()`](autoapi/pudl/output/ferc1/index.md#pudl.output.ferc1.Exploder.add_sizable_minority_corrections) method matched
+  [`add_sizable_minority_corrections()`](autoapi/pudl/output/ferc1/index.html.md#pudl.output.ferc1.Exploder.add_sizable_minority_corrections) method matched
   correction candidates by merging directly on floating point columns. Exact float
   equality is extremely brittle, and moving from 32- to 64-bit floats
   changed which utility/year pairs matched, producing extra rows and different
-  `ending_balance` sums in [out_ferc1_\_yearly_detailed_balance_sheet_assets](data_dictionaries/pudl_db.md#out-ferc1-yearly-detailed-balance-sheet-assets) and
-  [out_ferc1_\_yearly_rate_base](data_dictionaries/pudl_db.md#out-ferc1-yearly-rate-base). These were real matches being lost
+  `ending_balance` sums in [out_ferc1_\_yearly_detailed_balance_sheet_assets](data_dictionaries/pudl_db.html.md#out-ferc1-yearly-detailed-balance-sheet-assets) and
+  [out_ferc1_\_yearly_rate_base](data_dictionaries/pudl_db.html.md#out-ferc1-yearly-rate-base). These were real matches being lost
   due to the limited precision of 32-bit floats, on top of the brittleness of of merging
   on floating point numbers. These are now being captured deterministically by merging
   on values within a fixed tolerance of $5. See PR [#5350](https://github.com/catalyst-cooperative/pudl/pull/5350).
-* Fixed the Dagster asset graph for [EIA-860](data_sources/eia860.md) to correctly
-  depend on [EIA-860M](data_sources/eia860.md), so selecting the `raw_eia860m`
+* Fixed the Dagster asset graph for [EIA-860](data_sources/eia860.html.md) to correctly
+  depend on [EIA-860M](data_sources/eia860.html.md), so selecting the `raw_eia860m`
   asset group and its downstream assets now also captures the EIA-860 assets that
   rely on it, instead of silently leaving them stale. See [#4327](https://github.com/catalyst-cooperative/pudl/issues/4327) and
   PR [#5409](https://github.com/catalyst-cooperative/pudl/pull/5409).
@@ -152,18 +152,18 @@ Desert Southwest and Upper Great Plains West regions. See below for all the deta
 ### Performance Improvements
 
 * Switched from using `pl.Enum` to unconstrained `pl.Categorical` types to preserve
-  lazy execution in [`get_parquet_table_polars()`](autoapi/pudl/helpers/index.md#pudl.helpers.get_parquet_table_polars). This allows running
+  lazy execution in [`get_parquet_table_polars()`](autoapi/pudl/helpers/index.html.md#pudl.helpers.get_parquet_table_polars). This allows running
   schema checks on large tables, and Pandera’s Polars backend never actually enforced
   data content checks on `pl.LazyFrame` assets (99% of assets in PUDL). See PR
   [#5434](https://github.com/catalyst-cooperative/pudl/pull/5434). Implementing efficient content validation for `pl.LazyFrame` assets is
   left to PR [#5432](https://github.com/catalyst-cooperative/pudl/pull/5432).
 * The fast ETL now processes only two representative
-  [EIA-861](data_sources/eia861.md) years instead of the entire time series, bringing
+  [EIA-861](data_sources/eia861.html.md) years instead of the entire time series, bringing
   it in line with how every other dataset is already handled and speeding up both local
   development and CI. Processing all years was originally a workaround for discontinued
   columns and data validation tests that couldn’t tolerate partial coverage; those
   limitations have since been resolved. This change surfaced an implicit assumption in
-  the [FERC-714](data_sources/ferc714.md) outputs that all EIA-861 years were always
+  the [FERC-714](data_sources/ferc714.html.md) outputs that all EIA-861 years were always
   available, in the logic that repairs known-bad balancing authority/utility
   associations by copying data from a known-good year. That repair logic has been
   rewritten as an explicit, validated mapping of per-year fixes, so it degrades
@@ -174,8 +174,8 @@ Desert Southwest and Upper Great Plains West regions. See below for all the deta
 ### Developer Experience
 
 * Standardized numeric dtypes to always use 64-bit values, and datetime types to use
-  microsecond resolution in [`pudl.metadata.dtypes`](autoapi/pudl/metadata/dtypes/index.md#module-pudl.metadata.dtypes). The unused `compact` argument
-  to [`to_pandas_dtype()`](autoapi/pudl/metadata/classes/index.md#pudl.metadata.classes.Field.to_pandas_dtype) was retired. See PR
+  microsecond resolution in [`pudl.metadata.dtypes`](autoapi/pudl/metadata/dtypes/index.html.md#module-pudl.metadata.dtypes). The unused `compact` argument
+  to [`to_pandas_dtype()`](autoapi/pudl/metadata/classes/index.html.md#pudl.metadata.classes.Field.to_pandas_dtype) was retired. See PR
   [#5350](https://github.com/catalyst-cooperative/pudl/pull/5350).
 * Sanitized the batch job IDs used by the deploy and build workflows so they always
   meet Google Batch’s naming requirements, fixing failures we had previously worked
@@ -199,11 +199,11 @@ bugfixes, and better signal:noise ratio in unit test logging outputs.
 * Added experimental Parquet outputs derived from the FERC DBF databases, and basic
   `datapackage.json` metadata describing their schemas to support querying and preview
   through the [PUDL Data Viewer](https://data.catalyst.coop). See PR [#5339](https://github.com/catalyst-cooperative/pudl/pull/5339).
-* Standardized all unit strings in [`pudl.metadata.fields`](autoapi/pudl/metadata/fields/index.md#module-pudl.metadata.fields) to
+* Standardized all unit strings in [`pudl.metadata.fields`](autoapi/pudl/metadata/fields/index.html.md#module-pudl.metadata.fields) to
   [Pint expression syntax](https://pint.readthedocs.io/), replacing ad-hoc
   abbreviations (`gpm`, `min`, `F`, `cfm`), underscore-separated
   compound units (`lb_per_MMBTU`, `USD_per_MWh`), and inconsistent
-  capitalization. A new [`pudl.metadata.units`](autoapi/pudl/metadata/units/index.md#module-pudl.metadata.units) module defines
+  capitalization. A new [`pudl.metadata.units`](autoapi/pudl/metadata/units/index.html.md#module-pudl.metadata.units) module defines
   `PUDL_UNIT_REGISTRY`, a `pint.UnitRegistry` extended with energy-industry
   units (`MMBtu`, `Mcf`, `MMcf`, `TBtu`, `VAr`, `USD`). Added extensive
   new per-column units annotations. These changes should facilitate programmatic unit
@@ -215,7 +215,7 @@ bugfixes, and better signal:noise ratio in unit test logging outputs.
 
 #### EIA-176
 
-* Added detailed core [EIA-176](data_sources/eia176.md)
+* Added detailed core [EIA-176](data_sources/eia176.html.md)
   continuation-line tables for natural gas imports, supplemental
   gaseous fuel supplies, gas exports, and other gas disposition. See
   [#5240](https://github.com/catalyst-cooperative/pudl/issues/5240) and [#5245](https://github.com/catalyst-cooperative/pudl/pull/5245).
@@ -224,32 +224,32 @@ bugfixes, and better signal:noise ratio in unit test logging outputs.
 
 #### EIA-191
 
-* Added [EIA-191](data_sources/eia191.md) data through end of
+* Added [EIA-191](data_sources/eia191.html.md) data through end of
   March 2026. See PR [#5396](https://github.com/catalyst-cooperative/pudl/pull/5396).
 
 #### EIA-930
 
-* Added [EIA-930](data_sources/eia930.md) data through end of
+* Added [EIA-930](data_sources/eia930.html.md) data through end of
   June 2026. See PR [#5396](https://github.com/catalyst-cooperative/pudl/pull/5396)
 
 #### EIA Electricity API
 
-* Updated the bulk [EIA Electricity API](data_sources/eiaapi.md) data
+* Updated the bulk [EIA Electricity API](data_sources/eiaapi.html.md) data
   used to fill in redacted fuel prices. See PR [#5396](https://github.com/catalyst-cooperative/pudl/pull/5396).
 
 #### EPA CEMS
 
-* Added [EPA CEMS](data_sources/epacems.md) data through end of
+* Added [EPA CEMS](data_sources/epacems.html.md) data through end of
   March 2026. See PR [#5396](https://github.com/catalyst-cooperative/pudl/pull/5396)
 
 #### EIA-860
 
-* Added early release data for [EIA-860](data_sources/eia860.md) 2025. See issue [#5322](https://github.com/catalyst-cooperative/pudl/issues/5322) and PR
+* Added early release data for [EIA-860](data_sources/eia860.html.md) 2025. See issue [#5322](https://github.com/catalyst-cooperative/pudl/issues/5322) and PR
   [#5324](https://github.com/catalyst-cooperative/pudl/pull/5324).
 
 #### EIA-860M
 
-* Added [EIA-860M](data_sources/eia860.md) data through May 2026. See
+* Added [EIA-860M](data_sources/eia860.html.md) data through May 2026. See
   issue [#5369](https://github.com/catalyst-cooperative/pudl/issues/5369) and PR [#5371](https://github.com/catalyst-cooperative/pudl/pull/5371).
 
 #### FERC Forms 2 and 6
@@ -271,7 +271,7 @@ bugfixes, and better signal:noise ratio in unit test logging outputs.
 
 ### New Data Tests & Validations
 
-* A new [`valid_datapackage_unit_strings_check()`](autoapi/pudl/dagster/asset_checks/index.md#pudl.dagster.asset_checks.valid_datapackage_unit_strings_check) asset
+* A new [`valid_datapackage_unit_strings_check()`](autoapi/pudl/dagster/asset_checks/index.html.md#pudl.dagster.asset_checks.valid_datapackage_unit_strings_check) asset
   check factory validates all unit strings in the PUDL datapackage descriptor against
   the registry after each ETL run. About a dozen fields in PHMSA gas and EIA-860 FGD
   data that were typed as `number` but contain integer counts have been corrected to
@@ -297,7 +297,7 @@ bugfixes, and better signal:noise ratio in unit test logging outputs.
   See [#5361](https://github.com/catalyst-cooperative/pudl/pull/5361).
 * Fixed several Click-based console scripts so shell callers now receive correct
   non-zero exit codes on failure. The script-entry conventions in
-  [`pudl.scripts`](autoapi/pudl/scripts/index.md#module-pudl.scripts) now use Click-native exits and call `main()` directly in
+  [`pudl.scripts`](autoapi/pudl/scripts/index.html.md#module-pudl.scripts) now use Click-native exits and call `main()` directly in
   the module launcher, which fixes automation that branches on
   `pudl_check_for_build` success or failure. See PR [#5374](https://github.com/catalyst-cooperative/pudl/pull/5374).
 * Fixed a DuckDB >= 1.5 incompatibility with PUDL’s GeoParquet outputs. DuckDB 1.5
@@ -308,8 +308,8 @@ bugfixes, and better signal:noise ratio in unit test logging outputs.
   spec-compliant GeoParquet 1.0.0 metadata. See issues [#4061](https://github.com/catalyst-cooperative/pudl/issues/4061), [#5074](https://github.com/catalyst-cooperative/pudl/issues/5074) and PR
   [#5347](https://github.com/catalyst-cooperative/pudl/pull/5347).
 * Dropped the uninformative `is_total` column from
-  [core_rus7_\_yearly_distribution_services](data_dictionaries/pudl_db.md#core-rus7-yearly-distribution-services) and
-  [out_rus7_\_yearly_distribution_services](data_dictionaries/pudl_db.md#out-rus7-yearly-distribution-services), renamed the `service_status`
+  [core_rus7_\_yearly_distribution_services](data_dictionaries/pudl_db.html.md#core-rus7-yearly-distribution-services) and
+  [out_rus7_\_yearly_distribution_services](data_dictionaries/pudl_db.html.md#out-rus7-yearly-distribution-services), renamed the `service_status`
   values to the self-explanatory `connected_this_year`, `retired_this_year`,
   `total_in_place` and `idle_in_place`, and documented why RUS Form 7 Part B
   subcomponents do not sum to the reported total within a year. See issue
@@ -328,7 +328,7 @@ bugfixes, and better signal:noise ratio in unit test logging outputs.
   resource-specific dtypes instead of the generic or source-specific types.
   `dtype_backend` will now return the types for the specific file type, which extends
   the previous behavior of returning pandas dtypes. The dtype management now lives in
-  [`pudl.metadata.dtypes`](autoapi/pudl/metadata/dtypes/index.md#module-pudl.metadata.dtypes). See [#5361](https://github.com/catalyst-cooperative/pudl/pull/5361).
+  [`pudl.metadata.dtypes`](autoapi/pudl/metadata/dtypes/index.html.md#module-pudl.metadata.dtypes). See [#5361](https://github.com/catalyst-cooperative/pudl/pull/5361).
 * Fixed `pudl_deploy` returning a plain integer exit code from its Click command,
   which Click’s standalone mode silently discards, so shell callers previously saw
   exit code 0 even when a deployment stage failed. It now uses `ctx.exit()` like
@@ -355,7 +355,7 @@ bugfixes, and better signal:noise ratio in unit test logging outputs.
   resource-specific dtypes instead of the generic or source-specific types.
   `dtype_backend` will now return the types for the specific file type, which extends
   the previous behavior of returning pandas dtypes. The dtype management now lives in
-  [`pudl.metadata.dtypes`](autoapi/pudl/metadata/dtypes/index.md#module-pudl.metadata.dtypes). See [#5361](https://github.com/catalyst-cooperative/pudl/pull/5361).
+  [`pudl.metadata.dtypes`](autoapi/pudl/metadata/dtypes/index.html.md#module-pudl.metadata.dtypes). See [#5361](https://github.com/catalyst-cooperative/pudl/pull/5361).
 * Reworked the nightly PUDL build and deployment automation to send start and
   status notifications to the `pudl-deployments` Zulip stream directly from
   GitHub Actions and the batch build script, with per-stage timing summaries and
@@ -365,7 +365,7 @@ bugfixes, and better signal:noise ratio in unit test logging outputs.
   required stages, including output upload, completed successfully. See PR
   [#5374](https://github.com/catalyst-cooperative/pudl/pull/5374).
 * Merged `PudlGeoParquetIOManager` into
-  [`PudlParquetIOManager`](autoapi/pudl/dagster/io_managers/index.md#pudl.dagster.io_managers.PudlParquetIOManager) and retired the
+  [`PudlParquetIOManager`](autoapi/pudl/dagster/io_managers/index.html.md#pudl.dagster.io_managers.PudlParquetIOManager) and retired the
   `geoparquet_io_manager` Dagster resource key. The four geo assets
   (`out_censusdp1tract__states/counties/tracts` and
   `out_ferc714__georeferenced_respondents`) now use `parquet_io_manager`.
@@ -375,7 +375,7 @@ bugfixes, and better signal:noise ratio in unit test logging outputs.
   in [#5374](https://github.com/catalyst-cooperative/pudl/pull/5374)) to `pudl_deploy`. Deployments now save logs to
   `builds.catalyst.coop` and send a per-stage duration + outcome report to Zulip.
   Centralized deployment logic and validation in a `DeploymentPlan` Pydantic model in
-  [`pudl.deploy.pudl`](autoapi/pudl/deploy/pudl/index.md#module-pudl.deploy.pudl). Replaced some ad-hoc `curl`/JSON GitHub Actions dispatch
+  [`pudl.deploy.pudl`](autoapi/pudl/deploy/pudl/index.html.md#module-pudl.deploy.pudl). Replaced some ad-hoc `curl`/JSON GitHub Actions dispatch
   with the `gh` CLI and a shared `dispatch_github_workflow()` helper. Added
   required-argument & duplicate-key validation to `devtools/generate_batch_config.py`
   Batch job config generator used by both the PUDL and FERC EQR build workflows. See
@@ -408,8 +408,8 @@ assortment of datapackage, Dagster, and deployment notification improvements.
   on Zenodo, allowing potential users to browse the PUDL schema without downloading any
   data. The `pudl_parquet.zip` archive also contains a `datapackage.json` descriptor
   so it can be used as a self-describing Frictionless package after extraction. A
-  reusable [`valid_datapackage_check()`](autoapi/pudl/dagster/asset_checks/index.md#pudl.dagster.asset_checks.valid_datapackage_check) factory is now
-  available in [`pudl.dagster.asset_checks`](autoapi/pudl/dagster/asset_checks/index.md#module-pudl.dagster.asset_checks) to add frictionless v2 validation as an
+  reusable [`valid_datapackage_check()`](autoapi/pudl/dagster/asset_checks/index.html.md#pudl.dagster.asset_checks.valid_datapackage_check) factory is now
+  available in [`pudl.dagster.asset_checks`](autoapi/pudl/dagster/asset_checks/index.html.md#module-pudl.dagster.asset_checks) to add frictionless v2 validation as an
   asset check on any datapackage output. See issues [#5122](https://github.com/catalyst-cooperative/pudl/issues/5122), [#5237](https://github.com/catalyst-cooperative/pudl/issues/5237) and PR
   [#5270](https://github.com/catalyst-cooperative/pudl/pull/5270), [#5343](https://github.com/catalyst-cooperative/pudl/pull/5343). Also makes progress towards [catalyst-cooperative/agent-skills#14](https://github.com/catalyst-cooperative/agent-skills/issues/14)
 * Added a bare-bones datapackage for DBF SQLite outputs. See issue [#5200](https://github.com/catalyst-cooperative/pudl/issues/5200)
@@ -419,10 +419,10 @@ assortment of datapackage, Dagster, and deployment notification improvements.
 
 #### EIA-176
 
-* Added [core_eia176_\_yearly_gas_supply](data_dictionaries/pudl_db.md#core-eia176-yearly-gas-supply), which contains cleaned
+* Added [core_eia176_\_yearly_gas_supply](data_dictionaries/pudl_db.html.md#core-eia176-yearly-gas-supply), which contains cleaned
   company-level natural and supplemental gas supply data from Part 4 of the EIA-176
   survey. See [#4711](https://github.com/catalyst-cooperative/pudl/issues/4711) and [#5227](https://github.com/catalyst-cooperative/pudl/pull/5227).
-* Added [core_eia176_\_yearly_liquefied_natural_gas_inventory](data_dictionaries/pudl_db.md#core-eia176-yearly-liquefied-natural-gas-inventory), a new table
+* Added [core_eia176_\_yearly_liquefied_natural_gas_inventory](data_dictionaries/pudl_db.html.md#core-eia176-yearly-liquefied-natural-gas-inventory), a new table
   containing annual LNG storage volume and capacity reported by operators on EIA Form
   176 Part 5. Data covers 2002-2024 and includes LNG terminal and marine terminal
   records. See issue [#4695](https://github.com/catalyst-cooperative/pudl/issues/4695) and PR [#5219](https://github.com/catalyst-cooperative/pudl/pull/5219).
@@ -431,28 +431,28 @@ assortment of datapackage, Dagster, and deployment notification improvements.
 
 #### EIA-191
 
-* Updated [EIA-191](data_sources/eia191.md) data to include additional 2026 data. See
+* Updated [EIA-191](data_sources/eia191.html.md) data to include additional 2026 data. See
   PR [#5292](https://github.com/catalyst-cooperative/pudl/pull/5292).
 
 #### EIA-860M
 
-* Added [EIA-860M](data_sources/eia860.md) data through April 2026. See
+* Added [EIA-860M](data_sources/eia860.html.md) data through April 2026. See
   issue [#5277](https://github.com/catalyst-cooperative/pudl/issues/5277) and PR [#5284](https://github.com/catalyst-cooperative/pudl/pull/5284).
 
 #### FERC 1
 
-* Added 2025 data from [FERC form 1](data_sources/ferc1.md). This update
+* Added 2025 data from [FERC form 1](data_sources/ferc1.html.md). This update
   includes several new renewable and energy storage fields in several tables.
   See issue [#5214](https://github.com/catalyst-cooperative/pudl/issues/5214) and PRs [#5236](https://github.com/catalyst-cooperative/pudl/pull/5236), [#5325](https://github.com/catalyst-cooperative/pudl/pull/5325).
 
 #### EIA Electricity API
 
-* Updated the [bulk EIA Electricity API](data_sources/eiaapi.md) data used to
+* Updated the [bulk EIA Electricity API](data_sources/eiaapi.html.md) data used to
   fill in redacted fuel prices. See PR [#5292](https://github.com/catalyst-cooperative/pudl/pull/5292).
 
 #### EPA CEMS
 
-* Updated the [EPA CEMS](data_sources/epacems.md) data to include 2026Q1. See PR
+* Updated the [EPA CEMS](data_sources/epacems.html.md) data to include 2026Q1. See PR
   [#5292](https://github.com/catalyst-cooperative/pudl/pull/5292).
 
 #### FERC Forms 2 & 6
@@ -462,9 +462,9 @@ assortment of datapackage, Dagster, and deployment notification improvements.
 
 ### Documentation
 
-* Added a data source page for [EIA-191](data_sources/eia191.md). See PR
+* Added a data source page for [EIA-191](data_sources/eia191.html.md). See PR
   [#5267](https://github.com/catalyst-cooperative/pudl/pull/5267) and issue [#4756](https://github.com/catalyst-cooperative/pudl/issues/4756).
-* Updated the [EIA-930](data_sources/eia930.md) column descriptions to note that
+* Updated the [EIA-930](data_sources/eia930.html.md) column descriptions to note that
   starting in 2024Q3 EIA began reporting more granular renewable energy source
   categories, differentiating wind and solar plants with and without energy storage,
   splitting pumped hydro from conventional hydro, and adding new battery storage and
@@ -472,12 +472,12 @@ assortment of datapackage, Dagster, and deployment notification improvements.
 
 ### New Data Tests & Validations
 
-* Added validations to [RUS7](data_sources/rus7.md) service interruption
+* Added validations to [RUS7](data_sources/rus7.html.md) service interruption
   tables to ensure subcomponents sum to the total for annual observation
   periods. See issue [#5285](https://github.com/catalyst-cooperative/pudl/issues/5285) and PR [#5286](https://github.com/catalyst-cooperative/pudl/pull/5286).
 * Validate that sub-components in
-  [core_rus7_\_yearly_transmission_and_distribution_mileage](data_dictionaries/pudl_db.md#core-rus7-yearly-transmission-and-distribution-mileage) and
-  [out_rus7_\_yearly_transmission_and_distribution_mileage](data_dictionaries/pudl_db.md#out-rus7-yearly-transmission-and-distribution-mileage) sum to their reported
+  [core_rus7_\_yearly_transmission_and_distribution_mileage](data_dictionaries/pudl_db.html.md#core-rus7-yearly-transmission-and-distribution-mileage) and
+  [out_rus7_\_yearly_transmission_and_distribution_mileage](data_dictionaries/pudl_db.html.md#out-rus7-yearly-transmission-and-distribution-mileage) sum to their reported
   totals. See issue [#5314](https://github.com/catalyst-cooperative/pudl/issues/5314) and PR [#5342](https://github.com/catalyst-cooperative/pudl/pull/5342).
 
 ### Bug Fixes & Data Cleaning
@@ -501,11 +501,11 @@ assortment of datapackage, Dagster, and deployment notification improvements.
 ### Quality of Life Improvements
 
 * Refactored Dagster-managed path handling to use a dedicated `pudl_paths` resource
-  instead of constructing [`pudl.workspace.setup.PudlPaths`](autoapi/pudl/workspace/setup/index.md#pudl.workspace.setup.PudlPaths) directly throughout
+  instead of constructing [`pudl.workspace.setup.PudlPaths`](autoapi/pudl/workspace/setup/index.html.md#pudl.workspace.setup.PudlPaths) directly throughout
   assets, IO managers, and tests. This makes path resolution more explicit in Dagster
   contexts and allows interactive definitions to override `pudl_input` and
   `pudl_output` directly when calling
-  [`pudl.dagster.build.build_interactive_defs()`](autoapi/pudl/dagster/build/index.md#pudl.dagster.build.build_interactive_defs). See PR [#5261](https://github.com/catalyst-cooperative/pudl/pull/5261), [#5288](https://github.com/catalyst-cooperative/pudl/pull/5288).
+  [`pudl.dagster.build.build_interactive_defs()`](autoapi/pudl/dagster/build/index.html.md#pudl.dagster.build.build_interactive_defs). See PR [#5261](https://github.com/catalyst-cooperative/pudl/pull/5261), [#5288](https://github.com/catalyst-cooperative/pudl/pull/5288).
 * Added a PUDL devcontainer configuration to make it easier for contributors to get up
   and running, and to enable the safe use of coding agents in YOLO mode. See PRs
   [#5260](https://github.com/catalyst-cooperative/pudl/pull/5260), [#5287](https://github.com/catalyst-cooperative/pudl/pull/5287).
@@ -515,14 +515,14 @@ assortment of datapackage, Dagster, and deployment notification improvements.
   FERC EQR deployment helper assets with the rest of the Dagster package layout.
   Created a new Dagster definition builder for use in notebooks and other
   interactive environments outside of a `dg`-spawned environment:
-  [`pudl.dagster.build.build_interactive_defs()`](autoapi/pudl/dagster/build/index.md#pudl.dagster.build.build_interactive_defs). See issue [#5118](https://github.com/catalyst-cooperative/pudl/issues/5118) and
+  [`pudl.dagster.build.build_interactive_defs()`](autoapi/pudl/dagster/build/index.html.md#pudl.dagster.build.build_interactive_defs). See issue [#5118](https://github.com/catalyst-cooperative/pudl/issues/5118) and
   PR [#5242](https://github.com/catalyst-cooperative/pudl/pull/5242).
 * Migrated build and deployment notifications from Slack to Zulip. All GitHub Actions
   workflows that previously posted to Slack now send notifications to the Catalyst
   Cooperative Zulip instance via the `zulip/github-actions-zulip` action. A new
-  [`ZulipNotificationResource`](autoapi/pudl/dagster/resources/index.md#pudl.dagster.resources.ZulipNotificationResource) Dagster resource was added
+  [`ZulipNotificationResource`](autoapi/pudl/dagster/resources/index.html.md#pudl.dagster.resources.ZulipNotificationResource) Dagster resource was added
   to send Zulip stream messages from within assets, with best-effort error handling. The
-  FERC EQR deployment helpers in [`pudl.dagster.assets.deploy.ferceqr`](autoapi/pudl/dagster/assets/deploy/ferceqr/index.md#module-pudl.dagster.assets.deploy.ferceqr) were updated
+  FERC EQR deployment helpers in [`pudl.dagster.assets.deploy.ferceqr`](autoapi/pudl/dagster/assets/deploy/ferceqr/index.html.md#module-pudl.dagster.assets.deploy.ferceqr) were updated
   to use it. Notification coverage was also expanded to include community activity
   (issues, discussions, comments, and pull requests from non-Catalyst contributors).
   See PRs [#5298](https://github.com/catalyst-cooperative/pudl/pull/5298), [#5328](https://github.com/catalyst-cooperative/pudl/pull/5328), [#5331](https://github.com/catalyst-cooperative/pudl/pull/5331).
@@ -558,12 +558,12 @@ as usual. We are exploring other ways of integrating the updated data.
 
 #### FERC 1
 
-* Added new [out_ferc1_\_yearly_depreciation_factors_sched336](data_dictionaries/pudl_db.md#out-ferc1-yearly-depreciation-factors-sched336) table. See issue
+* Added new [out_ferc1_\_yearly_depreciation_factors_sched336](data_dictionaries/pudl_db.html.md#out-ferc1-yearly-depreciation-factors-sched336) table. See issue
   [#5103](https://github.com/catalyst-cooperative/pudl/issues/5103) and PR [#5112](https://github.com/catalyst-cooperative/pudl/pull/5112).
 * Added FERC Form 1 respondents’ identification and certification information as
-  [core_ferc1_\_yearly_identification_certification](data_dictionaries/pudl_db.md#core-ferc1-yearly-identification-certification). See [#5150](https://github.com/catalyst-cooperative/pudl/issues/5150) and
+  [core_ferc1_\_yearly_identification_certification](data_dictionaries/pudl_db.html.md#core-ferc1-yearly-identification-certification). See [#5150](https://github.com/catalyst-cooperative/pudl/issues/5150) and
   [#5008](https://github.com/catalyst-cooperative/pudl/pull/5008).
-* Added new [out_ferc1_\_yearly_other_regulatory_assets_sched232](data_dictionaries/pudl_db.md#out-ferc1-yearly-other-regulatory-assets-sched232) table. See issue
+* Added new [out_ferc1_\_yearly_other_regulatory_assets_sched232](data_dictionaries/pudl_db.html.md#out-ferc1-yearly-other-regulatory-assets-sched232) table. See issue
   [#5104](https://github.com/catalyst-cooperative/pudl/issues/5104) and PR [#5170](https://github.com/catalyst-cooperative/pudl/pull/5170).
 
 ### Expanded Data Coverage
@@ -589,7 +589,7 @@ as usual. We are exploring other ways of integrating the updated data.
 
 #### EIA-191
 
-* Added [core_eia191_\_monthly_gas_storage](data_dictionaries/pudl_db.md#core-eia191-monthly-gas-storage), a new table containing monthly
+* Added [core_eia191_\_monthly_gas_storage](data_dictionaries/pudl_db.html.md#core-eia191-monthly-gas-storage), a new table containing monthly
   underground natural gas storage activity reported by operators to EIA on Form 191.
   Data covers 2014-present, is updated through April 2026, and includes working gas,
   base gas, and total capacity by storage field. See issue [#5209](https://github.com/catalyst-cooperative/pudl/issues/5209) and PRs
@@ -600,15 +600,15 @@ as usual. We are exploring other ways of integrating the updated data.
 * Added new component to table descriptions showing the most recent data available. See
   issue [#4586](https://github.com/catalyst-cooperative/pudl/issues/4586) and PR [#4632](https://github.com/catalyst-cooperative/pudl/pull/4632).
 * Added new `forensics` tables which can be used to see all input values before PUDL
-  chooses canonical values/golden records in the [entity resolution process](methodology/entity_resolution.md). See issue [#4265](https://github.com/catalyst-cooperative/pudl/issues/4265) and PR [#5157](https://github.com/catalyst-cooperative/pudl/pull/5157).
+  chooses canonical values/golden records in the [entity resolution process](methodology/entity_resolution.html.md). See issue [#4265](https://github.com/catalyst-cooperative/pudl/issues/4265) and PR [#5157](https://github.com/catalyst-cooperative/pudl/pull/5157).
 
 ### Bug Fixes & Data Cleaning
 
 * Removed the already deprecated `pudl.extract.ferc1.extract_dbf`,
   `pudl.extract.ferc1.extract_xbrl`, `pudl.extract.ferc1.extract_xbrl_generic`, and
   `pudl.extract.ferc1.extract_dbf_generic` functions. The extraction logic is now
-  covered by the [`pudl.dagster.io_managers.ferc1_xbrl_sqlite_io_manager`](autoapi/pudl/dagster/io_managers/index.md#pudl.dagster.io_managers.ferc1_xbrl_sqlite_io_manager) and
-  [`pudl.dagster.io_managers.ferc1_dbf_sqlite_io_manager`](autoapi/pudl/dagster/io_managers/index.md#pudl.dagster.io_managers.ferc1_dbf_sqlite_io_manager) IO Managers.
+  covered by the [`pudl.dagster.io_managers.ferc1_xbrl_sqlite_io_manager`](autoapi/pudl/dagster/io_managers/index.html.md#pudl.dagster.io_managers.ferc1_xbrl_sqlite_io_manager) and
+  [`pudl.dagster.io_managers.ferc1_dbf_sqlite_io_manager`](autoapi/pudl/dagster/io_managers/index.html.md#pudl.dagster.io_managers.ferc1_dbf_sqlite_io_manager) IO Managers.
 * Fixed a [`TypeError`](https://docs.python.org/3/library/exceptions.html#TypeError) in MCOE asset checks where `sum(exc.null_rows)` iterated
   over a DataFrame’s column names as strings instead of counting rows. Replaced with
   `len(exc.null_rows)`. See PR [#5124](https://github.com/catalyst-cooperative/pudl/pull/5124).
@@ -717,12 +717,12 @@ changes:
   asset materialisation metadata written by that subprocess. Pytest CLI flags are
   renamed for clarity: `--live-dbs` → `--live-pudl-output`, `--tmp-data` →
   `--temp-pudl-input`, `--etl-settings` → `--dg-config`.
-* Made [`pudl.dagster`](autoapi/pudl/dagster/index.md#module-pudl.dagster) the canonical Dagster orchestration package while keeping
-  [`pudl.definitions`](autoapi/pudl/definitions/index.md#module-pudl.definitions) as the stable `dg` code location entrypoint. As part of
+* Made [`pudl.dagster`](autoapi/pudl/dagster/index.html.md#module-pudl.dagster) the canonical Dagster orchestration package while keeping
+  [`pudl.definitions`](autoapi/pudl/definitions/index.html.md#module-pudl.definitions) as the stable `dg` code location entrypoint. As part of
   this boundary cleanup, Dagster-specific resources (including the FERC EQR deployment
   sensor and the FERC EQR partition definition) were consolidated under
-  [`pudl.dagster`](autoapi/pudl/dagster/index.md#module-pudl.dagster), older top-level Dagster compatibility exposure was removed, and
-  internal imports and documentation were updated to use [`pudl.dagster`](autoapi/pudl/dagster/index.md#module-pudl.dagster). See issue
+  [`pudl.dagster`](autoapi/pudl/dagster/index.html.md#module-pudl.dagster), older top-level Dagster compatibility exposure was removed, and
+  internal imports and documentation were updated to use [`pudl.dagster`](autoapi/pudl/dagster/index.html.md#module-pudl.dagster). See issue
   [#5123](https://github.com/catalyst-cooperative/pudl/issues/5123) and PR [#5124](https://github.com/catalyst-cooperative/pudl/pull/5124).
 * **Cleaned up several legacy package boundaries** that had accumulated over time.
   The `pudl.etl` package was removed after the Dagster refactor had already moved
@@ -810,7 +810,7 @@ resilient docs checks, and new secret-scanning hooks. See below for all the deta
     guide, and code of conduct
 
   See issue [#4822](https://github.com/catalyst-cooperative/pudl/issues/4822) and PR [#5057](https://github.com/catalyst-cooperative/pudl/pull/5057) for more details.
-* Added a [methodology page](methodology/entity_resolution.md) explaining
+* Added a [methodology page](methodology/entity_resolution.html.md) explaining
   how EIA entity harvesting reconciles inconsistently reported plant, utility,
   boiler, and generator attributes into normalized entity and yearly SCD
   tables. The docs now also support
@@ -821,12 +821,12 @@ resilient docs checks, and new secret-scanning hooks. See below for all the deta
 
 ### New Data Tests & Validations
 
-* Validate that sub-components in [core_rus7_\_yearly_energy_efficiency](data_dictionaries/pudl_db.md#core-rus7-yearly-energy-efficiency),
-  [core_rus7_\_yearly_patronage_capital](data_dictionaries/pudl_db.md#core-rus7-yearly-patronage-capital),
-  [core_rus7_\_yearly_power_requirements_electric_customers](data_dictionaries/pudl_db.md#core-rus7-yearly-power-requirements-electric-customers),
-  [core_rus7_\_yearly_power_requirements_electric_sales](data_dictionaries/pudl_db.md#core-rus7-yearly-power-requirements-electric-sales),
-  [core_rus7_\_yearly_statement_of_operations](data_dictionaries/pudl_db.md#core-rus7-yearly-statement-of-operations) and
-  [core_rus12_\_yearly_statement_of_operations](data_dictionaries/pudl_db.md#core-rus12-yearly-statement-of-operations) and their corresponding output
+* Validate that sub-components in [core_rus7_\_yearly_energy_efficiency](data_dictionaries/pudl_db.html.md#core-rus7-yearly-energy-efficiency),
+  [core_rus7_\_yearly_patronage_capital](data_dictionaries/pudl_db.html.md#core-rus7-yearly-patronage-capital),
+  [core_rus7_\_yearly_power_requirements_electric_customers](data_dictionaries/pudl_db.html.md#core-rus7-yearly-power-requirements-electric-customers),
+  [core_rus7_\_yearly_power_requirements_electric_sales](data_dictionaries/pudl_db.html.md#core-rus7-yearly-power-requirements-electric-sales),
+  [core_rus7_\_yearly_statement_of_operations](data_dictionaries/pudl_db.html.md#core-rus7-yearly-statement-of-operations) and
+  [core_rus12_\_yearly_statement_of_operations](data_dictionaries/pudl_db.html.md#core-rus12-yearly-statement-of-operations) and their corresponding output
   tables sum to their reported totals. See [#5039](https://github.com/catalyst-cooperative/pudl/issues/5039) and [#5073](https://github.com/catalyst-cooperative/pudl/pull/5073).
 * Expanded validation coverage for newly added RUS Form 7 and 12 tables as the
   tables and their metadata stabilized. See [#5125](https://github.com/catalyst-cooperative/pudl/pull/5125), [#5131](https://github.com/catalyst-cooperative/pudl/pull/5131), and
@@ -836,8 +836,8 @@ resilient docs checks, and new secret-scanning hooks. See below for all the deta
 
 ### Bug Fixes & Data Cleaning
 
-* Fixed a bug in [`pudl.analysis.allocate_gen_fuel`](autoapi/pudl/analysis/allocate_gen_fuel/index.md#module-pudl.analysis.allocate_gen_fuel) that caused
-  [out_eia923_\_monthly_generation_fuel_by_generator_energy_source](data_dictionaries/pudl_db.md#out-eia923-monthly-generation-fuel-by-generator-energy-source) to incorrectly
+* Fixed a bug in [`pudl.analysis.allocate_gen_fuel`](autoapi/pudl/analysis/allocate_gen_fuel/index.html.md#module-pudl.analysis.allocate_gen_fuel) that caused
+  [out_eia923_\_monthly_generation_fuel_by_generator_energy_source](data_dictionaries/pudl_db.html.md#out-eia923-monthly-generation-fuel-by-generator-energy-source) to incorrectly
   allocate generation and fuel consumption to retired generators. The previous logic
   identified “retiring” generators by checking whether any generation or fuel columns
   were non-null after the generation fuel table was merged in on prime mover and energy
@@ -851,7 +851,7 @@ resilient docs checks, and new secret-scanning hooks. See below for all the deta
   fields as datetimes, which caused several output columns to become entirely
   `NULL`. Also clarified and separated the `product_name` metadata
   descriptions and allowed values for
-  [core_ferceqr_\_contracts](data_dictionaries/pudl_db.md#core-ferceqr-contracts) and [core_ferceqr_\_transactions](data_dictionaries/pudl_db.md#core-ferceqr-transactions) so their
+  [core_ferceqr_\_contracts](data_dictionaries/pudl_db.html.md#core-ferceqr-contracts) and [core_ferceqr_\_transactions](data_dictionaries/pudl_db.html.md#core-ferceqr-transactions) so their
   constraints match their distinct ENUM constraints as documented in
   [`v3.5 of the FERC EQR data dictionary`](data_sources/ferceqr/ferceqr_data_dictionary_v35_2020-11-23.pdf).
   See [#5085](https://github.com/catalyst-cooperative/pudl/pull/5085).
@@ -896,7 +896,7 @@ resilient docs checks, and new secret-scanning hooks. See below for all the deta
 This is a monthly PUDL data release, nominally aimed at updating the EIA-860M monthly
 data, but this month there’s a lot of other brand new data along for the ride!
 
-With the addition of the [\_core_eia923_\_yearly_emissions_control](data_dictionaries/pudl_db.md#i-core-eia923-yearly-emissions-control) which describes
+With the addition of the [\_core_eia923_\_yearly_emissions_control](data_dictionaries/pudl_db.html.md#i-core-eia923-yearly-emissions-control) which describes
 installed emissions control equipment and its operation we’ve completed our initial
 coverage of EIA-923 Schedule 8. We’ve continued expanding our coverage of USDA Rural
 Utilities Service (RUS) Forms 7 and 12, and now have data source documentation pages for
@@ -912,7 +912,7 @@ equipment tables.
 ### Enhancements
 
 * Renamed `core_eia923__monthly_fuel_receipts_costs` to
-  [core_eia923_\_fuel_receipts_costs](data_dictionaries/pudl_db.md#core-eia923-fuel-receipts-costs) as it is not aggregated monthly and
+  [core_eia923_\_fuel_receipts_costs](data_dictionaries/pudl_db.html.md#core-eia923-fuel-receipts-costs) as it is not aggregated monthly and
   does not belong with our other timeseries tables. Updated table description
   details for this and related tables to explain why receipts are not aggregated
   in this table, and how aggregation in the associated monthly and yearly tables
@@ -923,7 +923,7 @@ equipment tables.
 #### EIA-923
 
 * Added a new table derived from EIA-923 Schedule 8C describing installed emissions
-  control equipment and its operation: [\_core_eia923_\_yearly_emissions_control](data_dictionaries/pudl_db.md#i-core-eia923-yearly-emissions-control).
+  control equipment and its operation: [\_core_eia923_\_yearly_emissions_control](data_dictionaries/pudl_db.html.md#i-core-eia923-yearly-emissions-control).
   With this table, we now have preliminary versions of all of EIA-923 Schedule 8.
   See issue [#4081](https://github.com/catalyst-cooperative/pudl/issues/4081) and PRs [#4668](https://github.com/catalyst-cooperative/pudl/pull/4668), [#5048](https://github.com/catalyst-cooperative/pudl/pull/5048). Thanks to [@alexclippinger](https://github.com/sponsors/alexclippinger) for
   working on this!
@@ -953,7 +953,7 @@ equipment tables.
 * Fixed remaining tables with malformed summaries so they render starting with a
   complete sentence. Added checks to prevent future regressions. See [#5029](https://github.com/catalyst-cooperative/pudl/pull/5029).
 * Added data source documentation pages for
-  [RUS Form 7](data_sources/rus7.md) and [RUS Form 12](data_sources/rus12.md).
+  [RUS Form 7](data_sources/rus7.html.md) and [RUS Form 12](data_sources/rus12.html.md).
   See [#4889](https://github.com/catalyst-cooperative/pudl/issues/4889) and [#5028](https://github.com/catalyst-cooperative/pudl/pull/5028).
 * Added direct links to table previews on the
   [PUDL Data Viewer](https://data.catalyst.coop) from PUDL data dictionary and data
@@ -969,7 +969,7 @@ equipment tables.
   valid range 0.0-1.0 and emissions control equipment test dates from before 1950 or
   after the current year. See PR [#5048](https://github.com/catalyst-cooperative/pudl/pull/5048).
 * Normalized RUS-7 and RUS-12 borrower ID’s, names and state in
-  [core_rus7_\_entity_borrowers](data_dictionaries/pudl_db.md#core-rus7-entity-borrowers) and [core_rus12_\_entity_borrowers](data_dictionaries/pudl_db.md#core-rus12-entity-borrowers).
+  [core_rus7_\_entity_borrowers](data_dictionaries/pudl_db.html.md#core-rus7-entity-borrowers) and [core_rus12_\_entity_borrowers](data_dictionaries/pudl_db.html.md#core-rus12-entity-borrowers).
   See [#5040](https://github.com/catalyst-cooperative/pudl/issues/5040) and PR [#5056](https://github.com/catalyst-cooperative/pudl/pull/5056).
 * Added row count and data validation tests for the new RUS Form 12 tables introduced
   in [#5018](https://github.com/catalyst-cooperative/pudl/pull/5018). See [#5060](https://github.com/catalyst-cooperative/pudl/pull/5060).
@@ -977,10 +977,10 @@ equipment tables.
 ### Bug Fixes & Data Cleaning
 
 * Set unknown `mass_measurement_code` values to `NULL` in
-  [core_epacems_\_hourly_emissions](data_dictionaries/pudl_db.md#core-epacems-hourly-emissions) so the data conforms to the expected ENUM
+  [core_epacems_\_hourly_emissions](data_dictionaries/pudl_db.html.md#core-epacems-hourly-emissions) so the data conforms to the expected ENUM
   constraint. See [#5041](https://github.com/catalyst-cooperative/pudl/pull/5041).
 * Improved parsing of the poorly formatted `so2_test_date` column found in
-  [\_core_eia923_\_yearly_fgd_operation_maintenance](data_dictionaries/pudl_db.md#i-core-eia923-yearly-fgd-operation-maintenance). See PR [#5048](https://github.com/catalyst-cooperative/pudl/pull/5048).
+  [\_core_eia923_\_yearly_fgd_operation_maintenance](data_dictionaries/pudl_db.html.md#i-core-eia923-yearly-fgd-operation-maintenance). See PR [#5048](https://github.com/catalyst-cooperative/pudl/pull/5048).
 * Standardized emissions control equipment efficiencies to be stated as a decimal number
   between 0.0-1.0, rather than a percentage between 0-100. Removed misleading `_pct`
   column name suffixes on efficiency columns that had values between 0.0-1.0. See PR
@@ -989,10 +989,10 @@ equipment tables.
   rather than `report_year` as their time dimension in anticipation of more deeply
   integrating them into PUDL. See issue [#4741](https://github.com/catalyst-cooperative/pudl/issues/4741) and PR [#5063](https://github.com/catalyst-cooperative/pudl/pull/5063). Affected
   tables include:
-  * [\_core_eia923_\_yearly_byproduct_disposition](data_dictionaries/pudl_db.md#i-core-eia923-yearly-byproduct-disposition)
-  * [\_core_eia923_\_yearly_byproduct_expenses_and_revenues](data_dictionaries/pudl_db.md#i-core-eia923-yearly-byproduct-expenses-and-revenues)
-  * [core_eia860_\_scd_emissions_control_equipment](data_dictionaries/pudl_db.md#core-eia860-scd-emissions-control-equipment)
-  * [out_eia860_\_yearly_emissions_control_equipment](data_dictionaries/pudl_db.md#out-eia860-yearly-emissions-control-equipment)
+  * [\_core_eia923_\_yearly_byproduct_disposition](data_dictionaries/pudl_db.html.md#i-core-eia923-yearly-byproduct-disposition)
+  * [\_core_eia923_\_yearly_byproduct_expenses_and_revenues](data_dictionaries/pudl_db.html.md#i-core-eia923-yearly-byproduct-expenses-and-revenues)
+  * [core_eia860_\_scd_emissions_control_equipment](data_dictionaries/pudl_db.html.md#core-eia860-scd-emissions-control-equipment)
+  * [out_eia860_\_yearly_emissions_control_equipment](data_dictionaries/pudl_db.html.md#out-eia860-yearly-emissions-control-equipment)
 
 ### Quality of Life Improvements
 
@@ -1085,18 +1085,18 @@ details.
 
 ### Documentation
 
-* Added a data source documentation page for the [FERC EQR](data_sources/ferceqr.md).
+* Added a data source documentation page for the [FERC EQR](data_sources/ferceqr.html.md).
   See [#4852](https://github.com/catalyst-cooperative/pudl/issues/4852) and PR [#4879](https://github.com/catalyst-cooperative/pudl/pull/4879).
-* Added data access instructions for the [FERC EQR](data_sources/ferceqr.md) and
+* Added data access instructions for the [FERC EQR](data_sources/ferceqr.html.md) and
   created examples specific to our larger (>1GB) and partitioned tables in the
-  [PUDL Data Dictionary](data_dictionaries/pudl_db.md). See issues [#4869](https://github.com/catalyst-cooperative/pudl/issues/4869), [#4951](https://github.com/catalyst-cooperative/pudl/issues/4951) and PR [#4958](https://github.com/catalyst-cooperative/pudl/pull/4958).
+  [PUDL Data Dictionary](data_dictionaries/pudl_db.html.md). See issues [#4869](https://github.com/catalyst-cooperative/pudl/issues/4869), [#4951](https://github.com/catalyst-cooperative/pudl/issues/4951) and PR [#4958](https://github.com/catalyst-cooperative/pudl/pull/4958).
   Affected tables include:
-  * [core_epacems_\_hourly_emissions](data_dictionaries/pudl_db.md#core-epacems-hourly-emissions)
-  * [core_ferceqr_\_contracts](data_dictionaries/pudl_db.md#core-ferceqr-contracts)
-  * [core_ferceqr_\_quarterly_identity](data_dictionaries/pudl_db.md#core-ferceqr-quarterly-identity)
-  * [core_ferceqr_\_quarterly_index_pub](data_dictionaries/pudl_db.md#core-ferceqr-quarterly-index-pub)
-  * [core_ferceqr_\_transactions](data_dictionaries/pudl_db.md#core-ferceqr-transactions)
-  * [out_vcerare_\_hourly_available_capacity_factor](data_dictionaries/pudl_db.md#out-vcerare-hourly-available-capacity-factor)
+  * [core_epacems_\_hourly_emissions](data_dictionaries/pudl_db.html.md#core-epacems-hourly-emissions)
+  * [core_ferceqr_\_contracts](data_dictionaries/pudl_db.html.md#core-ferceqr-contracts)
+  * [core_ferceqr_\_quarterly_identity](data_dictionaries/pudl_db.html.md#core-ferceqr-quarterly-identity)
+  * [core_ferceqr_\_quarterly_index_pub](data_dictionaries/pudl_db.html.md#core-ferceqr-quarterly-index-pub)
+  * [core_ferceqr_\_transactions](data_dictionaries/pudl_db.html.md#core-ferceqr-transactions)
+  * [out_vcerare_\_hourly_available_capacity_factor](data_dictionaries/pudl_db.html.md#out-vcerare-hourly-available-capacity-factor)
 
 ### Bug Fixes & Data Cleaning
 
@@ -1132,7 +1132,7 @@ details.
   triggered when the `zenodo_dois.yml` file is changed, not any time the Datastore
   module is changed. See issue [#4494](https://github.com/catalyst-cooperative/pudl/issues/4494) and PR [#4870](https://github.com/catalyst-cooperative/pudl/pull/4870).
 * Modernized the `datapackage.json` metadata stored on Zenodo for the
-  [Census DP1](data_sources/censusdp1tract.md) data source, enabling the removal of
+  [Census DP1](data_sources/censusdp1tract.html.md) data source, enabling the removal of
   a special case in the Datastore that only existed to deal with very old archive
   metadata. See PR [#4879](https://github.com/catalyst-cooperative/pudl/pull/4879).
 * Data source documentation pages now display the source data concept DOI with a link to
@@ -1142,7 +1142,7 @@ details.
   package is stored on GCS, as is the case with FERC EQR. See the
   [FERC EQR archive on Zenodo](https://doi.org/10.5281/zenodo.18251901) as an
   example. See PR [#4879](https://github.com/catalyst-cooperative/pudl/pull/4879).
-* Added handling to [`pudl.transform.classes.StringCategories`](autoapi/pudl/transform/classes/index.md#pudl.transform.classes.StringCategories) so that the
+* Added handling to [`pudl.transform.classes.StringCategories`](autoapi/pudl/transform/classes/index.html.md#pudl.transform.classes.StringCategories) so that the
   `categories` key of transform params can be specified as a Path to a YAML file.
   This will make it possible to include large categorization sets without the params
   Python files becoming unwieldy. See PR [#4978](https://github.com/catalyst-cooperative/pudl/pull/4978).
@@ -1167,7 +1167,7 @@ issues for a while now.
 
 It’s also been our experience that almost all users want the data, not the pipeline. The
 backend is primarily of interest to Catalyst developers and open source contributors,
-who will continue to work within the development environment. See [Development Setup](dev/dev_setup.md)
+who will continue to work within the development environment. See [Development Setup](dev/dev_setup.html.md)
 for instructions on how to set it up. See PR [#4871](https://github.com/catalyst-cooperative/pudl/pull/4871) for where many of these changes
 were made.
 
@@ -1179,7 +1179,7 @@ were made.
   archived automatically on [Zenodo](https://doi.org/10.5281/zenodo.3404014) as well
   as on our [GitHub Releases page](https://github.com/catalyst-cooperative/pudl/releases).
 * PUDL data releases will continue to be distributed through a variety of channels. See
-  [Data Access](data_access.md) for the details.
+  [Data Access](data_access.html.md) for the details.
 
 ### Enhancements
 
@@ -1188,9 +1188,9 @@ were made.
 * Added a new ETL for FERC EQR data, as well as associated infrastructure for running
   the job and publishing outputs, which can be found at
   `s3://pudl.catalyst.coop/ferceqr`. There are 4 new tables which are produced by
-  this ETL including, [core_ferceqr_\_quarterly_identity](data_dictionaries/pudl_db.md#core-ferceqr-quarterly-identity),
-  [core_ferceqr_\_contracts](data_dictionaries/pudl_db.md#core-ferceqr-contracts), [core_ferceqr_\_quarterly_index_pub](data_dictionaries/pudl_db.md#core-ferceqr-quarterly-index-pub), and
-  [core_ferceqr_\_transactions](data_dictionaries/pudl_db.md#core-ferceqr-transactions). Due to the size of this data, the tables are split
+  this ETL including, [core_ferceqr_\_quarterly_identity](data_dictionaries/pudl_db.html.md#core-ferceqr-quarterly-identity),
+  [core_ferceqr_\_contracts](data_dictionaries/pudl_db.html.md#core-ferceqr-contracts), [core_ferceqr_\_quarterly_index_pub](data_dictionaries/pudl_db.html.md#core-ferceqr-quarterly-index-pub), and
+  [core_ferceqr_\_transactions](data_dictionaries/pudl_db.html.md#core-ferceqr-transactions). Due to the size of this data, the tables are split
   into a set of parquet files partitioned by year-quarter, and cannot be downloaded
   as a single file like other PUDL tables.
 
@@ -1206,12 +1206,12 @@ were made.
 
 * Standardized `max_steam_flow_1000_lbs_per_hour` to `max_steam_flow_lbs_per_hour`.
   Units changed to “lbs_per_hour” and rounded to nearest 100 lbs in the
-  [core_eia860_\_scd_boilers](data_dictionaries/pudl_db.md#core-eia860-scd-boilers) and [out_eia_\_yearly_boilers](data_dictionaries/pudl_db.md#out-eia-yearly-boilers) tables. See issue
+  [core_eia860_\_scd_boilers](data_dictionaries/pudl_db.html.md#core-eia860-scd-boilers) and [out_eia_\_yearly_boilers](data_dictionaries/pudl_db.html.md#out-eia-yearly-boilers) tables. See issue
   [#4301](https://github.com/catalyst-cooperative/pudl/issues/4301) and PR [#4810](https://github.com/catalyst-cooperative/pudl/pull/4810).
 * Standardized `steam_load_1000_lbs` to `steam_load_lbs`. Units changed to “lbs” in
-  the [core_epacems_\_hourly_emissions](data_dictionaries/pudl_db.md#core-epacems-hourly-emissions) table. See issue [#4301](https://github.com/catalyst-cooperative/pudl/issues/4301) and PR
+  the [core_epacems_\_hourly_emissions](data_dictionaries/pudl_db.html.md#core-epacems-hourly-emissions) table. See issue [#4301](https://github.com/catalyst-cooperative/pudl/issues/4301) and PR
   [#4810](https://github.com/catalyst-cooperative/pudl/pull/4810).
-* Corrected incorrect column mappings in [core_eia861_\_yearly_reliability](data_dictionaries/pudl_db.md#core-eia861-yearly-reliability) and
+* Corrected incorrect column mappings in [core_eia861_\_yearly_reliability](data_dictionaries/pudl_db.html.md#core-eia861-yearly-reliability) and
   `raw_eia861__frame` that were introduced for 2024 data during the EIA-861 2024
   data update. See [#4907](https://github.com/catalyst-cooperative/pudl/issues/4907) and [#4908](https://github.com/catalyst-cooperative/pudl/pull/4908).
 
@@ -1258,7 +1258,7 @@ deploying.
   SQLite) can be queried remotely when stored in a cloud bucket. This will also let us
   provide access to this relatively raw but complete FERC data through the [PUDL Data
   Viewer](https://data.catalyst.coop). Note that the XBRL data only covers 2021 to
-  the present. For links and an access example, see [Raw FERC XBRL data converted to DuckDB (EXPERIMENTAL)](data_access.md#access-raw-ferc-duckdb). See
+  the present. For links and an access example, see [Raw FERC XBRL data converted to DuckDB (EXPERIMENTAL)](data_access.html.md#access-raw-ferc-duckdb). See
   PR [#4782](https://github.com/catalyst-cooperative/pudl/pull/4782) for this change, which is mostly implemented in the
   1.7.x releases of our [FERC XBRL Extractor](https://github.com/catalyst-cooperative/ferc-xbrl-extractor/releases).
 
@@ -1270,7 +1270,7 @@ Thanks to open source contributions from [SwitchBox](https://switch.box) and fun
 from the [NSF POSE program](https://new.nsf.gov/funding/opportunities/pose-pathways-enable-open-source-ecosystems)
 we continue to bring in more EIA natural gas data.
 
-* Added [core_eia176_\_yearly_gas_disposition](data_dictionaries/pudl_db.md#core-eia176-yearly-gas-disposition), which contains cleaned
+* Added [core_eia176_\_yearly_gas_disposition](data_dictionaries/pudl_db.html.md#core-eia176-yearly-gas-disposition), which contains cleaned
   company-wide natural gas disposition data from Part 6B of the EIA-176 survey. See
   [#4708](https://github.com/catalyst-cooperative/pudl/issues/4708) and [#4765](https://github.com/catalyst-cooperative/pudl/pull/4765). Thanks to [@MeadBarrel](https://github.com/sponsors/MeadBarrel)!
 
@@ -1312,14 +1312,14 @@ we continue to bring in more EIA natural gas data.
 
 ### Performance Improvements
 
-* Reduced peak memory usage for [core_eia860m_\_changelog_generators](data_dictionaries/pudl_db.md#core-eia860m-changelog-generators) from 22GB to
+* Reduced peak memory usage for [core_eia860m_\_changelog_generators](data_dictionaries/pudl_db.html.md#core-eia860m-changelog-generators) from 22GB to
   16GB. See issue [#4686](https://github.com/catalyst-cooperative/pudl/issues/4686) and PR [#4707](https://github.com/catalyst-cooperative/pudl/pull/4707).
 
 ### Quality of Life Improvements
 
 * Added `balancing_authority_code_eia` and `balancing_authority_name_eia` to the
   set of plant-level attributes that are merged into the denormalized
-  [out_eia_\_monthly_generators](data_dictionaries/pudl_db.md#out-eia-monthly-generators) and [out_eia_\_yearly_generators](data_dictionaries/pudl_db.md#out-eia-yearly-generators) tables, as
+  [out_eia_\_monthly_generators](data_dictionaries/pudl_db.html.md#out-eia-monthly-generators) and [out_eia_\_yearly_generators](data_dictionaries/pudl_db.html.md#out-eia-yearly-generators) tables, as
   multiple users have requested them. Most recently [@sam-hostetter](https://github.com/sponsors/sam-hostetter) in issue
   [#4772](https://github.com/catalyst-cooperative/pudl/issues/4772). See [#4776](https://github.com/catalyst-cooperative/pudl/pull/4776).
 * Decouple the publication of Zenodo data releases from the nightly and release builds
@@ -1339,7 +1339,7 @@ we continue to bring in more EIA natural gas data.
   slower than the bigger VM. See [#4778](https://github.com/catalyst-cooperative/pudl/pull/4778).
 * Replaced `fgd_sorbent_consumption_1000_tons` with `fgd_sorbent_consumption_tons`
   and changed units, consumption tons, to be rounded to nearest 100 tons in the
-  [\_core_eia923_\_yearly_fgd_operation_maintenance](data_dictionaries/pudl_db.md#i-core-eia923-yearly-fgd-operation-maintenance) table. See issue [#4301](https://github.com/catalyst-cooperative/pudl/issues/4301)
+  [\_core_eia923_\_yearly_fgd_operation_maintenance](data_dictionaries/pudl_db.html.md#i-core-eia923-yearly-fgd-operation-maintenance) table. See issue [#4301](https://github.com/catalyst-cooperative/pudl/issues/4301)
   and PR [#4426](https://github.com/catalyst-cooperative/pudl/pull/4426).
 
 <a id="release-v2025-11-0"></a>
@@ -1360,10 +1360,10 @@ run the full ETL locally. See below for all the details.
 Thanks to open source contributions from [SwitchBox](https://switch.box) and funding
 from the [NSF POSE program](https://new.nsf.gov/funding/opportunities/pose-pathways-enable-open-source-ecosystems)
 that helps us support outside contributors, we’re beginning to integrate natural gas
-data into PUDL, starting with the [EIA Form 176](data_sources/eia176.md). Follow the
+data into PUDL, starting with the [EIA Form 176](data_sources/eia176.html.md). Follow the
 sub-issues listed in issue [#4693](https://github.com/catalyst-cooperative/pudl/issues/4693) to track our progress.
 
-* Added [core_eia176_\_yearly_gas_disposition_by_consumer](data_dictionaries/pudl_db.md#core-eia176-yearly-gas-disposition-by-consumer), which contains cleaned
+* Added [core_eia176_\_yearly_gas_disposition_by_consumer](data_dictionaries/pudl_db.html.md#core-eia176-yearly-gas-disposition-by-consumer), which contains cleaned
   natural gas disposition data from Part 6 of EIA-176. Thanks to [@MeadBarrel](https://github.com/sponsors/MeadBarrel) for
   all your work on this. See issues [#4694](https://github.com/catalyst-cooperative/pudl/issues/4694), [#4709](https://github.com/catalyst-cooperative/pudl/issues/4709) and PRs [#4737](https://github.com/catalyst-cooperative/pudl/pull/4737), [#4721](https://github.com/catalyst-cooperative/pudl/pull/4721), [#4728](https://github.com/catalyst-cooperative/pudl/pull/4728).
 
@@ -1430,8 +1430,8 @@ electricity sector cost projections, please let us know!
 ### Documentation
 
 * Added data source pages for:
-  * [EIA Annual Energy Outlook (AEO)](data_sources/eiaaeo.md); see issue [#4371](https://github.com/catalyst-cooperative/pudl/issues/4371) and PR [#4660](https://github.com/catalyst-cooperative/pudl/pull/4660).
-  * [EIA Form 176 – Annual Report of Natural and Supplemental Gas Supply and Disposition](data_sources/eia176.md); see issue [#4696](https://github.com/catalyst-cooperative/pudl/issues/4696) and PR [#4746](https://github.com/catalyst-cooperative/pudl/pull/4746).
+  * [EIA Annual Energy Outlook (AEO)](data_sources/eiaaeo.html.md); see issue [#4371](https://github.com/catalyst-cooperative/pudl/issues/4371) and PR [#4660](https://github.com/catalyst-cooperative/pudl/pull/4660).
+  * [EIA Form 176 – Annual Report of Natural and Supplemental Gas Supply and Disposition](data_sources/eia176.html.md); see issue [#4696](https://github.com/catalyst-cooperative/pudl/issues/4696) and PR [#4746](https://github.com/catalyst-cooperative/pudl/pull/4746).
 
 ### Bug Fixes
 
@@ -1444,7 +1444,7 @@ electricity sector cost projections, please let us know!
   of asset materialization. See issue [#4619](https://github.com/catalyst-cooperative/pudl/issues/4619) and PR [#4655](https://github.com/catalyst-cooperative/pudl/pull/4655).
 * We are no longer relying on Dask dataframes for processing data larger than memory.
   We’ve started using [Polars](https://pola.rs) and [DuckDB](https://duckdb.org)
-  instead. For now this primarily affects the very large [EPA Hourly Continuous Emission Monitoring System (CEMS)](data_sources/epacems.md)
+  instead. For now this primarily affects the very large [EPA Hourly Continuous Emission Monitoring System (CEMS)](data_sources/epacems.html.md)
   dataset, but we anticipate using these tools in other contexts to address performance
   bottlenecks. See issue [#4663](https://github.com/catalyst-cooperative/pudl/issues/4663) and PR [#4676](https://github.com/catalyst-cooperative/pudl/pull/4676) for the conversion of EPA
   CEMS from Dask to Polars.
@@ -1496,7 +1496,7 @@ and PR [#4291](https://github.com/catalyst-cooperative/pudl/pull/4291).
 
 * Thanks to contributions from [@alexclippinger](https://github.com/sponsors/alexclippinger), we’ve added cleaned EIA923
   Schedule 8B Financial Information to the PUDL database as
-  [\_core_eia923_\_yearly_byproduct_expenses_and_revenues](data_dictionaries/pudl_db.md#i-core-eia923-yearly-byproduct-expenses-and-revenues). Once harvested, this
+  [\_core_eia923_\_yearly_byproduct_expenses_and_revenues](data_dictionaries/pudl_db.html.md#i-core-eia923-yearly-byproduct-expenses-and-revenues). Once harvested, this
   table will be replaced with a well-normalized version of the same data, but it is
   being published in this form until then. See [#4099](https://github.com/catalyst-cooperative/pudl/issues/4099) and [#2448](https://github.com/catalyst-cooperative/pudl/issues/2448), and
   [#4636](https://github.com/catalyst-cooperative/pudl/pull/4636).
@@ -1504,8 +1504,8 @@ and PR [#4291](https://github.com/catalyst-cooperative/pudl/pull/4291).
 ### Documentation
 
 * Added data source pages for:
-  * [Population Estimates Program's (PEP) Federal Information Processing Series (FIPS) Codes](data_sources/censuspep.md); see issue [#4375](https://github.com/catalyst-cooperative/pudl/issues/4375) and PR [#4622](https://github.com/catalyst-cooperative/pudl/pull/4622).
-  * [U.S. Securities and Exchange Commission (SEC) Form 10-K](data_sources/sec10k.md); see issue [#4329](https://github.com/catalyst-cooperative/pudl/issues/4329), [#4347](https://github.com/catalyst-cooperative/pudl/issues/4347) and PR [#4562](https://github.com/catalyst-cooperative/pudl/pull/4562).
+  * [Population Estimates Program's (PEP) Federal Information Processing Series (FIPS) Codes](data_sources/censuspep.html.md); see issue [#4375](https://github.com/catalyst-cooperative/pudl/issues/4375) and PR [#4622](https://github.com/catalyst-cooperative/pudl/pull/4622).
+  * [U.S. Securities and Exchange Commission (SEC) Form 10-K](data_sources/sec10k.html.md); see issue [#4329](https://github.com/catalyst-cooperative/pudl/issues/4329), [#4347](https://github.com/catalyst-cooperative/pudl/issues/4347) and PR [#4562](https://github.com/catalyst-cooperative/pudl/pull/4562).
 
 ### New Data Tests & Data Validations
 
@@ -1516,9 +1516,9 @@ and PR [#4291](https://github.com/catalyst-cooperative/pudl/pull/4291).
   notebook is available on Kaggle](https://www.kaggle.com/code/catalystcooperative/06-pudl-imputed-electricity-demand)
 
   This relates to the PUDL imputed demand values in following tables:
-  * [out_eia930_\_hourly_operations](data_dictionaries/pudl_db.md#out-eia930-hourly-operations)
-  * [out_eia930_\_hourly_subregion_demand](data_dictionaries/pudl_db.md#out-eia930-hourly-subregion-demand)
-  * [out_eia930_\_hourly_aggregated_demand](data_dictionaries/pudl_db.md#out-eia930-hourly-aggregated-demand)
+  * [out_eia930_\_hourly_operations](data_dictionaries/pudl_db.html.md#out-eia930-hourly-operations)
+  * [out_eia930_\_hourly_subregion_demand](data_dictionaries/pudl_db.html.md#out-eia930-hourly-subregion-demand)
+  * [out_eia930_\_hourly_aggregated_demand](data_dictionaries/pudl_db.html.md#out-eia930-hourly-aggregated-demand)
 
 ### Deprecations
 
@@ -1560,7 +1560,7 @@ This is still experimental and there are only a handful of tables that currently
 geometries, but we hope to apply it more widely in the future for any tables with
 geospatial information. See PR [#4546](https://github.com/catalyst-cooperative/pudl/pull/4546).
 
-We’ve started by writing the [Census DP1 – Profile of General Demographic Characteristics](data_sources/censusdp1tract.md) state, county, and tract
+We’ve started by writing the [Census DP1 – Profile of General Demographic Characteristics](data_sources/censusdp1tract.html.md) state, county, and tract
 level data out as GeoParquet files, so they can be used alongside the other Parquet data
 without needing to read the Census DP1 SQLite DB.  This will allow us to point our
 [Kaggle (and other) notebooks](https://www.kaggle.com/catalystcooperative/code) that
@@ -1568,10 +1568,10 @@ make maps directly at the Parquet files in S3 rather than depending on the (some
 chonky) [Kaggle PUDL dataset](https://www.kaggle.com/datasets/catalystcooperative/pudl-project). For now the only
 tables with a valid `geometry` column are:
 
-* [out_censusdp1tract_\_states](data_dictionaries/pudl_db.md#out-censusdp1tract-states)
-* [out_censusdp1tract_\_counties](data_dictionaries/pudl_db.md#out-censusdp1tract-counties)
-* [out_censusdp1tract_\_tracts](data_dictionaries/pudl_db.md#out-censusdp1tract-tracts)
-* [out_ferc714_\_georeferenced_respondents](data_dictionaries/pudl_db.md#out-ferc714-georeferenced-respondents)
+* [out_censusdp1tract_\_states](data_dictionaries/pudl_db.html.md#out-censusdp1tract-states)
+* [out_censusdp1tract_\_counties](data_dictionaries/pudl_db.html.md#out-censusdp1tract-counties)
+* [out_censusdp1tract_\_tracts](data_dictionaries/pudl_db.html.md#out-censusdp1tract-tracts)
+* [out_ferc714_\_georeferenced_respondents](data_dictionaries/pudl_db.html.md#out-ferc714-georeferenced-respondents)
 
 ### Expanded Data Coverage
 
@@ -1613,13 +1613,13 @@ tables with a valid `geometry` column are:
   were a couple of trivial cases in which we were losing values that violated the
   constraints, but nothing serious. See PR [#4548](https://github.com/catalyst-cooperative/pudl/pull/4548).
 * Fixed a user identified bug within the
-  [out_ferc1_\_yearly_detailed_income_statements](data_dictionaries/pudl_db.md#out-ferc1-yearly-detailed-income-statements) table unnecessarily dropping
+  [out_ferc1_\_yearly_detailed_income_statements](data_dictionaries/pudl_db.html.md#out-ferc1-yearly-detailed-income-statements) table unnecessarily dropping
   records. See PR [#4580](https://github.com/catalyst-cooperative/pudl/pull/4580).
 
 ### Documentation
 
 * Added data source pages for:
-  * [EIA Bulk API Data](data_sources/eiaapi.md); see issue [#4372](https://github.com/catalyst-cooperative/pudl/issues/4372) and PR [#4567](https://github.com/catalyst-cooperative/pudl/pull/4567).
+  * [EIA Bulk API Data](data_sources/eiaapi.html.md); see issue [#4372](https://github.com/catalyst-cooperative/pudl/issues/4372) and PR [#4567](https://github.com/catalyst-cooperative/pudl/pull/4567).
 
 <a id="release-v2025-8-0"></a>
 
@@ -1636,7 +1636,7 @@ and data usability improvements. See the full notes below for details.
 
 * Thanks to contributions from [@alexclippinger](https://github.com/sponsors/alexclippinger), we’ve added cleaned EIA923
   Schedule 8A Byproduct Disposition to the PUDL database as
-  [\_core_eia923_\_yearly_byproduct_disposition](data_dictionaries/pudl_db.md#i-core-eia923-yearly-byproduct-disposition). Once harvested, this table will
+  [\_core_eia923_\_yearly_byproduct_disposition](data_dictionaries/pudl_db.html.md#i-core-eia923-yearly-byproduct-disposition). Once harvested, this table will
   be replaced with a well-normalized version of the same data, but it is being published
   in this form until then. See [#4100](https://github.com/catalyst-cooperative/pudl/issues/4100) and [#2448](https://github.com/catalyst-cooperative/pudl/issues/2448), and [#4502](https://github.com/catalyst-cooperative/pudl/pull/4502).
 
@@ -1708,8 +1708,8 @@ and data usability improvements. See the full notes below for details.
 * Fixed bug in how we were labeling the `data_maturity` of EIA-923. See issue
   [#4328](https://github.com/catalyst-cooperative/pudl/issues/4328) and PR [#4392](https://github.com/catalyst-cooperative/pudl/pull/4392).
 * Fixed bug in how we were repairing a misfiled EIA code in
-  [core_ferc714_\_respondent_id](data_dictionaries/pudl_db.md#core-ferc714-respondent-id). See issue [#4439](https://github.com/catalyst-cooperative/pudl/issues/4439) and PR [#4497](https://github.com/catalyst-cooperative/pudl/pull/4497).
-* Fixed bug in how we were removing duplicates in [core_eia923_\_monthly_generation](data_dictionaries/pudl_db.md#core-eia923-monthly-generation)
+  [core_ferc714_\_respondent_id](data_dictionaries/pudl_db.html.md#core-ferc714-respondent-id). See issue [#4439](https://github.com/catalyst-cooperative/pudl/issues/4439) and PR [#4497](https://github.com/catalyst-cooperative/pudl/pull/4497).
+* Fixed bug in how we were removing duplicates in [core_eia923_\_monthly_generation](data_dictionaries/pudl_db.html.md#core-eia923-monthly-generation)
   resulting in ~400 more records in this table over several years. See details in PR
   [#4538](https://github.com/catalyst-cooperative/pudl/pull/4538)
 
@@ -1720,11 +1720,11 @@ and data usability improvements. See the full notes below for details.
   * This included renaming two of the preliminarily published `_core` tables to better
     conform with our table naming conventions. Table
     `_core_eia923__cooling_system_information` is now
-    [\_core_eia923_\_monthly_cooling_system_information](data_dictionaries/pudl_db.md#i-core-eia923-monthly-cooling-system-information) and
+    [\_core_eia923_\_monthly_cooling_system_information](data_dictionaries/pudl_db.html.md#i-core-eia923-monthly-cooling-system-information) and
     `_core_eia923__fgd_operation_maintenance` is now
-    [\_core_eia923_\_yearly_fgd_operation_maintenance](data_dictionaries/pudl_db.md#i-core-eia923-yearly-fgd-operation-maintenance). See [#4422](https://github.com/catalyst-cooperative/pudl/pull/4422).
+    [\_core_eia923_\_yearly_fgd_operation_maintenance](data_dictionaries/pudl_db.html.md#i-core-eia923-yearly-fgd-operation-maintenance). See [#4422](https://github.com/catalyst-cooperative/pudl/pull/4422).
 * Added data source pages for:
-  * [EPA CAMD to EIA Power Sector Data Crosswalk](data_sources/epacamd_eia.md); see issue [#4376](https://github.com/catalyst-cooperative/pudl/issues/4376) and PR [#4403](https://github.com/catalyst-cooperative/pudl/pull/4403)
+  * [EPA CAMD to EIA Power Sector Data Crosswalk](data_sources/epacamd_eia.html.md); see issue [#4376](https://github.com/catalyst-cooperative/pudl/issues/4376) and PR [#4403](https://github.com/catalyst-cooperative/pudl/pull/4403)
 
 ### New Tests and Data Validations
 
@@ -1735,9 +1735,9 @@ for imputation change significantly from their reported values before and after 
 imputation. Check that the missingness of various columns in the hourly reported demand
 and imputed demand are within expected ranges. Explicitly flag years of which are
 dropped due to insufficient data for meaningful imputation with `BAD_YEAR`. Affected
-tables include [out_eia930_\_hourly_operations](data_dictionaries/pudl_db.md#out-eia930-hourly-operations),
-[out_eia930_\_hourly_subregion_demand](data_dictionaries/pudl_db.md#out-eia930-hourly-subregion-demand), and
-[out_ferc714_\_hourly_planning_area_demand](data_dictionaries/pudl_db.md#out-ferc714-hourly-planning-area-demand). See PR [#4334](https://github.com/catalyst-cooperative/pudl/pull/4334).
+tables include [out_eia930_\_hourly_operations](data_dictionaries/pudl_db.html.md#out-eia930-hourly-operations),
+[out_eia930_\_hourly_subregion_demand](data_dictionaries/pudl_db.html.md#out-eia930-hourly-subregion-demand), and
+[out_ferc714_\_hourly_planning_area_demand](data_dictionaries/pudl_db.html.md#out-ferc714-hourly-planning-area-demand). See PR [#4334](https://github.com/catalyst-cooperative/pudl/pull/4334).
 
 #### Check for entirely null column-years
 
@@ -1804,8 +1804,8 @@ data as fresh as possible. This is the first of those monthly releases.
 ### Bug Fixes
 
 * Fixed a number of typos in our documentation and codebase, which resulted in
-  renaming `synchronized_transmission_grid` in [core_eia860_\_scd_generators](data_dictionaries/pudl_db.md#core-eia860-scd-generators),
-  [out_eia_\_monthly_generators](data_dictionaries/pudl_db.md#out-eia-monthly-generators), and [out_eia_\_yearly_generators](data_dictionaries/pudl_db.md#out-eia-yearly-generators).
+  renaming `synchronized_transmission_grid` in [core_eia860_\_scd_generators](data_dictionaries/pudl_db.html.md#core-eia860-scd-generators),
+  [out_eia_\_monthly_generators](data_dictionaries/pudl_db.html.md#out-eia-monthly-generators), and [out_eia_\_yearly_generators](data_dictionaries/pudl_db.html.md#out-eia-yearly-generators).
   See issue [#3783](https://github.com/catalyst-cooperative/pudl/issues/3783) and [#4355](https://github.com/catalyst-cooperative/pudl/pull/4355).
 
 #### VCE RARE
@@ -1880,9 +1880,9 @@ All federal data was archived from the publishing agencies on May 1st, 2025.
   so they can be applied to electricity demand curves from both FERC-714 and EIA-930,
   as well as other time series data in the future. This resulted in some minor changes
   to the imputation results. See issue [#4112](https://github.com/catalyst-cooperative/pudl/issues/4112) and PR [#4113](https://github.com/catalyst-cooperative/pudl/pull/4113).
-* Added the table [out_ferc714_\_hourly_planning_area_demand](data_dictionaries/pudl_db.md#out-ferc714-hourly-planning-area-demand), which contains an
+* Added the table [out_ferc714_\_hourly_planning_area_demand](data_dictionaries/pudl_db.html.md#out-ferc714-hourly-planning-area-demand), which contains an
   imputed version of demand. Previously these imputed values were not being distributed
-  directly, and fed into the [out_ferc714_\_hourly_estimated_state_demand](data_dictionaries/pudl_db.md#out-ferc714-hourly-estimated-state-demand) table.
+  directly, and fed into the [out_ferc714_\_hourly_estimated_state_demand](data_dictionaries/pudl_db.html.md#out-ferc714-hourly-estimated-state-demand) table.
 
 #### EIA-930
 
@@ -1890,10 +1890,10 @@ Work on producing EIA-930 demand curves suitable for use in electricity system m
 is being done in collaboration with [@awongel](https://github.com/sponsors/awongel) at
 [Carnegie Science](https://carnegiescience.edu), with support from [GridLab](https://gridlab.org). See issue [#4083](https://github.com/catalyst-cooperative/pudl/issues/4083) for a list of related issues.
 
-* Added the table [out_eia930_\_hourly_subregion_demand](data_dictionaries/pudl_db.md#out-eia930-hourly-subregion-demand), which
+* Added the table [out_eia930_\_hourly_subregion_demand](data_dictionaries/pudl_db.html.md#out-eia930-hourly-subregion-demand), which
   contains an imputed version of subregion demand. See issues [#4124](https://github.com/catalyst-cooperative/pudl/issues/4124), [#4136](https://github.com/catalyst-cooperative/pudl/issues/4136) and PR
   [#4149](https://github.com/catalyst-cooperative/pudl/pull/4149)
-* Added the table [out_eia930_\_hourly_operations](data_dictionaries/pudl_db.md#out-eia930-hourly-operations), which
+* Added the table [out_eia930_\_hourly_operations](data_dictionaries/pudl_db.html.md#out-eia930-hourly-operations), which
   contains an imputed version of BA level demand. See issue [#4138](https://github.com/catalyst-cooperative/pudl/issues/4138) and PR
   [#4162](https://github.com/catalyst-cooperative/pudl/pull/4162)
 
@@ -1908,13 +1908,13 @@ is being done in collaboration with [@awongel](https://github.com/sponsors/awong
   that remain to be resolved in the [upstream repository](https://github.com/catalyst-cooperative/mozilla-sec-eia) that generates this data.
 
   The new tables include:
-  * [core_sec10k_\_quarterly_filings](data_dictionaries/pudl_db.md#core-sec10k-quarterly-filings)
-  * [core_sec10k_\_quarterly_company_information](data_dictionaries/pudl_db.md#core-sec10k-quarterly-company-information)
-  * [core_sec10k_\_changelog_company_name](data_dictionaries/pudl_db.md#core-sec10k-changelog-company-name)
-  * [core_sec10k_\_quarterly_exhibit_21_company_ownership](data_dictionaries/pudl_db.md#core-sec10k-quarterly-exhibit-21-company-ownership)
-  * [core_sec10k_\_assn_sec10k_filers_and_eia_utilities](data_dictionaries/pudl_db.md#core-sec10k-assn-sec10k-filers-and-eia-utilities)
-  * [out_sec10k_\_quarterly_filings](data_dictionaries/pudl_db.md#out-sec10k-quarterly-filings)
-  * [out_sec10k_\_changelog_company_name](data_dictionaries/pudl_db.md#out-sec10k-changelog-company-name)
+  * [core_sec10k_\_quarterly_filings](data_dictionaries/pudl_db.html.md#core-sec10k-quarterly-filings)
+  * [core_sec10k_\_quarterly_company_information](data_dictionaries/pudl_db.html.md#core-sec10k-quarterly-company-information)
+  * [core_sec10k_\_changelog_company_name](data_dictionaries/pudl_db.html.md#core-sec10k-changelog-company-name)
+  * [core_sec10k_\_quarterly_exhibit_21_company_ownership](data_dictionaries/pudl_db.html.md#core-sec10k-quarterly-exhibit-21-company-ownership)
+  * [core_sec10k_\_assn_sec10k_filers_and_eia_utilities](data_dictionaries/pudl_db.html.md#core-sec10k-assn-sec10k-filers-and-eia-utilities)
+  * [out_sec10k_\_quarterly_filings](data_dictionaries/pudl_db.html.md#out-sec10k-quarterly-filings)
+  * [out_sec10k_\_changelog_company_name](data_dictionaries/pudl_db.html.md#out-sec10k-changelog-company-name)
 
 ### Expanded Data Coverage
 
@@ -1950,7 +1950,7 @@ is being done in collaboration with [@awongel](https://github.com/sponsors/awong
 * Updated EIA-930 to include data published up through the beginning of May 2025.
   See [#4235](https://github.com/catalyst-cooperative/pudl/issues/4235) and [#4242](https://github.com/catalyst-cooperative/pudl/pull/4242). Raw data now includes adjusted and imputed
   values for the `unknown` fuel source, making it behave like other fuel sources;
-  see [Changes in energy source granularity over time](data_sources/eia930.md#data-sources-eia930-changes-in-energy-source-granularity-over-time) for
+  see [Changes in energy source granularity over time](data_sources/eia930.html.md#data-sources-eia930-changes-in-energy-source-granularity-over-time) for
   more information.
 
 #### EIA-860M
@@ -1989,10 +1989,10 @@ is being done in collaboration with [@awongel](https://github.com/sponsors/awong
   and PR [#4212](https://github.com/catalyst-cooperative/pudl/pull/4212).
 * To improve human readability, we added `utility_id_pudl` and `utility_name_ferc1`
   columns to a number of derived FERC 1 output tables including:
-  * [out_ferc1_\_yearly_rate_base](data_dictionaries/pudl_db.md#out-ferc1-yearly-rate-base)
-  * [out_ferc1_\_yearly_detailed_income_statements](data_dictionaries/pudl_db.md#out-ferc1-yearly-detailed-income-statements)
-  * [out_ferc1_\_yearly_detailed_balance_sheet_assets](data_dictionaries/pudl_db.md#out-ferc1-yearly-detailed-balance-sheet-assets)
-  * [out_ferc1_\_yearly_detailed_balance_sheet_liabilities](data_dictionaries/pudl_db.md#out-ferc1-yearly-detailed-balance-sheet-liabilities)
+  * [out_ferc1_\_yearly_rate_base](data_dictionaries/pudl_db.html.md#out-ferc1-yearly-rate-base)
+  * [out_ferc1_\_yearly_detailed_income_statements](data_dictionaries/pudl_db.html.md#out-ferc1-yearly-detailed-income-statements)
+  * [out_ferc1_\_yearly_detailed_balance_sheet_assets](data_dictionaries/pudl_db.html.md#out-ferc1-yearly-detailed-balance-sheet-assets)
+  * [out_ferc1_\_yearly_detailed_balance_sheet_liabilities](data_dictionaries/pudl_db.html.md#out-ferc1-yearly-detailed-balance-sheet-liabilities)
 
   See PR [#4260](https://github.com/catalyst-cooperative/pudl/pull/4260).
 
@@ -2023,14 +2023,14 @@ datasets that are published with quarterly or higher frequency, plus initial ver
 of a few new data sources that have been in the works for a while.
 
 One major change this quarter is that we are now publishing all processed PUDL data as
-Apache Parquet files, alongside our existing SQLite databases. See [Data Access](data_access.md)
+Apache Parquet files, alongside our existing SQLite databases. See [Data Access](data_access.html.md)
 for more on how to access these outputs.
 
 Some potentially breaking changes to be aware of:
 
-* In the [EIA Form 930 – Hourly and Daily Balancing Authority Operations Report](data_sources/eia930.md) a number of new energy sources have been added, and
+* In the [EIA Form 930 – Hourly and Daily Balancing Authority Operations Report](data_sources/eia930.html.md) a number of new energy sources have been added, and
   some old energy sources have been split into more granular categories. See
-  [Changes in energy source granularity over time](data_sources/eia930.md#data-sources-eia930-changes-in-energy-source-granularity-over-time).
+  [Changes in energy source granularity over time](data_sources/eia930.html.md#data-sources-eia930-changes-in-energy-source-granularity-over-time).
 * We are now running the EPA’s CAMD to EIA unit crosswalk code for each individual year
   starting from 2018, rather than just 2018 and 2021, resulting in more connections
   between these two datasets and changes to some sub-plant IDs. See the note below for
@@ -2062,9 +2062,9 @@ for 2025.
 
 * Added three new output tables containing granular utility accounting data.
   See [#4057](https://github.com/catalyst-cooperative/pudl/pull/4057), [#3642](https://github.com/catalyst-cooperative/pudl/issues/3642) and the table descriptions in the data dictionary:
-  * [out_ferc1_\_yearly_detailed_income_statements](data_dictionaries/pudl_db.md#out-ferc1-yearly-detailed-income-statements)
-  * [out_ferc1_\_yearly_detailed_balance_sheet_assets](data_dictionaries/pudl_db.md#out-ferc1-yearly-detailed-balance-sheet-assets)
-  * [out_ferc1_\_yearly_detailed_balance_sheet_liabilities](data_dictionaries/pudl_db.md#out-ferc1-yearly-detailed-balance-sheet-liabilities)
+  * [out_ferc1_\_yearly_detailed_income_statements](data_dictionaries/pudl_db.html.md#out-ferc1-yearly-detailed-income-statements)
+  * [out_ferc1_\_yearly_detailed_balance_sheet_assets](data_dictionaries/pudl_db.html.md#out-ferc1-yearly-detailed-balance-sheet-assets)
+  * [out_ferc1_\_yearly_detailed_balance_sheet_liabilities](data_dictionaries/pudl_db.html.md#out-ferc1-yearly-detailed-balance-sheet-liabilities)
 
 #### SEC Form 10-K Parent-Subsidiary Ownership
 
@@ -2085,10 +2085,10 @@ for 2025.
   linkage are necessarily probabilistic processes.
 * See PRs [#4026](https://github.com/catalyst-cooperative/pudl/pull/4026), [#4031](https://github.com/catalyst-cooperative/pudl/pull/4031), [#4035](https://github.com/catalyst-cooperative/pudl/pull/4035), [#4046](https://github.com/catalyst-cooperative/pudl/pull/4046), [#4048](https://github.com/catalyst-cooperative/pudl/pull/4048), [#4050](https://github.com/catalyst-cooperative/pudl/pull/4050), [#4079](https://github.com/catalyst-cooperative/pudl/pull/4079) and check out the table descriptions
   in the PUDL data dictionary:
-  * [core_sec10k_\_quarterly_filings](data_dictionaries/pudl_db.md#core-sec10k-quarterly-filings)
-  * [core_sec10k_\_quarterly_exhibit_21_company_ownership](data_dictionaries/pudl_db.md#core-sec10k-quarterly-exhibit-21-company-ownership)
-  * [core_sec10k_\_quarterly_company_information](data_dictionaries/pudl_db.md#core-sec10k-quarterly-company-information)
-  * [core_sec10k_\_changelog_company_name](data_dictionaries/pudl_db.md#core-sec10k-changelog-company-name)
+  * [core_sec10k_\_quarterly_filings](data_dictionaries/pudl_db.html.md#core-sec10k-quarterly-filings)
+  * [core_sec10k_\_quarterly_exhibit_21_company_ownership](data_dictionaries/pudl_db.html.md#core-sec10k-quarterly-exhibit-21-company-ownership)
+  * [core_sec10k_\_quarterly_company_information](data_dictionaries/pudl_db.html.md#core-sec10k-quarterly-company-information)
+  * [core_sec10k_\_changelog_company_name](data_dictionaries/pudl_db.html.md#core-sec10k-changelog-company-name)
 
 ### Expanded Data Coverage
 
@@ -2104,13 +2104,13 @@ for 2025.
   which generates the EPA CAMD EIA crosswalk with 4 new years of data: 2019, 2020, 2022
   and 2023. Re-running the crosswalk pulls the latest data from the CAMD FACT API, which
   results in some changes to the generator and unit IDs reported on the EPA side of the
-  crosswalk, which feeds into the creation of [core_epa_\_assn_eia_epacamd](data_dictionaries/pudl_db.md#core-epa-assn-eia-epacamd).
+  crosswalk, which feeds into the creation of [core_epa_\_assn_eia_epacamd](data_dictionaries/pudl_db.html.md#core-epa-assn-eia-epacamd).
 * The changes only result in the addition of new units and generators in the EPA data,
   with no changes to matches at the plant level. However, the updates to generator and
   unit IDs have resulted in changes to the subplant IDs - some EIA boilers and
   generators which previously had no matches to EPA data have now been matched to EPA
   unit data, resulting in an overall **reduction** in the number of rows in the
-  [core_epa_\_assn_eia_epacamd_subplant_ids](data_dictionaries/pudl_db.md#core-epa-assn-eia-epacamd-subplant-ids) table. See issues [#4039](https://github.com/catalyst-cooperative/pudl/issues/4039)
+  [core_epa_\_assn_eia_epacamd_subplant_ids](data_dictionaries/pudl_db.html.md#core-epa-assn-eia-epacamd-subplant-ids) table. See issues [#4039](https://github.com/catalyst-cooperative/pudl/issues/4039)
   and PR [#4056](https://github.com/catalyst-cooperative/pudl/pull/4056) for a discussion of the changes observed in the course of this
   update.
 
@@ -2132,20 +2132,20 @@ for 2025.
 * Updated the EIA-930 data to include data published up through the beginning of
   February 2025. See [#4040](https://github.com/catalyst-cooperative/pudl/issues/4040) and PR [#4054](https://github.com/catalyst-cooperative/pudl/pull/4054). 10 new energy sources
   were added and 3 were retired; see
-  [Changes in energy source granularity over time](data_sources/eia930.md#data-sources-eia930-changes-in-energy-source-granularity-over-time) for
+  [Changes in energy source granularity over time](data_sources/eia930.html.md#data-sources-eia930-changes-in-energy-source-granularity-over-time) for
   more information.
 
 ### Bug Fixes
 
 * Fix an accidentally swapped set of starting balance / ending balance column rename
   parameters in the pre-2021 DBF derived data that feeds into
-  [core_ferc1_\_yearly_other_regulatory_liabilities_sched278](data_dictionaries/pudl_db.md#core-ferc1-yearly-other-regulatory-liabilities-sched278). See issue
+  [core_ferc1_\_yearly_other_regulatory_liabilities_sched278](data_dictionaries/pudl_db.html.md#core-ferc1-yearly-other-regulatory-liabilities-sched278). See issue
   [#3952](https://github.com/catalyst-cooperative/pudl/issues/3952) and PRs [#3969](https://github.com/catalyst-cooperative/pudl/pull/3969), [#3979](https://github.com/catalyst-cooperative/pudl/pull/3979). Thanks to [@yolandazzz13](https://github.com/sponsors/yolandazzz13) for making
   this fix.
 * Added preliminary data validation checks for several FERC 1 tables that were
   missing it [#3860](https://github.com/catalyst-cooperative/pudl/pull/3860).
 * Fix spelling of Lake Huron and Lake Saint Clair in
-  [out_vcerare_\_hourly_available_capacity_factor](data_dictionaries/pudl_db.md#out-vcerare-hourly-available-capacity-factor) and related tables. See issue
+  [out_vcerare_\_hourly_available_capacity_factor](data_dictionaries/pudl_db.html.md#out-vcerare-hourly-available-capacity-factor) and related tables. See issue
   [#4007](https://github.com/catalyst-cooperative/pudl/issues/4007) and PR [#4029](https://github.com/catalyst-cooperative/pudl/pull/4029).
 
 ### Quality of Life Improvements
@@ -2226,7 +2226,7 @@ the XBRL data published by FERC. See details below
   WECC-wide GridPath RA Toolkit data currently incorporated into PUDL, providing
   capacity factor data nation-wide with a different set of modeling assumptions and
   a different granularity for the aggregation of outputs.
-  See [GridPath Resource Adequacy Toolkit Data](data_sources/gridpathratoolkit.md) and [Vibrant Clean Energy Resource Adequacy Renewable Energy (RARE) Power Dataset](data_sources/vcerare.md) for
+  See [GridPath Resource Adequacy Toolkit Data](data_sources/gridpathratoolkit.html.md) and [Vibrant Clean Energy Resource Adequacy Renewable Energy (RARE) Power Dataset](data_sources/vcerare.html.md) for
   more information.  See [#3872](https://github.com/catalyst-cooperative/pudl/issues/#3872).
 
 ### New Data Coverage
@@ -2239,8 +2239,8 @@ the XBRL data published by FERC. See details below
 
 * Added EIA-861 final release data from 2023. See [#3905](https://github.com/catalyst-cooperative/pudl/issues/3905) and PR [#3911](https://github.com/catalyst-cooperative/pudl/pull/3911). This
   includes a new `energy_capacity_mwh` field for battery storage in
-  [core_eia861_\_yearly_net_metering_customer_fuel_class](data_dictionaries/pudl_db.md#core-eia861-yearly-net-metering-customer-fuel-class) and
-  [core_eia861_\_yearly_non_net_metering_customer_fuel_class](data_dictionaries/pudl_db.md#core-eia861-yearly-non-net-metering-customer-fuel-class).
+  [core_eia861_\_yearly_net_metering_customer_fuel_class](data_dictionaries/pudl_db.html.md#core-eia861-yearly-net-metering-customer-fuel-class) and
+  [core_eia861_\_yearly_non_net_metering_customer_fuel_class](data_dictionaries/pudl_db.html.md#core-eia861-yearly-non-net-metering-customer-fuel-class).
 
 #### EIA-923
 
@@ -2256,8 +2256,8 @@ the XBRL data published by FERC. See details below
 
 ### Schema Changes
 
-* Added [out_eia_\_yearly_assn_plant_parts_plant_gen](data_dictionaries/pudl_db.md#out-eia-yearly-assn-plant-parts-plant-gen) table. This table associates
-  records from the [out_eia_\_yearly_plant_parts](data_dictionaries/pudl_db.md#out-eia-yearly-plant-parts) with `plant_gen` records from
+* Added [out_eia_\_yearly_assn_plant_parts_plant_gen](data_dictionaries/pudl_db.html.md#out-eia-yearly-assn-plant-parts-plant-gen) table. This table associates
+  records from the [out_eia_\_yearly_plant_parts](data_dictionaries/pudl_db.html.md#out-eia-yearly-plant-parts) with `plant_gen` records from
   that same plant parts table. See issue [#3773](https://github.com/catalyst-cooperative/pudl/issues/3773) and PR [#3774](https://github.com/catalyst-cooperative/pudl/pull/3774).
 
 ### Bug Fixes
@@ -2316,7 +2316,7 @@ datasets, whose final release will not happen until the fall.
 #### EIA AEO
 
 * Added new tables from EIA AEO table 54:
-  * [core_eiaaeo_\_yearly_projected_fuel_cost_in_electric_sector_by_type](data_dictionaries/pudl_db.md#core-eiaaeo-yearly-projected-fuel-cost-in-electric-sector-by-type)
+  * [core_eiaaeo_\_yearly_projected_fuel_cost_in_electric_sector_by_type](data_dictionaries/pudl_db.html.md#core-eiaaeo-yearly-projected-fuel-cost-in-electric-sector-by-type)
     contains fuel costs for the electric power sector. These are broken out by
     fuel type, and include both nominal USD per MMBtu as well as real 2022 USD
     per MMBtu. See issue [#3649](https://github.com/catalyst-cooperative/pudl/issues/3649) and PR [#3656](https://github.com/catalyst-cooperative/pudl/pull/3656).
@@ -2352,7 +2352,7 @@ datasets, whose final release will not happen until the fall.
 
 #### FERC 714
 
-* Added [core_ferc714_\_yearly_planning_area_demand_forecast](data_dictionaries/pudl_db.md#core-ferc714-yearly-planning-area-demand-forecast) based on FERC
+* Added [core_ferc714_\_yearly_planning_area_demand_forecast](data_dictionaries/pudl_db.html.md#core-ferc714-yearly-planning-area-demand-forecast) based on FERC
   Form 714, Part III, Schedule 2b. Data includes forecasted demand and net energy load.
   See issue [#3519](https://github.com/catalyst-cooperative/pudl/issues/3519) and PR [#3670](https://github.com/catalyst-cooperative/pudl/pull/3670).
 * WIP: Adding XBRL(2021+) data for FERC 714 tables. Track progress in [#3822](https://github.com/catalyst-cooperative/pudl/issues/3822).
@@ -2373,7 +2373,7 @@ datasets, whose final release will not happen until the fall.
   successfully, we now take the last reported date in EIA-860 and 860M. See [#423](https://github.com/catalyst-cooperative/pudl/issues/423)
   and PR [#3967](https://github.com/catalyst-cooperative/pudl/pull/3967).
 * Added the `generator_operating_date` field into
-  [core_eia860m_\_changelog_generators](data_dictionaries/pudl_db.md#core-eia860m-changelog-generators), adding 860M reported generator operating
+  [core_eia860m_\_changelog_generators](data_dictionaries/pudl_db.html.md#core-eia860m-changelog-generators), adding 860M reported generator operating
   dates into the changelog table. This table is not harvested, and thus does not affect
   the `generator_operating_date` values reported in other core EIA tables. See
   [#3722](https://github.com/catalyst-cooperative/pudl/issues/3722) and PR [#3751.](https://github.com/catalyst-cooperative/pudl/pull/3751.)
@@ -2381,7 +2381,7 @@ datasets, whose final release will not happen until the fall.
 ### Bug Fixes
 
 * Disabled filling of missing values using rolling averages for the
-  `fuel_cost_per_mmbtu` column in the [out_eia923_\_fuel_receipts_costs](data_dictionaries/pudl_db.md#out-eia923-fuel-receipts-costs) table, as
+  `fuel_cost_per_mmbtu` column in the [out_eia923_\_fuel_receipts_costs](data_dictionaries/pudl_db.html.md#out-eia923-fuel-receipts-costs) table, as
   it was resulting in some anomlously high fuel prices. See [#3716](https://github.com/catalyst-cooperative/pudl/pull/3716). This results in
   about 2% more records in the table being left `NA` after filling with the average
   prices for that fuel type for the state and month found in the bulk EIA API data.
@@ -2411,18 +2411,18 @@ modelers (with support from GridLab). Details below.
 
 * Added cleaned EIA860 Schedule 8E FGD Equipment and EIA923 Schedule 8C FGD Operation
   and Maintenance data to the PUDL database as
-  [\_core_eia923_\_yearly_fgd_operation_maintenance](data_dictionaries/pudl_db.md#i-core-eia923-yearly-fgd-operation-maintenance) and
-  [\_core_eia860_\_fgd_equipment](data_dictionaries/pudl_db.md#i-core-eia860-fgd-equipment). Once harvested, these tables will eventually be
+  [\_core_eia923_\_yearly_fgd_operation_maintenance](data_dictionaries/pudl_db.html.md#i-core-eia923-yearly-fgd-operation-maintenance) and
+  [\_core_eia860_\_fgd_equipment](data_dictionaries/pudl_db.html.md#i-core-eia860-fgd-equipment). Once harvested, these tables will eventually be
   removed from the database, but they are being published until then. See [#3394](https://github.com/catalyst-cooperative/pudl/issues/3394)
   and [#3392](https://github.com/catalyst-cooperative/pudl/issues/3392), and [#3403](https://github.com/catalyst-cooperative/pudl/pull/3403).
-* Added new [core_eia860_\_scd_generators_wind](data_dictionaries/pudl_db.md#core-eia860-scd-generators-wind) table from EIA860 Schedule 3.2
+* Added new [core_eia860_\_scd_generators_wind](data_dictionaries/pudl_db.html.md#core-eia860-scd-generators-wind) table from EIA860 Schedule 3.2
   which contains wind generator attributes. See [#3522](https://github.com/catalyst-cooperative/pudl/pull/3522) and [#3494](https://github.com/catalyst-cooperative/pudl/pull/3494).
-* Added new [core_eia860_\_scd_generators_solar](data_dictionaries/pudl_db.md#core-eia860-scd-generators-solar) table from EIA860 Schedule 3.3
+* Added new [core_eia860_\_scd_generators_solar](data_dictionaries/pudl_db.html.md#core-eia860-scd-generators-solar) table from EIA860 Schedule 3.3
   which contains solar generator attributes. See [#3524](https://github.com/catalyst-cooperative/pudl/pull/3524) and [#3482](https://github.com/catalyst-cooperative/pudl/pull/3482).
-* Added new [core_eia860_\_scd_generators_energy_storage](data_dictionaries/pudl_db.md#core-eia860-scd-generators-energy-storage) table from EIA860 Schedule
+* Added new [core_eia860_\_scd_generators_energy_storage](data_dictionaries/pudl_db.html.md#core-eia860-scd-generators-energy-storage) table from EIA860 Schedule
   3.4 which contains energy storage generator attributes. See [#3488](https://github.com/catalyst-cooperative/pudl/pull/3488) and [#3526](https://github.com/catalyst-cooperative/pudl/pull/3526).
   which contains solar generator attributes. See [#3524](https://github.com/catalyst-cooperative/pudl/pull/3524) and [#3482](https://github.com/catalyst-cooperative/pudl/pull/3482)
-* Added new [core_eia923_\_monthly_energy_storage](data_dictionaries/pudl_db.md#core-eia923-monthly-energy-storage) table from EIA923 which contains
+* Added new [core_eia923_\_monthly_energy_storage](data_dictionaries/pudl_db.html.md#core-eia923-monthly-energy-storage) table from EIA923 which contains
   monthly energy and fuel consumption metrics. See [#3516](https://github.com/catalyst-cooperative/pudl/pull/3516) and [#3546](https://github.com/catalyst-cooperative/pudl/pull/3546).
 * Added 2024 Q1 EIA923 and EIA860m data. See issues [#3617](https://github.com/catalyst-cooperative/pudl/issues/3617), [#3618](https://github.com/catalyst-cooperative/pudl/issues/3618), and PR
   [#3625](https://github.com/catalyst-cooperative/pudl/pull/3625).
@@ -2430,31 +2430,31 @@ modelers (with support from GridLab). Details below.
 #### GridPath RA Toolkit
 
 * Added a new `gridpathratoolkit` data source containing hourly wind and solar
-  generation profiles from the [GridPath Resource Adequacy Toolkit](https://gridlab.org/gridpathratoolkit). See [GridPath Resource Adequacy Toolkit Data](data_sources/gridpathratoolkit.md)
+  generation profiles from the [GridPath Resource Adequacy Toolkit](https://gridlab.org/gridpathratoolkit). See [GridPath Resource Adequacy Toolkit Data](data_sources/gridpathratoolkit.html.md)
   and the [new Zenodo archive](https://zenodo.org/records/10844662), PR [#3489](https://github.com/catalyst-cooperative/pudl/pull/3489)
   and [this PUDL archiver issue](https://github.com/catalyst-cooperative/pudl-archiver/issues/296).
 * Integrated the most processed version of the GridPath RA Toolkit wind and solar
   generation profiles, as well as the tables describing how individual generators were
   aggregated together to create the profiles. See issues [#3509](https://github.com/catalyst-cooperative/pudl/issues/3509), [#3510](https://github.com/catalyst-cooperative/pudl/issues/3510), [#3511](https://github.com/catalyst-cooperative/pudl/issues/3511), [#3515](https://github.com/catalyst-cooperative/pudl/issues/3515)
   and PR [#3514](https://github.com/catalyst-cooperative/pudl/pull/3514). The new tables include:
-  [out_gridpathratoolkit_\_hourly_available_capacity_factor](data_dictionaries/pudl_db.md#out-gridpathratoolkit-hourly-available-capacity-factor) and
-  [core_gridpathratoolkit_\_assn_generator_aggregation_group](data_dictionaries/pudl_db.md#core-gridpathratoolkit-assn-generator-aggregation-group).
+  [out_gridpathratoolkit_\_hourly_available_capacity_factor](data_dictionaries/pudl_db.html.md#out-gridpathratoolkit-hourly-available-capacity-factor) and
+  [core_gridpathratoolkit_\_assn_generator_aggregation_group](data_dictionaries/pudl_db.html.md#core-gridpathratoolkit-assn-generator-aggregation-group).
 
 #### EIA AEO
 
 * Extracted tables 13, 15, 20, and 54 from the [EIA Annual Energy Outlook 2023](https://www.eia.gov/outlooks/aeo/tables_ref.php), which include future
   projections related to electric power and renewable energy through the year
   2050, across a variety of scenarios. See [#3368](https://github.com/catalyst-cooperative/pudl/issues/3368) and [#3538](https://github.com/catalyst-cooperative/pudl/pull/3538).
-* Added new [core_eia861_\_yearly_short_form](data_dictionaries/pudl_db.md#core-eia861-yearly-short-form) table from EIA861 which contains
+* Added new [core_eia861_\_yearly_short_form](data_dictionaries/pudl_db.html.md#core-eia861-yearly-short-form) table from EIA861 which contains
   the shorter version of EIA861. See issues [#3540](https://github.com/catalyst-cooperative/pudl/issues/3540) and PR [#3565](https://github.com/catalyst-cooperative/pudl/pull/3565).
 * Added new tables from EIA AEO table 54:
-  * [core_eiaaeo_\_yearly_projected_generation_in_electric_sector_by_technology](data_dictionaries/pudl_db.md#core-eiaaeo-yearly-projected-generation-in-electric-sector-by-technology)
+  * [core_eiaaeo_\_yearly_projected_generation_in_electric_sector_by_technology](data_dictionaries/pudl_db.html.md#core-eiaaeo-yearly-projected-generation-in-electric-sector-by-technology)
     contains generation capacity & generation projections for the electric
     sector, broken out by technology type. See [#3581](https://github.com/catalyst-cooperative/pudl/issues/3581) and [#3582](https://github.com/catalyst-cooperative/pudl/pull/3582).
-  * [core_eiaaeo_\_yearly_projected_generation_in_end_use_sectors_by_fuel_type](data_dictionaries/pudl_db.md#core-eiaaeo-yearly-projected-generation-in-end-use-sectors-by-fuel-type)
+  * [core_eiaaeo_\_yearly_projected_generation_in_end_use_sectors_by_fuel_type](data_dictionaries/pudl_db.html.md#core-eiaaeo-yearly-projected-generation-in-end-use-sectors-by-fuel-type)
     contains generation capacity & generation projections for the electric
     sector, broken out by technology type. See [#3581](https://github.com/catalyst-cooperative/pudl/issues/3581) and [#3598](https://github.com/catalyst-cooperative/pudl/pull/3598).
-  * [core_eiaaeo_\_yearly_projected_electric_sales](data_dictionaries/pudl_db.md#core-eiaaeo-yearly-projected-electric-sales) contains electric sales
+  * [core_eiaaeo_\_yearly_projected_electric_sales](data_dictionaries/pudl_db.html.md#core-eiaaeo-yearly-projected-electric-sales) contains electric sales
     projections until 2050, broken out by customer type. See [#3581](https://github.com/catalyst-cooperative/pudl/issues/3581) and
     [#3617](https://github.com/catalyst-cooperative/pudl/pull/3617).
 
@@ -2467,7 +2467,7 @@ modelers (with support from GridLab). Details below.
 
 * Added hourly generation, demand, and interchange tables from the EIA-930. See issues
   [#3486](https://github.com/catalyst-cooperative/pudl/issues/3486), [#3505](https://github.com/catalyst-cooperative/pudl/issues/3505) PR [#3584](https://github.com/catalyst-cooperative/pudl/pull/3584) and [this issue in the PUDL archiver repo](https://github.com/catalyst-cooperative/pudl-archiver/issues/295). See the
-  data source documentation [EIA Form 930 – Hourly and Daily Balancing Authority Operations Report](data_sources/eia930.md) for more information.
+  data source documentation [EIA Form 930 – Hourly and Daily Balancing Authority Operations Report](data_sources/eia930.html.md) for more information.
 
 #### EPA CEMS
 
@@ -2481,7 +2481,7 @@ modelers (with support from GridLab). Details below.
 
 #### FERC Form 1
 
-* Added new [out_ferc1_\_yearly_rate_base](data_dictionaries/pudl_db.md#out-ferc1-yearly-rate-base) table which includes granular financial
+* Added new [out_ferc1_\_yearly_rate_base](data_dictionaries/pudl_db.html.md#out-ferc1-yearly-rate-base) table which includes granular financial
   data regarding what utilities include in their rate bases. See epic [#2016](https://github.com/catalyst-cooperative/pudl/issues/2016).
 
 ### Data Cleaning
@@ -2511,7 +2511,7 @@ improved and now has a precision of .94, recall of .9, and overall accuracy of .
 ### Schema Changes
 
 * Added `balancing_authority_code_eia` and `sector_id_eia` into the
-  [core_eia860m_\_changelog_generators](data_dictionaries/pudl_db.md#core-eia860m-changelog-generators) table. The BA codes reported in the raw data
+  [core_eia860m_\_changelog_generators](data_dictionaries/pudl_db.html.md#core-eia860m-changelog-generators) table. The BA codes reported in the raw data
   contained a lot of non-standard values, which have now been standardized. See issue
   [#3437](https://github.com/catalyst-cooperative/pudl/issues/3437) and PR [#3442](https://github.com/catalyst-cooperative/pudl/pull/3442).
 * Renamed the `utc_datetime` column found in the FERC-714 tables to `datetime_utc`
@@ -2520,21 +2520,21 @@ improved and now has a precision of .94, recall of .9, and overall accuracy of .
   [#3514](https://github.com/catalyst-cooperative/pudl/pull/3514).
 * Renamed the utility and balancing authority service territory tables to better conform
   to our naming conventions: `out_eia861__compiled_geometry_utilities` is now
-  [out_eia861_\_yearly_utility_service_territory](data_dictionaries/pudl_db.md#out-eia861-yearly-utility-service-territory) and
+  [out_eia861_\_yearly_utility_service_territory](data_dictionaries/pudl_db.html.md#out-eia861-yearly-utility-service-territory) and
   `out_eia861__compiled_geometry_balancing_authorities` is now
-  [out_eia861_\_yearly_balancing_authority_service_territory](data_dictionaries/pudl_db.md#out-eia861-yearly-balancing-authority-service-territory). See PR [#3552](https://github.com/catalyst-cooperative/pudl/pull/3552).
+  [out_eia861_\_yearly_balancing_authority_service_territory](data_dictionaries/pudl_db.html.md#out-eia861-yearly-balancing-authority-service-territory). See PR [#3552](https://github.com/catalyst-cooperative/pudl/pull/3552).
 * All hourly tables are now published only as Apache Parquet files, rather than being
   written to the main PUDL SQLite database. This reduces the size of the PUDL DB, and
   also makes accessing these large table much faster both during data processing and for
   end users. See PR [#3584](https://github.com/catalyst-cooperative/pudl/pull/3584).  Affected tables include:
-  * [core_eia930_\_hourly_interchange](data_dictionaries/pudl_db.md#core-eia930-hourly-interchange)
-  * [core_eia930_\_hourly_net_generation_by_energy_source](data_dictionaries/pudl_db.md#core-eia930-hourly-net-generation-by-energy-source)
-  * [core_eia930_\_hourly_operations](data_dictionaries/pudl_db.md#core-eia930-hourly-operations)
-  * [core_eia930_\_hourly_subregion_demand](data_dictionaries/pudl_db.md#core-eia930-hourly-subregion-demand)
-  * [core_epacems_\_hourly_emissions](data_dictionaries/pudl_db.md#core-epacems-hourly-emissions)
-  * [out_ferc714_\_hourly_estimated_state_demand](data_dictionaries/pudl_db.md#out-ferc714-hourly-estimated-state-demand)
-  * [out_ferc714_\_hourly_planning_area_demand](data_dictionaries/pudl_db.md#out-ferc714-hourly-planning-area-demand)
-  * [out_gridpathratoolkit_\_hourly_available_capacity_factor](data_dictionaries/pudl_db.md#out-gridpathratoolkit-hourly-available-capacity-factor)
+  * [core_eia930_\_hourly_interchange](data_dictionaries/pudl_db.html.md#core-eia930-hourly-interchange)
+  * [core_eia930_\_hourly_net_generation_by_energy_source](data_dictionaries/pudl_db.html.md#core-eia930-hourly-net-generation-by-energy-source)
+  * [core_eia930_\_hourly_operations](data_dictionaries/pudl_db.html.md#core-eia930-hourly-operations)
+  * [core_eia930_\_hourly_subregion_demand](data_dictionaries/pudl_db.html.md#core-eia930-hourly-subregion-demand)
+  * [core_epacems_\_hourly_emissions](data_dictionaries/pudl_db.html.md#core-epacems-hourly-emissions)
+  * [out_ferc714_\_hourly_estimated_state_demand](data_dictionaries/pudl_db.html.md#out-ferc714-hourly-estimated-state-demand)
+  * [out_ferc714_\_hourly_planning_area_demand](data_dictionaries/pudl_db.html.md#out-ferc714-hourly-planning-area-demand)
+  * [out_gridpathratoolkit_\_hourly_available_capacity_factor](data_dictionaries/pudl_db.html.md#out-gridpathratoolkit-hourly-available-capacity-factor)
 
   The FERC-714 hourly demand tables have been removed from the
   `pudl.output.pudltabl.PudlTabl` class, which has been deprecated.
@@ -2542,11 +2542,11 @@ improved and now has a precision of .94, recall of .9, and overall accuracy of .
   database. This table contained descriptions of the FERC accounts that were found in
   the Electric Plant in Service table, but only pertained to a single year, and was not
   being referenced or maintained elsewhere. See PR [#3584](https://github.com/catalyst-cooperative/pudl/pull/3584).
-* Additional columns were added to the [core_eia_\_codes_balancing_authorities](data_dictionaries/pudl_db.md#core-eia-codes-balancing-authorities)
+* Additional columns were added to the [core_eia_\_codes_balancing_authorities](data_dictionaries/pudl_db.html.md#core-eia-codes-balancing-authorities)
   table, indicating the timezone associated with each BA’s reporting, whether it is a
   generation only BA, and its date of retirement, and what region it is part of. See PR
   [#3584](https://github.com/catalyst-cooperative/pudl/pull/3584).
-* A new [core_eia_\_codes_balancing_authority_subregions](data_dictionaries/pudl_db.md#core-eia-codes-balancing-authority-subregions) table was added to
+* A new [core_eia_\_codes_balancing_authority_subregions](data_dictionaries/pudl_db.html.md#core-eia-codes-balancing-authority-subregions) table was added to
   describe the relationships between BAs and their subregions. See PR [#3584](https://github.com/catalyst-cooperative/pudl/pull/3584).
 
 ### Bug Fixes
@@ -2571,9 +2571,9 @@ improved and now has a precision of .94, recall of .9, and overall accuracy of .
 ## v2024.2.6 (2024-02-25)
 
 The main impetus behind this release is the quarterly update of some of our
-core datasets with preliminary data for 2023Q4. The [EIA Form 860 – Annual Electric Generator Report](data_sources/eia860.md),
-[EPA Hourly Continuous Emission Monitoring System (CEMS)](data_sources/epacems.md), and bulk EIA API data are all up to date through the end of
-2023, while the [EIA Form 923 – Power Plant Operations Report](data_sources/eia923.md) lags a month behind and is currently only
+core datasets with preliminary data for 2023Q4. The [EIA Form 860 – Annual Electric Generator Report](data_sources/eia860.html.md),
+[EPA Hourly Continuous Emission Monitoring System (CEMS)](data_sources/epacems.html.md), and bulk EIA API data are all up to date through the end of
+2023, while the [EIA Form 923 – Power Plant Operations Report](data_sources/eia923.html.md) lags a month behind and is currently only
 available through November, 2023. We also addressed several issues we found in our
 initial release automation process that will make it easier for us to do more frequent
 releases, like this one!
@@ -2591,7 +2591,7 @@ experimental Parquet outputs. See below for the details.
 * Add EIA860M data through December 2023 [#3313](https://github.com/catalyst-cooperative/pudl/issues/3313), [#3367](https://github.com/catalyst-cooperative/pudl/pull/3367).
 * Add 2023 Q4 of CEMS data. See [#3315](https://github.com/catalyst-cooperative/pudl/issues/3315), [#3379](https://github.com/catalyst-cooperative/pudl/pull/3379).
 * Add EIA923 monthly data through November 2023 [#3314](https://github.com/catalyst-cooperative/pudl/issues/3314), [#3398](https://github.com/catalyst-cooperative/pudl/pull/3398), [#3422](https://github.com/catalyst-cooperative/pudl/pull/3422).
-* Create a new table [core_eia860m_\_changelog_generators](data_dictionaries/pudl_db.md#core-eia860m-changelog-generators) which tracks the
+* Create a new table [core_eia860m_\_changelog_generators](data_dictionaries/pudl_db.html.md#core-eia860m-changelog-generators) which tracks the
   evolution of all generator data reported in the EIA860M, in particular the stated
   retirement dates. see issue [#3330](https://github.com/catalyst-cooperative/pudl/issues/3330) and PR [#3331](https://github.com/catalyst-cooperative/pudl/pull/3331). Previously only the most
   recent month of reported EIA860M data was available within the PUDL DB.
@@ -2608,10 +2608,10 @@ experimental Parquet outputs. See below for the details.
 
 * Restored the individual FERC Form 1 plant output tables, providing direct access to
   denormalized versions of the specific plant types via:
-  * [out_ferc1_\_yearly_steam_plants_sched402](data_dictionaries/pudl_db.md#out-ferc1-yearly-steam-plants-sched402)
-  * [out_ferc1_\_yearly_small_plants_sched410](data_dictionaries/pudl_db.md#out-ferc1-yearly-small-plants-sched410)
-  * [out_ferc1_\_yearly_hydroelectric_plants_sched406](data_dictionaries/pudl_db.md#out-ferc1-yearly-hydroelectric-plants-sched406)
-  * [out_ferc1_\_yearly_pumped_storage_plants_sched408](data_dictionaries/pudl_db.md#out-ferc1-yearly-pumped-storage-plants-sched408)
+  * [out_ferc1_\_yearly_steam_plants_sched402](data_dictionaries/pudl_db.html.md#out-ferc1-yearly-steam-plants-sched402)
+  * [out_ferc1_\_yearly_small_plants_sched410](data_dictionaries/pudl_db.html.md#out-ferc1-yearly-small-plants-sched410)
+  * [out_ferc1_\_yearly_hydroelectric_plants_sched406](data_dictionaries/pudl_db.html.md#out-ferc1-yearly-hydroelectric-plants-sched406)
+  * [out_ferc1_\_yearly_pumped_storage_plants_sched408](data_dictionaries/pudl_db.html.md#out-ferc1-yearly-pumped-storage-plants-sched408)
 
   See issue [#3416](https://github.com/catalyst-cooperative/pudl/issues/3416) & PR [#3417](https://github.com/catalyst-cooperative/pudl/pull/3417)
 
@@ -2678,8 +2678,8 @@ Our main focus with this release was to overhaul the naming system for our nearl
 database tables. This will hopefully make it easier to find what you’re looking for,
 especially if you are a new PUDL user. We think it will also make it easier for us to
 keep the database organized as we continue to expand its scope.  For an explanation of
-the new naming conventions, see [Naming Conventions](dev/naming_conventions.md), and to see the full list
-of all available tables, see the [PUDL Data Dictionary](data_dictionaries/pudl_db.md).
+the new naming conventions, see [Naming Conventions](dev/naming_conventions.html.md), and to see the full list
+of all available tables, see the [PUDL Data Dictionary](data_dictionaries/pudl_db.html.md).
 
 This is a major breaking change for anybody is accessing the database directly. Stick
 with the [v2023.12.01](#release-v2023-12-01) release until you’re ready to update your references
@@ -2727,7 +2727,7 @@ and PR [#2818](https://github.com/catalyst-cooperative/pudl/pull/2818).
 
 ### Record Linkage Improvements
 
-* The [`pudl.analysis.record_linkage.eia_ferc1_record_linkage`](autoapi/pudl/analysis/record_linkage/eia_ferc1_record_linkage/index.md#module-pudl.analysis.record_linkage.eia_ferc1_record_linkage) module has been
+* The [`pudl.analysis.record_linkage.eia_ferc1_record_linkage`](autoapi/pudl/analysis/record_linkage/eia_ferc1_record_linkage/index.html.md#module-pudl.analysis.record_linkage.eia_ferc1_record_linkage) module has been
   refactored substantially to make use of more generic PUDL record linkage
   infrastructure and include extra cleaning steps. This resulted in around 500 or 2% of
   matches changing. See [catalyst-cooperative/ccai-entity-matching#108](http://github.com/catalyst-cooperative/ccai-entity-matching/issues/108)
@@ -2738,7 +2738,7 @@ and PR [#2818](https://github.com/catalyst-cooperative/pudl/pull/2818).
 
 ### New Data Coverage
 
-* Updated [EPA Hourly Continuous Emission Monitoring System (CEMS)](data_sources/epacems.md) to switch to pulling the quarterly updates of
+* Updated [EPA Hourly Continuous Emission Monitoring System (CEMS)](data_sources/epacems.html.md) to switch to pulling the quarterly updates of
   CEMS instead of the annual files. Integrates CEMS through 2023Q3. See issue
   [#2973](https://github.com/catalyst-cooperative/pudl/issues/2973) & PR [#3096](https://github.com/catalyst-cooperative/pudl/pull/3096), [#3139](https://github.com/catalyst-cooperative/pudl/pull/3139).
 * Began integration of PHMSA gas distribution and transmission tables into PUDL,
@@ -2756,7 +2756,7 @@ and PR [#2818](https://github.com/catalyst-cooperative/pudl/pull/2818).
 ### Data Cleaning
 
 * Filled in null annual balances with fourth-quarter quarterly balances in
-  [core_ferc1_\_yearly_balance_sheet_liabilities_sched110](data_dictionaries/pudl_db.md#core-ferc1-yearly-balance-sheet-liabilities-sched110). [#3233](https://github.com/catalyst-cooperative/pudl/issues/3233) and
+  [core_ferc1_\_yearly_balance_sheet_liabilities_sched110](data_dictionaries/pudl_db.html.md#core-ferc1-yearly-balance-sheet-liabilities-sched110). [#3233](https://github.com/catalyst-cooperative/pudl/issues/3233) and
   [#3234](https://github.com/catalyst-cooperative/pudl/pull/3234).
 * Added a notebook `devtools/debug-column-mapping.ipynb` to make debugging manual
   column maps for new datasets simpler and faster.
@@ -2768,7 +2768,7 @@ and PR [#2818](https://github.com/catalyst-cooperative/pudl/pull/2818).
 * Made a description field mandatory for all instances of `Field` and `Resource`.
   Updated the `pudl.metadata.fields.FIELD_METADATA`` and
   `pudl.metadata.resources.RESOURCE_METADATA`` so that all of them have a
-  description. This primarily affected [EIA Form 861 – Annual Electric Power Industry Report](data_sources/eia861.md) tables. See
+  description. This primarily affected [EIA Form 861 – Annual Electric Power Industry Report](data_sources/eia861.html.md) tables. See
   [#3224](https://github.com/catalyst-cooperative/pudl/issues/3224), [#3283](https://github.com/catalyst-cooperative/pudl/pull/3283).
 * Removed fields that are not used in any tables and removed the xfail from the
   `test_defined_fields_are_used` test. [#3224](https://github.com/catalyst-cooperative/pudl/issues/3224), [#3283](https://github.com/catalyst-cooperative/pudl/pull/3283).
@@ -2798,7 +2798,7 @@ and PR [#2818](https://github.com/catalyst-cooperative/pudl/pull/2818).
     specific tables. The commands run all of the tables. Use dagster assets to
     run subsets of the tables.
   * The `--clobber` argument has been removed from the `pudl_etl` command.
-  * New static method [`pudl.metadata.classes.Package.get_etl_group_tables`](autoapi/pudl/metadata/classes/index.md#pudl.metadata.classes.Package.get_etl_group_tables)
+  * New static method [`pudl.metadata.classes.Package.get_etl_group_tables`](autoapi/pudl/metadata/classes/index.html.md#pudl.metadata.classes.Package.get_etl_group_tables)
     returns the resources ids for a given etl group.
   * `pudl.settings.FercToSqliteSettings` class now loads all FERC
     datasources if no datasets are specified.
@@ -2826,7 +2826,7 @@ and PR [#2818](https://github.com/catalyst-cooperative/pudl/pull/2818).
   * FERC 714 extraction methods are now subsettable by year, with 2019 and 2020 data
     included in the `etl_fast.yml` by default. See [#2628](https://github.com/catalyst-cooperative/pudl/issues/2628) and PR [#2649](https://github.com/catalyst-cooperative/pudl/pull/2649).
 * Census DP1 ETL changes:
-  * `pudl.convert.censusdp1tract_to_sqlite` and [`pudl.output.censusdp1tract`](autoapi/pudl/output/censusdp1tract/index.md#module-pudl.output.censusdp1tract)
+  * `pudl.convert.censusdp1tract_to_sqlite` and [`pudl.output.censusdp1tract`](autoapi/pudl/output/censusdp1tract/index.html.md#module-pudl.output.censusdp1tract)
     are now integrated into dagster. See [#1973](https://github.com/catalyst-cooperative/pudl/issues/1973) and [#2621](https://github.com/catalyst-cooperative/pudl/pull/2621).
 
 ### New Asset Naming Convention
@@ -2835,7 +2835,7 @@ There are hundreds of new tables in `pudl.sqlite` now that the methods in `PudlT
 have been converted to Dagster assets. This significant increase in tables and diversity
 of table types prompted us to create a new naming convention to make the table names
 more descriptive and organized. You can read about the new naming convention in the
-[docs](dev/naming_conventions.md#asset-naming).
+[docs](dev/naming_conventions.html.md#asset-naming).
 
 To help users migrate away from using `PudlTabl` and our temporary table names,
 we’ve created a [google sheet](https://docs.google.com/spreadsheets/d/1RBuKl_xKzRSLgRM7GIZbc5zUYieWFE20cXumWuv5njo/edit?usp=sharing)
@@ -2847,71 +2847,71 @@ successfully migrated to pulling data directly from `pudl.sqlite`.
 
 ### Data Coverage
 
-* Updated [EIA Form 860 – Annual Electric Generator Report](data_sources/eia860.md) to include final release data from 2022, see
+* Updated [EIA Form 860 – Annual Electric Generator Report](data_sources/eia860.html.md) to include final release data from 2022, see
   [#3008](https://github.com/catalyst-cooperative/pudl/issues/3008) & PR [#3040](https://github.com/catalyst-cooperative/pudl/pull/3040).
-* Updated [EIA Form 861 – Annual Electric Power Industry Report](data_sources/eia861.md) to include final release data from 2022, see
+* Updated [EIA Form 861 – Annual Electric Power Industry Report](data_sources/eia861.html.md) to include final release data from 2022, see
   [#3034](https://github.com/catalyst-cooperative/pudl/issues/3034) & PR [#3048](https://github.com/catalyst-cooperative/pudl/pull/3048).
-* Updated [EIA Form 923 – Power Plant Operations Report](data_sources/eia923.md) to include final release data from 2022 and
+* Updated [EIA Form 923 – Power Plant Operations Report](data_sources/eia923.html.md) to include final release data from 2022 and
   monthly YTD data as of October 2023, see [#3009](https://github.com/catalyst-cooperative/pudl/issues/3009) & PR [#3073](https://github.com/catalyst-cooperative/pudl/pull/#3073).
 * Extracted the raw `raw_eia923__emissions_control` table, see PR [#3100](https://github.com/catalyst-cooperative/pudl/pull/3100).
-* Updated [EPA Hourly Continuous Emission Monitoring System (CEMS)](data_sources/epacems.md) to switch from the old FTP server to the new
+* Updated [EPA Hourly Continuous Emission Monitoring System (CEMS)](data_sources/epacems.html.md) to switch from the old FTP server to the new
   CAMPD API, and to include 2022 data. Due to changes in the ETL, Alaska, Puerto Rico
   and Hawaii are now included in CEMS processing. See issue [#1264](https://github.com/catalyst-cooperative/pudl/issues/1264) & PRs
   [#2779](https://github.com/catalyst-cooperative/pudl/pull/2779), :pr:\` 2816\`.
-* New [core_epa_\_assn_eia_epacamd](data_dictionaries/pudl_db.md#core-epa-assn-eia-epacamd) crosswalk version v0.3, see issue [#2317](https://github.com/catalyst-cooperative/pudl/issues/2317)
+* New [core_epa_\_assn_eia_epacamd](data_dictionaries/pudl_db.html.md#core-epa-assn-eia-epacamd) crosswalk version v0.3, see issue [#2317](https://github.com/catalyst-cooperative/pudl/issues/2317)
   and PR [#2316](https://github.com/catalyst-cooperative/pudl/pull/2316). EPA’s updates add manual matches and exclusions focusing on
   operating units with a generator ID as of 2018.
-* New PUDL tables from [FERC Form 1 – Annual Report of Major Electric Utilities](data_sources/ferc1.md), integrating older DBF and newer XBRL
+* New PUDL tables from [FERC Form 1 – Annual Report of Major Electric Utilities](data_sources/ferc1.html.md), integrating older DBF and newer XBRL
   data. See [#1574](https://github.com/catalyst-cooperative/pudl/issues/1574) for an overview of our progress integrating FERC’s XBRL data.
   To see which DBF and XBRL tables the following PUDL tables are derived from, refer to
   `pudl.extract.ferc1.TABLE_NAME_MAP`
-  * [core_ferc1_\_yearly_energy_sources_sched401](data_dictionaries/pudl_db.md#core-ferc1-yearly-energy-sources-sched401), see issue [#1819](https://github.com/catalyst-cooperative/pudl/issues/1819) & PR
+  * [core_ferc1_\_yearly_energy_sources_sched401](data_dictionaries/pudl_db.html.md#core-ferc1-yearly-energy-sources-sched401), see issue [#1819](https://github.com/catalyst-cooperative/pudl/issues/1819) & PR
     [#2094](https://github.com/catalyst-cooperative/pudl/pull/2094).
-  * [core_ferc1_\_yearly_energy_dispositions_sched401](data_dictionaries/pudl_db.md#core-ferc1-yearly-energy-dispositions-sched401), see issue [#1819](https://github.com/catalyst-cooperative/pudl/issues/1819) &
+  * [core_ferc1_\_yearly_energy_dispositions_sched401](data_dictionaries/pudl_db.html.md#core-ferc1-yearly-energy-dispositions-sched401), see issue [#1819](https://github.com/catalyst-cooperative/pudl/issues/1819) &
     PR [#2100](https://github.com/catalyst-cooperative/pudl/pull/2100).
-  * [core_ferc1_\_yearly_transmission_lines_sched422](data_dictionaries/pudl_db.md#core-ferc1-yearly-transmission-lines-sched422), see issue [#1822](https://github.com/catalyst-cooperative/pudl/issues/1822) & PR
+  * [core_ferc1_\_yearly_transmission_lines_sched422](data_dictionaries/pudl_db.html.md#core-ferc1-yearly-transmission-lines-sched422), see issue [#1822](https://github.com/catalyst-cooperative/pudl/issues/1822) & PR
     [#2103](https://github.com/catalyst-cooperative/pudl/pull/2103)
-  * [core_ferc1_\_yearly_utility_plant_summary_sched200](data_dictionaries/pudl_db.md#core-ferc1-yearly-utility-plant-summary-sched200), see issue
+  * [core_ferc1_\_yearly_utility_plant_summary_sched200](data_dictionaries/pudl_db.html.md#core-ferc1-yearly-utility-plant-summary-sched200), see issue
     [#1806](https://github.com/catalyst-cooperative/pudl/issues/1806) & PR [#2105](https://github.com/catalyst-cooperative/pudl/pull/2105).
-  * [core_ferc1_\_yearly_balance_sheet_assets_sched110](data_dictionaries/pudl_db.md#core-ferc1-yearly-balance-sheet-assets-sched110), see issue [#1805](https://github.com/catalyst-cooperative/pudl/issues/1805) &
+  * [core_ferc1_\_yearly_balance_sheet_assets_sched110](data_dictionaries/pudl_db.html.md#core-ferc1-yearly-balance-sheet-assets-sched110), see issue [#1805](https://github.com/catalyst-cooperative/pudl/issues/1805) &
     PRs [#2112](https://github.com/catalyst-cooperative/pudl/pull/2112), [#2127](https://github.com/catalyst-cooperative/pudl/pull/2127).
-  * [core_ferc1_\_yearly_balance_sheet_liabilities_sched110](data_dictionaries/pudl_db.md#core-ferc1-yearly-balance-sheet-liabilities-sched110), see issue
+  * [core_ferc1_\_yearly_balance_sheet_liabilities_sched110](data_dictionaries/pudl_db.html.md#core-ferc1-yearly-balance-sheet-liabilities-sched110), see issue
     [#1810](https://github.com/catalyst-cooperative/pudl/issues/1810) & PR [#2134](https://github.com/catalyst-cooperative/pudl/pull/2134).
-  * [core_ferc1_\_yearly_depreciation_summary_sched336](data_dictionaries/pudl_db.md#core-ferc1-yearly-depreciation-summary-sched336), see issue [#1816](https://github.com/catalyst-cooperative/pudl/issues/1816)
+  * [core_ferc1_\_yearly_depreciation_summary_sched336](data_dictionaries/pudl_db.html.md#core-ferc1-yearly-depreciation-summary-sched336), see issue [#1816](https://github.com/catalyst-cooperative/pudl/issues/1816)
     & PR [#2143](https://github.com/catalyst-cooperative/pudl/pull/2143).
-  * [core_ferc1_\_yearly_income_statements_sched114](data_dictionaries/pudl_db.md#core-ferc1-yearly-income-statements-sched114), see issue [#1813](https://github.com/catalyst-cooperative/pudl/issues/1813) & PR
+  * [core_ferc1_\_yearly_income_statements_sched114](data_dictionaries/pudl_db.html.md#core-ferc1-yearly-income-statements-sched114), see issue [#1813](https://github.com/catalyst-cooperative/pudl/issues/1813) & PR
     [#2147](https://github.com/catalyst-cooperative/pudl/pull/2147).
-  * [core_ferc1_\_yearly_depreciation_changes_sched219](data_dictionaries/pudl_db.md#core-ferc1-yearly-depreciation-changes-sched219) see issue
+  * [core_ferc1_\_yearly_depreciation_changes_sched219](data_dictionaries/pudl_db.html.md#core-ferc1-yearly-depreciation-changes-sched219) see issue
     [#1808](https://github.com/catalyst-cooperative/pudl/issues/1808) & [#2119](https://github.com/catalyst-cooperative/pudl/pull/2119).
-  * [core_ferc1_\_yearly_depreciation_by_function_sched219](data_dictionaries/pudl_db.md#core-ferc1-yearly-depreciation-by-function-sched219) see issue
+  * [core_ferc1_\_yearly_depreciation_by_function_sched219](data_dictionaries/pudl_db.html.md#core-ferc1-yearly-depreciation-by-function-sched219) see issue
     [#1808](https://github.com/catalyst-cooperative/pudl/issues/1808) & PR [#2183](https://github.com/catalyst-cooperative/pudl/pull/2183).
-  * [core_ferc1_\_yearly_operating_expenses_sched320](data_dictionaries/pudl_db.md#core-ferc1-yearly-operating-expenses-sched320), see issue [#1817](https://github.com/catalyst-cooperative/pudl/issues/1817) & PR
+  * [core_ferc1_\_yearly_operating_expenses_sched320](data_dictionaries/pudl_db.html.md#core-ferc1-yearly-operating-expenses-sched320), see issue [#1817](https://github.com/catalyst-cooperative/pudl/issues/1817) & PR
     [#2162](https://github.com/catalyst-cooperative/pudl/pull/2162).
-  * [core_ferc1_\_yearly_retained_earnings_sched118](data_dictionaries/pudl_db.md#core-ferc1-yearly-retained-earnings-sched118), see issue [#1811](https://github.com/catalyst-cooperative/pudl/issues/1811) & PR
+  * [core_ferc1_\_yearly_retained_earnings_sched118](data_dictionaries/pudl_db.html.md#core-ferc1-yearly-retained-earnings-sched118), see issue [#1811](https://github.com/catalyst-cooperative/pudl/issues/1811) & PR
     [#2155](https://github.com/catalyst-cooperative/pudl/pull/2155).
-  * [core_ferc1_\_yearly_cash_flows_sched120](data_dictionaries/pudl_db.md#core-ferc1-yearly-cash-flows-sched120), see issue [#1821](https://github.com/catalyst-cooperative/pudl/issues/1821) & PR
+  * [core_ferc1_\_yearly_cash_flows_sched120](data_dictionaries/pudl_db.html.md#core-ferc1-yearly-cash-flows-sched120), see issue [#1821](https://github.com/catalyst-cooperative/pudl/issues/1821) & PR
     [#2184](https://github.com/catalyst-cooperative/pudl/pull/2184).
-  * [core_ferc1_\_yearly_sales_by_rate_schedules_sched304](data_dictionaries/pudl_db.md#core-ferc1-yearly-sales-by-rate-schedules-sched304), see issue
+  * [core_ferc1_\_yearly_sales_by_rate_schedules_sched304](data_dictionaries/pudl_db.html.md#core-ferc1-yearly-sales-by-rate-schedules-sched304), see issue
     [#1823](https://github.com/catalyst-cooperative/pudl/issues/1823) & PR [#2205](https://github.com/catalyst-cooperative/pudl/pull/2205).
 * Harvested owner utilities from the EIA-860 ownership table which are now included in
-  the [core_eia_\_entity_utilities](data_dictionaries/pudl_db.md#core-eia-entity-utilities) and [core_pudl_\_assn_eia_pudl_utilities](data_dictionaries/pudl_db.md#core-pudl-assn-eia-pudl-utilities)
+  the [core_eia_\_entity_utilities](data_dictionaries/pudl_db.html.md#core-eia-entity-utilities) and [core_pudl_\_assn_eia_pudl_utilities](data_dictionaries/pudl_db.html.md#core-pudl-assn-eia-pudl-utilities)
   tables. See [#2714](https://github.com/catalyst-cooperative/pudl/pull/2714). Renamed columns with owner or operator suffix to differentiate
-  between owner and operator utility columns in [core_eia860_\_scd_ownership](data_dictionaries/pudl_db.md#core-eia860-scd-ownership) and
-  [out_eia860_\_yearly_ownership](data_dictionaries/pudl_db.md#out-eia860-yearly-ownership). See [#2903](https://github.com/catalyst-cooperative/pudl/pull/2903).
-* New PUDL tables from [EIA Form 860 – Annual Electric Generator Report](data_sources/eia860.md):
-  * [core_eia860_\_scd_emissions_control_equipment](data_dictionaries/pudl_db.md#core-eia860-scd-emissions-control-equipment), see issue [#2338](https://github.com/catalyst-cooperative/pudl/issues/2338) & PR
+  between owner and operator utility columns in [core_eia860_\_scd_ownership](data_dictionaries/pudl_db.html.md#core-eia860-scd-ownership) and
+  [out_eia860_\_yearly_ownership](data_dictionaries/pudl_db.html.md#out-eia860-yearly-ownership). See [#2903](https://github.com/catalyst-cooperative/pudl/pull/2903).
+* New PUDL tables from [EIA Form 860 – Annual Electric Generator Report](data_sources/eia860.html.md):
+  * [core_eia860_\_scd_emissions_control_equipment](data_dictionaries/pudl_db.html.md#core-eia860-scd-emissions-control-equipment), see issue [#2338](https://github.com/catalyst-cooperative/pudl/issues/2338) & PR
     [#2561](https://github.com/catalyst-cooperative/pudl/pull/2561).
-  * [out_eia860_\_yearly_emissions_control_equipment](data_dictionaries/pudl_db.md#out-eia860-yearly-emissions-control-equipment), see issue [#2338](https://github.com/catalyst-cooperative/pudl/issues/2338) & PR
+  * [out_eia860_\_yearly_emissions_control_equipment](data_dictionaries/pudl_db.html.md#out-eia860-yearly-emissions-control-equipment), see issue [#2338](https://github.com/catalyst-cooperative/pudl/issues/2338) & PR
     [#2561](https://github.com/catalyst-cooperative/pudl/pull/2561).
-  * [core_eia860_\_assn_yearly_boiler_emissions_control_equipment](data_dictionaries/pudl_db.md#core-eia860-assn-yearly-boiler-emissions-control-equipment), see
+  * [core_eia860_\_assn_yearly_boiler_emissions_control_equipment](data_dictionaries/pudl_db.html.md#core-eia860-assn-yearly-boiler-emissions-control-equipment), see
     [#2338](https://github.com/catalyst-cooperative/pudl/issues/2338) & PR [#2561](https://github.com/catalyst-cooperative/pudl/pull/2561).
-  * [core_eia860_\_assn_boiler_cooling](data_dictionaries/pudl_db.md#core-eia860-assn-boiler-cooling), see [#2586](https://github.com/catalyst-cooperative/pudl/issues/2586) & PR [#2587](https://github.com/catalyst-cooperative/pudl/pull/2587)
-  * [core_eia860_\_assn_boiler_stack_flue](data_dictionaries/pudl_db.md#core-eia860-assn-boiler-stack-flue), see [#2586](https://github.com/catalyst-cooperative/pudl/issues/2586) & PR [#2587](https://github.com/catalyst-cooperative/pudl/pull/2587)
-* The [core_eia860_\_scd_boilers](data_dictionaries/pudl_db.md#core-eia860-scd-boilers) table now includes annual boiler attributes from
-  [EIA Form 860 – Annual Electric Generator Report](data_sources/eia860.md) Schedule 6.2 Environmental Equipment data, and the new
-  [core_eia_\_entity_boilers](data_dictionaries/pudl_db.md#core-eia-entity-boilers) table now includes static boiler attributes. See issue
+  * [core_eia860_\_assn_boiler_cooling](data_dictionaries/pudl_db.html.md#core-eia860-assn-boiler-cooling), see [#2586](https://github.com/catalyst-cooperative/pudl/issues/2586) & PR [#2587](https://github.com/catalyst-cooperative/pudl/pull/2587)
+  * [core_eia860_\_assn_boiler_stack_flue](data_dictionaries/pudl_db.html.md#core-eia860-assn-boiler-stack-flue), see [#2586](https://github.com/catalyst-cooperative/pudl/issues/2586) & PR [#2587](https://github.com/catalyst-cooperative/pudl/pull/2587)
+* The [core_eia860_\_scd_boilers](data_dictionaries/pudl_db.html.md#core-eia860-scd-boilers) table now includes annual boiler attributes from
+  [EIA Form 860 – Annual Electric Generator Report](data_sources/eia860.html.md) Schedule 6.2 Environmental Equipment data, and the new
+  [core_eia_\_entity_boilers](data_dictionaries/pudl_db.html.md#core-eia-entity-boilers) table now includes static boiler attributes. See issue
   [#1162](https://github.com/catalyst-cooperative/pudl/issues/1162) & PR [#2319](https://github.com/catalyst-cooperative/pudl/pull/2319).
-* All [EIA Form 861 – Annual Electric Power Industry Report](data_sources/eia861.md) tables are now being loaded into the PUDL DB, rather
+* All [EIA Form 861 – Annual Electric Power Industry Report](data_sources/eia861.html.md) tables are now being loaded into the PUDL DB, rather
   than only being available via an ad-hoc ETL process that was only accessible through
   the `pudl.output.pudltabl.PudlTabl` class. Note that most of these tables have
   not been normalized, and the `utility_id_eia` and `balancing_authority_id_eia`
@@ -2921,53 +2921,53 @@ successfully migrated to pulling data directly from `pudl.sqlite`.
   preserved. The `PudlTabl` methods just read directly from the DB and apply uniform
   data types, rather than actually doing the ETL. See [#2265](https://github.com/catalyst-cooperative/pudl/issues/2265) & [#2403](https://github.com/catalyst-cooperative/pudl/pull/2403). The
   newly accessible tables contain data from 2001-2021 and include:
-  * [core_eia861_\_yearly_advanced_metering_infrastructure](data_dictionaries/pudl_db.md#core-eia861-yearly-advanced-metering-infrastructure)
-  * [core_eia861_\_yearly_balancing_authority](data_dictionaries/pudl_db.md#core-eia861-yearly-balancing-authority)
-  * [core_eia861_\_assn_balancing_authority](data_dictionaries/pudl_db.md#core-eia861-assn-balancing-authority)
-  * [core_eia861_\_yearly_demand_response](data_dictionaries/pudl_db.md#core-eia861-yearly-demand-response)
-  * [core_eia861_\_yearly_demand_response_water_heater](data_dictionaries/pudl_db.md#core-eia861-yearly-demand-response-water-heater)
-  * [core_eia861_\_yearly_demand_side_management_sales](data_dictionaries/pudl_db.md#core-eia861-yearly-demand-side-management-sales)
-  * [core_eia861_\_yearly_demand_side_management_ee_dr](data_dictionaries/pudl_db.md#core-eia861-yearly-demand-side-management-ee-dr)
-  * [core_eia861_\_yearly_demand_side_management_misc](data_dictionaries/pudl_db.md#core-eia861-yearly-demand-side-management-misc)
-  * [core_eia861_\_yearly_distributed_generation_tech](data_dictionaries/pudl_db.md#core-eia861-yearly-distributed-generation-tech)
-  * [core_eia861_\_yearly_distributed_generation_fuel](data_dictionaries/pudl_db.md#core-eia861-yearly-distributed-generation-fuel)
-  * [core_eia861_\_yearly_distributed_generation_misc](data_dictionaries/pudl_db.md#core-eia861-yearly-distributed-generation-misc)
-  * [core_eia861_\_yearly_distribution_systems](data_dictionaries/pudl_db.md#core-eia861-yearly-distribution-systems)
-  * [core_eia861_\_yearly_dynamic_pricing](data_dictionaries/pudl_db.md#core-eia861-yearly-dynamic-pricing)
-  * [core_eia861_\_yearly_energy_efficiency](data_dictionaries/pudl_db.md#core-eia861-yearly-energy-efficiency)
-  * [core_eia861_\_yearly_green_pricing](data_dictionaries/pudl_db.md#core-eia861-yearly-green-pricing)
-  * [core_eia861_\_yearly_mergers](data_dictionaries/pudl_db.md#core-eia861-yearly-mergers)
-  * [core_eia861_\_yearly_net_metering_customer_fuel_class](data_dictionaries/pudl_db.md#core-eia861-yearly-net-metering-customer-fuel-class)
-  * [core_eia861_\_yearly_net_metering_misc](data_dictionaries/pudl_db.md#core-eia861-yearly-net-metering-misc)
-  * [core_eia861_\_yearly_non_net_metering_customer_fuel_class](data_dictionaries/pudl_db.md#core-eia861-yearly-non-net-metering-customer-fuel-class)
-  * [core_eia861_\_yearly_non_net_metering_misc](data_dictionaries/pudl_db.md#core-eia861-yearly-non-net-metering-misc)
-  * [core_eia861_\_yearly_operational_data_revenue](data_dictionaries/pudl_db.md#core-eia861-yearly-operational-data-revenue)
-  * [core_eia861_\_yearly_operational_data_misc](data_dictionaries/pudl_db.md#core-eia861-yearly-operational-data-misc)
-  * [core_eia861_\_yearly_reliability](data_dictionaries/pudl_db.md#core-eia861-yearly-reliability)
-  * [core_eia861_\_yearly_sales](data_dictionaries/pudl_db.md#core-eia861-yearly-sales)
-  * [core_eia861_\_yearly_service_territory](data_dictionaries/pudl_db.md#core-eia861-yearly-service-territory)
-  * [core_eia861_\_assn_utility](data_dictionaries/pudl_db.md#core-eia861-assn-utility)
-  * [core_eia861_\_yearly_utility_data_nerc](data_dictionaries/pudl_db.md#core-eia861-yearly-utility-data-nerc)
-  * [core_eia861_\_yearly_utility_data_rto](data_dictionaries/pudl_db.md#core-eia861-yearly-utility-data-rto)
-  * [core_eia861_\_yearly_utility_data_misc](data_dictionaries/pudl_db.md#core-eia861-yearly-utility-data-misc)
-* A couple of tables from [FERC Form 714 – Annual Electric Balancing Authority Area and Planning Area Report](data_sources/ferc714.md) have been added to the PUDL DB.
+  * [core_eia861_\_yearly_advanced_metering_infrastructure](data_dictionaries/pudl_db.html.md#core-eia861-yearly-advanced-metering-infrastructure)
+  * [core_eia861_\_yearly_balancing_authority](data_dictionaries/pudl_db.html.md#core-eia861-yearly-balancing-authority)
+  * [core_eia861_\_assn_balancing_authority](data_dictionaries/pudl_db.html.md#core-eia861-assn-balancing-authority)
+  * [core_eia861_\_yearly_demand_response](data_dictionaries/pudl_db.html.md#core-eia861-yearly-demand-response)
+  * [core_eia861_\_yearly_demand_response_water_heater](data_dictionaries/pudl_db.html.md#core-eia861-yearly-demand-response-water-heater)
+  * [core_eia861_\_yearly_demand_side_management_sales](data_dictionaries/pudl_db.html.md#core-eia861-yearly-demand-side-management-sales)
+  * [core_eia861_\_yearly_demand_side_management_ee_dr](data_dictionaries/pudl_db.html.md#core-eia861-yearly-demand-side-management-ee-dr)
+  * [core_eia861_\_yearly_demand_side_management_misc](data_dictionaries/pudl_db.html.md#core-eia861-yearly-demand-side-management-misc)
+  * [core_eia861_\_yearly_distributed_generation_tech](data_dictionaries/pudl_db.html.md#core-eia861-yearly-distributed-generation-tech)
+  * [core_eia861_\_yearly_distributed_generation_fuel](data_dictionaries/pudl_db.html.md#core-eia861-yearly-distributed-generation-fuel)
+  * [core_eia861_\_yearly_distributed_generation_misc](data_dictionaries/pudl_db.html.md#core-eia861-yearly-distributed-generation-misc)
+  * [core_eia861_\_yearly_distribution_systems](data_dictionaries/pudl_db.html.md#core-eia861-yearly-distribution-systems)
+  * [core_eia861_\_yearly_dynamic_pricing](data_dictionaries/pudl_db.html.md#core-eia861-yearly-dynamic-pricing)
+  * [core_eia861_\_yearly_energy_efficiency](data_dictionaries/pudl_db.html.md#core-eia861-yearly-energy-efficiency)
+  * [core_eia861_\_yearly_green_pricing](data_dictionaries/pudl_db.html.md#core-eia861-yearly-green-pricing)
+  * [core_eia861_\_yearly_mergers](data_dictionaries/pudl_db.html.md#core-eia861-yearly-mergers)
+  * [core_eia861_\_yearly_net_metering_customer_fuel_class](data_dictionaries/pudl_db.html.md#core-eia861-yearly-net-metering-customer-fuel-class)
+  * [core_eia861_\_yearly_net_metering_misc](data_dictionaries/pudl_db.html.md#core-eia861-yearly-net-metering-misc)
+  * [core_eia861_\_yearly_non_net_metering_customer_fuel_class](data_dictionaries/pudl_db.html.md#core-eia861-yearly-non-net-metering-customer-fuel-class)
+  * [core_eia861_\_yearly_non_net_metering_misc](data_dictionaries/pudl_db.html.md#core-eia861-yearly-non-net-metering-misc)
+  * [core_eia861_\_yearly_operational_data_revenue](data_dictionaries/pudl_db.html.md#core-eia861-yearly-operational-data-revenue)
+  * [core_eia861_\_yearly_operational_data_misc](data_dictionaries/pudl_db.html.md#core-eia861-yearly-operational-data-misc)
+  * [core_eia861_\_yearly_reliability](data_dictionaries/pudl_db.html.md#core-eia861-yearly-reliability)
+  * [core_eia861_\_yearly_sales](data_dictionaries/pudl_db.html.md#core-eia861-yearly-sales)
+  * [core_eia861_\_yearly_service_territory](data_dictionaries/pudl_db.html.md#core-eia861-yearly-service-territory)
+  * [core_eia861_\_assn_utility](data_dictionaries/pudl_db.html.md#core-eia861-assn-utility)
+  * [core_eia861_\_yearly_utility_data_nerc](data_dictionaries/pudl_db.html.md#core-eia861-yearly-utility-data-nerc)
+  * [core_eia861_\_yearly_utility_data_rto](data_dictionaries/pudl_db.html.md#core-eia861-yearly-utility-data-rto)
+  * [core_eia861_\_yearly_utility_data_misc](data_dictionaries/pudl_db.html.md#core-eia861-yearly-utility-data-misc)
+* A couple of tables from [FERC Form 714 – Annual Electric Balancing Authority Area and Planning Area Report](data_sources/ferc714.html.md) have been added to the PUDL DB.
   These tables contain data from 2006-2020 (2021 is distributed by FERC in XBRL format
   and we have not yet integrated it). See [#2266](https://github.com/catalyst-cooperative/pudl/issues/2266), [#2421](https://github.com/catalyst-cooperative/pudl/pull/2421) and [#2550](https://github.com/catalyst-cooperative/pudl/pull/2550).
   The newly accessible tables include:
-  * [core_ferc714_\_respondent_id](data_dictionaries/pudl_db.md#core-ferc714-respondent-id) (linking FERC-714 respondents to EIA utilities)
-  * [out_ferc714_\_hourly_planning_area_demand](data_dictionaries/pudl_db.md#out-ferc714-hourly-planning-area-demand) (hourly electricity demand by
+  * [core_ferc714_\_respondent_id](data_dictionaries/pudl_db.html.md#core-ferc714-respondent-id) (linking FERC-714 respondents to EIA utilities)
+  * [out_ferc714_\_hourly_planning_area_demand](data_dictionaries/pudl_db.html.md#out-ferc714-hourly-planning-area-demand) (hourly electricity demand by
     planning area)
-  * [out_ferc714_\_respondents_with_fips](data_dictionaries/pudl_db.md#out-ferc714-respondents-with-fips) (annual respondents with county FIPS IDs)
-  * [out_ferc714_\_summarized_demand](data_dictionaries/pudl_db.md#out-ferc714-summarized-demand) (annual demand for FERC-714 respondents)
-* Added new table [core_epa_\_assn_eia_epacamd_subplant_ids](data_dictionaries/pudl_db.md#core-epa-assn-eia-epacamd-subplant-ids), which arguments the
-  [core_epa_\_assn_eia_epacamd](data_dictionaries/pudl_db.md#core-epa-assn-eia-epacamd) glue table. This table incorporates all
-  [core_eia_\_entity_generators](data_dictionaries/pudl_db.md#core-eia-entity-generators) and all [core_epacems_\_hourly_emissions](data_dictionaries/pudl_db.md#core-epacems-hourly-emissions) ID’s
+  * [out_ferc714_\_respondents_with_fips](data_dictionaries/pudl_db.html.md#out-ferc714-respondents-with-fips) (annual respondents with county FIPS IDs)
+  * [out_ferc714_\_summarized_demand](data_dictionaries/pudl_db.html.md#out-ferc714-summarized-demand) (annual demand for FERC-714 respondents)
+* Added new table [core_epa_\_assn_eia_epacamd_subplant_ids](data_dictionaries/pudl_db.html.md#core-epa-assn-eia-epacamd-subplant-ids), which arguments the
+  [core_epa_\_assn_eia_epacamd](data_dictionaries/pudl_db.html.md#core-epa-assn-eia-epacamd) glue table. This table incorporates all
+  [core_eia_\_entity_generators](data_dictionaries/pudl_db.html.md#core-eia-entity-generators) and all [core_epacems_\_hourly_emissions](data_dictionaries/pudl_db.html.md#core-epacems-hourly-emissions) ID’s
   and uses these complete IDs to develop a full-coverage `subplant_id` column which
   granularly connects EPA CAMD with EIA. Thanks to [@grgmiller](https://github.com/sponsors/grgmiller) for his
   contribution to this process. See [#2456](https://github.com/catalyst-cooperative/pudl/issues/2456) & [#2491](https://github.com/catalyst-cooperative/pudl/pull/2491).
-* Added new table [out_pudl_\_yearly_assn_eia_ferc1_plant_parts](data_dictionaries/pudl_db.md#out-pudl-yearly-assn-eia-ferc1-plant-parts) which links FERC1
-  records from [out_ferc1_\_yearly_all_plants](data_dictionaries/pudl_db.md#out-ferc1-yearly-all-plants) and
-  [out_eia_\_yearly_plant_parts](data_dictionaries/pudl_db.md#out-eia-yearly-plant-parts).
+* Added new table [out_pudl_\_yearly_assn_eia_ferc1_plant_parts](data_dictionaries/pudl_db.html.md#out-pudl-yearly-assn-eia-ferc1-plant-parts) which links FERC1
+  records from [out_ferc1_\_yearly_all_plants](data_dictionaries/pudl_db.html.md#out-ferc1-yearly-all-plants) and
+  [out_eia_\_yearly_plant_parts](data_dictionaries/pudl_db.html.md#out-eia-yearly-plant-parts).
 * Thanks to contributions from [@rousik](https://github.com/sponsors/rousik) we’ve generalized the code we use to
   convert FERC’s old annual Visual FoxPro databases into multi-year SQLite databases.
   * We have started extracting the FERC Form 2 (natural gas utility financial reports).
@@ -2989,35 +2989,35 @@ successfully migrated to pulling data directly from `pudl.sqlite`.
 
 * Removed inconsistently reported leading zeroes from numeric `boiler_id` values. This
   affected a small number of records in any table referring to boilers, including
-  [core_eia_\_entity_boilers](data_dictionaries/pudl_db.md#core-eia-entity-boilers), [core_eia860_\_scd_boilers](data_dictionaries/pudl_db.md#core-eia860-scd-boilers),
-  [core_eia923_\_monthly_boiler_fuel](data_dictionaries/pudl_db.md#core-eia923-monthly-boiler-fuel), [core_eia860_\_assn_boiler_generator](data_dictionaries/pudl_db.md#core-eia860-assn-boiler-generator)
-  and the [core_epa_\_assn_eia_epacamd](data_dictionaries/pudl_db.md#core-epa-assn-eia-epacamd) crosswalk. It also had some minor downstream
+  [core_eia_\_entity_boilers](data_dictionaries/pudl_db.html.md#core-eia-entity-boilers), [core_eia860_\_scd_boilers](data_dictionaries/pudl_db.html.md#core-eia860-scd-boilers),
+  [core_eia923_\_monthly_boiler_fuel](data_dictionaries/pudl_db.html.md#core-eia923-monthly-boiler-fuel), [core_eia860_\_assn_boiler_generator](data_dictionaries/pudl_db.html.md#core-eia860-assn-boiler-generator)
+  and the [core_epa_\_assn_eia_epacamd](data_dictionaries/pudl_db.html.md#core-epa-assn-eia-epacamd) crosswalk. It also had some minor downstream
   effects on the MCOE outputs. See [#2366](https://github.com/catalyst-cooperative/pudl/issues/2366) and [#2367](https://github.com/catalyst-cooperative/pudl/pull/2367).
-* The [core_eia923_\_monthly_boiler_fuel](data_dictionaries/pudl_db.md#core-eia923-monthly-boiler-fuel) table now includes the
+* The [core_eia923_\_monthly_boiler_fuel](data_dictionaries/pudl_db.html.md#core-eia923-monthly-boiler-fuel) table now includes the
   `prime_mover_code` column. This column was previously incorrectly being associated
-  with boilers in the [core_eia_\_entity_boilers](data_dictionaries/pudl_db.md#core-eia-entity-boilers) table. See issue [#2349](https://github.com/catalyst-cooperative/pudl/issues/2349) &
+  with boilers in the [core_eia_\_entity_boilers](data_dictionaries/pudl_db.html.md#core-eia-entity-boilers) table. See issue [#2349](https://github.com/catalyst-cooperative/pudl/issues/2349) &
   PR [#2362](https://github.com/catalyst-cooperative/pudl/pull/2362).
 * Fixed column naming issues in the
-  [core_ferc1_\_yearly_operating_revenues_sched300](data_dictionaries/pudl_db.md#core-ferc1-yearly-operating-revenues-sched300) table.
+  [core_ferc1_\_yearly_operating_revenues_sched300](data_dictionaries/pudl_db.html.md#core-ferc1-yearly-operating-revenues-sched300) table.
 * Made minor calculation fixes in the metadata for
-  [core_ferc1_\_yearly_income_statements_sched114](data_dictionaries/pudl_db.md#core-ferc1-yearly-income-statements-sched114),
-  [core_ferc1_\_yearly_utility_plant_summary_sched200](data_dictionaries/pudl_db.md#core-ferc1-yearly-utility-plant-summary-sched200),
-  [core_ferc1_\_yearly_operating_revenues_sched300](data_dictionaries/pudl_db.md#core-ferc1-yearly-operating-revenues-sched300),
-  [core_ferc1_\_yearly_balance_sheet_assets_sched110](data_dictionaries/pudl_db.md#core-ferc1-yearly-balance-sheet-assets-sched110),
-  [core_ferc1_\_yearly_balance_sheet_liabilities_sched110](data_dictionaries/pudl_db.md#core-ferc1-yearly-balance-sheet-liabilities-sched110), and
-  [core_ferc1_\_yearly_operating_expenses_sched320](data_dictionaries/pudl_db.md#core-ferc1-yearly-operating-expenses-sched320),
-  [core_ferc1_\_yearly_depreciation_changes_sched219](data_dictionaries/pudl_db.md#core-ferc1-yearly-depreciation-changes-sched219) and
-  [core_ferc1_\_yearly_depreciation_by_function_sched219](data_dictionaries/pudl_db.md#core-ferc1-yearly-depreciation-by-function-sched219). See [#2016](https://github.com/catalyst-cooperative/pudl/issues/2016),
+  [core_ferc1_\_yearly_income_statements_sched114](data_dictionaries/pudl_db.html.md#core-ferc1-yearly-income-statements-sched114),
+  [core_ferc1_\_yearly_utility_plant_summary_sched200](data_dictionaries/pudl_db.html.md#core-ferc1-yearly-utility-plant-summary-sched200),
+  [core_ferc1_\_yearly_operating_revenues_sched300](data_dictionaries/pudl_db.html.md#core-ferc1-yearly-operating-revenues-sched300),
+  [core_ferc1_\_yearly_balance_sheet_assets_sched110](data_dictionaries/pudl_db.html.md#core-ferc1-yearly-balance-sheet-assets-sched110),
+  [core_ferc1_\_yearly_balance_sheet_liabilities_sched110](data_dictionaries/pudl_db.html.md#core-ferc1-yearly-balance-sheet-liabilities-sched110), and
+  [core_ferc1_\_yearly_operating_expenses_sched320](data_dictionaries/pudl_db.html.md#core-ferc1-yearly-operating-expenses-sched320),
+  [core_ferc1_\_yearly_depreciation_changes_sched219](data_dictionaries/pudl_db.html.md#core-ferc1-yearly-depreciation-changes-sched219) and
+  [core_ferc1_\_yearly_depreciation_by_function_sched219](data_dictionaries/pudl_db.html.md#core-ferc1-yearly-depreciation-by-function-sched219). See [#2016](https://github.com/catalyst-cooperative/pudl/issues/2016),
   [#2563](https://github.com/catalyst-cooperative/pudl/pull/2563), [#2662](https://github.com/catalyst-cooperative/pudl/pull/2662) and [#2687](https://github.com/catalyst-cooperative/pudl/pull/2687).
-* Changed the [core_ferc1_\_yearly_retained_earnings_sched118](data_dictionaries/pudl_db.md#core-ferc1-yearly-retained-earnings-sched118) table transform to
+* Changed the [core_ferc1_\_yearly_retained_earnings_sched118](data_dictionaries/pudl_db.html.md#core-ferc1-yearly-retained-earnings-sched118) table transform to
   restore factoids for previous year balances, and added calculation metadata. See
   [#1811](https://github.com/catalyst-cooperative/pudl/issues/1811), [#2016](https://github.com/catalyst-cooperative/pudl/issues/2016), and [#2645](https://github.com/catalyst-cooperative/pudl/pull/2645).
 * Added “correction” records to many FERC Form 1 tables where the reported totals do not
   match the outcomes of calculations specified in XBRL metadata (even after cleaning up
   the often incorrect calculation specifications!). See [#2957](https://github.com/catalyst-cooperative/pudl/issues/2957) and [#2620](https://github.com/catalyst-cooperative/pudl/pull/2620).
 * Flip the sign of some erroneous negative values in the
-  [core_ferc1_\_yearly_plant_in_service_sched204](data_dictionaries/pudl_db.md#core-ferc1-yearly-plant-in-service-sched204) and
-  [core_ferc1_\_yearly_utility_plant_summary_sched200](data_dictionaries/pudl_db.md#core-ferc1-yearly-utility-plant-summary-sched200) tables. See
+  [core_ferc1_\_yearly_plant_in_service_sched204](data_dictionaries/pudl_db.html.md#core-ferc1-yearly-plant-in-service-sched204) and
+  [core_ferc1_\_yearly_utility_plant_summary_sched200](data_dictionaries/pudl_db.html.md#core-ferc1-yearly-utility-plant-summary-sched200) tables. See
   [#2599](https://github.com/catalyst-cooperative/pudl/issues/2599), and [#2647](https://github.com/catalyst-cooperative/pudl/pull/2647).
 
 ### Analysis
@@ -3032,37 +3032,37 @@ successfully migrated to pulling data directly from `pudl.sqlite`.
   repo, which uses logistic regression to match FERC1 plants data to EIA-860 records.
   While far from perfect, this baseline model utilizes the manually created training
   data and plant IDs to perform record linkage on the FERC1 data and EIA plant parts
-  list created in [`pudl.analysis.plant_parts_eia`](autoapi/pudl/analysis/plant_parts_eia/index.md#module-pudl.analysis.plant_parts_eia). See issue [#1064](https://github.com/catalyst-cooperative/pudl/issues/1064) & PR
+  list created in [`pudl.analysis.plant_parts_eia`](autoapi/pudl/analysis/plant_parts_eia/index.html.md#module-pudl.analysis.plant_parts_eia). See issue [#1064](https://github.com/catalyst-cooperative/pudl/issues/1064) & PR
   [#2224](https://github.com/catalyst-cooperative/pudl/pull/2224). To account for 1:m matches in the manual data, we added
-  `plant_match_ferc1` as a plant part in [`pudl.analysis.plant_parts_eia`](autoapi/pudl/analysis/plant_parts_eia/index.md#module-pudl.analysis.plant_parts_eia).
+  `plant_match_ferc1` as a plant part in [`pudl.analysis.plant_parts_eia`](autoapi/pudl/analysis/plant_parts_eia/index.html.md#module-pudl.analysis.plant_parts_eia).
 * Refined how we are associating generation and fuel data in
-  [`pudl.analysis.allocate_gen_fuel`](autoapi/pudl/analysis/allocate_gen_fuel/index.md#module-pudl.analysis.allocate_gen_fuel), which was renamed from `allocate_net_gen`.
-  Energy source codes that show up in the [core_eia923_\_monthly_generation_fuel](data_dictionaries/pudl_db.md#core-eia923-monthly-generation-fuel) or
-  the [core_eia923_\_monthly_boiler_fuel](data_dictionaries/pudl_db.md#core-eia923-monthly-boiler-fuel) are now added into the
-  [core_eia860_\_scd_generators](data_dictionaries/pudl_db.md#core-eia860-scd-generators) table so associating those gf and bf records are
+  [`pudl.analysis.allocate_gen_fuel`](autoapi/pudl/analysis/allocate_gen_fuel/index.html.md#module-pudl.analysis.allocate_gen_fuel), which was renamed from `allocate_net_gen`.
+  Energy source codes that show up in the [core_eia923_\_monthly_generation_fuel](data_dictionaries/pudl_db.html.md#core-eia923-monthly-generation-fuel) or
+  the [core_eia923_\_monthly_boiler_fuel](data_dictionaries/pudl_db.html.md#core-eia923-monthly-boiler-fuel) are now added into the
+  [core_eia860_\_scd_generators](data_dictionaries/pudl_db.html.md#core-eia860-scd-generators) table so associating those gf and bf records are
   more cleanly associated with generators. Thanks to [@grgmiller](https://github.com/sponsors/grgmiller) for his
   contribution, which was integrated by [@cmgosnell](https://github.com/sponsors/cmgosnell)! See PRs [#2235](https://github.com/catalyst-cooperative/pudl/pull/2235), [#2446](https://github.com/catalyst-cooperative/pudl/pull/2446).
-* The [`pudl.analysis.mcoe`](autoapi/pudl/analysis/mcoe/index.md#module-pudl.analysis.mcoe) table now uses the allocated estimates for per-generator
+* The [`pudl.analysis.mcoe`](autoapi/pudl/analysis/mcoe/index.html.md#module-pudl.analysis.mcoe) table now uses the allocated estimates for per-generator
   net generation and fuel consumption. See PR [#2553](https://github.com/catalyst-cooperative/pudl/pull/2553).
-* Additionally, the [`pudl.analysis.mcoe`](autoapi/pudl/analysis/mcoe/index.md#module-pudl.analysis.mcoe) table now only includes attributes
+* Additionally, the [`pudl.analysis.mcoe`](autoapi/pudl/analysis/mcoe/index.html.md#module-pudl.analysis.mcoe) table now only includes attributes
   pertaining to the generator capacity, heat rate, and fuel cost. No additional
   generator attributes are included in this table. The full table with generator
   attributes merged on is now provided by `pudl.analysis.mcoe_generators`. See PR
   [#2553](https://github.com/catalyst-cooperative/pudl/pull/2553).
-* Added outputs from [`pudl.analysis.service_territory`](autoapi/pudl/analysis/service_territory/index.md#module-pudl.analysis.service_territory) and
-  [`pudl.analysis.state_demand`](autoapi/pudl/analysis/state_demand/index.md#module-pudl.analysis.state_demand) into PUDL. These outputs include the US Census
+* Added outputs from [`pudl.analysis.service_territory`](autoapi/pudl/analysis/service_territory/index.html.md#module-pudl.analysis.service_territory) and
+  [`pudl.analysis.state_demand`](autoapi/pudl/analysis/state_demand/index.html.md#module-pudl.analysis.state_demand) into PUDL. These outputs include the US Census
   geometries associated with balancing authority and utility data from EIA-861
-  ([out_eia861_\_yearly_balancing_authority_service_territory](data_dictionaries/pudl_db.md#out-eia861-yearly-balancing-authority-service-territory) and
-  [out_eia861_\_yearly_utility_service_territory](data_dictionaries/pudl_db.md#out-eia861-yearly-utility-service-territory)), and the estimated total hourly
+  ([out_eia861_\_yearly_balancing_authority_service_territory](data_dictionaries/pudl_db.html.md#out-eia861-yearly-balancing-authority-service-territory) and
+  [out_eia861_\_yearly_utility_service_territory](data_dictionaries/pudl_db.html.md#out-eia861-yearly-utility-service-territory)), and the estimated total hourly
   electricity demand for each US state in
-  [out_ferc714_\_hourly_estimated_state_demand](data_dictionaries/pudl_db.md#out-ferc714-hourly-estimated-state-demand). See [#1973](https://github.com/catalyst-cooperative/pudl/issues/1973)
+  [out_ferc714_\_hourly_estimated_state_demand](data_dictionaries/pudl_db.html.md#out-ferc714-hourly-estimated-state-demand). See [#1973](https://github.com/catalyst-cooperative/pudl/issues/1973)
   and [#2550](https://github.com/catalyst-cooperative/pudl/pull/2550).
 
 ### Deprecations
 
 * Replace references to deprecated `pudl-scrapers` and
   `pudl-zenodo-datastore` repositories with references to [pudl-archiver](https://www.github.com/catalyst-cooperative/pudl-archiver) repository in
-  [Working with the Datastore](dev/datastore.md), and [Existing Data Updates](dev/existing_data_updates.md). See
+  [Working with the Datastore](dev/datastore.html.md), and [Existing Data Updates](dev/existing_data_updates.html.md). See
   [#2190](https://github.com/catalyst-cooperative/pudl/pull/2190).
 * `pudl.etl` is now a subpackage that collects all pudl assets into a dagster
   [Definition](https://docs.dagster.io/concepts/code-locations). All
@@ -3092,7 +3092,7 @@ successfully migrated to pulling data directly from `pudl.sqlite`.
 * `pudl.ferc1.extract_xbrl_metadata` has been replaced by the
   `pudl.extract.ferc1.xbrl_metadata_json()` asset.
 * All sub classes of `pudl.settings.GenericDatasetSettings()` in
-  [`pudl.settings`](autoapi/pudl/settings/index.md#module-pudl.settings) no longer have table attributes because the ETL no longer
+  [`pudl.settings`](autoapi/pudl/settings/index.html.md#module-pudl.settings) no longer have table attributes because the ETL no longer
   supports loading specific tables via settings. Use dagster to select subsets of
   tables to process.
 
@@ -3132,21 +3132,21 @@ successfully migrated to pulling data directly from `pudl.sqlite`.
   [pudl-scrapers](https://github.com/catalyst-cooperative/pudl-scrapers) and
   [pudl-zenodo-storage](https://github.com/catalyst-cooperative/pudl-zenodo-storage)
   repositories. See issue [catalyst-cooperative/pudl-zenodo-storage#29](https://github.com/catalyst-cooperative/pudl-zenodo-storage/issues/29).
-* Incorporated 2021 data from the [EPA Hourly Continuous Emission Monitoring System (CEMS)](data_sources/epacems.md) dataset. See [#1778](https://github.com/catalyst-cooperative/pudl/pull/1778)
-* Incorporated Final Release 2021 data from the [EIA Form 860 – Annual Electric Generator Report](data_sources/eia860.md),
-  [EIA Form 861 – Annual Electric Power Industry Report](data_sources/eia861.md), and [EIA Form 923 – Power Plant Operations Report](data_sources/eia923.md). We also integrated a
+* Incorporated 2021 data from the [EPA Hourly Continuous Emission Monitoring System (CEMS)](data_sources/epacems.html.md) dataset. See [#1778](https://github.com/catalyst-cooperative/pudl/pull/1778)
+* Incorporated Final Release 2021 data from the [EIA Form 860 – Annual Electric Generator Report](data_sources/eia860.html.md),
+  [EIA Form 861 – Annual Electric Power Industry Report](data_sources/eia861.html.md), and [EIA Form 923 – Power Plant Operations Report](data_sources/eia923.html.md). We also integrated a
   `data_maturity` column and related `data_maturities` table into most of the EIA
   data tables in order to alter users to the level of finality of the data. See
   [#1834](https://github.com/catalyst-cooperative/pudl/pull/1834), [#1855](https://github.com/catalyst-cooperative/pudl/pull/1855), [#1915](https://github.com/catalyst-cooperative/pudl/pull/1915), [#1921](https://github.com/catalyst-cooperative/pudl/pull/1921).
-* Incorporated 2022 data from the [EIA Form 860 – Annual Electric Generator Report](data_sources/eia860.md) monthly update from
+* Incorporated 2022 data from the [EIA Form 860 – Annual Electric Generator Report](data_sources/eia860.html.md) monthly update from
   September 2022. See [#2079](https://github.com/catalyst-cooperative/pudl/pull/2079). A June 2022 eia860m update included adding new
   `energy_storage_capacity_mwh` (for batteries) and `net_capacity_mwdc` (for
   behind-the-meter solar PV) attributes to the `generators_eia860` table, as they
-  appear in the [EIA Form 860 – Annual Electric Generator Report](data_sources/eia860.md) monthly updates for 2022.  See [#1834](https://github.com/catalyst-cooperative/pudl/pull/1834).
+  appear in the [EIA Form 860 – Annual Electric Generator Report](data_sources/eia860.html.md) monthly updates for 2022.  See [#1834](https://github.com/catalyst-cooperative/pudl/pull/1834).
 * Added new `datasources` table, which includes partitions used to generate the
   database. See [#2079](https://github.com/catalyst-cooperative/pudl/pull/2079).
 * Integrated several new columns into the EIA-860 and EIA-923 including several
-  codes with coding tables (See [PUDL Code Metadata](data_dictionaries/codes_and_labels.md)). [#1836](https://github.com/catalyst-cooperative/pudl/pull/1836)
+  codes with coding tables (See [PUDL Code Metadata](data_dictionaries/codes_and_labels.html.md)). [#1836](https://github.com/catalyst-cooperative/pudl/pull/1836)
 * Added the [EPACAMD-EIA Crosswalk](https://github.com/USEPA/camd-eia-crosswalk) to
   the database. Previously, the crosswalk was a csv stored in `package_data/glue`,
   but now it has its own scraper
@@ -3155,7 +3155,7 @@ successfully migrated to pulling data directly from `pudl.sqlite`.
   and place in the PUDL db. For now there’s a `epacamd_eia` output table you can use
   to merge CEMS and EIA data yourself [#1692](https://github.com/catalyst-cooperative/pudl/pull/1692). Eventually we’ll work these crosswalk
   values into an output table combining CEMS and EIA.
-* Integrated 2021 from the [FERC Form 1 – Annual Report of Major Electric Utilities](data_sources/ferc1.md) data. FERC updated its reporting
+* Integrated 2021 from the [FERC Form 1 – Annual Report of Major Electric Utilities](data_sources/ferc1.html.md) data. FERC updated its reporting
   format for 2021 from a DBF file to a XBRL files. This required a major overhaul of
   the extract and transform step. The updates were accumulated in [#1665](https://github.com/catalyst-cooperative/pudl/pull/1665). The raw
   XBRL data is being extracted through a
@@ -3215,7 +3215,7 @@ successfully migrated to pulling data directly from `pudl.sqlite`.
   column to an annually harvested data column (i.e. from `generators_entity_eia`
   to `generators_eia860`) [#1600](https://github.com/catalyst-cooperative/pudl/pull/1600). See [#1585](https://github.com/catalyst-cooperative/pudl/issues/1585) for more details.
 * Created `operational_status_eia` into our static metadata tables (See
-  [PUDL Code Metadata](data_dictionaries/codes_and_labels.md)). Used these standard codes and code
+  [PUDL Code Metadata](data_dictionaries/codes_and_labels.html.md)). Used these standard codes and code
   fixes to clean `operational_status_code` in the `generators_entity_eia`
   table. [#1624](https://github.com/catalyst-cooperative/pudl/pull/1624)
 * Moved a number of slowly changing plant attributes from the `plants_entity_eia`
@@ -3240,12 +3240,12 @@ successfully migrated to pulling data directly from `pudl.sqlite`.
 * Renamed `grid_voltage_kv` to `grid_voltage_1_kv` in the `plants_eia860`
   table, to follow the pattern of many other multiply reported values.
 * Added a `balancing_authorities_eia` coding table mapping BA codes found in the
-  [EIA Form 860 – Annual Electric Generator Report](data_sources/eia860.md) and [EIA Form 923 – Power Plant Operations Report](data_sources/eia923.md) to their names, cleaning up
+  [EIA Form 860 – Annual Electric Generator Report](data_sources/eia860.html.md) and [EIA Form 923 – Power Plant Operations Report](data_sources/eia923.html.md) to their names, cleaning up
   non-standard codes, and fixing some reporting errors for `PACW` vs. `PACE`
   (PacifiCorp West vs. East) based on the state associated with the plant reporting the
   code. Also added backfilling for codes in years before 2013 when BA Codes first
   started being reported, but only in the output tables. See: [#1906](https://github.com/catalyst-cooperative/pudl/pull/1906), [#1911](https://github.com/catalyst-cooperative/pudl/pull/1911)
-* Renamed and removed some columns in the [EPA Hourly Continuous Emission Monitoring System (CEMS)](data_sources/epacems.md) dataset.
+* Renamed and removed some columns in the [EPA Hourly Continuous Emission Monitoring System (CEMS)](data_sources/epacems.html.md) dataset.
   `unitid` was changed to `emissions_unit_id_epa` to clarify the type of unit it
   represents. `unit_id_epa` was removed because it is a unique identifier for
   `emissions_unit_id_epa` and not otherwise useful or transferable to other datasets.
@@ -3259,10 +3259,10 @@ successfully migrated to pulling data directly from `pudl.sqlite`.
 
 ### Data Accuracy
 
-* Retain NA values for [EPA Hourly Continuous Emission Monitoring System (CEMS)](data_sources/epacems.md) fields `gross_load_mw` and
+* Retain NA values for [EPA Hourly Continuous Emission Monitoring System (CEMS)](data_sources/epacems.html.md) fields `gross_load_mw` and
   `heat_content_mmbtu`. Previously, these fields converted NA to 0, but this is not
   accurate, so we removed this step.
-* Update the `plant_id_eia` field from [EPA Hourly Continuous Emission Monitoring System (CEMS)](data_sources/epacems.md) with values from
+* Update the `plant_id_eia` field from [EPA Hourly Continuous Emission Monitoring System (CEMS)](data_sources/epacems.html.md) with values from
   the newly integrated `epacamd_eia` crosswalk as not all EPA’s ORISPL codes are
   correct.
 
@@ -3270,14 +3270,14 @@ successfully migrated to pulling data directly from `pudl.sqlite`.
 
 * Replaced the PUDL helper function `clean_merge_asof` that merged two dataframes
   reported on different temporal granularities, for example monthly vs yearly data.
-  The reworked function, [`pudl.helpers.date_merge`](autoapi/pudl/helpers/index.md#pudl.helpers.date_merge), is more encapsulating and
+  The reworked function, [`pudl.helpers.date_merge`](autoapi/pudl/helpers/index.html.md#pudl.helpers.date_merge), is more encapsulating and
   faster and replaces `clean_merge_asof` in the MCOE table and EIA-923 tables. See
   [#1103](https://github.com/catalyst-cooperative/pudl/pull/1103), [#1550](https://github.com/catalyst-cooperative/pudl/pull/1550)
-* The helper function [`pudl.helpers.expand_timeseries`](autoapi/pudl/helpers/index.md#pudl.helpers.expand_timeseries) was also added, which
+* The helper function [`pudl.helpers.expand_timeseries`](autoapi/pudl/helpers/index.html.md#pudl.helpers.expand_timeseries) was also added, which
   expands a dataframe to include a full timeseries of data at a certain frequency.
-  The coordinating function [`pudl.helpers.full_timeseries_date_merge`](autoapi/pudl/helpers/index.md#pudl.helpers.full_timeseries_date_merge) first calls
-  [`pudl.helpers.date_merge`](autoapi/pudl/helpers/index.md#pudl.helpers.date_merge) to merge two dataframes of different temporal
-  granularities, and then calls [`pudl.helpers.expand_timeseries`](autoapi/pudl/helpers/index.md#pudl.helpers.expand_timeseries) to expand the
+  The coordinating function [`pudl.helpers.full_timeseries_date_merge`](autoapi/pudl/helpers/index.html.md#pudl.helpers.full_timeseries_date_merge) first calls
+  [`pudl.helpers.date_merge`](autoapi/pudl/helpers/index.html.md#pudl.helpers.date_merge) to merge two dataframes of different temporal
+  granularities, and then calls [`pudl.helpers.expand_timeseries`](autoapi/pudl/helpers/index.html.md#pudl.helpers.expand_timeseries) to expand the
   merged dataframe to a full timeseries. The added `timeseries_filling` argument,
   makes this function optionally used to generate the MCOE table that includes a full
   monthly timeseries even in years when annually reported generators don’t have
@@ -3301,11 +3301,11 @@ successfully migrated to pulling data directly from `pudl.sqlite`.
   and a `construction_year` column was also added. Finally, `operating_year` was
   added as a level that the EIA generators are now aggregated to.
 * The mega generators table and in turn the plant parts list requires the MCOE table
-  to generate. The MCOE table is now created with the new [`pudl.helpers.date_merge`](autoapi/pudl/helpers/index.md#pudl.helpers.date_merge)
+  to generate. The MCOE table is now created with the new [`pudl.helpers.date_merge`](autoapi/pudl/helpers/index.html.md#pudl.helpers.date_merge)
   helper function (described above). As a result, now by default only columns from the
   EIA-860 generators table that are necessary for the creation of the plant parts list
   will be included in the MCOE table. This list of columns is defined by the global
-  [`pudl.analysis.mcoe.DEFAULT_GENS_COLS`](autoapi/pudl/analysis/mcoe/index.md#pudl.analysis.mcoe.DEFAULT_GENS_COLS). If additional columns that are not part
+  [`pudl.analysis.mcoe.DEFAULT_GENS_COLS`](autoapi/pudl/analysis/mcoe/index.html.md#pudl.analysis.mcoe.DEFAULT_GENS_COLS). If additional columns that are not part
   of the default list are needed from the EIA-860 generators table, these columns can be
   passed in with the `gens_cols` argument.  See [#1550](https://github.com/catalyst-cooperative/pudl/pull/1550)
 * For memory efficiency, appropriate columns are now cast to string and
@@ -3321,7 +3321,7 @@ successfully migrated to pulling data directly from `pudl.sqlite`.
 ### Metadata
 
 * Used the data source metadata class added in release 0.6.0 to dynamically generate
-  the data source documentation (See [Data Sources](data_sources/index.md)). [#1532](https://github.com/catalyst-cooperative/pudl/pull/1532)
+  the data source documentation (See [Data Sources](data_sources/index.html.md)). [#1532](https://github.com/catalyst-cooperative/pudl/pull/1532)
 * The EIA plant parts list was added to the resource and field metadata. This is the
   first output table to be included in the metadata. See [#1865](https://github.com/catalyst-cooperative/pudl/pull/1865)
 
@@ -3330,7 +3330,7 @@ successfully migrated to pulling data directly from `pudl.sqlite`.
 * Fixed broken links in the documentation since the Air Markets Program Data (AMPD)
   changed to Clean Air Markets Data (CAMD).
 * Added graphics and clearer descriptions of EPA data and reporting requirements to the
-  [EPA Hourly Continuous Emission Monitoring System (CEMS)](data_sources/epacems.md) page. Also included information about the `epacamd_eia`
+  [EPA Hourly Continuous Emission Monitoring System (CEMS)](data_sources/epacems.html.md) page. Also included information about the `epacamd_eia`
   crosswalk.
 
 ### Bug Fixes
@@ -3375,14 +3375,14 @@ successfully migrated to pulling data directly from `pudl.sqlite`.
 
 ### Data Coverage
 
-* [EIA Form 860 – Annual Electric Generator Report](data_sources/eia860.md) monthly updates (`eia860m`) up to the end of 2021.
+* [EIA Form 860 – Annual Electric Generator Report](data_sources/eia860.html.md) monthly updates (`eia860m`) up to the end of 2021.
   [#1510](https://github.com/catalyst-cooperative/pudl/pull/1510)
 
 ### New Analyses
 
 * For the purposes of linking EIA and FERC Form 1 records, we (mostly [@cmgosnell](https://github.com/sponsors/cmgosnell))
   have created a new output called the Plant Parts List in
-  [`pudl.analysis.plant_parts_eia`](autoapi/pudl/analysis/plant_parts_eia/index.md#module-pudl.analysis.plant_parts_eia) which combines many different sub-parts of the
+  [`pudl.analysis.plant_parts_eia`](autoapi/pudl/analysis/plant_parts_eia/index.html.md#module-pudl.analysis.plant_parts_eia) which combines many different sub-parts of the
   EIA generators based on their fuel type, prime movers, ownership, etc. This allows a
   huge range of hypothiecally possible FERC Form 1 plant records to be synthesized, so
   that we can identify exactly what data in EIA should be associated with what data in
@@ -3398,9 +3398,9 @@ successfully migrated to pulling data directly from `pudl.sqlite`.
 * Column data types for our database and Apache Parquet outputs, as well as pandas
   dataframes are all based on the same underlying schemas, and should be much more
   consistent. [#1370](https://github.com/catalyst-cooperative/pudl/pull/1370), [#1377](https://github.com/catalyst-cooperative/pudl/pull/1377), [#1408](https://github.com/catalyst-cooperative/pudl/pull/1408)
-* Defined a data source metadata class [`pudl.metadata.classes.DataSource`](autoapi/pudl/metadata/classes/index.md#pudl.metadata.classes.DataSource) using
+* Defined a data source metadata class [`pudl.metadata.classes.DataSource`](autoapi/pudl/metadata/classes/index.html.md#pudl.metadata.classes.DataSource) using
   Pydantic to store information and procedures specific to each data source (e.g.
-  [FERC Form 1 – Annual Report of Major Electric Utilities](data_sources/ferc1.md), [EIA Form 923 – Power Plant Operations Report](data_sources/eia923.md)). [#1446](https://github.com/catalyst-cooperative/pudl/pull/1446)
+  [FERC Form 1 – Annual Report of Major Electric Utilities](data_sources/ferc1.html.md), [EIA Form 923 – Power Plant Operations Report](data_sources/eia923.html.md)). [#1446](https://github.com/catalyst-cooperative/pudl/pull/1446)
 * Use the data source metadata classes to automatically export rich metadata for use
   with our Datasette deployment. [#1479](https://github.com/catalyst-cooperative/pudl/pull/1479)
 * Use the data source metadata classes to store rich metadata for use with our
@@ -3410,7 +3410,7 @@ successfully migrated to pulling data directly from `pudl.sqlite`.
 * Added static tables and metadata structures that store definitions and additional
   information related to the many coded categorical columns in the database. These
   tables are exported directly into the documentation (See
-  [PUDL Code Metadata](data_dictionaries/codes_and_labels.md)). The metadata structures also document all
+  [PUDL Code Metadata](data_dictionaries/codes_and_labels.html.md)). The metadata structures also document all
   of the non-standard values that we’ve identified in the raw data, and the standard
   codes that they are mapped to. [#1388](https://github.com/catalyst-cooperative/pudl/pull/1388)
 * As a result of all these metadata improvements we were finally able to close
@@ -3455,7 +3455,7 @@ successfully migrated to pulling data directly from `pudl.sqlite`.
   in order to automatically apply a variety of code formatting & checks to all commits.
   [#1482](https://github.com/catalyst-cooperative/pudl/pull/1482)
 * Fixed random seeds to avoid stochastic test coverage changes in the
-  [`pudl.analysis.timeseries_cleaning`](autoapi/pudl/analysis/timeseries_cleaning/index.md#module-pudl.analysis.timeseries_cleaning) module. [#1483](https://github.com/catalyst-cooperative/pudl/pull/1483)
+  [`pudl.analysis.timeseries_cleaning`](autoapi/pudl/analysis/timeseries_cleaning/index.html.md#module-pudl.analysis.timeseries_cleaning) module. [#1483](https://github.com/catalyst-cooperative/pudl/pull/1483)
 * Silenced a bunch of 3rd party module warnings in the tests. See [#1476](https://github.com/catalyst-cooperative/pudl/pull/1476)
 
 ### Bug Fixes
@@ -3484,13 +3484,13 @@ successfully migrated to pulling data directly from `pudl.sqlite`.
 ### Data Coverage Changes
 
 * Integration of 2020 data for all our core datasets (See [#1255](https://github.com/catalyst-cooperative/pudl/issues/1255)):
-  * [EIA Form 860 – Annual Electric Generator Report](data_sources/eia860.md) for 2020 as well as 2001-2003 (see [#1122](https://github.com/catalyst-cooperative/pudl/issues/1122)).
+  * [EIA Form 860 – Annual Electric Generator Report](data_sources/eia860.html.md) for 2020 as well as 2001-2003 (see [#1122](https://github.com/catalyst-cooperative/pudl/issues/1122)).
   * EIA Form 860m through 2021-08.
-  * [EIA Form 923 – Power Plant Operations Report](data_sources/eia923.md) for 2020.
-  * [FERC Form 1 – Annual Report of Major Electric Utilities](data_sources/ferc1.md) for 2020.
-  * [EIA Form 861 – Annual Electric Power Industry Report](data_sources/eia861.md) data for 2020.
-  * [FERC Form 714 – Annual Electric Balancing Authority Area and Planning Area Report](data_sources/ferc714.md) for 2020.
-  * Note: the 2020 [EPA Hourly Continuous Emission Monitoring System (CEMS)](data_sources/epacems.md) data was already available in v0.4.0.
+  * [EIA Form 923 – Power Plant Operations Report](data_sources/eia923.html.md) for 2020.
+  * [FERC Form 1 – Annual Report of Major Electric Utilities](data_sources/ferc1.html.md) for 2020.
+  * [EIA Form 861 – Annual Electric Power Industry Report](data_sources/eia861.html.md) data for 2020.
+  * [FERC Form 714 – Annual Electric Balancing Authority Area and Planning Area Report](data_sources/ferc714.html.md) for 2020.
+  * Note: the 2020 [EPA Hourly Continuous Emission Monitoring System (CEMS)](data_sources/epacems.html.md) data was already available in v0.4.0.
 * **EPA IPM / NEEDS** data has been removed from PUDL as we didn’t have the internal
   resources to maintain it, and it was no longer working. Apologies to
   [@gschivley](https://github.com/sponsors/gschivley)!
@@ -3523,7 +3523,7 @@ With the deprecation of tabular data package outputs, we’ve adopted a more
 modular metadata management system that uses [Pydantic](https://pydantic-docs.helpmanual.io/).  This setup will allow us to easily
 validate the metadata schema and export to a variety of formats to support data
 distribution via [Datasette](https://datasette.io) and [Intake catalogs](https://intake.readthedocs.io), and automatic generation of data
-dictionaries and documentation. See [#806](https://github.com/catalyst-cooperative/pudl/issues/806), [#1271](https://github.com/catalyst-cooperative/pudl/issues/1271), [#1272](https://github.com/catalyst-cooperative/pudl/issues/1272) and the [`pudl.metadata`](autoapi/pudl/metadata/index.md#module-pudl.metadata)
+dictionaries and documentation. See [#806](https://github.com/catalyst-cooperative/pudl/issues/806), [#1271](https://github.com/catalyst-cooperative/pudl/issues/1271), [#1272](https://github.com/catalyst-cooperative/pudl/issues/1272) and the [`pudl.metadata`](autoapi/pudl/metadata/index.html.md#module-pudl.metadata)
 subpackage. Many thanks to [@ezwelty](https://github.com/sponsors/ezwelty) for most of this work.
 
 ### ETL Settings File Format Changed
@@ -3581,7 +3581,7 @@ database schema, which will probably affect some users.
 
 * Added a deployed console script for running the state-level hourly electricity
   demand allocation, using FERC 714 and EIA-861 data, simply called
-  `state_demand` and implemented in [`pudl.analysis.state_demand`](autoapi/pudl/analysis/state_demand/index.md#module-pudl.analysis.state_demand). This
+  `state_demand` and implemented in [`pudl.analysis.state_demand`](autoapi/pudl/analysis/state_demand/index.html.md#module-pudl.analysis.state_demand). This
   script existed in the v0.4.0 release, but was not deployed on the user’s
   system.
 
@@ -3619,13 +3619,13 @@ worth of work.
 
 ### New Data Coverage
 
-* [EIA Form 860 – Annual Electric Generator Report](data_sources/eia860.md) for 2004-2008 + 2019, plus eia860m through 2020
-* [EIA Form 923 – Power Plant Operations Report](data_sources/eia923.md) for 2001-2008 + 2019
-* [EPA Hourly Continuous Emission Monitoring System (CEMS)](data_sources/epacems.md) for 2019-2020
-* [FERC Form 1 – Annual Report of Major Electric Utilities](data_sources/ferc1.md) for 2019
-* [Census DP1 – Profile of General Demographic Characteristics](data_sources/censusdp1tract.md) for 2010
-* [FERC Form 714 – Annual Electric Balancing Authority Area and Planning Area Report](data_sources/ferc714.md) for 2006-2019 (experimental)
-* [EIA Form 861 – Annual Electric Power Industry Report](data_sources/eia861.md) for 2001-2019 (experimental)
+* [EIA Form 860 – Annual Electric Generator Report](data_sources/eia860.html.md) for 2004-2008 + 2019, plus eia860m through 2020
+* [EIA Form 923 – Power Plant Operations Report](data_sources/eia923.html.md) for 2001-2008 + 2019
+* [EPA Hourly Continuous Emission Monitoring System (CEMS)](data_sources/epacems.html.md) for 2019-2020
+* [FERC Form 1 – Annual Report of Major Electric Utilities](data_sources/ferc1.html.md) for 2019
+* [Census DP1 – Profile of General Demographic Characteristics](data_sources/censusdp1tract.html.md) for 2010
+* [FERC Form 714 – Annual Electric Balancing Authority Area and Planning Area Report](data_sources/ferc714.html.md) for 2006-2019 (experimental)
+* [EIA Form 861 – Annual Electric Power Industry Report](data_sources/eia861.html.md) for 2001-2019 (experimental)
 
 ### Documentation & Data Accessibility
 
@@ -3642,7 +3642,7 @@ several methods of directly accessing already processed data:
   [https://data.catalyst.coop](https://data.catalyst.coop)
 
 Users who still want to run the ETL themselves will need to set up the
-[set up the PUDL development environment](dev/dev_setup.md)
+[set up the PUDL development environment](dev/dev_setup.html.md)
 
 ### Data Cleaning & Integration
 
@@ -3688,7 +3688,7 @@ The `generation_fuel_eia923` table is more complete, but the
 The `generation_eia923` table includes only ~55% of the total MWhs reported
 in the `generation_fuel_eia923` table.
 
-The [`pudl.analysis.allocate_gen_fuel`](autoapi/pudl/analysis/allocate_gen_fuel/index.md#module-pudl.analysis.allocate_gen_fuel) module estimates the net electricity
+The [`pudl.analysis.allocate_gen_fuel`](autoapi/pudl/analysis/allocate_gen_fuel/index.html.md#module-pudl.analysis.allocate_gen_fuel) module estimates the net electricity
 generation and fuel consumption attributable to individual generators based on
 the more expansive reporting of the data in the `generation_fuel_eia923`
 table.

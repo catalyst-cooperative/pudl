@@ -4,35 +4,35 @@ Module to perform data cleaning functions on EIA176 data tables.
 
 ## Attributes
 
-| [`logger`](#pudl.transform.eia176.logger)                                                                                     |    |
-|-------------------------------------------------------------------------------------------------------------------------------|----|
-| [`name_cleaner`](#pudl.transform.eia176.name_cleaner)                                                                         |    |
-| [`DROP_OPERATING_STATES`](#pudl.transform.eia176.DROP_OPERATING_STATES)                                                       |    |
+| [`logger`](#pudl.transform.eia176.logger)                                           |    |
+|---------------------------------------------------------------------------------------------------|----|
+| [`name_cleaner`](#pudl.transform.eia176.name_cleaner)                                     |    |
+| [`DROP_OPERATING_STATES`](#pudl.transform.eia176.DROP_OPERATING_STATES)                            |    |
 | [`CONTINUATION_LINES_ALLOWED_NON_SUBDIVISION_CODES`](#pudl.transform.eia176.CONTINUATION_LINES_ALLOWED_NON_SUBDIVISION_CODES) |    |
-| [`UNKNOWN_TYPES`](#pudl.transform.eia176.UNKNOWN_TYPES)                                                                       |    |
-| [`SUPPLEMENTAL_GASEOUS_FUEL_TYPE_MAP`](#pudl.transform.eia176.SUPPLEMENTAL_GASEOUS_FUEL_TYPE_MAP)                             |    |
-| [`OTHER_DISPOSITION_TYPE_MAP`](#pudl.transform.eia176.OTHER_DISPOSITION_TYPE_MAP)                                             |    |
+| [`UNKNOWN_TYPES`](#pudl.transform.eia176.UNKNOWN_TYPES)                                    |    |
+| [`SUPPLEMENTAL_GASEOUS_FUEL_TYPE_MAP`](#pudl.transform.eia176.SUPPLEMENTAL_GASEOUS_FUEL_TYPE_MAP)               |    |
+| [`OTHER_DISPOSITION_TYPE_MAP`](#pudl.transform.eia176.OTHER_DISPOSITION_TYPE_MAP)                       |    |
 
 ## Functions
 
-| [`_core_eia176__numeric_data`](#pudl.transform.eia176._core_eia176__numeric_data)(→ tuple[dagster.Output, ...)                                 | Process EIA 176 custom report data into company and aggregate outputs.                                        |
-|------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------|
-| [`get_wide_table`](#pudl.transform.eia176.get_wide_table)(→ pandas.DataFrame)                                                                  | Take a 'long' or entity-attribute-value table and return a wide table with one column per attribute/variable. |
-| [`_subdivision_code_map`](#pudl.transform.eia176._subdivision_code_map)(→ pandas.Series)                                                       | Map subdivision names and codes to canonical two-letter codes.                                                |
-| [`normalize_continuation_line_location_codes`](#pudl.transform.eia176.normalize_continuation_line_location_codes)(...)                         | Validate and normalize EIA-176 continuation line location codes.                                              |
-| [`_get_continuation_code_type`](#pudl.transform.eia176._get_continuation_code_type)(→ pandas.Series)                                           | Classify EIA-176 continuation codes as subnational or national/other codes.                                   |
-| [`_find_continuation_line_total_mismatches`](#pudl.transform.eia176._find_continuation_line_total_mismatches)(...)                             | Compare detailed continuation line totals with reported company-level totals.                                 |
-| [`validate_totals`](#pudl.transform.eia176.validate_totals)(→ dagster.AssetCheckResult)                                                        | Compare reported and calculated totals for different geographical aggregates.                                 |
-| [`core_eia176__yearly_gas_disposition_by_consumer`](#pudl.transform.eia176.core_eia176__yearly_gas_disposition_by_consumer)(...)               | Produce annual company-level gas disposition by consumer class (EIA-176).                                     |
-| [`core_eia176__yearly_gas_imports`](#pudl.transform.eia176.core_eia176__yearly_gas_imports)(→ pandas.DataFrame)                                | Produce company-level detailed annual gas imports (EIA-176, Line 3.0).                                        |
+| [`_core_eia176__numeric_data`](#pudl.transform.eia176._core_eia176__numeric_data)(→ tuple[dagster.Output, ...)     | Process EIA 176 custom report data into company and aggregate outputs.                                        |
+|--------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------|
+| [`get_wide_table`](#pudl.transform.eia176.get_wide_table)(→ pandas.DataFrame)                          | Take a 'long' or entity-attribute-value table and return a wide table with one column per attribute/variable. |
+| [`_subdivision_code_map`](#pudl.transform.eia176._subdivision_code_map)(→ pandas.Series)                      | Map subdivision names and codes to canonical two-letter codes.                                                |
+| [`normalize_continuation_line_location_codes`](#pudl.transform.eia176.normalize_continuation_line_location_codes)(...)             | Validate and normalize EIA-176 continuation line location codes.                                              |
+| [`_get_continuation_code_type`](#pudl.transform.eia176._get_continuation_code_type)(→ pandas.Series)                | Classify EIA-176 continuation codes as subnational or national/other codes.                                   |
+| [`_find_continuation_line_total_mismatches`](#pudl.transform.eia176._find_continuation_line_total_mismatches)(...)               | Compare detailed continuation line totals with reported company-level totals.                                 |
+| [`validate_totals`](#pudl.transform.eia176.validate_totals)(→ dagster.AssetCheckResult)                 | Compare reported and calculated totals for different geographical aggregates.                                 |
+| [`core_eia176__yearly_gas_disposition_by_consumer`](#pudl.transform.eia176.core_eia176__yearly_gas_disposition_by_consumer)(...)        | Produce annual company-level gas disposition by consumer class (EIA-176).                                     |
+| [`core_eia176__yearly_gas_imports`](#pudl.transform.eia176.core_eia176__yearly_gas_imports)(→ pandas.DataFrame)         | Produce company-level detailed annual gas imports (EIA-176, Line 3.0).                                        |
 | [`core_eia176__yearly_supplemental_gaseous_fuel_supplies`](#pudl.transform.eia176.core_eia176__yearly_supplemental_gaseous_fuel_supplies)(...) | Produce detailed annual supplemental gaseous fuel supplies (EIA-176, Line 6.0).                               |
-| [`core_eia176__yearly_gas_exports`](#pudl.transform.eia176.core_eia176__yearly_gas_exports)(→ pandas.DataFrame)                                | Produce detailed annual out-of-state gas deliveries (EIA-176, Line 14.0).                                     |
-| [`core_eia176__yearly_gas_disposition_other`](#pudl.transform.eia176.core_eia176__yearly_gas_disposition_other)(...)                           | Produce detailed annual gas disposition to other uses (EIA-176, Line 18.4).                                   |
-| [`core_eia176__yearly_gas_supply`](#pudl.transform.eia176.core_eia176__yearly_gas_supply)(→ pandas.DataFrame)                                  | Produce company-level natural and supplemental gas supply (EIA176, Lines 1.0-7.0).                            |
-| [`_compare_eia176_continuation_line_total`](#pudl.transform.eia176._compare_eia176_continuation_line_total)(→ pandas.DataFrame)                | Compare a wide EIA-176 value column against summed continuation-line values.                                  |
-| [`core_eia176__yearly_gas_disposition`](#pudl.transform.eia176.core_eia176__yearly_gas_disposition)(→ pandas.DataFrame)                        | Produce company-level gas disposition (EIA176, Lines 9.0 and 12.0-20.0).                                      |
-| [`core_eia176__yearly_liquefied_natural_gas_inventory`](#pudl.transform.eia176.core_eia176__yearly_liquefied_natural_gas_inventory)(...)       | Operator's LNG storage volume and capacity (EIA176, lines 8.0-8.2).                                           |
-| [`_normalize_operating_states`](#pudl.transform.eia176._normalize_operating_states)(...[, column])                                             | Map full state names to their postal abbreviations.                                                           |
+| [`core_eia176__yearly_gas_exports`](#pudl.transform.eia176.core_eia176__yearly_gas_exports)(→ pandas.DataFrame)         | Produce detailed annual out-of-state gas deliveries (EIA-176, Line 14.0).                                     |
+| [`core_eia176__yearly_gas_disposition_other`](#pudl.transform.eia176.core_eia176__yearly_gas_disposition_other)(...)              | Produce detailed annual gas disposition to other uses (EIA-176, Line 18.4).                                   |
+| [`core_eia176__yearly_gas_supply`](#pudl.transform.eia176.core_eia176__yearly_gas_supply)(→ pandas.DataFrame)          | Produce company-level natural and supplemental gas supply (EIA176, Lines 1.0-7.0).                            |
+| [`_compare_eia176_continuation_line_total`](#pudl.transform.eia176._compare_eia176_continuation_line_total)(→ pandas.DataFrame) | Compare a wide EIA-176 value column against summed continuation-line values.                                  |
+| [`core_eia176__yearly_gas_disposition`](#pudl.transform.eia176.core_eia176__yearly_gas_disposition)(→ pandas.DataFrame)     | Produce company-level gas disposition (EIA176, Lines 9.0 and 12.0-20.0).                                      |
+| [`core_eia176__yearly_liquefied_natural_gas_inventory`](#pudl.transform.eia176.core_eia176__yearly_liquefied_natural_gas_inventory)(...)    | Operator's LNG storage volume and capacity (EIA176, lines 8.0-8.2).                                           |
+| [`_normalize_operating_states`](#pudl.transform.eia176._normalize_operating_states)(...[, column])                  | Map full state names to their postal abbreviations.                                                           |
 
 ## Module Contents
 

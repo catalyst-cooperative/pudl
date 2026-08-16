@@ -4,25 +4,25 @@ This module contains the implementation of CompanyNameCleaner class from OS-Clim
 
 ## Attributes
 
-| [`logger`](#pudl.analysis.record_linkage.name_cleaner.logger)                                           |    |
-|---------------------------------------------------------------------------------------------------------|----|
-| [`CLEANING_RULES_DICT`](#pudl.analysis.record_linkage.name_cleaner.CLEANING_RULES_DICT)                 |    |
+| [`logger`](#pudl.analysis.record_linkage.name_cleaner.logger)                      |    |
+|------------------------------------------------------------------------------|----|
+| [`CLEANING_RULES_DICT`](#pudl.analysis.record_linkage.name_cleaner.CLEANING_RULES_DICT)         |    |
 | [`DEFAULT_CLEANING_RULES_LIST`](#pudl.analysis.record_linkage.name_cleaner.DEFAULT_CLEANING_RULES_LIST) |    |
-| [`NAME_LEGAL_TERMS_DICT_FILE`](#pudl.analysis.record_linkage.name_cleaner.NAME_LEGAL_TERMS_DICT_FILE)   |    |
+| [`NAME_LEGAL_TERMS_DICT_FILE`](#pudl.analysis.record_linkage.name_cleaner.NAME_LEGAL_TERMS_DICT_FILE)  |    |
 | [`NAME_JSON_ENTRY_LEGAL_TERMS`](#pudl.analysis.record_linkage.name_cleaner.NAME_JSON_ENTRY_LEGAL_TERMS) |    |
 
 ## Classes
 
 | [`LegalTermLocation`](#pudl.analysis.record_linkage.name_cleaner.LegalTermLocation)   | The location of the legal terms within the name string.   |
-|---------------------------------------------------------------------------------------|-----------------------------------------------------------|
-| [`Lettercase`](#pudl.analysis.record_linkage.name_cleaner.Lettercase)                 | Allowed cases for output strings.                         |
-| [`HandleLegalTerms`](#pudl.analysis.record_linkage.name_cleaner.HandleLegalTerms)     | Whether to leave, remove, or normalize legal terms.       |
-| [`CompanyNameCleaner`](#pudl.analysis.record_linkage.name_cleaner.CompanyNameCleaner) | Class to normalize/clean up text based company names.     |
+|----------------------------------------------------------------------|-----------------------------------------------------------|
+| [`Lettercase`](#pudl.analysis.record_linkage.name_cleaner.Lettercase)          | Allowed cases for output strings.                         |
+| [`HandleLegalTerms`](#pudl.analysis.record_linkage.name_cleaner.HandleLegalTerms)    | Whether to leave, remove, or normalize legal terms.       |
+| [`CompanyNameCleaner`](#pudl.analysis.record_linkage.name_cleaner.CompanyNameCleaner)  | Class to normalize/clean up text based company names.     |
 
 ## Functions
 
 | [`_get_legal_terms_dict`](#pudl.analysis.record_linkage.name_cleaner._get_legal_terms_dict)(→ dict[str, list])   |    |
-|------------------------------------------------------------------------------------------------------------------|----|
+|---------------------------------------------------------------------------------------------|----|
 
 ## Module Contents
 

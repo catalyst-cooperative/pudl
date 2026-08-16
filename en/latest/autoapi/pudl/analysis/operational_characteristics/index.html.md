@@ -9,35 +9,35 @@ rate. These are derived by combining several independent per-unit calculations �
 load-factor binning, run-length detection, and ramp-rate summarization – into one
 output row per unit via [`estimate_operational_characteristics_by_unit()`](#pudl.analysis.operational_characteristics.estimate_operational_characteristics_by_unit).
 
-See [Generator Operational Characteristics](../../../../methodology/operational_characteristics.md) for a longer prose explanation.
+See [Generator Operational Characteristics](../../../../methodology/operational_characteristics.html.md) for a longer prose explanation.
 
 ## Attributes
 
 | [`logger`](#pudl.analysis.operational_characteristics.logger)   |    |
-|-----------------------------------------------------------------|----|
+|-----------------------------------------------------------|----|
 
 ## Functions
 
-| [`_get_heat_rate_analysis_config`](#pudl.analysis.operational_characteristics._get_heat_rate_analysis_config)(→ dict[str, int])                      | Extract heat rate analysis settings from Dagster asset config.                |
-|------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------|
-| [`_year_quarter_to_ordinal`](#pudl.analysis.operational_characteristics._year_quarter_to_ordinal)(→ int)                                             | Convert a `YYYYqN` string into a zero-based quarter ordinal.                  |
-| [`_ordinal_to_quarter_start`](#pudl.analysis.operational_characteristics._ordinal_to_quarter_start)(→ pandas.Timestamp)                              | Convert a zero-based quarter ordinal into its first UTC timestamp.            |
-| [`_ordinal_to_year_quarter`](#pudl.analysis.operational_characteristics._ordinal_to_year_quarter)(→ str)                                             | Convert a zero-based quarter ordinal into its `YYYYqN` string.                |
-| [`_assert_required_quarters_available`](#pudl.analysis.operational_characteristics._assert_required_quarters_available)(→ None)                      | Raise if the configured EPA CEMS quarters don't cover the trailing window.    |
-| [`_select_target_year_quarter`](#pudl.analysis.operational_characteristics._select_target_year_quarter)(→ str)                                       | Pick the year-quarter to treat as the end of the analysis window.             |
-| [`filter_cems_for_heat_rate_analysis`](#pudl.analysis.operational_characteristics.filter_cems_for_heat_rate_analysis)(→ polars.LazyFrame)            | Filter hourly EPA CEMS records to the configured analysis window.             |
-| [`_add_run_id_expr`](#pudl.analysis.operational_characteristics._add_run_id_expr)(→ polars.Expr)                                                     | Build an expression assigning run IDs to consecutive hourly observations.     |
-| [`assign_groupwise_load_factor_bins`](#pudl.analysis.operational_characteristics.assign_groupwise_load_factor_bins)(→ polars.DataFrame)              | Fully vectorized, per-unit equal-width load-factor binning.                   |
-| [`summarize_ramp_rates`](#pudl.analysis.operational_characteristics.summarize_ramp_rates)(→ polars.DataFrame)                                        | Summarize per-unit ramp rates using the steepest 5% of observed ramp-up/down. |
-| [`handle_adjustment_in_cems`](#pudl.analysis.operational_characteristics.handle_adjustment_in_cems)(→ tuple[polars.LazyFrame, ...)                   | Filter CEMS data, computing derived columns if not adjusted.                  |
-| [`prep_output_df`](#pudl.analysis.operational_characteristics.prep_output_df)(→ polars.DataFrame)                                                    | Set up aggregated output dataframe with empty calculated columns.             |
-| [`compute_minimum_stable_bin`](#pudl.analysis.operational_characteristics.compute_minimum_stable_bin)(→ polars.DataFrame)                            | Given a certain consecutive hour threshold, find runs with stable behavior.   |
-| [`compute_heat_rate_at_max_load`](#pudl.analysis.operational_characteristics.compute_heat_rate_at_max_load)(→ polars.DataFrame)                      | Compute the heat rate at the maximum load (by bin).                           |
-| [`compute_min_stable_heat_rates`](#pudl.analysis.operational_characteristics.compute_min_stable_heat_rates)(→ polars.DataFrame)                      | Compute the heat rate for the minimum stable run.                             |
-| [`filter_for_min_stable_bin`](#pudl.analysis.operational_characteristics.filter_for_min_stable_bin)(→ polars.DataFrame)                              | Filter out records below the minimum stable bin.                              |
-| [`calculate_min_up_or_down_times`](#pudl.analysis.operational_characteristics.calculate_min_up_or_down_times)(→ polars.DataFrame)                    | Calculate minimum up or down times.                                           |
-| [`estimate_operational_characteristics_by_unit`](#pudl.analysis.operational_characteristics.estimate_operational_characteristics_by_unit)(...)       | Estimate operational characteristics for every EPA CEMS plant-unit pair.      |
-| [`out_epacems__yearly_operational_characteristics`](#pudl.analysis.operational_characteristics.out_epacems__yearly_operational_characteristics)(...) | Estimate EPA CEMS unit operational characteristics for every unit.            |
+| [`_get_heat_rate_analysis_config`](#pudl.analysis.operational_characteristics._get_heat_rate_analysis_config)(→ dict[str, int])         | Extract heat rate analysis settings from Dagster asset config.                |
+|-----------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------|
+| [`_year_quarter_to_ordinal`](#pudl.analysis.operational_characteristics._year_quarter_to_ordinal)(→ int)                          | Convert a `YYYYqN` string into a zero-based quarter ordinal.                  |
+| [`_ordinal_to_quarter_start`](#pudl.analysis.operational_characteristics._ordinal_to_quarter_start)(→ pandas.Timestamp)            | Convert a zero-based quarter ordinal into its first UTC timestamp.            |
+| [`_ordinal_to_year_quarter`](#pudl.analysis.operational_characteristics._ordinal_to_year_quarter)(→ str)                          | Convert a zero-based quarter ordinal into its `YYYYqN` string.                |
+| [`_assert_required_quarters_available`](#pudl.analysis.operational_characteristics._assert_required_quarters_available)(→ None)              | Raise if the configured EPA CEMS quarters don't cover the trailing window.    |
+| [`_select_target_year_quarter`](#pudl.analysis.operational_characteristics._select_target_year_quarter)(→ str)                       | Pick the year-quarter to treat as the end of the analysis window.             |
+| [`filter_cems_for_heat_rate_analysis`](#pudl.analysis.operational_characteristics.filter_cems_for_heat_rate_analysis)(→ polars.LazyFrame)   | Filter hourly EPA CEMS records to the configured analysis window.             |
+| [`_add_run_id_expr`](#pudl.analysis.operational_characteristics._add_run_id_expr)(→ polars.Expr)                          | Build an expression assigning run IDs to consecutive hourly observations.     |
+| [`assign_groupwise_load_factor_bins`](#pudl.analysis.operational_characteristics.assign_groupwise_load_factor_bins)(→ polars.DataFrame)    | Fully vectorized, per-unit equal-width load-factor binning.                   |
+| [`summarize_ramp_rates`](#pudl.analysis.operational_characteristics.summarize_ramp_rates)(→ polars.DataFrame)                 | Summarize per-unit ramp rates using the steepest 5% of observed ramp-up/down. |
+| [`handle_adjustment_in_cems`](#pudl.analysis.operational_characteristics.handle_adjustment_in_cems)(→ tuple[polars.LazyFrame, ...) | Filter CEMS data, computing derived columns if not adjusted.                  |
+| [`prep_output_df`](#pudl.analysis.operational_characteristics.prep_output_df)(→ polars.DataFrame)                       | Set up aggregated output dataframe with empty calculated columns.             |
+| [`compute_minimum_stable_bin`](#pudl.analysis.operational_characteristics.compute_minimum_stable_bin)(→ polars.DataFrame)           | Given a certain consecutive hour threshold, find runs with stable behavior.   |
+| [`compute_heat_rate_at_max_load`](#pudl.analysis.operational_characteristics.compute_heat_rate_at_max_load)(→ polars.DataFrame)        | Compute the heat rate at the maximum load (by bin).                           |
+| [`compute_min_stable_heat_rates`](#pudl.analysis.operational_characteristics.compute_min_stable_heat_rates)(→ polars.DataFrame)        | Compute the heat rate for the minimum stable run.                             |
+| [`filter_for_min_stable_bin`](#pudl.analysis.operational_characteristics.filter_for_min_stable_bin)(→ polars.DataFrame)            | Filter out records below the minimum stable bin.                              |
+| [`calculate_min_up_or_down_times`](#pudl.analysis.operational_characteristics.calculate_min_up_or_down_times)(→ polars.DataFrame)       | Calculate minimum up or down times.                                           |
+| [`estimate_operational_characteristics_by_unit`](#pudl.analysis.operational_characteristics.estimate_operational_characteristics_by_unit)(...)        | Estimate operational characteristics for every EPA CEMS plant-unit pair.      |
+| [`out_epacems__yearly_operational_characteristics`](#pudl.analysis.operational_characteristics.out_epacems__yearly_operational_characteristics)(...)     | Estimate EPA CEMS unit operational characteristics for every unit.            |
 
 ## Module Contents
 

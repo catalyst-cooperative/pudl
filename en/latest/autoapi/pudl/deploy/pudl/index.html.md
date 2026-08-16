@@ -7,51 +7,51 @@ This module handles distribution of completed ETL builds to public cloud storage
 
 ## Attributes
 
-| [`logger`](#pudl.deploy.pudl.logger)                   |    |
-|--------------------------------------------------------|----|
-| [`ZULIP_API_URL`](#pudl.deploy.pudl.ZULIP_API_URL)     |    |
+| [`logger`](#pudl.deploy.pudl.logger)          |    |
+|------------------------------------------------------------------|----|
+| [`ZULIP_API_URL`](#pudl.deploy.pudl.ZULIP_API_URL)   |    |
 | [`ZULIP_BOT_EMAIL`](#pudl.deploy.pudl.ZULIP_BOT_EMAIL) |    |
-| [`ZULIP_STREAM`](#pudl.deploy.pudl.ZULIP_STREAM)       |    |
-| [`ZULIP_TOPIC`](#pudl.deploy.pudl.ZULIP_TOPIC)         |    |
+| [`ZULIP_STREAM`](#pudl.deploy.pudl.ZULIP_STREAM)    |    |
+| [`ZULIP_TOPIC`](#pudl.deploy.pudl.ZULIP_TOPIC)     |    |
 
 ## Classes
 
 | [`DeploymentType`](#pudl.deploy.pudl.DeploymentType)   | Deployments can be 'nightly', 'branch', or 'stable'.                           |
-|--------------------------------------------------------|--------------------------------------------------------------------------------|
+|-------------------------------------------------------------------|--------------------------------------------------------------------------------|
 | [`DeploymentPlan`](#pudl.deploy.pudl.DeploymentPlan)   | Fully resolved, validated deployment behavior for one git tag and environment. |
-| [`ResolvedBuild`](#pudl.deploy.pudl.ResolvedBuild)     | Everything `pudl_deploy`'s `main()` needs after resolving a deployment.        |
-| [`StageStatus`](#pudl.deploy.pudl.StageStatus)         | Possible outcomes of a single deployment stage.                                |
-| [`DeployStage`](#pudl.deploy.pudl.DeployStage)         | The fixed set of tracked deployment stages.                                    |
-| [`StageResult`](#pudl.deploy.pudl.StageResult)         | Outcome of a single deployment stage, for Zulip stage-table reporting.         |
+| [`ResolvedBuild`](#pudl.deploy.pudl.ResolvedBuild)    | Everything `pudl_deploy`'s `main()` needs after resolving a deployment.        |
+| [`StageStatus`](#pudl.deploy.pudl.StageStatus)      | Possible outcomes of a single deployment stage.                                |
+| [`DeployStage`](#pudl.deploy.pudl.DeployStage)      | The fixed set of tracked deployment stages.                                    |
+| [`StageResult`](#pudl.deploy.pudl.StageResult)      | Outcome of a single deployment stage, for Zulip stage-table reporting.         |
 
 ## Functions
 
-| [`_zip_parquet_files`](#pudl.deploy.pudl._zip_parquet_files)(→ None)                                       | Create a zipfile containing parquet files and an associated datapackage JSON file.    |
-|------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------|
-| [`_compress_sqlite_file`](#pudl.deploy.pudl._compress_sqlite_file)(→ None)                                 | Compress a SQLite database into a zip file and remove the original.                   |
-| [`download_build_outputs`](#pudl.deploy.pudl.download_build_outputs)(→ None)                               | Download raw ETL build outputs from builds.catalyst.coop to local disk.               |
-| [`prepare_outputs_for_distribution`](#pudl.deploy.pudl.prepare_outputs_for_distribution)(→ None)           | Prepare already-downloaded ETL outputs for distribution.                              |
-| [`_run`](#pudl.deploy.pudl._run)(→ str | None)                                                             | Wrap subprocess.run so we see error output.                                           |
-| [`clear_deployment_path`](#pudl.deploy.pudl.clear_deployment_path)(→ None)                                 | Empty a cloud storage prefix before writing fresh deployment outputs.                 |
-| [`_upload_to_path`](#pudl.deploy.pudl._upload_to_path)(→ None)                                             | Clear (if requested) and upload all outputs to one destination path.                  |
-| [`_assert_permanent_paths_are_empty`](#pudl.deploy.pudl._assert_permanent_paths_are_empty)(→ None)         | Refuse to deploy to a permanent, version-tagged path that already has content.        |
-| [`upload_outputs`](#pudl.deploy.pudl.upload_outputs)() → None)                                             | Upload outputs to cloud storage paths.                                                |
-| [`update_git_branch`](#pudl.deploy.pudl.update_git_branch)(→ None)                                         | Merge git tag into branch and push to origin.                                         |
+| [`_zip_parquet_files`](#pudl.deploy.pudl._zip_parquet_files)(→ None)                                 | Create a zipfile containing parquet files and an associated datapackage JSON file.    |
+|-------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------|
+| [`_compress_sqlite_file`](#pudl.deploy.pudl._compress_sqlite_file)(→ None)                              | Compress a SQLite database into a zip file and remove the original.                   |
+| [`download_build_outputs`](#pudl.deploy.pudl.download_build_outputs)(→ None)                             | Download raw ETL build outputs from builds.catalyst.coop to local disk.               |
+| [`prepare_outputs_for_distribution`](#pudl.deploy.pudl.prepare_outputs_for_distribution)(→ None)                   | Prepare already-downloaded ETL outputs for distribution.                              |
+| [`_run`](#pudl.deploy.pudl._run)(→ str | None)                                         | Wrap subprocess.run so we see error output.                                           |
+| [`clear_deployment_path`](#pudl.deploy.pudl.clear_deployment_path)(→ None)                              | Empty a cloud storage prefix before writing fresh deployment outputs.                 |
+| [`_upload_to_path`](#pudl.deploy.pudl._upload_to_path)(→ None)                                    | Clear (if requested) and upload all outputs to one destination path.                  |
+| [`_assert_permanent_paths_are_empty`](#pudl.deploy.pudl._assert_permanent_paths_are_empty)(→ None)                  | Refuse to deploy to a permanent, version-tagged path that already has content.        |
+| [`upload_outputs`](#pudl.deploy.pudl.upload_outputs)() → None)                                   | Upload outputs to cloud storage paths.                                                |
+| [`update_git_branch`](#pudl.deploy.pudl.update_git_branch)(→ None)                                  | Merge git tag into branch and push to origin.                                         |
 | [`dispatch_github_workflow`](#pudl.deploy.pudl.dispatch_github_workflow)(→ None)                           | Trigger a workflow_dispatch event on a GitHub Actions workflow.                       |
-| [`trigger_zenodo_release`](#pudl.deploy.pudl.trigger_zenodo_release)(→ None)                               | Trigger Zenodo data release GitHub Actions workflow.                                  |
-| [`update_pudl_viewer`](#pudl.deploy.pudl.update_pudl_viewer)(→ None)                                       | Update PUDL Viewer Cloud Run service to latest image.                                 |
-| [`set_gcs_temporary_hold`](#pudl.deploy.pudl.set_gcs_temporary_hold)(→ None)                               | Set temporary hold on GCS objects to prevent deletion.                                |
-| [`check_build_success`](#pudl.deploy.pudl.check_build_success)(→ upath.UPath)                              | Raise error if success file doesn't exist in build directory.                         |
-| [`get_build_from_tag`](#pudl.deploy.pudl.get_build_from_tag)(→ upath.UPath)                                | Find any builds associated with a git tag and return a GCS path to most recent build. |
-| [`get_deployment_type_from_tag`](#pudl.deploy.pudl.get_deployment_type_from_tag)(→ DeploymentType)         | Check if tag looks like a 'nightly', 'branch', or 'stable' tag.                       |
-| [`resolve_build`](#pudl.deploy.pudl.resolve_build)(→ ResolvedBuild)                                        | Resolve the deployment plan, locate the build, and set up local logging.              |
+| [`trigger_zenodo_release`](#pudl.deploy.pudl.trigger_zenodo_release)(→ None)                             | Trigger Zenodo data release GitHub Actions workflow.                                  |
+| [`update_pudl_viewer`](#pudl.deploy.pudl.update_pudl_viewer)(→ None)                                 | Update PUDL Viewer Cloud Run service to latest image.                                 |
+| [`set_gcs_temporary_hold`](#pudl.deploy.pudl.set_gcs_temporary_hold)(→ None)                             | Set temporary hold on GCS objects to prevent deletion.                                |
+| [`check_build_success`](#pudl.deploy.pudl.check_build_success)(→ upath.UPath)                         | Raise error if success file doesn't exist in build directory.                         |
+| [`get_build_from_tag`](#pudl.deploy.pudl.get_build_from_tag)(→ upath.UPath)                          | Find any builds associated with a git tag and return a GCS path to most recent build. |
+| [`get_deployment_type_from_tag`](#pudl.deploy.pudl.get_deployment_type_from_tag)(→ DeploymentType)             | Check if tag looks like a 'nightly', 'branch', or 'stable' tag.                       |
+| [`resolve_build`](#pudl.deploy.pudl.resolve_build)(→ ResolvedBuild)                             | Resolve the deployment plan, locate the build, and set up local logging.              |
 | [`new_deploy_stage_results`](#pudl.deploy.pudl.new_deploy_stage_results)(→ dict[DeployStage, StageResult]) | Initialize every tracked deploy stage as skipped, in table display order.             |
-| [`run_stage`](#pudl.deploy.pudl.run_stage)(→ T | None)                                                     | Run a deploy stage, recording its status and duration in `stage_results`.             |
-| [`format_stage_duration`](#pudl.deploy.pudl.format_stage_duration)(→ str)                                  | Format a duration in seconds as `HH:MM:SS`.                                           |
-| [`stage_emoji`](#pudl.deploy.pudl.stage_emoji)(→ str)                                                      | Return the Zulip emoji corresponding to a stage status.                               |
-| [`build_deploy_logfile_links`](#pudl.deploy.pudl.build_deploy_logfile_links)(→ str)                        | Build markdown links for reviewing a deployment's logs and outputs.                   |
-| [`build_deploy_zulip_message`](#pudl.deploy.pudl.build_deploy_zulip_message)(→ str)                        | Build a markdown Zulip message summarizing deployment stage statuses.                 |
-| [`send_zulip_message`](#pudl.deploy.pudl.send_zulip_message)(→ None)                                       | Post a message to the pudl-deployments Zulip stream.                                  |
+| [`run_stage`](#pudl.deploy.pudl.run_stage)(→ T | None)                                      | Run a deploy stage, recording its status and duration in `stage_results`.             |
+| [`format_stage_duration`](#pudl.deploy.pudl.format_stage_duration)(→ str)                               | Format a duration in seconds as `HH:MM:SS`.                                           |
+| [`stage_emoji`](#pudl.deploy.pudl.stage_emoji)(→ str)                                         | Return the Zulip emoji corresponding to a stage status.                               |
+| [`build_deploy_logfile_links`](#pudl.deploy.pudl.build_deploy_logfile_links)(→ str)                          | Build markdown links for reviewing a deployment's logs and outputs.                   |
+| [`build_deploy_zulip_message`](#pudl.deploy.pudl.build_deploy_zulip_message)(→ str)                          | Build a markdown Zulip message summarizing deployment stage statuses.                 |
+| [`send_zulip_message`](#pudl.deploy.pudl.send_zulip_message)(→ None)                                 | Post a message to the pudl-deployments Zulip stream.                                  |
 
 ## Module Contents
 
@@ -414,7 +414,7 @@ Outcome of a single deployment stage, for Zulip stage-table reporting.
 
 Initialize every tracked deploy stage as skipped, in table display order.
 
-### pudl.deploy.pudl.run_stage(stage_fn: [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[Ellipsis, [T](../../metadata/classes/index.md#pudl.metadata.classes.T)], stage_name: [DeployStage](#pudl.deploy.pudl.DeployStage), stage_results: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[DeployStage](#pudl.deploy.pudl.DeployStage), [StageResult](#pudl.deploy.pudl.StageResult)], \*args, fail_hard: [bool](https://docs.python.org/3/library/functions.html#bool) = True, \*\*kwargs) → [T](../../metadata/classes/index.md#pudl.metadata.classes.T) | [None](https://docs.python.org/3/library/constants.html#None)
+### pudl.deploy.pudl.run_stage(stage_fn: [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[Ellipsis, [T](../../metadata/classes/index.html.md#pudl.metadata.classes.T)], stage_name: [DeployStage](#pudl.deploy.pudl.DeployStage), stage_results: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[DeployStage](#pudl.deploy.pudl.DeployStage), [StageResult](#pudl.deploy.pudl.StageResult)], \*args, fail_hard: [bool](https://docs.python.org/3/library/functions.html#bool) = True, \*\*kwargs) → [T](../../metadata/classes/index.html.md#pudl.metadata.classes.T) | [None](https://docs.python.org/3/library/constants.html#None)
 
 Run a deploy stage, recording its status and duration in `stage_results`.
 

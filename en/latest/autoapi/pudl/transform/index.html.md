@@ -3,9 +3,9 @@
 Modules implementing the “Transform” step of the PUDL ETL pipeline.
 
 Each module in this subpackage transforms the tabular data associated with a single data
-source from the PUDL [Data Sources](../../../data_sources/index.md#data-sources). This process begins with a dictionary of
+source from the PUDL [Data Sources](../../../data_sources/index.html.md#data-sources). This process begins with a dictionary of
 “raw” [`pandas.DataFrame`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame) objects produced by the corresponding data source
-specific routines from the [`pudl.extract`](../extract/index.md#module-pudl.extract) subpackage, and ends with a dictionary of
+specific routines from the [`pudl.extract`](../extract/index.html.md#module-pudl.extract) subpackage, and ends with a dictionary of
 [`pandas.DataFrame`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame) objects that are fully normalized, cleaned, and ready to be
 loaded into external databases and Parquet files by the `pudl.load` subpackage.
 
@@ -61,30 +61,30 @@ tables is normalized as a whole.
 
 ## Submodules
 
-* [pudl.transform.censuspep](censuspep/index.md)
-* [pudl.transform.classes](classes/index.md)
-* [pudl.transform.eia](eia/index.md)
-* [pudl.transform.eia176](eia176/index.md)
-* [pudl.transform.eia191](eia191/index.md)
-* [pudl.transform.eia860](eia860/index.md)
-* [pudl.transform.eia860m](eia860m/index.md)
-* [pudl.transform.eia861](eia861/index.md)
-* [pudl.transform.eia923](eia923/index.md)
-* [pudl.transform.eia930](eia930/index.md)
-* [pudl.transform.eiaaeo](eiaaeo/index.md)
-* [pudl.transform.eiaapi](eiaapi/index.md)
-* [pudl.transform.epacems](epacems/index.md)
-* [pudl.transform.ferc](ferc/index.md)
-* [pudl.transform.ferc1](ferc1/index.md)
-* [pudl.transform.ferc714](ferc714/index.md)
-* [pudl.transform.ferccid](ferccid/index.md)
-* [pudl.transform.ferceqr](ferceqr/index.md)
-* [pudl.transform.gridpathratoolkit](gridpathratoolkit/index.md)
-* [pudl.transform.nrelatb](nrelatb/index.md)
-* [pudl.transform.params](params/index.md)
-* [pudl.transform.phmsagas](phmsagas/index.md)
-* [pudl.transform.rus](rus/index.md)
-* [pudl.transform.rus12](rus12/index.md)
-* [pudl.transform.rus7](rus7/index.md)
-* [pudl.transform.sec10k](sec10k/index.md)
-* [pudl.transform.vcerare](vcerare/index.md)
+* [pudl.transform.censuspep](censuspep/index.html.md)
+* [pudl.transform.classes](classes/index.html.md)
+* [pudl.transform.eia](eia/index.html.md)
+* [pudl.transform.eia176](eia176/index.html.md)
+* [pudl.transform.eia191](eia191/index.html.md)
+* [pudl.transform.eia860](eia860/index.html.md)
+* [pudl.transform.eia860m](eia860m/index.html.md)
+* [pudl.transform.eia861](eia861/index.html.md)
+* [pudl.transform.eia923](eia923/index.html.md)
+* [pudl.transform.eia930](eia930/index.html.md)
+* [pudl.transform.eiaaeo](eiaaeo/index.html.md)
+* [pudl.transform.eiaapi](eiaapi/index.html.md)
+* [pudl.transform.epacems](epacems/index.html.md)
+* [pudl.transform.ferc](ferc/index.html.md)
+* [pudl.transform.ferc1](ferc1/index.html.md)
+* [pudl.transform.ferc714](ferc714/index.html.md)
+* [pudl.transform.ferccid](ferccid/index.html.md)
+* [pudl.transform.ferceqr](ferceqr/index.html.md)
+* [pudl.transform.gridpathratoolkit](gridpathratoolkit/index.html.md)
+* [pudl.transform.nrelatb](nrelatb/index.html.md)
+* [pudl.transform.params](params/index.html.md)
+* [pudl.transform.phmsagas](phmsagas/index.html.md)
+* [pudl.transform.rus](rus/index.html.md)
+* [pudl.transform.rus12](rus12/index.html.md)
+* [pudl.transform.rus7](rus7/index.html.md)
+* [pudl.transform.sec10k](sec10k/index.html.md)
+* [pudl.transform.vcerare](vcerare/index.html.md)

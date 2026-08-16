@@ -35,19 +35,19 @@ changes before production use.
 ## Attributes
 
 | [`logger`](#pudl.scripts.pudl_deploy.logger)   |    |
-|------------------------------------------------|----|
+|-----------------------------------------------------------|----|
 
 ## Functions
 
 | [`_deploy_outputs`](#pudl.scripts.pudl_deploy._deploy_outputs)(source_dir, plan, github_token, ...)   | Execute stable or nightly deployment workflow.                  |
-|-------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------|
-| [`main`](#pudl.scripts.pudl_deploy.main)(→ None)                                                      | Deploy PUDL ETL outputs to cloud storage and external services. |
+|---------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------|
+| [`main`](#pudl.scripts.pudl_deploy.main)(→ None)                                           | Deploy PUDL ETL outputs to cloud storage and external services. |
 
 ## Module Contents
 
 ### pudl.scripts.pudl_deploy.logger
 
-### pudl.scripts.pudl_deploy.\_deploy_outputs(source_dir: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path), plan: [pudl.deploy.pudl.DeploymentPlan](../../deploy/pudl/index.md#pudl.deploy.pudl.DeploymentPlan), github_token: [str](https://docs.python.org/3/library/stdtypes.html#str), stage_results: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[pudl.deploy.pudl.DeployStage](../../deploy/pudl/index.md#pudl.deploy.pudl.DeployStage), [pudl.deploy.pudl.StageResult](../../deploy/pudl/index.md#pudl.deploy.pudl.StageResult)])
+### pudl.scripts.pudl_deploy.\_deploy_outputs(source_dir: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path), plan: [pudl.deploy.pudl.DeploymentPlan](../../deploy/pudl/index.html.md#pudl.deploy.pudl.DeploymentPlan), github_token: [str](https://docs.python.org/3/library/stdtypes.html#str), stage_results: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[pudl.deploy.pudl.DeployStage](../../deploy/pudl/index.html.md#pudl.deploy.pudl.DeployStage), [pudl.deploy.pudl.StageResult](../../deploy/pudl/index.html.md#pudl.deploy.pudl.StageResult)])
 
 Execute stable or nightly deployment workflow.
 

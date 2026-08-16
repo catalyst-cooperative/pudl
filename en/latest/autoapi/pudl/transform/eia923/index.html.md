@@ -4,46 +4,46 @@ Module to perform data cleaning functions on EIA923 data tables.
 
 ## Attributes
 
-| [`logger`](#pudl.transform.eia923.logger)                                 |                                                                                |
-|---------------------------------------------------------------------------|--------------------------------------------------------------------------------|
+| [`logger`](#pudl.transform.eia923.logger)                 |                                                                                |
+|-------------------------------------------------------------------------|--------------------------------------------------------------------------------|
 | [`COALMINE_COUNTRY_CODES`](#pudl.transform.eia923.COALMINE_COUNTRY_CODES) | A mapping of EIA foreign coal mine country codes to 3-letter ISO-3166-1 codes. |
 
 ## Functions
 
-| [`_get_plant_nuclear_unit_id_map`](#pudl.transform.eia923._get_plant_nuclear_unit_id_map)(→ dict[int, str])                                | Get a plant_id -> nuclear_unit_id mapping for all plants with one nuclear unit.                                                                |
-|--------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------|
-| [`_backfill_nuclear_unit_id`](#pudl.transform.eia923._backfill_nuclear_unit_id)(→ pandas.DataFrame)                                        | Backfill 2001 and 2002 nuclear_unit_id for plants with one nuclear unit.                                                                       |
-| [`_get_plant_prime_mover_map`](#pudl.transform.eia923._get_plant_prime_mover_map)(→ dict[int, str])                                        | Get a plant_id -> prime_mover_code mapping for all plants with one prime mover.                                                                |
-| [`_backfill_prime_mover_code`](#pudl.transform.eia923._backfill_prime_mover_code)(→ pandas.DataFrame)                                      | Backfill 2001 and 2002 prime_mover_code for plants with one prime mover.                                                                       |
-| [`_get_most_frequent_energy_source_map`](#pudl.transform.eia923._get_most_frequent_energy_source_map)(→ dict[str, str])                    | Get the a mapping of the most common energy_source for each fuel_type_code_agg.                                                                |
-| [`_clean_gen_fuel_energy_sources`](#pudl.transform.eia923._clean_gen_fuel_energy_sources)(→ pandas.DataFrame)                              | Clean the generator_fuel_eia923.energy_source_code field specifically.                                                                         |
-| [`_aggregate_generation_fuel_duplicates`](#pudl.transform.eia923._aggregate_generation_fuel_duplicates)(→ pandas.DataFrame)                | Aggregate remaining duplicate generation fuels.                                                                                                |
-| [`_yearly_to_monthly_records`](#pudl.transform.eia923._yearly_to_monthly_records)(→ pandas.DataFrame)                                      | Converts an EIA 923 record of 12 months of data into 12 monthly records.                                                                       |
-| [`_coalmine_cleanup`](#pudl.transform.eia923._coalmine_cleanup)(→ pandas.DataFrame)                                                        | Clean up the core_eia923_\_entity_coalmine table.                                                                                              |
-| [`plants_eia923`](#pudl.transform.eia923.plants_eia923)(→ dict[str, pandas.DataFrame])                                                     | Transforms the plants_eia923 table.                                                                                                            |
-| [`gen_fuel_nuclear`](#pudl.transform.eia923.gen_fuel_nuclear)(→ pandas.DataFrame)                                                          | Transforms the core_eia923_\_monthly_generation_fuel_nuclear table.                                                                            |
-| [`_core_eia923__pre_generation_fuel`](#pudl.transform.eia923._core_eia923__pre_generation_fuel)(...)                                       | Transforms the raw_eia923_\_generation_fuel table.                                                                                             |
-| [`_map_prime_mover_sets`](#pudl.transform.eia923._map_prime_mover_sets)(→ str)                                                             | Map unique prime mover combinations to a single prime mover code.                                                                              |
-| [`_aggregate_duplicate_boiler_fuel_keys`](#pudl.transform.eia923._aggregate_duplicate_boiler_fuel_keys)(→ pandas.DataFrame)                | Combine boiler_fuel rows with duplicate keys by aggregating them.                                                                              |
-| [`_core_eia923__boiler_fuel`](#pudl.transform.eia923._core_eia923__boiler_fuel)(→ pandas.DataFrame)                                        | Transforms the core_eia923_\_monthly_boiler_fuel table.                                                                                        |
-| [`remove_duplicate_pks_boiler_fuel_eia923`](#pudl.transform.eia923.remove_duplicate_pks_boiler_fuel_eia923)(→ pandas.DataFrame)            | Deduplicate on primary keys for [core_eia923_\_monthly_boiler_fuel](../../../../data_dictionaries/pudl_db.md#core-eia923-monthly-boiler-fuel). |
-| [`_core_eia923__generation`](#pudl.transform.eia923._core_eia923__generation)(→ pandas.DataFrame)                                          | Transforms the EIA 923 generation table.                                                                                                       |
-| [`_drop_duplicates__core_eia923__generation`](#pudl.transform.eia923._drop_duplicates__core_eia923__generation)(...)                       |                                                                                                                                                |
-| [`_core_eia923__coalmine`](#pudl.transform.eia923._core_eia923__coalmine)(→ pandas.DataFrame)                                              | Transforms the raw_eia923_\_fuel_receipts_costs table.                                                                                         |
-| [`_core_eia923__fuel_receipts_costs`](#pudl.transform.eia923._core_eia923__fuel_receipts_costs)(→ pandas.DataFrame)                        | Transforms the eia923_\_fuel_receipts_costs dataframe.                                                                                         |
-| [`_core_eia923__monthly_cooling_system_information`](#pudl.transform.eia923._core_eia923__monthly_cooling_system_information)(...)         | Transforms the eia923_\_cooling_system_information dataframe.                                                                                  |
-| [`cooling_system_information_continuity`](#pudl.transform.eia923.cooling_system_information_continuity)(csi)                               | Check to see if columns vary as slowly as expected.                                                                                            |
-| [`_build_emissions_control_dates`](#pudl.transform.eia923._build_emissions_control_dates)(→ pandas.Series)                                 | Validate date parts and build parsed timestamps.                                                                                               |
-| [`_parse_emissions_control_date_subset`](#pudl.transform.eia923._parse_emissions_control_date_subset)(→ pandas.Series)                     | Parse one recognized emissions-control date format for a subset of rows.                                                                       |
-| [`_clean_emissions_control_dates`](#pudl.transform.eia923._clean_emissions_control_dates)(→ pandas.Series)                                 | Parse raw EIA-923 emissions-control date strings into datetimes.                                                                               |
-| [`_core_eia923__yearly_fgd_operation_maintenance`](#pudl.transform.eia923._core_eia923__yearly_fgd_operation_maintenance)(...)             | Transforms the \_core_eia923_\_yearly_fgd_operation_maintenance table.                                                                         |
-| [`fgd_continuity_check`](#pudl.transform.eia923.fgd_continuity_check)(fgd)                                                                 | Check to see if columns vary as slowly as expected.                                                                                            |
-| [`_core_eia923__energy_storage`](#pudl.transform.eia923._core_eia923__energy_storage)(→ pandas.DataFrame)                                  | Transforms the eia923_energy_storage table.                                                                                                    |
-| [`_core_eia923__yearly_fuel_stocks`](#pudl.transform.eia923._core_eia923__yearly_fuel_stocks)(→ pandas.DataFrame)                          | Transform the EIA-923 fossil-fuel stocks table.                                                                                                |
-| [`_core_eia923__yearly_byproduct_disposition`](#pudl.transform.eia923._core_eia923__yearly_byproduct_disposition)(...)                     | Transforms the eia923_\_byproduct_disposition table.                                                                                           |
-| [`disposition_continuity_check`](#pudl.transform.eia923.disposition_continuity_check)(bpd)                                                 | Check to see if columns vary as slowly as expected.                                                                                            |
-| [`_core_eia923__yearly_byproduct_expenses_and_revenues`](#pudl.transform.eia923._core_eia923__yearly_byproduct_expenses_and_revenues)(...) | Transforms the eia923_\_byproduct_expenses_and_revenues table.                                                                                 |
-| [`_core_eia923__yearly_emissions_control`](#pudl.transform.eia923._core_eia923__yearly_emissions_control)(→ pandas.DataFrame)              | Transforms the eia923_\_emissions_control table.                                                                                               |
+| [`_get_plant_nuclear_unit_id_map`](#pudl.transform.eia923._get_plant_nuclear_unit_id_map)(→ dict[int, str])            | Get a plant_id -> nuclear_unit_id mapping for all plants with one nuclear unit.                                                                   |
+|--------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------|
+| [`_backfill_nuclear_unit_id`](#pudl.transform.eia923._backfill_nuclear_unit_id)(→ pandas.DataFrame)               | Backfill 2001 and 2002 nuclear_unit_id for plants with one nuclear unit.                                                                          |
+| [`_get_plant_prime_mover_map`](#pudl.transform.eia923._get_plant_prime_mover_map)(→ dict[int, str])                | Get a plant_id -> prime_mover_code mapping for all plants with one prime mover.                                                                   |
+| [`_backfill_prime_mover_code`](#pudl.transform.eia923._backfill_prime_mover_code)(→ pandas.DataFrame)              | Backfill 2001 and 2002 prime_mover_code for plants with one prime mover.                                                                          |
+| [`_get_most_frequent_energy_source_map`](#pudl.transform.eia923._get_most_frequent_energy_source_map)(→ dict[str, str])      | Get the a mapping of the most common energy_source for each fuel_type_code_agg.                                                                   |
+| [`_clean_gen_fuel_energy_sources`](#pudl.transform.eia923._clean_gen_fuel_energy_sources)(→ pandas.DataFrame)          | Clean the generator_fuel_eia923.energy_source_code field specifically.                                                                            |
+| [`_aggregate_generation_fuel_duplicates`](#pudl.transform.eia923._aggregate_generation_fuel_duplicates)(→ pandas.DataFrame)   | Aggregate remaining duplicate generation fuels.                                                                                                   |
+| [`_yearly_to_monthly_records`](#pudl.transform.eia923._yearly_to_monthly_records)(→ pandas.DataFrame)              | Converts an EIA 923 record of 12 months of data into 12 monthly records.                                                                          |
+| [`_coalmine_cleanup`](#pudl.transform.eia923._coalmine_cleanup)(→ pandas.DataFrame)                       | Clean up the core_eia923_\_entity_coalmine table.                                                                                                 |
+| [`plants_eia923`](#pudl.transform.eia923.plants_eia923)(→ dict[str, pandas.DataFrame])                | Transforms the plants_eia923 table.                                                                                                               |
+| [`gen_fuel_nuclear`](#pudl.transform.eia923.gen_fuel_nuclear)(→ pandas.DataFrame)                        | Transforms the core_eia923_\_monthly_generation_fuel_nuclear table.                                                                               |
+| [`_core_eia923__pre_generation_fuel`](#pudl.transform.eia923._core_eia923__pre_generation_fuel)(...)                      | Transforms the raw_eia923_\_generation_fuel table.                                                                                                |
+| [`_map_prime_mover_sets`](#pudl.transform.eia923._map_prime_mover_sets)(→ str)                                | Map unique prime mover combinations to a single prime mover code.                                                                                 |
+| [`_aggregate_duplicate_boiler_fuel_keys`](#pudl.transform.eia923._aggregate_duplicate_boiler_fuel_keys)(→ pandas.DataFrame)   | Combine boiler_fuel rows with duplicate keys by aggregating them.                                                                                 |
+| [`_core_eia923__boiler_fuel`](#pudl.transform.eia923._core_eia923__boiler_fuel)(→ pandas.DataFrame)               | Transforms the core_eia923_\_monthly_boiler_fuel table.                                                                                           |
+| [`remove_duplicate_pks_boiler_fuel_eia923`](#pudl.transform.eia923.remove_duplicate_pks_boiler_fuel_eia923)(→ pandas.DataFrame) | Deduplicate on primary keys for [core_eia923_\_monthly_boiler_fuel](../../../../data_dictionaries/pudl_db.html.md#core-eia923-monthly-boiler-fuel). |
+| [`_core_eia923__generation`](#pudl.transform.eia923._core_eia923__generation)(→ pandas.DataFrame)                | Transforms the EIA 923 generation table.                                                                                                          |
+| [`_drop_duplicates__core_eia923__generation`](#pudl.transform.eia923._drop_duplicates__core_eia923__generation)(...)              |                                                                                                                                                   |
+| [`_core_eia923__coalmine`](#pudl.transform.eia923._core_eia923__coalmine)(→ pandas.DataFrame)                  | Transforms the raw_eia923_\_fuel_receipts_costs table.                                                                                            |
+| [`_core_eia923__fuel_receipts_costs`](#pudl.transform.eia923._core_eia923__fuel_receipts_costs)(→ pandas.DataFrame)       | Transforms the eia923_\_fuel_receipts_costs dataframe.                                                                                            |
+| [`_core_eia923__monthly_cooling_system_information`](#pudl.transform.eia923._core_eia923__monthly_cooling_system_information)(...)       | Transforms the eia923_\_cooling_system_information dataframe.                                                                                     |
+| [`cooling_system_information_continuity`](#pudl.transform.eia923.cooling_system_information_continuity)(csi)                  | Check to see if columns vary as slowly as expected.                                                                                               |
+| [`_build_emissions_control_dates`](#pudl.transform.eia923._build_emissions_control_dates)(→ pandas.Series)             | Validate date parts and build parsed timestamps.                                                                                                  |
+| [`_parse_emissions_control_date_subset`](#pudl.transform.eia923._parse_emissions_control_date_subset)(→ pandas.Series)       | Parse one recognized emissions-control date format for a subset of rows.                                                                          |
+| [`_clean_emissions_control_dates`](#pudl.transform.eia923._clean_emissions_control_dates)(→ pandas.Series)             | Parse raw EIA-923 emissions-control date strings into datetimes.                                                                                  |
+| [`_core_eia923__yearly_fgd_operation_maintenance`](#pudl.transform.eia923._core_eia923__yearly_fgd_operation_maintenance)(...)         | Transforms the \_core_eia923_\_yearly_fgd_operation_maintenance table.                                                                            |
+| [`fgd_continuity_check`](#pudl.transform.eia923.fgd_continuity_check)(fgd)                                   | Check to see if columns vary as slowly as expected.                                                                                               |
+| [`_core_eia923__energy_storage`](#pudl.transform.eia923._core_eia923__energy_storage)(→ pandas.DataFrame)            | Transforms the eia923_energy_storage table.                                                                                                       |
+| [`_core_eia923__yearly_fuel_stocks`](#pudl.transform.eia923._core_eia923__yearly_fuel_stocks)(→ pandas.DataFrame)        | Transform the EIA-923 fossil-fuel stocks table.                                                                                                   |
+| [`_core_eia923__yearly_byproduct_disposition`](#pudl.transform.eia923._core_eia923__yearly_byproduct_disposition)(...)             | Transforms the eia923_\_byproduct_disposition table.                                                                                              |
+| [`disposition_continuity_check`](#pudl.transform.eia923.disposition_continuity_check)(bpd)                           | Check to see if columns vary as slowly as expected.                                                                                               |
+| [`_core_eia923__yearly_byproduct_expenses_and_revenues`](#pudl.transform.eia923._core_eia923__yearly_byproduct_expenses_and_revenues)(...)   | Transforms the eia923_\_byproduct_expenses_and_revenues table.                                                                                    |
+| [`_core_eia923__yearly_emissions_control`](#pudl.transform.eia923._core_eia923__yearly_emissions_control)(→ pandas.DataFrame)  | Transforms the eia923_\_emissions_control table.                                                                                                  |
 
 ## Module Contents
 
@@ -183,7 +183,7 @@ Clean up the core_eia923_\_entity_coalmine table.
 
 This function does most of the core_eia923_\_entity_coalmine table transformation. It
 is separate from the coalmine() transform function because of the peculiar way that
-we are normalizing the [core_eia923_\_fuel_receipts_costs](../../../../data_dictionaries/pudl_db.md#core-eia923-fuel-receipts-costs) table.
+we are normalizing the [core_eia923_\_fuel_receipts_costs](../../../../data_dictionaries/pudl_db.html.md#core-eia923-fuel-receipts-costs) table.
 
 All of the coalmine information is originally coming from the EIA
 fuel_receipts_costs spreadsheet, but it really belongs in its own table. We strip it
@@ -330,7 +330,7 @@ data for them.
 
 ### pudl.transform.eia923.remove_duplicate_pks_boiler_fuel_eia923(bf: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
-Deduplicate on primary keys for [core_eia923_\_monthly_boiler_fuel](../../../../data_dictionaries/pudl_db.md#core-eia923-monthly-boiler-fuel).
+Deduplicate on primary keys for [core_eia923_\_monthly_boiler_fuel](../../../../data_dictionaries/pudl_db.html.md#core-eia923-monthly-boiler-fuel).
 
 There are a relatively small number of records ~5% from the boiler fuel table that
 have duplicate records based on what we believe is this table’s primary keys.
@@ -375,7 +375,7 @@ Transformations include:
 
 * **Parameters:**
   **raw_eia923_\_fuel_receipts_costs** – raw precursor to the
-  [core_eia923_\_fuel_receipts_costs](../../../../data_dictionaries/pudl_db.md#core-eia923-fuel-receipts-costs) table.
+  [core_eia923_\_fuel_receipts_costs](../../../../data_dictionaries/pudl_db.html.md#core-eia923-fuel-receipts-costs) table.
 * **Returns:**
   Cleaned `_core_eia923__coalmine` dataframe ready for harvesting.
 

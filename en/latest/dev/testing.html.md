@@ -3,7 +3,7 @@
 # Testing PUDL
 
 We use [pytest](https://pytest.org) to specify software unit & integration tests,
-including calling `dbt build` to run our [Data validation quickstart](data_validation_quickstart.md) tests.
+including calling `dbt build` to run our [Data validation quickstart](data_validation_quickstart.html.md) tests.
 Several common test commands are available as pixi tasks for convenience.
 
 For day-to-day work, the most commonly used pixi testing tasks are:
@@ -71,8 +71,8 @@ $ pixi run pytest --temp-pudl-input tests/integration
 ```
 
 #### SEE ALSO
-* [Development Setup](dev_setup.md) for more on how to set up a PUDL workspace and datastore.
-* [Working with the Datastore](datastore.md) for more on how to work with the datastore in general.
+* [Development Setup](dev_setup.html.md) for more on how to set up a PUDL workspace and datastore.
+* [Working with the Datastore](datastore.html.md) for more on how to work with the datastore in general.
 
 ## Running pytest Directly
 

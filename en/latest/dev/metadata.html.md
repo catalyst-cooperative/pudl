@@ -15,7 +15,7 @@ This information is used downstream in several ways:
 
 ### Defining metadata for a new dataset
 
-Metadata for each data source is stored in [`pudl.metadata.sources.SOURCES`](../autoapi/pudl/metadata/sources/index.md#pudl.metadata.sources.SOURCES).
+Metadata for each data source is stored in [`pudl.metadata.sources.SOURCES`](../autoapi/pudl/metadata/sources/index.html.md#pudl.metadata.sources.SOURCES).
 For each new source, add the following fields to the dictionary:
 
 * **A short code**: Throughout the code, the source you choose will be referred to by
@@ -61,7 +61,7 @@ Additional fields relating to the source data are tracked under a nested
 
 Most updates to metadata at the source level occur when we update the
 `working_partitions` field to capture a new partition (e.g., year, month) of data.
-This process is described in the [Existing Data Updates](existing_data_updates.md) documentation.
+This process is described in the [Existing Data Updates](existing_data_updates.html.md) documentation.
 Other fields are rarely updated.
 
 ## Table-level metadata
@@ -82,7 +82,7 @@ Metadata for each resource is stored in separate files for each source, with a f
 additional files for association tables and imputed assets. If the table doesn’t already
 have a source file, make a new file that mirrors the format of an existing source.
 Otherwise, find the file representing the primary source of the resource
-(e.g., [`pudl.metadata.resources.eia860`](../autoapi/pudl/metadata/resources/eia860/index.md#module-pudl.metadata.resources.eia860)) and
+(e.g., [`pudl.metadata.resources.eia860`](../autoapi/pudl/metadata/resources/eia860/index.html.md#module-pudl.metadata.resources.eia860)) and
 add a new entry into the `RESOURCE_METADATA` dictionary.
 
 Each resource entry should contain the following elements:
@@ -100,7 +100,7 @@ Each resource entry should contain the following elements:
   * `foreign_key_rules` (optional): Any fields for which a foreign key rule should
     be created for all other resources containing these fields. For every field(s)
     defined, an error will be raised if other resources contain values not
-    included in this table. See [`pudl.metadata.helpers.build_foreign_keys()`](../autoapi/pudl/metadata/helpers/index.md#pudl.metadata.helpers.build_foreign_keys).
+    included in this table. See [`pudl.metadata.helpers.build_foreign_keys()`](../autoapi/pudl/metadata/helpers/index.html.md#pudl.metadata.helpers.build_foreign_keys).
 * `field_namespace`: Used to override the field-level definitions for a given group.
   This is typically `eia` for EIA-860, 860M, 861 and 923 data, and the same as the
   source short-code for all other resources.
@@ -149,7 +149,7 @@ All the `_text` fields below take RST formatting – use whitespace accordingly.
   problems an unfamiliar user may encounter, and list lighter or edge-case problems
   in `additional_details_text`.
   * A list of pre-defined usage warnings can be found in
-    [`pudl.metadata.warnings.USAGE_WARNINGS`](../autoapi/pudl/metadata/warnings/index.md#pudl.metadata.warnings.USAGE_WARNINGS).
+    [`pudl.metadata.warnings.USAGE_WARNINGS`](../autoapi/pudl/metadata/warnings/index.html.md#pudl.metadata.warnings.USAGE_WARNINGS).
   * Custom-defined usage warnings should be formatted as a dictionary with two keys:
     `type`: a short code for the warning, which will only be used for internal
     reference, and `description`: a 1-2 sentence summary of the warning. E.g.,
@@ -178,12 +178,12 @@ clarification:
   will not match the availability of the table. For a table without temporal row
   counts partitions that lags its source but continues to integrate new data
   each (year, quarter, month, etc), consider
-  [`availability_offset`](../autoapi/pudl/metadata/classes/index.md#pudl.metadata.classes.PudlResourceDescriptor.PudlDescriptionComponents.availability_offset)
+  [`availability_offset`](../autoapi/pudl/metadata/classes/index.html.md#pudl.metadata.classes.PudlResourceDescriptor.PudlDescriptionComponents.availability_offset)
   instead.
 
 For a full reference on all available description fields, including fields that
 override automatic table classifications, see
-[`PudlDescriptionComponents`](../autoapi/pudl/metadata/classes/index.md#pudl.metadata.classes.PudlResourceDescriptor.PudlDescriptionComponents).
+[`PudlDescriptionComponents`](../autoapi/pudl/metadata/classes/index.html.md#pudl.metadata.classes.PudlResourceDescriptor.PudlDescriptionComponents).
 
 For details on how structured description fields and fragments become a fully
 rendered description, see
@@ -264,14 +264,14 @@ Instructions for using the wizard can be found
 ## Field metadata
 
 Metadata for each field is primarily stored in
-[`pudl.metadata.fields.FIELD_METADATA`](../autoapi/pudl/metadata/fields/index.md#pudl.metadata.fields.FIELD_METADATA). This lets us ensure that fields with
+[`pudl.metadata.fields.FIELD_METADATA`](../autoapi/pudl/metadata/fields/index.html.md#pudl.metadata.fields.FIELD_METADATA). This lets us ensure that fields with
 the same name share the same general definition, no matter where you find them.
 
 Field names should:
 
 * Be written as snake case (e.g., `report_date`.)
 * Include an intelligible units string as a suffix if applicable (e.g., `volume_mcf`)
-* Follow our established [Naming Conventions](naming_conventions.md).
+* Follow our established [Naming Conventions](naming_conventions.html.md).
 
 To define metadata for a new field:
 
@@ -282,7 +282,7 @@ To define metadata for a new field:
   * `type`: The data type - integer, string, number, or boolean.
   * `description`: No more than a few sentences describing what the field contains.
   * `unit`: The unit of the column (when applicable). Unit strings must be
-    parseable by [`pudl.metadata.units.PUDL_UNIT_REGISTRY`](../autoapi/pudl/metadata/units/index.md#pudl.metadata.units.PUDL_UNIT_REGISTRY) — a
+    parseable by [`pudl.metadata.units.PUDL_UNIT_REGISTRY`](../autoapi/pudl/metadata/units/index.html.md#pudl.metadata.units.PUDL_UNIT_REGISTRY) — a
     `pint.UnitRegistry` that extends Pint’s defaults with esoteric US energy-industry
     units (`MMBtu`, `Mcf`, `MMcf`, `MVAr`, etc.). See below for more on Pint.
   * `constraints`: Categorical columns should largely be encoded by coding tables,
@@ -292,7 +292,7 @@ To define metadata for a new field:
 There are times when a table or source needs a more specific field definition
 than the one already existing in fields.py. In those cases, we can override the field
 description for just one resource by adding the resource and the field definition into
-[`pudl.metadata.fields.FIELD_METADATA_BY_RESOURCE`](../autoapi/pudl/metadata/fields/index.md#pudl.metadata.fields.FIELD_METADATA_BY_RESOURCE).
+[`pudl.metadata.fields.FIELD_METADATA_BY_RESOURCE`](../autoapi/pudl/metadata/fields/index.html.md#pudl.metadata.fields.FIELD_METADATA_BY_RESOURCE).
 
 <a id="pint-units"></a>
 

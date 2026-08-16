@@ -15,10 +15,10 @@ We’ve segmented the processed data into the following normalized data tables.
 Clicking on the links will show you a description of the table as well as
 the names and descriptions of each of its fields.
 
-| Data Dictionary                                                                                                                                      | Browse Online                                                                                                                                                                                         |
-|------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [core_gridpathratoolkit_\_assn_generator_aggregation_group](../data_dictionaries/pudl_db.md#core-gridpathratoolkit-assn-generator-aggregation-group) | [https://data.catalyst.coop/preview/pudl/core_gridpathratoolkit_\_assn_generator_aggregation_group](https://data.catalyst.coop/preview/pudl/core_gridpathratoolkit__assn_generator_aggregation_group) |
-| [out_gridpathratoolkit_\_hourly_available_capacity_factor](../data_dictionaries/pudl_db.md#out-gridpathratoolkit-hourly-available-capacity-factor)   | [https://data.catalyst.coop/preview/pudl/out_gridpathratoolkit_\_hourly_available_capacity_factor](https://data.catalyst.coop/preview/pudl/out_gridpathratoolkit__hourly_available_capacity_factor)   |
+| Data Dictionary                                                                                                                                                  | Browse Online                                                                                                                                                                                         |
+|------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [core_gridpathratoolkit_\_assn_generator_aggregation_group](../data_dictionaries/pudl_db.html.md#core-gridpathratoolkit-assn-generator-aggregation-group) | [https://data.catalyst.coop/preview/pudl/core_gridpathratoolkit_\_assn_generator_aggregation_group](https://data.catalyst.coop/preview/pudl/core_gridpathratoolkit__assn_generator_aggregation_group) |
+| [out_gridpathratoolkit_\_hourly_available_capacity_factor](../data_dictionaries/pudl_db.html.md#out-gridpathratoolkit-hourly-available-capacity-factor)   | [https://data.catalyst.coop/preview/pudl/out_gridpathratoolkit_\_hourly_available_capacity_factor](https://data.catalyst.coop/preview/pudl/out_gridpathratoolkit__hourly_available_capacity_factor)   |
 
 ## Background
 
@@ -110,5 +110,5 @@ This section will be updated as we learn more about the particularities of this 
 ## PUDL Data Transformations
 
 To see the transformations applied to the data in each table, you can read the
-docstrings for [`pudl.transform.gridpathratoolkit`](../autoapi/pudl/transform/gridpathratoolkit/index.md#module-pudl.transform.gridpathratoolkit) created for each table’s
+docstrings for [`pudl.transform.gridpathratoolkit`](../autoapi/pudl/transform/gridpathratoolkit/index.html.md#module-pudl.transform.gridpathratoolkit) created for each table’s
 respective transform function.

@@ -2,7 +2,7 @@
 
 #### NOTE
 Looking to contribute to PUDL? The guidelines for external contributors can be found at
-[Contributing to PUDL](../CONTRIBUTING.md).
+[Contributing to PUDL](../CONTRIBUTING.html.md).
 
 ## Overview
 

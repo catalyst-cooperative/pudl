@@ -4,8 +4,8 @@ Clean the FERC Company Identifier table.
 
 ## Functions
 
-| [`clean_cid_string_cols`](#pudl.transform.ferccid.clean_cid_string_cols)(→ pandas.Series)                | Clean string columns: remove unicode, strip whitespace, enforce single spaces, standardize NAs.   |
-|----------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
+| [`clean_cid_string_cols`](#pudl.transform.ferccid.clean_cid_string_cols)(→ pandas.Series)          | Clean string columns: remove unicode, strip whitespace, enforce single spaces, standardize NAs.   |
+|--------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
 | [`core_ferc__entity_companies`](#pudl.transform.ferccid.core_ferc__entity_companies)(→ pandas.DataFrame) | Clean the FERC Company Identifier table.                                                          |
 
 ## Module Contents

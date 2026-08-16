@@ -4,19 +4,19 @@ Retrieve data from Census PEP spreadsheets.
 
 ## Attributes
 
-| [`logger`](#pudl.extract.censuspep.logger)                                 |    |
-|----------------------------------------------------------------------------|----|
+| [`logger`](#pudl.extract.censuspep.logger)                 |    |
+|-------------------------------------------------------------------------|----|
 | [`raw_censuspep__all_dfs`](#pudl.extract.censuspep.raw_censuspep__all_dfs) |    |
 
 ## Classes
 
 | [`Extractor`](#pudl.extract.censuspep.Extractor)   | Extractor for the excel dataset Census PEP FIPS Codes.   |
-|----------------------------------------------------|----------------------------------------------------------|
+|--------------------------------------------------------------|----------------------------------------------------------|
 
 ## Functions
 
 | [`raw_censuspep__geocodes`](#pudl.extract.censuspep.raw_censuspep__geocodes)(raw_censuspep_\_all_dfs)   | Extract raw Census PEP FIPS codes data into dataframes.   |
-|---------------------------------------------------------------------------------------------------------|-----------------------------------------------------------|
+|-----------------------------------------------------------------------------------------------------|-----------------------------------------------------------|
 
 ## Module Contents
 
@@ -24,7 +24,7 @@ Retrieve data from Census PEP spreadsheets.
 
 ### *class* pudl.extract.censuspep.Extractor(\*args, \*\*kwargs)
 
-Bases: [`pudl.extract.excel.ExcelExtractor`](../excel/index.md#pudl.extract.excel.ExcelExtractor)
+Bases: [`pudl.extract.excel.ExcelExtractor`](../excel/index.html.md#pudl.extract.excel.ExcelExtractor)
 
 Extractor for the excel dataset Census PEP FIPS Codes.
 

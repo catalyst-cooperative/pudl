@@ -5,12 +5,12 @@ Tools for setting up and managing PUDL workspaces.
 ## Attributes
 
 | [`logger`](#pudl.workspace.setup.logger)   |    |
-|--------------------------------------------|----|
+|-----------------------------------------------------------|----|
 
 ## Classes
 
 | [`PudlPaths`](#pudl.workspace.setup.PudlPaths)   | These settings provide access to various PUDL directories.   |
-|--------------------------------------------------|--------------------------------------------------------------|
+|--------------------------------------------------------------|--------------------------------------------------------------|
 
 ## Module Contents
 

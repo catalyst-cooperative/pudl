@@ -7,54 +7,54 @@ All transformations include:
 
 ## Attributes
 
-| [`logger`](#pudl.transform.eia861.logger)                               |    |
-|-------------------------------------------------------------------------|----|
-| [`BA_ID_NAME_FIXES`](#pudl.transform.eia861.BA_ID_NAME_FIXES)           |    |
+| [`logger`](#pudl.transform.eia861.logger)                |    |
+|------------------------------------------------------------------------|----|
+| [`BA_ID_NAME_FIXES`](#pudl.transform.eia861.BA_ID_NAME_FIXES)      |    |
 | [`EIA_FIPS_COUNTY_FIXES`](#pudl.transform.eia861.EIA_FIPS_COUNTY_FIXES) |    |
-| [`BA_NAME_FIXES`](#pudl.transform.eia861.BA_NAME_FIXES)                 |    |
-| [`NERC_SPELLCHECK`](#pudl.transform.eia861.NERC_SPELLCHECK)             |    |
+| [`BA_NAME_FIXES`](#pudl.transform.eia861.BA_NAME_FIXES)         |    |
+| [`NERC_SPELLCHECK`](#pudl.transform.eia861.NERC_SPELLCHECK)       |    |
 
 ## Functions
 
-| [`_pre_process`](#pudl.transform.eia861._pre_process)(→ pandas.DataFrame)                                                                  | Pre-processing applied to all EIA-861 dataframes.                                |
-|--------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------|
-| [`_post_process`](#pudl.transform.eia861._post_process)(→ pandas.DataFrame)                                                                | Post-processing applied to all EIA-861 dataframes.                               |
-| [`_filter_class_cols`](#pudl.transform.eia861._filter_class_cols)(df, class_list)                                                          |                                                                                  |
-| [`_filter_non_class_cols`](#pudl.transform.eia861._filter_non_class_cols)(df, class_list)                                                  |                                                                                  |
-| [`add_backfilled_ba_code_column`](#pudl.transform.eia861.add_backfilled_ba_code_column)(→ pandas.DataFrame)                                | Make a backfilled Balancing Authority Code column based on codes in later years. |
-| [`backfill_ba_codes_by_ba_id`](#pudl.transform.eia861.backfill_ba_codes_by_ba_id)(→ pandas.DataFrame)                                      | Fill in missing BA Codes by backfilling based on BA ID.                          |
-| [`_tidy_class_dfs`](#pudl.transform.eia861._tidy_class_dfs)(→ pandas.DataFrame)                                                            | Stack multiple data columns and create a categorical column for filtering.       |
-| [`_drop_dupes`](#pudl.transform.eia861._drop_dupes)(df, df_name, subset)                                                                   |                                                                                  |
-| [`_check_for_dupes`](#pudl.transform.eia861._check_for_dupes)(→ pandas.DataFrame)                                                          |                                                                                  |
-| [`_compare_totals`](#pudl.transform.eia861._compare_totals)(data_cols, idx_cols, class_type, df_name)                                      | Compare reported totals with sum of component columns.                           |
-| [`clean_nerc`](#pudl.transform.eia861.clean_nerc)(→ pandas.DataFrame)                                                                      | Clean NERC region entries.                                                       |
-| [`_compare_nerc_physical_w_nerc_operational`](#pudl.transform.eia861._compare_nerc_physical_w_nerc_operational)(...)                       | Show df rows where physical NERC region does not match operational region.       |
-| [`_pct_to_mw`](#pudl.transform.eia861._pct_to_mw)(df, pct_col)                                                                             | Turn pct col into mw capacity using total capacity col.                          |
-| [`_make_yn_bool`](#pudl.transform.eia861._make_yn_bool)(df_object)                                                                         | Turn Y/N reporting into True or False boolean statements for df or series.       |
-| [`_thousand_to_one`](#pudl.transform.eia861._thousand_to_one)(df_object)                                                                   | Turn reporting in thousands of dollars to regular dollars for df or series.      |
-| [`_harvest_associations`](#pudl.transform.eia861._harvest_associations)(→ pandas.DataFrame)                                                | Compile all unique, non-null combinations of values `cols` within `dfs`.         |
-| [`_combine_88888_values`](#pudl.transform.eia861._combine_88888_values)(→ pandas.DataFrame)                                                | Combine 88888 utility_id_values.                                                 |
-| [`core_eia861__yearly_service_territory`](#pudl.transform.eia861.core_eia861__yearly_service_territory)(→ pandas.DataFrame)                | Transform the EIA 861 utility service territory table.                           |
-| [`_core_eia861__balancing_authority`](#pudl.transform.eia861._core_eia861__balancing_authority)(→ pandas.DataFrame)                        | Transform the EIA 861 Balancing Authority table.                                 |
-| [`core_eia861__yearly_sales`](#pudl.transform.eia861.core_eia861__yearly_sales)(→ pandas.DataFrame)                                        | Transform the EIA 861 Sales table.                                               |
-| [`core_eia861__yearly_short_form`](#pudl.transform.eia861.core_eia861__yearly_short_form)(→ pandas.DataFrame)                              | Transform the EIA 861 Short Form table.                                          |
-| [`core_eia861__yearly_advanced_metering_infrastructure`](#pudl.transform.eia861.core_eia861__yearly_advanced_metering_infrastructure)(...) | Transform the EIA 861 Advanced Metering Infrastructure table.                    |
-| [`core_eia861__yearly_demand_response`](#pudl.transform.eia861.core_eia861__yearly_demand_response)(...)                                   | Transform the EIA 861 Demand Response table.                                     |
-| [`core_demand_side_management_eia861`](#pudl.transform.eia861.core_demand_side_management_eia861)(...)                                     | Transform the EIA 861 Demand Side Management table.                              |
-| [`core_distributed_generation_eia861`](#pudl.transform.eia861.core_distributed_generation_eia861)(...)                                     | Transform the EIA 861 Distributed Generation table.                              |
-| [`core_eia861__yearly_distribution_systems`](#pudl.transform.eia861.core_eia861__yearly_distribution_systems)(...)                         | Transform the EIA 861 Distribution Systems table.                                |
-| [`core_eia861__yearly_dynamic_pricing`](#pudl.transform.eia861.core_eia861__yearly_dynamic_pricing)(→ pandas.DataFrame)                    | Transform the EIA 861 Dynamic Pricing table.                                     |
-| [`core_eia861__yearly_energy_efficiency`](#pudl.transform.eia861.core_eia861__yearly_energy_efficiency)(→ pandas.DataFrame)                | Transform the EIA 861 Energy Efficiency table.                                   |
-| [`core_eia861__yearly_green_pricing`](#pudl.transform.eia861.core_eia861__yearly_green_pricing)(→ pandas.DataFrame)                        | Transform the EIA 861 Green Pricing table.                                       |
-| [`core_eia861__yearly_mergers`](#pudl.transform.eia861.core_eia861__yearly_mergers)(→ pandas.DataFrame)                                    | Transform the EIA 861 Mergers table.                                             |
-| [`core_net_metering_eia861`](#pudl.transform.eia861.core_net_metering_eia861)(raw_eia861_\_net_metering)                                   | Transform the EIA 861 Net Metering table.                                        |
-| [`core_non_net_metering_eia861`](#pudl.transform.eia861.core_non_net_metering_eia861)(raw_eia861_\_non_net_metering)                       | Transform the EIA 861 Non-Net Metering table.                                    |
-| [`core_operational_data_eia861`](#pudl.transform.eia861.core_operational_data_eia861)(raw_eia861_\_operational_data)                       | Transform the EIA 861 Operational Data table.                                    |
-| [`core_eia861__yearly_reliability`](#pudl.transform.eia861.core_eia861__yearly_reliability)(→ pandas.DataFrame)                            | Transform the EIA 861 Reliability table.                                         |
-| [`core_utility_data_eia861`](#pudl.transform.eia861.core_utility_data_eia861)(raw_eia861_\_utility_data)                                   | Transform the EIA 861 Utility Data table.                                        |
-| [`core_eia861__assn_utility`](#pudl.transform.eia861.core_eia861__assn_utility)(→ pandas.DataFrame)                                        | Harvest a Utility-Date-State Association Table.                                  |
-| [`core_eia861__assn_balancing_authority`](#pudl.transform.eia861.core_eia861__assn_balancing_authority)(→ pandas.DataFrame)                | Compile a balancing authority, utility, state association table.                 |
-| [`core_eia861__yearly_balancing_authority`](#pudl.transform.eia861.core_eia861__yearly_balancing_authority)(→ pandas.DataFrame)            | Finish the normalization of the core_eia861_\_yearly_balancing_authority table.  |
+| [`_pre_process`](#pudl.transform.eia861._pre_process)(→ pandas.DataFrame)                            | Pre-processing applied to all EIA-861 dataframes.                                |
+|--------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------|
+| [`_post_process`](#pudl.transform.eia861._post_process)(→ pandas.DataFrame)                           | Post-processing applied to all EIA-861 dataframes.                               |
+| [`_filter_class_cols`](#pudl.transform.eia861._filter_class_cols)(df, class_list)                          |                                                                                  |
+| [`_filter_non_class_cols`](#pudl.transform.eia861._filter_non_class_cols)(df, class_list)                      |                                                                                  |
+| [`add_backfilled_ba_code_column`](#pudl.transform.eia861.add_backfilled_ba_code_column)(→ pandas.DataFrame)           | Make a backfilled Balancing Authority Code column based on codes in later years. |
+| [`backfill_ba_codes_by_ba_id`](#pudl.transform.eia861.backfill_ba_codes_by_ba_id)(→ pandas.DataFrame)              | Fill in missing BA Codes by backfilling based on BA ID.                          |
+| [`_tidy_class_dfs`](#pudl.transform.eia861._tidy_class_dfs)(→ pandas.DataFrame)                         | Stack multiple data columns and create a categorical column for filtering.       |
+| [`_drop_dupes`](#pudl.transform.eia861._drop_dupes)(df, df_name, subset)                            |                                                                                  |
+| [`_check_for_dupes`](#pudl.transform.eia861._check_for_dupes)(→ pandas.DataFrame)                        |                                                                                  |
+| [`_compare_totals`](#pudl.transform.eia861._compare_totals)(data_cols, idx_cols, class_type, df_name)   | Compare reported totals with sum of component columns.                           |
+| [`clean_nerc`](#pudl.transform.eia861.clean_nerc)(→ pandas.DataFrame)                              | Clean NERC region entries.                                                       |
+| [`_compare_nerc_physical_w_nerc_operational`](#pudl.transform.eia861._compare_nerc_physical_w_nerc_operational)(...)              | Show df rows where physical NERC region does not match operational region.       |
+| [`_pct_to_mw`](#pudl.transform.eia861._pct_to_mw)(df, pct_col)                                     | Turn pct col into mw capacity using total capacity col.                          |
+| [`_make_yn_bool`](#pudl.transform.eia861._make_yn_bool)(df_object)                                    | Turn Y/N reporting into True or False boolean statements for df or series.       |
+| [`_thousand_to_one`](#pudl.transform.eia861._thousand_to_one)(df_object)                                 | Turn reporting in thousands of dollars to regular dollars for df or series.      |
+| [`_harvest_associations`](#pudl.transform.eia861._harvest_associations)(→ pandas.DataFrame)                   | Compile all unique, non-null combinations of values `cols` within `dfs`.         |
+| [`_combine_88888_values`](#pudl.transform.eia861._combine_88888_values)(→ pandas.DataFrame)                   | Combine 88888 utility_id_values.                                                 |
+| [`core_eia861__yearly_service_territory`](#pudl.transform.eia861.core_eia861__yearly_service_territory)(→ pandas.DataFrame)   | Transform the EIA 861 utility service territory table.                           |
+| [`_core_eia861__balancing_authority`](#pudl.transform.eia861._core_eia861__balancing_authority)(→ pandas.DataFrame)       | Transform the EIA 861 Balancing Authority table.                                 |
+| [`core_eia861__yearly_sales`](#pudl.transform.eia861.core_eia861__yearly_sales)(→ pandas.DataFrame)               | Transform the EIA 861 Sales table.                                               |
+| [`core_eia861__yearly_short_form`](#pudl.transform.eia861.core_eia861__yearly_short_form)(→ pandas.DataFrame)          | Transform the EIA 861 Short Form table.                                          |
+| [`core_eia861__yearly_advanced_metering_infrastructure`](#pudl.transform.eia861.core_eia861__yearly_advanced_metering_infrastructure)(...)   | Transform the EIA 861 Advanced Metering Infrastructure table.                    |
+| [`core_eia861__yearly_demand_response`](#pudl.transform.eia861.core_eia861__yearly_demand_response)(...)                    | Transform the EIA 861 Demand Response table.                                     |
+| [`core_demand_side_management_eia861`](#pudl.transform.eia861.core_demand_side_management_eia861)(...)                     | Transform the EIA 861 Demand Side Management table.                              |
+| [`core_distributed_generation_eia861`](#pudl.transform.eia861.core_distributed_generation_eia861)(...)                     | Transform the EIA 861 Distributed Generation table.                              |
+| [`core_eia861__yearly_distribution_systems`](#pudl.transform.eia861.core_eia861__yearly_distribution_systems)(...)               | Transform the EIA 861 Distribution Systems table.                                |
+| [`core_eia861__yearly_dynamic_pricing`](#pudl.transform.eia861.core_eia861__yearly_dynamic_pricing)(→ pandas.DataFrame)     | Transform the EIA 861 Dynamic Pricing table.                                     |
+| [`core_eia861__yearly_energy_efficiency`](#pudl.transform.eia861.core_eia861__yearly_energy_efficiency)(→ pandas.DataFrame)   | Transform the EIA 861 Energy Efficiency table.                                   |
+| [`core_eia861__yearly_green_pricing`](#pudl.transform.eia861.core_eia861__yearly_green_pricing)(→ pandas.DataFrame)       | Transform the EIA 861 Green Pricing table.                                       |
+| [`core_eia861__yearly_mergers`](#pudl.transform.eia861.core_eia861__yearly_mergers)(→ pandas.DataFrame)             | Transform the EIA 861 Mergers table.                                             |
+| [`core_net_metering_eia861`](#pudl.transform.eia861.core_net_metering_eia861)(raw_eia861_\_net_metering)         | Transform the EIA 861 Net Metering table.                                        |
+| [`core_non_net_metering_eia861`](#pudl.transform.eia861.core_non_net_metering_eia861)(raw_eia861_\_non_net_metering) | Transform the EIA 861 Non-Net Metering table.                                    |
+| [`core_operational_data_eia861`](#pudl.transform.eia861.core_operational_data_eia861)(raw_eia861_\_operational_data) | Transform the EIA 861 Operational Data table.                                    |
+| [`core_eia861__yearly_reliability`](#pudl.transform.eia861.core_eia861__yearly_reliability)(→ pandas.DataFrame)         | Transform the EIA 861 Reliability table.                                         |
+| [`core_utility_data_eia861`](#pudl.transform.eia861.core_utility_data_eia861)(raw_eia861_\_utility_data)         | Transform the EIA 861 Utility Data table.                                        |
+| [`core_eia861__assn_utility`](#pudl.transform.eia861.core_eia861__assn_utility)(→ pandas.DataFrame)               | Harvest a Utility-Date-State Association Table.                                  |
+| [`core_eia861__assn_balancing_authority`](#pudl.transform.eia861.core_eia861__assn_balancing_authority)(→ pandas.DataFrame)   | Compile a balancing authority, utility, state association table.                 |
+| [`core_eia861__yearly_balancing_authority`](#pudl.transform.eia861.core_eia861__yearly_balancing_authority)(→ pandas.DataFrame) | Finish the normalization of the core_eia861_\_yearly_balancing_authority table.  |
 
 ## Module Contents
 
@@ -491,7 +491,7 @@ information. However, there is utility-state association information in the
 core_eia861_\_yearly_sales and other data tables.
 
 For the years from 2013 onward, there’s explicit BA-Util-State information in the
-data tables (e.g. [core_eia861_\_yearly_sales](../../../../data_dictionaries/pudl_db.md#core-eia861-yearly-sales)). These observed associations can be compiled
+data tables (e.g. [core_eia861_\_yearly_sales](../../../../data_dictionaries/pudl_db.html.md#core-eia861-yearly-sales)). These observed associations can be compiled
 to give us a picture of which BA-Util-State associations exist. However, we need to
 merge in the balancing authority IDs since the data tables only contain the
 balancing authority codes.
@@ -504,25 +504,25 @@ balancing authority codes.
 * **Returns:**
   An association table describing the annual linkages between balancing
   authorities, states, and utilities. Becomes
-  [core_eia861_\_assn_balancing_authority](../../../../data_dictionaries/pudl_db.md#core-eia861-assn-balancing-authority).
+  [core_eia861_\_assn_balancing_authority](../../../../data_dictionaries/pudl_db.html.md#core-eia861-assn-balancing-authority).
 
 ### pudl.transform.eia861.core_eia861_\_yearly_balancing_authority(\_core_eia861_\_balancing_authority: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Finish the normalization of the core_eia861_\_yearly_balancing_authority table.
 
-The [core_eia861_\_assn_balancing_authority](../../../../data_dictionaries/pudl_db.md#core-eia861-assn-balancing-authority) table depends on information that is only
-available in the UN-normalized form of the [core_eia861_\_yearly_balancing_authority](../../../../data_dictionaries/pudl_db.md#core-eia861-yearly-balancing-authority) table,
+The [core_eia861_\_assn_balancing_authority](../../../../data_dictionaries/pudl_db.html.md#core-eia861-assn-balancing-authority) table depends on information that is only
+available in the UN-normalized form of the [core_eia861_\_yearly_balancing_authority](../../../../data_dictionaries/pudl_db.html.md#core-eia861-yearly-balancing-authority) table,
 and also on having access to a bunch of transformed data tables, so it can compile
 the observed combinations of report dates, balancing authorities, states, and
 utilities.  This means that we have to hold off on the final normalization of the
-[core_eia861_\_yearly_balancing_authority](../../../../data_dictionaries/pudl_db.md#core-eia861-yearly-balancing-authority) table until the rest of the transform process is
+[core_eia861_\_yearly_balancing_authority](../../../../data_dictionaries/pudl_db.html.md#core-eia861-yearly-balancing-authority) table until the rest of the transform process is
 over.
 
 * **Parameters:**
   **\_core_eia861_\_balancing_authority** – A cleaned up version of the originally
   reported balancing authority table.
 * **Returns:**
-  The final, normalized version of the [core_eia861_\_yearly_balancing_authority](../../../../data_dictionaries/pudl_db.md#core-eia861-yearly-balancing-authority) table,
+  The final, normalized version of the [core_eia861_\_yearly_balancing_authority](../../../../data_dictionaries/pudl_db.html.md#core-eia861-yearly-balancing-authority) table,
   linking together balancing authorities and utility IDs by year, but without
   information about what states they were operating in (which is captured in
-  [core_eia861_\_assn_balancing_authority](../../../../data_dictionaries/pudl_db.md#core-eia861-assn-balancing-authority)).
+  [core_eia861_\_assn_balancing_authority](../../../../data_dictionaries/pudl_db.html.md#core-eia861-assn-balancing-authority)).

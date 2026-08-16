@@ -9,8 +9,8 @@ run without shutting down, how long it tends to stay on or off once it starts a 
 how quickly it can change output, and how its fuel efficiency changes across its
 operating range. These “operational characteristics” (sometimes called unit
 commitment parameters) aren’t reported directly by EIA or FERC, so PUDL estimates them
-empirically from [EPA Hourly Continuous Emission Monitoring System (CEMS)](../data_sources/epacems.md) hourly generation and fuel data, in the
-[out_epacems_\_yearly_operational_characteristics](../data_dictionaries/pudl_db.md#out-epacems-yearly-operational-characteristics) table.
+empirically from [EPA Hourly Continuous Emission Monitoring System (CEMS)](../data_sources/epacems.html.md) hourly generation and fuel data, in the
+[out_epacems_\_yearly_operational_characteristics](../data_dictionaries/pudl_db.html.md#out-epacems-yearly-operational-characteristics) table.
 
 This methodology and its original implementation were generously contributed to PUDL by
 [Sylvan Energy](https://sylvan.energy), with support for integration from [GridLab](https://gridlab.org),. We’ve adapted Sylvan Energy’s analysis to run automatically
@@ -29,7 +29,7 @@ calculation completes in 1-3 minutes and peaks at around 16 GB of memory.
 These estimates describe individual EPA CEMS “emissions units” (aka smokestacks),
 identified by `plant_id_epa` and `emissions_unit_id_epa`, **not** EIA generators. A
 CEMS unit doesn’t always correspond one-to-one with an EIA generator; see
-[core_epa_\_assn_eia_epacamd](../data_dictionaries/pudl_db.md#core-epa-assn-eia-epacamd) if you need to connect these characteristics to EIA
+[core_epa_\_assn_eia_epacamd](../data_dictionaries/pudl_db.html.md#core-epa-assn-eia-epacamd) if you need to connect these characteristics to EIA
 generator-level records.
 
 Only fossil-fuel combustion units over 25 MW are required to report to EPA CEMS, so

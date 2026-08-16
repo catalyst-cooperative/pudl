@@ -18,25 +18,25 @@ For the underlying Dagster concept, see [https://docs.dagster.io/guides/build/as
 
 ## Submodules
 
-* [pudl.dagster.assets.core](core/index.md)
-* [pudl.dagster.assets.deploy](deploy/index.md)
-* [pudl.dagster.assets.raw](raw/index.md)
+* [pudl.dagster.assets.core](core/index.html.md)
+* [pudl.dagster.assets.deploy](deploy/index.html.md)
+* [pudl.dagster.assets.raw](raw/index.html.md)
 
 ## Attributes
 
-| [`raw_module_groups`](#pudl.dagster.assets.raw_module_groups)                 |    |
-|-------------------------------------------------------------------------------|----|
-| [`core_module_groups`](#pudl.dagster.assets.core_module_groups)               |    |
-| [`out_module_groups`](#pudl.dagster.assets.out_module_groups)                 |    |
+| [`raw_module_groups`](#pudl.dagster.assets.raw_module_groups)         |    |
+|----------------------------------------------------------------------------|----|
+| [`core_module_groups`](#pudl.dagster.assets.core_module_groups)        |    |
+| [`out_module_groups`](#pudl.dagster.assets.out_module_groups)         |    |
 | [`ferceqr_deployment_assets`](#pudl.dagster.assets.ferceqr_deployment_assets) |    |
-| [`all_asset_modules`](#pudl.dagster.assets.all_asset_modules)                 |    |
-| [`default_assets`](#pudl.dagster.assets.default_assets)                       |    |
-| [`asset_keys`](#pudl.dagster.assets.asset_keys)                               |    |
+| [`all_asset_modules`](#pudl.dagster.assets.all_asset_modules)         |    |
+| [`default_assets`](#pudl.dagster.assets.default_assets)            |    |
+| [`asset_keys`](#pudl.dagster.assets.asset_keys)                |    |
 
 ## Functions
 
 | [`get_keys_from_assets`](#pudl.dagster.assets.get_keys_from_assets)(→ list[dagster.AssetKey])   | Get a list of asset keys for an asset definition or spec.   |
-|-------------------------------------------------------------------------------------------------|-------------------------------------------------------------|
+|---------------------------------------------------------------------------------------------------|-------------------------------------------------------------|
 
 ## Package Contents
 

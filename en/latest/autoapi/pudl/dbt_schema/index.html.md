@@ -8,23 +8,23 @@ format, then applying human-sourced patches to the auto-generated schemas.
 ## Classes
 
 | [`DbtColumn`](#pudl.dbt_schema.DbtColumn)   | Define yaml structure of a dbt column.                              |
-|---------------------------------------------|---------------------------------------------------------------------|
-| [`DbtTable`](#pudl.dbt_schema.DbtTable)     | Define yaml structure of a dbt table.                               |
+|--------------------------------------------------------------|---------------------------------------------------------------------|
+| [`DbtTable`](#pudl.dbt_schema.DbtTable)    | Define yaml structure of a dbt table.                               |
 | [`DbtSource`](#pudl.dbt_schema.DbtSource)   | Define basic dbt yml structure to add a pudl table as a dbt source. |
 | [`DbtSchema`](#pudl.dbt_schema.DbtSchema)   | Define basic structure of a dbt models yaml file.                   |
 
 ## Functions
 
-| [`_prettier_yaml_dumps`](#pudl.dbt_schema._prettier_yaml_dumps)(→ str)               | Dump YAML to string that Prettier likes.                                           |
-|--------------------------------------------------------------------------------------|------------------------------------------------------------------------------------|
-| [`merge_schema`](#pudl.dbt_schema.merge_schema)(→ DbtSchema)                         | Merge two DbtSchemas by applying human-schema as a patch on top of machine-schema. |
-| [`merge_by_name`](#pudl.dbt_schema.merge_by_name)(→ list)                            | Perform a generic merge of two lists of dbt elements, matching by name.            |
+| [`_prettier_yaml_dumps`](#pudl.dbt_schema._prettier_yaml_dumps)(→ str)              | Dump YAML to string that Prettier likes.                                           |
+|-------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------|
+| [`merge_schema`](#pudl.dbt_schema.merge_schema)(→ DbtSchema)                | Merge two DbtSchemas by applying human-schema as a patch on top of machine-schema. |
+| [`merge_by_name`](#pudl.dbt_schema.merge_by_name)(→ list)                    | Perform a generic merge of two lists of dbt elements, matching by name.            |
 | [`merge_sources_by_name`](#pudl.dbt_schema.merge_sources_by_name)(→ list[DbtSource]) | Match machine/human sources by name, then merge them.                              |
-| [`merge_source`](#pudl.dbt_schema.merge_source)(→ DbtSource)                         | Merge two DbtSources by applying human-source as a patch on top of machine-source. |
-| [`merge_tables_by_name`](#pudl.dbt_schema.merge_tables_by_name)(→ list[DbtTable])    | Match machine/human tables by name, then merge them.                               |
-| [`merge_table`](#pudl.dbt_schema.merge_table)(→ DbtTable)                            | Merge two DbtTables by applying human-table as a patch on top of machine-table.    |
+| [`merge_source`](#pudl.dbt_schema.merge_source)(→ DbtSource)                | Merge two DbtSources by applying human-source as a patch on top of machine-source. |
+| [`merge_tables_by_name`](#pudl.dbt_schema.merge_tables_by_name)(→ list[DbtTable])   | Match machine/human tables by name, then merge them.                               |
+| [`merge_table`](#pudl.dbt_schema.merge_table)(→ DbtTable)                  | Merge two DbtTables by applying human-table as a patch on top of machine-table.    |
 | [`merge_columns_by_name`](#pudl.dbt_schema.merge_columns_by_name)(→ list[DbtColumn]) | Match machine/human columns by name, then merge them.                              |
-| [`merge_column`](#pudl.dbt_schema.merge_column)(→ DbtColumn)                         | Merge two DbtColumns by applying human-column as a patch on top of machine-column. |
+| [`merge_column`](#pudl.dbt_schema.merge_column)(→ DbtColumn)                | Merge two DbtColumns by applying human-column as a patch on top of machine-column. |
 
 ## Module Contents
 

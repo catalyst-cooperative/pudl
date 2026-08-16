@@ -9,7 +9,7 @@ Form 1 are heterogeneous, which complicates using the two data sets together.
 
 The EIA plant data is much cleaner and more uniformly structured. The are generators
 with ids and plants with ids reported in *separate* tables. Several generator IDs are
-typically grouped under a single plant ID. In [`pudl.analysis.plant_parts_eia`](../../plant_parts_eia/index.md#module-pudl.analysis.plant_parts_eia),
+typically grouped under a single plant ID. In [`pudl.analysis.plant_parts_eia`](../../plant_parts_eia/index.html.md#module-pudl.analysis.plant_parts_eia),
 we create a large number of synthetic aggregated records representing many possible
 slices of a power plant which could in theory be what is actually reported in the FERC
 Form 1.
@@ -32,33 +32,33 @@ plant-parts.
 
 ## Attributes
 
-| [`logger`](#pudl.analysis.record_linkage.eia_ferc1_record_linkage.logger)                         |    |
-|---------------------------------------------------------------------------------------------------|----|
-| [`MATCHING_COLS`](#pudl.analysis.record_linkage.eia_ferc1_record_linkage.MATCHING_COLS)           |    |
-| [`ID_COL`](#pudl.analysis.record_linkage.eia_ferc1_record_linkage.ID_COL)                         |    |
-| [`EXTRA_COLS`](#pudl.analysis.record_linkage.eia_ferc1_record_linkage.EXTRA_COLS)                 |    |
+| [`logger`](#pudl.analysis.record_linkage.eia_ferc1_record_linkage.logger)             |    |
+|---------------------------------------------------------------------|----|
+| [`MATCHING_COLS`](#pudl.analysis.record_linkage.eia_ferc1_record_linkage.MATCHING_COLS)      |    |
+| [`ID_COL`](#pudl.analysis.record_linkage.eia_ferc1_record_linkage.ID_COL)             |    |
+| [`EXTRA_COLS`](#pudl.analysis.record_linkage.eia_ferc1_record_linkage.EXTRA_COLS)         |    |
 | [`plant_name_cleaner`](#pudl.analysis.record_linkage.eia_ferc1_record_linkage.plant_name_cleaner) |    |
-| [`col_cleaner`](#pudl.analysis.record_linkage.eia_ferc1_record_linkage.col_cleaner)               |    |
+| [`col_cleaner`](#pudl.analysis.record_linkage.eia_ferc1_record_linkage.col_cleaner)        |    |
 
 ## Functions
 
-| [`get_compiled_input_manager`](#pudl.analysis.record_linkage.eia_ferc1_record_linkage.get_compiled_input_manager)(plants_all_ferc1, ...)                | Get `InputManager` object with compiled inputs for model.                     |
-|---------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------|
-| [`get_input_dfs`](#pudl.analysis.record_linkage.eia_ferc1_record_linkage.get_input_dfs)(inputs)                                                         | Get EIA and FERC inputs for the model.                                        |
-| [`prepare_for_matching`](#pudl.analysis.record_linkage.eia_ferc1_record_linkage.prepare_for_matching)(df, transformed_df)                               | Prepare the input dataframes for matching with splink.                        |
-| [`get_training_data_df`](#pudl.analysis.record_linkage.eia_ferc1_record_linkage.get_training_data_df)(inputs)                                           | Get the manually created training data.                                       |
-| [`get_model_predictions`](#pudl.analysis.record_linkage.eia_ferc1_record_linkage.get_model_predictions)(eia_df, ferc_df, train_df, ...)                 | Train splink model and output predicted matches.                              |
-| [`get_best_matches`](#pudl.analysis.record_linkage.eia_ferc1_record_linkage.get_best_matches)(preds_df, inputs, experiment_tracker)                     | Get the best EIA match for each FERC record and log performance metrics.      |
+| [`get_compiled_input_manager`](#pudl.analysis.record_linkage.eia_ferc1_record_linkage.get_compiled_input_manager)(plants_all_ferc1, ...)           | Get `InputManager` object with compiled inputs for model.                     |
+|--------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------|
+| [`get_input_dfs`](#pudl.analysis.record_linkage.eia_ferc1_record_linkage.get_input_dfs)(inputs)                                       | Get EIA and FERC inputs for the model.                                        |
+| [`prepare_for_matching`](#pudl.analysis.record_linkage.eia_ferc1_record_linkage.prepare_for_matching)(df, transformed_df)                    | Prepare the input dataframes for matching with splink.                        |
+| [`get_training_data_df`](#pudl.analysis.record_linkage.eia_ferc1_record_linkage.get_training_data_df)(inputs)                                | Get the manually created training data.                                       |
+| [`get_model_predictions`](#pudl.analysis.record_linkage.eia_ferc1_record_linkage.get_model_predictions)(eia_df, ferc_df, train_df, ...)       | Train splink model and output predicted matches.                              |
+| [`get_best_matches`](#pudl.analysis.record_linkage.eia_ferc1_record_linkage.get_best_matches)(preds_df, inputs, experiment_tracker)      | Get the best EIA match for each FERC record and log performance metrics.      |
 | [`get_full_records_with_overrides`](#pudl.analysis.record_linkage.eia_ferc1_record_linkage.get_full_records_with_overrides)(best_match_df, inputs, ...) | Join full dataframe onto matches to make usable and get stats.                |
-| [`ferc_to_eia`](#pudl.analysis.record_linkage.eia_ferc1_record_linkage.ferc_to_eia)(→ pandas.DataFrame)                                                 | Using splink model the connection between FERC1 plants and EIA plant-parts.   |
-| [`get_true_pos`](#pudl.analysis.record_linkage.eia_ferc1_record_linkage.get_true_pos)(pred_df, train_df)                                                | Get the number of correctly predicted matches.                                |
-| [`get_false_pos`](#pudl.analysis.record_linkage.eia_ferc1_record_linkage.get_false_pos)(pred_df, train_df)                                              | Get the number of incorrectly predicted matches.                              |
-| [`get_false_neg`](#pudl.analysis.record_linkage.eia_ferc1_record_linkage.get_false_neg)(pred_df, train_df)                                              | Get the number of matches from the training data where no prediction is made. |
-| [`prettyify_best_matches`](#pudl.analysis.record_linkage.eia_ferc1_record_linkage.prettyify_best_matches)(→ pandas.DataFrame)                           | Make the EIA-FERC best matches usable.                                        |
-| [`check_match_consistency`](#pudl.analysis.record_linkage.eia_ferc1_record_linkage.check_match_consistency)(→ pandas.DataFrame)                         | Check how consistent FERC-EIA matches are with FERC-FERC matches.             |
-| [`override_bad_predictions`](#pudl.analysis.record_linkage.eia_ferc1_record_linkage.override_bad_predictions)(→ pandas.DataFrame)                       | Override incorrect predictions with the correct match from training data.     |
-| [`_log_match_coverage`](#pudl.analysis.record_linkage.eia_ferc1_record_linkage._log_match_coverage)(connects_ferc1_eia, experiment_tracker)             |                                                                               |
-| [`add_null_overrides`](#pudl.analysis.record_linkage.eia_ferc1_record_linkage.add_null_overrides)(connects_ferc1_eia)                                   | Override known null matches with pd.NA.                                       |
+| [`ferc_to_eia`](#pudl.analysis.record_linkage.eia_ferc1_record_linkage.ferc_to_eia)(→ pandas.DataFrame)                             | Using splink model the connection between FERC1 plants and EIA plant-parts.   |
+| [`get_true_pos`](#pudl.analysis.record_linkage.eia_ferc1_record_linkage.get_true_pos)(pred_df, train_df)                             | Get the number of correctly predicted matches.                                |
+| [`get_false_pos`](#pudl.analysis.record_linkage.eia_ferc1_record_linkage.get_false_pos)(pred_df, train_df)                            | Get the number of incorrectly predicted matches.                              |
+| [`get_false_neg`](#pudl.analysis.record_linkage.eia_ferc1_record_linkage.get_false_neg)(pred_df, train_df)                            | Get the number of matches from the training data where no prediction is made. |
+| [`prettyify_best_matches`](#pudl.analysis.record_linkage.eia_ferc1_record_linkage.prettyify_best_matches)(→ pandas.DataFrame)                  | Make the EIA-FERC best matches usable.                                        |
+| [`check_match_consistency`](#pudl.analysis.record_linkage.eia_ferc1_record_linkage.check_match_consistency)(→ pandas.DataFrame)                 | Check how consistent FERC-EIA matches are with FERC-FERC matches.             |
+| [`override_bad_predictions`](#pudl.analysis.record_linkage.eia_ferc1_record_linkage.override_bad_predictions)(→ pandas.DataFrame)                | Override incorrect predictions with the correct match from training data.     |
+| [`_log_match_coverage`](#pudl.analysis.record_linkage.eia_ferc1_record_linkage._log_match_coverage)(connects_ferc1_eia, experiment_tracker) |                                                                               |
+| [`add_null_overrides`](#pudl.analysis.record_linkage.eia_ferc1_record_linkage.add_null_overrides)(connects_ferc1_eia)                      | Override known null matches with pd.NA.                                       |
 
 ## Module Contents
 
@@ -94,7 +94,7 @@ Get the manually created training data.
 
 Train splink model and output predicted matches.
 
-### pudl.analysis.record_linkage.eia_ferc1_record_linkage.get_best_matches(preds_df, inputs, experiment_tracker: [pudl.analysis.ml_tools.experiment_tracking.ExperimentTracker](../../ml_tools/experiment_tracking/index.md#pudl.analysis.ml_tools.experiment_tracking.ExperimentTracker))
+### pudl.analysis.record_linkage.eia_ferc1_record_linkage.get_best_matches(preds_df, inputs, experiment_tracker: [pudl.analysis.ml_tools.experiment_tracking.ExperimentTracker](../../ml_tools/experiment_tracking/index.html.md#pudl.analysis.ml_tools.experiment_tracking.ExperimentTracker))
 
 Get the best EIA match for each FERC record and log performance metrics.
 
@@ -108,7 +108,7 @@ so that the matches are usable. Drop model parameter and match probability
 columns generated by splink. Log the coverage of the matches on the
 FERC input data.
 
-### pudl.analysis.record_linkage.eia_ferc1_record_linkage.ferc_to_eia(experiment_tracker: [pudl.analysis.ml_tools.experiment_tracking.ExperimentTracker](../../ml_tools/experiment_tracking/index.md#pudl.analysis.ml_tools.experiment_tracking.ExperimentTracker), out_ferc1_\_yearly_all_plants: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), out_ferc1_\_yearly_steam_plants_fuel_by_plant_sched402: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), out_eia_\_yearly_plant_parts: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.analysis.record_linkage.eia_ferc1_record_linkage.ferc_to_eia(experiment_tracker: [pudl.analysis.ml_tools.experiment_tracking.ExperimentTracker](../../ml_tools/experiment_tracking/index.html.md#pudl.analysis.ml_tools.experiment_tracking.ExperimentTracker), out_ferc1_\_yearly_all_plants: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), out_ferc1_\_yearly_steam_plants_fuel_by_plant_sched402: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), out_eia_\_yearly_plant_parts: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Using splink model the connection between FERC1 plants and EIA plant-parts.
 
@@ -138,7 +138,7 @@ Use the ID columns from the best matches to merge together both EIA plant-parts 
 and FERC plant data. This removes the comparison vectors (the floats between 0 and 1
 that compare the two columns from each dataset).
 
-### pudl.analysis.record_linkage.eia_ferc1_record_linkage.check_match_consistency(connects_ferc1_eia: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), train_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), experiment_tracker: [pudl.analysis.ml_tools.experiment_tracking.ExperimentTracker](../../ml_tools/experiment_tracking/index.md#pudl.analysis.ml_tools.experiment_tracking.ExperimentTracker), match_set: Literal['all', 'overrides'] = 'all') → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.analysis.record_linkage.eia_ferc1_record_linkage.check_match_consistency(connects_ferc1_eia: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), train_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), experiment_tracker: [pudl.analysis.ml_tools.experiment_tracking.ExperimentTracker](../../ml_tools/experiment_tracking/index.html.md#pudl.analysis.ml_tools.experiment_tracking.ExperimentTracker), match_set: Literal['all', 'overrides'] = 'all') → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Check how consistent FERC-EIA matches are with FERC-FERC matches.
 
@@ -166,7 +166,7 @@ Override incorrect predictions with the correct match from training data.
     FERC1 record.
   * **train_df** – A dataframe of the training data.
 
-### pudl.analysis.record_linkage.eia_ferc1_record_linkage.\_log_match_coverage(connects_ferc1_eia, experiment_tracker: [pudl.analysis.ml_tools.experiment_tracking.ExperimentTracker](../../ml_tools/experiment_tracking/index.md#pudl.analysis.ml_tools.experiment_tracking.ExperimentTracker))
+### pudl.analysis.record_linkage.eia_ferc1_record_linkage.\_log_match_coverage(connects_ferc1_eia, experiment_tracker: [pudl.analysis.ml_tools.experiment_tracking.ExperimentTracker](../../ml_tools/experiment_tracking/index.html.md#pudl.analysis.ml_tools.experiment_tracking.ExperimentTracker))
 
 ### pudl.analysis.record_linkage.eia_ferc1_record_linkage.add_null_overrides(connects_ferc1_eia)
 

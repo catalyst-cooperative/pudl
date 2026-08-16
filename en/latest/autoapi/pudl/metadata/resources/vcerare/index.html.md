@@ -5,7 +5,7 @@ Table definitions for data coming from the Vibrant Clean Energy Renewable Genera
 ## Attributes
 
 | [`RESOURCE_METADATA`](#pudl.metadata.resources.vcerare.RESOURCE_METADATA)   |    |
-|-----------------------------------------------------------------------------|----|
+|----------------------------------------------------------------------|----|
 
 ## Module Contents
 

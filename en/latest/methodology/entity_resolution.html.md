@@ -31,7 +31,7 @@ expected to be stable over time and where appropriate, a yearly record of attrib
 that are expected to change over time.
 
 The entity resolution process is applied most extensively to the
-[EIA-860](../data_sources/eia860.md) and [EIA-923](../data_sources/eia923.md)
+[EIA-860](../data_sources/eia860.html.md) and [EIA-923](../data_sources/eia923.html.md)
 spreadsheet data, but it’s a more general issue that comes up throughout the data we
 process. This page explains the entity resolution process conceptually, why it exists,
 and what it means when the PUDL entity tables do not exactly mirror an individual raw
@@ -41,10 +41,10 @@ EIA spreadsheet.
 
 For each entity type, PUDL typically creates two related tables:
 
-* A static entity table such as [core_eia_\_entity_plants](../data_dictionaries/pudl_db.md#core-eia-entity-plants), with one row per entity
+* A static entity table such as [core_eia_\_entity_plants](../data_dictionaries/pudl_db.html.md#core-eia-entity-plants), with one row per entity
   and attributes that are expected to be stable over time. These tables all have
   `entity` in their names.
-* A yearly slowly changing dimension (SCD) table such as [core_eia860_\_scd_plants](../data_dictionaries/pudl_db.md#core-eia860-scd-plants),
+* A yearly slowly changing dimension (SCD) table such as [core_eia860_\_scd_plants](../data_dictionaries/pudl_db.html.md#core-eia860-scd-plants),
   with one row per entity per report year and attributes that are expected to vary
   slightly over time. These tables all have `scd` in their names.
 
@@ -94,13 +94,13 @@ The simplified flow for plants looks like this:
 
 Conceptually, the same pattern is used for all four entity types. The full list of
 input tables for all EIA entities can be found in
-[`pudl.transform.eia.HARVESTABLE_ASSETS`](../autoapi/pudl/transform/eia/index.md#pudl.transform.eia.HARVESTABLE_ASSETS)
+[`pudl.transform.eia.HARVESTABLE_ASSETS`](../autoapi/pudl/transform/eia/index.html.md#pudl.transform.eia.HARVESTABLE_ASSETS)
 
 ### How PUDL Identifies Existing Entities
 
 The first step is to determine which entities and entity-years exist anywhere in the
 upstream transformed EIA data. This is done in
-[`pudl.transform.eia._compile_all_entity_records()`](../autoapi/pudl/transform/eia/index.md#pudl.transform.eia._compile_all_entity_records).
+[`pudl.transform.eia._compile_all_entity_records()`](../autoapi/pudl/transform/eia/index.html.md#pudl.transform.eia._compile_all_entity_records).
 
 To produce the annually varying SCD tables `report_date` is normalized to January 1 of
 the report year so that all annual records align even if an upstream table has a
@@ -175,14 +175,14 @@ The entity resolution process is heuristic and can definitely be improved.
 
 To understand the source data that feed entity resolution, see:
 
-* [EIA Form 860 – Annual Electric Generator Report](../data_sources/eia860.md)
-* [EIA Form 923 – Power Plant Operations Report](../data_sources/eia923.md)
+* [EIA Form 860 – Annual Electric Generator Report](../data_sources/eia860.html.md)
+* [EIA Form 923 – Power Plant Operations Report](../data_sources/eia923.html.md)
 
 For the metadata and code that implement this logic, see:
 
-* [`pudl.metadata.resources.ENTITIES`](../autoapi/pudl/metadata/resources/index.md#pudl.metadata.resources.ENTITIES)
-* [`pudl.transform.eia`](../autoapi/pudl/transform/eia/index.md#module-pudl.transform.eia)
-* [`pudl.transform.eia.harvested_entity_asset_factory()`](../autoapi/pudl/transform/eia/index.md#pudl.transform.eia.harvested_entity_asset_factory)
-* [`pudl.transform.eia.harvest_entity_tables()`](../autoapi/pudl/transform/eia/index.md#pudl.transform.eia.harvest_entity_tables)
-* [`pudl.transform.eia._compile_all_entity_records()`](../autoapi/pudl/transform/eia/index.md#pudl.transform.eia._compile_all_entity_records)
-* [`pudl.transform.eia.occurrence_consistency()`](../autoapi/pudl/transform/eia/index.md#pudl.transform.eia.occurrence_consistency)
+* [`pudl.metadata.resources.ENTITIES`](../autoapi/pudl/metadata/resources/index.html.md#pudl.metadata.resources.ENTITIES)
+* [`pudl.transform.eia`](../autoapi/pudl/transform/eia/index.html.md#module-pudl.transform.eia)
+* [`pudl.transform.eia.harvested_entity_asset_factory()`](../autoapi/pudl/transform/eia/index.html.md#pudl.transform.eia.harvested_entity_asset_factory)
+* [`pudl.transform.eia.harvest_entity_tables()`](../autoapi/pudl/transform/eia/index.html.md#pudl.transform.eia.harvest_entity_tables)
+* [`pudl.transform.eia._compile_all_entity_records()`](../autoapi/pudl/transform/eia/index.html.md#pudl.transform.eia._compile_all_entity_records)
+* [`pudl.transform.eia.occurrence_consistency()`](../autoapi/pudl/transform/eia/index.html.md#pudl.transform.eia.occurrence_consistency)

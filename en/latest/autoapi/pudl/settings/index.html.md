@@ -5,58 +5,58 @@ Module for validating pudl ETL data configurations.
 ## Attributes
 
 | [`logger`](#pudl.settings.logger)   |    |
-|-------------------------------------|----|
+|-----------------------------------------------------------|----|
 
 ## Classes
 
-| [`FercForm`](#pudl.settings.FercForm)                                                   | Contains full list of supported FERC forms.                                       |
-|-----------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------|
-| [`FrozenBaseModel`](#pudl.settings.FrozenBaseModel)                                     | BaseModel with global configuration.                                              |
-| [`GenericDataConfig`](#pudl.settings.GenericDataConfig)                                 | An abstract pydantic model for generic datasets.                                  |
-| [`Ferc1DataConfig`](#pudl.settings.Ferc1DataConfig)                                     | An immutable pydantic model to validate Ferc1DataConfig.                          |
-| [`Ferc714DataConfig`](#pudl.settings.Ferc714DataConfig)                                 | An immutable pydantic model to validate Ferc714DataConfig.                        |
-| [`EpaCemsDataConfig`](#pudl.settings.EpaCemsDataConfig)                                 | An immutable pydantic model to validate EPA CEMS data configuration.              |
-| [`EpaMatsDataConfig`](#pudl.settings.EpaMatsDataConfig)                                 | An immutable pydantic model to validate EPA MATS data configuration.              |
-| [`PhmsaGasDataConfig`](#pudl.settings.PhmsaGasDataConfig)                               | An immutable pydantic model to validate PHMSA data configuration.                 |
-| [`Sec10kDataConfig`](#pudl.settings.Sec10kDataConfig)                                   | An immutable pydantic model to validate SEC 10-K data configuration.              |
-| [`NrelAtbDataConfig`](#pudl.settings.NrelAtbDataConfig)                                 | An immutable pydantic model to validate NREL ATB data configuration.              |
-| [`Eia923DataConfig`](#pudl.settings.Eia923DataConfig)                                   | An immutable pydantic model to validate EIA 923 data configuration.               |
-| [`Eia930DataConfig`](#pudl.settings.Eia930DataConfig)                                   | An immutable pydantic model to validate EIA 930 data configuration.               |
-| [`Eia861DataConfig`](#pudl.settings.Eia861DataConfig)                                   | An immutable pydantic model to validate EIA 861 data configuration.               |
-| [`Eia860DataConfig`](#pudl.settings.Eia860DataConfig)                                   | An immutable pydantic model to validate EIA 860 data configuration.               |
-| [`Eia860mDataConfig`](#pudl.settings.Eia860mDataConfig)                                 | An immutable pydantic model to validate EIA 860m data configuration.              |
-| [`Eia757aDataConfig`](#pudl.settings.Eia757aDataConfig)                                 | An immutable pydantic model to validate EIA 757a data configuration.              |
-| [`Eia191DataConfig`](#pudl.settings.Eia191DataConfig)                                   | An immutable pydantic model to validate EIA 191 data configuration.               |
-| [`Eia176DataConfig`](#pudl.settings.Eia176DataConfig)                                   | An immutable pydantic model to validate EIA 176 data configuration.               |
-| [`EiaAeoDataConfig`](#pudl.settings.EiaAeoDataConfig)                                   | An immutable pydantic model to validate EIA AEO data configuration.               |
-| [`VceRareDataConfig`](#pudl.settings.VceRareDataConfig)                                 | An immutable pydantic model to validate VCE RARE data configuration.              |
-| [`CensusPepDataConfig`](#pudl.settings.CensusPepDataConfig)                             | An immutable pydantic model to validate Census PEP data configuration.            |
-| [`GlueDataConfig`](#pudl.settings.GlueDataConfig)                                       | An immutable pydantic model to validate Glue data configuration.                  |
-| [`GridPathRaToolkitTechType`](#pudl.settings.GridPathRaToolkitTechType)                 | Enum to constrain GridPath RA Toolkit technology types.                           |
-| [`GridPathRaToolkitProcLevel`](#pudl.settings.GridPathRaToolkitProcLevel)               | Enum to constraint GridPath RA Toolkit processing levels.                         |
-| [`GridPathRaToolkitDataConfig`](#pudl.settings.GridPathRaToolkitDataConfig)             | An immutable pydantic model to validate GridPath RA Toolkit data configuration.   |
-| [`EiaDataConfig`](#pudl.settings.EiaDataConfig)                                         | An immutable pydantic model to validate EIA datasets data configuration.          |
-| [`Rus7DataConfig`](#pudl.settings.Rus7DataConfig)                                       | An immutable pydantic model to validate RUS-7 datasets data configuration.        |
-| [`Rus12DataConfig`](#pudl.settings.Rus12DataConfig)                                     | An immutable pydantic model to validate RUS Form 12 data configuration.           |
-| [`PudlDataConfig`](#pudl.settings.PudlDataConfig)                                       | An immutable pydantic model to validate PUDL Dataset data configuration.          |
-| [`FercDbfToSqliteDataConfig`](#pudl.settings.FercDbfToSqliteDataConfig)                 | Base class for all FERC DBF-to-SQLite data config models.                         |
-| [`Ferc1DbfToSqliteDataConfig`](#pudl.settings.Ferc1DbfToSqliteDataConfig)               | An immutable Pydantic model to validate FERC 1 to SQLite data config.             |
+| [`FercForm`](#pudl.settings.FercForm)                          | Contains full list of supported FERC forms.                                       |
+|------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------|
+| [`FrozenBaseModel`](#pudl.settings.FrozenBaseModel)                   | BaseModel with global configuration.                                              |
+| [`GenericDataConfig`](#pudl.settings.GenericDataConfig)                 | An abstract pydantic model for generic datasets.                                  |
+| [`Ferc1DataConfig`](#pudl.settings.Ferc1DataConfig)                   | An immutable pydantic model to validate Ferc1DataConfig.                          |
+| [`Ferc714DataConfig`](#pudl.settings.Ferc714DataConfig)                 | An immutable pydantic model to validate Ferc714DataConfig.                        |
+| [`EpaCemsDataConfig`](#pudl.settings.EpaCemsDataConfig)                 | An immutable pydantic model to validate EPA CEMS data configuration.              |
+| [`EpaMatsDataConfig`](#pudl.settings.EpaMatsDataConfig)                 | An immutable pydantic model to validate EPA MATS data configuration.              |
+| [`PhmsaGasDataConfig`](#pudl.settings.PhmsaGasDataConfig)                | An immutable pydantic model to validate PHMSA data configuration.                 |
+| [`Sec10kDataConfig`](#pudl.settings.Sec10kDataConfig)                  | An immutable pydantic model to validate SEC 10-K data configuration.              |
+| [`NrelAtbDataConfig`](#pudl.settings.NrelAtbDataConfig)                 | An immutable pydantic model to validate NREL ATB data configuration.              |
+| [`Eia923DataConfig`](#pudl.settings.Eia923DataConfig)                  | An immutable pydantic model to validate EIA 923 data configuration.               |
+| [`Eia930DataConfig`](#pudl.settings.Eia930DataConfig)                  | An immutable pydantic model to validate EIA 930 data configuration.               |
+| [`Eia861DataConfig`](#pudl.settings.Eia861DataConfig)                  | An immutable pydantic model to validate EIA 861 data configuration.               |
+| [`Eia860DataConfig`](#pudl.settings.Eia860DataConfig)                  | An immutable pydantic model to validate EIA 860 data configuration.               |
+| [`Eia860mDataConfig`](#pudl.settings.Eia860mDataConfig)                 | An immutable pydantic model to validate EIA 860m data configuration.              |
+| [`Eia757aDataConfig`](#pudl.settings.Eia757aDataConfig)                 | An immutable pydantic model to validate EIA 757a data configuration.              |
+| [`Eia191DataConfig`](#pudl.settings.Eia191DataConfig)                  | An immutable pydantic model to validate EIA 191 data configuration.               |
+| [`Eia176DataConfig`](#pudl.settings.Eia176DataConfig)                  | An immutable pydantic model to validate EIA 176 data configuration.               |
+| [`EiaAeoDataConfig`](#pudl.settings.EiaAeoDataConfig)                  | An immutable pydantic model to validate EIA AEO data configuration.               |
+| [`VceRareDataConfig`](#pudl.settings.VceRareDataConfig)                 | An immutable pydantic model to validate VCE RARE data configuration.              |
+| [`CensusPepDataConfig`](#pudl.settings.CensusPepDataConfig)               | An immutable pydantic model to validate Census PEP data configuration.            |
+| [`GlueDataConfig`](#pudl.settings.GlueDataConfig)                    | An immutable pydantic model to validate Glue data configuration.                  |
+| [`GridPathRaToolkitTechType`](#pudl.settings.GridPathRaToolkitTechType)         | Enum to constrain GridPath RA Toolkit technology types.                           |
+| [`GridPathRaToolkitProcLevel`](#pudl.settings.GridPathRaToolkitProcLevel)        | Enum to constraint GridPath RA Toolkit processing levels.                         |
+| [`GridPathRaToolkitDataConfig`](#pudl.settings.GridPathRaToolkitDataConfig)       | An immutable pydantic model to validate GridPath RA Toolkit data configuration.   |
+| [`EiaDataConfig`](#pudl.settings.EiaDataConfig)                     | An immutable pydantic model to validate EIA datasets data configuration.          |
+| [`Rus7DataConfig`](#pudl.settings.Rus7DataConfig)                    | An immutable pydantic model to validate RUS-7 datasets data configuration.        |
+| [`Rus12DataConfig`](#pudl.settings.Rus12DataConfig)                   | An immutable pydantic model to validate RUS Form 12 data configuration.           |
+| [`PudlDataConfig`](#pudl.settings.PudlDataConfig)                    | An immutable pydantic model to validate PUDL Dataset data configuration.          |
+| [`FercDbfToSqliteDataConfig`](#pudl.settings.FercDbfToSqliteDataConfig)         | Base class for all FERC DBF-to-SQLite data config models.                         |
+| [`Ferc1DbfToSqliteDataConfig`](#pudl.settings.Ferc1DbfToSqliteDataConfig)        | An immutable Pydantic model to validate FERC 1 to SQLite data config.             |
 | [`FercGenericXbrlToSqliteDataConfig`](#pudl.settings.FercGenericXbrlToSqliteDataConfig) | An immutable pydantic model to validate Ferc1 to SQLite data config.              |
-| [`Ferc1XbrlToSqliteDataConfig`](#pudl.settings.Ferc1XbrlToSqliteDataConfig)             | An immutable pydantic model to validate Ferc1 to SQLite data config.              |
-| [`Ferc2XbrlToSqliteDataConfig`](#pudl.settings.Ferc2XbrlToSqliteDataConfig)             | An immutable pydantic model to validate FERC from 2 XBRL to SQLite data config.   |
-| [`Ferc2DbfToSqliteDataConfig`](#pudl.settings.Ferc2DbfToSqliteDataConfig)               | An immutable Pydantic model to validate FERC 2 to SQLite data config.             |
-| [`Ferc6DbfToSqliteDataConfig`](#pudl.settings.Ferc6DbfToSqliteDataConfig)               | An immutable Pydantic model to validate FERC 6 to SQLite data config.             |
-| [`Ferc6XbrlToSqliteDataConfig`](#pudl.settings.Ferc6XbrlToSqliteDataConfig)             | An immutable pydantic model to validate FERC from 6 XBRL to SQLite data config.   |
-| [`Ferc60DbfToSqliteDataConfig`](#pudl.settings.Ferc60DbfToSqliteDataConfig)             | An immutable Pydantic model to validate FERC 60 to SQLite data config.            |
-| [`Ferc60XbrlToSqliteDataConfig`](#pudl.settings.Ferc60XbrlToSqliteDataConfig)           | An immutable pydantic model to validate FERC from 60 XBRL to SQLite data config.  |
-| [`Ferc714XbrlToSqliteDataConfig`](#pudl.settings.Ferc714XbrlToSqliteDataConfig)         | An immutable pydantic model to validate FERC from 714 XBRL to SQLite data config. |
-| [`FercToSqliteDataConfig`](#pudl.settings.FercToSqliteDataConfig)                       | An immutable pydantic model to validate FERC XBRL to SQLite data config.          |
-| [`GlobalDataConfig`](#pudl.settings.GlobalDataConfig)                                   | Main settings validation class.                                                   |
+| [`Ferc1XbrlToSqliteDataConfig`](#pudl.settings.Ferc1XbrlToSqliteDataConfig)       | An immutable pydantic model to validate Ferc1 to SQLite data config.              |
+| [`Ferc2XbrlToSqliteDataConfig`](#pudl.settings.Ferc2XbrlToSqliteDataConfig)       | An immutable pydantic model to validate FERC from 2 XBRL to SQLite data config.   |
+| [`Ferc2DbfToSqliteDataConfig`](#pudl.settings.Ferc2DbfToSqliteDataConfig)        | An immutable Pydantic model to validate FERC 2 to SQLite data config.             |
+| [`Ferc6DbfToSqliteDataConfig`](#pudl.settings.Ferc6DbfToSqliteDataConfig)        | An immutable Pydantic model to validate FERC 6 to SQLite data config.             |
+| [`Ferc6XbrlToSqliteDataConfig`](#pudl.settings.Ferc6XbrlToSqliteDataConfig)       | An immutable pydantic model to validate FERC from 6 XBRL to SQLite data config.   |
+| [`Ferc60DbfToSqliteDataConfig`](#pudl.settings.Ferc60DbfToSqliteDataConfig)       | An immutable Pydantic model to validate FERC 60 to SQLite data config.            |
+| [`Ferc60XbrlToSqliteDataConfig`](#pudl.settings.Ferc60XbrlToSqliteDataConfig)      | An immutable pydantic model to validate FERC from 60 XBRL to SQLite data config.  |
+| [`Ferc714XbrlToSqliteDataConfig`](#pudl.settings.Ferc714XbrlToSqliteDataConfig)     | An immutable pydantic model to validate FERC from 714 XBRL to SQLite data config. |
+| [`FercToSqliteDataConfig`](#pudl.settings.FercToSqliteDataConfig)            | An immutable pydantic model to validate FERC XBRL to SQLite data config.          |
+| [`GlobalDataConfig`](#pudl.settings.GlobalDataConfig)                  | Main settings validation class.                                                   |
 
 ## Functions
 
 | [`_zenodo_doi_to_url`](#pudl.settings._zenodo_doi_to_url)(→ pydantic.AnyHttpUrl)   | Create a DOI URL out o a Zenodo DOI.   |
-|------------------------------------------------------------------------------------|----------------------------------------|
+|----------------------------------------------------------------------------------------------|----------------------------------------|
 
 ## Module Contents
 
@@ -101,7 +101,7 @@ An abstract pydantic model for generic datasets.
 Each dataset must specify working partitions. A dataset can have an arbitrary number
 of partitions.
 
-#### data_source *: ClassVar[[pudl.metadata.classes.DataSource](../metadata/classes/index.md#pudl.metadata.classes.DataSource)]*
+#### data_source *: ClassVar[[pudl.metadata.classes.DataSource](../metadata/classes/index.html.md#pudl.metadata.classes.DataSource)]*
 
 The DataSource metadata object for this dataset.
 
@@ -130,7 +130,7 @@ Bases: [`GenericDataConfig`](#pudl.settings.GenericDataConfig)
 
 An immutable pydantic model to validate Ferc1DataConfig.
 
-#### data_source *: ClassVar[[pudl.metadata.classes.DataSource](../metadata/classes/index.md#pudl.metadata.classes.DataSource)]*
+#### data_source *: ClassVar[[pudl.metadata.classes.DataSource](../metadata/classes/index.html.md#pudl.metadata.classes.DataSource)]*
 
 The DataSource metadata object for this dataset.
 
@@ -152,7 +152,7 @@ Bases: [`GenericDataConfig`](#pudl.settings.GenericDataConfig)
 
 An immutable pydantic model to validate Ferc714DataConfig.
 
-#### data_source *: ClassVar[[pudl.metadata.classes.DataSource](../metadata/classes/index.md#pudl.metadata.classes.DataSource)]*
+#### data_source *: ClassVar[[pudl.metadata.classes.DataSource](../metadata/classes/index.html.md#pudl.metadata.classes.DataSource)]*
 
 The DataSource metadata object for this dataset.
 
@@ -174,7 +174,7 @@ Bases: [`GenericDataConfig`](#pudl.settings.GenericDataConfig)
 
 An immutable pydantic model to validate EPA CEMS data configuration.
 
-#### data_source *: ClassVar[[pudl.metadata.classes.DataSource](../metadata/classes/index.md#pudl.metadata.classes.DataSource)]*
+#### data_source *: ClassVar[[pudl.metadata.classes.DataSource](../metadata/classes/index.html.md#pudl.metadata.classes.DataSource)]*
 
 The DataSource metadata object for this dataset.
 
@@ -192,7 +192,7 @@ Bases: [`GenericDataConfig`](#pudl.settings.GenericDataConfig)
 
 An immutable pydantic model to validate EPA MATS data configuration.
 
-#### data_source *: ClassVar[[pudl.metadata.classes.DataSource](../metadata/classes/index.md#pudl.metadata.classes.DataSource)]*
+#### data_source *: ClassVar[[pudl.metadata.classes.DataSource](../metadata/classes/index.html.md#pudl.metadata.classes.DataSource)]*
 
 The DataSource metadata object for this dataset.
 
@@ -210,7 +210,7 @@ Bases: [`GenericDataConfig`](#pudl.settings.GenericDataConfig)
 
 An immutable pydantic model to validate PHMSA data configuration.
 
-#### data_source *: ClassVar[[pudl.metadata.classes.DataSource](../metadata/classes/index.md#pudl.metadata.classes.DataSource)]*
+#### data_source *: ClassVar[[pudl.metadata.classes.DataSource](../metadata/classes/index.html.md#pudl.metadata.classes.DataSource)]*
 
 The DataSource metadata object for this dataset.
 
@@ -234,7 +234,7 @@ Bases: [`GenericDataConfig`](#pudl.settings.GenericDataConfig)
 
 An immutable pydantic model to validate SEC 10-K data configuration.
 
-#### data_source *: ClassVar[[pudl.metadata.classes.DataSource](../metadata/classes/index.md#pudl.metadata.classes.DataSource)]*
+#### data_source *: ClassVar[[pudl.metadata.classes.DataSource](../metadata/classes/index.html.md#pudl.metadata.classes.DataSource)]*
 
 The DataSource metadata object for this dataset.
 
@@ -250,7 +250,7 @@ Bases: [`GenericDataConfig`](#pudl.settings.GenericDataConfig)
 
 An immutable pydantic model to validate NREL ATB data configuration.
 
-#### data_source *: ClassVar[[pudl.metadata.classes.DataSource](../metadata/classes/index.md#pudl.metadata.classes.DataSource)]*
+#### data_source *: ClassVar[[pudl.metadata.classes.DataSource](../metadata/classes/index.html.md#pudl.metadata.classes.DataSource)]*
 
 The DataSource metadata object for this dataset.
 
@@ -264,7 +264,7 @@ Bases: [`GenericDataConfig`](#pudl.settings.GenericDataConfig)
 
 An immutable pydantic model to validate EIA 923 data configuration.
 
-#### data_source *: ClassVar[[pudl.metadata.classes.DataSource](../metadata/classes/index.md#pudl.metadata.classes.DataSource)]*
+#### data_source *: ClassVar[[pudl.metadata.classes.DataSource](../metadata/classes/index.html.md#pudl.metadata.classes.DataSource)]*
 
 The DataSource metadata object for this dataset.
 
@@ -278,7 +278,7 @@ Bases: [`GenericDataConfig`](#pudl.settings.GenericDataConfig)
 
 An immutable pydantic model to validate EIA 930 data configuration.
 
-#### data_source *: ClassVar[[pudl.metadata.classes.DataSource](../metadata/classes/index.md#pudl.metadata.classes.DataSource)]*
+#### data_source *: ClassVar[[pudl.metadata.classes.DataSource](../metadata/classes/index.html.md#pudl.metadata.classes.DataSource)]*
 
 The DataSource metadata object for this dataset.
 
@@ -296,7 +296,7 @@ Bases: [`GenericDataConfig`](#pudl.settings.GenericDataConfig)
 
 An immutable pydantic model to validate EIA 861 data configuration.
 
-#### data_source *: ClassVar[[pudl.metadata.classes.DataSource](../metadata/classes/index.md#pudl.metadata.classes.DataSource)]*
+#### data_source *: ClassVar[[pudl.metadata.classes.DataSource](../metadata/classes/index.html.md#pudl.metadata.classes.DataSource)]*
 
 The DataSource metadata object for this dataset.
 
@@ -312,7 +312,7 @@ An immutable pydantic model to validate EIA 860 data configuration.
 
 This model also checks 860m data configuration.
 
-#### data_source *: ClassVar[[pudl.metadata.classes.DataSource](../metadata/classes/index.md#pudl.metadata.classes.DataSource)]*
+#### data_source *: ClassVar[[pudl.metadata.classes.DataSource](../metadata/classes/index.html.md#pudl.metadata.classes.DataSource)]*
 
 The DataSource metadata object for this dataset.
 
@@ -359,7 +359,7 @@ Bases: [`GenericDataConfig`](#pudl.settings.GenericDataConfig)
 
 An immutable pydantic model to validate EIA 860m data configuration.
 
-#### data_source *: ClassVar[[pudl.metadata.classes.DataSource](../metadata/classes/index.md#pudl.metadata.classes.DataSource)]*
+#### data_source *: ClassVar[[pudl.metadata.classes.DataSource](../metadata/classes/index.html.md#pudl.metadata.classes.DataSource)]*
 
 The DataSource metadata object for this dataset.
 
@@ -377,7 +377,7 @@ Bases: [`GenericDataConfig`](#pudl.settings.GenericDataConfig)
 
 An immutable pydantic model to validate EIA 757a data configuration.
 
-#### data_source *: ClassVar[[pudl.metadata.classes.DataSource](../metadata/classes/index.md#pudl.metadata.classes.DataSource)]*
+#### data_source *: ClassVar[[pudl.metadata.classes.DataSource](../metadata/classes/index.html.md#pudl.metadata.classes.DataSource)]*
 
 The DataSource metadata object for this dataset.
 
@@ -391,7 +391,7 @@ Bases: [`GenericDataConfig`](#pudl.settings.GenericDataConfig)
 
 An immutable pydantic model to validate EIA 191 data configuration.
 
-#### data_source *: ClassVar[[pudl.metadata.classes.DataSource](../metadata/classes/index.md#pudl.metadata.classes.DataSource)]*
+#### data_source *: ClassVar[[pudl.metadata.classes.DataSource](../metadata/classes/index.html.md#pudl.metadata.classes.DataSource)]*
 
 The DataSource metadata object for this dataset.
 
@@ -405,7 +405,7 @@ Bases: [`GenericDataConfig`](#pudl.settings.GenericDataConfig)
 
 An immutable pydantic model to validate EIA 176 data configuration.
 
-#### data_source *: ClassVar[[pudl.metadata.classes.DataSource](../metadata/classes/index.md#pudl.metadata.classes.DataSource)]*
+#### data_source *: ClassVar[[pudl.metadata.classes.DataSource](../metadata/classes/index.html.md#pudl.metadata.classes.DataSource)]*
 
 The DataSource metadata object for this dataset.
 
@@ -419,7 +419,7 @@ Bases: [`GenericDataConfig`](#pudl.settings.GenericDataConfig)
 
 An immutable pydantic model to validate EIA AEO data configuration.
 
-#### data_source *: ClassVar[[pudl.metadata.classes.DataSource](../metadata/classes/index.md#pudl.metadata.classes.DataSource)]*
+#### data_source *: ClassVar[[pudl.metadata.classes.DataSource](../metadata/classes/index.html.md#pudl.metadata.classes.DataSource)]*
 
 The DataSource metadata object for this dataset.
 
@@ -433,7 +433,7 @@ Bases: [`GenericDataConfig`](#pudl.settings.GenericDataConfig)
 
 An immutable pydantic model to validate VCE RARE data configuration.
 
-#### data_source *: ClassVar[[pudl.metadata.classes.DataSource](../metadata/classes/index.md#pudl.metadata.classes.DataSource)]*
+#### data_source *: ClassVar[[pudl.metadata.classes.DataSource](../metadata/classes/index.html.md#pudl.metadata.classes.DataSource)]*
 
 The DataSource metadata object for this dataset.
 
@@ -451,7 +451,7 @@ Bases: [`GenericDataConfig`](#pudl.settings.GenericDataConfig)
 
 An immutable pydantic model to validate Census PEP data configuration.
 
-#### data_source *: ClassVar[[pudl.metadata.classes.DataSource](../metadata/classes/index.md#pudl.metadata.classes.DataSource)]*
+#### data_source *: ClassVar[[pudl.metadata.classes.DataSource](../metadata/classes/index.html.md#pudl.metadata.classes.DataSource)]*
 
 The DataSource metadata object for this dataset.
 
@@ -500,7 +500,7 @@ An immutable pydantic model to validate GridPath RA Toolkit data configuration.
 Note that the default values for technology_types, processing_levels, and
 daily_weather are such that by default, all working partitions will be included.
 
-#### data_source *: ClassVar[[pudl.metadata.classes.DataSource](../metadata/classes/index.md#pudl.metadata.classes.DataSource)]*
+#### data_source *: ClassVar[[pudl.metadata.classes.DataSource](../metadata/classes/index.html.md#pudl.metadata.classes.DataSource)]*
 
 The DataSource metadata object for this dataset.
 
@@ -581,7 +581,7 @@ Bases: [`GenericDataConfig`](#pudl.settings.GenericDataConfig)
 
 An immutable pydantic model to validate RUS-7 datasets data configuration.
 
-#### data_source *: ClassVar[[pudl.metadata.classes.DataSource](../metadata/classes/index.md#pudl.metadata.classes.DataSource)]*
+#### data_source *: ClassVar[[pudl.metadata.classes.DataSource](../metadata/classes/index.html.md#pudl.metadata.classes.DataSource)]*
 
 The DataSource metadata object for this dataset.
 
@@ -595,7 +595,7 @@ Bases: [`GenericDataConfig`](#pudl.settings.GenericDataConfig)
 
 An immutable pydantic model to validate RUS Form 12 data configuration.
 
-#### data_source *: ClassVar[[pudl.metadata.classes.DataSource](../metadata/classes/index.md#pudl.metadata.classes.DataSource)]*
+#### data_source *: ClassVar[[pudl.metadata.classes.DataSource](../metadata/classes/index.html.md#pudl.metadata.classes.DataSource)]*
 
 The DataSource metadata object for this dataset.
 
@@ -661,7 +661,7 @@ Add glue data configuration if ferc1 and eia data are both requested.
 
 Gets dictionary of PUDL data configuration.
 
-#### make_datasources_table(data_store: [pudl.workspace.datastore.Datastore](../workspace/datastore/index.md#pudl.workspace.datastore.Datastore)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+#### make_datasources_table(data_store: [pudl.workspace.datastore.Datastore](../workspace/datastore/index.html.md#pudl.workspace.datastore.Datastore)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Compile a table of dataset information.
 
@@ -688,7 +688,7 @@ Bases: [`GenericDataConfig`](#pudl.settings.GenericDataConfig)
 Base class for all FERC DBF-to-SQLite data config models.
 
 Declares the `years` and `refyear` attributes shared by every FERC DBF
-form so that [`FercDbfExtractor`](../extract/dbf/index.md#pudl.extract.dbf.FercDbfExtractor) can be typed
+form so that [`FercDbfExtractor`](../extract/dbf/index.html.md#pudl.extract.dbf.FercDbfExtractor) can be typed
 against this base rather than the looser [`GenericDataConfig`](#pudl.settings.GenericDataConfig).
 
 #### years *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[int](https://docs.python.org/3/library/functions.html#int)]* *= []*
@@ -705,7 +705,7 @@ Bases: [`FercDbfToSqliteDataConfig`](#pudl.settings.FercDbfToSqliteDataConfig)
 
 An immutable Pydantic model to validate FERC 1 to SQLite data config.
 
-#### data_source *: ClassVar[[pudl.metadata.classes.DataSource](../metadata/classes/index.md#pudl.metadata.classes.DataSource)]*
+#### data_source *: ClassVar[[pudl.metadata.classes.DataSource](../metadata/classes/index.html.md#pudl.metadata.classes.DataSource)]*
 
 The DataSource metadata object for this dataset.
 
@@ -733,7 +733,7 @@ Bases: [`FercGenericXbrlToSqliteDataConfig`](#pudl.settings.FercGenericXbrlToSql
 
 An immutable pydantic model to validate Ferc1 to SQLite data config.
 
-#### data_source *: ClassVar[[pudl.metadata.classes.DataSource](../metadata/classes/index.md#pudl.metadata.classes.DataSource)]*
+#### data_source *: ClassVar[[pudl.metadata.classes.DataSource](../metadata/classes/index.html.md#pudl.metadata.classes.DataSource)]*
 
 #### years *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[int](https://docs.python.org/3/library/functions.html#int)]*
 
@@ -745,7 +745,7 @@ Bases: [`FercGenericXbrlToSqliteDataConfig`](#pudl.settings.FercGenericXbrlToSql
 
 An immutable pydantic model to validate FERC from 2 XBRL to SQLite data config.
 
-#### data_source *: ClassVar[[pudl.metadata.classes.DataSource](../metadata/classes/index.md#pudl.metadata.classes.DataSource)]*
+#### data_source *: ClassVar[[pudl.metadata.classes.DataSource](../metadata/classes/index.html.md#pudl.metadata.classes.DataSource)]*
 
 #### years *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[int](https://docs.python.org/3/library/functions.html#int)]*
 
@@ -757,7 +757,7 @@ Bases: [`FercDbfToSqliteDataConfig`](#pudl.settings.FercDbfToSqliteDataConfig)
 
 An immutable Pydantic model to validate FERC 2 to SQLite data config.
 
-#### data_source *: ClassVar[[pudl.metadata.classes.DataSource](../metadata/classes/index.md#pudl.metadata.classes.DataSource)]*
+#### data_source *: ClassVar[[pudl.metadata.classes.DataSource](../metadata/classes/index.html.md#pudl.metadata.classes.DataSource)]*
 
 The DataSource metadata object for this dataset.
 
@@ -775,7 +775,7 @@ Bases: [`FercDbfToSqliteDataConfig`](#pudl.settings.FercDbfToSqliteDataConfig)
 
 An immutable Pydantic model to validate FERC 6 to SQLite data config.
 
-#### data_source *: ClassVar[[pudl.metadata.classes.DataSource](../metadata/classes/index.md#pudl.metadata.classes.DataSource)]*
+#### data_source *: ClassVar[[pudl.metadata.classes.DataSource](../metadata/classes/index.html.md#pudl.metadata.classes.DataSource)]*
 
 The DataSource metadata object for this dataset.
 
@@ -793,7 +793,7 @@ Bases: [`FercGenericXbrlToSqliteDataConfig`](#pudl.settings.FercGenericXbrlToSql
 
 An immutable pydantic model to validate FERC from 6 XBRL to SQLite data config.
 
-#### data_source *: ClassVar[[pudl.metadata.classes.DataSource](../metadata/classes/index.md#pudl.metadata.classes.DataSource)]*
+#### data_source *: ClassVar[[pudl.metadata.classes.DataSource](../metadata/classes/index.html.md#pudl.metadata.classes.DataSource)]*
 
 #### years *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[int](https://docs.python.org/3/library/functions.html#int)]*
 
@@ -805,7 +805,7 @@ Bases: [`FercDbfToSqliteDataConfig`](#pudl.settings.FercDbfToSqliteDataConfig)
 
 An immutable Pydantic model to validate FERC 60 to SQLite data config.
 
-#### data_source *: ClassVar[[pudl.metadata.classes.DataSource](../metadata/classes/index.md#pudl.metadata.classes.DataSource)]*
+#### data_source *: ClassVar[[pudl.metadata.classes.DataSource](../metadata/classes/index.html.md#pudl.metadata.classes.DataSource)]*
 
 The DataSource metadata object for this dataset.
 
@@ -823,7 +823,7 @@ Bases: [`FercGenericXbrlToSqliteDataConfig`](#pudl.settings.FercGenericXbrlToSql
 
 An immutable pydantic model to validate FERC from 60 XBRL to SQLite data config.
 
-#### data_source *: ClassVar[[pudl.metadata.classes.DataSource](../metadata/classes/index.md#pudl.metadata.classes.DataSource)]*
+#### data_source *: ClassVar[[pudl.metadata.classes.DataSource](../metadata/classes/index.html.md#pudl.metadata.classes.DataSource)]*
 
 #### years *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[int](https://docs.python.org/3/library/functions.html#int)]*
 
@@ -835,7 +835,7 @@ Bases: [`FercGenericXbrlToSqliteDataConfig`](#pudl.settings.FercGenericXbrlToSql
 
 An immutable pydantic model to validate FERC from 714 XBRL to SQLite data config.
 
-#### data_source *: ClassVar[[pudl.metadata.classes.DataSource](../metadata/classes/index.md#pudl.metadata.classes.DataSource)]*
+#### data_source *: ClassVar[[pudl.metadata.classes.DataSource](../metadata/classes/index.html.md#pudl.metadata.classes.DataSource)]*
 
 #### years *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[int](https://docs.python.org/3/library/functions.html#int)]*
 
@@ -922,6 +922,6 @@ XBRL to SQLite data config.
 
 Return validated PUDL data config or raise if it is unavailable.
 
-### pudl.settings.\_zenodo_doi_to_url(doi: [pudl.workspace.datastore.ZenodoDoi](../workspace/datastore/index.md#pudl.workspace.datastore.ZenodoDoi)) → [pydantic.AnyHttpUrl](https://pydantic.dev/docs/validation/latest/api/pydantic/networks/#pydantic.networks.AnyHttpUrl)
+### pudl.settings.\_zenodo_doi_to_url(doi: [pudl.workspace.datastore.ZenodoDoi](../workspace/datastore/index.html.md#pudl.workspace.datastore.ZenodoDoi)) → [pydantic.AnyHttpUrl](https://pydantic.dev/docs/validation/latest/api/pydantic/networks/#pydantic.networks.AnyHttpUrl)
 
 Create a DOI URL out o a Zenodo DOI.

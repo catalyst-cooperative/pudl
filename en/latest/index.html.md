@@ -6,7 +6,7 @@ journalists, and policy makers that might not have the technical expertise to ac
 in its raw form, the time to clean and prepare the data for bulk analysis, or the means
 to purchase it from  existing commercial providers.
 
-For more information on how to use PUDL data, see [Data Access](data_access.md).
+For more information on how to use PUDL data, see [Data Access](data_access.html.md).
 
 ## Available Data
 
@@ -15,31 +15,31 @@ semi-structured but machine readable formats. For details on exactly what data i
 available from these data sources and what state it is in, see the individual
 pages for each source:
 
-* [Census DP1 – Profile of General Demographic Characteristics](data_sources/censusdp1tract.md)
-* [Population Estimates Program's (PEP) Federal Information Processing Series (FIPS) Codes](data_sources/censuspep.md)
-* [EIA Form 176 – Annual Report of Natural and Supplemental Gas Supply and Disposition](data_sources/eia176.md)
-* [EIA Form 191 – Monthly Underground Natural Gas Storage Report](data_sources/eia191.md)
-* [EIA Form 860 – Annual Electric Generator Report](data_sources/eia860.md)
-* [EIA Form 861 – Annual Electric Power Industry Report](data_sources/eia861.md)
-* [EIA Form 923 – Power Plant Operations Report](data_sources/eia923.md)
-* [EIA Form 930 – Hourly and Daily Balancing Authority Operations Report](data_sources/eia930.md)
-* [EIA Bulk API Data](data_sources/eiaapi.md)
-* [EIA Annual Energy Outlook (AEO)](data_sources/eiaaeo.md)
-* [EPA CAMD to EIA Power Sector Data Crosswalk](data_sources/epacamd_eia.md)
-* [EPA Hourly Continuous Emission Monitoring System (CEMS)](data_sources/epacems.md)
-* [FERC Form 1 – Annual Report of Major Electric Utilities](data_sources/ferc1.md)
-* [FERC Form 714 – Annual Electric Balancing Authority Area and Planning Area Report](data_sources/ferc714.md)
-* [FERC Form 920 – Electric Quarterly Report (EQR)](data_sources/ferceqr.md)
-* [GridPath Resource Adequacy Toolkit Data](data_sources/gridpathratoolkit.md)
-* [NREL Annual Technology Baseline (ATB) for Electricity](data_sources/nrelatb.md)
-* [Pipelines and Hazardous Materials Safety Administration (PHMSA) Annual Natural Gas Report](data_sources/phmsagas.md)
-* [USDA RUS Form 12 – Financial and Operating Report: Electric Power Supply](data_sources/rus12.md)
-* [USDA RUS Form 7 – Financial and Operating Report: Electric Distribution](data_sources/rus7.md)
-* [U.S. Securities and Exchange Commission (SEC) Form 10-K](data_sources/sec10k.md)
-* [Vibrant Clean Energy Resource Adequacy Renewable Energy (RARE) Power Dataset](data_sources/vcerare.md)
+* [Census DP1 – Profile of General Demographic Characteristics](data_sources/censusdp1tract.html.md)
+* [Population Estimates Program's (PEP) Federal Information Processing Series (FIPS) Codes](data_sources/censuspep.html.md)
+* [EIA Form 176 – Annual Report of Natural and Supplemental Gas Supply and Disposition](data_sources/eia176.html.md)
+* [EIA Form 191 – Monthly Underground Natural Gas Storage Report](data_sources/eia191.html.md)
+* [EIA Form 860 – Annual Electric Generator Report](data_sources/eia860.html.md)
+* [EIA Form 861 – Annual Electric Power Industry Report](data_sources/eia861.html.md)
+* [EIA Form 923 – Power Plant Operations Report](data_sources/eia923.html.md)
+* [EIA Form 930 – Hourly and Daily Balancing Authority Operations Report](data_sources/eia930.html.md)
+* [EIA Bulk API Data](data_sources/eiaapi.html.md)
+* [EIA Annual Energy Outlook (AEO)](data_sources/eiaaeo.html.md)
+* [EPA CAMD to EIA Power Sector Data Crosswalk](data_sources/epacamd_eia.html.md)
+* [EPA Hourly Continuous Emission Monitoring System (CEMS)](data_sources/epacems.html.md)
+* [FERC Form 1 – Annual Report of Major Electric Utilities](data_sources/ferc1.html.md)
+* [FERC Form 714 – Annual Electric Balancing Authority Area and Planning Area Report](data_sources/ferc714.html.md)
+* [FERC Form 920 – Electric Quarterly Report (EQR)](data_sources/ferceqr.html.md)
+* [GridPath Resource Adequacy Toolkit Data](data_sources/gridpathratoolkit.html.md)
+* [NREL Annual Technology Baseline (ATB) for Electricity](data_sources/nrelatb.html.md)
+* [Pipelines and Hazardous Materials Safety Administration (PHMSA) Annual Natural Gas Report](data_sources/phmsagas.html.md)
+* [USDA RUS Form 12 – Financial and Operating Report: Electric Power Supply](data_sources/rus12.html.md)
+* [USDA RUS Form 7 – Financial and Operating Report: Electric Distribution](data_sources/rus7.html.md)
+* [U.S. Securities and Exchange Commission (SEC) Form 10-K](data_sources/sec10k.html.md)
+* [Vibrant Clean Energy Resource Adequacy Renewable Energy (RARE) Power Dataset](data_sources/vcerare.html.md)
 
 PUDL’s processed versions of these data sources are distributed primarily as Parquet
-files. To get started using PUDL data, visit our [Data Access](data_access.md) page, or continue
+files. To get started using PUDL data, visit our [Data Access](data_access.html.md) page, or continue
 reading to learn more about the PUDL data processing pipeline.
 
 We also publish SQLite databases containing relatively pristine versions of our more
@@ -76,7 +76,7 @@ FoxPro database (DBF) files) and metadata that describes how each dataset is
 partitioned.
 
 The PUDL software will download a copy of the appropriate raw inputs automatically as
-needed and organize them in a local [datastore](dev/datastore.md).
+needed and organize them in a local [datastore](dev/datastore.html.md).
 
 #### SEE ALSO
 The software that creates and archives the raw inputs can be found in our
@@ -103,18 +103,18 @@ before individual dataframes are created. Raw data assets are not written to
 to users.
 
 #### SEE ALSO
-Module documentation within the [`pudl.extract`](autoapi/pudl/extract/index.md#module-pudl.extract) subpackage.
+Module documentation within the [`pudl.extract`](autoapi/pudl/extract/index.html.md#module-pudl.extract) subpackage.
 
 ### Core Layer
 
 The Core layer contains well-modeled assets that serve as building blocks for
 downstream wide tables and analyses. Well-modeled means tables in the database
 have logical primary keys, foreign keys, datatypes and generally follow
-[Tidy Data standards](dev/data_guidelines.md#tidy-data). The assets are loaded into a SQLite
+[Tidy Data standards](dev/data_guidelines.html.md#tidy-data). The assets are loaded into a SQLite
 database or Parquet file.
 
 These outputs can be accessed via Python, R, and many other tools. See the
-[PUDL Data Dictionary](data_dictionaries/pudl_db.md) page for a list of the normalized database tables and
+[PUDL Data Dictionary](data_dictionaries/pudl_db.html.md) page for a list of the normalized database tables and
 their contents.
 
 Data processing in the Core layer is generally broken down into two phases. Phase one
@@ -138,7 +138,7 @@ can all work on more interesting problems most of the time. These operations inc
 * Inferring more complete associations between EIA boilers and generators
 
 #### SEE ALSO
-The module and per-table transform functions in the [`pudl.transform`](autoapi/pudl/transform/index.md#module-pudl.transform)
+The module and per-table transform functions in the [`pudl.transform`](autoapi/pudl/transform/index.html.md#module-pudl.transform)
 sub-package have more details on the specific transformations applied to each
 table.
 
@@ -154,7 +154,7 @@ information when normalizing the tables by choosing only the most consistently r
 value for inclusion in the final database. If a value which should be static is not
 consistently reported, it may also be set to N/A. For details on how this works for
 EIA entities (plants, utilities, boilers, and generators), see
-[Entity Resolution](methodology/entity_resolution.md).
+[Entity Resolution](methodology/entity_resolution.html.md).
 
 ### Output Layer
 
@@ -162,8 +162,8 @@ Assets in the Core layer normalize the data to make storage more efficient and a
 data integrity issues, but you may want to combine information from more than one of
 the tables to make the data more readable and readily interpretable. For example, PUDL
 stores the name that EIA uses to refer to a power plant in the
-[core_eia_\_entity_plants](data_dictionaries/pudl_db.md#core-eia-entity-plants) table in association with the plant’s unique numeric ID.
-If you are working with data from the [core_eia923_\_fuel_receipts_costs](data_dictionaries/pudl_db.md#core-eia923-fuel-receipts-costs)
+[core_eia_\_entity_plants](data_dictionaries/pudl_db.html.md#core-eia-entity-plants) table in association with the plant’s unique numeric ID.
+If you are working with data from the [core_eia923_\_fuel_receipts_costs](data_dictionaries/pudl_db.html.md#core-eia923-fuel-receipts-costs)
 table, which records monthly per-plant fuel deliveries, you may want to have the name
 of the plant alongside the fuel delivery information since it’s more recognizable than
 the plant ID.
@@ -192,7 +192,7 @@ generator, or hourly electricity demand with missing and outlying values imputed
 
 We have a growing collection of data validation test cases that we run before
 publishing a data release to try and avoid publishing data with known issues. Most of
-these validations are described in the [`pudl.validate`](autoapi/pudl/validate/index.md#module-pudl.validate) module. They check things
+these validations are described in the [`pudl.validate`](autoapi/pudl/validate/index.html.md#module-pudl.validate) module. They check things
 like:
 
 * The heat content of various fuel types is within expected bounds.
@@ -208,7 +208,7 @@ Some data validations are currently only specified within our test suite, includ
 A variety of database integrity checks are also run either during the data processing
 or when the data is loaded into SQLite.
 
-See our [Testing PUDL](dev/testing.md) documentation for more information.
+See our [Testing PUDL](dev/testing.html.md) documentation for more information.
 
 ## Organizations using PUDL
 

@@ -5,33 +5,33 @@ Transform NREL ATB data into well normalized, cleaned tables.
 ## Attributes
 
 | [`logger`](#pudl.transform.nrelatb.logger)   |                                                        |
-|----------------------------------------------|--------------------------------------------------------|
-| [`IDX_ALL`](#pudl.transform.nrelatb.IDX_ALL) | Expected primary key columns for the raw nrelatb data. |
+|-----------------------------------------------------------|--------------------------------------------------------|
+| [`IDX_ALL`](#pudl.transform.nrelatb.IDX_ALL)  | Expected primary key columns for the raw nrelatb data. |
 
 ## Classes
 
 | [`TableNormalizer`](#pudl.transform.nrelatb.TableNormalizer)   | Info needed to convert a selection of the raw NREL table into a normalized table.                                                                         |
-|----------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [`Normalizer`](#pudl.transform.nrelatb.Normalizer)             | Class that defines how to normalize all of the NREL tables that get the [`transform_normalize()`](#pudl.transform.nrelatb.transform_normalize) treatment. |
-| [`TableUnstacker`](#pudl.transform.nrelatb.TableUnstacker)     | Info needed to unstack a portion of the NREL ATB table.                                                                                                   |
-| [`Unstacker`](#pudl.transform.nrelatb.Unstacker)               | Class that defines how to unstack the raw ATB table into all of the tidy core tables.                                                                     |
+|--------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [`Normalizer`](#pudl.transform.nrelatb.Normalizer)        | Class that defines how to normalize all of the NREL tables that get the [`transform_normalize()`](#pudl.transform.nrelatb.transform_normalize) treatment. |
+| [`TableUnstacker`](#pudl.transform.nrelatb.TableUnstacker)    | Info needed to unstack a portion of the NREL ATB table.                                                                                                   |
+| [`Unstacker`](#pudl.transform.nrelatb.Unstacker)         | Class that defines how to unstack the raw ATB table into all of the tidy core tables.                                                                     |
 
 ## Functions
 
-| [`transform_normalize`](#pudl.transform.nrelatb.transform_normalize)(nrelatb, normalizer)                                                               | Normalize a subset of the NREL ATB data into a small table.                                       |
-|---------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
-| [`transform_unstack`](#pudl.transform.nrelatb.transform_unstack)(→ pandas.DataFrame)                                                                    | Generic unstacking function to convert ATB data from a skinny to wider format.                    |
-| [`_core_nrelatb__transform_start`](#pudl.transform.nrelatb._core_nrelatb__transform_start)(raw_nrelatb_\_data)                                          | Transform raw NREL ATB data into semi-clean but still very skinny table.                          |
-| [`core_nrelatb__yearly_projected_financial_cases`](#pudl.transform.nrelatb.core_nrelatb__yearly_projected_financial_cases)(...)                         | Transform the data defining the assumptions for the ATB financial cases.                          |
+| [`transform_normalize`](#pudl.transform.nrelatb.transform_normalize)(nrelatb, normalizer)                        | Normalize a subset of the NREL ATB data into a small table.                                       |
+|------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
+| [`transform_unstack`](#pudl.transform.nrelatb.transform_unstack)(→ pandas.DataFrame)                           | Generic unstacking function to convert ATB data from a skinny to wider format.                    |
+| [`_core_nrelatb__transform_start`](#pudl.transform.nrelatb._core_nrelatb__transform_start)(raw_nrelatb_\_data)              | Transform raw NREL ATB data into semi-clean but still very skinny table.                          |
+| [`core_nrelatb__yearly_projected_financial_cases`](#pudl.transform.nrelatb.core_nrelatb__yearly_projected_financial_cases)(...)             | Transform the data defining the assumptions for the ATB financial cases.                          |
 | [`core_nrelatb__yearly_projected_financial_cases_by_scenario`](#pudl.transform.nrelatb.core_nrelatb__yearly_projected_financial_cases_by_scenario)(...) | Transform the data defining the assumptions for the ATB financial cases which vary by scenario.   |
-| [`broadcast_fixed_charge_rate_across_tech_detail`](#pudl.transform.nrelatb.broadcast_fixed_charge_rate_across_tech_detail)(...)                         | For older years, broadcast the `fixed_charge_rate` parameter across the technical detail columns. |
-| [`broadcast_asterisk_cost_recovery_period_years`](#pudl.transform.nrelatb.broadcast_asterisk_cost_recovery_period_years)(...)                           | Broadcast the asterisk (wildcard) `cost_recovery_period_years`.                                   |
-| [`_broadcast_core_metric_parameters`](#pudl.transform.nrelatb._broadcast_core_metric_parameters)(→ pandas.DataFrame)                                    | Broadcast a section of a table and fillna with the broadcasted values.                            |
-| [`core_nrelatb__yearly_projected_cost_performance`](#pudl.transform.nrelatb.core_nrelatb__yearly_projected_cost_performance)(...)                       | Transform the yearly NREL ATB cost and performance projections.                                   |
-| [`_core_nrelatb__yearly_units`](#pudl.transform.nrelatb._core_nrelatb__yearly_units)(→ pandas.DataFrame)                                                | Transform a table of units by `core_metric_parameter`.                                            |
-| [`core_nrelatb__yearly_technology_status`](#pudl.transform.nrelatb.core_nrelatb__yearly_technology_status)(→ pandas.DataFrame)                          | Transform a small table of statuses of different technology types.                                |
-| [`null_cols_cost_performance`](#pudl.transform.nrelatb.null_cols_cost_performance)(df)                                                                  | Check for the prevalence of nulls in the core_nrelatb_\_yearly_projected_cost_performance.        |
-| [`check_technology_specific_parameters`](#pudl.transform.nrelatb.check_technology_specific_parameters)(df)                                              | Some parameters in the cost performance table only pertain to some technologies.                  |
+| [`broadcast_fixed_charge_rate_across_tech_detail`](#pudl.transform.nrelatb.broadcast_fixed_charge_rate_across_tech_detail)(...)             | For older years, broadcast the `fixed_charge_rate` parameter across the technical detail columns. |
+| [`broadcast_asterisk_cost_recovery_period_years`](#pudl.transform.nrelatb.broadcast_asterisk_cost_recovery_period_years)(...)              | Broadcast the asterisk (wildcard) `cost_recovery_period_years`.                                   |
+| [`_broadcast_core_metric_parameters`](#pudl.transform.nrelatb._broadcast_core_metric_parameters)(→ pandas.DataFrame)           | Broadcast a section of a table and fillna with the broadcasted values.                            |
+| [`core_nrelatb__yearly_projected_cost_performance`](#pudl.transform.nrelatb.core_nrelatb__yearly_projected_cost_performance)(...)            | Transform the yearly NREL ATB cost and performance projections.                                   |
+| [`_core_nrelatb__yearly_units`](#pudl.transform.nrelatb._core_nrelatb__yearly_units)(→ pandas.DataFrame)                 | Transform a table of units by `core_metric_parameter`.                                            |
+| [`core_nrelatb__yearly_technology_status`](#pudl.transform.nrelatb.core_nrelatb__yearly_technology_status)(→ pandas.DataFrame)      | Transform a small table of statuses of different technology types.                                |
+| [`null_cols_cost_performance`](#pudl.transform.nrelatb.null_cols_cost_performance)(df)                                  | Check for the prevalence of nulls in the core_nrelatb_\_yearly_projected_cost_performance.        |
+| [`check_technology_specific_parameters`](#pudl.transform.nrelatb.check_technology_specific_parameters)(df)                        | Some parameters in the cost performance table only pertain to some technologies.                  |
 
 ## Module Contents
 

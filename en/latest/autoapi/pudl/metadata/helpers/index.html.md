@@ -5,26 +5,26 @@ Functions for manipulating metadata constants.
 ## Exceptions
 
 | [`AggregationError`](#pudl.metadata.helpers.AggregationError)   | Error raised by aggregation functions.   |
-|-----------------------------------------------------------------|------------------------------------------|
+|---------------------------------------------------------------------|------------------------------------------|
 
 ## Functions
 
-| [`format_errors`](#pudl.metadata.helpers.format_errors)(→ str)                                               | Format multiple errors into a single error.                           |
-|--------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------|
-| [`_parse_field_names`](#pudl.metadata.helpers._parse_field_names)(→ list[str])                               | Parse field names.                                                    |
-| [`_parse_foreign_key_rule`](#pudl.metadata.helpers._parse_foreign_key_rule)(→ list[dict])                    | Parse foreign key rule from resource descriptor.                      |
-| [`_build_foreign_key_tree`](#pudl.metadata.helpers._build_foreign_key_tree)(→ dict[str, dict[tuple[str, ...) | Build foreign key tree.                                               |
-| [`_traverse_foreign_key_tree`](#pudl.metadata.helpers._traverse_foreign_key_tree)(→ list[dict[str, Any]])    | Traverse foreign key tree.                                            |
-| [`build_foreign_keys`](#pudl.metadata.helpers.build_foreign_keys)(→ dict[str, list[dict]])                   | Build foreign keys for each resource.                                 |
-| [`split_period`](#pudl.metadata.helpers.split_period)(→ tuple[str, str | None])                              | Split the time period from a column name.                             |
-| [`expand_periodic_column_names`](#pudl.metadata.helpers.expand_periodic_column_names)(→ list[str])           | Add smaller periods to a list of column names.                        |
-| [`most_frequent`](#pudl.metadata.helpers.most_frequent)(→ Any)                                               | Return most frequent value (or error if none exists).                 |
-| [`most_and_more_frequent`](#pudl.metadata.helpers.most_and_more_frequent)(→ Any)                             | Return the most frequent value if more frequent than `min_frequency`. |
-| [`unique`](#pudl.metadata.helpers.unique)(→ Any)                                                             | Return single unique value (or error if none exists).                 |
-| [`as_dict`](#pudl.metadata.helpers.as_dict)(→ dict[Any, list])                                               | Return dictionary of values, listed by index.                         |
-| [`try_aggfunc`](#pudl.metadata.helpers.try_aggfunc)(→ collections.abc.Callable)                              | Wrap aggregate function in a try-except for error handling.           |
-| [`groupby_apply`](#pudl.metadata.helpers.groupby_apply)(→ tuple[pandas.DataFrame, dict[Any, ...)             | Aggregate dataframe and capture errors (using apply).                 |
-| [`groupby_aggregate`](#pudl.metadata.helpers.groupby_aggregate)(→ tuple[pandas.DataFrame, dict[Any, ...)     | Aggregate dataframe and capture errors (using aggregate).             |
+| [`format_errors`](#pudl.metadata.helpers.format_errors)(→ str)                                       | Format multiple errors into a single error.                           |
+|-------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------|
+| [`_parse_field_names`](#pudl.metadata.helpers._parse_field_names)(→ list[str])                            | Parse field names.                                                    |
+| [`_parse_foreign_key_rule`](#pudl.metadata.helpers._parse_foreign_key_rule)(→ list[dict])                      | Parse foreign key rule from resource descriptor.                      |
+| [`_build_foreign_key_tree`](#pudl.metadata.helpers._build_foreign_key_tree)(→ dict[str, dict[tuple[str, ...)   | Build foreign key tree.                                               |
+| [`_traverse_foreign_key_tree`](#pudl.metadata.helpers._traverse_foreign_key_tree)(→ list[dict[str, Any]])         | Traverse foreign key tree.                                            |
+| [`build_foreign_keys`](#pudl.metadata.helpers.build_foreign_keys)(→ dict[str, list[dict]])                | Build foreign keys for each resource.                                 |
+| [`split_period`](#pudl.metadata.helpers.split_period)(→ tuple[str, str | None])                     | Split the time period from a column name.                             |
+| [`expand_periodic_column_names`](#pudl.metadata.helpers.expand_periodic_column_names)(→ list[str])                  | Add smaller periods to a list of column names.                        |
+| [`most_frequent`](#pudl.metadata.helpers.most_frequent)(→ Any)                                       | Return most frequent value (or error if none exists).                 |
+| [`most_and_more_frequent`](#pudl.metadata.helpers.most_and_more_frequent)(→ Any)                              | Return the most frequent value if more frequent than `min_frequency`. |
+| [`unique`](#pudl.metadata.helpers.unique)(→ Any)                                              | Return single unique value (or error if none exists).                 |
+| [`as_dict`](#pudl.metadata.helpers.as_dict)(→ dict[Any, list])                                 | Return dictionary of values, listed by index.                         |
+| [`try_aggfunc`](#pudl.metadata.helpers.try_aggfunc)(→ collections.abc.Callable)                    | Wrap aggregate function in a try-except for error handling.           |
+| [`groupby_apply`](#pudl.metadata.helpers.groupby_apply)(→ tuple[pandas.DataFrame, dict[Any, ...)     | Aggregate dataframe and capture errors (using apply).                 |
+| [`groupby_aggregate`](#pudl.metadata.helpers.groupby_aggregate)(→ tuple[pandas.DataFrame, dict[Any, ...) | Aggregate dataframe and capture errors (using aggregate).             |
 
 ## Module Contents
 

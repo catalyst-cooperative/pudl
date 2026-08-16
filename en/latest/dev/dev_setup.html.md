@@ -100,7 +100,7 @@ When defining a new task, make sure the name doesn’t clash with a generic shel
 otherwise the named task will take precedence and make it impossible to run the shell
 command in the pixi environment.
 
-There’s additional information about running tests in the [Testing PUDL](testing.md) documentation.
+There’s additional information about running tests in the [Testing PUDL](testing.html.md) documentation.
 
 Once your environment is installed, a good quick sanity check is to confirm that the
 Dagster project loads successfully:
@@ -214,7 +214,7 @@ $ pixi install
 
 If you are working with locally processed data and there have been changes to the
 expectations about that data in the PUDL software, you may also need to regenerate your
-PUDL SQLite database or other outputs. See [Running the ETL Pipeline](run_the_etl.md) for more details.
+PUDL SQLite database or other outputs. See [Running the ETL Pipeline](run_the_etl.html.md) for more details.
 
 If you’re using an AI coding agent, you will want to install some project
 skills:

@@ -15,19 +15,19 @@ We’ve segmented the processed data into the following normalized data tables.
 Clicking on the links will show you a description of the table as well as
 the names and descriptions of each of its fields.
 
-| Data Dictionary                                                                                                                                            | Browse Online                                                                                                                                                                                               |
-|------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [core_sec10k_\_assn_exhibit_21_subsidiaries_and_eia_utilities](../data_dictionaries/pudl_db.md#core-sec10k-assn-exhibit-21-subsidiaries-and-eia-utilities) | [https://data.catalyst.coop/preview/pudl/core_sec10k_\_assn_exhibit_21_subsidiaries_and_eia_utilities](https://data.catalyst.coop/preview/pudl/core_sec10k__assn_exhibit_21_subsidiaries_and_eia_utilities) |
-| [core_sec10k_\_assn_exhibit_21_subsidiaries_and_filers](../data_dictionaries/pudl_db.md#core-sec10k-assn-exhibit-21-subsidiaries-and-filers)               | [https://data.catalyst.coop/preview/pudl/core_sec10k_\_assn_exhibit_21_subsidiaries_and_filers](https://data.catalyst.coop/preview/pudl/core_sec10k__assn_exhibit_21_subsidiaries_and_filers)               |
-| [core_sec10k_\_assn_sec10k_filers_and_eia_utilities](../data_dictionaries/pudl_db.md#core-sec10k-assn-sec10k-filers-and-eia-utilities)                     | [https://data.catalyst.coop/preview/pudl/core_sec10k_\_assn_sec10k_filers_and_eia_utilities](https://data.catalyst.coop/preview/pudl/core_sec10k__assn_sec10k_filers_and_eia_utilities)                     |
-| [core_sec10k_\_changelog_company_name](../data_dictionaries/pudl_db.md#core-sec10k-changelog-company-name)                                                 | [https://data.catalyst.coop/preview/pudl/core_sec10k_\_changelog_company_name](https://data.catalyst.coop/preview/pudl/core_sec10k__changelog_company_name)                                                 |
-| [core_sec10k_\_quarterly_company_information](../data_dictionaries/pudl_db.md#core-sec10k-quarterly-company-information)                                   | [https://data.catalyst.coop/preview/pudl/core_sec10k_\_quarterly_company_information](https://data.catalyst.coop/preview/pudl/core_sec10k__quarterly_company_information)                                   |
-| [core_sec10k_\_quarterly_exhibit_21_company_ownership](../data_dictionaries/pudl_db.md#core-sec10k-quarterly-exhibit-21-company-ownership)                 | [https://data.catalyst.coop/preview/pudl/core_sec10k_\_quarterly_exhibit_21_company_ownership](https://data.catalyst.coop/preview/pudl/core_sec10k__quarterly_exhibit_21_company_ownership)                 |
-| [core_sec10k_\_quarterly_filings](../data_dictionaries/pudl_db.md#core-sec10k-quarterly-filings)                                                           | [https://data.catalyst.coop/preview/pudl/core_sec10k_\_quarterly_filings](https://data.catalyst.coop/preview/pudl/core_sec10k__quarterly_filings)                                                           |
-| [out_sec10k_\_changelog_company_name](../data_dictionaries/pudl_db.md#out-sec10k-changelog-company-name)                                                   | [https://data.catalyst.coop/preview/pudl/out_sec10k_\_changelog_company_name](https://data.catalyst.coop/preview/pudl/out_sec10k__changelog_company_name)                                                   |
-| [out_sec10k_\_parents_and_subsidiaries](../data_dictionaries/pudl_db.md#out-sec10k-parents-and-subsidiaries)                                               | [https://data.catalyst.coop/preview/pudl/out_sec10k_\_parents_and_subsidiaries](https://data.catalyst.coop/preview/pudl/out_sec10k__parents_and_subsidiaries)                                               |
-| [out_sec10k_\_quarterly_company_information](../data_dictionaries/pudl_db.md#out-sec10k-quarterly-company-information)                                     | [https://data.catalyst.coop/preview/pudl/out_sec10k_\_quarterly_company_information](https://data.catalyst.coop/preview/pudl/out_sec10k__quarterly_company_information)                                     |
-| [out_sec10k_\_quarterly_filings](../data_dictionaries/pudl_db.md#out-sec10k-quarterly-filings)                                                             | [https://data.catalyst.coop/preview/pudl/out_sec10k_\_quarterly_filings](https://data.catalyst.coop/preview/pudl/out_sec10k__quarterly_filings)                                                             |
+| Data Dictionary                                                                                                                                                        | Browse Online                                                                                                                                                                                               |
+|------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [core_sec10k_\_assn_exhibit_21_subsidiaries_and_eia_utilities](../data_dictionaries/pudl_db.html.md#core-sec10k-assn-exhibit-21-subsidiaries-and-eia-utilities) | [https://data.catalyst.coop/preview/pudl/core_sec10k_\_assn_exhibit_21_subsidiaries_and_eia_utilities](https://data.catalyst.coop/preview/pudl/core_sec10k__assn_exhibit_21_subsidiaries_and_eia_utilities) |
+| [core_sec10k_\_assn_exhibit_21_subsidiaries_and_filers](../data_dictionaries/pudl_db.html.md#core-sec10k-assn-exhibit-21-subsidiaries-and-filers)               | [https://data.catalyst.coop/preview/pudl/core_sec10k_\_assn_exhibit_21_subsidiaries_and_filers](https://data.catalyst.coop/preview/pudl/core_sec10k__assn_exhibit_21_subsidiaries_and_filers)               |
+| [core_sec10k_\_assn_sec10k_filers_and_eia_utilities](../data_dictionaries/pudl_db.html.md#core-sec10k-assn-sec10k-filers-and-eia-utilities)                     | [https://data.catalyst.coop/preview/pudl/core_sec10k_\_assn_sec10k_filers_and_eia_utilities](https://data.catalyst.coop/preview/pudl/core_sec10k__assn_sec10k_filers_and_eia_utilities)                     |
+| [core_sec10k_\_changelog_company_name](../data_dictionaries/pudl_db.html.md#core-sec10k-changelog-company-name)                                                 | [https://data.catalyst.coop/preview/pudl/core_sec10k_\_changelog_company_name](https://data.catalyst.coop/preview/pudl/core_sec10k__changelog_company_name)                                                 |
+| [core_sec10k_\_quarterly_company_information](../data_dictionaries/pudl_db.html.md#core-sec10k-quarterly-company-information)                                   | [https://data.catalyst.coop/preview/pudl/core_sec10k_\_quarterly_company_information](https://data.catalyst.coop/preview/pudl/core_sec10k__quarterly_company_information)                                   |
+| [core_sec10k_\_quarterly_exhibit_21_company_ownership](../data_dictionaries/pudl_db.html.md#core-sec10k-quarterly-exhibit-21-company-ownership)                 | [https://data.catalyst.coop/preview/pudl/core_sec10k_\_quarterly_exhibit_21_company_ownership](https://data.catalyst.coop/preview/pudl/core_sec10k__quarterly_exhibit_21_company_ownership)                 |
+| [core_sec10k_\_quarterly_filings](../data_dictionaries/pudl_db.html.md#core-sec10k-quarterly-filings)                                                           | [https://data.catalyst.coop/preview/pudl/core_sec10k_\_quarterly_filings](https://data.catalyst.coop/preview/pudl/core_sec10k__quarterly_filings)                                                           |
+| [out_sec10k_\_changelog_company_name](../data_dictionaries/pudl_db.html.md#out-sec10k-changelog-company-name)                                                   | [https://data.catalyst.coop/preview/pudl/out_sec10k_\_changelog_company_name](https://data.catalyst.coop/preview/pudl/out_sec10k__changelog_company_name)                                                   |
+| [out_sec10k_\_parents_and_subsidiaries](../data_dictionaries/pudl_db.html.md#out-sec10k-parents-and-subsidiaries)                                               | [https://data.catalyst.coop/preview/pudl/out_sec10k_\_parents_and_subsidiaries](https://data.catalyst.coop/preview/pudl/out_sec10k__parents_and_subsidiaries)                                               |
+| [out_sec10k_\_quarterly_company_information](../data_dictionaries/pudl_db.html.md#out-sec10k-quarterly-company-information)                                     | [https://data.catalyst.coop/preview/pudl/out_sec10k_\_quarterly_company_information](https://data.catalyst.coop/preview/pudl/out_sec10k__quarterly_company_information)                                     |
+| [out_sec10k_\_quarterly_filings](../data_dictionaries/pudl_db.html.md#out-sec10k-quarterly-filings)                                                             | [https://data.catalyst.coop/preview/pudl/out_sec10k_\_quarterly_filings](https://data.catalyst.coop/preview/pudl/out_sec10k__quarterly_filings)                                                             |
 
 ## Background
 
@@ -91,7 +91,7 @@ categories are not exclusive.
   additional filers found in the filing headers.
 * **Exhibit 21 Subsidiaries:** identified by name and location in the Exhibit 21
   attachment.
-* **EIA Utiliites:** Companies that report the [EIA Form 860](eia860.md) and which are identified by `utility_id_eia` in the PUDL
+* **EIA Utiliites:** Companies that report the [EIA Form 860](eia860.html.md) and which are identified by `utility_id_eia` in the PUDL
   database.
 
 The same company can file its own SEC 10-K, appear as a subsidiary company in another
@@ -111,7 +111,7 @@ high-confidence links.
 * Similarly, we try to link any remaining Exhibit 21 Subsidiaries (those without an SEC 10-K link) to corresponding EIA Utilities, based on company name. This linkage is also sparse.
 
 For more details on how these record linkages are done and how the Exhibit 21 data is
-extracted, see [SEC 10-K Ownership Data Extraction Modeling](../methodology/sec10k_modeling.md).
+extracted, see [SEC 10-K Ownership Data Extraction Modeling](../methodology/sec10k_modeling.html.md).
 
 ### What can this data be used for?
 
@@ -381,5 +381,5 @@ When ownership fractions are not included, it’s very common for an Exhibit 21 
 ## PUDL Data Transformations
 
 To see the transformations applied to the data in each table, you can read the
-docstrings for [`pudl.transform.sec10k`](../autoapi/pudl/transform/sec10k/index.md#module-pudl.transform.sec10k) created for each table’s
+docstrings for [`pudl.transform.sec10k`](../autoapi/pudl/transform/sec10k/index.html.md#module-pudl.transform.sec10k) created for each table’s
 respective transform function.

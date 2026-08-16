@@ -17,12 +17,12 @@
 Clicking on the links will show you a description of the table as well as the names and
 descriptions of each of its fields. Due to the size of the CEMS data we do not publish
 it as part of our SQLite database, but it is available through all of our other
-[data access methods](../data_access.md).
+[data access methods](../data_access.html.md).
 
-| Data Dictionary                                                                                                                    | Browse Online                                                                                                                                                                       |
-|------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [core_epacems_\_hourly_emissions](../data_dictionaries/pudl_db.md#core-epacems-hourly-emissions)                                   | [https://data.catalyst.coop/preview/pudl/core_epacems_\_hourly_emissions](https://data.catalyst.coop/preview/pudl/core_epacems__hourly_emissions)                                   |
-| [out_epacems_\_yearly_operational_characteristics](../data_dictionaries/pudl_db.md#out-epacems-yearly-operational-characteristics) | [https://data.catalyst.coop/preview/pudl/out_epacems_\_yearly_operational_characteristics](https://data.catalyst.coop/preview/pudl/out_epacems__yearly_operational_characteristics) |
+| Data Dictionary                                                                                                                                | Browse Online                                                                                                                                                                       |
+|------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [core_epacems_\_hourly_emissions](../data_dictionaries/pudl_db.html.md#core-epacems-hourly-emissions)                                   | [https://data.catalyst.coop/preview/pudl/core_epacems_\_hourly_emissions](https://data.catalyst.coop/preview/pudl/core_epacems__hourly_emissions)                                   |
+| [out_epacems_\_yearly_operational_characteristics](../data_dictionaries/pudl_db.html.md#out-epacems-yearly-operational-characteristics) | [https://data.catalyst.coop/preview/pudl/out_epacems_\_yearly_operational_characteristics](https://data.catalyst.coop/preview/pudl/out_epacems__yearly_operational_characteristics) |
 
 ## Background
 
@@ -109,5 +109,5 @@ Take a look at this helpful depiction of plant types from the EPA’s crosswalk 
 ## PUDL Data Transformations
 
 To see the transformations applied to the data in each table, you can read the
-docstrings for [`pudl.transform.epacems`](../autoapi/pudl/transform/epacems/index.md#module-pudl.transform.epacems) created for each table’s
+docstrings for [`pudl.transform.epacems`](../autoapi/pudl/transform/epacems/index.html.md#module-pudl.transform.epacems) created for each table’s
 respective transform function.

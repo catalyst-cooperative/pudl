@@ -4,38 +4,38 @@ Transform the RUS7 tables.
 
 ## Attributes
 
-| [`logger`](#pudl.transform.rus7.logger)                           |    |
-|-------------------------------------------------------------------|----|
-| [`_CORE_RUS7_TABLES`](#pudl.transform.rus7._CORE_RUS7_TABLES)     |    |
+| [`logger`](#pudl.transform.rus7.logger)              |    |
+|----------------------------------------------------------------------|----|
+| [`_CORE_RUS7_TABLES`](#pudl.transform.rus7._CORE_RUS7_TABLES)   |    |
 | [`finished_rus_assets`](#pudl.transform.rus7.finished_rus_assets) |    |
 
 ## Functions
 
-| [`_core_rus7__yearly_meeting_and_board`](#pudl.transform.rus7._core_rus7__yearly_meeting_and_board)(...)                                         | Transform the meeting and board (aka governance) table.               |
-|--------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------|
-| [`_core_rus7__yearly_balance_sheet_assets`](#pudl.transform.rus7._core_rus7__yearly_balance_sheet_assets)(...)                                   | Transform the balance sheet assets table.                             |
-| [`_core_rus7__yearly_balance_sheet_liabilities`](#pudl.transform.rus7._core_rus7__yearly_balance_sheet_liabilities)(...)                         | Transform the balance sheet liabilities table.                        |
-| [`_core_rus7__scd_borrowers`](#pudl.transform.rus7._core_rus7__scd_borrowers)(raw_rus7_\_borrowers)                                              | Transform the borrowers table.                                        |
-| [`_core_rus7__yearly_employee_statistics`](#pudl.transform.rus7._core_rus7__yearly_employee_statistics)(...)                                     | Transform the employee statistics table.                              |
-| [`_core_rus7__yearly_energy_efficiency`](#pudl.transform.rus7._core_rus7__yearly_energy_efficiency)(...)                                         | Transform the energy efficiency table.                                |
-| [`_core_rus7__power_requirements`](#pudl.transform.rus7._core_rus7__power_requirements)(...)                                                     | Early transform an internal power_requirements table.                 |
-| [`_core_rus7__yearly_power_requirements_electric_sales`](#pudl.transform.rus7._core_rus7__yearly_power_requirements_electric_sales)(...)         | Transform the power requirements of electric sales table.             |
+| [`_core_rus7__yearly_meeting_and_board`](#pudl.transform.rus7._core_rus7__yearly_meeting_and_board)(...)                     | Transform the meeting and board (aka governance) table.               |
+|----------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------|
+| [`_core_rus7__yearly_balance_sheet_assets`](#pudl.transform.rus7._core_rus7__yearly_balance_sheet_assets)(...)                  | Transform the balance sheet assets table.                             |
+| [`_core_rus7__yearly_balance_sheet_liabilities`](#pudl.transform.rus7._core_rus7__yearly_balance_sheet_liabilities)(...)             | Transform the balance sheet liabilities table.                        |
+| [`_core_rus7__scd_borrowers`](#pudl.transform.rus7._core_rus7__scd_borrowers)(raw_rus7_\_borrowers)               | Transform the borrowers table.                                        |
+| [`_core_rus7__yearly_employee_statistics`](#pudl.transform.rus7._core_rus7__yearly_employee_statistics)(...)                   | Transform the employee statistics table.                              |
+| [`_core_rus7__yearly_energy_efficiency`](#pudl.transform.rus7._core_rus7__yearly_energy_efficiency)(...)                     | Transform the energy efficiency table.                                |
+| [`_core_rus7__power_requirements`](#pudl.transform.rus7._core_rus7__power_requirements)(...)                           | Early transform an internal power_requirements table.                 |
+| [`_core_rus7__yearly_power_requirements_electric_sales`](#pudl.transform.rus7._core_rus7__yearly_power_requirements_electric_sales)(...)     | Transform the power requirements of electric sales table.             |
 | [`_core_rus7__yearly_power_requirements_electric_customers`](#pudl.transform.rus7._core_rus7__yearly_power_requirements_electric_customers)(...) | Transform the power requirements of electric customers table.         |
-| [`_core_rus7__yearly_power_requirements`](#pudl.transform.rus7._core_rus7__yearly_power_requirements)(→ pandas.DataFrame)                        | Transform the power requirements table.                               |
-| [`_core_rus7__yearly_investments`](#pudl.transform.rus7._core_rus7__yearly_investments)(→ pandas.DataFrame)                                      | Transform the investments table.                                      |
-| [`_core_rus7__yearly_long_term_debt`](#pudl.transform.rus7._core_rus7__yearly_long_term_debt)(→ pandas.DataFrame)                                | Transform the core_rus7_\_yearly_investments table.                   |
-| [`_core_rus7__yearly_patronage_capital`](#pudl.transform.rus7._core_rus7__yearly_patronage_capital)(→ pandas.DataFrame)                          | Transform the patronage capital table.                                |
-| [`_core_rus7__yearly_statement_of_operations`](#pudl.transform.rus7._core_rus7__yearly_statement_of_operations)(...)                             | Transform the statement of operations table.                          |
-| [`_core_rus7__consumer_debt`](#pudl.transform.rus7._core_rus7__consumer_debt)(raw_rus7_\_owed_by_customers)                                      | Transform the owed by consumer table.                                 |
-| [`_core_rus7__yearly_service_interruptions`](#pudl.transform.rus7._core_rus7__yearly_service_interruptions)(...)                                 | Transform the service_interruptions table.                            |
-| [`_core_rus7__transmission_and_distribution`](#pudl.transform.rus7._core_rus7__transmission_and_distribution)(...)                               | Transform the transmission_and_distribution table.                    |
-| [`_core_rus7__yearly_long_term_leases`](#pudl.transform.rus7._core_rus7__yearly_long_term_leases)(→ pandas.DataFrame)                            | Transform the long term leases table.                                 |
-| [`_core_rus7__yearly_loans`](#pudl.transform.rus7._core_rus7__yearly_loans)(→ pandas.DataFrame)                                                  | Transform the raw_rus7_\_loans and raw_rus7_\_loan_guarantees tables. |
-| [`_core_rus7__yearly_external_financial_risk_ratio`](#pudl.transform.rus7._core_rus7__yearly_external_financial_risk_ratio)(...)                 | Transform the raw_rus7_\_external_financial_risk_ratio table.         |
-| [`_core_rus7__yearly_energy_purchased`](#pudl.transform.rus7._core_rus7__yearly_energy_purchased)(→ pandas.DataFrame)                            | Transform the raw_rus7_\_energy_purchased table.                      |
-| [`_core_rus7__yearly_materials_and_supplies`](#pudl.transform.rus7._core_rus7__yearly_materials_and_supplies)(...)                               | Transform the materials and supplies table.                           |
-| [`_core_rus7__yearly_utility_plant_changes`](#pudl.transform.rus7._core_rus7__yearly_utility_plant_changes)(...)                                 | Transform the utility plant changes table.                            |
-| [`core_rus7__entity_borrowers`](#pudl.transform.rus7.core_rus7__entity_borrowers)(context, \*\*clean_dfs)                                        | Harvesting IDs & consistent static attributes for RUS7 entity.        |
+| [`_core_rus7__yearly_power_requirements`](#pudl.transform.rus7._core_rus7__yearly_power_requirements)(→ pandas.DataFrame)     | Transform the power requirements table.                               |
+| [`_core_rus7__yearly_investments`](#pudl.transform.rus7._core_rus7__yearly_investments)(→ pandas.DataFrame)            | Transform the investments table.                                      |
+| [`_core_rus7__yearly_long_term_debt`](#pudl.transform.rus7._core_rus7__yearly_long_term_debt)(→ pandas.DataFrame)         | Transform the core_rus7_\_yearly_investments table.                   |
+| [`_core_rus7__yearly_patronage_capital`](#pudl.transform.rus7._core_rus7__yearly_patronage_capital)(→ pandas.DataFrame)      | Transform the patronage capital table.                                |
+| [`_core_rus7__yearly_statement_of_operations`](#pudl.transform.rus7._core_rus7__yearly_statement_of_operations)(...)               | Transform the statement of operations table.                          |
+| [`_core_rus7__consumer_debt`](#pudl.transform.rus7._core_rus7__consumer_debt)(raw_rus7_\_owed_by_customers)       | Transform the owed by consumer table.                                 |
+| [`_core_rus7__yearly_service_interruptions`](#pudl.transform.rus7._core_rus7__yearly_service_interruptions)(...)                 | Transform the service_interruptions table.                            |
+| [`_core_rus7__transmission_and_distribution`](#pudl.transform.rus7._core_rus7__transmission_and_distribution)(...)                | Transform the transmission_and_distribution table.                    |
+| [`_core_rus7__yearly_long_term_leases`](#pudl.transform.rus7._core_rus7__yearly_long_term_leases)(→ pandas.DataFrame)       | Transform the long term leases table.                                 |
+| [`_core_rus7__yearly_loans`](#pudl.transform.rus7._core_rus7__yearly_loans)(→ pandas.DataFrame)                  | Transform the raw_rus7_\_loans and raw_rus7_\_loan_guarantees tables. |
+| [`_core_rus7__yearly_external_financial_risk_ratio`](#pudl.transform.rus7._core_rus7__yearly_external_financial_risk_ratio)(...)         | Transform the raw_rus7_\_external_financial_risk_ratio table.         |
+| [`_core_rus7__yearly_energy_purchased`](#pudl.transform.rus7._core_rus7__yearly_energy_purchased)(→ pandas.DataFrame)       | Transform the raw_rus7_\_energy_purchased table.                      |
+| [`_core_rus7__yearly_materials_and_supplies`](#pudl.transform.rus7._core_rus7__yearly_materials_and_supplies)(...)                | Transform the materials and supplies table.                           |
+| [`_core_rus7__yearly_utility_plant_changes`](#pudl.transform.rus7._core_rus7__yearly_utility_plant_changes)(...)                 | Transform the utility plant changes table.                            |
+| [`core_rus7__entity_borrowers`](#pudl.transform.rus7.core_rus7__entity_borrowers)(context, \*\*clean_dfs)           | Harvesting IDs & consistent static attributes for RUS7 entity.        |
 
 ## Module Contents
 

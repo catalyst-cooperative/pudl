@@ -12,12 +12,12 @@ The data validation tests run on the Parquet outputs that are in your
 testing are actually the result of the code on your current branch, otherwise you may
 be surprised when the data test passes locally but fails in CI or the nightly builds.
 
-We have a script, [`pudl.scripts.dbt_helper`](../autoapi/pudl/scripts/dbt_helper/index.md#module-pudl.scripts.dbt_helper), to help with some common workflows.
+We have a script, [`pudl.scripts.dbt_helper`](../autoapi/pudl/scripts/dbt_helper/index.html.md#module-pudl.scripts.dbt_helper), to help with some common workflows.
 
 ## Running the data validation tests
 
 `dbt_helper validate` runs the data validation tests.
-It’s a wrapper around the official dbt tool, `dbt build` - see [Running dbt directly](data_validation_reference.md#dbt-build).
+It’s a wrapper around the official dbt tool, `dbt build` - see [Running dbt directly](data_validation_reference.html.md#dbt-build).
 
 `dbt_helper validate` provides rich output when a test fails,
 and allows us to use the [Dagster asset selection syntax](https://docs.dagster.io/guides/build/assets/asset-selection-syntax/reference).
@@ -54,7 +54,7 @@ The final generated file lives in
 When you change a table’s schema or update the data tests, you need to
 regenerate the dbt schema:
 
-For more details on adding data tests, see [Adding new tables](data_validation_reference.md#adding-new-tables).
+For more details on adding data tests, see [Adding new tables](data_validation_reference.html.md#adding-new-tables).
 
 ```bash
 dbt_helper update-tables --schema table_to_update

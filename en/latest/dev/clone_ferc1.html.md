@@ -1,6 +1,6 @@
 # Converting raw FERC data to SQLite
 
-FERC publishes its data (e.g. [FERC Form 1 – Annual Report of Major Electric Utilities](../data_sources/ferc1.md)) in particularly difficult
+FERC publishes its data (e.g. [FERC Form 1 – Annual Report of Major Electric Utilities](../data_sources/ferc1.html.md)) in particularly difficult
 to use formats.  From 1994-2020 it used the proprietary [FoxPro database](https://en.wikipedia.org/wiki/FoxPro) binary format. Then in 2021 it switched to
 [XBRL](https://en.wikipedia.org/wiki/XBRL), a dialect of XML used for financial
 reporting.
@@ -11,7 +11,7 @@ This means that, while we have not yet integrated the vast majority of the avail
 data into PUDL, it’s useful to just provide programmatic access to the bulk raw data,
 independent of the cleaner subset of the data included within PUDL.
 
-To provide that access, we’ve broken the [`pudl.extract.ferc1`](../autoapi/pudl/extract/ferc1/index.md#module-pudl.extract.ferc1) process down into
+To provide that access, we’ve broken the [`pudl.extract.ferc1`](../autoapi/pudl/extract/ferc1/index.html.md#module-pudl.extract.ferc1) process down into
 several distinct steps:
 
 1. Clone the 1994-2020 annual database from FoxPro (DBF) into a local
@@ -27,7 +27,7 @@ columns.
 
 If you need to work with this relatively unprocessed data, we highly recommend
 downloading it from one of our stable data releases or nightly build outputs, which
-can be found in the PUDL [Zenodo Archives](../data_access.md#access-zenodo) or [Cloud Storage](../data_access.md#access-cloud).
+can be found in the PUDL [Zenodo Archives](../data_access.html.md#access-zenodo) or [Cloud Storage](../data_access.html.md#access-cloud).
 
 The conversion of the raw FERC data is represented in the PUDL Dagster project by the
 `raw_ferc_to_sqlite` asset group in the default PUDL Dagster code location. If you
@@ -43,8 +43,8 @@ can be reused across multiple downstream PUDL runs (and external applications), 
 the `pudl` job standardizes and cleans a smaller subset of those tables in the main
 PUDL data products.
 
-The conversion can be done using the Dagster UI (see [Running the ETL via the Dagster UI](run_the_etl.md#run-dagster-ui)) or the
-Dagster CLI (see [Running the ETL via CLI](run_the_etl.md#run-cli)). For local command-line usage, options include:
+The conversion can be done using the Dagster UI (see [Running the ETL via the Dagster UI](run_the_etl.html.md#run-dagster-ui)) or the
+Dagster CLI (see [Running the ETL via CLI](run_the_etl.html.md#run-cli)). For local command-line usage, options include:
 
 ```console
 $ pixi run ferc-to-sqlite

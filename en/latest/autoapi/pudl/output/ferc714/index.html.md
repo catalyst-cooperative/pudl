@@ -3,36 +3,36 @@
 Functions & classes for compiling derived aspects of the FERC Form 714 data.
 
 For a narrative overview of the timeseries imputation process, see the documentation
-at [Timeseries Imputation](../../../../methodology/timeseries_imputation.md)
+at [Timeseries Imputation](../../../../methodology/timeseries_imputation.html.md)
 
 ## Attributes
 
-| [`logger`](#pudl.output.ferc714.logger)                                                                         |                                                                                 |
-|-----------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------|
-| [`BA_FIXES`](#pudl.output.ferc714.BA_FIXES)                                                                     | Explicit year-to-year repair instructions for EIA-861 balancing authority data. |
-| [`UTILITIES`](#pudl.output.ferc714.UTILITIES)                                                                   | Balancing authorities to treat as utilities in associations from EIA 861.       |
+| [`logger`](#pudl.output.ferc714.logger)                                     |                                                                                 |
+|---------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------|
+| [`BA_FIXES`](#pudl.output.ferc714.BA_FIXES)                                   | Explicit year-to-year repair instructions for EIA-861 balancing authority data. |
+| [`UTILITIES`](#pudl.output.ferc714.UTILITIES)                                  | Balancing authorities to treat as utilities in associations from EIA 861.       |
 | [`imputed_hourly_planning_area_demand_assets`](#pudl.output.ferc714.imputed_hourly_planning_area_demand_assets) |                                                                                 |
 
 ## Classes
 
-| [`BaFix`](#pudl.output.ferc714.BaFix)       | A single BA data repair entry for one target year.                                                  |
-|---------------------------------------------|-----------------------------------------------------------------------------------------------------|
+| [`BaFix`](#pudl.output.ferc714.BaFix)    | A single BA data repair entry for one target year.                                                                   |
+|-----------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------|
 | [`BaFixMap`](#pudl.output.ferc714.BaFixMap) | Validated mapping of target years to lists of [`BaFix`](#pudl.output.ferc714.BaFix) repair entries. |
 
 ## Functions
 
-| [`categorize_eia_code`](#pudl.output.ferc714.categorize_eia_code)(→ pandas.DataFrame)                                        | Categorize FERC 714 `eia_codes` as either balancing authority or utility IDs.   |
-|------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------|
-| [`_apply_exclude_states`](#pudl.output.ferc714._apply_exclude_states)(→ pandas.DataFrame)                                    | Filter source rows by exclude_states, raising if all rows are eliminated.       |
-| [`filled_core_eia861__yearly_balancing_authority`](#pudl.output.ferc714.filled_core_eia861__yearly_balancing_authority)(...) | Modified core_eia861_\_yearly_balancing_authority table.                        |
-| [`filled_core_eia861__assn_balancing_authority`](#pudl.output.ferc714.filled_core_eia861__assn_balancing_authority)(...)     | Modified core_eia861_\_assn_balancing_authority table.                          |
-| [`filled_core_eia861__yearly_service_territory`](#pudl.output.ferc714.filled_core_eia861__yearly_service_territory)(...)     | Modified core_eia861_\_yearly_service_territory table.                          |
-| [`_out_ferc714__annualized_respondents`](#pudl.output.ferc714._out_ferc714__annualized_respondents)(→ pandas.DataFrame)      | Broadcast respondent data across all years with reported demand.                |
-| [`_out_ferc714__categorized_respondents`](#pudl.output.ferc714._out_ferc714__categorized_respondents)(→ pandas.DataFrame)    | Annualized respondents with `respondent_type` assigned if possible.             |
-| [`out_ferc714__respondents_with_fips`](#pudl.output.ferc714.out_ferc714__respondents_with_fips)(→ pandas.DataFrame)          | Annual respondents with the county FIPS IDs for their service territories.      |
-| [`_out_ferc714__georeferenced_counties`](#pudl.output.ferc714._out_ferc714__georeferenced_counties)(...)                     | Annual respondents with all associated county-level geometries.                 |
-| [`out_ferc714__georeferenced_respondents`](#pudl.output.ferc714.out_ferc714__georeferenced_respondents)(...)                 | Annual respondents with a single all-encompassing geometry for each year.       |
-| [`out_ferc714__summarized_demand`](#pudl.output.ferc714.out_ferc714__summarized_demand)(→ pandas.DataFrame)                  | Compile annualized, categorized respondents and summarize values.               |
+| [`categorize_eia_code`](#pudl.output.ferc714.categorize_eia_code)(→ pandas.DataFrame)                   | Categorize FERC 714 `eia_codes` as either balancing authority or utility IDs.   |
+|------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------|
+| [`_apply_exclude_states`](#pudl.output.ferc714._apply_exclude_states)(→ pandas.DataFrame)                 | Filter source rows by exclude_states, raising if all rows are eliminated.       |
+| [`filled_core_eia861__yearly_balancing_authority`](#pudl.output.ferc714.filled_core_eia861__yearly_balancing_authority)(...)       | Modified core_eia861_\_yearly_balancing_authority table.                        |
+| [`filled_core_eia861__assn_balancing_authority`](#pudl.output.ferc714.filled_core_eia861__assn_balancing_authority)(...)         | Modified core_eia861_\_assn_balancing_authority table.                          |
+| [`filled_core_eia861__yearly_service_territory`](#pudl.output.ferc714.filled_core_eia861__yearly_service_territory)(...)         | Modified core_eia861_\_yearly_service_territory table.                          |
+| [`_out_ferc714__annualized_respondents`](#pudl.output.ferc714._out_ferc714__annualized_respondents)(→ pandas.DataFrame)  | Broadcast respondent data across all years with reported demand.                |
+| [`_out_ferc714__categorized_respondents`](#pudl.output.ferc714._out_ferc714__categorized_respondents)(→ pandas.DataFrame) | Annualized respondents with `respondent_type` assigned if possible.             |
+| [`out_ferc714__respondents_with_fips`](#pudl.output.ferc714.out_ferc714__respondents_with_fips)(→ pandas.DataFrame)    | Annual respondents with the county FIPS IDs for their service territories.      |
+| [`_out_ferc714__georeferenced_counties`](#pudl.output.ferc714._out_ferc714__georeferenced_counties)(...)                 | Annual respondents with all associated county-level geometries.                 |
+| [`out_ferc714__georeferenced_respondents`](#pudl.output.ferc714.out_ferc714__georeferenced_respondents)(...)               | Annual respondents with a single all-encompassing geometry for each year.       |
+| [`out_ferc714__summarized_demand`](#pudl.output.ferc714.out_ferc714__summarized_demand)(→ pandas.DataFrame)        | Compile annualized, categorized respondents and summarize values.               |
 
 ## Module Contents
 

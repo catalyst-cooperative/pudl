@@ -4,8 +4,8 @@ Denormalized versions of the EIA 860 tables.
 
 ## Functions
 
-| [`out_eia860__yearly_ownership`](#pudl.output.eia860.out_eia860__yearly_ownership)(→ pandas.DataFrame)                      | A denormalized version of the EIA 860 ownership table.                  |
-|-----------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------|
+| [`out_eia860__yearly_ownership`](#pudl.output.eia860.out_eia860__yearly_ownership)(→ pandas.DataFrame)    | A denormalized version of the EIA 860 ownership table.                  |
+|------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------|
 | [`out_eia860__yearly_emissions_control_equipment`](#pudl.output.eia860.out_eia860__yearly_emissions_control_equipment)(...) | A denormalized version of the EIA 860 emission control equipment table. |
 
 ## Module Contents

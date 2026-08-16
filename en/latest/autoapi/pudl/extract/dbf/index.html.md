@@ -4,34 +4,34 @@ Generalized DBF extractor for FERC data.
 
 ## Attributes
 
-| [`logger`](#pudl.extract.dbf.logger)       |                                                          |
-|--------------------------------------------|----------------------------------------------------------|
+| [`logger`](#pudl.extract.dbf.logger)    |                                                          |
+|------------------------------------------------------------|----------------------------------------------------------|
 | [`DBF_TYPES`](#pudl.extract.dbf.DBF_TYPES) | A mapping of DBF field types to SQLAlchemy Column types. |
 
 ## Exceptions
 
 | [`DbcFileMissingError`](#pudl.extract.dbf.DbcFileMissingError)   | This is raised when the DBC index file is missing.   |
-|------------------------------------------------------------------|------------------------------------------------------|
+|------------------------------------------------------------------------|------------------------------------------------------|
 
 ## Classes
 
-| [`DbfTableSchema`](#pudl.extract.dbf.DbfTableSchema)               | Simple data-wrapper for the fox-pro table schema.                                                                                                                      |
-|--------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [`FercDbfArchive`](#pudl.extract.dbf.FercDbfArchive)               | Represents API for accessing files within a single DBF archive.                                                                                                        |
+| [`DbfTableSchema`](#pudl.extract.dbf.DbfTableSchema)        | Simple data-wrapper for the fox-pro table schema.                                                                                                                      |
+|------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [`FercDbfArchive`](#pudl.extract.dbf.FercDbfArchive)        | Represents API for accessing files within a single DBF archive.                                                                                                        |
 | [`AbstractFercDbfReader`](#pudl.extract.dbf.AbstractFercDbfReader) | This is the interface definition for dealing with fox-pro datastores.                                                                                                  |
-| [`FercFieldParser`](#pudl.extract.dbf.FercFieldParser)             | A custom DBF parser to deal with bad FERC data types.                                                                                                                  |
-| [`PartitionedDataFrame`](#pudl.extract.dbf.PartitionedDataFrame)   | This class bundles [`pandas.DataFrame`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame) with partition information. |
-| [`FercDbfReader`](#pudl.extract.dbf.FercDbfReader)                 | Wrapper to provide standardized access to FERC DBF databases.                                                                                                          |
-| [`FercDbfExtractor`](#pudl.extract.dbf.FercDbfExtractor)           | Generalized class for loading data from foxpro databases into SQLAlchemy and parquet.                                                                                  |
+| [`FercFieldParser`](#pudl.extract.dbf.FercFieldParser)       | A custom DBF parser to deal with bad FERC data types.                                                                                                                  |
+| [`PartitionedDataFrame`](#pudl.extract.dbf.PartitionedDataFrame)  | This class bundles [`pandas.DataFrame`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame) with partition information. |
+| [`FercDbfReader`](#pudl.extract.dbf.FercDbfReader)         | Wrapper to provide standardized access to FERC DBF databases.                                                                                                          |
+| [`FercDbfExtractor`](#pudl.extract.dbf.FercDbfExtractor)      | Generalized class for loading data from foxpro databases into SQLAlchemy and parquet.                                                                                  |
 
 ## Functions
 
-| [`convert_db_into_parquet`](#pudl.extract.dbf.convert_db_into_parquet)(db_path, parquet_dir)                                         | Convert the database into a directory of parquet files using duckdb.         |
-|--------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------|
+| [`convert_db_into_parquet`](#pudl.extract.dbf.convert_db_into_parquet)(db_path, parquet_dir)              | Convert the database into a directory of parquet files using duckdb.         |
+|-------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------|
 | [`convert_and_validate_datapackage_sqlite_to_parquet`](#pudl.extract.dbf.convert_and_validate_datapackage_sqlite_to_parquet)(→ dict) | Convert the SQLite datapackage into one that points at Parquet files.        |
-| [`write_datapackage`](#pudl.extract.dbf.write_datapackage)(datapackage, output_dir)                                                  | Write a datapackage to <output_dir>/datapackage.json.                        |
-| [`add_key_constraints`](#pudl.extract.dbf.add_key_constraints)(→ sqlalchemy.MetaData)                                                | Adds primary and foreign key to tables present in meta.                      |
-| [`deduplicate_by_year`](#pudl.extract.dbf.deduplicate_by_year)(→ pandas.DataFrame | None)                                            | Deduplicate records by year, keeping the most recent version of each record. |
+| [`write_datapackage`](#pudl.extract.dbf.write_datapackage)(datapackage, output_dir)                 | Write a datapackage to <output_dir>/datapackage.json.                        |
+| [`add_key_constraints`](#pudl.extract.dbf.add_key_constraints)(→ sqlalchemy.MetaData)                 | Adds primary and foreign key to tables present in meta.                      |
+| [`deduplicate_by_year`](#pudl.extract.dbf.deduplicate_by_year)(→ pandas.DataFrame | None)             | Deduplicate records by year, keeping the most recent version of each record. |
 
 ## Module Contents
 
@@ -55,11 +55,11 @@ Simple data-wrapper for the fox-pro table schema.
 
 #### \_short_name_map
 
-#### add_column(col_name: [str](https://docs.python.org/3/library/stdtypes.html#str), col_type: [type](../../metadata/classes/index.md#pudl.metadata.classes.Field.type)[[sqlalchemy.types.TypeEngine](https://docs.sqlalchemy.org/en/21/core/type_api.html#sqlalchemy.types.TypeEngine)] | [sqlalchemy.types.TypeEngine](https://docs.sqlalchemy.org/en/21/core/type_api.html#sqlalchemy.types.TypeEngine), short_name: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None)
+#### add_column(col_name: [str](https://docs.python.org/3/library/stdtypes.html#str), col_type: [type](../../metadata/classes/index.html.md#pudl.metadata.classes.Field.type)[[sqlalchemy.types.TypeEngine](https://docs.sqlalchemy.org/en/21/core/type_api.html#sqlalchemy.types.TypeEngine)] | [sqlalchemy.types.TypeEngine](https://docs.sqlalchemy.org/en/21/core/type_api.html#sqlalchemy.types.TypeEngine), short_name: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None)
 
 Adds a new column to this table schema.
 
-#### get_columns() → [collections.abc.Iterator](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterator)[[tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[str](https://docs.python.org/3/library/stdtypes.html#str), [type](../../metadata/classes/index.md#pudl.metadata.classes.Field.type)[[sqlalchemy.types.TypeEngine](https://docs.sqlalchemy.org/en/21/core/type_api.html#sqlalchemy.types.TypeEngine)] | [sqlalchemy.types.TypeEngine](https://docs.sqlalchemy.org/en/21/core/type_api.html#sqlalchemy.types.TypeEngine)]]
+#### get_columns() → [collections.abc.Iterator](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterator)[[tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[str](https://docs.python.org/3/library/stdtypes.html#str), [type](../../metadata/classes/index.html.md#pudl.metadata.classes.Field.type)[[sqlalchemy.types.TypeEngine](https://docs.sqlalchemy.org/en/21/core/type_api.html#sqlalchemy.types.TypeEngine)] | [sqlalchemy.types.TypeEngine](https://docs.sqlalchemy.org/en/21/core/type_api.html#sqlalchemy.types.TypeEngine)]]
 
 Iterates over the (column_name, column_type) pairs.
 
@@ -78,7 +78,7 @@ Creates SQLAlchemy table described by this instance.
 * **Parameters:**
   **sa_meta** – new table will be written to this MetaData object.
 
-### *class* pudl.extract.dbf.FercDbfArchive(zipfile: FercDbfArchive._\_init_\_.zipfile, dbc_path: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path), table_file_map: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str)], partition: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any], field_parser: [type](../../metadata/classes/index.md#pudl.metadata.classes.Field.type)[dbfread.FieldParser])
+### *class* pudl.extract.dbf.FercDbfArchive(zipfile: FercDbfArchive._\_init_\_.zipfile, dbc_path: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path), table_file_map: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str)], partition: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any], field_parser: [type](../../metadata/classes/index.html.md#pudl.metadata.classes.Field.type)[dbfread.FieldParser])
 
 Represents API for accessing files within a single DBF archive.
 
@@ -193,7 +193,7 @@ This class bundles [`pandas.DataFrame`](https://pandas.pydata.org/pandas-docs/st
 
 #### partition
 
-### *class* pudl.extract.dbf.FercDbfReader(datastore: [pudl.workspace.datastore.Datastore](../../workspace/datastore/index.md#pudl.workspace.datastore.Datastore), dataset: [str](https://docs.python.org/3/library/stdtypes.html#str), field_parser: [type](../../metadata/classes/index.md#pudl.metadata.classes.Field.type)[dbfread.FieldParser] = FercFieldParser)
+### *class* pudl.extract.dbf.FercDbfReader(datastore: [pudl.workspace.datastore.Datastore](../../workspace/datastore/index.html.md#pudl.workspace.datastore.Datastore), dataset: [str](https://docs.python.org/3/library/stdtypes.html#str), field_parser: [type](../../metadata/classes/index.html.md#pudl.metadata.classes.Field.type)[dbfread.FieldParser] = FercFieldParser)
 
 Wrapper to provide standardized access to FERC DBF databases.
 
@@ -247,7 +247,7 @@ Merges data for a given table across all partitions.
   * **table_name** – name of the table to load.
   * **partitions** – list of partition filters to use
 
-### *class* pudl.extract.dbf.FercDbfExtractor(datastore: [pudl.workspace.datastore.Datastore](../../workspace/datastore/index.md#pudl.workspace.datastore.Datastore), data_config: [pudl.settings.FercDbfToSqliteDataConfig](../../settings/index.md#pudl.settings.FercDbfToSqliteDataConfig), output_path: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path))
+### *class* pudl.extract.dbf.FercDbfExtractor(datastore: [pudl.workspace.datastore.Datastore](../../workspace/datastore/index.html.md#pudl.workspace.datastore.Datastore), data_config: [pudl.settings.FercDbfToSqliteDataConfig](../../settings/index.html.md#pudl.settings.FercDbfToSqliteDataConfig), output_path: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path))
 
 Generalized class for loading data from foxpro databases into SQLAlchemy and parquet.
 
@@ -279,11 +279,11 @@ The extraction logic is invoked by calling execute() method of this class.
 
 #### DATASET *= None*
 
-#### data_config *: [pudl.settings.FercDbfToSqliteDataConfig](../../settings/index.md#pudl.settings.FercDbfToSqliteDataConfig)*
+#### data_config *: [pudl.settings.FercDbfToSqliteDataConfig](../../settings/index.html.md#pudl.settings.FercDbfToSqliteDataConfig)*
 
 #### output_path *: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)*
 
-#### datastore *: [pudl.workspace.datastore.Datastore](../../workspace/datastore/index.md#pudl.workspace.datastore.Datastore)*
+#### datastore *: [pudl.workspace.datastore.Datastore](../../workspace/datastore/index.html.md#pudl.workspace.datastore.Datastore)*
 
 #### dbf_reader *: [AbstractFercDbfReader](#pudl.extract.dbf.AbstractFercDbfReader)*
 
@@ -291,11 +291,11 @@ The extraction logic is invoked by calling execute() method of this class.
 
 #### sqlite_meta
 
-#### get_data_config(ferc_to_sqlite_data_config: [pudl.settings.FercToSqliteDataConfig](../../settings/index.md#pudl.settings.FercToSqliteDataConfig)) → [pudl.settings.FercDbfToSqliteDataConfig](../../settings/index.md#pudl.settings.FercDbfToSqliteDataConfig)
+#### get_data_config(ferc_to_sqlite_data_config: [pudl.settings.FercToSqliteDataConfig](../../settings/index.html.md#pudl.settings.FercToSqliteDataConfig)) → [pudl.settings.FercDbfToSqliteDataConfig](../../settings/index.html.md#pudl.settings.FercDbfToSqliteDataConfig)
 
 Returns dataset relevant data configuration from ferc_to_sqlite_data_config.
 
-#### get_dbf_reader(datastore: [pudl.workspace.datastore.Datastore](../../workspace/datastore/index.md#pudl.workspace.datastore.Datastore)) → [AbstractFercDbfReader](#pudl.extract.dbf.AbstractFercDbfReader)
+#### get_dbf_reader(datastore: [pudl.workspace.datastore.Datastore](../../workspace/datastore/index.html.md#pudl.workspace.datastore.Datastore)) → [AbstractFercDbfReader](#pudl.extract.dbf.AbstractFercDbfReader)
 
 Returns appropriate instance of AbstractFercDbfReader to access the data.
 

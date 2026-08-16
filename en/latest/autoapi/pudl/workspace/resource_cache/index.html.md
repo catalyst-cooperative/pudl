@@ -5,15 +5,15 @@ Implementations of datastore resource caches.
 ## Attributes
 
 | [`logger`](#pudl.workspace.resource_cache.logger)   |    |
-|-----------------------------------------------------|----|
+|-----------------------------------------------------------|----|
 
 ## Classes
 
 | [`PudlResourceKey`](#pudl.workspace.resource_cache.PudlResourceKey)   | Uniquely identifies a specific resource.                                           |
-|-----------------------------------------------------------------------|------------------------------------------------------------------------------------|
-| [`AbstractCache`](#pudl.workspace.resource_cache.AbstractCache)       | Defines interaface for the generic resource caching layer.                         |
-| [`UPathCache`](#pudl.workspace.resource_cache.UPathCache)             | Implements file cache using UPath for unified access to multiple storage backends. |
-| [`LayeredCache`](#pudl.workspace.resource_cache.LayeredCache)         | Implements multi-layered system of caches.                                         |
+|--------------------------------------------------------------------|------------------------------------------------------------------------------------|
+| [`AbstractCache`](#pudl.workspace.resource_cache.AbstractCache)     | Defines interaface for the generic resource caching layer.                         |
+| [`UPathCache`](#pudl.workspace.resource_cache.UPathCache)        | Implements file cache using UPath for unified access to multiple storage backends. |
+| [`LayeredCache`](#pudl.workspace.resource_cache.LayeredCache)      | Implements multi-layered system of caches.                                         |
 
 ## Module Contents
 
