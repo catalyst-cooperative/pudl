@@ -235,6 +235,18 @@ def out_eia923__generation_fuel_combined(
 
 
 @asset(io_manager_key="pudl_io_manager", compute_kind="Python")
+def out_eia923__energy_storage(
+    core_eia923__monthly_energy_storage: pd.DataFrame,
+    _out_eia__plants_utilities: pd.DataFrame,
+) -> pd.DataFrame:
+    """Denormalize the :ref:`core_eia923__monthly_energy_storage` table."""
+    return denorm_by_plant(
+        core_eia923__monthly_energy_storage,
+        pu=_out_eia__plants_utilities,
+    )
+
+
+@asset(io_manager_key="pudl_io_manager", compute_kind="Python")
 def out_eia923__boiler_fuel(
     core_eia923__monthly_boiler_fuel: pd.DataFrame,
     _out_eia__plants_utilities: pd.DataFrame,
@@ -361,6 +373,44 @@ def time_aggregated_eia923_asset_factory(
 ) -> list[AssetsDefinition]:
     """Build EIA-923 asset definitions, aggregated by year or month."""
     agg_freqs = {"YS": "yearly", "MS": "monthly"}
+
+    @asset(
+        name=f"out_eia923__{agg_freqs[freq]}_energy_storage",
+        io_manager_key=io_manager_key,
+        compute_kind="Python",
+    )
+    def energy_storage_agg_eia923(
+        out_eia923__energy_storage: pd.DataFrame,
+        _out_eia__plants_utilities: pd.DataFrame,
+    ) -> pd.DataFrame:
+        """Aggregate :ref:`out_eia923__energy_storage` monthly or annually."""
+        return (
+            out_eia923__energy_storage.set_index(
+                pd.DatetimeIndex(out_eia923__energy_storage.report_date)
+            )
+            .pipe(drop_ytd_for_annual_tables, freq)
+            .groupby(
+                by=[
+                    "plant_id_eia",
+                    "prime_mover_code",
+                    "energy_source_code",
+                    pd.Grouper(freq=freq),
+                ],
+                observed=True,
+            )
+            .agg(
+                {
+                    "fuel_units": "first",
+                    "fuel_consumed_for_electricity_units": pudl.helpers.sum_na,
+                    "fuel_consumed_units": pudl.helpers.sum_na,
+                    "gross_generation_mwh": pudl.helpers.sum_na,
+                    "net_generation_mwh": pudl.helpers.sum_na,
+                    "data_maturity": "first",
+                }
+            )
+            .reset_index()
+            .pipe(denorm_by_plant, pu=_out_eia__plants_utilities)
+        )
 
     @asset(
         name=f"out_eia923__{agg_freqs[freq]}_generation",
@@ -606,6 +656,7 @@ def time_aggregated_eia923_asset_factory(
 
     return [
         boiler_fuel_agg_eia923,
+        energy_storage_agg_eia923,
         fuel_receipts_costs_agg_eia923,
         generation_agg_eia923,
         generation_fuel_combined_agg_eia923,
