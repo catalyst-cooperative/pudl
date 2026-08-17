@@ -986,6 +986,7 @@ core_eia861__assn_balancing_authority,2021,4254
 core_eia861__assn_balancing_authority,2022,4272
 core_eia861__assn_balancing_authority,2023,4262
 core_eia861__assn_balancing_authority,2024,4268
+core_eia861__assn_balancing_authority,2025,3334
 core_eia861__assn_utility,2001,4482
 core_eia861__assn_utility,2002,3624
 core_eia861__assn_utility,2003,3720
@@ -1010,6 +1011,7 @@ core_eia861__assn_utility,2021,4576
 core_eia861__assn_utility,2022,4599
 core_eia861__assn_utility,2023,4564
 core_eia861__assn_utility,2024,4567
+core_eia861__assn_utility,2025,3684
 core_eia861__yearly_advanced_metering_infrastructure,2007,2560
 core_eia861__yearly_advanced_metering_infrastructure,2008,3976
 core_eia861__yearly_advanced_metering_infrastructure,2009,4804
@@ -1028,6 +1030,7 @@ core_eia861__yearly_advanced_metering_infrastructure,2021,10664
 core_eia861__yearly_advanced_metering_infrastructure,2022,10744
 core_eia861__yearly_advanced_metering_infrastructure,2023,10764
 core_eia861__yearly_advanced_metering_infrastructure,2024,10896
+core_eia861__yearly_advanced_metering_infrastructure,2025,8952
 core_eia861__yearly_balancing_authority,2001,122
 core_eia861__yearly_balancing_authority,2002,147
 core_eia861__yearly_balancing_authority,2003,140
@@ -1052,6 +1055,7 @@ core_eia861__yearly_balancing_authority,2021,68
 core_eia861__yearly_balancing_authority,2022,68
 core_eia861__yearly_balancing_authority,2023,68
 core_eia861__yearly_balancing_authority,2024,67
+core_eia861__yearly_balancing_authority,2025,64
 core_eia861__yearly_demand_response,2013,1660
 core_eia861__yearly_demand_response,2014,2148
 core_eia861__yearly_demand_response,2015,1680
@@ -1064,6 +1068,7 @@ core_eia861__yearly_demand_response,2021,1308
 core_eia861__yearly_demand_response,2022,1332
 core_eia861__yearly_demand_response,2023,1360
 core_eia861__yearly_demand_response,2024,1356
+core_eia861__yearly_demand_response,2025,1104
 core_eia861__yearly_demand_response_water_heater,2013,415
 core_eia861__yearly_demand_response_water_heater,2014,537
 core_eia861__yearly_demand_response_water_heater,2015,420
@@ -1076,6 +1081,7 @@ core_eia861__yearly_demand_response_water_heater,2021,327
 core_eia861__yearly_demand_response_water_heater,2022,333
 core_eia861__yearly_demand_response_water_heater,2023,340
 core_eia861__yearly_demand_response_water_heater,2024,339
+core_eia861__yearly_demand_response_water_heater,2025,276
 core_eia861__yearly_demand_side_management_ee_dr,2001,5070
 core_eia861__yearly_demand_side_management_ee_dr,2002,5826
 core_eia861__yearly_demand_side_management_ee_dr,2003,6072
@@ -1157,6 +1163,7 @@ core_eia861__yearly_distribution_systems,2021,1350
 core_eia861__yearly_distribution_systems,2022,1351
 core_eia861__yearly_distribution_systems,2023,1363
 core_eia861__yearly_distribution_systems,2024,1354
+core_eia861__yearly_distribution_systems,2025,1084
 core_eia861__yearly_dynamic_pricing,2013,2480
 core_eia861__yearly_dynamic_pricing,2014,3000
 core_eia861__yearly_dynamic_pricing,2015,2516
@@ -1169,6 +1176,7 @@ core_eia861__yearly_dynamic_pricing,2021,3208
 core_eia861__yearly_dynamic_pricing,2022,3308
 core_eia861__yearly_dynamic_pricing,2023,3396
 core_eia861__yearly_dynamic_pricing,2024,3420
+core_eia861__yearly_dynamic_pricing,2025,3076
 core_eia861__yearly_energy_efficiency,2013,3354
 core_eia861__yearly_energy_efficiency,2014,4224
 core_eia861__yearly_energy_efficiency,2015,3540
@@ -1181,6 +1189,7 @@ core_eia861__yearly_energy_efficiency,2021,2700
 core_eia861__yearly_energy_efficiency,2022,2688
 core_eia861__yearly_energy_efficiency,2023,2742
 core_eia861__yearly_energy_efficiency,2024,2748
+core_eia861__yearly_energy_efficiency,2025,2118
 core_eia861__yearly_green_pricing,2002,1180
 core_eia861__yearly_green_pricing,2003,1670
 core_eia861__yearly_green_pricing,2004,2205
@@ -1210,6 +1219,7 @@ core_eia861__yearly_mergers,2021,8
 core_eia861__yearly_mergers,2022,9
 core_eia861__yearly_mergers,2023,10
 core_eia861__yearly_mergers,2024,5
+core_eia861__yearly_mergers,2025,3
 core_eia861__yearly_net_metering_customer_fuel_class,2002,3232
 core_eia861__yearly_net_metering_customer_fuel_class,2003,4256
 core_eia861__yearly_net_metering_customer_fuel_class,2004,5664
@@ -1233,6 +1243,7 @@ core_eia861__yearly_net_metering_customer_fuel_class,2021,31040
 core_eia861__yearly_net_metering_customer_fuel_class,2022,31584
 core_eia861__yearly_net_metering_customer_fuel_class,2023,32928
 core_eia861__yearly_net_metering_customer_fuel_class,2024,32128
+core_eia861__yearly_net_metering_customer_fuel_class,2025,26912
 core_eia861__yearly_net_metering_misc,2002,101
 core_eia861__yearly_net_metering_misc,2003,133
 core_eia861__yearly_net_metering_misc,2004,177
@@ -1256,6 +1267,7 @@ core_eia861__yearly_net_metering_misc,2021,970
 core_eia861__yearly_net_metering_misc,2022,987
 core_eia861__yearly_net_metering_misc,2023,1029
 core_eia861__yearly_net_metering_misc,2024,1004
+core_eia861__yearly_net_metering_misc,2025,841
 core_eia861__yearly_non_net_metering_customer_fuel_class,2016,26520
 core_eia861__yearly_non_net_metering_customer_fuel_class,2017,30060
 core_eia861__yearly_non_net_metering_customer_fuel_class,2018,34200
@@ -1265,6 +1277,7 @@ core_eia861__yearly_non_net_metering_customer_fuel_class,2021,37860
 core_eia861__yearly_non_net_metering_customer_fuel_class,2022,37920
 core_eia861__yearly_non_net_metering_customer_fuel_class,2023,30900
 core_eia861__yearly_non_net_metering_customer_fuel_class,2024,30360
+core_eia861__yearly_non_net_metering_customer_fuel_class,2025,23700
 core_eia861__yearly_non_net_metering_misc,2016,442
 core_eia861__yearly_non_net_metering_misc,2017,501
 core_eia861__yearly_non_net_metering_misc,2018,570
@@ -1274,6 +1287,7 @@ core_eia861__yearly_non_net_metering_misc,2021,631
 core_eia861__yearly_non_net_metering_misc,2022,632
 core_eia861__yearly_non_net_metering_misc,2023,515
 core_eia861__yearly_non_net_metering_misc,2024,506
+core_eia861__yearly_non_net_metering_misc,2025,395
 core_eia861__yearly_operational_data_misc,2001,4123
 core_eia861__yearly_operational_data_misc,2002,3269
 core_eia861__yearly_operational_data_misc,2003,3279
@@ -1298,6 +1312,7 @@ core_eia861__yearly_operational_data_misc,2021,1712
 core_eia861__yearly_operational_data_misc,2022,1717
 core_eia861__yearly_operational_data_misc,2023,1722
 core_eia861__yearly_operational_data_misc,2024,1710
+core_eia861__yearly_operational_data_misc,2025,1417
 core_eia861__yearly_operational_data_revenue,2001,28861
 core_eia861__yearly_operational_data_revenue,2002,22883
 core_eia861__yearly_operational_data_revenue,2003,22953
@@ -1322,6 +1337,7 @@ core_eia861__yearly_operational_data_revenue,2021,11984
 core_eia861__yearly_operational_data_revenue,2022,12019
 core_eia861__yearly_operational_data_revenue,2023,12054
 core_eia861__yearly_operational_data_revenue,2024,11970
+core_eia861__yearly_operational_data_revenue,2025,9919
 core_eia861__yearly_reliability,2013,1892
 core_eia861__yearly_reliability,2014,1960
 core_eia861__yearly_reliability,2015,2040
@@ -1334,6 +1350,7 @@ core_eia861__yearly_reliability,2021,1916
 core_eia861__yearly_reliability,2022,1920
 core_eia861__yearly_reliability,2023,1934
 core_eia861__yearly_reliability,2024,1942
+core_eia861__yearly_reliability,2025,1584
 core_eia861__yearly_sales,2001,17400
 core_eia861__yearly_sales,2002,17205
 core_eia861__yearly_sales,2003,17710
@@ -1358,6 +1375,7 @@ core_eia861__yearly_sales,2021,13975
 core_eia861__yearly_sales,2022,14120
 core_eia861__yearly_sales,2023,14100
 core_eia861__yearly_sales,2024,14055
+core_eia861__yearly_sales,2025,9930
 core_eia861__yearly_service_territory,2001,11637
 core_eia861__yearly_service_territory,2002,11638
 core_eia861__yearly_service_territory,2003,11661
@@ -1382,6 +1400,7 @@ core_eia861__yearly_service_territory,2021,11680
 core_eia861__yearly_service_territory,2022,11776
 core_eia861__yearly_service_territory,2023,11776
 core_eia861__yearly_service_territory,2024,11770
+core_eia861__yearly_service_territory,2025,9413
 core_eia861__yearly_short_form,2012,1124
 core_eia861__yearly_short_form,2013,1122
 core_eia861__yearly_short_form,2014,1121
@@ -1394,6 +1413,7 @@ core_eia861__yearly_short_form,2021,1723
 core_eia861__yearly_short_form,2022,1727
 core_eia861__yearly_short_form,2023,1718
 core_eia861__yearly_short_form,2024,1724
+core_eia861__yearly_short_form,2025,1614
 core_eia861__yearly_utility_data_misc,2007,3271
 core_eia861__yearly_utility_data_misc,2008,3281
 core_eia861__yearly_utility_data_misc,2009,3275
@@ -1412,6 +1432,7 @@ core_eia861__yearly_utility_data_misc,2021,1695
 core_eia861__yearly_utility_data_misc,2022,1701
 core_eia861__yearly_utility_data_misc,2023,1714
 core_eia861__yearly_utility_data_misc,2024,1700
+core_eia861__yearly_utility_data_misc,2025,1409
 core_eia861__yearly_utility_data_nerc,2007,2514
 core_eia861__yearly_utility_data_nerc,2008,2661
 core_eia861__yearly_utility_data_nerc,2009,2694
@@ -1430,6 +1451,7 @@ core_eia861__yearly_utility_data_nerc,2021,1556
 core_eia861__yearly_utility_data_nerc,2022,1555
 core_eia861__yearly_utility_data_nerc,2023,1565
 core_eia861__yearly_utility_data_nerc,2024,1551
+core_eia861__yearly_utility_data_nerc,2025,1264
 core_eia861__yearly_utility_data_rto,2010,1005
 core_eia861__yearly_utility_data_rto,2011,1296
 core_eia861__yearly_utility_data_rto,2012,1146
@@ -1445,6 +1467,7 @@ core_eia861__yearly_utility_data_rto,2021,1564
 core_eia861__yearly_utility_data_rto,2022,1592
 core_eia861__yearly_utility_data_rto,2023,1621
 core_eia861__yearly_utility_data_rto,2024,1635
+core_eia861__yearly_utility_data_rto,2025,1336
 core_eia923__entity_coalmine,,4819
 core_eia923__fuel_receipts_costs,2008,61849
 core_eia923__fuel_receipts_costs,2009,60141
@@ -3514,6 +3537,7 @@ out_eia861__yearly_balancing_authority_service_territory,2021,4435
 out_eia861__yearly_balancing_authority_service_territory,2022,4433
 out_eia861__yearly_balancing_authority_service_territory,2023,4436
 out_eia861__yearly_balancing_authority_service_territory,2024,4437
+out_eia861__yearly_balancing_authority_service_territory,2025,3886
 out_eia861__yearly_utility_service_territory,2001,11590
 out_eia861__yearly_utility_service_territory,2002,11586
 out_eia861__yearly_utility_service_territory,2003,11589
@@ -3538,6 +3562,7 @@ out_eia861__yearly_utility_service_territory,2021,11680
 out_eia861__yearly_utility_service_territory,2022,11721
 out_eia861__yearly_utility_service_territory,2023,11717
 out_eia861__yearly_utility_service_territory,2024,11711
+out_eia861__yearly_utility_service_territory,2025,9402
 out_eia923__boiler_fuel,2008,77537
 out_eia923__boiler_fuel,2009,79002
 out_eia923__boiler_fuel,2010,81161
@@ -5174,6 +5199,7 @@ out_ferc714__hourly_estimated_state_demand,2021,445991
 out_ferc714__hourly_estimated_state_demand,2022,446755
 out_ferc714__hourly_estimated_state_demand,2023,446760
 out_ferc714__hourly_estimated_state_demand,2024,447979
+out_ferc714__hourly_estimated_state_demand,2025,437998
 out_ferc714__hourly_planning_area_demand,2006,1533000
 out_ferc714__hourly_planning_area_demand,2007,1375319
 out_ferc714__hourly_planning_area_demand,2008,1326383
@@ -5213,7 +5239,7 @@ out_ferc714__respondents_with_fips,2021,8957
 out_ferc714__respondents_with_fips,2022,8968
 out_ferc714__respondents_with_fips,2023,8978
 out_ferc714__respondents_with_fips,2024,8991
-out_ferc714__respondents_with_fips,2025,219
+out_ferc714__respondents_with_fips,2025,7986
 out_ferc714__summarized_demand,2006,219
 out_ferc714__summarized_demand,2007,219
 out_ferc714__summarized_demand,2008,219
