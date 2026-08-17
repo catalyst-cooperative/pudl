@@ -22,6 +22,7 @@ from pudl.metadata.classes import (
     PUDL_PACKAGE,
     DataSource,
     Field,
+    FieldConstraints,
     Package,
     PudlResourceDescriptor,
     Resource,
@@ -236,12 +237,11 @@ def test_enum_constraint_order_is_deterministic() -> None:
 def test_field_has_content_constraints(field_type, constraints, expected) -> None:
     """Each individual content constraint should independently flip the result.
 
-    ``has_content_constraints`` ORs together eight separate conditions; asserting
-    only on combinations that set several at once wouldn't catch a future edit
-    that accidentally drops one of them from the ``any([...])`` list, since the
-    others would still make the check pass. Each constraint is exercised alone,
-    plus the all-defaults case, so every arm of the ``any()`` is independently
-    load-bearing.
+    ``has_content_constraints`` compares each constraint field against its default;
+    asserting only on combinations that set several at once wouldn't catch a future
+    edit that broke the comparison for one particular field, since the others would
+    still make the check pass. Each constraint is exercised alone, plus the
+    all-defaults case, so every field is independently load-bearing.
     """
     field = Field(
         name="_test_field",
@@ -250,6 +250,26 @@ def test_field_has_content_constraints(field_type, constraints, expected) -> Non
         constraints=constraints,
     )
     assert field.has_content_constraints() == expected
+
+
+def test_field_has_content_constraints_covers_new_constraint_fields() -> None:
+    """A newly added constraint field is automatically treated as content-requiring.
+
+    ``has_content_constraints`` derives the set of fields it checks from
+    ``FieldConstraints.model_fields`` rather than a hand-maintained list, so a
+    constraint type added to ``FieldConstraints`` is picked up automatically
+    instead of being silently ignored. This subclass stands in for that future
+    field.
+    """
+
+    class _FieldConstraintsWithNewField(FieldConstraints):
+        new_constraint: str | None = None
+
+    defaults = _FieldConstraintsWithNewField()
+    assert defaults.has_content_constraints() is False
+
+    with_new_field_set = _FieldConstraintsWithNewField(new_constraint="x")
+    assert with_new_field_set.has_content_constraints() is True
 
 
 def _pk_violation_resource() -> Resource:

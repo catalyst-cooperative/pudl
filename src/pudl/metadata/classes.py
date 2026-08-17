@@ -339,6 +339,20 @@ class FieldConstraints(PudlMeta):
         | None
     ) = None
 
+    def has_content_constraints(self) -> bool:
+        """Whether checking these constraints requires reading actual field values.
+
+        Every constraint field is assumed to require a content read (true of all
+        constraint types to date), so this checks all of ``model_fields`` rather
+        than a hand-maintained list — a newly added constraint field is covered
+        automatically instead of being silently skipped.
+        """
+        cls = type(self)
+        defaults = cls()
+        return any(
+            getattr(self, name) != getattr(defaults, name) for name in cls.model_fields
+        )
+
     @field_validator("max_length")
     @classmethod
     def _check_max_length(cls, value, info: ValidationInfo):
@@ -924,19 +938,7 @@ class Field(PudlMeta):
 
     def has_content_constraints(self) -> bool:
         """Whether this field's constraints require reading its actual values to check."""
-        c = self.constraints
-        return any(
-            [
-                c.required,
-                c.unique,
-                c.minimum is not None,
-                c.maximum is not None,
-                c.min_length is not None,
-                c.max_length is not None,
-                c.pattern is not None,
-                bool(c.enum),
-            ]
-        )
+        return self.constraints.has_content_constraints()
 
 
 # ---- Classes: Resource ---- #
