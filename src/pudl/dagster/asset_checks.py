@@ -227,41 +227,42 @@ def _collect_primary_key_metadata(
     }
 
 
-_MAX_FAILURE_CASE_SAMPLE = 20
-"""Cap on how many failure-case rows to embed per error in check metadata.
-
-``failure_case_count`` always reflects the true total; this just bounds how
-much actual data gets rendered inline, so a violation affecting millions of
-rows doesn't balloon the check's metadata payload.
-"""
-
-
-def _failure_cases_sample(failure_cases: Any) -> tuple[int | None, Any]:
+def _failure_cases_sample(
+    failure_cases: Any, max_failure_samples: int = 20
+) -> tuple[int | None, Any]:
     """Return ``(total_count, bounded_json_safe_sample)`` for an error's failure cases.
 
-    Structured (list of records) rather than a stringified table dump: the
-    latter embeds Polars' box-drawing-character table rendering as a giant
-    escaped-newline blob, unreadable once JSON-encoded for Dagster's UI. Falls
-    back to a plain string only for failure-case types we don't specifically
-    recognize.
+    Structured (list of records) rather than a stringified table dump: the latter embeds
+    Polars' box-drawing-character table rendering as a giant escaped-newline blob,
+    unreadable once JSON-encoded for Dagster's UI. Falls back to a plain string only for
+    failure-case types we don't specifically recognize.
+
+    ``total_count`` always reflects the true total; max_failure_samples just bounds how
+    much actual data gets rendered inline, so a violation affecting millions of rows
+    doesn't balloon the check's metadata payload.
+
+    Args:
+        failure_cases: The ``failure_cases`` attribute of a Pandera ``SchemaError``.
+            Can be a Polars or Pandas dataframe, a Pandas series, a list, or None.
+        max_failure_samples: Maximum number of rows to include in the returned sample.
     """
     if isinstance(failure_cases, pl.DataFrame):
         return (
             failure_cases.height,
-            failure_cases.head(_MAX_FAILURE_CASE_SAMPLE).to_dicts(),
+            failure_cases.head(max_failure_samples).to_dicts(),
         )
     if isinstance(failure_cases, pd.DataFrame):
         return (
             len(failure_cases),
-            failure_cases.head(_MAX_FAILURE_CASE_SAMPLE).to_dict(orient="records"),
+            failure_cases.head(max_failure_samples).to_dict(orient="records"),
         )
     if isinstance(failure_cases, pd.Series):
         return (
             len(failure_cases),
-            failure_cases.head(_MAX_FAILURE_CASE_SAMPLE).tolist(),
+            failure_cases.head(max_failure_samples).tolist(),
         )
     if isinstance(failure_cases, list):
-        return len(failure_cases), failure_cases[:_MAX_FAILURE_CASE_SAMPLE]
+        return len(failure_cases), failure_cases[:max_failure_samples]
     if failure_cases is None:
         return None, None
     return None, str(failure_cases)
