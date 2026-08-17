@@ -138,6 +138,16 @@ those calculations depend on plant-level fuel costs and sometimes uncertain or
 incomplete boiler-generator associations."""
         ),
     },
+    "core_eia923__monthly_energy_storage": {
+        "additional_summary_text": """energy consumed and discharged ("generated") by energy storage units.""",
+        "additional_source_text": "(Schedule 3)",
+        "usage_warnings": ["month_as_date"],
+        "additional_details_text": (
+            """The total MWh discharged from the energy storage unit during the
+reporting period is the gross generation and the difference between gross generation
+and consumption is the net generation."""
+        ),
+    },
     "core_eia923__monthly_generation_fuel": {
         "additional_summary_text": "generation and fuel consumption by fuel and prime mover.",
         "additional_source_text": "(Schedule 3)",
@@ -968,16 +978,7 @@ is for those supplies."""
         "etl_group": "eia923",
     },
     "core_eia923__monthly_energy_storage": {
-        "description": {
-            "additional_summary_text": """energy consumed and discharged ("generated") by energy storage units.""",
-            "additional_source_text": "(Schedule 3)",
-            "usage_warnings": ["month_as_date"],
-            "additional_details_text": (
-                """The total MWh discharged from the energy storage unit during the
-reporting period is the gross generation and the difference between gross generation
-and consumption is the net generation."""
-            ),
-        },
+        "description": TABLE_DESCRIPTIONS["core_eia923__monthly_energy_storage"],
         "schema": {
             "fields": [
                 "plant_id_eia",
@@ -1001,6 +1002,125 @@ and consumption is the net generation."""
         "field_namespace": "eia",
         "sources": ["eia923"],
         "etl_group": "eia923",
+    },
+    "out_eia923__energy_storage": {
+        "description": merge_descriptions(
+            TABLE_DESCRIPTIONS["core_eia923__monthly_energy_storage"],
+            {
+                "table_type_code": "timeseries",
+                "timeseries_resolution_code": "monthly",
+                "additional_details_text": inherits_harvested_values_details(
+                    "plants and utilities"
+                ),
+                "usage_warnings": ["harvested"],
+            },
+        ),
+        "schema": {
+            "fields": [
+                "report_date",
+                "plant_id_eia",
+                "plant_id_pudl",
+                "plant_name_eia",
+                "utility_id_eia",
+                "utility_id_pudl",
+                "utility_name_eia",
+                "prime_mover_code",
+                "energy_source_code",
+                "fuel_units",
+                "fuel_consumed_for_electricity_units",
+                "fuel_consumed_units",
+                "gross_generation_mwh",
+                "net_generation_mwh",
+                "data_maturity",
+            ],
+            "primary_key": [
+                "plant_id_eia",
+                "report_date",
+                "prime_mover_code",
+                "energy_source_code",
+            ],
+        },
+        "field_namespace": "eia",
+        "sources": ["eia923"],
+        "etl_group": "outputs",
+    },
+    "out_eia923__monthly_energy_storage": {
+        "description": merge_descriptions(
+            TABLE_DESCRIPTIONS["core_eia923__monthly_energy_storage"],
+            {
+                "additional_details_text": inherits_harvested_values_details(
+                    "plants and utilities"
+                ),
+                "usage_warnings": ["harvested"],
+            },
+        ),
+        "schema": {
+            "fields": [
+                "report_date",
+                "plant_id_eia",
+                "plant_id_pudl",
+                "plant_name_eia",
+                "utility_id_eia",
+                "utility_id_pudl",
+                "utility_name_eia",
+                "prime_mover_code",
+                "energy_source_code",
+                "fuel_units",
+                "fuel_consumed_for_electricity_units",
+                "fuel_consumed_units",
+                "gross_generation_mwh",
+                "net_generation_mwh",
+                "data_maturity",
+            ],
+            "primary_key": [
+                "plant_id_eia",
+                "report_date",
+                "prime_mover_code",
+                "energy_source_code",
+            ],
+        },
+        "field_namespace": "eia",
+        "sources": ["eia923"],
+        "etl_group": "outputs",
+    },
+    "out_eia923__yearly_energy_storage": {
+        "description": merge_descriptions(
+            TABLE_DESCRIPTIONS["core_eia923__monthly_energy_storage"],
+            {
+                "additional_details_text": inherits_harvested_values_details(
+                    "plants and utilities"
+                ),
+                "usage_warnings": ["harvested"],
+            },
+        ),
+        "schema": {
+            "fields": [
+                "report_date",
+                "plant_id_eia",
+                "plant_id_pudl",
+                "plant_name_eia",
+                "utility_id_eia",
+                "utility_id_pudl",
+                "utility_name_eia",
+                "prime_mover_code",
+                "energy_source_code",
+                "fuel_units",
+                "fuel_consumed_for_electricity_units",
+                "fuel_consumed_units",
+                "gross_generation_mwh",
+                "net_generation_mwh",
+                "data_maturity",
+            ],
+            "primary_key": [
+                "plant_id_eia",
+                "report_date",
+                "prime_mover_code",
+                "energy_source_code",
+            ],
+        },
+        "field_namespace": "eia",
+        "sources": ["eia923"],
+        "etl_group": "outputs",
     },
     "_core_eia923__yearly_byproduct_disposition": {
         "description": {

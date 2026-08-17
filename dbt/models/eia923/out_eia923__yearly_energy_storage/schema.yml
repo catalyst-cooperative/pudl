@@ -1,0 +1,27 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: out_eia923__yearly_energy_storage
+        data_tests:
+          - expect_columns_not_all_null
+          - check_row_counts_per_partition:
+              arguments:
+                table_name: out_eia923__yearly_energy_storage
+                partition_expr: EXTRACT(YEAR FROM report_date)
+        columns:
+          - name: report_date
+          - name: plant_id_eia
+          - name: plant_id_pudl
+          - name: plant_name_eia
+          - name: utility_id_eia
+          - name: utility_id_pudl
+          - name: utility_name_eia
+          - name: prime_mover_code
+          - name: energy_source_code
+          - name: fuel_units
+          - name: fuel_consumed_for_electricity_units
+          - name: fuel_consumed_units
+          - name: gross_generation_mwh
+          - name: net_generation_mwh
+          - name: data_maturity
