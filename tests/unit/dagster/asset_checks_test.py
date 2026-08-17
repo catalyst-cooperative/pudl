@@ -273,21 +273,41 @@ def _content_check_fields(*, with_geometry: bool) -> list[dict]:
     return fields
 
 
-_CONTENT_CHECK_CASES = [
-    (30, "a", True),
-    (150, "a", False),  # violates maximum=100
-    (30, "z", False),  # violates enum=["a", "b", "c"]
-]
-_CONTENT_CHECK_IDS = ["valid", "value_out_of_range", "code_not_in_enum"]
+def test_polars_lazyframe_content_checks_valid() -> None:
+    """Content-valid data should pass the generated asset check."""
+    fn = _build_check_fn(
+        "_test__polars_content_checks",
+        _content_check_fields(with_geometry=False),
+        ["id"],
+    )
+    lf = pl.LazyFrame({"id": [1, 2, 3], "value": [10, 20, 30], "code": ["a", "b", "a"]})
+    lf = lf.with_columns(pl.col("code").cast(pl.Categorical))
+    result = fn(lf)
+    assert result.passed is True
+    assert "unexpected_error" not in result.metadata
 
 
 @pytest.mark.parametrize(
-    ("value", "code", "expected_pass"), _CONTENT_CHECK_CASES, ids=_CONTENT_CHECK_IDS
+    ("value", "code", "expected_metadata_error"),
+    [
+        (150, "a", "'value': 150"),  # violates maximum=100
+        (30, "z", "'code': 'z'"),  # violates enum=["a", "b", "c"]
+    ],
+    ids=["value_out_of_range", "code_not_in_enum"],
 )
-def test_polars_lazyframe_content_checks(value, code, expected_pass) -> None:
-    """Content (not just schema) violations should fail the generated asset check.
+def test_polars_lazyframe_content_checks_errors(
+    value, code, expected_metadata_error
+) -> None:
+    """Content (not just schema) violations should fail with informative detail.
 
-    All errors must produce SchemaErrors, not generic exceptions.
+    Checks the actual failure-case content in ``detailed_errors``, not just
+    ``passed=False`` -- that's what would catch a regression where the check
+    fails for the right row but reports the wrong column, or a generic/empty
+    error in place of the real failure case.
+
+    Regression guard: a failure must also go through the clean SchemaErrors path
+    (populating ``detailed_errors``), not fall through to the generic exception
+    handler -- see ``Resource._duplicate_primary_key_error``'s history.
     """
     fn = _build_check_fn(
         "_test__polars_content_checks",
@@ -299,15 +319,23 @@ def test_polars_lazyframe_content_checks(value, code, expected_pass) -> None:
     )
     lf = lf.with_columns(pl.col("code").cast(pl.Categorical))
     result = fn(lf)
-    assert result.passed == expected_pass
-    # Regression guard: a failure must go through the clean SchemaErrors path
-    # (populating detailed_errors), not fall through to the generic exception
-    # handler -- see Resource._duplicate_primary_key_error's history.
+
+    assert result.passed is False
     assert "unexpected_error" not in result.metadata
+    messages = [e["error_message"] for e in result.metadata["detailed_errors"].data]
+    assert any(expected_metadata_error in m for m in messages), (
+        f"Expected {expected_metadata_error!r} in one of: {messages}"
+    )
 
 
 @pytest.mark.parametrize(
-    ("value", "code", "expected_pass"), _CONTENT_CHECK_CASES, ids=_CONTENT_CHECK_IDS
+    ("value", "code", "expected_pass"),
+    [
+        (30, "a", True),
+        (150, "a", False),  # violates maximum=100
+        (30, "z", False),  # violates enum=["a", "b", "c"]
+    ],
+    ids=["valid", "value_out_of_range", "code_not_in_enum"],
 )
 def test_geopandas_content_checks(value, code, expected_pass) -> None:
     """Content violations are already correctly caught on the geopandas/pandas path.
@@ -370,14 +398,48 @@ def _uniqueness_check_fields(*, with_geometry: bool) -> list[dict]:
     return fields
 
 
-_UNIQUENESS_CASES = [
-    ([1, 2, 3], [1, 2, 3], [1, 2, 3], [1, 2, 3], True),
-    ([1, 2, 3], [1, 2, 3], [1, None, 3], [1, 2, 3], False),  # null required_field
-    ([1, 2, 3], [1, 2, 3], [1, 2, 3], [1, 1, 3], False),  # duplicate unique_field
-    ([1, 1, 3], [1, 1, 3], [1, 2, 3], [1, 2, 3], False),  # duplicate composite PK
+_UNIQUENESS_BASE_DATA = {
+    "id": [1, 2, 3],
+    "id2": [1, 2, 3],
+    "required_field": [1, 2, 3],
+    "unique_field": [1, 2, 3],
+}
+"""Happy-path column data for the uniqueness-check fixtures below.
+
+Every error case is built from this via :func:`_uniqueness_data`, overriding only
+the column(s) it actually violates.
+"""
+
+
+def _uniqueness_data(**overrides: list) -> dict[str, list]:
+    """Override columns of :data:`_UNIQUENESS_BASE_DATA` to build a test case."""
+    return {**_UNIQUENESS_BASE_DATA, **overrides}
+
+
+def test_polars_lazyframe_uniqueness_checks_valid() -> None:
+    """Nullable- and uniqueness-valid data should pass the generated asset check."""
+    fn = _build_check_fn(
+        "_test__polars_uniqueness_checks",
+        _uniqueness_check_fields(with_geometry=False),
+        ["id", "id2"],
+    )
+    result = fn(pl.LazyFrame(_UNIQUENESS_BASE_DATA))
+    assert result.passed is True
+    assert "unexpected_error" not in result.metadata
+
+
+_UNIQUENESS_ERROR_CASES = [
+    (
+        _uniqueness_data(required_field=[1, None, 3]),
+        "non-nullable column 'required_field'",
+    ),
+    (_uniqueness_data(unique_field=[1, 1, 3]), "column 'unique_field' not unique"),
+    (
+        _uniqueness_data(id=[1, 1, 3], id2=[1, 1, 3]),
+        "('id', 'id2') not unique",
+    ),
 ]
-_UNIQUENESS_IDS = [
-    "valid",
+_UNIQUENESS_ERROR_IDS = [
     "null_in_required_field",
     "duplicate_unique_field",
     "duplicate_primary_key",
@@ -385,69 +447,110 @@ _UNIQUENESS_IDS = [
 
 
 @pytest.mark.parametrize(
-    ("id_", "id2", "required_field", "unique_field", "expected_pass"),
-    _UNIQUENESS_CASES,
-    ids=_UNIQUENESS_IDS,
+    ("data", "expected_metadata_error"),
+    _UNIQUENESS_ERROR_CASES,
+    ids=_UNIQUENESS_ERROR_IDS,
 )
-def test_polars_lazyframe_uniqueness_checks(
-    id_, id2, required_field, unique_field, expected_pass
+def test_polars_lazyframe_uniqueness_checks_errors(
+    data, expected_metadata_error
 ) -> None:
-    """Nullable and uniqueness violations should fail the generated asset check.
+    """Nullable and uniqueness violations should fail with informative detail.
 
     This resource's schema doesn't set ``chunk_field``, so composite primary-key
     uniqueness goes through :meth:`Resource.check_primary_key_polars`'s normal,
     unchunked path (see ``tests/unit/metadata/metadata_test.py`` for the chunked path
     used by PUDL's few oversized tables).
+
+    Checks the actual failure content in ``detailed_errors``, not just
+    ``passed=False`` -- that's what would catch a regression where the check fails
+    for the right row but reports the wrong column or constraint.
+
+    Regression guard: in particular, the "duplicate_primary_key" case must fail via
+    the clean SchemaErrors path, not the generic exception handler -- see
+    ``Resource._duplicate_primary_key_error``'s history.
     """
     fn = _build_check_fn(
         "_test__polars_uniqueness_checks",
         _uniqueness_check_fields(with_geometry=False),
         ["id", "id2"],
     )
-    lf = pl.LazyFrame(
+    result = fn(pl.LazyFrame(data))
+
+    assert result.passed is False
+    assert "unexpected_error" not in result.metadata
+    messages = [e["error_message"] for e in result.metadata["detailed_errors"].data]
+    assert any(expected_metadata_error in m for m in messages), (
+        f"Expected {expected_metadata_error!r} in one of: {messages}"
+    )
+
+
+def _uniqueness_geodataframe(data: dict[str, list]) -> gpd.GeoDataFrame:
+    """Build the GeoDataFrame counterpart of a :func:`_uniqueness_data` case."""
+    return gpd.GeoDataFrame(
         {
-            "id": id_,
-            "id2": id2,
-            "required_field": required_field,
-            "unique_field": unique_field,
+            "id": pd.array(data["id"], dtype="Int64"),
+            "id2": pd.array(data["id2"], dtype="Int64"),
+            "required_field": pd.array(data["required_field"], dtype="Int64"),
+            "unique_field": pd.array(data["unique_field"], dtype="Int64"),
+            "geometry": [Point(0, 0), Point(1, 1), Point(2, 2)],
         }
     )
-    result = fn(lf)
-    assert result.passed == expected_pass
-    # Regression guard: in particular, the "duplicate_primary_key" case must
-    # fail via the clean SchemaErrors path, not the generic exception handler
-    # -- see Resource._duplicate_primary_key_error's history.
+
+
+def test_geopandas_uniqueness_checks_valid() -> None:
+    """Nullable- and uniqueness-valid data should pass the generated asset check."""
+    fn = _build_check_fn(
+        "_test__geopandas_uniqueness_checks",
+        _uniqueness_check_fields(with_geometry=True),
+        ["id", "id2"],
+    )
+    result = fn(_uniqueness_geodataframe(_UNIQUENESS_BASE_DATA))
+    assert result.passed is True
     assert "unexpected_error" not in result.metadata
 
 
+_GEOPANDAS_UNIQUENESS_ERROR_CASES = [
+    (
+        _uniqueness_data(required_field=[1, None, 3]),
+        "'required_field' contains null values",
+    ),
+    (_uniqueness_data(unique_field=[1, 1, 3]), "'unique_field' contains duplicate"),
+    (
+        _uniqueness_data(id=[1, 1, 3], id2=[1, 1, 3]),
+        "('id', 'id2')' not unique",
+    ),
+]
+
+
 @pytest.mark.parametrize(
-    ("id_", "id2", "required_field", "unique_field", "expected_pass"),
-    _UNIQUENESS_CASES,
-    ids=_UNIQUENESS_IDS,
+    ("data", "expected_metadata_error"),
+    _GEOPANDAS_UNIQUENESS_ERROR_CASES,
+    ids=_UNIQUENESS_ERROR_IDS,
 )
-def test_geopandas_uniqueness_checks(
-    id_, id2, required_field, unique_field, expected_pass
-) -> None:
+def test_geopandas_uniqueness_checks_errors(data, expected_metadata_error) -> None:
     """Nullable and uniqueness violations are already correctly caught on the
-    geopandas/pandas path.
+    geopandas/pandas path, with informative detail.
+
+    Checks the actual failure content in ``detailed_errors``, not just
+    ``passed=False`` -- see the equivalent polars test for why. The pandas
+    backend's error phrasing ("series ... contains duplicate values") differs
+    from the polars backend's ("column ... not unique"), so these expected
+    substrings are backend-specific even though the underlying cases are the
+    same as :func:`test_polars_lazyframe_uniqueness_checks_errors`.
     """
     fn = _build_check_fn(
         "_test__geopandas_uniqueness_checks",
         _uniqueness_check_fields(with_geometry=True),
         ["id", "id2"],
     )
-    gdf = gpd.GeoDataFrame(
-        {
-            "id": pd.array(id_, dtype="Int64"),
-            "id2": pd.array(id2, dtype="Int64"),
-            "required_field": pd.array(required_field, dtype="Int64"),
-            "unique_field": pd.array(unique_field, dtype="Int64"),
-            "geometry": [Point(0, 0), Point(1, 1), Point(2, 2)],
-        }
-    )
-    result = fn(gdf)
-    assert result.passed == expected_pass
+    result = fn(_uniqueness_geodataframe(data))
+
+    assert result.passed is False
     assert "unexpected_error" not in result.metadata
+    messages = [e["error_message"] for e in result.metadata["detailed_errors"].data]
+    assert any(expected_metadata_error in m for m in messages), (
+        f"Expected {expected_metadata_error!r} in one of: {messages}"
+    )
 
 
 def test_pandera_schema_check_combines_schema_and_content_errors() -> None:
