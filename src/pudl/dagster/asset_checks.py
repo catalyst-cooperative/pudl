@@ -143,7 +143,7 @@ def _collect_dtype_metadata(
             "expected_pandera_dtype": pandera_dtypes.get(field.name, "Unknown"),
             "actual_dtype": actual_dtypes.get(field.name, "Column not present"),
             "content_checked": field.has_content_constraints(),
-            "constraints": field.constraints.to_metadata_dict(),
+            "constraints": field.constraints.model_dump_json(exclude_defaults=True),
         }
         for field in resource.schema.fields
     }
