@@ -364,7 +364,7 @@ def test_check_primary_key_errors_are_schema_errors_compatible(make_data) -> Non
 
 # ---------------------------------------------------------------------------
 # Tests for chunked primary-key uniqueness checking (Resource.check_primary_key's
-# polars path, i.e. Resource._check_primary_key_polars)
+# polars path)
 # ---------------------------------------------------------------------------
 #
 # The polars path never uses pandera's built-in composite-uniqueness check
@@ -378,11 +378,13 @@ def test_check_primary_key_errors_are_schema_errors_compatible(make_data) -> Non
 # identical composite key necessarily share the same value of it, so
 # duplicates can never span chunk boundaries, whether the column is
 # date/datetime (chunked by year) or anything else (chunked by distinct
-# value). These tests exercise the machinery directly with synthetic
-# resources, independent of which real tables are currently enumerated.
+# value). These tests go through the public `check_primary_key` dispatcher
+# rather than the private `_check_primary_key_polars`/`_chunk_filters` helpers
+# directly, with synthetic resources, independent of which real tables are
+# currently enumerated.
 
 
-def _temporal_pk_resource() -> Resource:
+def _temporal_pk_resource(chunked: bool = False) -> Resource:
     return Resource(
         name="_test__temporal_pk_chunking",
         description="Synthetic resource with a temporal primary key.",
@@ -392,11 +394,12 @@ def _temporal_pk_resource() -> Resource:
                 {"name": "unit_id", "type": "integer", "description": "Unit ID."},
             ],
             "primary_key": ["event_date", "unit_id"],
+            "chunk_field": "event_date" if chunked else None,
         },
     )
 
 
-def _categorical_pk_resource() -> Resource:
+def _categorical_pk_resource(chunked: bool = False) -> Resource:
     return Resource(
         name="_test__categorical_pk_chunking",
         description="Synthetic resource with a string primary-key column.",
@@ -410,6 +413,7 @@ def _categorical_pk_resource() -> Resource:
                 },
             ],
             "primary_key": ["filer_id", "record_id"],
+            "chunk_field": "filer_id" if chunked else None,
         },
     )
 
@@ -464,35 +468,61 @@ def _categorical_pk_resource() -> Resource:
         "categorical_duplicate",
     ],
 )
-def test_check_primary_key_polars_unchunked(
-    resource_fn, data, expect_violation
+@pytest.mark.parametrize("chunked", [False, True], ids=["unchunked", "chunked"])
+def test_check_primary_key_polars_detects_violations(
+    resource_fn, data, expect_violation, chunked
 ) -> None:
     """Repeated non-key values are not false positives; true duplicates are caught.
 
-    No ``chunk_field`` is set on either synthetic resource, so this exercises
-    ``check_primary_key``'s default, unchunked polars dispatch path;
-    ``test_chunk_filters_*`` below separately verify the chunking mechanism
-    itself preserves the same correctness.
+    Parametrized over ``chunked`` so that every case runs both with and without
+    ``schema.chunk_field`` set on the synthetic resource, on the exact same input
+    data -- chunking must never change the answer ``check_primary_key`` gives,
+    only how it gets there. Goes through the public ``check_primary_key``
+    dispatcher, the same entry point every real caller uses, rather than the
+    private ``_check_primary_key_polars``.
     """
-    errors = resource_fn()._check_primary_key_polars(pl.LazyFrame(data))
+    errors = resource_fn(chunked=chunked).check_primary_key(pl.LazyFrame(data))
     assert bool(errors) == expect_violation
 
 
-def test_chunk_filters_temporal_partitions_by_year() -> None:
-    """Temporal chunk filters split rows into non-overlapping, year-aligned sets."""
+def test_check_primary_key_chunks_by_year_for_temporal_chunk_field(mocker) -> None:
+    """A date/datetime ``chunk_field`` is actually used to partition rows by year.
+
+    Spies on the private ``Resource._chunk_filters`` rather than calling it
+    directly, so the test still goes through the public ``check_primary_key``
+    entry point (chunking is otherwise invisible from the outside, since it's
+    only an internal performance detail -- the spy is what makes "we're
+    peeking at an implementation detail here" explicit rather than incidental).
+    """
+    spy = mocker.spy(Resource, "_chunk_filters")
     lf = pl.LazyFrame(
-        {"event_date": [date(2020, 1, 1), date(2020, 6, 1), date(2021, 3, 1)]}
+        {
+            "event_date": [date(2020, 1, 1), date(2020, 6, 1), date(2021, 3, 1)],
+            "unit_id": [1, 2, 1],
+        }
     )
-    filters = Resource._chunk_filters(lf, "event_date")
+    _temporal_pk_resource(chunked=True).check_primary_key(lf)
+
+    spy.assert_called_once_with(mocker.ANY, "event_date")
+    filters = spy.spy_return
     assert len(filters) == 2  # 2020 and 2021
     row_counts = sorted(lf.filter(f).select(pl.len()).collect().item() for f in filters)
     assert row_counts == [1, 2]
 
 
-def test_chunk_filters_categorical_partitions_by_value() -> None:
-    """Categorical chunk filters split rows by each distinct value, exactly."""
-    lf = pl.LazyFrame({"filer_id": ["A", "A", "B"]})
-    filters = Resource._chunk_filters(lf, "filer_id")
+def test_check_primary_key_chunks_by_value_for_categorical_chunk_field(mocker) -> None:
+    """A non-temporal ``chunk_field`` is actually used to partition rows by value.
+
+    See ``test_check_primary_key_chunks_by_year_for_temporal_chunk_field`` for
+    why this spies on ``Resource._chunk_filters`` rather than calling it
+    directly.
+    """
+    spy = mocker.spy(Resource, "_chunk_filters")
+    lf = pl.LazyFrame({"filer_id": ["A", "A", "B"], "record_id": [1, 2, 1]})
+    _categorical_pk_resource(chunked=True).check_primary_key(lf)
+
+    spy.assert_called_once_with(mocker.ANY, "filer_id")
+    filters = spy.spy_return
     assert len(filters) == 2  # "A" and "B"
     counts_by_value = {}
     for f in filters:
