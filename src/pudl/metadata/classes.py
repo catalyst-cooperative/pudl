@@ -339,7 +339,7 @@ class FieldConstraints(PudlMeta):
         | None
     ) = None
 
-    def has_content_constraints(self) -> bool:
+    def requires_content_validation(self) -> bool:
         """Whether checking these constraints requires reading actual field values.
 
         Every constraint field is assumed to require a content read (true of all
@@ -936,10 +936,6 @@ class Field(PudlMeta):
             unique=constraints.unique,
         )
 
-    def has_content_constraints(self) -> bool:
-        """Whether this field's constraints require reading its actual values to check."""
-        return self.constraints.has_content_constraints()
-
 
 # ---- Classes: Resource ---- #
 
@@ -1002,8 +998,12 @@ class Schema(PudlMeta):
     missing_values: list[StrictStr] = [""]
     primary_key: list[SnakeCase] = []
     foreign_keys: list[ForeignKey] = []
-    chunk_field: SnakeCase | None = None
-    """Primary-key column to use when chunking this table for processing, if any."""
+    pk_check_chunk_field: SnakeCase | None = None
+    """Primary-key column to chunk primary-key uniqueness checks by, if any.
+
+    A date/datetime column is always chunked by calendar year; any other column is
+    chunked by exact distinct value. See ``Resource._chunk_filters``.
+    """
 
     _check_unique = field_validator("missing_values", "primary_key", "foreign_keys")(
         _check_unique
@@ -1015,18 +1015,24 @@ class Schema(PudlMeta):
         _check_unique([f.name for f in fields])
         return fields
 
-    @field_validator("chunk_field")
+    @field_validator("pk_check_chunk_field")
     @classmethod
-    def _check_chunk_field_in_primary_key(cls, chunk_field, info: ValidationInfo):
-        """Verify that chunk_field, if set, is part of the primary key."""
+    def _check_pk_check_chunk_field_in_primary_key(
+        cls, pk_check_chunk_field, info: ValidationInfo
+    ):
+        """Verify that pk_check_chunk_field, if set, is part of the primary key."""
         pk = info.data.get("primary_key")
-        if chunk_field is not None and pk is not None and chunk_field not in pk:
+        if (
+            pk_check_chunk_field is not None
+            and pk is not None
+            and pk_check_chunk_field not in pk
+        ):
             raise ValueError(
-                f"{chunk_field!r} was given as the chunk_field, but it isn't part "
-                f"of this schema's primary key ({pk!r}). Chunking is only exact "
-                "when the chunk column is part of the primary key."
+                f"{pk_check_chunk_field!r} was given as the pk_check_chunk_field, but "
+                f"it isn't part of this schema's primary key ({pk!r}). Chunking is "
+                "only exact when the chunk column is part of the primary key."
             )
-        return chunk_field
+        return pk_check_chunk_field
 
     @field_validator("primary_key")
     @classmethod
@@ -1359,7 +1365,7 @@ class PudlResourceDescriptor(PudlMeta):
         field_ids: list[str] = pydantic.Field(alias="fields", default=[])
         primary_key_ids: list[str] = pydantic.Field(alias="primary_key", default=[])
         foreign_key_rules: PudlForeignKeyRules = PudlForeignKeyRules()
-        chunk_field: SnakeCase | None = None
+        pk_check_chunk_field: SnakeCase | None = None
 
     class PudlCodeMetadata(PudlMeta):
         """Describes a bunch of codes."""
@@ -1925,8 +1931,8 @@ class Resource(PudlMeta):
             primary_key=self.schema.primary_key,
             foreign_keys=[fk.to_frictionless() for fk in self.schema.foreign_keys],
         )
-        if self.schema.chunk_field:
-            schema.custom["chunk_field"] = self.schema.chunk_field
+        if self.schema.pk_check_chunk_field:
+            schema.custom["pk_check_chunk_field"] = self.schema.pk_check_chunk_field
 
         resource = frictionless.Resource(
             name=self.name,
@@ -2149,8 +2155,9 @@ class Resource(PudlMeta):
         errors into one report rather than stopping at whichever is found first.
 
         For tables large enough that checking uniqueness in a single pass is
-        impractical, the check is chunked by ``self.schema.chunk_field`` (see
-        ``_chunk_filters``) when set. Only meaningful for a Polars ``LazyFrame``;
+        impractical, the check is chunked by ``self.schema.pk_check_chunk_field`` when
+        set -- by calendar year if it's a date/datetime column, by exact distinct value
+        otherwise (see ``_chunk_filters``). Only meaningful for a Polars ``LazyFrame``;
         ignored for pandas/geopandas, which are already fully loaded into memory.
 
         Args:
@@ -2223,8 +2230,9 @@ class Resource(PudlMeta):
 
         Uses a single group-by/count/filter reduction, run with ``engine="streaming"``,
         to minimize memory usage. For tables large enough that checking uniqueness in
-        a single pass is impractical, the check is chunked by ``self.schema.chunk_field``
-        when set.
+        a single pass is impractical, the check is chunked by
+        ``self.schema.pk_check_chunk_field`` when set -- by calendar year if it's a
+        date/datetime column, by exact distinct value otherwise.
 
         Args:
             lf: LazyFrame to check.
@@ -2242,9 +2250,10 @@ class Resource(PudlMeta):
         if nulls.height > 0:
             errors.append(self._null_primary_key_error(nulls))
 
-        if chunk_field := self.schema.chunk_field:
+        if pk_check_chunk_field := self.schema.pk_check_chunk_field:
             chunks = [
-                narrow.filter(f) for f in self._chunk_filters(narrow, chunk_field)
+                narrow.filter(f)
+                for f in self._chunk_filters(narrow, pk_check_chunk_field)
             ]
         else:
             chunks = [narrow]
@@ -2290,15 +2299,16 @@ class Resource(PudlMeta):
         )
 
     @staticmethod
-    def _chunk_filters(lf: pl.LazyFrame, chunk_field: str) -> list[pl.Expr]:
-        """Build filter expressions that partition ``lf`` by ``chunk_field``.
+    def _chunk_filters(lf: pl.LazyFrame, pk_check_chunk_field: str) -> list[pl.Expr]:
+        """Build filter expressions that partition ``lf`` by ``pk_check_chunk_field``.
 
-        Every filter is a literal comparison directly against ``chunk_field``'s
-        own stored values -- a year-range comparison for date/datetime columns,
-        an equality comparison against each distinct value otherwise -- never a
-        derived expression. This matters for two reasons:
+        Every filter is a literal comparison directly against ``pk_check_chunk_field``'s
+        own stored values -- always a one-calendar-year range for date/datetime
+        columns (chunking is annual only; no other granularity is supported), an
+        equality comparison against each distinct value otherwise -- never a derived
+        expression. This matters for two reasons:
 
-        1. Correctness: since ``chunk_field`` is required to be part of the
+        1. Correctness: since ``pk_check_chunk_field`` is required to be part of the
            primary key, two rows sharing a composite key necessarily share the
            same value of it, so a boundary drawn directly on that column's own
            value can never split a duplicate pair across chunks. Deriving the
@@ -2323,31 +2333,31 @@ class Resource(PudlMeta):
         single calendar year, and most of `core_ferceqr__transactions`' row
         groups are confined to a single seller.
         """
-        dtype = lf.select(chunk_field).collect_schema()[chunk_field]
+        dtype = lf.select(pk_check_chunk_field).collect_schema()[pk_check_chunk_field]
 
         if dtype in (pl.Date, pl.Datetime):
             bounds = lf.select(
-                _min=pl.col(chunk_field).min(),
-                _max=pl.col(chunk_field).max(),
+                _min=pl.col(pk_check_chunk_field).min(),
+                _max=pl.col(pk_check_chunk_field).max(),
             ).collect(engine="streaming")
             min_year = bounds["_min"][0].year
             max_year = bounds["_max"][0].year
             boundary = datetime.date if dtype == pl.Date else datetime.datetime
             return [
-                pl.col(chunk_field).is_between(
+                pl.col(pk_check_chunk_field).is_between(
                     boundary(year, 1, 1), boundary(year + 1, 1, 1), closed="left"
                 )
                 for year in range(min_year, max_year + 1)
             ]
 
         values = (
-            lf.select(chunk_field)
+            lf.select(pk_check_chunk_field)
             .unique()
             .collect(engine="streaming")
-            .get_column(chunk_field)
+            .get_column(pk_check_chunk_field)
             .to_list()
         )
-        return [pl.col(chunk_field) == value for value in values]
+        return [pl.col(pk_check_chunk_field) == value for value in values]
 
     def _duplicate_primary_key_error(self, duplicates: pl.DataFrame) -> SchemaError:
         """Build a SchemaError describing duplicate primary-key combinations."""

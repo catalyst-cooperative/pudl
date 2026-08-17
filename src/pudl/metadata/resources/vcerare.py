@@ -80,7 +80,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                 "capacity_factor_offshore_wind",
             ],
             "primary_key": ["state", "place_name", "datetime_utc"],
-            "chunk_field": "datetime_utc",
+            "pk_check_chunk_field": "datetime_utc",
         },
         "sources": ["vcerare"],
         "field_namespace": "vcerare",

@@ -456,7 +456,7 @@ def test_polars_lazyframe_uniqueness_checks_errors(
 ) -> None:
     """Nullable and uniqueness violations should fail with informative detail.
 
-    This resource's schema doesn't set ``chunk_field``, so composite primary-key
+    This resource's schema doesn't set ``pk_check_chunk_field``, so composite primary-key
     uniqueness goes through :meth:`Resource.check_primary_key_polars`'s normal,
     unchunked path (see ``tests/unit/metadata/metadata_test.py`` for the chunked path
     used by PUDL's few oversized tables).
