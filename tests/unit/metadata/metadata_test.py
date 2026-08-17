@@ -213,17 +213,17 @@ def test_enum_constraint_order_is_deterministic() -> None:
 
 
 @pytest.mark.parametrize(
-    ("field_type", "constraints", "expected"),
+    ("constraints", "expected"),
     [
-        ("integer", {}, False),
-        ("integer", {"required": True}, True),
-        ("integer", {"unique": True}, True),
-        ("integer", {"minimum": 0}, True),
-        ("integer", {"maximum": 100}, True),
-        ("string", {"min_length": 1}, True),
-        ("string", {"max_length": 10}, True),
-        ("string", {"pattern": r"^[a-z]+$"}, True),
-        ("string", {"enum": ["a", "b"]}, True),
+        ({}, False),
+        ({"required": True}, True),
+        ({"unique": True}, True),
+        ({"minimum": 0}, True),
+        ({"maximum": 100}, True),
+        ({"min_length": 1}, True),
+        ({"max_length": 10}, True),
+        ({"pattern": r"^[a-z]+$"}, True),
+        ({"enum": ["a", "b"]}, True),
     ],
     ids=[
         "no_constraints",
@@ -237,28 +237,23 @@ def test_enum_constraint_order_is_deterministic() -> None:
         "enum",
     ],
 )
-def test_field_has_content_constraints(field_type, constraints, expected) -> None:
+def test_field_constraints_requires_content_validation(constraints, expected) -> None:
     """Each individual content constraint should independently flip the result.
 
-    ``has_content_constraints`` compares each constraint field against its default;
-    asserting only on combinations that set several at once wouldn't catch a future
-    edit that broke the comparison for one particular field, since the others would
-    still make the check pass. Each constraint is exercised alone, plus the
-    all-defaults case, so every field is independently load-bearing.
+    ``requires_content_validation`` compares each constraint field against its
+    default; asserting only on combinations that set several at once wouldn't
+    catch a future edit that broke the comparison for one particular field,
+    since the others would still make the check pass. Each constraint is
+    exercised alone, plus the all-defaults case, so every field is
+    independently load-bearing.
     """
-    field = Field(
-        name="_test_field",
-        type=field_type,
-        description="Test field.",
-        constraints=constraints,
-    )
-    assert field.has_content_constraints() == expected
+    assert FieldConstraints(**constraints).requires_content_validation() == expected
 
 
-def test_field_has_content_constraints_covers_new_constraint_fields() -> None:
+def test_field_constraints_requires_content_validation_covers_new_fields() -> None:
     """A newly added constraint field is automatically treated as content-requiring.
 
-    ``has_content_constraints`` derives the set of fields it checks from
+    ``requires_content_validation`` derives the set of fields it checks from
     ``FieldConstraints.model_fields`` rather than a hand-maintained list, so a
     constraint type added to ``FieldConstraints`` is picked up automatically
     instead of being silently ignored. This subclass stands in for that future
@@ -269,10 +264,10 @@ def test_field_has_content_constraints_covers_new_constraint_fields() -> None:
         new_constraint: str | None = None
 
     defaults = _FieldConstraintsWithNewField()
-    assert defaults.has_content_constraints() is False
+    assert defaults.requires_content_validation() is False
 
     with_new_field_set = _FieldConstraintsWithNewField(new_constraint="x")
-    assert with_new_field_set.has_content_constraints() is True
+    assert with_new_field_set.requires_content_validation() is True
 
 
 def _pk_violation_resource() -> Resource:
@@ -371,17 +366,17 @@ def test_check_primary_key_errors_are_schema_errors_compatible(make_data) -> Non
 # (too memory-hungry, see polars-comment.md); it always uses its own
 # group-by/count-based `Resource._find_duplicate_primary_keys`, optionally run
 # once per chunk instead of once on the whole table via the resource's declared
-# `schema.chunk_field` (which tables need this, if any, is decided per-resource --
-# see `pudl.metadata.resources.epacems`/`vcerare` for PUDL's few oversized tables
-# that set it). Chunking is only correct because the
-# chunking column is itself part of the primary key -- two rows with an
-# identical composite key necessarily share the same value of it, so
-# duplicates can never span chunk boundaries, whether the column is
-# date/datetime (chunked by year) or anything else (chunked by distinct
-# value). These tests go through the public `check_primary_key` dispatcher
-# rather than the private `_check_primary_key_polars`/`_chunk_filters` helpers
-# directly, with synthetic resources, independent of which real tables are
-# currently enumerated.
+# `schema.pk_check_chunk_field` (which tables need this, if any, is decided
+# per-resource -- see `pudl.metadata.resources.epacems`/`vcerare` for PUDL's few
+# oversized tables that set it). Chunking is only correct because the chunking
+# column is itself part of the primary key -- two rows with an identical
+# composite key necessarily share the same value of it, so duplicates can never
+# span chunk boundaries, whether the column is date/datetime (chunked by
+# calendar year -- always annual, no other granularity is supported) or
+# anything else (chunked by exact distinct value). These tests go through the
+# public `check_primary_key` dispatcher rather than the private
+# `_check_primary_key_polars`/`_chunk_filters` helpers directly, with synthetic
+# resources, independent of which real tables are currently enumerated.
 
 
 def _temporal_pk_resource(chunked: bool = False) -> Resource:
@@ -394,7 +389,7 @@ def _temporal_pk_resource(chunked: bool = False) -> Resource:
                 {"name": "unit_id", "type": "integer", "description": "Unit ID."},
             ],
             "primary_key": ["event_date", "unit_id"],
-            "chunk_field": "event_date" if chunked else None,
+            "pk_check_chunk_field": "event_date" if chunked else None,
         },
     )
 
@@ -413,7 +408,7 @@ def _categorical_pk_resource(chunked: bool = False) -> Resource:
                 },
             ],
             "primary_key": ["filer_id", "record_id"],
-            "chunk_field": "filer_id" if chunked else None,
+            "pk_check_chunk_field": "filer_id" if chunked else None,
         },
     )
 
@@ -475,24 +470,26 @@ def test_check_primary_key_polars_detects_violations(
     """Repeated non-key values are not false positives; true duplicates are caught.
 
     Parametrized over ``chunked`` so that every case runs both with and without
-    ``schema.chunk_field`` set on the synthetic resource, on the exact same input
-    data -- chunking must never change the answer ``check_primary_key`` gives,
-    only how it gets there. Goes through the public ``check_primary_key``
-    dispatcher, the same entry point every real caller uses, rather than the
-    private ``_check_primary_key_polars``.
+    ``schema.pk_check_chunk_field`` set on the synthetic resource, on the exact
+    same input data -- chunking must never change the answer
+    ``check_primary_key`` gives, only how it gets there. Goes through the
+    public ``check_primary_key`` dispatcher, the same entry point every real
+    caller uses, rather than the private ``_check_primary_key_polars``.
     """
     errors = resource_fn(chunked=chunked).check_primary_key(pl.LazyFrame(data))
     assert bool(errors) == expect_violation
 
 
-def test_check_primary_key_chunks_by_year_for_temporal_chunk_field(mocker) -> None:
-    """A date/datetime ``chunk_field`` is actually used to partition rows by year.
+def test_check_primary_key_chunks_temporal_field_by_calendar_year(mocker) -> None:
+    """A date/datetime ``pk_check_chunk_field`` partitions rows by calendar year.
 
-    Spies on the private ``Resource._chunk_filters`` rather than calling it
-    directly, so the test still goes through the public ``check_primary_key``
-    entry point (chunking is otherwise invisible from the outside, since it's
-    only an internal performance detail -- the spy is what makes "we're
-    peeking at an implementation detail here" explicit rather than incidental).
+    Chunking a temporal field is always annual -- no other granularity is
+    supported (see ``Resource._chunk_filters``). Spies on the private
+    ``Resource._chunk_filters`` rather than calling it directly, so the test
+    still goes through the public ``check_primary_key`` entry point (chunking
+    is otherwise invisible from the outside, since it's only an internal
+    performance detail -- the spy is what makes "we're peeking at an
+    implementation detail here" explicit rather than incidental).
     """
     spy = mocker.spy(Resource, "_chunk_filters")
     lf = pl.LazyFrame(
@@ -510,10 +507,10 @@ def test_check_primary_key_chunks_by_year_for_temporal_chunk_field(mocker) -> No
     assert row_counts == [1, 2]
 
 
-def test_check_primary_key_chunks_by_value_for_categorical_chunk_field(mocker) -> None:
-    """A non-temporal ``chunk_field`` is actually used to partition rows by value.
+def test_check_primary_key_chunks_categorical_field_by_value(mocker) -> None:
+    """A non-temporal ``pk_check_chunk_field`` partitions rows by exact value.
 
-    See ``test_check_primary_key_chunks_by_year_for_temporal_chunk_field`` for
+    See ``test_check_primary_key_chunks_temporal_field_by_calendar_year`` for
     why this spies on ``Resource._chunk_filters`` rather than calling it
     directly.
     """

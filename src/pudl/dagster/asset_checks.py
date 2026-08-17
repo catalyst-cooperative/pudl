@@ -105,7 +105,7 @@ def _collect_dtype_metadata(
         A metadata dictionary with:
         - ``field_details``: per-column expected/actual dtype details, declared
           constraints, and whether the column is content-checked (see
-          :meth:`~pudl.metadata.classes.Field.has_content_constraints`).
+          :meth:`~pudl.metadata.classes.FieldConstraints.requires_content_validation`).
         - ``column_comparison``: expected/actual column counts and optional missing
           or extra column lists.
         - ``type_mismatches``: only present when common columns have differing dtype
@@ -142,7 +142,7 @@ def _collect_dtype_metadata(
             "pudl_field_dtype": field.type,
             "expected_pandera_dtype": pandera_dtypes.get(field.name, "Unknown"),
             "actual_dtype": actual_dtypes.get(field.name, "Column not present"),
-            "content_checked": field.has_content_constraints(),
+            "content_checked": field.constraints.requires_content_validation(),
             "constraints": field.constraints.model_dump_json(exclude_defaults=True),
         }
         for field in resource.schema.fields
@@ -207,7 +207,7 @@ def _collect_primary_key_metadata(
     """Describe the primary-key check that will run for this resource, if any.
 
     Whether a composite-uniqueness check is chunked (see
-    :attr:`~pudl.metadata.classes.Schema.chunk_field`) is a cheap attribute lookup,
+    :attr:`~pudl.metadata.classes.Schema.pk_check_chunk_field`) is a cheap attribute lookup,
     not a re-run of the (potentially expensive, for our largest tables) chunking
     logic itself.
     """
@@ -220,7 +220,7 @@ def _collect_primary_key_metadata(
         "primary_key": {
             "declared": True,
             "columns": primary_key,
-            "chunked": resource.schema.chunk_field is not None,
+            "chunked": resource.schema.pk_check_chunk_field is not None,
             "checked": not missing_columns,
             "missing_columns": missing_columns or None,
         }
@@ -394,7 +394,7 @@ def _validate_polars_content(
         for field in resource.schema.fields:
             if field.name not in present_columns:
                 continue
-            if not field.has_content_constraints():
+            if not field.constraints.requires_content_validation():
                 continue
             column_schema = pr_polars.DataFrameSchema(
                 {field.name: field.to_pandera_column(use_pandas_backend=False)}
