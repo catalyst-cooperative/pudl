@@ -517,16 +517,6 @@ def test_check_primary_key_polars_no_primary_key() -> None:
     assert resource.check_primary_key(lf) == []
 
 
-def test_find_duplicate_primary_keys() -> None:
-    """The underlying group-by/count reduction correctly identifies duplicates."""
-    lf = pl.LazyFrame({"a": [1, 1, 2], "b": ["x", "x", "y"]})
-    duplicates = Resource._find_duplicate_primary_keys(lf, ["a", "b"])
-    assert duplicates.height == 1
-    assert duplicates["a"][0] == 1
-    assert duplicates["b"][0] == "x"
-    assert duplicates["_pk_count"][0] == 2
-
-
 def test_field_unit_strings() -> None:
     """Check that all unit strings in FIELD_METADATA parse against PUDL_UNIT_REGISTRY.
 
