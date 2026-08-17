@@ -380,15 +380,6 @@ class FieldConstraints(PudlMeta):
 
         return checks
 
-    def to_metadata_dict(self) -> dict[str, Any]:
-        """Build a JSON-safe summary of only the constraints actually set.
-
-        Used by callers (e.g. Dagster asset-check metadata) that want to show what's
-        being enforced on a column without cross-referencing the PUDL metadata source
-        or wading through every unset default.
-        """
-        return self.model_dump(exclude_defaults=True, mode="json")
-
 
 class FieldHarvest(PudlMeta):
     """Field harvest parameters (`resource.schema.fields[...].harvest`)."""
