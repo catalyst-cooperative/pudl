@@ -2148,8 +2148,8 @@ class Resource(PudlMeta):
 
         For tables large enough that checking uniqueness in a single pass is
         impractical, the check is chunked by ``self.schema.chunk_field`` (see
-        ``_chunk_filters``) when set. Only meaningful for a Polars ``data``; ignored
-        for pandas/geopandas, which are already fully loaded into memory.
+        ``_chunk_filters``) when set. Only meaningful for a Polars ``LazyFrame``;
+        ignored for pandas/geopandas, which are already fully loaded into memory.
 
         Args:
             data: DataFrame, GeoDataFrame, or LazyFrame to check against the primary key
