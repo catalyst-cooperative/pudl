@@ -349,7 +349,7 @@ Regenerate the baseline when:
 
 .. code-block:: console
 
-    $ pixi run -e dev pyrefly check --baseline .pyrefly-baseline.json --update-baseline
+    $ pixi run pyrefly-update-baseline
 
 Never hand-edit ``.pyrefly-baseline.json``, and never regenerate it just to make a
 *newly introduced* error in your own change disappear -- that defeats its purpose as a
@@ -369,7 +369,7 @@ newly added:
 
 .. code-block:: console
 
-    $ pixi run -e dev pyrefly check --baseline .pyrefly-baseline.json --update-baseline
+    $ pixi run pyrelfy-update-baseline
     $ pixi run pyrefly-baseline-diff
 
 Run this every time you regenerate the baseline, before committing it. Confirm the

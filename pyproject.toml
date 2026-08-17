@@ -206,6 +206,9 @@ marimo = ">=0.13"
 cmd = "pyrefly check --baseline .pyrefly-baseline.json"
 description = "Type-check with pyrefly against the tracked baseline"
 
+[tool.pixi.feature.dev.tasks.pyrefly-update-baseline]
+cmd = "pyrefly check --baseline .pyrefly-baseline.json --update-baseline"
+
 [tool.pixi.feature.dev.tasks.pyrefly-baseline-diff]
 cmd = "pyrefly_baseline_diff"
 description = """
