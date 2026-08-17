@@ -30,6 +30,7 @@ from pandas._libs.missing import NAType
 from pandera.constants import CHECK_OUTPUT_KEY
 from pandera.errors import SchemaError, SchemaErrorReason
 from pydantic import (
+    AfterValidator,
     AnyHttpUrl,
     BaseModel,
     ConfigDict,
@@ -303,24 +304,6 @@ def _sort_deterministically(value: list | None = None) -> list | None:
     return value
 
 
-def _validator(*names, fn: Callable) -> Callable:
-    """Construct reusable Pydantic validator.
-
-    Args:
-        names: Names of attributes to validate.
-        fn: Validation function (see :meth:`pydantic.field_validator`).
-
-    Examples:
-        >>> class Class(BaseModel):
-        ...     x: list = None
-        ...     _check_unique = _validator("x", fn=_check_unique)
-        >>> Class(x=[0, 0])
-        Traceback (most recent call last):
-        ValidationError: ...
-    """
-    return field_validator(*names)(fn)
-
-
 ########################################################################################
 # PUDL Metadata Classes
 ########################################################################################
@@ -347,10 +330,14 @@ class FieldConstraints(PudlMeta):
     minimum: StrictInt | StrictFloat | datetime.date | datetime.datetime | None = None
     maximum: StrictInt | StrictFloat | datetime.date | datetime.datetime | None = None
     pattern: re.Pattern | None = None
-    enum: StrictList[String] | None = None
-
-    _check_unique = _validator("enum", fn=_check_unique)
-    _sort_enum = _validator("enum", fn=_sort_deterministically)
+    enum: (
+        Annotated[
+            StrictList[String],
+            AfterValidator(_check_unique),
+            AfterValidator(_sort_deterministically),
+        ]
+        | None
+    ) = None
 
     @field_validator("max_length")
     @classmethod
@@ -971,9 +958,7 @@ class ForeignKeyReference(PudlMeta):
     """
 
     resource: SnakeCase
-    fields: StrictList[SnakeCase]
-
-    _check_unique = _validator("fields", fn=_check_unique)
+    fields: Annotated[StrictList[SnakeCase], AfterValidator(_check_unique)]
 
 
 class ForeignKey(PudlMeta):
@@ -982,10 +967,8 @@ class ForeignKey(PudlMeta):
     See https://specs.frictionlessdata.io/table-schema/#foreign-keys.
     """
 
-    fields: StrictList[SnakeCase]
+    fields: Annotated[StrictList[SnakeCase], AfterValidator(_check_unique)]
     reference: ForeignKeyReference
-
-    _check_unique = _validator("fields", fn=_check_unique)
 
     @field_validator("reference")
     @classmethod
@@ -1029,8 +1012,8 @@ class Schema(PudlMeta):
     chunk_field: SnakeCase | None = None
     """Primary-key column to use when chunking this table for processing, if any."""
 
-    _check_unique = _validator(
-        "missing_values", "primary_key", "foreign_keys", fn=_check_unique
+    _check_unique = field_validator("missing_values", "primary_key", "foreign_keys")(
+        _check_unique
     )
 
     @field_validator("fields")
@@ -1738,8 +1721,8 @@ class Resource(PudlMeta):
     etl_group: EtlGroup | None = None
     create_database_schema: bool = True
 
-    _check_unique = _validator(
-        "contributors", "keywords", "licenses", "sources", fn=_check_unique
+    _check_unique = field_validator("contributors", "keywords", "licenses", "sources")(
+        _check_unique
     )
 
     @property
