@@ -316,6 +316,22 @@ def _aggregate_generation_fuel_duplicates(
     is_duplicate = gen_fuel.duplicated(subset=natural_key_fields, keep=False)
 
     duplicates = gen_fuel[is_duplicate].copy()
+
+    # Remove duplicates where all numeric fields are 0 (only if there are other,
+    # non-zero duplicates)
+    value_cols = duplicates.columns.difference(natural_key_fields + ["sector_id_eia"])
+    num = duplicates[value_cols].select_dtypes(include="number")
+
+    duplicates = duplicates.assign(_is_zero=(num == 0).all(axis=1))
+
+    g = duplicates.groupby(natural_key_fields)["_is_zero"]
+    has_zero = g.transform("any")
+    has_nonzero = g.transform(lambda s: (~s).any())
+
+    # drop the zero rows only in groups that also have non-zero rows
+    mask_drop = duplicates["_is_zero"] & has_zero & has_nonzero
+    duplicates = duplicates[~mask_drop].drop(columns="_is_zero")
+
     fuel_type_code_agg_is_unique = (
         duplicates.groupby(natural_key_fields).fuel_type_code_agg.nunique().eq(1).all()
     )
@@ -1825,6 +1841,64 @@ def _core_eia923__energy_storage(
     ] = "mcf"
 
     return es_df
+
+
+@asset(io_manager_key="pudl_io_manager")
+def _core_eia923__yearly_fuel_stocks(
+    raw_eia923__stocks: pd.DataFrame,
+) -> pd.DataFrame:
+    """Transform the EIA-923 fossil-fuel stocks table.
+
+    The raw table reports end-of-month coal, petroleum liquids and petroleum coke
+    stocks by census division / state, with one wide record per region and year
+    (twelve columns per fuel). This transform:
+
+    * standardizes null values,
+    * drops the ``early_release`` flag (dropped from all EIA-923 tables),
+    * reshapes the wide monthly stock columns into tall monthly records via
+      :func:`_yearly_to_monthly_records`, keeping one column per fuel type,
+    * builds a ``report_date`` from ``report_year`` and the reshaped month,
+    * strips the ``census_division_and_state`` labels (the raw values contain
+      trailing whitespace), and
+    * converts the reported thousand-unit stock quantities to base units (short
+      tons of coal, barrels of petroleum liquids and petroleum coke) following the
+      same thousand-to-base convention used elsewhere in EIA-923.
+
+    The ``census_division_and_state`` column is intentionally left as-is and
+    unconstrained: its raw values mix census divisions, individual states,
+    multi-state groupings and a national total, and standardizing them against
+    PUDL's state / census-region conventions is being handled separately (see
+    `issue #5081 <https://github.com/catalyst-cooperative/pudl/issues/5081>`__).
+
+    Args:
+        raw_eia923__stocks: The raw ``raw_eia923__stocks`` dataframe.
+
+    Returns:
+        A tall monthly fuel-stocks dataframe keyed on ``report_date`` and
+        ``census_division_and_state`` with one column per fuel stock type.
+    """
+    df = (
+        pudl.helpers.standardize_na_values(raw_eia923__stocks)
+        # This column is dropped from all EIA-923 tables.
+        .drop(columns=["early_release"], errors="ignore")
+        .pipe(_yearly_to_monthly_records)
+        .pipe(pudl.helpers.convert_to_date)
+    )
+    df["census_division_and_state"] = df["census_division_and_state"].str.strip()
+    # The raw stocks are reported in thousands (coal and petroleum coke in
+    # thousand short tons, petroleum liquids in thousand barrels). Convert to base
+    # units to match the rest of PUDL.
+    stock_cols = {
+        "coal": "coal_stock_tons",
+        "oil": "petroleum_liquids_stock_barrels",
+        "petcoke": "petroleum_coke_stock_tons",
+    }
+    for raw_col, stock_col in stock_cols.items():
+        df[stock_col] = pd.to_numeric(df[raw_col], errors="coerce") * 1000.0
+    df = df.drop(columns=list(stock_cols))
+    # A handful of region-months carry no stock data at all; drop them.
+    df = df.dropna(subset=list(stock_cols.values()), how="all")
+    return df.reset_index(drop=True)
 
 
 @asset(io_manager_key="pudl_io_manager")
