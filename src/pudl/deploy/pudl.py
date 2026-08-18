@@ -584,9 +584,8 @@ def set_gcs_temporary_hold(gcs_path: str, billing_project: str = "") -> None:
             with a configured ``gcloud`` project needs no explicit argument.
 
     Raises:
-        RuntimeError: If no billing project can be determined by any of the
-            above, no objects are found at ``gcs_path``, or a post-hold sweep
-            finds objects still missing the hold.
+        RuntimeError: If no objects are found at ``gcs_path`` or a post-hold
+            sweep finds objects still missing the hold.
     """
     logger.info(f"Setting temporary hold on {gcs_path}")
 
@@ -595,15 +594,7 @@ def set_gcs_temporary_hold(gcs_path: str, billing_project: str = "") -> None:
     # Application Default Credentials project auto-detection entirely, so the
     # kwarg has to be left out when there's no explicit override.
     client_kwargs = {"project": billing_project} if billing_project else {}
-    try:
-        client = storage.Client(**client_kwargs)
-    except OSError as e:
-        raise RuntimeError(
-            "Could not determine a billing project for the Requester Pays "
-            "pudl.catalyst.coop bucket. Set the GCP_BILLING_PROJECT env var, or "
-            "configure gcloud locally (`gcloud config set project ...` or "
-            "`gcloud auth application-default login`)."
-        ) from e
+    client = storage.Client(**client_kwargs)
     bucket = client.bucket(bucket_name, user_project=client.project)
 
     num_held = 0
