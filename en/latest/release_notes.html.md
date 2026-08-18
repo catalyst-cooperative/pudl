@@ -16,8 +16,23 @@ This is the upcoming PUDL release.
   verify after the fact that none were missed. Manually re-applied the hold to 4,000+
   previously published versioned release objects that had been missed by the original
   bug. See PR pr:5477.
+* Fixed EIA-176 extraction bug where `raw_eia176__operation_types_and_sector_items`
+  was always empty due to a mismatched page key. See [#4697](https://github.com/catalyst-cooperative/pudl/issues/4697) and [#5412](https://github.com/catalyst-cooperative/pudl/pull/5412).
 
 ### New Data
+
+#### EIA-176
+
+* Added [core_eia176_\_yearly_company_characteristics](data_dictionaries/pudl_db.html.md#core-eia176-yearly-company-characteristics) with company operation
+  type, ownership type, and company characteristic fields from EIA Form 176 Part 3
+  (Lines A-D). Includes `alternative_fleet_size`,
+  `customer_choice_residential_eligible`,
+  `customer_choice_residential_participating`, `has_sales_or_acquisitions`, and
+  `natural_gas_pump_price_dollars_per_mcf` (2014-2016 only). National-level
+  adjustment records (operating_state FX, MX, BL, OO) are excluded. The raw
+  `is_other_ownership` and `is_other_ownership_2` fields (which never co-occur)
+  are merged into a single `is_other_ownership` boolean.
+  See [#4697](https://github.com/catalyst-cooperative/pudl/issues/4697) and [#5412](https://github.com/catalyst-cooperative/pudl/pull/5412).
 
 #### EIA-923
 

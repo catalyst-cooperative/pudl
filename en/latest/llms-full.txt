@@ -23851,6 +23851,8 @@ Module to perform data cleaning functions on EIA176 data tables.
 | [`UNKNOWN_TYPES`](autoapi/pudl/transform/eia176/index.html.md#pudl.transform.eia176.UNKNOWN_TYPES)                                    |    |
 | [`SUPPLEMENTAL_GASEOUS_FUEL_TYPE_MAP`](autoapi/pudl/transform/eia176/index.html.md#pudl.transform.eia176.SUPPLEMENTAL_GASEOUS_FUEL_TYPE_MAP)               |    |
 | [`OTHER_DISPOSITION_TYPE_MAP`](autoapi/pudl/transform/eia176/index.html.md#pudl.transform.eia176.OTHER_DISPOSITION_TYPE_MAP)                       |    |
+| [`NATIONAL_ADJUSTMENT_STATE_CODES`](autoapi/pudl/transform/eia176/index.html.md#pudl.transform.eia176.NATIONAL_ADJUSTMENT_STATE_CODES)                  |    |
+| [`MAX_NATIONAL_ADJUSTMENT_RECORDS`](autoapi/pudl/transform/eia176/index.html.md#pudl.transform.eia176.MAX_NATIONAL_ADJUSTMENT_RECORDS)                  |    |
 
 ## Functions
 
@@ -23871,6 +23873,7 @@ Module to perform data cleaning functions on EIA176 data tables.
 | [`_compare_eia176_continuation_line_total`](autoapi/pudl/transform/eia176/index.html.md#pudl.transform.eia176._compare_eia176_continuation_line_total)(→ pandas.DataFrame) | Compare a wide EIA-176 value column against summed continuation-line values.                                  |
 | [`core_eia176__yearly_gas_disposition`](autoapi/pudl/transform/eia176/index.html.md#pudl.transform.eia176.core_eia176__yearly_gas_disposition)(→ pandas.DataFrame)     | Produce company-level gas disposition (EIA176, Lines 9.0 and 12.0-20.0).                                      |
 | [`core_eia176__yearly_liquefied_natural_gas_inventory`](autoapi/pudl/transform/eia176/index.html.md#pudl.transform.eia176.core_eia176__yearly_liquefied_natural_gas_inventory)(...)    | Operator's LNG storage volume and capacity (EIA176, lines 8.0-8.2).                                           |
+| [`core_eia176__yearly_company_characteristics`](autoapi/pudl/transform/eia176/index.html.md#pudl.transform.eia176.core_eia176__yearly_company_characteristics)(...)            | Produce annual company-level operational and ownership characteristics (EIA-176).                             |
 | [`_normalize_operating_states`](autoapi/pudl/transform/eia176/index.html.md#pudl.transform.eia176._normalize_operating_states)(...[, column])                  | Map full state names to their postal abbreviations.                                                           |
 
 ## Module Contents
@@ -23888,6 +23891,10 @@ Module to perform data cleaning functions on EIA176 data tables.
 ### pudl.transform.eia176.SUPPLEMENTAL_GASEOUS_FUEL_TYPE_MAP
 
 ### pudl.transform.eia176.OTHER_DISPOSITION_TYPE_MAP
+
+### pudl.transform.eia176.NATIONAL_ADJUSTMENT_STATE_CODES
+
+### pudl.transform.eia176.MAX_NATIONAL_ADJUSTMENT_RECORDS *= 28*
 
 ### pudl.transform.eia176.\_core_eia176_\_numeric_data(raw_eia176_\_numeric_data: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[dagster.Output](https://docs.dagster.io/api/dagster/ops/#dagster.Output), [dagster.Output](https://docs.dagster.io/api/dagster/ops/#dagster.Output)]
 
@@ -23998,6 +24005,38 @@ Produce company-level gas disposition (EIA176, Lines 9.0 and 12.0-20.0).
 ### pudl.transform.eia176.core_eia176_\_yearly_liquefied_natural_gas_inventory(\_core_eia176_\_yearly_company_data: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), core_pudl_\_codes_subdivisions: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame))
 
 Operator’s LNG storage volume and capacity (EIA176, lines 8.0-8.2).
+
+### pudl.transform.eia176.core_eia176_\_yearly_company_characteristics(raw_eia176_\_operation_types_and_sector_items: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), \_core_eia176_\_yearly_company_data: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+
+Produce annual company-level operational and ownership characteristics (EIA-176).
+
+Combines boolean operation-type and ownership-type columns from
+`raw_eia176__operation_types_and_sector_items` with numeric and boolean fields
+from `_core_eia176__yearly_company_data`.
+
+One row per `(report_year, operator_id_eia)`.
+
+Processing:
+
+* Select all `is_*` boolean columns and `other_ownership_description` from the
+  raw operation types table. The `operating_state` column in that table already
+  contains two-letter postal codes.
+* Left-join company-level numeric and boolean fields from the company data table.
+* Drop national-level adjustment records (operating_state in
+  `NATIONAL_ADJUSTMENT_STATE_CODES`): these represent cross-border totals, not
+  state-level operator data.
+* Convert `"X"`-encoded columns to boolean (`True` where marked, `False`
+  otherwise).
+* Replace the `1.0` float artifact in `other_ownership_description` (present
+  in 2012-2015 LNG terminal records) with `pd.NA`, then apply
+  `simplify_strings()`.
+
+* **Parameters:**
+  * **raw_eia176_\_operation_types_and_sector_items** – Raw EIA-176 operation types
+    and sector items table; primary source for all `is_*` columns and
+    `operating_state`.
+  * **\_core_eia176_\_yearly_company_data** – Wide company-level EIA-176 data; provides
+    numeric and boolean company fields.
 
 ### pudl.transform.eia176.\_normalize_operating_states(core_pudl_\_codes_subdivisions, df, column: [str](https://docs.python.org/3/library/stdtypes.html#str) = 'operating_state')
 
@@ -48004,6 +48043,100 @@ WHERE
 | report_year                   | integer    |            | Four-digit year in which the data was reported.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | state                         | string     |            | Two letter US state abbreviation.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
 
+<a id="core-eia176-yearly-company-characteristics"></a>
+
+## core_eia176_\_yearly_company_characteristics
+
+Noticed any irregularities with this table? [File a report.](https://github.com/catalyst-cooperative/pudl/issues/new?template=data_bug_report.yml&table=core_eia176__yearly_company_characteristics)
+
+Annual time series of a company’s operational and ownership characteristics.
+
+Most-recent data:
+: 2024
+
+Processing:
+: Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
+
+Source:
+: EIA Form 176 – Annual Report of Natural and Supplemental Gas Supply and Disposition (Part 3, Lines A–D)
+
+Primary key:
+: report_year, operator_id_eia
+
+### Additional Details
+
+The natural_gas_pump_price_dollars_per_mcf field is reported only for 2014-2016. National-level adjustment records identified by the EIA (operating_state in FX, MX, BL, OO) are removed during transformation.
+
+### Access methods
+
+* [Browse and query this table online](https://data.catalyst.coop/preview/pudl/core_eia176__yearly_company_characteristics)
+* [Download this table as a Parquet file](https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/core_eia176__yearly_company_characteristics.parquet)
+
+### pandas
+
+```python
+import pandas as pd
+df = pd.read_parquet(
+      "s3://pudl.catalyst.coop/nightly/core_eia176__yearly_company_characteristics.parquet",
+      dtype_backend="pyarrow",
+)
+```
+
+### polars
+
+```python
+import polars as pl
+df = pl.read_parquet(
+      "s3://pudl.catalyst.coop/nightly/core_eia176__yearly_company_characteristics.parquet",
+      storage_options={"aws_region": "us-west-2", "aws_skip_signature": "True"},
+)
+```
+
+### SQL (DuckDB)
+
+```sql
+SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia176__yearly_company_characteristics.parquet';
+```
+
+### R
+
+```r
+library(arrow)
+df <- read_parquet(
+      "s3://pudl.catalyst.coop/nightly/core_eia176__yearly_company_characteristics.parquet"
+)
+```
+
+### Columns
+
+| **Field Name**                                   | **Type**   | **Unit**   | **Description**                                                                                                                                   |
+|--------------------------------------------------|------------|------------|---------------------------------------------------------------------------------------------------------------------------------------------------|
+| alternative_fleet_size                           | integer    |            | Number of alternative-fuel vehicles in the company’s fleet.                                                                                       |
+| customer_choice_residential_eligible             | integer    |            | Number of residential customers eligible for customer choice programs.                                                                            |
+| customer_choice_residential_participating        | integer    |            | Number of residential customers participating in customer choice programs.                                                                        |
+| has_alternative_fuel_fleet                       | boolean    |            | Whether the company operated a fleet of alternative-fuel vehicles during the report year.                                                         |
+| has_sales_or_acquisitions                        | boolean    |            | Whether the company completed sales or acquisitions of natural gas distribution assets during the report year.                                    |
+| is_distribution_company_cooperative              | boolean    |            | Whether the company is a cooperative distribution company.                                                                                        |
+| is_distribution_company_investor_owned           | boolean    |            | Whether the company is an investor-owned distribution company.                                                                                    |
+| is_distribution_company_municipally_owned        | boolean    |            | Whether the company is a municipally-owned distribution company.                                                                                  |
+| is_distribution_company_privately_owned          | boolean    |            | Whether the company is a privately-owned distribution company.                                                                                    |
+| is_gatherer                                      | boolean    |            | Whether the company gathers natural gas from production areas for delivery to processing plants, transmission pipelines, or distribution systems. |
+| is_interstate_pipeline                           | boolean    |            | Whether the company operates an interstate natural gas pipeline.                                                                                  |
+| is_intrastate_pipeline                           | boolean    |            | Whether the company operates an intrastate natural gas pipeline.                                                                                  |
+| is_liquid_natural_gas_marine_terminal            | boolean    |            | Whether the company operates a liquefied natural gas marine terminal.                                                                             |
+| is_liquid_natural_gas_peak_facility_operator     | boolean    |            | Whether the company operates a liquefied natural gas peak-shaving facility.                                                                       |
+| is_other_ownership                               | boolean    |            | Whether the company reported an ownership type other than investor-owned, cooperative, municipal, or private.                                     |
+| is_producer                                      | boolean    |            | Whether the company operates as a natural gas producer.                                                                                           |
+| is_public_compressed_natural_gas_fueling_station | boolean    |            | Whether the company operates a public compressed natural gas (CNG) fueling station.                                                               |
+| is_public_lng_fueling_station                    | boolean    |            | Whether the company operates a public liquefied natural gas (LNG) fueling station.                                                                |
+| is_storage_operator                              | boolean    |            | Whether the company operates natural gas storage facilities.                                                                                      |
+| is_synthetic_natural_gas_plant_operator          | boolean    |            | Whether the company operates a synthetic natural gas production plant.                                                                            |
+| natural_gas_pump_price_dollars_per_mcf           | number     | USD / Mcf  | Price of natural gas at public fueling stations operated by the company.                                                                          |
+| operating_state                                  | string     |            | State that the operator is reporting for.                                                                                                         |
+| operator_id_eia                                  | string     |            | The unique EIA identifier for an operator in a given state. The last two letters of the ID indicate the state.                                    |
+| other_ownership_description                      | string     |            | Free-text description of ownership type when ‘other’ ownership is indicated.                                                                      |
+| report_year                                      | integer    |            | Four-digit year in which the data was reported.                                                                                                   |
+
 <a id="core-eia176-yearly-gas-disposition"></a>
 
 ## core_eia176_\_yearly_gas_disposition
@@ -69027,6 +69160,7 @@ respective transform function.
 
 | Data Dictionary                                                                                                                                              | Browse Online                                                                                                                                                                                     |
 |--------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [core_eia176_\_yearly_company_characteristics](data_dictionaries/pudl_db.html.md#core-eia176-yearly-company-characteristics)                       | [https://data.catalyst.coop/preview/pudl/core_eia176_\_yearly_company_characteristics](https://data.catalyst.coop/preview/pudl/core_eia176__yearly_company_characteristics)                       |
 | [core_eia176_\_yearly_gas_disposition](data_dictionaries/pudl_db.html.md#core-eia176-yearly-gas-disposition)                                       | [https://data.catalyst.coop/preview/pudl/core_eia176_\_yearly_gas_disposition](https://data.catalyst.coop/preview/pudl/core_eia176__yearly_gas_disposition)                                       |
 | [core_eia176_\_yearly_gas_disposition_by_consumer](data_dictionaries/pudl_db.html.md#core-eia176-yearly-gas-disposition-by-consumer)               | [https://data.catalyst.coop/preview/pudl/core_eia176_\_yearly_gas_disposition_by_consumer](https://data.catalyst.coop/preview/pudl/core_eia176__yearly_gas_disposition_by_consumer)               |
 | [core_eia176_\_yearly_gas_disposition_other](data_dictionaries/pudl_db.html.md#core-eia176-yearly-gas-disposition-other)                           | [https://data.catalyst.coop/preview/pudl/core_eia176_\_yearly_gas_disposition_other](https://data.catalyst.coop/preview/pudl/core_eia176__yearly_gas_disposition_other)                           |
@@ -78123,8 +78257,23 @@ This is the upcoming PUDL release.
   verify after the fact that none were missed. Manually re-applied the hold to 4,000+
   previously published versioned release objects that had been missed by the original
   bug. See PR pr:5477.
+* Fixed EIA-176 extraction bug where `raw_eia176__operation_types_and_sector_items`
+  was always empty due to a mismatched page key. See [#4697](https://github.com/catalyst-cooperative/pudl/issues/4697) and [#5412](https://github.com/catalyst-cooperative/pudl/pull/5412).
 
 ### New Data
+
+#### EIA-176
+
+* Added [core_eia176_\_yearly_company_characteristics](data_dictionaries/pudl_db.html.md#core-eia176-yearly-company-characteristics) with company operation
+  type, ownership type, and company characteristic fields from EIA Form 176 Part 3
+  (Lines A-D). Includes `alternative_fleet_size`,
+  `customer_choice_residential_eligible`,
+  `customer_choice_residential_participating`, `has_sales_or_acquisitions`, and
+  `natural_gas_pump_price_dollars_per_mcf` (2014-2016 only). National-level
+  adjustment records (operating_state FX, MX, BL, OO) are excluded. The raw
+  `is_other_ownership` and `is_other_ownership_2` fields (which never co-occur)
+  are merged into a single `is_other_ownership` boolean.
+  See [#4697](https://github.com/catalyst-cooperative/pudl/issues/4697) and [#5412](https://github.com/catalyst-cooperative/pudl/pull/5412).
 
 #### EIA-923
 

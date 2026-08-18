@@ -18,7 +18,7 @@
     </script>
     
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
-    <title>pudl.transform.eia176 &#8212; PUDL 2026.8.1.dev14 documentation</title>
+    <title>pudl.transform.eia176 &#8212; PUDL 2026.8.1.dev15 documentation</title>
   
   
   
@@ -51,7 +51,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../../_static/documentation_options.js?v=7070510b"></script>
+    <script src="../../../../_static/documentation_options.js?v=d930256d"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -142,8 +142,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev14 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev14 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev15 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev15 documentation - Home"/>
   
   
 </a></div>
@@ -884,6 +884,12 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia176.OTHER_DISPOSITION_TYPE_MAP" title="pudl.transform.eia176.OTHER_DISPOSITION_TYPE_MAP"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OTHER_DISPOSITION_TYPE_MAP</span></code></a></p></td>
 <td><p></p></td>
 </tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia176.NATIONAL_ADJUSTMENT_STATE_CODES" title="pudl.transform.eia176.NATIONAL_ADJUSTMENT_STATE_CODES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NATIONAL_ADJUSTMENT_STATE_CODES</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia176.MAX_NATIONAL_ADJUSTMENT_RECORDS" title="pudl.transform.eia176.MAX_NATIONAL_ADJUSTMENT_RECORDS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MAX_NATIONAL_ADJUSTMENT_RECORDS</span></code></a></p></td>
+<td><p></p></td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -940,7 +946,10 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia176.core_eia176__yearly_liquefied_natural_gas_inventory" title="pudl.transform.eia176.core_eia176__yearly_liquefied_natural_gas_inventory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_eia176__yearly_liquefied_natural_gas_inventory</span></code></a>(...)</p></td>
 <td><p>Operator's LNG storage volume and capacity (EIA176, lines 8.0-8.2).</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia176._normalize_operating_states" title="pudl.transform.eia176._normalize_operating_states"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_normalize_operating_states</span></code></a>(...[, column])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.transform.eia176.core_eia176__yearly_company_characteristics" title="pudl.transform.eia176.core_eia176__yearly_company_characteristics"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core_eia176__yearly_company_characteristics</span></code></a>(...)</p></td>
+<td><p>Produce annual company-level operational and ownership characteristics (EIA-176).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pudl.transform.eia176._normalize_operating_states" title="pudl.transform.eia176._normalize_operating_states"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_normalize_operating_states</span></code></a>(...[, column])</p></td>
 <td><p>Map full state names to their postal abbreviations.</p></td>
 </tr>
 </tbody>
@@ -982,6 +991,16 @@
 <dl class="py data">
 <dt class="sig sig-object py" id="pudl.transform.eia176.OTHER_DISPOSITION_TYPE_MAP">
 <span class="sig-prename descclassname"><span class="pre">pudl.transform.eia176.</span></span><span class="sig-name descname"><span class="pre">OTHER_DISPOSITION_TYPE_MAP</span></span><a class="reference internal" href="../../../../_modules/pudl/transform/eia176.html#OTHER_DISPOSITION_TYPE_MAP"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.transform.eia176.OTHER_DISPOSITION_TYPE_MAP" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pudl.transform.eia176.NATIONAL_ADJUSTMENT_STATE_CODES">
+<span class="sig-prename descclassname"><span class="pre">pudl.transform.eia176.</span></span><span class="sig-name descname"><span class="pre">NATIONAL_ADJUSTMENT_STATE_CODES</span></span><a class="reference internal" href="../../../../_modules/pudl/transform/eia176.html#NATIONAL_ADJUSTMENT_STATE_CODES"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.transform.eia176.NATIONAL_ADJUSTMENT_STATE_CODES" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pudl.transform.eia176.MAX_NATIONAL_ADJUSTMENT_RECORDS">
+<span class="sig-prename descclassname"><span class="pre">pudl.transform.eia176.</span></span><span class="sig-name descname"><span class="pre">MAX_NATIONAL_ADJUSTMENT_RECORDS</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">28</span></span><a class="reference internal" href="../../../../_modules/pudl/transform/eia176.html#MAX_NATIONAL_ADJUSTMENT_RECORDS"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.transform.eia176.MAX_NATIONAL_ADJUSTMENT_RECORDS" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
@@ -1127,6 +1146,42 @@ unknown <code class="docutils literal notranslate"><span class="pre">operating_s
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="pudl.transform.eia176.core_eia176__yearly_company_characteristics">
+<span class="sig-prename descclassname"><span class="pre">pudl.transform.eia176.</span></span><span class="sig-name descname"><span class="pre">core_eia176__yearly_company_characteristics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raw_eia176__operation_types_and_sector_items</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.5)"><span class="pre">pandas.DataFrame</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">_core_eia176__yearly_company_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.5)"><span class="pre">pandas.DataFrame</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.5)"><span class="pre">pandas.DataFrame</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/transform/eia176.html#core_eia176__yearly_company_characteristics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.transform.eia176.core_eia176__yearly_company_characteristics" title="Link to this definition">#</a></dt>
+<dd><p>Produce annual company-level operational and ownership characteristics (EIA-176).</p>
+<p>Combines boolean operation-type and ownership-type columns from
+<code class="docutils literal notranslate"><span class="pre">raw_eia176__operation_types_and_sector_items</span></code> with numeric and boolean fields
+from <code class="docutils literal notranslate"><span class="pre">_core_eia176__yearly_company_data</span></code>.</p>
+<p>One row per <code class="docutils literal notranslate"><span class="pre">(report_year,</span> <span class="pre">operator_id_eia)</span></code>.</p>
+<p>Processing:</p>
+<ul class="simple">
+<li><p>Select all <code class="docutils literal notranslate"><span class="pre">is_*</span></code> boolean columns and <code class="docutils literal notranslate"><span class="pre">other_ownership_description</span></code> from the
+raw operation types table. The <code class="docutils literal notranslate"><span class="pre">operating_state</span></code> column in that table already
+contains two-letter postal codes.</p></li>
+<li><p>Left-join company-level numeric and boolean fields from the company data table.</p></li>
+<li><p>Drop national-level adjustment records (operating_state in
+<code class="docutils literal notranslate"><span class="pre">NATIONAL_ADJUSTMENT_STATE_CODES</span></code>): these represent cross-border totals, not
+state-level operator data.</p></li>
+<li><p>Convert <code class="docutils literal notranslate"><span class="pre">&quot;X&quot;</span></code>-encoded columns to boolean (<code class="docutils literal notranslate"><span class="pre">True</span></code> where marked, <code class="docutils literal notranslate"><span class="pre">False</span></code>
+otherwise).</p></li>
+<li><p>Replace the <code class="docutils literal notranslate"><span class="pre">1.0</span></code> float artifact in <code class="docutils literal notranslate"><span class="pre">other_ownership_description</span></code> (present
+in 2012-2015 LNG terminal records) with <code class="docutils literal notranslate"><span class="pre">pd.NA</span></code>, then apply
+<code class="docutils literal notranslate"><span class="pre">simplify_strings()</span></code>.</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>raw_eia176__operation_types_and_sector_items</strong> – Raw EIA-176 operation types
+and sector items table; primary source for all <code class="docutils literal notranslate"><span class="pre">is_*</span></code> columns and
+<code class="docutils literal notranslate"><span class="pre">operating_state</span></code>.</p></li>
+<li><p><strong>_core_eia176__yearly_company_data</strong> – Wide company-level EIA-176 data; provides
+numeric and boolean company fields.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="pudl.transform.eia176._normalize_operating_states">
 <span class="sig-prename descclassname"><span class="pre">pudl.transform.eia176.</span></span><span class="sig-name descname"><span class="pre">_normalize_operating_states</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">core_pudl__codes_subdivisions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">column</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'operating_state'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pudl/transform/eia176.html#_normalize_operating_states"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.transform.eia176._normalize_operating_states" title="Link to this definition">#</a></dt>
 <dd><p>Map full state names to their postal abbreviations.</p>
@@ -1193,6 +1248,8 @@ unknown <code class="docutils literal notranslate"><span class="pre">operating_s
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.transform.eia176.UNKNOWN_TYPES"><code class="docutils literal notranslate"><span class="pre">UNKNOWN_TYPES</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.transform.eia176.SUPPLEMENTAL_GASEOUS_FUEL_TYPE_MAP"><code class="docutils literal notranslate"><span class="pre">SUPPLEMENTAL_GASEOUS_FUEL_TYPE_MAP</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.transform.eia176.OTHER_DISPOSITION_TYPE_MAP"><code class="docutils literal notranslate"><span class="pre">OTHER_DISPOSITION_TYPE_MAP</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.transform.eia176.NATIONAL_ADJUSTMENT_STATE_CODES"><code class="docutils literal notranslate"><span class="pre">NATIONAL_ADJUSTMENT_STATE_CODES</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.transform.eia176.MAX_NATIONAL_ADJUSTMENT_RECORDS"><code class="docutils literal notranslate"><span class="pre">MAX_NATIONAL_ADJUSTMENT_RECORDS</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.transform.eia176._core_eia176__numeric_data"><code class="docutils literal notranslate"><span class="pre">_core_eia176__numeric_data()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.transform.eia176.get_wide_table"><code class="docutils literal notranslate"><span class="pre">get_wide_table()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.transform.eia176._subdivision_code_map"><code class="docutils literal notranslate"><span class="pre">_subdivision_code_map()</span></code></a></li>
@@ -1209,6 +1266,7 @@ unknown <code class="docutils literal notranslate"><span class="pre">operating_s
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.transform.eia176._compare_eia176_continuation_line_total"><code class="docutils literal notranslate"><span class="pre">_compare_eia176_continuation_line_total()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.transform.eia176.core_eia176__yearly_gas_disposition"><code class="docutils literal notranslate"><span class="pre">core_eia176__yearly_gas_disposition()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.transform.eia176.core_eia176__yearly_liquefied_natural_gas_inventory"><code class="docutils literal notranslate"><span class="pre">core_eia176__yearly_liquefied_natural_gas_inventory()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.transform.eia176.core_eia176__yearly_company_characteristics"><code class="docutils literal notranslate"><span class="pre">core_eia176__yearly_company_characteristics()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.transform.eia176._normalize_operating_states"><code class="docutils literal notranslate"><span class="pre">_normalize_operating_states()</span></code></a></li>
 </ul>
 </li>

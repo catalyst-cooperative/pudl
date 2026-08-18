@@ -24268,6 +24268,193 @@ Columns
     - 
     - Two letter US state abbreviation.
 
+.. _core_eia176__yearly_company_characteristics:
+
+-------------------------------------------------------------------------------
+core_eia176__yearly_company_characteristics
+-------------------------------------------------------------------------------
+Noticed any irregularities with this table? `File a report. <https://github.com/catalyst-cooperative/pudl/issues/new?template=data_bug_report.yml&table=core_eia176__yearly_company_characteristics>`__
+
+Annual time series of a company's operational and ownership characteristics. 
+
+
+Most-recent data:
+  2024
+
+
+Processing:
+  Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
+
+Source:
+  EIA Form 176 -- Annual Report of Natural and Supplemental Gas Supply and Disposition (Part 3, Lines A–D)
+
+Primary key:
+  report_year, operator_id_eia
+
+
+
+
+
+Additional Details
+^^^^^^^^^^^^^^^^^^
+
+The natural_gas_pump_price_dollars_per_mcf field is reported only for 2014-2016. National-level adjustment records identified by the EIA (operating_state in FX, MX, BL, OO) are removed during transformation.
+
+Access methods
+^^^^^^^^^^^^^^^
+
+* `Browse and query this table online <https://data.catalyst.coop/preview/pudl/core_eia176__yearly_company_characteristics>`__
+* `Download this table as a Parquet file <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/core_eia176__yearly_company_characteristics.parquet>`__
+
+.. tab-set::
+
+   .. tab-item:: pandas
+
+      .. code-block:: python
+
+         import pandas as pd
+         df = pd.read_parquet(
+               "s3://pudl.catalyst.coop/nightly/core_eia176__yearly_company_characteristics.parquet",
+               dtype_backend="pyarrow",
+         )
+
+   .. tab-item:: polars
+
+      .. code-block:: python
+
+         import polars as pl
+         df = pl.read_parquet(
+               "s3://pudl.catalyst.coop/nightly/core_eia176__yearly_company_characteristics.parquet",
+               storage_options={"aws_region": "us-west-2", "aws_skip_signature": "True"},
+         )
+
+   .. tab-item:: SQL (DuckDB)
+
+      .. code-block:: sql
+
+         SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_eia176__yearly_company_characteristics.parquet';
+
+   .. tab-item:: R
+
+      .. code-block:: r
+
+         library(arrow)
+         df <- read_parquet(
+               "s3://pudl.catalyst.coop/nightly/core_eia176__yearly_company_characteristics.parquet"
+         )
+
+Columns
+^^^^^^^
+
+.. list-table::
+  :widths: auto
+  :header-rows: 1
+
+  * - **Field Name**
+    - **Type**
+    - **Unit**
+    - **Description**
+  * - alternative_fleet_size
+    - integer
+    - 
+    - Number of alternative-fuel vehicles in the company's fleet.
+  * - customer_choice_residential_eligible
+    - integer
+    - 
+    - Number of residential customers eligible for customer choice programs.
+  * - customer_choice_residential_participating
+    - integer
+    - 
+    - Number of residential customers participating in customer choice programs.
+  * - has_alternative_fuel_fleet
+    - boolean
+    - 
+    - Whether the company operated a fleet of alternative-fuel vehicles during the report year.
+  * - has_sales_or_acquisitions
+    - boolean
+    - 
+    - Whether the company completed sales or acquisitions of natural gas distribution assets during the report year.
+  * - is_distribution_company_cooperative
+    - boolean
+    - 
+    - Whether the company is a cooperative distribution company.
+  * - is_distribution_company_investor_owned
+    - boolean
+    - 
+    - Whether the company is an investor-owned distribution company.
+  * - is_distribution_company_municipally_owned
+    - boolean
+    - 
+    - Whether the company is a municipally-owned distribution company.
+  * - is_distribution_company_privately_owned
+    - boolean
+    - 
+    - Whether the company is a privately-owned distribution company.
+  * - is_gatherer
+    - boolean
+    - 
+    - Whether the company gathers natural gas from production areas for delivery to processing plants, transmission pipelines, or distribution systems.
+  * - is_interstate_pipeline
+    - boolean
+    - 
+    - Whether the company operates an interstate natural gas pipeline.
+  * - is_intrastate_pipeline
+    - boolean
+    - 
+    - Whether the company operates an intrastate natural gas pipeline.
+  * - is_liquid_natural_gas_marine_terminal
+    - boolean
+    - 
+    - Whether the company operates a liquefied natural gas marine terminal.
+  * - is_liquid_natural_gas_peak_facility_operator
+    - boolean
+    - 
+    - Whether the company operates a liquefied natural gas peak-shaving facility.
+  * - is_other_ownership
+    - boolean
+    - 
+    - Whether the company reported an ownership type other than investor-owned, cooperative, municipal, or private.
+  * - is_producer
+    - boolean
+    - 
+    - Whether the company operates as a natural gas producer.
+  * - is_public_compressed_natural_gas_fueling_station
+    - boolean
+    - 
+    - Whether the company operates a public compressed natural gas (CNG) fueling station.
+  * - is_public_lng_fueling_station
+    - boolean
+    - 
+    - Whether the company operates a public liquefied natural gas (LNG) fueling station.
+  * - is_storage_operator
+    - boolean
+    - 
+    - Whether the company operates natural gas storage facilities.
+  * - is_synthetic_natural_gas_plant_operator
+    - boolean
+    - 
+    - Whether the company operates a synthetic natural gas production plant.
+  * - natural_gas_pump_price_dollars_per_mcf
+    - number
+    - USD / Mcf
+    - Price of natural gas at public fueling stations operated by the company.
+  * - operating_state
+    - string
+    - 
+    - State that the operator is reporting for.
+  * - operator_id_eia
+    - string
+    - 
+    - The unique EIA identifier for an operator in a given state. The last two letters of the ID indicate the state.
+  * - other_ownership_description
+    - string
+    - 
+    - Free-text description of ownership type when 'other' ownership is indicated.
+  * - report_year
+    - integer
+    - 
+    - Four-digit year in which the data was reported.
+
 .. _core_eia176__yearly_gas_disposition:
 
 -------------------------------------------------------------------------------

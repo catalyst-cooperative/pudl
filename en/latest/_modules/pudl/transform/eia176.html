@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.transform.eia176 &#8212; PUDL 2026.8.1.dev14 documentation</title>
+    <title>pudl.transform.eia176 &#8212; PUDL 2026.8.1.dev15 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=7070510b"></script>
+    <script src="../../../_static/documentation_options.js?v=d930256d"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev14 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev14 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev15 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev15 documentation - Home"/>
   
   
 </a></div>
@@ -882,7 +882,12 @@ window.runMermaid = runMermaid;</script>
 <span class="p">)</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.analysis.record_linkage.name_cleaner</span><span class="w"> </span><span class="kn">import</span> <span class="n">CompanyNameCleaner</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">cleanstrings_series</span><span class="p">,</span> <span class="n">multi_index_stack</span><span class="p">,</span> <span class="n">simplify_columns</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.helpers</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">cleanstrings_series</span><span class="p">,</span>
+    <span class="n">multi_index_stack</span><span class="p">,</span>
+    <span class="n">simplify_columns</span><span class="p">,</span>
+    <span class="n">simplify_strings</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.logging_helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_logger</span>
 
 <div class="viewcode-block" id="logger">
@@ -1048,6 +1053,19 @@ window.runMermaid = runMermaid;</script>
     <span class="p">],</span>
     <span class="s2">&quot;vented_flared&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;vented flared&quot;</span><span class="p">],</span>
 <span class="p">}</span></div>
+
+
+<span class="c1"># Non-US operating_state codes in the operation types and sector items table.</span>
+<span class="c1"># Per EIA (2026-05-05):</span>
+<span class="c1">#   FX = Gulf of America, MX = Mexico, BL = Brazil, OO = countries without FIPS codes</span>
+<span class="c1"># These are national-level adjustment records and should be excluded.</span>
+<div class="viewcode-block" id="NATIONAL_ADJUSTMENT_STATE_CODES">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/eia176/index.html#pudl.transform.eia176.NATIONAL_ADJUSTMENT_STATE_CODES">[docs]</a>
+<span class="n">NATIONAL_ADJUSTMENT_STATE_CODES</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">({</span><span class="s2">&quot;BL&quot;</span><span class="p">,</span> <span class="s2">&quot;FX&quot;</span><span class="p">,</span> <span class="s2">&quot;MX&quot;</span><span class="p">,</span> <span class="s2">&quot;OO&quot;</span><span class="p">})</span></div>
+
+<div class="viewcode-block" id="MAX_NATIONAL_ADJUSTMENT_RECORDS">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/eia176/index.html#pudl.transform.eia176.MAX_NATIONAL_ADJUSTMENT_RECORDS">[docs]</a>
+<span class="n">MAX_NATIONAL_ADJUSTMENT_RECORDS</span> <span class="o">=</span> <span class="mi">28</span></div>
 
 
 
@@ -2169,6 +2187,141 @@ window.runMermaid = runMermaid;</script>
         <span class="p">}</span>
     <span class="p">)</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;volume_mcf&quot;</span><span class="p">,</span> <span class="s2">&quot;capacity_mmcfd&quot;</span><span class="p">],</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+
+<span class="nd">@asset</span><span class="p">(</span><span class="n">io_manager_key</span><span class="o">=</span><span class="s2">&quot;pudl_io_manager&quot;</span><span class="p">)</span>
+<div class="viewcode-block" id="core_eia176__yearly_company_characteristics">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/eia176/index.html#pudl.transform.eia176.core_eia176__yearly_company_characteristics">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">core_eia176__yearly_company_characteristics</span><span class="p">(</span>
+    <span class="n">raw_eia176__operation_types_and_sector_items</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">_core_eia176__yearly_company_data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Produce annual company-level operational and ownership characteristics (EIA-176).</span>
+
+<span class="sd">    Combines boolean operation-type and ownership-type columns from</span>
+<span class="sd">    ``raw_eia176__operation_types_and_sector_items`` with numeric and boolean fields</span>
+<span class="sd">    from ``_core_eia176__yearly_company_data``.</span>
+
+<span class="sd">    One row per ``(report_year, operator_id_eia)``.</span>
+
+<span class="sd">    Processing:</span>
+
+<span class="sd">    * Select all ``is_*`` boolean columns and ``other_ownership_description`` from the</span>
+<span class="sd">      raw operation types table. The ``operating_state`` column in that table already</span>
+<span class="sd">      contains two-letter postal codes.</span>
+<span class="sd">    * Left-join company-level numeric and boolean fields from the company data table.</span>
+<span class="sd">    * Drop national-level adjustment records (operating_state in</span>
+<span class="sd">      ``NATIONAL_ADJUSTMENT_STATE_CODES``): these represent cross-border totals, not</span>
+<span class="sd">      state-level operator data.</span>
+<span class="sd">    * Convert ``&quot;X&quot;``-encoded columns to boolean (``True`` where marked, ``False``</span>
+<span class="sd">      otherwise).</span>
+<span class="sd">    * Replace the ``1.0`` float artifact in ``other_ownership_description`` (present</span>
+<span class="sd">      in 2012-2015 LNG terminal records) with ``pd.NA``, then apply</span>
+<span class="sd">      ``simplify_strings()``.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        raw_eia176__operation_types_and_sector_items: Raw EIA-176 operation types</span>
+<span class="sd">            and sector items table; primary source for all ``is_*`` columns and</span>
+<span class="sd">            ``operating_state``.</span>
+<span class="sd">        _core_eia176__yearly_company_data: Wide company-level EIA-176 data; provides</span>
+<span class="sd">            numeric and boolean company fields.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">pk</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;report_year&quot;</span><span class="p">,</span> <span class="s2">&quot;operator_id_eia&quot;</span><span class="p">]</span>
+    <span class="n">is_cols</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">c</span>
+        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">raw_eia176__operation_types_and_sector_items</span><span class="o">.</span><span class="n">columns</span>
+        <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;is_&quot;</span><span class="p">)</span>
+    <span class="p">]</span>
+
+    <span class="n">company_cols</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;alternative_fuel_fleet_1_yes_0_no&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;alternative_fleet_size&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;customer_choice_residential_eligible&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;customer_choice_residential_participating&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;sales_acquisitions_1_yes_0_no&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;natural_gas_pump_price&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="n">available_company_cols</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">company_cols</span> <span class="k">if</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">_core_eia176__yearly_company_data</span><span class="o">.</span><span class="n">columns</span>
+    <span class="p">]</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">raw_eia176__operation_types_and_sector_items</span><span class="p">[</span>
+        <span class="n">pk</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;operating_state&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">is_cols</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;other_ownership_description&quot;</span><span class="p">]</span>
+    <span class="p">]</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+        <span class="n">_core_eia176__yearly_company_data</span><span class="p">[</span><span class="n">pk</span> <span class="o">+</span> <span class="n">available_company_cols</span><span class="p">],</span>
+        <span class="n">on</span><span class="o">=</span><span class="n">pk</span><span class="p">,</span>
+        <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span>
+        <span class="n">validate</span><span class="o">=</span><span class="s2">&quot;1:1&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="c1"># Some company fields only exist in source years where the question was asked</span>
+    <span class="c1"># (e.g. natural_gas_pump_price appears in 2014-2016, but not in the 2020/2024</span>
+    <span class="c1"># fast build). Preserve the full output schema for partial-year materializations</span>
+    <span class="c1"># before renaming source columns into their output names.</span>
+    <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">company_cols</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">col</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="p">:</span>
+            <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;nan&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">col</span> <span class="o">==</span> <span class="s2">&quot;natural_gas_pump_price&quot;</span> <span class="k">else</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span>
+
+    <span class="c1"># Drop national-level adjustment records — see NATIONAL_ADJUSTMENT_STATE_CODES</span>
+    <span class="n">n_national</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;operating_state&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">NATIONAL_ADJUSTMENT_STATE_CODES</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+    <span class="k">assert</span> <span class="n">n_national</span> <span class="o">&lt;=</span> <span class="n">MAX_NATIONAL_ADJUSTMENT_RECORDS</span><span class="p">,</span> <span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;Expected no more than </span><span class="si">{</span><span class="n">MAX_NATIONAL_ADJUSTMENT_RECORDS</span><span class="si">}</span><span class="s2"> national-level &quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;adjustment records in &quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;core_eia176__yearly_company_characteristics, got </span><span class="si">{</span><span class="n">n_national</span><span class="si">}</span><span class="s2">.&quot;</span>
+    <span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;Dropping </span><span class="si">{</span><span class="n">n_national</span><span class="si">}</span><span class="s2"> national-level adjustment records from &quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;core_eia176__yearly_company_characteristics &quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;(operating_state in </span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">NATIONAL_ADJUSTMENT_STATE_CODES</span><span class="p">)</span><span class="si">}</span><span class="s2">).&quot;</span>
+    <span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="o">~</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;operating_state&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">NATIONAL_ADJUSTMENT_STATE_CODES</span><span class="p">)]</span>
+
+    <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">is_cols</span><span class="p">:</span>
+        <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="s2">&quot;X&quot;</span><span class="p">)</span>
+
+    <span class="c1"># is_other_ownership_2 appears only in 2016 (27 rows) and never co-occurs with</span>
+    <span class="c1"># is_other_ownership — merge them into a single column then drop the duplicate.</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;is_other_ownership&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;is_other_ownership&quot;</span><span class="p">]</span> <span class="o">|</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;is_other_ownership_2&quot;</span><span class="p">]</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;is_other_ownership_2&quot;</span><span class="p">])</span>
+
+    <span class="c1"># 1.0 float artifact in 2012-2015 LNG terminal records — not a meaningful value</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;other_ownership_description&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;other_ownership_description&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;other_ownership_description&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">or</span> <span class="n">pd</span><span class="o">.</span><span class="n">isna</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">simplify_strings</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;other_ownership_description&quot;</span><span class="p">])</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+        <span class="n">columns</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;alternative_fuel_fleet_1_yes_0_no&quot;</span><span class="p">:</span> <span class="s2">&quot;has_alternative_fuel_fleet&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;natural_gas_pump_price&quot;</span><span class="p">:</span> <span class="s2">&quot;natural_gas_pump_price_dollars_per_mcf&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+    <span class="c1"># Only reported 2005-2015; however, alternative fuel fleet size should only be reported if there</span>
+    <span class="c1"># is an alternative fuel fleet -  where alternative fuel fleet value is reported but</span>
+    <span class="c1"># boolean not filled, map to True.</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;has_alternative_fuel_fleet&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;has_alternative_fuel_fleet&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">({</span><span class="mf">1.0</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;alternative_fleet_size&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">notnull</span><span class="p">(),</span> <span class="s2">&quot;has_alternative_fuel_fleet&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;alternative_fleet_size&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">notnull</span><span class="p">(),</span> <span class="s2">&quot;has_alternative_fuel_fleet&quot;</span>
+        <span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="s2">&quot;sales_acquisitions_1_yes_0_no&quot;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;has_sales_or_acquisitions&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;sales_acquisitions_1_yes_0_no&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span>
+            <span class="p">{</span><span class="mf">1.0</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">:</span> <span class="kc">False</span><span class="p">}</span>
+        <span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;sales_acquisitions_1_yes_0_no&quot;</span><span class="p">])</span>
+
+    <span class="n">null_operating_state</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;operating_state&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+    <span class="k">assert</span> <span class="n">null_operating_state</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;Expected 0 null operating_state values in &quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;core_eia176__yearly_company_characteristics, got </span><span class="si">{</span><span class="n">null_operating_state</span><span class="si">}</span><span class="s2">.&quot;</span>
+    <span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;operating_state&quot;</span><span class="p">])</span>
 
     <span class="k">return</span> <span class="n">df</span></div>
 
