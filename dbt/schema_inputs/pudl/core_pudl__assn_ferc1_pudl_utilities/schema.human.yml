@@ -8,3 +8,13 @@ sources:
               arguments:
                 table_name: core_pudl__assn_ferc1_pudl_utilities
                 partition_expr: null
+        columns:
+          - name: utility_id_ferc1
+            data_tests:
+              - not_null
+              - one_value_per_key:
+                  arguments:
+                    other_column_name: utility_id_pudl
+          - name: utility_id_pudl
+            data_tests:
+              - not_null

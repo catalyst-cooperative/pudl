@@ -8,7 +8,7 @@ sources:
           - check_row_counts_per_partition:
               arguments:
                 table_name: core_ferc714__respondent_id
-                partition_expr:
+                partition_expr: null
         columns:
           - name: respondent_id_ferc714
           - name: respondent_id_ferc714_csv

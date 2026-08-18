@@ -4,6 +4,7 @@ from textwrap import dedent
 
 import pytest
 import yaml
+from pydantic import ValidationError
 
 from pudl.dbt_schema import DbtSchema, merge_schema
 
@@ -249,3 +250,117 @@ def test_validate_humanity_invalid(schema_yaml, match):
     """Fail humanity check when specifying structures not permitted for humans."""
     with pytest.raises(AssertionError, match=match):
         _schema_from_yaml(schema_yaml).validate_humanity()
+
+
+def test_deprecated_tests_key_raises():
+    """Reject the deprecated ``tests:`` key instead of silently dropping it.
+
+    Pydantic's default ``extra="ignore"`` behavior would otherwise let a
+    stray ``tests:`` (instead of ``data_tests:``) parse successfully while
+    quietly discarding the tests it contains -- exactly the failure mode
+    that let real dbt tests vanish from generated schema.yml files.
+    """
+    schema_yaml = """
+        version: 2
+        sources:
+          - name: pudl
+            tables:
+              - name: plants
+                columns:
+                  - name: utility_id_eia
+                    tests:
+                      - not_null
+        """
+    with pytest.raises(ValidationError, match="tests"):
+        _schema_from_yaml(schema_yaml)
+
+
+@pytest.mark.parametrize(
+    "schema_yaml",
+    [
+        pytest.param(
+            """
+            version: 2
+            sources:
+              - name: pudl
+                tables:
+                  - name: plants
+                    description: "One flowing line, no wrapping at all."
+                    data_tests:
+                      - some_test:
+                          description: "One flowing line, no wrapping at all."
+            """,
+            id="single-line-quoted",
+        ),
+        pytest.param(
+            """
+            version: 2
+            sources:
+              - name: pudl
+                tables:
+                  - name: plants
+                    description: >
+                      One flowing line, no
+                      wrapping at all.
+                    data_tests:
+                      - some_test:
+                          description: >
+                            One flowing line, no
+                            wrapping at all.
+            """,
+            id="folded",
+        ),
+        pytest.param(
+            """
+            version: 2
+            sources:
+              - name: pudl
+                tables:
+                  - name: plants
+                    description: |-
+                      One flowing line, no
+                      wrapping at all.
+                    data_tests:
+                      - some_test:
+                          description: |-
+                            One flowing line, no
+                            wrapping at all.
+            """,
+            id="literal-block",
+        ),
+        pytest.param(
+            """
+            version: 2
+            sources:
+              - name: pudl
+                tables:
+                  - name: plants
+                    description:
+                      One flowing
+                      line, no wrapping
+                      at all.
+                    data_tests:
+                      - some_test:
+                          description:
+                            One flowing
+                            line, no wrapping
+                            at all.
+            """,
+            id="plain-multiline",
+        ),
+    ],
+)
+def test_description_whitespace_is_normalized(schema_yaml):
+    """Every valid way of hand-wrapping a description parses to the same string.
+
+    Contributors write ``description:`` fields with whatever line-wrapping they
+    like, and there's no formatter enforcing a single on-disk style. The merge
+    and round-trip machinery need to treat all of these as identical, rather
+    than failing tedious diffs over incidental line-break placement -- both
+    for a table's own ``description`` field and for one nested inside an
+    arbitrary ``data_tests`` entry, which pydantic doesn't otherwise model.
+    """
+    expected = "One flowing line, no wrapping at all."
+    table = _schema_from_yaml(schema_yaml).sources[0].tables[0]
+    assert table.description == expected
+    assert table.data_tests[0]["some_test"]["description"] == expected

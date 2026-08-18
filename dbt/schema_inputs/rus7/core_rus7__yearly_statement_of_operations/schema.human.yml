@@ -12,9 +12,7 @@ sources:
                 max_ratio: 0.2
               config:
                 error_if: ">46000"
-              description:
-                Monthly spending should roughly equal 1/12 of the YTD budget
-                (5-20% range).
+              description: Monthly spending should roughly equal 1/12 of the YTD budget (5-20% range).
           - expect_columns_ratio:
               arguments:
                 numerator_column: opex_ytd

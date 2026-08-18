@@ -15,6 +15,6 @@ sources:
                   - generator_id
                   - subplant_id
                   - emissions_unit_id_epa
-                description:
-                  Each association should be unique, but some generator_id values
-                  are null so this cannot be used as a natural primary key.
+                description: |-
+                  Each association should be unique, but some generator_id values are null so this cannot
+                  be used as a natural primary key.
