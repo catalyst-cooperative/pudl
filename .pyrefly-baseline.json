@@ -6469,9 +6469,9 @@
       "severity": "error"
     },
     {
-      "line": 229,
+      "line": 241,
       "column": 34,
-      "stop_line": 229,
+      "stop_line": 241,
       "stop_column": 43,
       "path": "src/pudl/transform/eia176.py",
       "code": -2,
@@ -6481,9 +6481,9 @@
       "severity": "error"
     },
     {
-      "line": 386,
+      "line": 398,
       "column": 13,
-      "stop_line": 386,
+      "stop_line": 398,
       "stop_column": 38,
       "path": "src/pudl/transform/eia176.py",
       "code": -2,
@@ -6493,9 +6493,9 @@
       "severity": "error"
     },
     {
-      "line": 395,
+      "line": 407,
       "column": 13,
-      "stop_line": 395,
+      "stop_line": 407,
       "stop_column": 35,
       "path": "src/pudl/transform/eia176.py",
       "code": -2,
