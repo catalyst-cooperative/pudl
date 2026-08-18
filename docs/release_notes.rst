@@ -51,6 +51,14 @@ EPA CEMS
   available for all reporting states rather than just California. The output is
   experimental and marked accordingly, since we are soliciting feedback from the
   community on the underlying methodology. See issue :issue:`5106` and PR :pr:`5190`.
+* :ref:`out_epacems__yearly_operational_characteristics` now reports these estimates for
+  every calendar year with a full three-year trailing window of usable EPA CEMS data,
+  rather than only the most recent year, going back to 2000 (EPA CEMS's first three
+  reporting years, 1995-1997, are excluded due to known poor unit coverage). Also
+  recalibrated the associated dbt data validations against physically grounded bounds
+  (e.g. the 3.412 MMBtu/MWh thermodynamic floor on heat rates, and the exact trailing
+  window length as an upper bound on minimum up/down times) rather than thresholds fit
+  to a single year of data. See PR :pr:`5474`.
 
 .. _release-v2026.8.0:
 

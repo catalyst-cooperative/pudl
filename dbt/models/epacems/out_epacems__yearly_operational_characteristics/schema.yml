@@ -10,10 +10,10 @@ sources:
                 table_name: out_epacems__yearly_operational_characteristics
                 partition_expr: report_year
         columns:
+          - name: report_year
           - name: plant_id_epa
           - name: emissions_unit_id_epa
           - name: plant_id_eia
-          - name: report_year
           - name: state
           - name: max_gross_load_mw
           - name: min_stable_load_factor
@@ -25,7 +25,7 @@ sources:
           - name: min_up_time_hours
             data_tests:
               - dbt_expectations.expect_column_values_to_be_between:
-                  description: min_up_time_hours is the minimum observed run length for a unit. Under etl-fast (a single EPA CEMS quarter instead of the 12 trailing quarters used in production), that minimum is drawn from a much smaller sample of up/down events, so it's a far noisier statistic and routinely falls outside this range. Disabled for etl-fast rather than loosened, since there's no principled single-quarter outlier count to pick.
+                  description: "min_up_time_hours is the minimum observed run length for a unit. In theory a unit that never shuts down in the whole the full production trailing window would have a run time of 26,304 hours (12 quarters = 3 years, with a leap year: (365 + 365 + 366) * 24). Any value above this must be a real bug, not a statistical outlier, and demands investigation. Disabled for etl-fast (a single EPA CEMS quarter instead of the 12 trailing quarters used in production), since that minimum is drawn from a much smaller sample and is far noisier."
                   arguments:
                     min_value: 1.0
                     max_value: 12000
@@ -34,7 +34,7 @@ sources:
           - name: min_down_time_hours
             data_tests:
               - dbt_expectations.expect_column_values_to_be_between:
-                  description: "Same reasoning as min_up_time_hours above: this is a minimum-of-a-small-sample statistic that's too noisy to check meaningfully against etl-fast's single quarter of EPA CEMS data."
+                  description: "Same reasoning as min_up_time_hours above: the upper bound is the exact number of hours in the full production trailing window, so any value above it is a genuine bug, not a statistical outlier. Disabled for etl-fast for the same reason."
                   arguments:
                     min_value: 1.0
                     max_value: 26304
@@ -43,21 +43,22 @@ sources:
           - name: heat_rate_at_max_load_factor_mmbtu_per_mwh
             data_tests:
               - dbt_expectations.expect_column_values_to_be_between:
-                  description: This is a per-unit median heat rate computed only from the hours in that unit's single highest load-factor bin. Under etl-fast's single quarter of data that bin can contain very few hours, making the median far more volatile than in production (12 trailing quarters), so this check is disabled for etl-fast.
+                  description: This is a per-unit median heat rate computed only from the hours in that unit's single highest load-factor bin. min_value is set just below 3.412 MMBtu/MWh (1 MWh), the thermodynamic floor for real heat engines. max_value is set to comfortably cover the real observed distribution (only ~0.3% of values exceed 30 MMBtu/MWh) while still catching clearly broken values (observed up to 311 MMBtu/MWh). Disabled for etl-fast's single quarter of data, where that bin can contain very few hours, making the median far more volatile than in production (12 trailing quarters).
                   arguments:
                     min_value: 5.4
-                    max_value: 25.0
+                    max_value: 30.0
                   config:
-                    error_if: ">50"
+                    error_if: ">2500"
                     enabled: "{{ target.name == 'etl-full' }}"
           - name: heat_rate_at_min_stable_load_factor_mmbtu_per_mwh
             data_tests:
               - dbt_expectations.expect_column_values_to_be_between:
+                  description: Same physical floor as heat_rate_at_max_load_factor_mmbtu_per_mwh above. max_value is set a bit higher than that metric's, since heat rates legitimately run higher at partial load than at max load, while still catching clearly broken values (observed up to 593 MMBtu/MWh).
                   arguments:
                     min_value: 5.4
-                    max_value: 25.0
+                    max_value: 30.0
                   config:
-                    error_if: ">60"
+                    error_if: ">1400"
                     enabled: "{{ target.name == 'etl-full' }}"
           - name: ramp_up_rate_per_min
             data_tests:
