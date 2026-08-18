@@ -16,7 +16,9 @@ sources:
                   - operator_id_phmsa
                   - operating_state
                   - material
-                description: There are a handful of NULL operating_state values in this table, so this cannot be used as a natural primary key.
+                description: |-
+                  There are a handful of NULL operating_state values in this table, so this cannot be used
+                  as a natural primary key.
         columns:
           - name: report_id
           - name: report_date

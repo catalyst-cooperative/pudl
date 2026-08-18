@@ -65,7 +65,9 @@ sources:
                     min_value: 0.0
                   config:
                     error_if: ">1"
-                  description: Expect opex investments per mwh to be negative. Investigate IN0106 in 2021 as the only exception.
+                  description: |-
+                    Expect opex investments per mwh to be negative. Investigate IN0106 in 2021 as the only
+                    exception.
           - name: power_cost_per_mwh
             data_tests:
               - dbt_expectations.expect_column_min_to_be_between:

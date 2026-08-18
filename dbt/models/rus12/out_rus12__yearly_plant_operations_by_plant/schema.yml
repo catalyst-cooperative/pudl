@@ -12,7 +12,9 @@ sources:
           - dbt_utils.expression_is_true:
               arguments:
                 expression: (operating_hours_in_service + operating_hours_on_standby + operating_hours_out_of_service_scheduled + operating_hours_out_of_service_unscheduled) <= 8785
-              description: Plants shouldn't report more hours across all fields than there are in a calendar year (8784 is a leap year, and we allow for rounding).
+              description: |-
+                Plants shouldn't report more hours across all fields than there are in a calendar year
+                (8784 is a leap year, and we allow for rounding).
         columns:
           - name: report_date
           - name: borrower_id_rus

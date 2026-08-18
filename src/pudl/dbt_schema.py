@@ -4,6 +4,7 @@ We generate dbt schema.yml files by translating our metadata into schema.yml
 format, then applying human-sourced patches to the auto-generated schemas.
 """
 
+import textwrap
 from collections.abc import Callable
 from pathlib import Path
 from typing import Any
@@ -12,6 +13,63 @@ import yaml
 from pydantic import BaseModel
 
 from pudl.metadata.classes import PUDL_PACKAGE
+
+_DESCRIPTION_WRAP_WIDTH = 88
+
+
+class _LiteralStr(str):
+    """Marker subclass telling the dumper to use YAML literal block style (``|``).
+
+    Only used for ``description`` fields that we've re-wrapped ourselves, so
+    they read as human-friendly paragraphs on disk instead of one giant line.
+    Everything else (regexes, SQL snippets, argument lists) is left completely
+    alone, since forcing a global line width in the dumper risks reflowing
+    content where whitespace is significant.
+    """
+
+
+def _wrap_description(text: str) -> str | _LiteralStr:
+    """Re-wrap a description string to short lines, for readability on disk.
+
+    A description may already contain embedded newlines (e.g. from a blank
+    line in a folded YAML block scalar, or from a previous pass of this same
+    function). We preserve that line structure and only wrap the text
+    *within* each line, so we don't invent new paragraph breaks the human
+    didn't write. We use block style whenever the result spans multiple
+    lines -- including when wrapping made no change to an already-wrapped
+    multi-line value -- since a bare multi-line ``str`` would otherwise fall
+    back to an ugly quoted flow scalar. Single-line results are left as a
+    plain string so short descriptions keep their current compact
+    ``description: ...`` formatting.
+    """
+    text = text.strip()
+    wrapped = "\n".join(
+        textwrap.fill(
+            line.strip(), width=_DESCRIPTION_WRAP_WIDTH, break_on_hyphens=False
+        )
+        if line.strip()
+        else ""
+        for line in text.split("\n")
+    )
+    if "\n" not in wrapped:
+        return wrapped
+    return _LiteralStr(wrapped)
+
+
+def _wrap_descriptions(obj: Any) -> Any:
+    """Recursively re-wrap every ``description`` field in a dumped schema dict."""
+    if isinstance(obj, dict):
+        return {
+            key: (
+                _wrap_description(value)
+                if key == "description" and isinstance(value, str)
+                else _wrap_descriptions(value)
+            )
+            for key, value in obj.items()
+        }
+    if isinstance(obj, list):
+        return [_wrap_descriptions(item) for item in obj]
+    return obj
 
 
 def _prettier_yaml_dumps(yaml_contents: dict[str, Any]) -> str:
@@ -42,8 +100,15 @@ def _prettier_yaml_dumps(yaml_contents: dict[str, Any]) -> str:
         def increase_indent(self, flow=False, indentless=False):
             return super().increase_indent(flow, False)
 
+    PrettierCompatibleDumper.add_representer(
+        _LiteralStr,
+        lambda dumper, data: dumper.represent_scalar(
+            "tag:yaml.org,2002:str", data, style="|"
+        ),
+    )
+
     return yaml.dump(
-        yaml_contents,
+        _wrap_descriptions(yaml_contents),
         default_flow_style=False,
         Dumper=PrettierCompatibleDumper,
         indent=2,

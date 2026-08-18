@@ -11,9 +11,7 @@ sources:
                 or_equal: true
               config:
                 error_if: ">14"
-              description:
-                Expect that RUS will generally not invest more than is invested
-                in a plant.
+              description: Expect that RUS will generally not invest more than is invested in a plant.
           - check_row_counts_per_partition:
               arguments:
                 table_name: out_rus12__yearly_renewable_plants
@@ -57,9 +55,9 @@ sources:
                     min_value: 0.0
                   config:
                     error_if: ">1"
-                  description:
-                    Expect opex investments per mwh to be negative. Investigate
-                    IN0106 in 2021 as the only exception.
+                  description: |-
+                    Expect opex investments per mwh to be negative. Investigate IN0106 in 2021 as the only
+                    exception.
           - name: power_cost_per_mwh
             data_tests:
               - dbt_expectations.expect_column_min_to_be_between:
