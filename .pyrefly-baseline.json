@@ -2329,9 +2329,9 @@
       "severity": "error"
     },
     {
-      "line": 516,
+      "line": 517,
       "column": 23,
-      "stop_line": 516,
+      "stop_line": 517,
       "stop_column": 65,
       "path": "src/pudl/dagster/io_managers.py",
       "code": -2,
@@ -2341,9 +2341,9 @@
       "severity": "error"
     },
     {
-      "line": 600,
+      "line": 601,
       "column": 16,
-      "stop_line": 600,
+      "stop_line": 601,
       "stop_column": 46,
       "path": "src/pudl/dagster/io_managers.py",
       "code": -2,
@@ -2353,9 +2353,9 @@
       "severity": "error"
     },
     {
-      "line": 606,
+      "line": 607,
       "column": 13,
-      "stop_line": 606,
+      "stop_line": 607,
       "stop_column": 25,
       "path": "src/pudl/dagster/io_managers.py",
       "code": -2,
@@ -2365,9 +2365,9 @@
       "severity": "error"
     },
     {
-      "line": 607,
+      "line": 608,
       "column": 16,
-      "stop_line": 607,
+      "stop_line": 608,
       "stop_column": 28,
       "path": "src/pudl/dagster/io_managers.py",
       "code": -2,
@@ -2377,9 +2377,9 @@
       "severity": "error"
     },
     {
-      "line": 625,
+      "line": 626,
       "column": 13,
-      "stop_line": 625,
+      "stop_line": 626,
       "stop_column": 27,
       "path": "src/pudl/dagster/io_managers.py",
       "code": -2,
@@ -2389,9 +2389,9 @@
       "severity": "error"
     },
     {
-      "line": 627,
+      "line": 628,
       "column": 16,
-      "stop_line": 627,
+      "stop_line": 628,
       "stop_column": 30,
       "path": "src/pudl/dagster/io_managers.py",
       "code": -2,
@@ -2401,9 +2401,9 @@
       "severity": "error"
     },
     {
-      "line": 647,
+      "line": 648,
       "column": 22,
-      "stop_line": 647,
+      "stop_line": 648,
       "stop_column": 46,
       "path": "src/pudl/dagster/io_managers.py",
       "code": -2,
@@ -2413,9 +2413,9 @@
       "severity": "error"
     },
     {
-      "line": 653,
+      "line": 654,
       "column": 19,
-      "stop_line": 653,
+      "stop_line": 654,
       "stop_column": 57,
       "path": "src/pudl/dagster/io_managers.py",
       "code": -2,
@@ -2425,9 +2425,9 @@
       "severity": "error"
     },
     {
-      "line": 684,
+      "line": 685,
       "column": 13,
-      "stop_line": 684,
+      "stop_line": 685,
       "stop_column": 41,
       "path": "src/pudl/dagster/io_managers.py",
       "code": -2,
@@ -2557,9 +2557,9 @@
       "severity": "error"
     },
     {
-      "line": 650,
+      "line": 641,
       "column": 19,
-      "stop_line": 650,
+      "stop_line": 641,
       "stop_column": 79,
       "path": "src/pudl/deploy/pudl.py",
       "code": -2,
@@ -2689,9 +2689,9 @@
       "severity": "error"
     },
     {
-      "line": 634,
+      "line": 638,
       "column": 17,
-      "stop_line": 634,
+      "stop_line": 638,
       "stop_column": 29,
       "path": "src/pudl/extract/dbf.py",
       "code": -2,
@@ -2701,9 +2701,9 @@
       "severity": "error"
     },
     {
-      "line": 645,
+      "line": 649,
       "column": 24,
-      "stop_line": 645,
+      "stop_line": 649,
       "stop_column": 73,
       "path": "src/pudl/extract/dbf.py",
       "code": -2,
@@ -2713,9 +2713,9 @@
       "severity": "error"
     },
     {
-      "line": 662,
+      "line": 666,
       "column": 23,
-      "stop_line": 662,
+      "stop_line": 666,
       "stop_column": 31,
       "path": "src/pudl/extract/dbf.py",
       "code": -2,
@@ -4525,9 +4525,9 @@
       "severity": "error"
     },
     {
-      "line": 144,
+      "line": 147,
       "column": 26,
-      "stop_line": 144,
+      "stop_line": 147,
       "stop_column": 31,
       "path": "src/pudl/output/censusdp1tract.py",
       "code": -2,
@@ -10213,9 +10213,9 @@
       "severity": "error"
     },
     {
-      "line": 331,
+      "line": 334,
       "column": 33,
-      "stop_line": 334,
+      "stop_line": 337,
       "stop_column": 10,
       "path": "tests/unit/dagster/io_managers_test.py",
       "code": -2,
@@ -10225,9 +10225,9 @@
       "severity": "error"
     },
     {
-      "line": 362,
+      "line": 365,
       "column": 61,
-      "stop_line": 366,
+      "stop_line": 369,
       "stop_column": 6,
       "path": "tests/unit/dagster/io_managers_test.py",
       "code": -2,
@@ -10237,9 +10237,9 @@
       "severity": "error"
     },
     {
-      "line": 376,
+      "line": 379,
       "column": 5,
-      "stop_line": 376,
+      "stop_line": 379,
       "stop_column": 26,
       "path": "tests/unit/dagster/io_managers_test.py",
       "code": -2,
@@ -10249,9 +10249,9 @@
       "severity": "error"
     },
     {
-      "line": 378,
+      "line": 381,
       "column": 5,
-      "stop_line": 378,
+      "stop_line": 381,
       "stop_column": 59,
       "path": "tests/unit/dagster/io_managers_test.py",
       "code": -2,
@@ -10261,9 +10261,9 @@
       "severity": "error"
     },
     {
-      "line": 408,
+      "line": 411,
       "column": 9,
-      "stop_line": 408,
+      "stop_line": 411,
       "stop_column": 38,
       "path": "tests/unit/dagster/io_managers_test.py",
       "code": -2,
@@ -10273,9 +10273,9 @@
       "severity": "error"
     },
     {
-      "line": 420,
+      "line": 423,
       "column": 63,
-      "stop_line": 424,
+      "stop_line": 427,
       "stop_column": 6,
       "path": "tests/unit/dagster/io_managers_test.py",
       "code": -2,
@@ -10285,9 +10285,9 @@
       "severity": "error"
     },
     {
-      "line": 436,
+      "line": 439,
       "column": 5,
-      "stop_line": 436,
+      "stop_line": 439,
       "stop_column": 26,
       "path": "tests/unit/dagster/io_managers_test.py",
       "code": -2,
@@ -10297,9 +10297,9 @@
       "severity": "error"
     },
     {
-      "line": 437,
+      "line": 440,
       "column": 5,
-      "stop_line": 437,
+      "stop_line": 440,
       "stop_column": 59,
       "path": "tests/unit/dagster/io_managers_test.py",
       "code": -2,
@@ -10309,9 +10309,9 @@
       "severity": "error"
     },
     {
-      "line": 468,
+      "line": 471,
       "column": 9,
-      "stop_line": 468,
+      "stop_line": 471,
       "stop_column": 38,
       "path": "tests/unit/dagster/io_managers_test.py",
       "code": -2,
@@ -10321,9 +10321,9 @@
       "severity": "error"
     },
     {
-      "line": 481,
+      "line": 484,
       "column": 61,
-      "stop_line": 485,
+      "stop_line": 488,
       "stop_column": 6,
       "path": "tests/unit/dagster/io_managers_test.py",
       "code": -2,
@@ -10333,9 +10333,9 @@
       "severity": "error"
     },
     {
-      "line": 495,
+      "line": 498,
       "column": 19,
-      "stop_line": 495,
+      "stop_line": 498,
       "stop_column": 70,
       "path": "tests/unit/dagster/io_managers_test.py",
       "code": -2,
@@ -10345,9 +10345,9 @@
       "severity": "error"
     },
     {
-      "line": 502,
+      "line": 505,
       "column": 5,
-      "stop_line": 502,
+      "stop_line": 505,
       "stop_column": 26,
       "path": "tests/unit/dagster/io_managers_test.py",
       "code": -2,
@@ -10357,9 +10357,9 @@
       "severity": "error"
     },
     {
-      "line": 503,
+      "line": 506,
       "column": 5,
-      "stop_line": 503,
+      "stop_line": 506,
       "stop_column": 59,
       "path": "tests/unit/dagster/io_managers_test.py",
       "code": -2,
@@ -10369,9 +10369,9 @@
       "severity": "error"
     },
     {
-      "line": 530,
+      "line": 533,
       "column": 61,
-      "stop_line": 534,
+      "stop_line": 537,
       "stop_column": 6,
       "path": "tests/unit/dagster/io_managers_test.py",
       "code": -2,
@@ -10381,9 +10381,9 @@
       "severity": "error"
     },
     {
-      "line": 540,
+      "line": 543,
       "column": 5,
-      "stop_line": 540,
+      "stop_line": 543,
       "stop_column": 26,
       "path": "tests/unit/dagster/io_managers_test.py",
       "code": -2,
@@ -10393,9 +10393,9 @@
       "severity": "error"
     },
     {
-      "line": 541,
+      "line": 544,
       "column": 5,
-      "stop_line": 541,
+      "stop_line": 544,
       "stop_column": 59,
       "path": "tests/unit/dagster/io_managers_test.py",
       "code": -2,
@@ -10405,9 +10405,9 @@
       "severity": "error"
     },
     {
-      "line": 828,
+      "line": 831,
       "column": 40,
-      "stop_line": 828,
+      "stop_line": 831,
       "stop_column": 62,
       "path": "tests/unit/dagster/io_managers_test.py",
       "code": -2,
@@ -10753,9 +10753,9 @@
       "severity": "error"
     },
     {
-      "line": 452,
+      "line": 455,
       "column": 13,
-      "stop_line": 452,
+      "stop_line": 455,
       "stop_column": 38,
       "path": "tests/unit/metadata/metadata_test.py",
       "code": -2,
