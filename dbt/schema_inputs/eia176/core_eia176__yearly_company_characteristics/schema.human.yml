@@ -1,0 +1,52 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: core_eia176__yearly_company_characteristics
+
+        data_tests:
+          - expect_columns_not_all_null:
+              row_conditions:
+                alternative_fleet_size: report_year >= 2005
+                has_alternative_fuel_fleet: report_year >= 2005
+                natural_gas_pump_price_dollars_per_mcf: report_year BETWEEN 2014 AND 2016
+          - check_row_counts_per_partition:
+              arguments:
+                table_name: core_eia176__yearly_company_characteristics
+                partition_expr: "report_year"
+          - dbt_utils.expression_is_true:
+              arguments:
+                expression: customer_choice_residential_eligible >=
+                  customer_choice_residential_participating
+              config:
+                error_if: ">1"
+              description:
+                Residential customers eligible for customer choice should be
+                greater than or equal to participating customers. One known
+                2022 California record currently violates this expectation.
+          - dbt_utils.expression_is_true:
+              arguments:
+                expression: alternative_fleet_size IS NULL OR
+                  has_alternative_fuel_fleet IS DISTINCT FROM FALSE
+              description:
+                Alternative fuel fleet size should not be reported when the
+                alternative fuel fleet flag is explicitly false.
+        columns:
+          - name: natural_gas_pump_price_dollars_per_mcf
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
+                    strictly: true
+                  config:
+                    error_if: ">13"
+          - name: customer_choice_residential_eligible
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
+          - name: customer_choice_residential_participating
+            data_tests:
+              - dbt_expectations.expect_column_min_to_be_between:
+                  arguments:
+                    min_value: 0.0
