@@ -1,7 +1,7 @@
 """add core eia176 company characteristics
 
 Revision ID: 2a9482a0cd4b
-Revises: 9a8d47bd495e
+Revises: 451e6f9acb60
 Create Date: 2026-07-23 11:12:02.178791
 
 """
@@ -11,7 +11,7 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = '2a9482a0cd4b'
-down_revision = '9a8d47bd495e'
+down_revision = '451e6f9acb60'
 branch_labels = None
 depends_on = None
 
