@@ -4,17 +4,65 @@ We generate dbt schema.yml files by translating our metadata into schema.yml
 format, then applying human-sourced patches to the auto-generated schemas.
 """
 
+import re
 import textwrap
 from collections.abc import Callable
 from pathlib import Path
-from typing import Any
+from typing import Annotated, Any
 
 import yaml
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, BeforeValidator, ConfigDict
 
 from pudl.metadata.classes import PUDL_PACKAGE
 
 _DESCRIPTION_WRAP_WIDTH = 88
+
+
+def _normalize_whitespace(text: str) -> str:
+    """Collapse all whitespace (including blank lines) to single spaces."""
+    return re.sub(r"\s+", " ", text).strip()
+
+
+def _normalize_descriptions(obj: Any) -> Any:
+    """Recursively collapse whitespace in every ``description`` field.
+
+    Normalizing whitespace at parse time reduces spurious diffs and round trip errors,
+    treating all whitespace as semantically identical.
+
+    The ``description`` fields show up in two places: the typed ``description`` field on
+    ``DbtColumn``/``DbtTable``/``DbtSource``, and nested inside arbitrary ``data_tests``
+    entries which are untyped ``list`` content that pydantic doesn't otherwise inspect.
+    This function is used as a validator for both.
+
+    """
+    if isinstance(obj, dict):
+        return {
+            key: (
+                _normalize_whitespace(value)
+                if key == "description" and isinstance(value, str)
+                else _normalize_descriptions(value)
+            )
+            for key, value in obj.items()
+        }
+    if isinstance(obj, list):
+        return [_normalize_descriptions(item) for item in obj]
+    return obj
+
+
+def _normalize_description_field(value: str | None) -> str | None:
+    return value if value is None else _normalize_whitespace(value)
+
+
+def _normalize_data_tests_field(value: list | None) -> list | None:
+    return value if value is None else _normalize_descriptions(value)
+
+
+_NormalizedDescription = Annotated[
+    str | None, BeforeValidator(_normalize_description_field)
+]
+_NormalizedDataTests = Annotated[
+    list | None, BeforeValidator(_normalize_data_tests_field)
+]
 
 
 class _LiteralStr(str):
@@ -141,8 +189,8 @@ class DbtColumn(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     name: str
-    description: str | None = None
-    data_tests: list | None = None
+    description: _NormalizedDescription = None
+    data_tests: _NormalizedDataTests = None
     meta: dict | None = None
     tags: list[str] | None = None
 
@@ -153,8 +201,8 @@ class DbtTable(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     name: str
-    description: str | None = None
-    data_tests: list | None = None
+    description: _NormalizedDescription = None
+    data_tests: _NormalizedDataTests = None
     columns: list[DbtColumn] | None = None
     meta: dict | None = None
     tags: list[str] | None = None
@@ -179,7 +227,7 @@ class DbtSource(BaseModel):
 
     name: str = "pudl"
     tables: list[DbtTable] | None = None
-    description: str | None = None
+    description: _NormalizedDescription = None
     meta: dict | None = None
 
 
