@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Any
 
 import yaml
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 from pudl.metadata.classes import PUDL_PACKAGE
 
@@ -120,6 +120,12 @@ def _prettier_yaml_dumps(yaml_contents: dict[str, Any]) -> str:
 class DbtColumn(BaseModel):
     """Define yaml structure of a dbt column."""
 
+    # Reject unrecognized keys (e.g. a stray `tests:` instead of
+    # `data_tests:`) at parse time instead of silently dropping them --
+    # pydantic's default `extra="ignore"` would otherwise make such content
+    # vanish from schema.human.yml overrides with no error at all.
+    model_config = ConfigDict(extra="forbid")
+
     name: str
     description: str | None = None
     data_tests: list | None = None
@@ -129,6 +135,8 @@ class DbtColumn(BaseModel):
 
 class DbtTable(BaseModel):
     """Define yaml structure of a dbt table."""
+
+    model_config = ConfigDict(extra="forbid")
 
     name: str
     description: str | None = None
@@ -153,6 +161,8 @@ class DbtTable(BaseModel):
 class DbtSource(BaseModel):
     """Define basic dbt yml structure to add a pudl table as a dbt source."""
 
+    model_config = ConfigDict(extra="forbid")
+
     name: str = "pudl"
     tables: list[DbtTable] | None = None
     description: str | None = None
@@ -161,6 +171,8 @@ class DbtSource(BaseModel):
 
 class DbtSchema(BaseModel):
     """Define basic structure of a dbt models yaml file."""
+
+    model_config = ConfigDict(extra="forbid")
 
     version: int = 2
     sources: list[DbtSource] | None = None

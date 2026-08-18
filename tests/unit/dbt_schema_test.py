@@ -4,6 +4,7 @@ from textwrap import dedent
 
 import pytest
 import yaml
+from pydantic import ValidationError
 
 from pudl.dbt_schema import DbtSchema, merge_schema
 
@@ -249,3 +250,26 @@ def test_validate_humanity_invalid(schema_yaml, match):
     """Fail humanity check when specifying structures not permitted for humans."""
     with pytest.raises(AssertionError, match=match):
         _schema_from_yaml(schema_yaml).validate_humanity()
+
+
+def test_deprecated_tests_key_raises():
+    """Reject the deprecated ``tests:`` key instead of silently dropping it.
+
+    Pydantic's default ``extra="ignore"`` behavior would otherwise let a
+    stray ``tests:`` (instead of ``data_tests:``) parse successfully while
+    quietly discarding the tests it contains -- exactly the failure mode
+    that let real dbt tests vanish from generated schema.yml files.
+    """
+    schema_yaml = """
+        version: 2
+        sources:
+          - name: pudl
+            tables:
+              - name: plants
+                columns:
+                  - name: utility_id_eia
+                    tests:
+                      - not_null
+        """
+    with pytest.raises(ValidationError, match="tests"):
+        _schema_from_yaml(schema_yaml)
