@@ -22,6 +22,25 @@ Bug Fixes & Data Cleaning
   bug. See PR pr:`5477`.
 * Fixed EIA-176 extraction bug where ``raw_eia176__operation_types_and_sector_items``
   was always empty due to a mismatched page key. See :issue:`4697` and :pr:`5412`.
+* Recovered dbt data validation tests that were being silently dropped from several
+  tables as their source ``schema.human.yml`` files still used the deprecated ``tests:``
+  key instead of ``data_tests:``, meaning ``dbt_helper`` silently discarded the tests
+  they contained instead of merging them into the generated ``schema.yml``. See PR
+  :pr:`5458`.
+
+Developer Experience
+^^^^^^^^^^^^^^^^^^^^
+
+* Fixed several issues with how ``dbt_helper update-tables`` renders ``schema.yml``
+  (:mod:`pudl.dbt_schema`): long ``description:`` fields are now wrapped into readable
+  paragraph blocks and strings that need quoting prefer double quotes. This now matches
+  Prettier's YAML conventions, minimizing the need for reformatting after generation.
+  Standardized multi-line ``description:`` fields across all ``schema.human.yml``
+  inputs. ``dbt_helper update-tables --schema --clobber all`` is now idempotent across
+  all tables. See PR :pr:`5458`.
+* Pydantic models representing ``dbt`` structures defined in  :mod:`pudl.dbt_schema`
+  now reject any unrecognized keys (like stray ``tests:`` instead of ``data_tests:``) at
+  parse time instead of silently discarding them. See :pr:`5458`.
 
 New Data
 ^^^^^^^^
