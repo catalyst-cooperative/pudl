@@ -39,6 +39,21 @@ EIA-176
   ``is_other_ownership`` and ``is_other_ownership_2`` fields (which never co-occur)
   are merged into a single ``is_other_ownership`` boolean.
   See :issue:`4697` and :pr:`5412`.
+  
+EIA-923
+~~~~~~~
+
+* Added the :ref:`i_core_eia923__yearly_fuel_stocks` table, which reports end-of-month
+  coal, petroleum liquids, and petroleum coke stocks held at electric power sector
+  generating facilities, aggregated by census division or state. The wide monthly
+  source columns are reshaped into tall monthly records and the reported thousand-unit
+  quantities are converted to base units. See issue :issue:`5081` and PR :pr:`5431`.
+
+* Added :ref:`out_eia923__energy_storage` for reported EIA-923 energy storage
+  operations, with :ref:`out_eia923__monthly_energy_storage` and
+  :ref:`out_eia923__yearly_energy_storage` providing monthly and yearly aggregations.
+  All three include plant and utility metadata. See issue :issue:`4311` and PR
+  :pr:`5489`.
 
 EPA CEMS
 ~~~~~~~~

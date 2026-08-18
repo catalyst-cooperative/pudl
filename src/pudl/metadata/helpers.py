@@ -345,7 +345,7 @@ def as_dict(x: pd.Series) -> dict[Any, list]:
 def try_aggfunc(
     func: Callable,
     raised: bool = True,
-    error: str | Callable = None,
+    error: str | Callable | None = None,
 ) -> Callable:
     """Wrap aggregate function in a try-except for error handling.
 
@@ -419,7 +419,7 @@ def groupby_apply(
     by: Iterable,
     aggfuncs: dict[Any, Callable],
     raised: bool = True,
-    error: Callable = None,
+    error: Callable | None = None,
 ) -> tuple[pd.DataFrame, dict[Any, pd.Series]]:
     """Aggregate dataframe and capture errors (using apply).
 
@@ -505,7 +505,7 @@ def groupby_aggregate(
     by: Iterable,
     aggfuncs: dict[Any, Callable],
     raised: bool = True,
-    error: Callable = None,
+    error: Callable | None = None,
 ) -> tuple[pd.DataFrame, dict[Any, pd.Series]]:
     """Aggregate dataframe and capture errors (using aggregate).
 
