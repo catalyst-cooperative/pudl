@@ -1353,8 +1353,15 @@ def core_eia176__yearly_company_characteristics(
             "natural_gas_pump_price": "natural_gas_pump_price_dollars_per_mcf",
         }
     )
-    # Only reported 2005-2015; preserve null for years where the question wasn't asked
+    # Only reported 2005-2015; however, alternative fuel fleet size should only be reported if there
+    # is an alternative fuel fleet -  where alternative fuel fleet value is reported but
+    # boolean not filled, map to True.
     df["has_alternative_fuel_fleet"] = df["has_alternative_fuel_fleet"].map({1.0: True})
+    df.loc[df["alternative_fleet_size"].notnull(), "has_alternative_fuel_fleet"] = (
+        df.loc[
+            df["alternative_fleet_size"].notnull(), "has_alternative_fuel_fleet"
+        ].fillna(True)
+    )
 
     if "sales_acquisitions_1_yes_0_no" in df.columns:
         df["has_sales_or_acquisitions"] = df["sales_acquisitions_1_yes_0_no"].map(
