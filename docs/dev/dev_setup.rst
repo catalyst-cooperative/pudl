@@ -193,7 +193,7 @@ update just that dependency:
 .. code-block:: console
 
     $ pixi add "package-name>=version"  # For new dependencies
-    $ pixi update package-name           # To update an existing dependency
+    $ pixi update package-name          # To update an existing dependency
 
 Our automated GitHub Action handles weekly updates to all dependencies. You should
 not generally need to update all dependencies yourself unless you're working on
@@ -240,6 +240,23 @@ If you want to add or update a skill to the project, run:
 .. code-block:: console
 
    $ pixi run npx skills add <source>
+
+
+Pixi dev environment
+^^^^^^^^^^^^^^^^^^^^
+
+Pixi can manage a number of different python environments as part of the same project.
+These can be entirely separate from or build on the ``default`` environment. In PUDL we
+have a ``dev`` environment that adds some additional developer tooling that's not
+required to run the ETL or the tests and validations that run in the nightly builds.
+The ``dev`` dependencies are defined under ``[tool.pixi.feature.dev.dependencies]`` in
+``pyproject.toml`` and there are a handful of pixi tasks which run in that environment.
+
+To run a command with pixi inside of the ``dev`` environment you use ``-e dev`` e.g.:
+
+.. code-block:: console
+
+    $ pixi run -e dev pyrefly check src/pudl/path/to/file.py
 
 .. _linting:
 
@@ -318,21 +335,24 @@ hooks or CI pipeline -- PUDL's codebase predates comprehensive type annotations,
 now pyrefly runs as a voluntary check for anyone gradually cleaning up typing issues in
 the code they touch.
 
-**Running the checks**
+Running the checks
+~~~~~~~~~~~~~~~~~~
 
-pyrefly is a dev-only dependency, so always run it through the ``dev`` pixi environment:
+For now ``pyrefly`` is a dev-only dependency, so always run it through the ``dev`` pixi
+environment:
 
 .. code-block:: console
 
     $ pixi run pyrefly-check                                  # whole project, against the baseline
-    $ pixi run -e dev pyrefly check src/pudl/path/to/file.py   # quick check of one file
+    $ pixi run -e dev pyrefly check src/pudl/path/to/file.py  # quick check of one file
 
 ``pyrefly-check`` lives in the ``dev`` feature's task table specifically so that plain
 ``pixi run pyrefly-check`` always resolves to the project-pinned ``pyrefly`` binary,
 rather than silently falling back to a different version found on ``$PATH`` (e.g. one
 installed globally for editor or language-server integration).
 
-**The baseline**
+The baseline
+~~~~~~~~~~~~
 
 PUDL isn't enforcing full type-checking project-wide yet, so ``.pyrefly-baseline.json``
 records every pre-existing type error as of when it was last regenerated, and
@@ -356,7 +376,8 @@ Never hand-edit ``.pyrefly-baseline.json``, and never regenerate it just to make
 ratchet against regressions. Fix the error instead, or check with the team if you think
 it should legitimately be deferred.
 
-**Reviewing a baseline regeneration**
+Reviewing a baseline regeneration
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 A raw ``git diff .pyrefly-baseline.json`` after regenerating is nearly unreadable:
 fixing even one error, or bumping pyrefly's version, can shift line/column numbers on
