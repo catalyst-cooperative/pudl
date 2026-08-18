@@ -95,6 +95,7 @@ heavyweight initialisation at decoration time.
 * [pudl.scripts.pudl_deploy](pudl_deploy/index.html.md)
 * [pudl.scripts.pudl_null_cols](pudl_null_cols/index.html.md)
 * [pudl.scripts.pudl_service_territories](pudl_service_territories/index.html.md)
+* [pudl.scripts.pyrefly_baseline_diff](pyrefly_baseline_diff/index.html.md)
 * [pudl.scripts.resource_description](resource_description/index.html.md)
 * [pudl.scripts.update_zenodo_dois](update_zenodo_dois/index.html.md)
 * [pudl.scripts.zenodo_data_release](zenodo_data_release/index.html.md)

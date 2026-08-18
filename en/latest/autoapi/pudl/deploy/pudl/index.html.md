@@ -315,9 +315,8 @@ accidental deletion or lifecycle policies.
     resolution the `gcloud` CLI itself uses, so e.g. a local dev shell
     with a configured `gcloud` project needs no explicit argument.
 * **Raises:**
-  [**RuntimeError**](https://docs.python.org/3/library/exceptions.html#RuntimeError) – If no billing project can be determined by any of the
-  above, no objects are found at `gcs_path`, or a post-hold sweep
-  finds objects still missing the hold.
+  [**RuntimeError**](https://docs.python.org/3/library/exceptions.html#RuntimeError) – If no objects are found at `gcs_path` or a post-hold
+  sweep finds objects still missing the hold.
 
 ### pudl.deploy.pudl.check_build_success(build_path: upath.UPath) → upath.UPath
 

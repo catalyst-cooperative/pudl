@@ -8197,9 +8197,8 @@ accidental deletion or lifecycle policies.
     resolution the `gcloud` CLI itself uses, so e.g. a local dev shell
     with a configured `gcloud` project needs no explicit argument.
 * **Raises:**
-  [**RuntimeError**](https://docs.python.org/3/library/exceptions.html#RuntimeError) – If no billing project can be determined by any of the
-  above, no objects are found at `gcs_path`, or a post-hold sweep
-  finds objects still missing the hold.
+  [**RuntimeError**](https://docs.python.org/3/library/exceptions.html#RuntimeError) – If no objects are found at `gcs_path` or a post-hold
+  sweep finds objects still missing the hold.
 
 ### pudl.deploy.pudl.check_build_success(build_path: upath.UPath) → upath.UPath
 
@@ -16101,7 +16100,7 @@ Return single unique value (or error if none exists).
 
 Return dictionary of values, listed by index.
 
-### pudl.metadata.helpers.try_aggfunc(func: [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable), raised: [bool](https://docs.python.org/3/library/functions.html#bool) = True, error: [str](https://docs.python.org/3/library/stdtypes.html#str) | [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable) = None) → [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)
+### pudl.metadata.helpers.try_aggfunc(func: [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable), raised: [bool](https://docs.python.org/3/library/functions.html#bool) = True, error: [str](https://docs.python.org/3/library/stdtypes.html#str) | [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable) | [None](https://docs.python.org/3/library/constants.html#None) = None) → [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)
 
 Wrap aggregate function in a try-except for error handling.
 
@@ -16139,7 +16138,7 @@ AggregationError: Bad dtype int64
 AggregationError({'a': [0, 0, 1], 'b': [1]})
 ```
 
-### pudl.metadata.helpers.groupby_apply(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), by: [collections.abc.Iterable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable), aggfuncs: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[Any, [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)], raised: [bool](https://docs.python.org/3/library/functions.html#bool) = True, error: [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable) = None) → [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), [dict](https://docs.python.org/3/library/stdtypes.html#dict)[Any, [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)]]
+### pudl.metadata.helpers.groupby_apply(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), by: [collections.abc.Iterable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable), aggfuncs: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[Any, [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)], raised: [bool](https://docs.python.org/3/library/functions.html#bool) = True, error: [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable) | [None](https://docs.python.org/3/library/constants.html#None) = None) → [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), [dict](https://docs.python.org/3/library/stdtypes.html#dict)[Any, [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)]]
 
 Aggregate dataframe and capture errors (using apply).
 
@@ -16185,7 +16184,7 @@ x
 dtype: object
 ```
 
-### pudl.metadata.helpers.groupby_aggregate(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), by: [collections.abc.Iterable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable), aggfuncs: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[Any, [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)], raised: [bool](https://docs.python.org/3/library/functions.html#bool) = True, error: [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable) = None) → [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), [dict](https://docs.python.org/3/library/stdtypes.html#dict)[Any, [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)]]
+### pudl.metadata.helpers.groupby_aggregate(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), by: [collections.abc.Iterable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable), aggfuncs: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[Any, [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)], raised: [bool](https://docs.python.org/3/library/functions.html#bool) = True, error: [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable) | [None](https://docs.python.org/3/library/constants.html#None) = None) → [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), [dict](https://docs.python.org/3/library/stdtypes.html#dict)[Any, [pandas.Series](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series)]]
 
 Aggregate dataframe and capture errors (using aggregate).
 
@@ -20359,6 +20358,7 @@ heavyweight initialisation at decoration time.
 * [pudl.scripts.pudl_deploy](autoapi/pudl/scripts/pudl_deploy/index.html.md)
 * [pudl.scripts.pudl_null_cols](autoapi/pudl/scripts/pudl_null_cols/index.html.md)
 * [pudl.scripts.pudl_service_territories](autoapi/pudl/scripts/pudl_service_territories/index.html.md)
+* [pudl.scripts.pyrefly_baseline_diff](autoapi/pudl/scripts/pyrefly_baseline_diff/index.html.md)
 * [pudl.scripts.resource_description](autoapi/pudl/scripts/resource_description/index.html.md)
 * [pudl.scripts.update_zenodo_dois](autoapi/pudl/scripts/update_zenodo_dois/index.html.md)
 * [pudl.scripts.zenodo_data_release](autoapi/pudl/scripts/zenodo_data_release/index.html.md)
@@ -20688,6 +20688,41 @@ Usage examples:
 
 pudl_service_territories –entity-type balancing_authority –dissolve –limit-by-state
 pudl_service_territories –entity-type utility
+
+
+# autoapi/pudl/scripts/pyrefly_baseline_diff/index.html.md
+
+# pudl.scripts.pyrefly_baseline_diff
+
+Diff the pyrefly baseline against a git ref by content, not by line number.
+
+Raw JSON diffs of `.pyrefly-baseline.json` are dominated by line/column churn from
+ordinary code changes and pyrefly version bumps – a single `--update-baseline` run
+can touch hundreds of lines without any error actually appearing or disappearing. This
+diffs baseline entries by `(file, error code, description)` instead, so the output
+only shows errors that were genuinely fixed or newly introduced.
+
+## Functions
+
+| [`_load_baseline_entries`](autoapi/pudl/scripts/pyrefly_baseline_diff/index.html.md#pudl.scripts.pyrefly_baseline_diff._load_baseline_entries)(→ set[tuple[str, str, str]])   | Load baseline error entries from a git ref, or the working tree if `ref` is None.   |
+|--------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------|
+| [`main`](autoapi/pudl/scripts/pyrefly_baseline_diff/index.html.md#pudl.scripts.pyrefly_baseline_diff.main)(→ None)                                          | Diff a pyrefly baseline against a git ref by (file, code, description).             |
+
+## Module Contents
+
+### pudl.scripts.pyrefly_baseline_diff.\_load_baseline_entries(ref: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None), baseline_path: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)) → [set](https://docs.python.org/3/library/stdtypes.html#set)[[tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str)]]
+
+Load baseline error entries from a git ref, or the working tree if `ref` is None.
+
+### pudl.scripts.pyrefly_baseline_diff.main(ref: [str](https://docs.python.org/3/library/stdtypes.html#str), baseline_path: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)) → [None](https://docs.python.org/3/library/constants.html#None)
+
+Diff a pyrefly baseline against a git ref by (file, code, description).
+
+Run this after `pyrefly check --baseline .pyrefly-baseline.json --update-baseline`
+to sanity-check the regenerated baseline before committing it: the “fixed” list
+should match what you intentionally fixed, and the “newly baselined” list should
+only contain pre-existing issues you’re deliberately deferring – not something
+your own change introduced.
 
 
 # autoapi/pudl/scripts/resource_description/index.html.md
@@ -73939,7 +73974,7 @@ update just that dependency:
 
 ```console
 $ pixi add "package-name>=version"  # For new dependencies
-$ pixi update package-name           # To update an existing dependency
+$ pixi update package-name          # To update an existing dependency
 ```
 
 Our automated GitHub Action handles weekly updates to all dependencies. You should
@@ -73985,6 +74020,21 @@ If you want to add or update a skill to the project, run:
 
 ```console
 $ pixi run npx skills add <source>
+```
+
+### Pixi dev environment
+
+Pixi can manage a number of different python environments as part of the same project.
+These can be entirely separate from or build on the `default` environment. In PUDL we
+have a `dev` environment that adds some additional developer tooling that’s not
+required to run the ETL or the tests and validations that run in the nightly builds.
+The `dev` dependencies are defined under `[tool.pixi.feature.dev.dependencies]` in
+`pyproject.toml` and there are a handful of pixi tasks which run in that environment.
+
+To run a command with pixi inside of the `dev` environment you use `-e dev` e.g.:
+
+```console
+$ pixi run -e dev pyrefly check src/pudl/path/to/file.py
 ```
 
 <a id="linting"></a>
@@ -74049,6 +74099,75 @@ pre-commit written in Rust.
   to auto-correct any remaining typos. To ignore typos in a single line (e.g., code
   that corrects a typos), add `# spellchecker:ignore` as a comment to the end of the
   line.
+
+### Type Checking with pyrefly
+
+We use [pyrefly](https://pyrefly.org/), a fast Rust-based Python type checker, to
+catch type errors before they reach CI. It isn’t yet part of the standard pre-commit
+hooks or CI pipeline – PUDL’s codebase predates comprehensive type annotations, so for
+now pyrefly runs as a voluntary check for anyone gradually cleaning up typing issues in
+the code they touch.
+
+#### Running the checks
+
+For now `pyrefly` is a dev-only dependency, so always run it through the `dev` pixi
+environment:
+
+```console
+$ pixi run pyrefly-check                                  # whole project, against the baseline
+$ pixi run -e dev pyrefly check src/pudl/path/to/file.py  # quick check of one file
+```
+
+`pyrefly-check` lives in the `dev` feature’s task table specifically so that plain
+`pixi run pyrefly-check` always resolves to the project-pinned `pyrefly` binary,
+rather than silently falling back to a different version found on `$PATH` (e.g. one
+installed globally for editor or language-server integration).
+
+#### The baseline
+
+PUDL isn’t enforcing full type-checking project-wide yet, so `.pyrefly-baseline.json`
+records every pre-existing type error as of when it was last regenerated, and
+`pixi run pyrefly-check` only fails on errors *not already in the baseline*. This
+makes it possible to catch newly introduced type errors in code you’re touching without
+requiring the whole codebase to be error-free first.
+
+Regenerate the baseline when:
+
+* You’ve fixed one or more pre-existing errors, to shrink the baseline and prevent them
+  from regressing.
+* pyrefly’s own version has been bumped, since a newer version’s stricter (or simply
+  different) checks can surface errors in files you never touched.
+
+```console
+$ pixi run pyrefly-update-baseline
+```
+
+Never hand-edit `.pyrefly-baseline.json`, and never regenerate it just to make a
+*newly introduced* error in your own change disappear – that defeats its purpose as a
+ratchet against regressions. Fix the error instead, or check with the team if you think
+it should legitimately be deferred.
+
+#### Reviewing a baseline regeneration
+
+A raw `git diff .pyrefly-baseline.json` after regenerating is nearly unreadable:
+fixing even one error, or bumping pyrefly’s version, can shift line/column numbers on
+hundreds of unrelated entries without any error actually appearing or disappearing.
+
+Use `pixi run pyrefly-baseline-diff` (`src/pudl/scripts/pyrefly_baseline_diff.py`)
+instead. It diffs the baseline against `HEAD` by `(file, error code, description)`
+rather than by line number, so the output only shows errors that were genuinely fixed or
+newly added:
+
+```console
+$ pixi run pyrefly-update-baseline
+$ pixi run pyrefly-baseline-diff
+```
+
+Run this every time you regenerate the baseline, before committing it. Confirm the
+“fixed” list matches what you intended to fix, and scrutinize the “newly baselined”
+list carefully – it should only ever contain pre-existing issues you’re knowingly
+deferring (e.g. ones surfaced by a version bump), never something your own change
+introduced.
 
 ### Linting Within Your Editor
 

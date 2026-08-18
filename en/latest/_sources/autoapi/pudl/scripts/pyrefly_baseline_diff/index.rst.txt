@@ -1,0 +1,45 @@
+pudl.scripts.pyrefly_baseline_diff
+==================================
+
+.. py:module:: pudl.scripts.pyrefly_baseline_diff
+
+.. autoapi-nested-parse::
+
+   Diff the pyrefly baseline against a git ref by content, not by line number.
+
+   Raw JSON diffs of ``.pyrefly-baseline.json`` are dominated by line/column churn from
+   ordinary code changes and pyrefly version bumps -- a single ``--update-baseline`` run
+   can touch hundreds of lines without any error actually appearing or disappearing. This
+   diffs baseline entries by ``(file, error code, description)`` instead, so the output
+   only shows errors that were genuinely fixed or newly introduced.
+
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   pudl.scripts.pyrefly_baseline_diff._load_baseline_entries
+   pudl.scripts.pyrefly_baseline_diff.main
+
+
+Module Contents
+---------------
+
+.. py:function:: _load_baseline_entries(ref: str | None, baseline_path: pathlib.Path) -> set[tuple[str, str, str]]
+
+   Load baseline error entries from a git ref, or the working tree if ``ref`` is None.
+
+
+.. py:function:: main(ref: str, baseline_path: pathlib.Path) -> None
+
+   Diff a pyrefly baseline against a git ref by (file, code, description).
+
+   Run this after ``pyrefly check --baseline .pyrefly-baseline.json --update-baseline``
+   to sanity-check the regenerated baseline before committing it: the "fixed" list
+   should match what you intentionally fixed, and the "newly baselined" list should
+   only contain pre-existing issues you're deliberately deferring -- not something
+   your own change introduced.
+
+

@@ -1,6 +1,6 @@
 # PUDL
 
-> PUDL 2026.8.1.dev12 documentation
+> PUDL 2026.8.1.dev14 documentation
 
 
 2016-2026, Catalyst Cooperative, CC-BY-4.0
@@ -240,6 +240,7 @@
 - [pudl.scripts.pudl_deploy](autoapi/pudl/scripts/pudl_deploy/index.html.md): Deploy PUDL ETL outputs to cloud storage and update git branches.
 - [pudl.scripts.pudl_null_cols](autoapi/pudl/scripts/pudl_null_cols/index.html.md): A CLI tool for generating expect_column_not_all_null dbt test conditions.
 - [pudl.scripts.pudl_service_territories](autoapi/pudl/scripts/pudl_service_territories/index.html.md): CLI for compiling historical utility and balancing area service territory geometries.
+- [pudl.scripts.pyrefly_baseline_diff](autoapi/pudl/scripts/pyrefly_baseline_diff/index.html.md): Diff the pyrefly baseline against a git ref by content, not by line number.
 - [pudl.scripts.resource_description](autoapi/pudl/scripts/resource_description/index.html.md): Tiny CLI for showing table descriptions without building the full docs.
 - [pudl.scripts.update_zenodo_dois](autoapi/pudl/scripts/update_zenodo_dois/index.html.md): Script to check each DOI in zenodo_dois.yml against Zenodo’s /versions/latest endpoint.
 - [pudl.scripts.zenodo_data_release](autoapi/pudl/scripts/zenodo_data_release/index.html.md): Upload a prepared PUDL data release directory to Zenodo.
