@@ -100,6 +100,20 @@ def _prettier_yaml_dumps(yaml_contents: dict[str, Any]) -> str:
         def increase_indent(self, flow=False, indentless=False):
             return super().increase_indent(flow, False)
 
+        def choose_scalar_style(self):
+            """Prefer double quotes over single quotes when quoting is required.
+
+            PyYAML's default emitter picks single-quoted style (with ``''`` escaping for
+            embedded apostrophes) whenever a scalar can't be written plain. Prettier
+            always uses double-quoted style in that case, so without this override every
+            such string gets rewritten by ``prek run prettier`` right after we generate
+            it. This only changes which *quote character* gets used -- it doesn't affect
+            whether a scalar is quoted at all, so plain-safe strings are still emitted
+            unquoted exactly as before.
+            """
+            style = super().choose_scalar_style()
+            return '"' if style == "'" else style
+
     PrettierCompatibleDumper.add_representer(
         _LiteralStr,
         lambda dumper, data: dumper.represent_scalar(
