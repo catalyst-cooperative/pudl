@@ -369,7 +369,7 @@ newly added:
 
 .. code-block:: console
 
-    $ pixi run pyrelfy-update-baseline
+    $ pixi run pyrefly-update-baseline
     $ pixi run pyrefly-baseline-diff
 
 Run this every time you regenerate the baseline, before committing it. Confirm the
