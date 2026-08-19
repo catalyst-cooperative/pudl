@@ -431,11 +431,13 @@ def _latest_extraction_stats_by_quarter(
         year_quarter = record.partition_key
         if year_quarter is None or year_quarter in stats_by_quarter:
             continue  # already have a more recent materialization for this quarter
-        materialization = (
-            record.event_log_entry.dagster_event.event_specific_data.materialization
-        )
+        materialization = record.asset_materialization
+        if materialization is None:
+            continue
         metadata_value = materialization.metadata.get(_EXTRACTION_STATS_METADATA_KEY)
-        if metadata_value is not None:
+        if isinstance(metadata_value, dg.JsonMetadataValue) and isinstance(
+            metadata_value.data, dict
+        ):
             stats_by_quarter[year_quarter] = metadata_value.data
     return stats_by_quarter
 
@@ -456,7 +458,12 @@ def _latest_check_evaluations_by_quarter(
     )
     evaluations_by_quarter: dict[str, dict[str, dg.AssetCheckEvaluation]] = {}
     for record in records:
-        evaluation = record.event_log_entry.dagster_event.event_specific_data
+        dagster_event = record.event_log_entry.dagster_event
+        if dagster_event is None:
+            continue
+        evaluation = dagster_event.event_specific_data
+        if not isinstance(evaluation, dg.AssetCheckEvaluation):
+            continue
         table_label = _CORE_FERCEQR_TABLE_LABELS.get(evaluation.asset_key)
         year_quarter = evaluation.partition
         if (
@@ -476,7 +483,9 @@ def _summarize_check_failures(evaluation: dg.AssetCheckEvaluation) -> str:
     if evaluation.passed:
         return ""
     detailed_errors = evaluation.metadata.get("detailed_errors")
-    if detailed_errors is None:
+    if not isinstance(detailed_errors, dg.JsonMetadataValue) or not isinstance(
+        detailed_errors.data, list
+    ):
         return "FAILED (no detail available)"
     parts = [
         f"{error['failure_case_count']}x {error['check']} ({error['error_message']})"
@@ -532,7 +541,10 @@ def _build_ferceqr_diagnostics_rows(
                 continue
             asset_shape = evaluation.metadata.get("asset_shape")
             row[f"rows_{table_label}"] = (
-                asset_shape.data[0] if asset_shape is not None else None
+                asset_shape.data[0]
+                if isinstance(asset_shape, dg.JsonMetadataValue)
+                and isinstance(asset_shape.data, list)
+                else None
             )
             summary = _summarize_check_failures(evaluation)
             if summary:
