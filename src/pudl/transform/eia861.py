@@ -651,16 +651,16 @@ def _dedupe_cols_agg(
     data_dupes: pd.DataFrame, df_name: str, idx_cols: list[str], class_type: str
 ) -> dict:
     """Sum numeric duplicates and keep non-null value for non-numeric columns."""
-    non_numeric_cols = {
-        "momentary_interruption_definition",
-        "inactive_accounts_included",
-    }
+    non_numeric_cols = data_dupes.select_dtypes(exclude="number").columns.tolist()
+    non_numeric_non_idx_cols = [
+        col for col in non_numeric_cols if col not in idx_cols + [class_type]
+    ]
     agg = {
         col: "sum"
         for col in data_dupes.columns
-        if col not in idx_cols + [class_type, *non_numeric_cols]
+        if col not in idx_cols + non_numeric_non_idx_cols + [class_type]
     }
-    for col in non_numeric_cols:
+    for col in non_numeric_non_idx_cols:
         if col in data_dupes.columns:
 
             def _keep_non_null_value(s: pd.Series, col_name: str = col) -> object:
