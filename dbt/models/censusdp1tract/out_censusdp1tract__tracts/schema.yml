@@ -7,7 +7,7 @@ sources:
           - check_row_counts_per_partition:
               arguments:
                 table_name: out_censusdp1tract__tracts
-                partition_expr:
+                partition_expr: null
         columns:
           - name: tract_id_fips
             data_tests:

@@ -22,11 +22,10 @@ sources:
           - name: ending_balance
             data_tests:
               - dbt_expectations.expect_column_sum_to_be_between:
-                  description: >
-                    Sum of the ending_balance by year should hold relatively constant.
-                    Tolerance is +/- $5, sized to comfortably absorb float64 summation
-                    noise (observed up to ~$0.50 for sums of this magnitude) while
-                    remaining far tighter than any real data or code regression.
+                  description: |-
+                    Sum of the ending_balance by year should hold relatively constant. Tolerance is +/- $5,
+                    sized to comfortably absorb float64 summation noise (observed up to ~$0.50 for sums of
+                    this magnitude) while remaining far tighter than any real data or code regression.
                   arguments:
                     min_value: 1199491017899 - 5
                     max_value: 1199491017899 + 5
@@ -56,7 +55,9 @@ sources:
                     max_value: 975646318820 + 5
                     row_condition: "report_year = 2022"
               - dbt_expectations.expect_column_sum_to_be_between:
-                  description: Sum of the ending_balance by year should hold relatively constant. min_value is lower because of differences in the fast etl.
+                  description: |-
+                    Sum of the ending_balance by year should hold relatively constant. min_value is lower
+                    because of differences in the fast etl.
                   arguments:
                     min_value: 901448498197 - 5
                     max_value: 904317513895 + 5

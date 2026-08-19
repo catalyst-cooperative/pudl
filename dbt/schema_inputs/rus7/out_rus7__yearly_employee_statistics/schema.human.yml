@@ -9,9 +9,7 @@ sources:
                 numerator_column: employees_fte_num
                 denominator_column: employee_hours_worked_regular_time
                 max_ratio: 2080
-              description:
-                Do employee hours worked regular time = employees X 2080 hours
-                (FTE)?
+              description: Do employee hours worked regular time = employees X 2080 hours (FTE)?
           - expect_summed_columns_not_exceed_threshold:
               arguments:
                 column_a: employee_hours_worked_regular_time

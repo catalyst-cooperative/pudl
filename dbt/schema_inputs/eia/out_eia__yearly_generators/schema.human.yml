@@ -100,9 +100,7 @@ sources:
           - name: capacity_factor
             data_tests:
               - expect_quantile_constraints:
-                  description:
-                    Historical note, EIA natural gas reporting really only becomes
-                    usable in 2015.
+                  description: Historical note, EIA natural gas reporting really only becomes usable in 2015.
                   arguments:
                     row_condition:
                       fuel_type_code_pudl='gas' and report_date>=CAST('2015-01-01'
@@ -117,9 +115,9 @@ sources:
                         max_value: 0.95
                     weight_column: capacity_mw
               - expect_quantile_constraints:
-                  description:
-                    Quantile 0.6 dropped from 0.5 to 0.444 in April 2025. Keep
-                    an eye on it, and investigate if it gets worse.
+                  description: |-
+                    Quantile 0.6 dropped from 0.5 to 0.444 in April 2025. Keep an eye on it, and investigate
+                    if it gets worse.
                   arguments:
                     row_condition: fuel_type_code_pudl='coal' and capacity_factor<>0.0
                     constraints:
@@ -146,11 +144,10 @@ sources:
                         max_value: 4.5
                     weight_column: total_mmbtu
               - expect_quantile_constraints:
-                  description:
-                    Quantile 0.05 dropped from 1.65 to 1.63 (etl-fast), and quantile
-                    0.95 rose from 8.0 to 8.08, in April 2025. Keep an eye on it, and investigate
-                    if it gets worse. Historical note, EIA natural gas reporting really only
-                    becomes usable in 2015.
+                  description: |-
+                    Quantile 0.05 dropped from 1.65 to 1.63 (etl-fast), and quantile 0.95 rose from 8.0 to
+                    8.08, in April 2025. Keep an eye on it, and investigate if it gets worse. Historical
+                    note, EIA natural gas reporting really only becomes usable in 2015.
                   arguments:
                     row_condition:
                       fuel_type_code_pudl='gas' and report_date>=CAST('2015-01-01'
@@ -179,10 +176,10 @@ sources:
                         max_value: 50.0
                     weight_column: net_generation_mwh
               - expect_quantile_constraints:
-                  description:
-                    Demoted to warning in April 2025 when quantile 0.5 dropped
-                    from 20.0 to 16.55. Investigate in issue 4188. Historical note, EIA natural
-                    gas reporting really only becomes usable in 2015.
+                  description: |-
+                    Demoted to warning in April 2025 when quantile 0.5 dropped from 20.0 to 16.55.
+                    Investigate in issue 4188. Historical note, EIA natural gas reporting really only
+                    becomes usable in 2015.
                   config:
                     severity: warn
                   arguments:
@@ -201,9 +198,7 @@ sources:
           - name: unit_heat_rate_mmbtu_per_mwh
             data_tests:
               - expect_quantile_constraints:
-                  description:
-                    Historical note, EIA natural gas reporting really only becomes
-                    usable in 2015.
+                  description: Historical note, EIA natural gas reporting really only becomes usable in 2015.
                   arguments:
                     row_condition:
                       fuel_type_code_pudl='gas' and report_date>=CAST('2015-01-01'

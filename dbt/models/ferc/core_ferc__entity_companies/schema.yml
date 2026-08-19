@@ -11,8 +11,8 @@ sources:
               - unique
               - dbt_expectations.expect_column_values_to_match_regex:
                   arguments:
-                    regex: "^C\\d{6}$"
-                    is_raw: True
+                    regex: ^C\d{6}$
+                    is_raw: true
           - name: company_name
           - name: program
           - name: company_website

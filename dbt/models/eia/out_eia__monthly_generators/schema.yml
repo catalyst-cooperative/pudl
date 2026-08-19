@@ -92,7 +92,9 @@ sources:
           - name: capacity_factor
             data_tests:
               - expect_quantile_constraints:
-                  description: Quantile 0.1 dropped from 0.04 to 0.036 in April 2025. Keep an eye on it, and investigate if it gets worse.
+                  description: |-
+                    Quantile 0.1 dropped from 0.04 to 0.036 in April 2025. Keep an eye on it, and
+                    investigate if it gets worse.
                   arguments:
                     row_condition: fuel_type_code_pudl='coal' and capacity_factor<>0.0
                     constraints:
@@ -120,7 +122,10 @@ sources:
                         max_value: 4.5
                     weight_column: total_mmbtu
               - expect_quantile_constraints:
-                  description: Quantile 0.05 dropped from 1.65 to 1.489 in April 2025. Keep an eye on it, and investigate if it gets worse. Historical note, EIA natural gas reporting really only becomes usable in 2015.
+                  description: |-
+                    Quantile 0.05 dropped from 1.65 to 1.489 in April 2025. Keep an eye on it, and
+                    investigate if it gets worse. Historical note, EIA natural gas reporting really only
+                    becomes usable in 2015.
                   arguments:
                     row_condition: fuel_type_code_pudl='gas' and report_date>=CAST('2015-01-01' AS DATE)
                     constraints:
@@ -147,7 +152,10 @@ sources:
                         max_value: 50.0
                     weight_column: net_generation_mwh
               - expect_quantile_constraints:
-                  description: Demoted to warning in April 2025 when quantile 0.5 dropped from 20.0 to 16.42. Investigate in issue 4187. Historical note, EIA natural gas reporting really only becomes usable in 2015.
+                  description: |-
+                    Demoted to warning in April 2025 when quantile 0.5 dropped from 20.0 to 16.42.
+                    Investigate in issue 4187. Historical note, EIA natural gas reporting really only
+                    becomes usable in 2015.
                   config:
                     severity: warn
                   arguments:
@@ -164,7 +172,13 @@ sources:
           - name: unit_heat_rate_mmbtu_per_mwh
             data_tests:
               - expect_quantile_constraints:
-                  description: Quantile 0.05 has gradually been dropping as combined-cycle turbines become more efficient and come to dominate gas generation, while open cycle combustion turbines (peakers) are gradually displaced by battery storage. The best combined-cycle gas turbines have a heat rate of around 5.33 MMBtu / MWh (64% thermal efficiency) while simple-cycle combustion turbines have heat rates of 9-11.5 MMBtu/ MWh. Historical note, EIA natural gas reporting really only becomes usable in 2015.
+                  description: |-
+                    Quantile 0.05 has gradually been dropping as combined-cycle turbines become more
+                    efficient and come to dominate gas generation, while open cycle combustion turbines
+                    (peakers) are gradually displaced by battery storage. The best combined-cycle gas
+                    turbines have a heat rate of around 5.33 MMBtu / MWh (64% thermal efficiency) while
+                    simple-cycle combustion turbines have heat rates of 9-11.5 MMBtu/ MWh. Historical note,
+                    EIA natural gas reporting really only becomes usable in 2015.
                   arguments:
                     row_condition: fuel_type_code_pudl='gas' and report_date>=CAST('2015-01-01' AS DATE)
                     constraints:

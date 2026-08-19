@@ -20,9 +20,45 @@ Bug Fixes & Data Cleaning
   verify after the fact that none were missed. Manually re-applied the hold to 4,000+
   previously published versioned release objects that had been missed by the original
   bug. See PR pr:`5477`.
+* Fixed EIA-176 extraction bug where ``raw_eia176__operation_types_and_sector_items``
+  was always empty due to a mismatched page key. See :issue:`4697` and :pr:`5412`.
+* Recovered dbt data validation tests that were being silently dropped from several
+  tables as their source ``schema.human.yml`` files still used the deprecated ``tests:``
+  key instead of ``data_tests:``, meaning ``dbt_helper`` silently discarded the tests
+  they contained instead of merging them into the generated ``schema.yml``. See PR
+  :pr:`5458`.
+
+Developer Experience
+^^^^^^^^^^^^^^^^^^^^
+
+* Fixed several issues with how ``dbt_helper update-tables`` renders ``schema.yml``
+  (:mod:`pudl.dbt_schema`): long ``description:`` fields are now wrapped into readable
+  paragraph blocks and strings that need quoting prefer double quotes. This now matches
+  Prettier's YAML conventions, minimizing the need for reformatting after generation.
+  Standardized multi-line ``description:`` fields across all ``schema.human.yml``
+  inputs. ``dbt_helper update-tables --schema --clobber all`` is now idempotent across
+  all tables. See PR :pr:`5458`.
+* Pydantic models representing ``dbt`` structures defined in  :mod:`pudl.dbt_schema`
+  now reject any unrecognized keys (like stray ``tests:`` instead of ``data_tests:``) at
+  parse time instead of silently discarding them. Whitespace in description fields is
+  also normalized at parse-time to avoid spurious diffs. See PR :pr:`5458`.
 
 New Data
 ^^^^^^^^
+
+EIA-176
+~~~~~~~
+
+* Added :ref:`core_eia176__yearly_company_characteristics` with company operation
+  type, ownership type, and company characteristic fields from EIA Form 176 Part 3
+  (Lines A-D). Includes ``alternative_fleet_size``,
+  ``customer_choice_residential_eligible``,
+  ``customer_choice_residential_participating``, ``has_sales_or_acquisitions``, and
+  ``natural_gas_pump_price_dollars_per_mcf`` (2014-2016 only). National-level
+  adjustment records (operating_state FX, MX, BL, OO) are excluded. The raw
+  ``is_other_ownership`` and ``is_other_ownership_2`` fields (which never co-occur)
+  are merged into a single ``is_other_ownership`` boolean.
+  See :issue:`4697` and :pr:`5412`.
 
 EIA-923
 ~~~~~~~
@@ -32,7 +68,6 @@ EIA-923
   generating facilities, aggregated by census division or state. The wide monthly
   source columns are reshaped into tall monthly records and the reported thousand-unit
   quantities are converted to base units. See issue :issue:`5081` and PR :pr:`5431`.
-
 * Added :ref:`out_eia923__energy_storage` for reported EIA-923 energy storage
   operations, with :ref:`out_eia923__monthly_energy_storage` and
   :ref:`out_eia923__yearly_energy_storage` providing monthly and yearly aggregations.
