@@ -58,8 +58,8 @@ Expanded Data Coverage
 EIA-861
 ~~~~~~~
 
-* Added early release data from 2025 for EIA 861. See issue :issue:`5492` and
-  PR :pr:`5493`.
+* Added early release data from 2025 for :doc:`EIA-861 <data_sources/eia861>`.
+  See issue :issue:`5492` and PR :pr:`5493`.
 
 .. _release-v2026.8.0:
 
