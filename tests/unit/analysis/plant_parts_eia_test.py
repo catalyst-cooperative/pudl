@@ -490,6 +490,82 @@ def test_label_true_grans():
     pd.testing.assert_frame_equal(expected_out, out)
 
 
+def _true_gran_input_with_tied_duplicate() -> pd.DataFrame:
+    """Same fixture as :func:`test_label_true_grans`, plus a genuine tie.
+
+    ``gen_2_dup`` refers to the same single generator as ``gen_2`` (same
+    ``generator_id``/``unit_id_pudl``), so the two records are tied: same
+    ``plant_part`` ("plant_gen") and same underlying set of generators
+    (``gens_combo``). There's no principled reason to prefer one over the
+    other, but :meth:`TrueGranLabeler.execute` must still pick the same one
+    every time, regardless of the order the tied rows appear in the input.
+    """
+    return pd.DataFrame(
+        {
+            "report_date": ["2020-01-01"] * 10,
+            "record_id_eia": [
+                "plant_3",
+                "unit_a",
+                "unit_b",
+                "gen_1",
+                "gen_2",
+                "gen_2_dup",
+                "gen_3",
+                "gen_4",
+                "tech_nat_gas",
+                "match_gen2_4",
+            ],
+            "plant_id_eia": [3] * 10,
+            "plant_part": [
+                "plant",
+                "plant_unit",
+                "plant_unit",
+                "plant_gen",
+                "plant_gen",
+                "plant_gen",
+                "plant_gen",
+                "plant_gen",
+                "plant_technology",
+                "plant_match_ferc1",
+            ],
+            "generator_id": [None, None, None, 1, 2, 2, 3, 4, None, None],
+            "unit_id_pudl": [None, "A", "B", "A", "B", "B", "B", "B", None, None],
+            "technology_description": ["nat_gas"] * 10,
+            "operational_status_pudl": [None] * 10,
+            "utility_id_eia": [None] * 10,
+            "ownership_record_type": [None] * 10,
+            "prime_mover_code": [None] * 10,
+            "ferc_acct_name": [None] * 10,
+            "energy_source_code_1": [None] * 10,
+            "generator_operating_year": [None] * 10,
+            "installation_year": [None] * 10,
+            "construction_year": [None] * 10,
+            "ferc1_generator_agg_id": [None, None, None, None, 0, 0, None, 0, None, 0],
+        }
+    ).astype({"report_date": "datetime64[us]"})
+
+
+def test_label_true_grans_tiebreak_is_order_independent():
+    """A tie between records must resolve the same way regardless of row order.
+
+    Reproduces a bug where :meth:`TrueGranLabeler.execute` sorts candidate
+    records only by ``plant_part`` before picking the first one per
+    ``gens_combo`` as the true granularity. When two records are tied on both
+    ``plant_part`` and ``gens_combo``, the winner is whichever one happened to
+    come first in the input, which is not guaranteed to be consistent between
+    ETL runs.
+    """
+    df = _true_gran_input_with_tied_duplicate()
+    swapped = df.iloc[[0, 1, 2, 3, 5, 4, 6, 7, 8, 9]].reset_index(drop=True)
+
+    out = pudl.analysis.plant_parts_eia.TrueGranLabeler().execute(df)
+    out_swapped = pudl.analysis.plant_parts_eia.TrueGranLabeler().execute(swapped)
+
+    winner = out.set_index("record_id_eia").loc["gen_2", "true_gran"]
+    winner_swapped = out_swapped.set_index("record_id_eia").loc["gen_2", "true_gran"]
+    assert winner == winner_swapped
+
+
 def test_one_to_many():
     plant_part_list_input = pd.DataFrame(
         {

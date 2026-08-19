@@ -1146,7 +1146,11 @@ class TrueGranLabeler:
         parts_to_gens["plant_part"] = pd.Categorical(
             parts_to_gens["plant_part"], PLANT_PARTS.keys()
         )
-        parts_to_gens = parts_to_gens.sort_values("plant_part")
+        # Sort by record_id_eia as a tiebreaker so that records tied on
+        # plant_part and gens_combo (e.g. ownership total/owned duplicates)
+        # resolve to the same true granularity on every run, regardless of
+        # the order the records happen to arrive in.
+        parts_to_gens = parts_to_gens.sort_values(["plant_part", "record_id_eia"])
         # get the true gran records by finding duplicate gen combos
         # this marks duplicate grans as True except for the first occurrence
         # non-duplicated granularities (unique records) are also marked False
