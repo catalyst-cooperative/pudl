@@ -87,6 +87,19 @@ EPA CEMS
   experimental and marked accordingly, since we are soliciting feedback from the
   community on the underlying methodology. See issue :issue:`5106` and PR :pr:`5190`.
 
+Developer Experience
+^^^^^^^^^^^^^^^^^^^^
+
+* Automated updating the Zenodo deposition metadata (creators, keywords, version,
+  description, and structured resource links) for monthly PUDL data releases, which
+  previously had to be hand-edited in the Zenodo web UI every month. Creators and
+  keywords are now read from ``.zenodo.json``, and the description is assembled from
+  the built release notes for that version plus a footer of release-specific resource
+  links (versioned docs, data dictionary, S3/GCS paths, the GitHub release, and the
+  corresponding GitHub-repo Zenodo software archive), which are also populated as
+  structured ``related_identifiers`` for better DataCite/OpenAIRE indexing. See issue
+  :issue:`3326`.
+
 .. _release-v2026.8.0:
 
 ---------------------------------------------------------------------------------------
