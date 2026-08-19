@@ -85,14 +85,21 @@ def _fake_check_evaluation_record(
     runs populate this correctly, as seen in this project's actual Dagster
     history), so a real end-to-end check-evaluation test isn't possible here.
     This fakes just enough of the record structure that
-    ``_latest_check_evaluations_by_quarter`` actually reads.
+    ``_latest_check_evaluations_by_quarter`` actually reads. ``evaluation`` itself is
+    a real ``AssetCheckEvaluation``, not a stand-in, since
+    ``_latest_check_evaluations_by_quarter`` narrows to that type with ``isinstance``
+    before reading it.
     """
-    evaluation = SimpleNamespace(
+    evaluation = dg.AssetCheckEvaluation(
         asset_key=asset_key,
         check_name=check_name,
-        partition=partition,
         passed=passed,
         metadata=metadata,
+        target_materialization_data=None,
+        severity=dg.AssetCheckSeverity.ERROR,
+        description=None,
+        blocking=True,
+        partition=partition,
     )
     dagster_event = SimpleNamespace(event_specific_data=evaluation)
     event_log_entry = SimpleNamespace(dagster_event=dagster_event)
@@ -170,8 +177,10 @@ def test_latest_check_evaluations_by_quarter_groups_by_quarter_and_table(mocker)
 )
 def test_summarize_check_failures(passed, metadata, expected):
     """A passing check summarizes to "", a failing one names the failure(s)."""
+    # SimpleNamespace stands in for AssetCheckEvaluation, which only needs to
+    # supply the two attributes _summarize_check_failures actually reads.
     evaluation = SimpleNamespace(passed=passed, metadata=metadata)
-    assert _summarize_check_failures(evaluation) == expected
+    assert _summarize_check_failures(evaluation) == expected  # type: ignore[bad-argument-type]
 
 
 def test_build_ferceqr_diagnostics_rows_combines_stats_and_checks():
@@ -184,6 +193,8 @@ def test_build_ferceqr_diagnostics_rows_combines_stats_and_checks():
             "rejected_record_counts": {"TOO MANY COLUMNS": 3},
         },
     }
+    # SimpleNamespace stands in for AssetCheckEvaluation, which only needs to
+    # supply the two attributes _build_ferceqr_diagnostics_rows actually reads.
     evaluation = SimpleNamespace(
         passed=False,
         metadata={
@@ -202,7 +213,8 @@ def test_build_ferceqr_diagnostics_rows_combines_stats_and_checks():
     check_evaluations_by_quarter = {"2024q1": {"index_pub": evaluation}}
 
     rows = _build_ferceqr_diagnostics_rows(
-        extraction_stats_by_quarter, check_evaluations_by_quarter
+        extraction_stats_by_quarter,
+        check_evaluations_by_quarter,  # type: ignore[bad-argument-type]
     )
 
     assert len(rows) == 1
@@ -247,6 +259,10 @@ def test_ferceqr_pipeline_diagnostics_wraps_rows_in_table_metadata(mocker):
     result = ferceqr_pipeline_diagnostics(context=context)
 
     assert isinstance(result, dg.MaterializeResult)
-    assert result.metadata["n_quarters"].value == 2
+    assert result.metadata is not None
+    n_quarters = result.metadata["n_quarters"]
+    assert isinstance(n_quarters, dg.IntMetadataValue)
+    assert n_quarters.value == 2
     table = result.metadata["summary"]
+    assert isinstance(table, dg.TableMetadataValue)
     assert [record.data for record in table.records] == fake_rows
