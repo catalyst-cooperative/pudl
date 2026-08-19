@@ -18,6 +18,6 @@ sources:
                   - technology_description
                   - scenario_atb
                   - cost_recovery_period_years
-                description:
-                  A handful of values in the cost_recovery_period_years column
-                  are null, so this cannot be used as a natural primary key.
+                description: |-
+                  A handful of values in the cost_recovery_period_years column are null, so this cannot be
+                  used as a natural primary key.
