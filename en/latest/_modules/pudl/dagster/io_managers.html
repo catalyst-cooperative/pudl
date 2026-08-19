@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.dagster.io_managers &#8212; PUDL 2026.8.1.dev15 documentation</title>
+    <title>pudl.dagster.io_managers &#8212; PUDL 2026.8.1.dev16 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=d930256d"></script>
+    <script src="../../../_static/documentation_options.js?v=f981bf86"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev15 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev15 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
   
   
 </a></div>
@@ -1443,11 +1443,12 @@ window.runMermaid = runMermaid;</script>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">base_dir</span><span class="p">,</span> <span class="n">db_name</span><span class="p">,</span> <span class="n">md</span><span class="p">,</span> <span class="n">timeout</span><span class="p">)</span>
 
-        <span class="n">existing_schema_context</span> <span class="o">=</span> <span class="n">MigrationContext</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">connect</span><span class="p">(),</span>
-            <span class="n">opts</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;autogenerate_plugins&quot;</span><span class="p">:</span> <span class="n">ALEMBIC_AUTOGENERATE_PLUGINS</span><span class="p">},</span>
-        <span class="p">)</span>
-        <span class="n">metadata_diff</span> <span class="o">=</span> <span class="n">compare_metadata</span><span class="p">(</span><span class="n">existing_schema_context</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">md</span><span class="p">)</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span> <span class="k">as</span> <span class="n">connection</span><span class="p">:</span>
+            <span class="n">existing_schema_context</span> <span class="o">=</span> <span class="n">MigrationContext</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span>
+                <span class="n">connection</span><span class="p">,</span>
+                <span class="n">opts</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;autogenerate_plugins&quot;</span><span class="p">:</span> <span class="n">ALEMBIC_AUTOGENERATE_PLUGINS</span><span class="p">},</span>
+            <span class="p">)</span>
+            <span class="n">metadata_diff</span> <span class="o">=</span> <span class="n">compare_metadata</span><span class="p">(</span><span class="n">existing_schema_context</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">md</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">metadata_diff</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Metadata diff:</span><span class="se">\n\n</span><span class="si">{</span><span class="n">metadata_diff</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
