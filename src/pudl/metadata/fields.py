@@ -10852,6 +10852,8 @@ FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
                 "Two-letter postal abbreviation for the state or territory the "
                 "distribution utility is reporting for."
             ),
+        },
+    },
     "core_eia176__yearly_company_characteristics": {
         # Non-US codes (FX, OO, BL, MX) are dropped in transform before this constraint
         # is checked — they represent national-level adjustment records, not state data.
