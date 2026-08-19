@@ -67,7 +67,7 @@ sources:
                 tolerance: 1
               description: Check that energy_available_for_sale equals total_plant + purchased_power + net_interchange + net_energy_wheeled.
               config:
-                error_if: '>4'
+                error_if: ">4"
           - subcomponents_sum_to_total:
               arguments:
                 group_by_columns:
@@ -93,7 +93,7 @@ sources:
                     min_value: 0.0
                     row_condition: source_of_energy != 'net_interchange'
                   config:
-                    error_if: '>22'
+                    error_if: ">22"
           - name: cost
             data_tests:
               - dbt_expectations.expect_column_min_to_be_between:
@@ -101,4 +101,4 @@ sources:
                     min_value: 0.0
                     row_condition: net_energy_received_mwh >= 0
                   config:
-                    error_if: '>8'
+                    error_if: ">8"
