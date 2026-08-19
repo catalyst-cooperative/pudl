@@ -61,6 +61,4 @@ sources:
                     min_value: 0.0
                   config:
                     error_if: ">8"
-                  description:
-                    KS0059 has negative values which don't follow from prior years
-                    of data.
+                  description: KS0059 has negative values which don't follow from prior years of data.

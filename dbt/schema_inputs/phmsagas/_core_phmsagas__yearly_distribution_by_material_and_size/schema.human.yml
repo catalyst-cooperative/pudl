@@ -16,7 +16,6 @@ sources:
                   - operating_state
                   - main_size
                   - material
-                description:
-                  There are NULL operating_state values across several years
-                  of data in this table, so these columns cannot be used as a natural primary
-                  key.
+                description: |-
+                  There are NULL operating_state values across several years of data in this table, so
+                  these columns cannot be used as a natural primary key.

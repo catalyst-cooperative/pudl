@@ -77,22 +77,24 @@ def extract_page(
     Returns:
         ParquetData pointing to parquet file with raw table data.
     """
-    con = duckdb.connect()
-    individual_views = [
-        extract_half_year_page(
-            con,
-            datastore=datastore,
-            half_year=half_year,
-            page=page,
+    with duckdb.connect() as con:
+        individual_views = [
+            extract_half_year_page(
+                con,
+                datastore=datastore,
+                half_year=half_year,
+                page=page,
+            )
+            for half_year in half_years
+        ]
+        union_query = " UNION ALL BY NAME ".join(
+            f"SELECT * FROM {view_name}"  # noqa: S608 (we trust this view name)
+            for view_name in individual_views
         )
-        for half_year in half_years
-    ]
-    union_query = " UNION ALL BY NAME ".join(
-        f"SELECT * FROM {view_name}"  # noqa: S608 (we trust this view name)
-        for view_name in individual_views
-    )
-    all_partitions = con.query(union_query)
-    return persist_table_as_parquet(all_partitions, table_name=f"raw_eia930__{page}")
+        all_partitions = con.query(union_query)
+        return persist_table_as_parquet(
+            all_partitions, table_name=f"raw_eia930__{page}"
+        )
 
 
 def extract_half_year_page(

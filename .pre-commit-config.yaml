@@ -37,7 +37,7 @@ repos:
   ####################################################################################
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.16.1
+    rev: v0.16.3
     hooks:
       - id: ruff-check
         args: [--fix]
@@ -67,8 +67,9 @@ repos:
   ####################################################################################
 
   # Spell check our documentation and code comments
-  - repo: https://github.com/crate-ci/typos
-    rev: v1.48.0
+  # Use mirror b/c upstream hook provides bad version pins
+  - repo: https://github.com/adhtruong/mirrors-typos
+    rev: v1.49.0
     hooks:
       - id: typos
         exclude: |
@@ -85,7 +86,7 @@ repos:
 
   # Lint Dockerfiles for errors and to ensure best practices
   - repo: https://github.com/AleksaC/hadolint-py
-    rev: v2.14.0
+    rev: v2.15.1
     hooks:
       - id: hadolint
 
@@ -104,7 +105,7 @@ repos:
 
   # Scan for secrets and credentials
   - repo: https://github.com/trufflesecurity/trufflehog
-    rev: v3.96.0
+    rev: v3.97.0
     hooks:
       - id: trufflehog
         name: TruffleHog

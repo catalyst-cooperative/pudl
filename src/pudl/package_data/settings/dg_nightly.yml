@@ -10,6 +10,11 @@ loggers:
   console:
     config:
       log_level: DEBUG
+ops:
+  out_epacems__yearly_operational_characteristics:
+    config:
+      num_quarters: 12
+      min_stable_consecutive_hours: 8
 resources:
   datastore:
     config:

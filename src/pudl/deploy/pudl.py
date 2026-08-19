@@ -22,6 +22,7 @@ from typing import Literal
 import gcsfs
 import requests
 import s3fs
+from google.cloud import storage
 from pydantic import BaseModel, ConfigDict, model_validator
 from upath import UPath
 
@@ -286,7 +287,11 @@ def prepare_outputs_for_distribution(local_path: Path, build_path: UPath) -> Non
 
 def _run(cmd: list[str]) -> str | None:
     """Wrap subprocess.run so we see error output."""
-    return subprocess.run(cmd, check=True, capture_output=True, text=True).stdout  # noqa: S603
+    try:
+        return subprocess.run(cmd, check=True, capture_output=True, text=True).stdout  # noqa: S603
+    except subprocess.CalledProcessError as e:
+        logger.error(f"Command failed: {' '.join(cmd)}\n{e.stderr}")
+        raise
 
 
 def clear_deployment_path(fs, path: str) -> None:
@@ -561,7 +566,7 @@ def update_pudl_viewer(
     logger.info("PUDL Viewer Cloud Run service updated")
 
 
-def set_gcs_temporary_hold(gcs_path: str) -> None:
+def set_gcs_temporary_hold(gcs_path: str, billing_project: str = "") -> None:
     """Set temporary hold on GCS objects to prevent deletion.
 
     Applies a temporary hold to protect versioned release artifacts from
@@ -569,22 +574,57 @@ def set_gcs_temporary_hold(gcs_path: str) -> None:
 
     Args:
         gcs_path: GCS path to objects (e.g., "gs://pudl.catalyst.coop/v2025.2.3/").
-        billing_project: which project to bill for Requester Pays buckets.
+        billing_project: which project to bill for Requester Pays access to this
+            bucket. If not given, falls back to whatever ``storage.Client()``
+            resolves via Application Default Credentials -- the ``GOOGLE_CLOUD_
+            PROJECT``/``GCLOUD_PROJECT`` env vars, a service account key file's
+            embedded project, the active ``gcloud config set project``, or GCE/
+            Cloud Run instance metadata, in that order. That's the same
+            resolution the ``gcloud`` CLI itself uses, so e.g. a local dev shell
+            with a configured ``gcloud`` project needs no explicit argument.
+
+    Raises:
+        RuntimeError: If no objects are found at ``gcs_path`` or a post-hold
+            sweep finds objects still missing the hold.
     """
     logger.info(f"Setting temporary hold on {gcs_path}")
 
-    _run(
-        [
-            "gcloud",
-            "storage",
-            "objects",
-            "update",
-            f"{gcs_path}*",
-            "--temporary-hold",
-        ]
-    )
+    bucket_name, _, prefix = gcs_path.removeprefix("gs://").partition("/")
+    # Passing project=None explicitly (rather than omitting it) disables
+    # Application Default Credentials project auto-detection entirely, so the
+    # kwarg has to be left out when there's no explicit override.
+    client_kwargs = {"project": billing_project} if billing_project else {}
+    client = storage.Client(**client_kwargs)
+    bucket = client.bucket(bucket_name, user_project=client.project)
 
-    logger.info(f"Temporary hold set on {gcs_path}")
+    num_held = 0
+    for blob in bucket.list_blobs(prefix=prefix):
+        blob.temporary_hold = True
+        blob.patch()
+        num_held += 1
+
+    if num_held == 0:
+        raise RuntimeError(f"No objects found at {gcs_path}; nothing to hold.")
+
+    logger.info(f"Temporary hold set on {num_held} object(s) at {gcs_path}")
+
+    # Re-list rather than trust the objects patched above: a patch() call could
+    # fail to actually persist despite not raising, and any object created
+    # concurrently with the loop above (e.g. a retried upload) wouldn't have been
+    # seen by it at all. Both would otherwise leave a "protected" release with
+    # unprotected objects in it.
+    missing_hold = [
+        blob.name
+        for blob in bucket.list_blobs(prefix=prefix)
+        if not blob.temporary_hold
+    ]
+    if missing_hold:
+        raise RuntimeError(
+            f"Temporary hold verification failed for {gcs_path}: "
+            f"{len(missing_hold)} object(s) still missing the hold: {missing_hold}"
+        )
+
+    logger.info(f"Verified temporary hold on all objects at {gcs_path}")
 
 
 def check_build_success(build_path: UPath) -> UPath:

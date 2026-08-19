@@ -10,6 +10,7 @@ from . import (
     allocate_gen_fuel,
     fuel_by_plant,
     mcoe,
+    operational_characteristics,
     plant_parts_eia,
     record_linkage,
     service_territory,
