@@ -248,7 +248,12 @@ def _build_check_fn(name: str, fields: list[dict], primary_key: list[str]):
         dg.AssetKey([resource.name]), package, duckdb_asset=False
     )
     assert check is not None
-    return check.node_def.compute_fn.decorated_fn
+    node_def = check.node_def
+    assert isinstance(node_def, dg.OpDefinition)
+    # compute_fn is typed as Callable | DecoratedOpFunction; the @asset_check
+    # decorator always produces the latter, but DecoratedOpFunction is a
+    # private dagster type we can't import to narrow against.
+    return node_def.compute_fn.decorated_fn  # type: ignore[missing-attribute]
 
 
 def _content_check_fields(*, with_geometry: bool) -> list[dict]:
