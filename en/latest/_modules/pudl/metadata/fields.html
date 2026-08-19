@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.metadata.fields &#8212; PUDL 2026.8.1.dev16 documentation</title>
+    <title>pudl.metadata.fields &#8212; PUDL 2026.8.1.dev18 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=f981bf86"></script>
+    <script src="../../../_static/documentation_options.js?v=f2b63aa7"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev18 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev18 documentation - Home"/>
   
   
 </a></div>
@@ -880,6 +880,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">ASSET_TYPES_FERC1</span><span class="p">,</span>
     <span class="n">ASSET_TYPES_RUS7</span><span class="p">,</span>
     <span class="n">ASSET_TYPES_RUS12</span><span class="p">,</span>
+    <span class="n">COMMODITY_TYPES_PHMSAGAS</span><span class="p">,</span>
     <span class="n">COUNTRY_CODES_ISO3166</span><span class="p">,</span>
     <span class="n">CUSTOMER_CLASSES</span><span class="p">,</span>
     <span class="n">CUSTOMER_CLASSES_EIA176</span><span class="p">,</span>
@@ -11716,6 +11717,18 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="FIELD_METADATA_BY_RESOURCE">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/fields/index.html#pudl.metadata.fields.FIELD_METADATA_BY_RESOURCE">[docs]</a>
 <span class="n">FIELD_METADATA_BY_RESOURCE</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;core_phmsagas__yearly_distribution_by_install_decade&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;commodity&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;constraints&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;enum&quot;</span><span class="p">:</span> <span class="n">COMMODITY_TYPES_PHMSAGAS</span><span class="p">},</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;operating_state&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">&quot;Two-letter postal abbreviation for the state or territory the &quot;</span>
+                <span class="s2">&quot;distribution utility is reporting for.&quot;</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;constraints&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;enum&quot;</span><span class="p">:</span> <span class="n">SUBDIVISION_CODES_ISO3166</span><span class="p">},</span>
+        <span class="p">},</span>
+    <span class="p">},</span>
     <span class="s2">&quot;core_eia176__yearly_company_characteristics&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="c1"># Non-US codes (FX, OO, BL, MX) are dropped in transform before this constraint</span>
         <span class="c1"># is checked — they represent national-level adjustment records, not state data.</span>

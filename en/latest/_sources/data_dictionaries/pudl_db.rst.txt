@@ -2968,7 +2968,7 @@ Annual time series of counties in balancing authority service territories.
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -3082,7 +3082,7 @@ Annual time series of counties in utility service territories.
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -16120,7 +16120,7 @@ Hourly time series of estimated electricity demand for each state, scaled such t
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -28715,7 +28715,7 @@ Association table providing connections between state, balancing authority, and 
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -28809,7 +28809,7 @@ Association table providing connections between utility and state in a given yea
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -28899,7 +28899,7 @@ Annual time series of advanced metering infrastructure (AMI) and automated meter
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -29052,7 +29052,7 @@ Annual time series of balancing authorities.
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -29146,7 +29146,7 @@ Annual time series of demand response programs by state, sector, and balancing a
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -29294,7 +29294,7 @@ Annual time series of grid-connected water heaters enrolled in demand response p
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -30280,7 +30280,7 @@ Annual time series of distribution circuits and circuits with voltage optimizati
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -30390,7 +30390,7 @@ Annual time series of  enrollment in dynamic pricing programs by state, sector, 
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -30536,7 +30536,7 @@ programs.
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -30825,7 +30825,7 @@ Annual time series of utility mergers and acquisitions.
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -30959,7 +30959,7 @@ Annual time series of net metering by customer and fuel class.
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -31107,7 +31107,7 @@ Annual time series of PV current flow type for net metered capacity.
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -31209,7 +31209,7 @@ Annual time series of non-net metered distributed generation by sector and techn
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -31342,7 +31342,7 @@ Annual time series of non-net metered distributed generation generators, pv curr
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -31471,7 +31471,7 @@ Annual time series of megawatt hours (MWH) for the sources and disposition of a 
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -31688,7 +31688,7 @@ Annual time series of utility revenue by type of electric operating revenue.
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -31819,7 +31819,7 @@ Annual time series of electricity system reliability and outage impacts.
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -32026,7 +32026,7 @@ Annual time series of electricity sales to ultimate customers by utility, balanc
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -32164,7 +32164,7 @@ Annual time series of counties in utility service territories.
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -32278,7 +32278,7 @@ Annual time series of data from the short form (EIA-861S).
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -32440,7 +32440,7 @@ Annual time series of utility business activities.
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -32606,7 +32606,7 @@ Annual time series of the NERC regions that utilities operate in.
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -32709,7 +32709,7 @@ Annual time series of the RTOs that utilities operate in.
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -36148,7 +36148,7 @@ Code table containing descriptions of categorical codes for utility definitions 
 
 
 Most-recent data:
-  2024
+  2025
 
 
 Processing:
@@ -45692,6 +45692,125 @@ Columns
     - string
     - 
     - Technology details indicate resource levels and specific technology subcategories.
+
+.. _core_phmsagas__yearly_distribution_by_install_decade:
+
+-------------------------------------------------------------------------------
+core_phmsagas__yearly_distribution_by_install_decade
+-------------------------------------------------------------------------------
+Noticed any irregularities with this table? `File a report. <https://github.com/catalyst-cooperative/pudl/issues/new?template=data_bug_report.yml&table=core_phmsagas__yearly_distribution_by_install_decade>`__
+
+Annual time series of miles of mains and the number of services in operation at the end of the year by install decade.
+
+
+Most-recent data:
+  2024
+
+
+Processing:
+  Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
+
+Source:
+  Pipelines and Hazardous Materials Safety Administration (PHMSA) Annual Natural Gas Report (Part B - System Description / Section 4)
+
+Primary key:
+  report_id, report_date, operator_id_phmsa, commodity, install_decade
+
+
+
+
+
+Additional Details
+^^^^^^^^^^^^^^^^^^
+
+PHMSA indicated that some operators may have reported negative ``mains_miles`` or ``services`` values to reconcile totals across Parts B1 and B4, but that negative values are not valid. These negative values have been replaced with zero.
+
+Access methods
+^^^^^^^^^^^^^^^
+
+* `Browse and query this table online <https://data.catalyst.coop/preview/pudl/core_phmsagas__yearly_distribution_by_install_decade>`__
+* `Download this table as a Parquet file <https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/core_phmsagas__yearly_distribution_by_install_decade.parquet>`__
+
+.. tab-set::
+
+   .. tab-item:: pandas
+
+      .. code-block:: python
+
+         import pandas as pd
+         df = pd.read_parquet(
+               "s3://pudl.catalyst.coop/nightly/core_phmsagas__yearly_distribution_by_install_decade.parquet",
+               dtype_backend="pyarrow",
+         )
+
+   .. tab-item:: polars
+
+      .. code-block:: python
+
+         import polars as pl
+         df = pl.read_parquet(
+               "s3://pudl.catalyst.coop/nightly/core_phmsagas__yearly_distribution_by_install_decade.parquet",
+               storage_options={"aws_region": "us-west-2", "aws_skip_signature": "True"},
+         )
+
+   .. tab-item:: SQL (DuckDB)
+
+      .. code-block:: sql
+
+         SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_phmsagas__yearly_distribution_by_install_decade.parquet';
+
+   .. tab-item:: R
+
+      .. code-block:: r
+
+         library(arrow)
+         df <- read_parquet(
+               "s3://pudl.catalyst.coop/nightly/core_phmsagas__yearly_distribution_by_install_decade.parquet"
+         )
+
+Columns
+^^^^^^^
+
+.. list-table::
+  :widths: auto
+  :header-rows: 1
+
+  * - **Field Name**
+    - **Type**
+    - **Unit**
+    - **Description**
+  * - commodity
+    - string
+    - 
+    - The type of gas delivered by the distribution pipeline.
+  * - install_decade
+    - string
+    - 
+    - The decade the distribution pipeline was installed.
+  * - mains_miles
+    - number
+    - mile
+    - The miles of mains distribution pipeline.
+  * - operating_state
+    - string
+    - 
+    - Two-letter postal abbreviation for the state or territory the distribution utility is reporting for.
+  * - operator_id_phmsa
+    - integer
+    - 
+    - PHMSA unique operator ID. A value of zero represents an unknown operator ID.
+  * - report_date
+    - date
+    - 
+    - Date reported.
+  * - report_id
+    - integer
+    - 
+    - Report number of the PHMSA Gas utility submission.
+  * - services
+    - integer
+    - count
+    - Number of services in system at end of year.
 
 .. _core_phmsagas__yearly_distribution_operators:
 

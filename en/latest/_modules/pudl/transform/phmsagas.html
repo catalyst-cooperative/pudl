@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.transform.phmsagas &#8212; PUDL 2026.8.1.dev16 documentation</title>
+    <title>pudl.transform.phmsagas &#8212; PUDL 2026.8.1.dev18 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=f981bf86"></script>
+    <script src="../../../_static/documentation_options.js?v=f2b63aa7"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev18 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev18 documentation - Home"/>
   
   
 </a></div>
@@ -995,6 +995,14 @@ window.runMermaid = runMermaid;</script>
     <span class="s2">&quot;commodity&quot;</span><span class="p">,</span>
     <span class="s2">&quot;operating_state&quot;</span><span class="p">,</span>
 <span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="INSTALL_DECADE_TOTAL_MISMATCHES">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/phmsagas/index.html#pudl.transform.phmsagas.INSTALL_DECADE_TOTAL_MISMATCHES">[docs]</a>
+<span class="n">INSTALL_DECADE_TOTAL_MISMATCHES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;mains_miles&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;expected_mismatches&quot;</span><span class="p">:</span> <span class="mi">42</span><span class="p">,</span> <span class="s2">&quot;tolerance&quot;</span><span class="p">:</span> <span class="mf">0.001</span><span class="p">},</span>
+    <span class="s2">&quot;services&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;expected_mismatches&quot;</span><span class="p">:</span> <span class="mi">156</span><span class="p">,</span> <span class="s2">&quot;tolerance&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
+<span class="p">}</span></div>
 
 
 <div class="viewcode-block" id="MELT_PATTERNS">
@@ -1584,6 +1592,88 @@ window.runMermaid = runMermaid;</script>
         <span class="o">.</span><span class="n">convert_dtypes</span><span class="p">()</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">df</span></div>
+
+
+
+<div class="viewcode-block" id="_assert_install_decade_totals_match_expected">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/phmsagas/index.html#pudl.transform.phmsagas._assert_install_decade_totals_match_expected">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_assert_install_decade_totals_match_expected</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Assert known mismatch counts between reported and summed install decades.&quot;&quot;&quot;</span>
+    <span class="n">group_by_columns</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;report_id&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;operator_id_phmsa&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;operating_state&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="n">total_label</span> <span class="o">=</span> <span class="s2">&quot;total_decades&quot;</span>
+
+    <span class="k">for</span> <span class="n">value_column</span><span class="p">,</span> <span class="n">params</span> <span class="ow">in</span> <span class="n">INSTALL_DECADE_TOTAL_MISMATCHES</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">grouped</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span>
+                <span class="n">group_by_columns</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;install_decade&quot;</span><span class="p">],</span>
+                <span class="n">dropna</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">observed</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="p">)[</span><span class="n">value_column</span><span class="p">]</span>
+            <span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">min_count</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;total&quot;</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">totals</span> <span class="o">=</span> <span class="n">grouped</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+            <span class="n">grouped</span><span class="p">[</span><span class="s2">&quot;install_decade&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="n">total_label</span><span class="p">),</span>
+            <span class="p">[</span><span class="o">*</span><span class="n">group_by_columns</span><span class="p">,</span> <span class="s2">&quot;total&quot;</span><span class="p">],</span>
+        <span class="p">]</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;total&quot;</span><span class="p">:</span> <span class="s2">&quot;grand_total&quot;</span><span class="p">})</span>
+        <span class="n">subcomponents</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">grouped</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="o">~</span><span class="n">grouped</span><span class="p">[</span><span class="s2">&quot;install_decade&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="n">total_label</span><span class="p">)]</span>
+            <span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">group_by_columns</span><span class="p">,</span> <span class="n">dropna</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">observed</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="s2">&quot;total&quot;</span><span class="p">]</span>
+            <span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">min_count</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;subcomponents_sum&quot;</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">comparison</span> <span class="o">=</span> <span class="n">subcomponents</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">totals</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="n">group_by_columns</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;outer&quot;</span><span class="p">)</span>
+        <span class="n">mismatches</span> <span class="o">=</span> <span class="n">comparison</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+            <span class="p">(</span><span class="n">comparison</span><span class="p">[</span><span class="s2">&quot;subcomponents_sum&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">comparison</span><span class="p">[</span><span class="s2">&quot;grand_total&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span>
+            <span class="o">&gt;</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;tolerance&quot;</span><span class="p">]</span>
+        <span class="p">]</span>
+
+        <span class="k">assert</span> <span class="p">(</span>
+            <span class="nb">len</span><span class="p">(</span><span class="n">mismatches</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;expected_mismatches&quot;</span><span class="p">]</span>
+        <span class="p">),</span> <span class="p">(</span>  <span class="c1"># &lt;= to handle fast ETL</span>
+            <span class="sa">f</span><span class="s2">&quot;Found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">mismatches</span><span class="p">)</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">value_column</span><span class="si">}</span><span class="s2"> total_decades mismatches, &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;but expected </span><span class="si">{</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;expected_mismatches&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span></div>
+
+
+
+<span class="nd">@asset</span><span class="p">(</span><span class="n">io_manager_key</span><span class="o">=</span><span class="s2">&quot;pudl_io_manager&quot;</span><span class="p">,</span> <span class="n">compute_kind</span><span class="o">=</span><span class="s2">&quot;pandas&quot;</span><span class="p">)</span>
+<div class="viewcode-block" id="core_phmsagas__yearly_distribution_by_install_decade">
+<a class="viewcode-back" href="../../../autoapi/pudl/transform/phmsagas/index.html#pudl.transform.phmsagas.core_phmsagas__yearly_distribution_by_install_decade">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">core_phmsagas__yearly_distribution_by_install_decade</span><span class="p">(</span>
+    <span class="n">_core_phmsagas__yearly_distribution_by_install_decade</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create core_phmsagas__yearly_distribution_by_install_decade.&quot;&quot;&quot;</span>
+    <span class="n">commodity_map</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;Natural Gas&quot;</span><span class="p">:</span> <span class="s2">&quot;natural_gas&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Propane Gas&quot;</span><span class="p">:</span> <span class="s2">&quot;propane_gas&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Landfill Gas&quot;</span><span class="p">:</span> <span class="s2">&quot;landfill_gas&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Synthetic Gas&quot;</span><span class="p">:</span> <span class="s2">&quot;synthetic_gas&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Hydrogen Gas&quot;</span><span class="p">:</span> <span class="s2">&quot;hydrogen_gas&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Nitrogen Gas&quot;</span><span class="p">:</span> <span class="s2">&quot;nitrogen_gas&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;OTHER GAS: Natural Gas&quot;</span><span class="p">:</span> <span class="s2">&quot;natural_gas&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;OTHER GAS: Nitrogen&quot;</span><span class="p">:</span> <span class="s2">&quot;nitrogen_gas&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;OTHER GAS: Propane Gas&quot;</span><span class="p">:</span> <span class="s2">&quot;propane_gas&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;OTHER GAS: nitrogen&quot;</span><span class="p">:</span> <span class="s2">&quot;nitrogen_gas&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;OTHER GAS: City of York&quot;</span><span class="p">:</span> <span class="s2">&quot;other&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">_core_phmsagas__yearly_distribution_by_install_decade</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;commodity&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;commodity&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">commodity_map</span><span class="p">)</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;commodity&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;commodity&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="s2">&quot;all&quot;</span><span class="p">)</span>
+    <span class="n">non_total_decade_mask</span> <span class="o">=</span> <span class="o">~</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;install_decade&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="s2">&quot;total_decades&quot;</span><span class="p">)</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">non_total_decade_mask</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;mains_miles&quot;</span><span class="p">,</span> <span class="s2">&quot;services&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+        <span class="n">non_total_decade_mask</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;mains_miles&quot;</span><span class="p">,</span> <span class="s2">&quot;services&quot;</span><span class="p">]</span>
+    <span class="p">]</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span>
+        <span class="n">lower</span><span class="o">=</span><span class="mi">0</span>
+    <span class="p">)</span>  <span class="c1"># Based on communication from PHMSA on 08/26, negative mains/services values should be set to zero.</span>
+    <span class="n">_assert_install_decade_totals_match_expected</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">non_total_decade_mask</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span></div>
 
 </pre></div>
 

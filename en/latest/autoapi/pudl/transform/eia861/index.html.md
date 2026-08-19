@@ -23,6 +23,7 @@ All transformations include:
 | [`_filter_non_class_cols`](#pudl.transform.eia861._filter_non_class_cols)(df, class_list)                      |                                                                                  |
 | [`add_backfilled_ba_code_column`](#pudl.transform.eia861.add_backfilled_ba_code_column)(→ pandas.DataFrame)           | Make a backfilled Balancing Authority Code column based on codes in later years. |
 | [`backfill_ba_codes_by_ba_id`](#pudl.transform.eia861.backfill_ba_codes_by_ba_id)(→ pandas.DataFrame)              | Fill in missing BA Codes by backfilling based on BA ID.                          |
+| [`_dedupe_cols_agg`](#pudl.transform.eia861._dedupe_cols_agg)(→ dict)                                    | Sum numeric duplicates and keep non-null value for non-numeric columns.          |
 | [`_tidy_class_dfs`](#pudl.transform.eia861._tidy_class_dfs)(→ pandas.DataFrame)                         | Stack multiple data columns and create a categorical column for filtering.       |
 | [`_drop_dupes`](#pudl.transform.eia861._drop_dupes)(df, df_name, subset)                            |                                                                                  |
 | [`_check_for_dupes`](#pudl.transform.eia861._check_for_dupes)(→ pandas.DataFrame)                        |                                                                                  |
@@ -118,6 +119,10 @@ retained.
   NA values in the balancing_authority_code_eia column.
 * **Return type:**
   [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+
+### pudl.transform.eia861.\_dedupe_cols_agg(data_dupes: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), df_name: [str](https://docs.python.org/3/library/stdtypes.html#str), idx_cols: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], class_type: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [dict](https://docs.python.org/3/library/stdtypes.html#dict)
+
+Sum numeric duplicates and keep non-null value for non-numeric columns.
 
 ### pudl.transform.eia861.\_tidy_class_dfs(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), df_name: [str](https://docs.python.org/3/library/stdtypes.html#str), idx_cols: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], class_list: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], class_type: [str](https://docs.python.org/3/library/stdtypes.html#str), keep_totals: [bool](https://docs.python.org/3/library/functions.html#bool) = False) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 

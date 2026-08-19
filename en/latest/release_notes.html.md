@@ -78,6 +78,19 @@ This is the upcoming PUDL release.
   experimental and marked accordingly, since we are soliciting feedback from the
   community on the underlying methodology. See issue [#5106](https://github.com/catalyst-cooperative/pudl/issues/5106) and PR [#5190](https://github.com/catalyst-cooperative/pudl/pull/5190).
 
+### Expanded Data Coverage
+
+#### EIA-861
+
+* Added early release data from 2025 for [EIA-861](data_sources/eia861.html.md).
+  See issue [#5492](https://github.com/catalyst-cooperative/pudl/issues/5492) and PR [#5493](https://github.com/catalyst-cooperative/pudl/pull/5493).
+
+#### PHMSA
+
+* Added the `core_phmsagas__yearly_distribution_by_install_decade` table, which
+  reports [PHMSA](data_sources/phmsagas.html.md) gas distribution mains miles and
+  services by installation decade. See issue [#5266](https://github.com/catalyst-cooperative/pudl/issues/5266) and PR [#5443](https://github.com/catalyst-cooperative/pudl/pull/5443).
+
 <a id="release-v2026-8-0"></a>
 
 ## v2026.8.0 (2026-08-07)

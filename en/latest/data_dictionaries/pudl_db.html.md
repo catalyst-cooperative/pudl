@@ -995,7 +995,7 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 Annual time series of counties in balancing authority service territories.
 
 Most-recent data:
-: 2024
+: 2025
 
 Processing:
 : Data is ready for use in analyses, but for practical reasons has not been denormalized and remains in narrow format.
@@ -1069,7 +1069,7 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 Annual time series of counties in utility service territories.
 
 Most-recent data:
-: 2024
+: 2025
 
 Processing:
 : Data is ready for use in analyses, but for practical reasons has not been denormalized and remains in narrow format.
@@ -8111,7 +8111,7 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 Hourly time series of estimated electricity demand for each state, scaled such that it matches the total electricity sales by state reported in EIA 861.
 
 Most-recent data:
-: 2024
+: 2025
 
 Processing:
 : Data is ready for use in analyses, but for practical reasons has not been denormalized and remains in narrow format.
@@ -15388,7 +15388,7 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 Association table providing connections between state, balancing authority, and utility in a given year.
 
 Most-recent data:
-: 2024
+: 2025
 
 Processing:
 : Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
@@ -15457,7 +15457,7 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 Association table providing connections between utility and state in a given year.
 
 Most-recent data:
-: 2024
+: 2025
 
 Processing:
 : Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
@@ -15525,7 +15525,7 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 Annual time series of advanced metering infrastructure (AMI) and automated meter reading (AMR) by state, sector, and balancing authority.
 
 Most-recent data:
-: 2024
+: 2025
 
 Processing:
 : Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
@@ -15612,7 +15612,7 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 Annual time series of balancing authorities.
 
 Most-recent data:
-: 2024
+: 2025
 
 Processing:
 : Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
@@ -15681,7 +15681,7 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 Annual time series of demand response programs by state, sector, and balancing authority.
 
 Most-recent data:
-: 2024
+: 2025
 
 Processing:
 : Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
@@ -15769,7 +15769,7 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 Annual time series of grid-connected water heaters enrolled in demand response programs.
 
 Most-recent data:
-: 2024
+: 2025
 
 Processing:
 : Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
@@ -16388,7 +16388,7 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 Annual time series of distribution circuits and circuits with voltage optimization by state.
 
 Most-recent data:
-: 2024
+: 2025
 
 Processing:
 : Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
@@ -16461,7 +16461,7 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 Annual time series of  enrollment in dynamic pricing programs by state, sector, and balancing authority.
 
 Most-recent data:
-: 2024
+: 2025
 
 Processing:
 : Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
@@ -16547,7 +16547,7 @@ cycle, and associated costs for the reporting year and life cycle of energy effi
 programs.
 
 Most-recent data:
-: 2024
+: 2025
 
 Processing:
 : Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
@@ -16718,7 +16718,7 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 Annual time series of utility mergers and acquisitions.
 
 Most-recent data:
-: 2024
+: 2025
 
 Processing:
 : Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
@@ -16797,7 +16797,7 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 Annual time series of net metering by customer and fuel class.
 
 Most-recent data:
-: 2024
+: 2025
 
 Processing:
 : Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
@@ -16885,7 +16885,7 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 Annual time series of PV current flow type for net metered capacity.
 
 Most-recent data:
-: 2024
+: 2025
 
 Processing:
 : Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
@@ -16956,7 +16956,7 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 Annual time series of non-net metered distributed generation by sector and technology type.
 
 Most-recent data:
-: 2024
+: 2025
 
 Processing:
 : Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
@@ -17041,7 +17041,7 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 Annual time series of non-net metered distributed generation generators, pv current flow type, backup capacity and utility owned capacity.
 
 Most-recent data:
-: 2024
+: 2025
 
 Processing:
 : Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
@@ -17125,7 +17125,7 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 Annual time series of megawatt hours (MWH) for the sources and disposition of a utility’s electricity.
 
 Most-recent data:
-: 2024
+: 2025
 
 Processing:
 : Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
@@ -17236,7 +17236,7 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 Annual time series of utility revenue by type of electric operating revenue.
 
 Most-recent data:
-: 2024
+: 2025
 
 Processing:
 : Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
@@ -17325,7 +17325,7 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 Annual time series of electricity system reliability and outage impacts.
 
 Most-recent data:
-: 2024
+: 2025
 
 Processing:
 : Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
@@ -17448,7 +17448,7 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 Annual time series of electricity sales to ultimate customers by utility, balancing authority, state, and customer class.
 
 Most-recent data:
-: 2024
+: 2025
 
 Processing:
 : Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
@@ -17528,7 +17528,7 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 Annual time series of counties in utility service territories.
 
 Most-recent data:
-: 2024
+: 2025
 
 Processing:
 : Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
@@ -17602,7 +17602,7 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 Annual time series of data from the short form (EIA-861S).
 
 Most-recent data:
-: 2024
+: 2025
 
 Processing:
 : Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
@@ -17697,7 +17697,7 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 Annual time series of utility business activities.
 
 Most-recent data:
-: 2024
+: 2025
 
 Processing:
 : Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
@@ -17788,7 +17788,7 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 Annual time series of the NERC regions that utilities operate in.
 
 Most-recent data:
-: 2024
+: 2025
 
 Processing:
 : Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
@@ -17860,7 +17860,7 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 Annual time series of the RTOs that utilities operate in.
 
 Most-recent data:
-: 2024
+: 2025
 
 Processing:
 : Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
@@ -20241,7 +20241,7 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 Code table containing descriptions of categorical codes for utility definitions of momentary service interruptions.
 
 Most-recent data:
-: 2024
+: 2025
 
 Processing:
 : Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
@@ -26325,6 +26325,83 @@ df <- read_parquet(
 | technology_description          | string     |            | High level description of the technology used by the generator to produce electricity.                                                                                              |
 | technology_description_detail_1 | string     |            | Technology details indicate resource levels and specific technology subcategories.                                                                                                  |
 | technology_description_detail_2 | string     |            | Technology details indicate resource levels and specific technology subcategories.                                                                                                  |
+
+<a id="core-phmsagas-yearly-distribution-by-install-decade"></a>
+
+## core_phmsagas_\_yearly_distribution_by_install_decade
+
+Noticed any irregularities with this table? [File a report.](https://github.com/catalyst-cooperative/pudl/issues/new?template=data_bug_report.yml&table=core_phmsagas__yearly_distribution_by_install_decade)
+
+Annual time series of miles of mains and the number of services in operation at the end of the year by install decade.
+
+Most-recent data:
+: 2024
+
+Processing:
+: Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
+
+Source:
+: Pipelines and Hazardous Materials Safety Administration (PHMSA) Annual Natural Gas Report (Part B - System Description / Section 4)
+
+Primary key:
+: report_id, report_date, operator_id_phmsa, commodity, install_decade
+
+### Additional Details
+
+PHMSA indicated that some operators may have reported negative `mains_miles` or `services` values to reconcile totals across Parts B1 and B4, but that negative values are not valid. These negative values have been replaced with zero.
+
+### Access methods
+
+* [Browse and query this table online](https://data.catalyst.coop/preview/pudl/core_phmsagas__yearly_distribution_by_install_decade)
+* [Download this table as a Parquet file](https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/core_phmsagas__yearly_distribution_by_install_decade.parquet)
+
+### pandas
+
+```python
+import pandas as pd
+df = pd.read_parquet(
+      "s3://pudl.catalyst.coop/nightly/core_phmsagas__yearly_distribution_by_install_decade.parquet",
+      dtype_backend="pyarrow",
+)
+```
+
+### polars
+
+```python
+import polars as pl
+df = pl.read_parquet(
+      "s3://pudl.catalyst.coop/nightly/core_phmsagas__yearly_distribution_by_install_decade.parquet",
+      storage_options={"aws_region": "us-west-2", "aws_skip_signature": "True"},
+)
+```
+
+### SQL (DuckDB)
+
+```sql
+SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_phmsagas__yearly_distribution_by_install_decade.parquet';
+```
+
+### R
+
+```r
+library(arrow)
+df <- read_parquet(
+      "s3://pudl.catalyst.coop/nightly/core_phmsagas__yearly_distribution_by_install_decade.parquet"
+)
+```
+
+### Columns
+
+| **Field Name**    | **Type**   | **Unit**   | **Description**                                                                                      |
+|-------------------|------------|------------|------------------------------------------------------------------------------------------------------|
+| commodity         | string     |            | The type of gas delivered by the distribution pipeline.                                              |
+| install_decade    | string     |            | The decade the distribution pipeline was installed.                                                  |
+| mains_miles       | number     | mile       | The miles of mains distribution pipeline.                                                            |
+| operating_state   | string     |            | Two-letter postal abbreviation for the state or territory the distribution utility is reporting for. |
+| operator_id_phmsa | integer    |            | PHMSA unique operator ID. A value of zero represents an unknown operator ID.                         |
+| report_date       | date       |            | Date reported.                                                                                       |
+| report_id         | integer    |            | Report number of the PHMSA Gas utility submission.                                                   |
+| services          | integer    | count      | Number of services in system at end of year.                                                         |
 
 <a id="core-phmsagas-yearly-distribution-operators"></a>
 

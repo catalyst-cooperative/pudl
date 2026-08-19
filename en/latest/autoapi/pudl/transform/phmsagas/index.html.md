@@ -10,6 +10,7 @@ Classes & functions to process PHMSA natural gas data before loading into the PU
 | [`YEARLY_DISTRIBUTION_OPERATORS_COLUMNS`](#pudl.transform.phmsagas.YEARLY_DISTRIBUTION_OPERATORS_COLUMNS) |    |
 | [`YEARLY_DISTRIBUTION_MISC_COLUMNS`](#pudl.transform.phmsagas.YEARLY_DISTRIBUTION_MISC_COLUMNS)      |    |
 | [`YEARLY_DISTRIBUTION_IDX_ISH`](#pudl.transform.phmsagas.YEARLY_DISTRIBUTION_IDX_ISH)           |    |
+| [`INSTALL_DECADE_TOTAL_MISMATCHES`](#pudl.transform.phmsagas.INSTALL_DECADE_TOTAL_MISMATCHES)       |    |
 | [`MELT_PATTERNS`](#pudl.transform.phmsagas.MELT_PATTERNS)                         |    |
 
 ## Functions
@@ -31,6 +32,8 @@ Classes & functions to process PHMSA natural gas data before loading into the PU
 | [`_core_phmsagas__yearly_distribution_leaks`](#pudl.transform.phmsagas._core_phmsagas__yearly_distribution_leaks)(...)                | Transform table of leaks - broken out by source and leak severity.                      |
 | [`_core_phmsagas__yearly_distribution_excavation_damages`](#pudl.transform.phmsagas._core_phmsagas__yearly_distribution_excavation_damages)(...)   | Transform table of damages - broken out by type and sub-type.                           |
 | [`_core_phmsagas__yearly_distribution_misc`](#pudl.transform.phmsagas._core_phmsagas__yearly_distribution_misc)(...)                 | Transform this distribution table of miscellaneous numeric values.                      |
+| [`_assert_install_decade_totals_match_expected`](#pudl.transform.phmsagas._assert_install_decade_totals_match_expected)(→ None)          | Assert known mismatch counts between reported and summed install decades.               |
+| [`core_phmsagas__yearly_distribution_by_install_decade`](#pudl.transform.phmsagas.core_phmsagas__yearly_distribution_by_install_decade)(...)     | Create core_phmsagas_\_yearly_distribution_by_install_decade.                           |
 
 ## Module Contents
 
@@ -43,6 +46,8 @@ Classes & functions to process PHMSA natural gas data before loading into the PU
 ### pudl.transform.phmsagas.YEARLY_DISTRIBUTION_MISC_COLUMNS *= ['all_known_leaks_scheduled_for_repair_main', 'all_known_leaks_scheduled_for_repair',...*
 
 ### pudl.transform.phmsagas.YEARLY_DISTRIBUTION_IDX_ISH *= ['report_date', 'report_id', 'operator_id_phmsa', 'commodity', 'operating_state']*
+
+### pudl.transform.phmsagas.INSTALL_DECADE_TOTAL_MISMATCHES
 
 ### pudl.transform.phmsagas.MELT_PATTERNS
 
@@ -165,3 +170,11 @@ Transform table of damages - broken out by type and sub-type.
 ### pudl.transform.phmsagas.\_core_phmsagas_\_yearly_distribution_misc(\_core_phmsagas_\_yearly_distribution: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Transform this distribution table of miscellaneous numeric values.
+
+### pudl.transform.phmsagas.\_assert_install_decade_totals_match_expected(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [None](https://docs.python.org/3/library/constants.html#None)
+
+Assert known mismatch counts between reported and summed install decades.
+
+### pudl.transform.phmsagas.core_phmsagas_\_yearly_distribution_by_install_decade(\_core_phmsagas_\_yearly_distribution_by_install_decade: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+
+Create core_phmsagas_\_yearly_distribution_by_install_decade.
