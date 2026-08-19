@@ -10,6 +10,7 @@ from pudl.metadata.enums import (
     ASSET_TYPES_FERC1,
     ASSET_TYPES_RUS7,
     ASSET_TYPES_RUS12,
+    COMMODITY_TYPES_PHMSAGAS,
     COUNTRY_CODES_ISO3166,
     CUSTOMER_CLASSES,
     CUSTOMER_CLASSES_EIA176,
@@ -10838,6 +10839,18 @@ elements which should be overridden need to be specified.
 """
 
 FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
+    "core_phmsagas__yearly_distribution_by_install_decade": {
+        "commodity": {
+            "constraints": {"enum": COMMODITY_TYPES_PHMSAGAS},
+        },
+        "operating_state": {
+            "description": (
+                "Two-letter postal abbreviation for the state or territory the "
+                "distribution utility is reporting for."
+            ),
+            "constraints": {"enum": SUBDIVISION_CODES_ISO3166},
+        },
+    },
     "core_eia176__yearly_company_characteristics": {
         # Non-US codes (FX, OO, BL, MX) are dropped in transform before this constraint
         # is checked — they represent national-level adjustment records, not state data.

@@ -87,6 +87,13 @@ EPA CEMS
   experimental and marked accordingly, since we are soliciting feedback from the
   community on the underlying methodology. See issue :issue:`5106` and PR :pr:`5190`.
 
+PHMSA
+~~~~~
+
+* Added the ``core_phmsagas__yearly_distribution_by_install_decade`` table, which
+  reports :doc:`PHMSA <data_sources/phmsagas>` gas distribution mains miles and
+  services by installation decade. See issue :issue:`5266` and PR :pr:`5443`.
+
 .. _release-v2026.8.0:
 
 ---------------------------------------------------------------------------------------

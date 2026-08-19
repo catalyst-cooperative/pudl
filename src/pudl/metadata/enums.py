@@ -815,6 +815,31 @@ https://www.census.gov/library/reference/code-lists/functional-status-codes.html
 """
 
 
+COMMODITY_TYPES_PHMSAGAS = [
+    "all",
+    "natural_gas",
+    "propane_gas",
+    "landfill_gas",
+    "synthetic_gas",
+    "hydrogen_gas",
+    "nitrogen_gas",
+    "other",
+]
+
+INSTALL_DECADES_PHMSAGAS = [
+    "pre_1940",
+    "1940s",
+    "1950s",
+    "1960s",
+    "1970s",
+    "1980s",
+    "1990s",
+    "2000s",
+    "2010s",
+    "2020s",
+    "unknown_decade",
+]
+
 MATERIAL_TYPES_PHMSAGAS = [
     "unprotected_steel_bare",
     "unprotected_steel_coated",
