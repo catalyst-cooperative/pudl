@@ -46,7 +46,7 @@ be made with care and documentation.
   top of the original data.
 * Aggregating data that has date/time information associated with it into a
   time series when the individual records do not pertain to unique timesteps.
-  For example, the [EIA 923](../data_sources/eia923.md) Fuel Receipts and
+  For example, the [EIA 923](../data_sources/eia923.html.md) Fuel Receipts and
   Costs table lists fuel deliveries by month, but each plant might receive
   several deliveries from the same supplier of the same fuel type in a month –
   the individual delivery information should be retained.
@@ -106,18 +106,18 @@ that M/Mega is a million in SI. And a [BTU](https://en.wikipedia.org/wiki/Britis
 energy required to raise the temperature of one an *avoirdupois pound* of water
 by 1 degree *Fahrenheit*?! What century even is this?).
 
-When adding or updating field metadata in [`pudl.metadata.fields`](../autoapi/pudl/metadata/fields/index.md#module-pudl.metadata.fields), every numeric
+When adding or updating field metadata in [`pudl.metadata.fields`](../autoapi/pudl/metadata/fields/index.html.md#module-pudl.metadata.fields), every numeric
 field that measures a physical or financial quantity should carry a `unit` annotation.
 Unit strings must follow [Pint expression syntax](https://pint.readthedocs.io/). Do
 **not** invent ad-hoc abbreviations; unit strings are published verbatim in
-`datapackage.json` and validated with an asset check. See [Field metadata](metadata.md#field-description) for
+`datapackage.json` and validated with an asset check. See [Field metadata](metadata.html.md#field-description) for
 more details.
 
 ## Partition Big Data
 
 Our goal is for users to be able to run the ETL process on a decent laptop.  However,
 some of the utility datasets are hundreds of gigabytes in size (e.g.
-[EPA Hourly Continuous Emission Monitoring System (CEMS)](../data_sources/epacems.md) or [FERC EQR](../data_sources/ferceqr.md)). Many users
+[EPA Hourly Continuous Emission Monitoring System (CEMS)](../data_sources/epacems.html.md) or [FERC EQR](../data_sources/ferceqr.html.md)). Many users
 will not need to use the entire dataset for the work they are doing. Partitioning the
 data allows them to pull in only certain years, certain states, or other sensible
 partitions of the data so that they don’t run out of memory or disk space or have to

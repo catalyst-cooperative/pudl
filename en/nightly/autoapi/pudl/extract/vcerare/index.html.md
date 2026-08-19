@@ -16,16 +16,16 @@ read in when the fips partition is set to True.
 
 ## Attributes
 
-| [`logger`](#pudl.extract.vcerare.logger)               |    |
-|--------------------------------------------------------|----|
+| [`logger`](#pudl.extract.vcerare.logger)        |    |
+|----------------------------------------------------------------|----|
 | [`VCERARE_PAGES`](#pudl.extract.vcerare.VCERARE_PAGES) |    |
 
 ## Functions
 
-| [`_clean_column_names`](#pudl.extract.vcerare._clean_column_names)(→ duckdb.DuckDBPyRelation)      | Apply basic cleaning to column names.                           |
-|----------------------------------------------------------------------------------------------------|-----------------------------------------------------------------|
-| [`extract_vcerare`](#pudl.extract.vcerare.extract_vcerare)(→ tuple[dict[int, ...)                  | Extract data from all vcerare pages and write to parquet files. |
-| [`raw_vcerare__lat_lon_fips`](#pudl.extract.vcerare.raw_vcerare__lat_lon_fips)(→ pandas.DataFrame) | Extract lat/lon to FIPS and county mapping CSV.                 |
+| [`_clean_column_names`](#pudl.extract.vcerare._clean_column_names)(→ duckdb.DuckDBPyRelation)   | Apply basic cleaning to column names.                           |
+|---------------------------------------------------------------------------------------------------|-----------------------------------------------------------------|
+| [`extract_vcerare`](#pudl.extract.vcerare.extract_vcerare)(→ tuple[dict[int, ...)           | Extract data from all vcerare pages and write to parquet files. |
+| [`raw_vcerare__lat_lon_fips`](#pudl.extract.vcerare.raw_vcerare__lat_lon_fips)(→ pandas.DataFrame)    | Extract lat/lon to FIPS and county mapping CSV.                 |
 
 ## Module Contents
 
@@ -37,7 +37,7 @@ read in when the fips partition is set to True.
 
 Apply basic cleaning to column names.
 
-### pudl.extract.vcerare.extract_vcerare(context) → [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)[[int](https://docs.python.org/3/library/functions.html#int), [pudl.helpers.ParquetData](../../helpers/index.md#pudl.helpers.ParquetData)], [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[int](https://docs.python.org/3/library/functions.html#int), [pudl.helpers.ParquetData](../../helpers/index.md#pudl.helpers.ParquetData)], [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[int](https://docs.python.org/3/library/functions.html#int), [pudl.helpers.ParquetData](../../helpers/index.md#pudl.helpers.ParquetData)]]
+### pudl.extract.vcerare.extract_vcerare(context) → [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)[[int](https://docs.python.org/3/library/functions.html#int), [pudl.helpers.ParquetData](../../helpers/index.html.md#pudl.helpers.ParquetData)], [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[int](https://docs.python.org/3/library/functions.html#int), [pudl.helpers.ParquetData](../../helpers/index.html.md#pudl.helpers.ParquetData)], [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[int](https://docs.python.org/3/library/functions.html#int), [pudl.helpers.ParquetData](../../helpers/index.html.md#pudl.helpers.ParquetData)]]
 
 Extract data from all vcerare pages and write to parquet files.
 

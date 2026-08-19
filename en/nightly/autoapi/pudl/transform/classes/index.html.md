@@ -47,7 +47,7 @@ Currently there are 3 levels of abstraction in the TableTransformer classes:
 >   useful across a wide range of data sources.
 > * A dataset-specific abstract class that can define transforms which are consistently
 >   useful across many tables in the dataset (e.g. the
->   [`pudl.transform.ferc1.Ferc1AbstractTableTransformer`](../ferc1/index.md#pudl.transform.ferc1.Ferc1AbstractTableTransformer) class).
+>   [`pudl.transform.ferc1.Ferc1AbstractTableTransformer`](../ferc1/index.html.md#pudl.transform.ferc1.Ferc1AbstractTableTransformer) class).
 > * Table-specific concrete classes that inherit from both of the higher levels, and
 >   contain any bespoke transformations or parameters that only pertain to that table.
 >   (e.g. the `pudl.transform.ferc1.SteamPlantsFerc1TableTransformer` class).
@@ -62,59 +62,59 @@ dictionaries keyed by column name, that must map to per-column parameters which 
 of the same type.
 
 Specific [`TransformParams`](#pudl.transform.classes.TransformParams) classes are instantiated using dictionaries of values
-defined in the per-dataset modules under [`pudl.transform.params`](../params/index.md#module-pudl.transform.params) e.g.
-[`pudl.transform.params.ferc1`](../params/ferc1/index.md#module-pudl.transform.params.ferc1).
+defined in the per-dataset modules under [`pudl.transform.params`](../params/index.html.md#module-pudl.transform.params) e.g.
+[`pudl.transform.params.ferc1`](../params/ferc1/index.html.md#module-pudl.transform.params.ferc1).
 
 ## Attributes
 
-| [`logger`](#pudl.transform.classes.logger)                                                       |                                                                                                              |
-|--------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------|
-| [`normalize_strings_multicol`](#pudl.transform.classes.normalize_strings_multicol)               | A multi-column version of the [`normalize_strings()`](#pudl.transform.classes.normalize_strings) function.   |
-| [`enforce_snake_case_multicol`](#pudl.transform.classes.enforce_snake_case_multicol)             |                                                                                                              |
-| [`strip_non_numeric_values_multicol`](#pudl.transform.classes.strip_non_numeric_values_multicol) |                                                                                                              |
-| [`categorize_strings_multicol`](#pudl.transform.classes.categorize_strings_multicol)             | A multi-column version of the [`categorize_strings()`](#pudl.transform.classes.categorize_strings) function. |
-| [`convert_units_multicol`](#pudl.transform.classes.convert_units_multicol)                       | A multi-column version of the [`convert_units()`](#pudl.transform.classes.convert_units) function.           |
-| [`nullify_outliers_multicol`](#pudl.transform.classes.nullify_outliers_multicol)                 | A multi-column version of the [`nullify_outliers()`](#pudl.transform.classes.nullify_outliers) function.     |
-| [`replace_with_na_multicol`](#pudl.transform.classes.replace_with_na_multicol)                   | A multi-column version of the [`nullify_outliers()`](#pudl.transform.classes.nullify_outliers) function.     |
+| [`logger`](#pudl.transform.classes.logger)                            |                                                                                                               |
+|------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------|
+| [`normalize_strings_multicol`](#pudl.transform.classes.normalize_strings_multicol)        | A multi-column version of the [`normalize_strings()`](#pudl.transform.classes.normalize_strings) function.  |
+| [`enforce_snake_case_multicol`](#pudl.transform.classes.enforce_snake_case_multicol)       |                                                                                                               |
+| [`strip_non_numeric_values_multicol`](#pudl.transform.classes.strip_non_numeric_values_multicol) |                                                                                                               |
+| [`categorize_strings_multicol`](#pudl.transform.classes.categorize_strings_multicol)       | A multi-column version of the [`categorize_strings()`](#pudl.transform.classes.categorize_strings) function. |
+| [`convert_units_multicol`](#pudl.transform.classes.convert_units_multicol)            | A multi-column version of the [`convert_units()`](#pudl.transform.classes.convert_units) function.      |
+| [`nullify_outliers_multicol`](#pudl.transform.classes.nullify_outliers_multicol)         | A multi-column version of the [`nullify_outliers()`](#pudl.transform.classes.nullify_outliers) function.   |
+| [`replace_with_na_multicol`](#pudl.transform.classes.replace_with_na_multicol)          | A multi-column version of the [`nullify_outliers()`](#pudl.transform.classes.nullify_outliers) function.   |
 
 ## Classes
 
-| [`TransformParams`](#pudl.transform.classes.TransformParams)                       | An immutable base model for transformation parameters.                                                               |
-|------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------|
+| [`TransformParams`](#pudl.transform.classes.TransformParams)            | An immutable base model for transformation parameters.                                                                   |
+|-----------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------|
 | [`MultiColumnTransformParams`](#pudl.transform.classes.MultiColumnTransformParams) | A dictionary of [`TransformParams`](#pudl.transform.classes.TransformParams) to apply to several columns in a table. |
-| [`ColumnTransformFunc`](#pudl.transform.classes.ColumnTransformFunc)               | Callback protocol defining a per-column transformation function.                                                     |
-| [`TableTransformFunc`](#pudl.transform.classes.TableTransformFunc)                 | Callback protocol defining a per-table transformation function.                                                      |
-| [`MultiColumnTransformFunc`](#pudl.transform.classes.MultiColumnTransformFunc)     | Callback protocol defining a per-table transformation function.                                                      |
-| [`RenameColumns`](#pudl.transform.classes.RenameColumns)                           | A dictionary for mapping old column names to new column names in a dataframe.                                        |
-| [`StringNormalization`](#pudl.transform.classes.StringNormalization)               | Options to control string normalization.                                                                             |
-| [`EnforceSnakeCase`](#pudl.transform.classes.EnforceSnakeCase)                     | Boolean parameter for [`enforce_snake_case()`](#pudl.transform.classes.enforce_snake_case).                          |
-| [`StripNonNumericValues`](#pudl.transform.classes.StripNonNumericValues)           | Boolean parameter for [`strip_non_numeric_values()`](#pudl.transform.classes.strip_non_numeric_values).              |
-| [`StringCategories`](#pudl.transform.classes.StringCategories)                     | Mappings to categorize the values in freeform string columns.                                                        |
-| [`UnitConversion`](#pudl.transform.classes.UnitConversion)                         | A column-wise unit conversion which can also rename the column.                                                      |
-| [`ValidRange`](#pudl.transform.classes.ValidRange)                                 | Column level specification of min and/or max values.                                                                 |
-| [`UnitCorrections`](#pudl.transform.classes.UnitCorrections)                       | Fix outlying values resulting from apparent unit errors.                                                             |
-| [`InvalidRows`](#pudl.transform.classes.InvalidRows)                               | Pameters that identify invalid rows to drop.                                                                         |
-| [`ReplaceWithNa`](#pudl.transform.classes.ReplaceWithNa)                           | Pameters that replace certain values with NA.                                                                        |
-| [`SpotFixes`](#pudl.transform.classes.SpotFixes)                                   | Parameters that replace certain values with a manually corrected value.                                              |
-| [`TableTransformParams`](#pudl.transform.classes.TableTransformParams)             | A collection of all the generic transformation parameters for a table.                                               |
-| [`AbstractTableTransformer`](#pudl.transform.classes.AbstractTableTransformer)     | An abstract base table transformer class.                                                                            |
+| [`ColumnTransformFunc`](#pudl.transform.classes.ColumnTransformFunc)        | Callback protocol defining a per-column transformation function.                                                         |
+| [`TableTransformFunc`](#pudl.transform.classes.TableTransformFunc)         | Callback protocol defining a per-table transformation function.                                                          |
+| [`MultiColumnTransformFunc`](#pudl.transform.classes.MultiColumnTransformFunc)   | Callback protocol defining a per-table transformation function.                                                          |
+| [`RenameColumns`](#pudl.transform.classes.RenameColumns)              | A dictionary for mapping old column names to new column names in a dataframe.                                            |
+| [`StringNormalization`](#pudl.transform.classes.StringNormalization)        | Options to control string normalization.                                                                                 |
+| [`EnforceSnakeCase`](#pudl.transform.classes.EnforceSnakeCase)           | Boolean parameter for [`enforce_snake_case()`](#pudl.transform.classes.enforce_snake_case).                             |
+| [`StripNonNumericValues`](#pudl.transform.classes.StripNonNumericValues)      | Boolean parameter for [`strip_non_numeric_values()`](#pudl.transform.classes.strip_non_numeric_values).                       |
+| [`StringCategories`](#pudl.transform.classes.StringCategories)           | Mappings to categorize the values in freeform string columns.                                                            |
+| [`UnitConversion`](#pudl.transform.classes.UnitConversion)             | A column-wise unit conversion which can also rename the column.                                                          |
+| [`ValidRange`](#pudl.transform.classes.ValidRange)                 | Column level specification of min and/or max values.                                                                     |
+| [`UnitCorrections`](#pudl.transform.classes.UnitCorrections)            | Fix outlying values resulting from apparent unit errors.                                                                 |
+| [`InvalidRows`](#pudl.transform.classes.InvalidRows)                | Pameters that identify invalid rows to drop.                                                                             |
+| [`ReplaceWithNa`](#pudl.transform.classes.ReplaceWithNa)              | Pameters that replace certain values with NA.                                                                            |
+| [`SpotFixes`](#pudl.transform.classes.SpotFixes)                  | Parameters that replace certain values with a manually corrected value.                                                  |
+| [`TableTransformParams`](#pudl.transform.classes.TableTransformParams)       | A collection of all the generic transformation parameters for a table.                                                   |
+| [`AbstractTableTransformer`](#pudl.transform.classes.AbstractTableTransformer)   | An abstract base table transformer class.                                                                                |
 
 ## Functions
 
 | [`multicol_transform_factory`](#pudl.transform.classes.multicol_transform_factory)(→ MultiColumnTransformFunc)   | Construct [`MultiColumnTransformFunc`](#pudl.transform.classes.MultiColumnTransformFunc) from a [`ColumnTransformFunc`](#pudl.transform.classes.ColumnTransformFunc).   |
-|------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [`rename_columns`](#pudl.transform.classes.rename_columns)(→ pandas.DataFrame)                                   | Rename the whole collection of dataframe columns using input params.                                                                                                    |
-| [`normalize_strings`](#pudl.transform.classes.normalize_strings)(→ pandas.Series)                                | Derive a canonical, simplified version of the strings in the column.                                                                                                    |
-| [`enforce_snake_case`](#pudl.transform.classes.enforce_snake_case)(→ pandas.Series)                              | Enforce snake_case for a column.                                                                                                                                        |
-| [`strip_non_numeric_values`](#pudl.transform.classes.strip_non_numeric_values)(→ pandas.Series)                  | Strip a column of any non numeric values.                                                                                                                               |
-| [`categorize_strings`](#pudl.transform.classes.categorize_strings)(→ pandas.Series)                              | Impose a controlled vocabulary on a freeform string column.                                                                                                             |
-| [`convert_units`](#pudl.transform.classes.convert_units)(→ pandas.Series)                                        | Convert column units and rename the column to reflect the change.                                                                                                       |
-| [`nullify_outliers`](#pudl.transform.classes.nullify_outliers)(→ pandas.Series)                                  | Set any values outside the valid range to NA.                                                                                                                           |
-| [`correct_units`](#pudl.transform.classes.correct_units)(→ pandas.DataFrame)                                     | Correct outlying values based on inferred discrepancies in reported units.                                                                                              |
-| [`drop_invalid_rows`](#pudl.transform.classes.drop_invalid_rows)(→ pandas.DataFrame)                             | Drop rows with only invalid values in all specified columns.                                                                                                            |
-| [`replace_with_na`](#pudl.transform.classes.replace_with_na)(→ pandas.Series)                                    | Replace specified values with NA.                                                                                                                                       |
-| [`spot_fix_values`](#pudl.transform.classes.spot_fix_values)(→ pandas.DataFrame)                                 | Manually fix one-off singular missing values and typos across a DataFrame.                                                                                              |
-| [`cache_df`](#pudl.transform.classes.cache_df)(→ collections.abc.Callable[Ellipsis, ...)                         | A decorator for caching dataframes within an [`AbstractTableTransformer`](#pudl.transform.classes.AbstractTableTransformer).                                            |
+|-----------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [`rename_columns`](#pudl.transform.classes.rename_columns)(→ pandas.DataFrame)                       | Rename the whole collection of dataframe columns using input params.                                                                                               |
+| [`normalize_strings`](#pudl.transform.classes.normalize_strings)(→ pandas.Series)                       | Derive a canonical, simplified version of the strings in the column.                                                                                               |
+| [`enforce_snake_case`](#pudl.transform.classes.enforce_snake_case)(→ pandas.Series)                      | Enforce snake_case for a column.                                                                                                                                   |
+| [`strip_non_numeric_values`](#pudl.transform.classes.strip_non_numeric_values)(→ pandas.Series)                | Strip a column of any non numeric values.                                                                                                                          |
+| [`categorize_strings`](#pudl.transform.classes.categorize_strings)(→ pandas.Series)                      | Impose a controlled vocabulary on a freeform string column.                                                                                                        |
+| [`convert_units`](#pudl.transform.classes.convert_units)(→ pandas.Series)                           | Convert column units and rename the column to reflect the change.                                                                                                  |
+| [`nullify_outliers`](#pudl.transform.classes.nullify_outliers)(→ pandas.Series)                        | Set any values outside the valid range to NA.                                                                                                                      |
+| [`correct_units`](#pudl.transform.classes.correct_units)(→ pandas.DataFrame)                        | Correct outlying values based on inferred discrepancies in reported units.                                                                                         |
+| [`drop_invalid_rows`](#pudl.transform.classes.drop_invalid_rows)(→ pandas.DataFrame)                    | Drop rows with only invalid values in all specified columns.                                                                                                       |
+| [`replace_with_na`](#pudl.transform.classes.replace_with_na)(→ pandas.Series)                         | Replace specified values with NA.                                                                                                                                  |
+| [`spot_fix_values`](#pudl.transform.classes.spot_fix_values)(→ pandas.DataFrame)                      | Manually fix one-off singular missing values and typos across a DataFrame.                                                                                         |
+| [`cache_df`](#pudl.transform.classes.cache_df)(→ collections.abc.Callable[Ellipsis, ...)       | A decorator for caching dataframes within an [`AbstractTableTransformer`](#pudl.transform.classes.AbstractTableTransformer).                                            |
 
 ## Module Contents
 
@@ -589,7 +589,7 @@ Bases: [`TransformParams`](#pudl.transform.classes.TransformParams)
 
 Pameters that identify invalid rows to drop.
 
-#### invalid_values *: Annotated[[set](https://docs.python.org/3/library/stdtypes.html#set)[Any], [Field](../../metadata/classes/index.md#pudl.metadata.classes.Field)(min_length=1)] | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### invalid_values *: Annotated[[set](https://docs.python.org/3/library/stdtypes.html#set)[Any], [Field](../../metadata/classes/index.html.md#pudl.metadata.classes.Field)(min_length=1)] | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
 
 A list of values that should be considered invalid in the selected columns.
 
@@ -696,11 +696,11 @@ A collection of all the generic transformation parameters for a table.
 This class is used to instantiate and contain all of the individual
 [`TransformParams`](#pudl.transform.classes.TransformParams) objects that are associated with transforming a given
 table. It can be instantiated using one of the table-level dictionaries of
-parameters defined in the dataset-specific modules in [`pudl.transform.params`](../params/index.md#module-pudl.transform.params)
+parameters defined in the dataset-specific modules in [`pudl.transform.params`](../params/index.html.md#module-pudl.transform.params)
 
 Data source-specific [`TableTransformParams`](#pudl.transform.classes.TableTransformParams) classes should be defined in
 the data source-specific transform modules and inherit from this class. See e.g.
-[`pudl.transform.ferc1.Ferc1TableTransformParams`](../ferc1/index.md#pudl.transform.ferc1.Ferc1TableTransformParams)
+[`pudl.transform.ferc1.Ferc1TableTransformParams`](../ferc1/index.html.md#pudl.transform.ferc1.Ferc1TableTransformParams)
 
 #### convert_units *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [UnitConversion](#pudl.transform.classes.UnitConversion)]*
 
@@ -727,7 +727,7 @@ the data source-specific transform modules and inherit from this class. See e.g.
 Construct `TableTransformParams` from a dictionary of keyword arguments.
 
 Typically these will be the table-level dictionaries defined in the dataset-
-specific modules in the [`pudl.transform.params`](../params/index.md#module-pudl.transform.params) subpackage. See also the
+specific modules in the [`pudl.transform.params`](../params/index.html.md#module-pudl.transform.params) subpackage. See also the
 [`TableTransformParams.from_id()`](#pudl.transform.classes.TableTransformParams.from_id) method.
 
 #### *classmethod* from_id(table_id: [enum.Enum](https://docs.python.org/3/library/enum.html#enum.Enum)) → [TableTransformParams](#pudl.transform.classes.TableTransformParams)
@@ -809,7 +809,7 @@ Later transform steps are assumed to take a single dataframe as input, and retur
 single dataframe. Since Python is lazy about enforcing types and interfaces you can
 get away with other kinds of arguments when they’re sometimes necessary, but this
 isn’t a good arrangement and we should figure out how to do it right. See the
-[`pudl.transform.ferc1.SteamPlantsTableTransformer`](../ferc1/index.md#pudl.transform.ferc1.SteamPlantsTableTransformer) class for an example.
+[`pudl.transform.ferc1.SteamPlantsTableTransformer`](../ferc1/index.html.md#pudl.transform.ferc1.SteamPlantsTableTransformer) class for an example.
 
 #### table_id *: [enum.Enum](https://docs.python.org/3/library/enum.html#enum.Enum)*
 
@@ -849,7 +849,7 @@ The parameters that will be used to control the transformation functions.
 This attribute is of type `parameter_model` which is defined above. This type
 varies across datasets and is used to construct and validate the parameters based,
 so it needs to be set separately in child classes. See
-[`pudl.transform.ferc1.Ferc1AbstractTableTransformer`](../ferc1/index.md#pudl.transform.ferc1.Ferc1AbstractTableTransformer) for an example.
+[`pudl.transform.ferc1.Ferc1AbstractTableTransformer`](../ferc1/index.html.md#pudl.transform.ferc1.Ferc1AbstractTableTransformer) for an example.
 
 #### *abstractmethod* transform_start(\*args, \*\*kwargs) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 

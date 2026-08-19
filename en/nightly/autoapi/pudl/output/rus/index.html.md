@@ -5,13 +5,13 @@ Create output tables for RUS-7 and RUS-12.
 ## Attributes
 
 | [`out_rus7_assets`](#pudl.output.rus.out_rus7_assets)   |    |
-|---------------------------------------------------------|----|
-| [`out_rus12_assets`](#pudl.output.rus.out_rus12_assets) |    |
+|--------------------------------------------------------------------|----|
+| [`out_rus12_assets`](#pudl.output.rus.out_rus12_assets)  |    |
 
 ## Functions
 
 | [`out_rus_asset_factory`](#pudl.output.rus.out_rus_asset_factory)(→ dagster.AssetsDefinition)   | An asset factory for finished RUS output tables.   |
-|-------------------------------------------------------------------------------------------------|----------------------------------------------------|
+|------------------------------------------------------------------------------------------------------|----------------------------------------------------|
 
 ## Module Contents
 

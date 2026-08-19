@@ -23,21 +23,21 @@ during the transform process with help from the crosswalk.
 
 ## Attributes
 
-| [`logger`](#pudl.extract.epacems.logger)                   |                                                                               |
-|------------------------------------------------------------|-------------------------------------------------------------------------------|
+| [`logger`](#pudl.extract.epacems.logger)          |                                                                               |
+|------------------------------------------------------------------|-------------------------------------------------------------------------------|
 | [`API_RENAME_DICT`](#pudl.extract.epacems.API_RENAME_DICT) | A dictionary containing EPA CEMS column names (keys) and replacement names to |
-| [`API_DTYPE_DICT`](#pudl.extract.epacems.API_DTYPE_DICT)   |                                                                               |
+| [`API_DTYPE_DICT`](#pudl.extract.epacems.API_DTYPE_DICT)  |                                                                               |
 
 ## Classes
 
 | [`EpaCemsPartition`](#pudl.extract.epacems.EpaCemsPartition)   | Represents EpaCems partition identifying unique resource file.   |
-|----------------------------------------------------------------|------------------------------------------------------------------|
+|---------------------------------------------------------------------|------------------------------------------------------------------|
 | [`EpaCemsDatastore`](#pudl.extract.epacems.EpaCemsDatastore)   | Helper class to extract EpaCems resources from datastore.        |
 
 ## Functions
 
 | [`extract_quarter`](#pudl.extract.epacems.extract_quarter)(→ polars.LazyFrame)   | Extract a single quarter of EPA CEMS data return it as a lazy polars DataFrame.   |
-|----------------------------------------------------------------------------------|-----------------------------------------------------------------------------------|
+|----------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------|
 
 ## Module Contents
 
@@ -79,7 +79,7 @@ Returns filters for retrieving given partition resource from Datastore.
 
 Return the name of the CSV file that holds annual hourly data.
 
-### *class* pudl.extract.epacems.EpaCemsDatastore(datastore: [pudl.workspace.datastore.Datastore](../../workspace/datastore/index.md#pudl.workspace.datastore.Datastore))
+### *class* pudl.extract.epacems.EpaCemsDatastore(datastore: [pudl.workspace.datastore.Datastore](../../workspace/datastore/index.html.md#pudl.workspace.datastore.Datastore))
 
 Helper class to extract EpaCems resources from datastore.
 

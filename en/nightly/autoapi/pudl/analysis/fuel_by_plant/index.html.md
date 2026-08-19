@@ -5,9 +5,9 @@ Calculates useful FERC Form 1 fuel metrics on a per plant-year basis.
 ## Functions
 
 | [`revert_filled_in_string_nulls`](#pudl.analysis.fuel_by_plant.revert_filled_in_string_nulls)(→ pandas.DataFrame)   | Revert the filled nulls from string columns.                          |
-|---------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------|
-| [`revert_filled_in_float_nulls`](#pudl.analysis.fuel_by_plant.revert_filled_in_float_nulls)(→ pandas.DataFrame)     | Revert the filled nulls from float columns.                           |
-| [`fuel_by_plant_ferc1`](#pudl.analysis.fuel_by_plant.fuel_by_plant_ferc1)(→ pandas.DataFrame)                       | Calculates useful FERC Form 1 fuel metrics on a per plant-year basis. |
+|------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------|
+| [`revert_filled_in_float_nulls`](#pudl.analysis.fuel_by_plant.revert_filled_in_float_nulls)(→ pandas.DataFrame)    | Revert the filled nulls from float columns.                           |
+| [`fuel_by_plant_ferc1`](#pudl.analysis.fuel_by_plant.fuel_by_plant_ferc1)(→ pandas.DataFrame)             | Calculates useful FERC Form 1 fuel metrics on a per plant-year basis. |
 
 ## Module Contents
 

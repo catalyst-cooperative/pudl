@@ -8,7 +8,7 @@ if you make an update here, be sure to update there as well!
 ## Attributes
 
 | [`USAGE_WARNINGS`](#pudl.metadata.warnings.USAGE_WARNINGS)   |    |
-|--------------------------------------------------------------|----|
+|-------------------------------------------------------------------|----|
 
 ## Module Contents
 

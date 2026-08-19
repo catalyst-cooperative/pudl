@@ -5,9 +5,9 @@ Resources derived from the US Census Demographic Profile 1 dataset.
 ## Attributes
 
 | [`CENSUS_DP1_DEMOGRAPHIC_COLUMNS`](#pudl.metadata.resources.censusdp1tract.CENSUS_DP1_DEMOGRAPHIC_COLUMNS)   |    |
-|--------------------------------------------------------------------------------------------------------------|----|
-| [`CENSUS_CAVEAT`](#pudl.metadata.resources.censusdp1tract.CENSUS_CAVEAT)                                     |    |
-| [`RESOURCE_METADATA`](#pudl.metadata.resources.censusdp1tract.RESOURCE_METADATA)                             |    |
+|-----------------------------------------------------------------------------------|----|
+| [`CENSUS_CAVEAT`](#pudl.metadata.resources.censusdp1tract.CENSUS_CAVEAT)                    |    |
+| [`RESOURCE_METADATA`](#pudl.metadata.resources.censusdp1tract.RESOURCE_METADATA)                |    |
 
 ## Module Contents
 

@@ -25,32 +25,32 @@ Run `zenodo_data_release --help` for CLI usage instructions.
 
 ## Attributes
 
-| [`SANDBOX`](#pudl.scripts.zenodo_data_release.SANDBOX)                               |    |
-|--------------------------------------------------------------------------------------|----|
-| [`PRODUCTION`](#pudl.scripts.zenodo_data_release.PRODUCTION)                         |    |
+| [`SANDBOX`](#pudl.scripts.zenodo_data_release.SANDBOX)                |    |
+|-------------------------------------------------------------------------|----|
+| [`PRODUCTION`](#pudl.scripts.zenodo_data_release.PRODUCTION)             |    |
 | [`RETRYABLE_STATUS_CODES`](#pudl.scripts.zenodo_data_release.RETRYABLE_STATUS_CODES) |    |
-| [`logger`](#pudl.scripts.zenodo_data_release.logger)                                 |    |
+| [`logger`](#pudl.scripts.zenodo_data_release.logger)                 |    |
 
 ## Classes
 
-| [`_LegacyLinks`](#pudl.scripts.zenodo_data_release._LegacyLinks)           | !!! abstract "Usage Documentation"                                |
-|----------------------------------------------------------------------------|-------------------------------------------------------------------|
-| [`_LegacyMetadata`](#pudl.scripts.zenodo_data_release._LegacyMetadata)     | !!! abstract "Usage Documentation"                                |
+| [`_LegacyLinks`](#pudl.scripts.zenodo_data_release._LegacyLinks)      | !!! abstract "Usage Documentation"                                |
+|--------------------------------------------------------------------|-------------------------------------------------------------------|
+| [`_LegacyMetadata`](#pudl.scripts.zenodo_data_release._LegacyMetadata)   | !!! abstract "Usage Documentation"                                |
 | [`_LegacyDeposition`](#pudl.scripts.zenodo_data_release._LegacyDeposition) | !!! abstract "Usage Documentation"                                |
-| [`_NewFile`](#pudl.scripts.zenodo_data_release._NewFile)                   | !!! abstract "Usage Documentation"                                |
-| [`_NewRecord`](#pudl.scripts.zenodo_data_release._NewRecord)               | !!! abstract "Usage Documentation"                                |
-| [`ZenodoClient`](#pudl.scripts.zenodo_data_release.ZenodoClient)           | Thin wrapper over Zenodo REST API.                                |
-| [`State`](#pudl.scripts.zenodo_data_release.State)                         | Parent class for dataset states.                                  |
-| [`InitialDataset`](#pudl.scripts.zenodo_data_release.InitialDataset)       | Represent initial dataset state.                                  |
-| [`EmptyDraft`](#pudl.scripts.zenodo_data_release.EmptyDraft)               | We can only sync the directory once we've gotten an empty draft.  |
-| [`ContentComplete`](#pudl.scripts.zenodo_data_release.ContentComplete)     | Now that we've uploaded all the data, we need to update metadata. |
-| [`CompleteDraft`](#pudl.scripts.zenodo_data_release.CompleteDraft)         | Now that we've uploaded all the data, we can publish.             |
+| [`_NewFile`](#pudl.scripts.zenodo_data_release._NewFile)          | !!! abstract "Usage Documentation"                                |
+| [`_NewRecord`](#pudl.scripts.zenodo_data_release._NewRecord)        | !!! abstract "Usage Documentation"                                |
+| [`ZenodoClient`](#pudl.scripts.zenodo_data_release.ZenodoClient)      | Thin wrapper over Zenodo REST API.                                |
+| [`State`](#pudl.scripts.zenodo_data_release.State)             | Parent class for dataset states.                                  |
+| [`InitialDataset`](#pudl.scripts.zenodo_data_release.InitialDataset)    | Represent initial dataset state.                                  |
+| [`EmptyDraft`](#pudl.scripts.zenodo_data_release.EmptyDraft)        | We can only sync the directory once we've gotten an empty draft.  |
+| [`ContentComplete`](#pudl.scripts.zenodo_data_release.ContentComplete)   | Now that we've uploaded all the data, we need to update metadata. |
+| [`CompleteDraft`](#pudl.scripts.zenodo_data_release.CompleteDraft)     | Now that we've uploaded all the data, we can publish.             |
 
 ## Functions
 
 | [`build_zenodo_release_zulip_message`](#pudl.scripts.zenodo_data_release.build_zenodo_release_zulip_message)(→ str)   | Build a markdown Zulip message summarizing a Zenodo release attempt.   |
-|-----------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------|
-| [`main`](#pudl.scripts.zenodo_data_release.main)(→ int)                                                               | Publish a new PUDL data release to Zenodo.                             |
+|----------------------------------------------------------------------------------------------|------------------------------------------------------------------------|
+| [`main`](#pudl.scripts.zenodo_data_release.main)(→ int)                                 | Publish a new PUDL data release to Zenodo.                             |
 
 ## Module Contents
 

@@ -16,9 +16,9 @@ We’ve segmented the processed data into the following normalized data tables.
 Clicking on the links will show you a description of the table as well as
 the names and descriptions of each of its fields.
 
-| Data Dictionary                                                                                                        | Browse Online                                                                                                                                                           |
-|------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [core_eia_\_yearly_fuel_receipts_costs_aggs](../data_dictionaries/pudl_db.md#core-eia-yearly-fuel-receipts-costs-aggs) | [https://data.catalyst.coop/preview/pudl/core_eia_\_yearly_fuel_receipts_costs_aggs](https://data.catalyst.coop/preview/pudl/core_eia__yearly_fuel_receipts_costs_aggs) |
+| Data Dictionary                                                                                                                    | Browse Online                                                                                                                                                           |
+|------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [core_eia_\_yearly_fuel_receipts_costs_aggs](../data_dictionaries/pudl_db.html.md#core-eia-yearly-fuel-receipts-costs-aggs) | [https://data.catalyst.coop/preview/pudl/core_eia_\_yearly_fuel_receipts_costs_aggs](https://data.catalyst.coop/preview/pudl/core_eia__yearly_fuel_receipts_costs_aggs) |
 
 ## Background
 
@@ -89,7 +89,7 @@ of timestamp/value pairs.
 
 The state-level fuel data that PUDL uses is compiled from published and redacted
 plant-level fuel deliveries. This fills in about 71% of all of the missing monthly
-fuel cost records in [out_eia923_\_fuel_receipts_costs](../data_dictionaries/pudl_db.md#out-eia923-fuel-receipts-costs). Another missing ~6% is
+fuel cost records in [out_eia923_\_fuel_receipts_costs](../data_dictionaries/pudl_db.html.md#out-eia923-fuel-receipts-costs). Another missing ~6% is
 filled in using rolling averages, but 23% of the originally missing records aren’t
 able to be filled in with these two methods. Why?
 
@@ -112,13 +112,13 @@ does not rely on the API data for all of its data from the various EIA forms.
 ## PUDL Data Transformations
 
 To see the transformations applied to the data in each table, you can read the
-docstrings for [`pudl.transform.eiaapi`](../autoapi/pudl/transform/eiaapi/index.md#module-pudl.transform.eiaapi) created for each table’s
+docstrings for [`pudl.transform.eiaapi`](../autoapi/pudl/transform/eiaapi/index.html.md#module-pudl.transform.eiaapi) created for each table’s
 respective transform function.
 
 The EIA API’s data structure leads to a natural normalization into two
 tables - one of metadata and one of timeseries. That is the format delivered by PUDL’s
 extract module. PUDL’s transform module parses a compound primary key out of long string
-IDs (“series_id”) which is published as [core_eia_\_yearly_fuel_receipts_costs_aggs](../data_dictionaries/pudl_db.md#core-eia-yearly-fuel-receipts-costs-aggs).
+IDs (“series_id”) which is published as [core_eia_\_yearly_fuel_receipts_costs_aggs](../data_dictionaries/pudl_db.html.md#core-eia-yearly-fuel-receipts-costs-aggs).
 The rest of the metadata is not very valuable so is not transformed or returned.
 
 The EIA aggregates are related to their component categories via a set of association
@@ -127,4 +127,4 @@ linked to all the coal-related energy_source_code values: BIT, SUB, LIG, and WC.
 relationships are defined for aggregates over fuel, sector, geography, and time.
 
 Within other EIA tables, we use the monthly state-level fuel costs to fill the gaps in
-missing fuel cost originating from the [core_eia923_\_fuel_receipts_costs](../data_dictionaries/pudl_db.md#core-eia923-fuel-receipts-costs) table.
+missing fuel cost originating from the [core_eia923_\_fuel_receipts_costs](../data_dictionaries/pudl_db.html.md#core-eia923-fuel-receipts-costs) table.

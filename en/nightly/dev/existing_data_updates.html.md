@@ -25,14 +25,14 @@ Finally, we currently update NREL ATB, the EIA-EPA crosswalk, and PHMSA once a y
 To see what data we have available for each dataset, click on the links below and look
 at the “Years Liberated” field.
 
-* [EIA Form 860 – Annual Electric Generator Report](../data_sources/eia860.md) (and eia860m)
-* [EIA Form 861 – Annual Electric Power Industry Report](../data_sources/eia861.md)
-* [EIA Form 923 – Power Plant Operations Report](../data_sources/eia923.md)
-* [EIA Form 930 – Hourly and Daily Balancing Authority Operations Report](../data_sources/eia930.md)
-* [EIA Annual Energy Outlook (AEO)](../data_sources/eiaaeo.md)
-* [EPA Hourly Continuous Emission Monitoring System (CEMS)](../data_sources/epacems.md)
-* [FERC Form 1 – Annual Report of Major Electric Utilities](../data_sources/ferc1.md)
-* [FERC Form 714 – Annual Electric Balancing Authority Area and Planning Area Report](../data_sources/ferc714.md)
+* [EIA Form 860 – Annual Electric Generator Report](../data_sources/eia860.html.md) (and eia860m)
+* [EIA Form 861 – Annual Electric Power Industry Report](../data_sources/eia861.html.md)
+* [EIA Form 923 – Power Plant Operations Report](../data_sources/eia923.html.md)
+* [EIA Form 930 – Hourly and Daily Balancing Authority Operations Report](../data_sources/eia930.html.md)
+* [EIA Annual Energy Outlook (AEO)](../data_sources/eiaaeo.html.md)
+* [EPA Hourly Continuous Emission Monitoring System (CEMS)](../data_sources/epacems.html.md)
+* [FERC Form 1 – Annual Report of Major Electric Utilities](../data_sources/ferc1.html.md)
+* [FERC Form 714 – Annual Electric Balancing Authority Area and Planning Area Report](../data_sources/ferc714.html.md)
 
 ## 1. Obtain Fresh Data
 
@@ -52,7 +52,7 @@ pixi run update_zenodo_dois dataset_name
 Verify that this updated the record in `pudl.package_data.settings.zenodo_dois.yml`
 to refer to the new raw input archives as expected.
 
-**1.3)** In [`pudl.metadata.sources.SOURCES`](../autoapi/pudl/metadata/sources/index.md#pudl.metadata.sources.SOURCES), update the `working_partitions`
+**1.3)** In [`pudl.metadata.sources.SOURCES`](../autoapi/pudl/metadata/sources/index.html.md#pudl.metadata.sources.SOURCES), update the `working_partitions`
 to reflect the years, months, or quarters of data that are available for each dataset
 and the `records_liberated` to show how many records are available. Check to make
 sure other fields such as `source_format` or `path` are still accurate.
@@ -61,7 +61,7 @@ sure other fields such as `source_format` or `path` are still accurate.
 the `etl_full.yml` and `etl_fast.yml` settings files stored under
 `src/pudl/package_data/settings` in the PUDL repo.
 
-**1.5)** Use the `pudl_datastore` script (see [Working with the Datastore](datastore.md)) to download the new
+**1.5)** Use the `pudl_datastore` script (see [Working with the Datastore](datastore.html.md)) to download the new
 raw data archives in bulk so that network hiccups don’t cause issues during the ETL.
 
 ## 2. Map the Structure of the New Data
@@ -137,7 +137,7 @@ in `src/pudl/package_data/nrelatb`.
 ### A. EIA Forms
 
 **3.A.1)** You can either materialize the raw assets (ex: `raw_eia860`) in Dagster
-(learn more about Dagster in [Running the ETL Pipeline](run_the_etl.md)) or use the Jupyter notebook
+(learn more about Dagster in [Running the ETL Pipeline](run_the_etl.html.md)) or use the Jupyter notebook
 `devtools/eia-etl-debug.ipynb` to run the extract process for a given data set. There
 are hundreds of columns mapped across all the different EIA spreadsheets, you’ll almost
 certainly encounter typos or errors that will cause the extraction to fail. Interpret
@@ -253,26 +253,26 @@ spellings).
 
 **4.B.4)** If there’s a new column, add it to the transform process. At the very least,
 you’ll need to include it in the `rename_columns` dictionary in
-[`pudl.transform.params.ferc1.TRANSFORM_PARAMS`](../autoapi/pudl/transform/params/ferc1/index.md#pudl.transform.params.ferc1.TRANSFORM_PARAMS) for the appropriate table.
+[`pudl.transform.params.ferc1.TRANSFORM_PARAMS`](../autoapi/pudl/transform/params/ferc1/index.html.md#pudl.transform.params.ferc1.TRANSFORM_PARAMS) for the appropriate table.
 
 * Consider whether the column could benefit from any of the standard transforms in
-  [`pudl.transform.classes`](../autoapi/pudl/transform/classes/index.md#module-pudl.transform.classes) or [`pudl.transform.ferc1`](../autoapi/pudl/transform/ferc1/index.md#module-pudl.transform.ferc1). If so, add them to
-  [`pudl.transform.params.ferc1.TRANSFORM_PARAMS`](../autoapi/pudl/transform/params/ferc1/index.md#pudl.transform.params.ferc1.TRANSFORM_PARAMS). Make sure that the
+  [`pudl.transform.classes`](../autoapi/pudl/transform/classes/index.html.md#module-pudl.transform.classes) or [`pudl.transform.ferc1`](../autoapi/pudl/transform/ferc1/index.html.md#module-pudl.transform.ferc1). If so, add them to
+  [`pudl.transform.params.ferc1.TRANSFORM_PARAMS`](../autoapi/pudl/transform/params/ferc1/index.html.md#pudl.transform.params.ferc1.TRANSFORM_PARAMS). Make sure that the
   parameter you’ve added to `TRANSFORM_PARAMS` corresponds to a method that gets
   called in one of the high-level transform functions in
-  [`pudl.transform.ferc1.Ferc1AbstractTableTransformer`](../autoapi/pudl/transform/ferc1/index.md#pudl.transform.ferc1.Ferc1AbstractTableTransformer) (`process_xbrl`,
+  [`pudl.transform.ferc1.Ferc1AbstractTableTransformer`](../autoapi/pudl/transform/ferc1/index.html.md#pudl.transform.ferc1.Ferc1AbstractTableTransformer) (`process_xbrl`,
   `process_dbf`, `transform_start`, `transform_main`) and/or any
   table-specific overrides in the relevant table transformer class.
 * Consider whether the column could benefit from custom transformations. If it’s
   something that could be applicable to other tables from other sources, consider
-  building it in [`pudl.transform.classes`](../autoapi/pudl/transform/classes/index.md#module-pudl.transform.classes). If it’s specific to FERC1, build it in
-  [`pudl.transform.ferc1`](../autoapi/pudl/transform/ferc1/index.md#module-pudl.transform.ferc1). If it will only ever be relevant to one table in FERC1,
-  build it in the table-specific class in [`pudl.transform.ferc1`](../autoapi/pudl/transform/ferc1/index.md#module-pudl.transform.ferc1), create an
+  building it in [`pudl.transform.classes`](../autoapi/pudl/transform/classes/index.html.md#module-pudl.transform.classes). If it’s specific to FERC1, build it in
+  [`pudl.transform.ferc1`](../autoapi/pudl/transform/ferc1/index.html.md#module-pudl.transform.ferc1). If it will only ever be relevant to one table in FERC1,
+  build it in the table-specific class in [`pudl.transform.ferc1`](../autoapi/pudl/transform/ferc1/index.html.md#module-pudl.transform.ferc1), create an
   override for one of the high-level transform functions, and call it there. Make sure
   to write a unit test for any new functions.
 
 **4.B.5)** If there’s a new table, add it to the transform process. You’ll need to build
-or augment a table transformer in [`pudl.transform.ferc1`](../autoapi/pudl/transform/ferc1/index.md#module-pudl.transform.ferc1) and follow all
+or augment a table transformer in [`pudl.transform.ferc1`](../autoapi/pudl/transform/ferc1/index.html.md#module-pudl.transform.ferc1) and follow all
 instructions applicable to new columns.
 
 **4.B.6)** To see if the transformations work, you can run the transform module as a
@@ -306,7 +306,7 @@ identify which table they should live in.
 
 * Are they reported by model case, reference year, projection year and technology
   description? If so, add them to the `rate_table` dictionary in
-  [`pudl.transform.nrelatb.Unstacker`](../autoapi/pudl/transform/nrelatb/index.md#pudl.transform.nrelatb.Unstacker).
+  [`pudl.transform.nrelatb.Unstacker`](../autoapi/pudl/transform/nrelatb/index.html.md#pudl.transform.nrelatb.Unstacker).
 * Are they further broken out by scenario, tax credit case, and cost recovery period?
   Add them to the `scenario_table`.
 * Are they even further broken out by `technology_description_detail_1` or
@@ -324,27 +324,27 @@ above. Continue to iterate and debug until assets generate successfully.
 
 **4.D.5)** Finally, if any fields were added that are descriptive categoricals (e.g.,
 `technology_description_1`, `units`), add them to
-[`pudl.transform.nrelatb.Normalizer`](../autoapi/pudl/transform/nrelatb/index.md#pudl.transform.nrelatb.Normalizer) to create small subset tables. As needed,
-create new tables in [`pudl.metadata.resources.nrelatb`](../autoapi/pudl/metadata/resources/nrelatb/index.md#module-pudl.metadata.resources.nrelatb) for these descriptors,
+[`pudl.transform.nrelatb.Normalizer`](../autoapi/pudl/transform/nrelatb/index.html.md#pudl.transform.nrelatb.Normalizer) to create small subset tables. As needed,
+create new tables in [`pudl.metadata.resources.nrelatb`](../autoapi/pudl/metadata/resources/nrelatb/index.html.md#module-pudl.metadata.resources.nrelatb) for these descriptors,
 following the example of `core_nrelatb__yearly_technology_status`.
 
 ### E. FERC Form 714
 
 **4.E.1)** Materialize everything downstream of the raw FERC-714 assets using Dagster
 query `key:"raw_ferc714_xbrl*"+`. Investigate any errors that occur, and update the
-constants in [`pudl.transform.ferc714`](../autoapi/pudl/transform/ferc714/index.md#module-pudl.transform.ferc714) to add any new fix cases for the new year
+constants in [`pudl.transform.ferc714`](../autoapi/pudl/transform/ferc714/index.html.md#module-pudl.transform.ferc714) to add any new fix cases for the new year
 of data. Common updates include:
 
-* [`pudl.transform.ferc714.TIMEZONE_OFFSET_CODE_FIXES`](../autoapi/pudl/transform/ferc714/index.md#pudl.transform.ferc714.TIMEZONE_OFFSET_CODE_FIXES) - Update this if you
+* [`pudl.transform.ferc714.TIMEZONE_OFFSET_CODE_FIXES`](../autoapi/pudl/transform/ferc714/index.html.md#pudl.transform.ferc714.TIMEZONE_OFFSET_CODE_FIXES) - Update this if you
   see `AssertionError: We expect all but XX of the records without a cleaned
   utc_offset to not have any demand data, but we found YY records`, after
   investigating the records with missing utc_offset and determining what the correct
   value should be.
-* [`pudl.transform.ferc714.DISCONTINUOUS_DATES`](../autoapi/pudl/transform/ferc714/index.md#pudl.transform.ferc714.DISCONTINUOUS_DATES) - Update this if you see
+* [`pudl.transform.ferc714.DISCONTINUOUS_DATES`](../autoapi/pudl/transform/ferc714/index.html.md#pudl.transform.ferc714.DISCONTINUOUS_DATES) - Update this if you see
   `AssertionError: We expect there to be fewer than XX gaps in the xbrl time series
   but we found these YY gaps:`, after investigating the new gaps and confirming
   they occur on reasonable dates (usually around daylight saving time start or end).
-* [`pudl.transform.ferc714.DUPLICATED_DATETIMES`](../autoapi/pudl/transform/ferc714/index.md#pudl.transform.ferc714.DUPLICATED_DATETIMES) - Update this if you see
+* [`pudl.transform.ferc714.DUPLICATED_DATETIMES`](../autoapi/pudl/transform/ferc714/index.html.md#pudl.transform.ferc714.DUPLICATED_DATETIMES) - Update this if you see
   `AssertionError: Found YY duplicate UTC datetimes, but we expected XX or less`,
   after investigating the new duplicates and confirming they occur on reasonable
   dates (usually when a respondent changes their UTC offset, whether due to daylight
@@ -357,39 +357,39 @@ of data. Common updates include:
 
 If new columns or tables have been added, you must also update the PUDL DB schema,
 define column types, give them meaningful descriptions, apply appropriate ENUM
-constraints, etc. This happens in the [`pudl.metadata`](../autoapi/pudl/metadata/index.md#module-pudl.metadata) subpackage. Otherwise when
+constraints, etc. This happens in the [`pudl.metadata`](../autoapi/pudl/metadata/index.html.md#module-pudl.metadata) subpackage. Otherwise when
 the system tries to write dataframes into SQLite, it will fail or simply exclude any new
 columns.
 
 **5.1)** Check whether new columns exist in
-[`pudl.metadata.fields.FIELD_METADATA`](../autoapi/pudl/metadata/fields/index.md#pudl.metadata.fields.FIELD_METADATA). If they do, make sure the descriptions
+[`pudl.metadata.fields.FIELD_METADATA`](../autoapi/pudl/metadata/fields/index.html.md#pudl.metadata.fields.FIELD_METADATA). If they do, make sure the descriptions
 and data types match. If the descriptions don’t match, you may need to define that
-column by source: [`pudl.metadata.fields.FIELD_METADATA_BY_NAMESPACE`](../autoapi/pudl/metadata/fields/index.md#pudl.metadata.fields.FIELD_METADATA_BY_NAMESPACE) or by
-table: [`pudl.metadata.fields.FIELD_METADATA_BY_RESOURCE`](../autoapi/pudl/metadata/fields/index.md#pudl.metadata.fields.FIELD_METADATA_BY_RESOURCE). If the column is not
-in [`pudl.metadata.fields.FIELD_METADATA`](../autoapi/pudl/metadata/fields/index.md#pudl.metadata.fields.FIELD_METADATA), add it.
+column by source: [`pudl.metadata.fields.FIELD_METADATA_BY_NAMESPACE`](../autoapi/pudl/metadata/fields/index.html.md#pudl.metadata.fields.FIELD_METADATA_BY_NAMESPACE) or by
+table: [`pudl.metadata.fields.FIELD_METADATA_BY_RESOURCE`](../autoapi/pudl/metadata/fields/index.html.md#pudl.metadata.fields.FIELD_METADATA_BY_RESOURCE). If the column is not
+in [`pudl.metadata.fields.FIELD_METADATA`](../autoapi/pudl/metadata/fields/index.html.md#pudl.metadata.fields.FIELD_METADATA), add it.
 
 **5.2)** Add new columns and tables to the `RESOURCE_METADATA` dictionaries in the
-appropriate [`pudl.metadata.resources`](../autoapi/pudl/metadata/resources/index.md#module-pudl.metadata.resources) modules.
+appropriate [`pudl.metadata.resources`](../autoapi/pudl/metadata/resources/index.html.md#module-pudl.metadata.resources) modules.
 
-**5.3)** Update any [`pudl.metadata.codes`](../autoapi/pudl/metadata/codes/index.md#module-pudl.metadata.codes), [`pudl.metadata.labels`](../autoapi/pudl/metadata/labels/index.md#module-pudl.metadata.labels), or
-[`pudl.metadata.enums`](../autoapi/pudl/metadata/enums/index.md#module-pudl.metadata.enums) pertaining to new or existing columns with novel content.
+**5.3)** Update any [`pudl.metadata.codes`](../autoapi/pudl/metadata/codes/index.html.md#module-pudl.metadata.codes), [`pudl.metadata.labels`](../autoapi/pudl/metadata/labels/index.html.md#module-pudl.metadata.labels), or
+[`pudl.metadata.enums`](../autoapi/pudl/metadata/enums/index.html.md#module-pudl.metadata.enums) pertaining to new or existing columns with novel content.
 
 **5.4)** Differentiate between columns which should be harvested from the transformed
 dataframes in the normalization and entity resolution process (and associated with a
 generator, boiler, plant, utility, or balancing authority entity), and those that should
 remain in the table where they are reported. See
-[Entity Resolution](../methodology/entity_resolution.md) for details on how harvested entity and yearly SCD
+[Entity Resolution](../methodology/entity_resolution.html.md) for details on how harvested entity and yearly SCD
 tables are constructed.
 
 **5.5)** Once you’ve updated the metadata, you’ll need to update the alembic version.
-See the instructions for doing so in [Running the ETL Pipeline](run_the_etl.md). You may have already updated
+See the instructions for doing so in [Running the ETL Pipeline](run_the_etl.html.md). You may have already updated
 alembic if you used Dagster to materialize the raw and clean assets.
 
 ## 6. Connect Datasets
 
 ### A. FERC 1 & EIA Plants & Utilities
 
-**6.A.1)** Refer to the [PUDL ID Mapping](pudl_id_mapping.md) page for further instructions.
+**6.A.1)** Refer to the [PUDL ID Mapping](pudl_id_mapping.html.md) page for further instructions.
 
 #### NOTE
 **All** FERC 1 respondent IDs and plant names and **all** EIA plant and utility IDs
@@ -427,7 +427,7 @@ accommodate the new data if necessary.
 ## 8. Run the ETL
 
 Once the FERC 1 and EIA utilities and plants have been associated with each other, you
-can try and run the ETL with all datasets included. See: [Running the ETL Pipeline](run_the_etl.md).
+can try and run the ETL with all datasets included. See: [Running the ETL Pipeline](run_the_etl.html.md).
 
 **8.1)** First run the ETL for just the new year of data, using the `etl_fast.yml`
 settings file.
@@ -458,7 +458,7 @@ $ dbt_helper validate
 
 There are two kinds of failures that are common at this stage, summarized below. If
 other tests have failed, see
-[the validation reference guide](data_validation_reference.md) for help
+[the validation reference guide](data_validation_reference.html.md) for help
 fixing them.
 
 **9.2.1)** `source_expect_quantile_constraints_*`: You may need to update the expected
@@ -470,14 +470,14 @@ stable. If the required adjustments are large, they should be investigated.
 last.** That way, if fixes to other problems result in changes to the count, or new
 counts have been added to main since your last update, you won’t have to throw away
 work. For most tables, a local run of the full ETL will permit you to use
-`dbt_helper` to update the row counts file (see [Debugging and fixing row count failures](data_validation_reference.md#row-countfailures)), but some
+`dbt_helper` to update the row counts file (see [Debugging and fixing row count failures](data_validation_reference.html.md#row-countfailures)), but some
 EIA tables can only be repeatably counted in GHA (see issue [#4574](https://github.com/catalyst-cooperative/pudl/issues/4574)). If your
 update touches those tables, or if you don’t have a full local run available to you,
 run the `build-deploy-pudl` GHA against your branch to generate a fresh row counts
 file. When the deployment report appears in Slack, it will read as failed, but the
 build will have left behind a file containing updated row counts for the new data.
 Copy it to your branch using
-[the nightly build instructions](nightly_data_builds.md).
+[the nightly build instructions](nightly_data_builds.html.md).
 
 Once you have a new candidate row counts file, inspect the changes using `git diff`.
 Pay attention to the partitions affected and the magnitude of each change. For
@@ -492,10 +492,10 @@ partitions, or are wildly out of proportion to your expectations, investigate.
 **10.1)** Once the new year of data is integrated, update the documentation to reflect
 the new state of affairs. This will include updating at least:
 
-* the top-level [README](../index.md)
-* the [data access](../data_access.md) page
-* the [PUDL Release Notes](../release_notes.md)
-* any updated [data sources](../data_sources/index.md)
+* the top-level [README](../index.html.md)
+* the [data access](../data_access.html.md) page
+* the [PUDL Release Notes](../release_notes.html.md)
+* any updated [data sources](../data_sources/index.html.md)
 
 Check that the docs still build with
 

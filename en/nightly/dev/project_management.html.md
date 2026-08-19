@@ -19,7 +19,7 @@ them easily.
 * We create temporary feature branches off of `main` and make pull requests into
   `main` throughout our 2 week long sprints. All code that’s merged into `main`
   should have passed our CI tests and been reviewed by at least one other person.
-* Every night the `main` branch is used to run the [Nightly Data Builds](nightly_data_builds.md#nightly-data-builds). If the
+* Every night the `main` branch is used to run the [Nightly Data Builds](nightly_data_builds.html.md#nightly-data-builds). If the
   builds are successful, then the `nightly` branch is automatically updated to point
   to the latest commit on `main`. If the builds fail, then the `nightly` branch is
   left unchanged.
@@ -29,7 +29,7 @@ them easily.
 ## Pull Requests
 
 * Before making a PR, make sure the tests run and pass locally, including the
-  code linters and pre-commit hooks. See [Set Up Code Linting](dev_setup.md#linting) for details.
+  code linters and pre-commit hooks. See [Set Up Code Linting](dev_setup.html.md#linting) for details.
 * Don’t forget to merge any new commits to the `main` branch into your feature
   branch before making a PR.
 * If for some reason the continuous integration tests fail for your PR, try and
@@ -37,7 +37,7 @@ them easily.
   to merge it into `main`. You can see the status of the CI builds in the
   [GitHub Actions for the PUDL repo](https://github.com/catalyst-cooperative/pudl/actions).
 * Please don’t decrease the overall test coverage – if you introduce new code,
-  it also needs to be exercised by the tests. See [Testing PUDL](testing.md) for
+  it also needs to be exercised by the tests. See [Testing PUDL](testing.html.md) for
   details.
 * Write good docstrings using the [Google format](https://www.sphinx-doc.org/en/master/usage/extensions/example_google.html#example-google)
 * Pull Requests should update the documentation to reflect changes to the

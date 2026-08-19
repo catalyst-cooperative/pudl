@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.metadata.resources.eia176 &#8212; PUDL 2026.8.1.dev11 documentation</title>
+    <title>pudl.metadata.resources.eia176 &#8212; PUDL 2026.8.1.dev16 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../../_static/documentation_options.js?v=11a2fe36"></script>
+    <script src="../../../../_static/documentation_options.js?v=f981bf86"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev11 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev11 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
   
   
 </a></div>
@@ -878,6 +878,55 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="RESOURCE_METADATA">
 <a class="viewcode-back" href="../../../../autoapi/pudl/metadata/resources/eia176/index.html#pudl.metadata.resources.eia176.RESOURCE_METADATA">[docs]</a>
 <span class="n">RESOURCE_METADATA</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;core_eia176__yearly_company_characteristics&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">&quot;a company&#39;s operational and ownership characteristics. &quot;</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Part 3, Lines A–D)&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">&quot;The natural_gas_pump_price_dollars_per_mcf field is reported only &quot;</span>
+                <span class="s2">&quot;for 2014-2016. National-level adjustment records identified by the EIA (operating_state in FX, MX, BL, OO) are &quot;</span>
+                <span class="s2">&quot;removed during transformation.&quot;</span>
+            <span class="p">),</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;report_year&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;operator_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;operating_state&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;is_distribution_company_cooperative&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;is_distribution_company_investor_owned&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;is_distribution_company_municipally_owned&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;is_distribution_company_privately_owned&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;is_gatherer&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;is_interstate_pipeline&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;is_intrastate_pipeline&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;is_liquid_natural_gas_marine_terminal&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;is_liquid_natural_gas_peak_facility_operator&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;is_producer&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;is_storage_operator&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;is_synthetic_natural_gas_plant_operator&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;is_other_ownership&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;is_public_compressed_natural_gas_fueling_station&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;is_public_lng_fueling_station&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;other_ownership_description&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;has_alternative_fuel_fleet&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;alternative_fleet_size&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;customer_choice_residential_eligible&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;customer_choice_residential_participating&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;has_sales_or_acquisitions&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;natural_gas_pump_price_dollars_per_mcf&quot;</span><span class="p">,</span>
+            <span class="p">],</span>
+            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;report_year&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;operator_id_eia&quot;</span><span class="p">,</span>
+            <span class="p">],</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;eia&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;eia176&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;eia176&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
     <span class="s2">&quot;core_eia176__yearly_gas_imports&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
             <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span>

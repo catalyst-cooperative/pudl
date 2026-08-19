@@ -12,11 +12,22 @@ pudl.dbt_schema
 
 
 
+Attributes
+----------
+
+.. autoapisummary::
+
+   pudl.dbt_schema._DESCRIPTION_WRAP_WIDTH
+   pudl.dbt_schema._NormalizedDescription
+   pudl.dbt_schema._NormalizedDataTests
+
+
 Classes
 -------
 
 .. autoapisummary::
 
+   pudl.dbt_schema._LiteralStr
    pudl.dbt_schema.DbtColumn
    pudl.dbt_schema.DbtTable
    pudl.dbt_schema.DbtSource
@@ -28,6 +39,12 @@ Functions
 
 .. autoapisummary::
 
+   pudl.dbt_schema._normalize_whitespace
+   pudl.dbt_schema._normalize_descriptions
+   pudl.dbt_schema._normalize_description_field
+   pudl.dbt_schema._normalize_data_tests_field
+   pudl.dbt_schema._wrap_description
+   pudl.dbt_schema._wrap_descriptions
    pudl.dbt_schema._prettier_yaml_dumps
    pudl.dbt_schema.merge_schema
    pudl.dbt_schema.merge_by_name
@@ -42,6 +59,72 @@ Functions
 Module Contents
 ---------------
 
+.. py:data:: _DESCRIPTION_WRAP_WIDTH
+   :value: 88
+
+
+.. py:function:: _normalize_whitespace(text: str) -> str
+
+   Collapse all whitespace (including blank lines) to single spaces.
+
+
+.. py:function:: _normalize_descriptions(obj: Any) -> Any
+
+   Recursively collapse whitespace in every ``description`` field.
+
+   Normalizing whitespace at parse time reduces spurious diffs and round trip errors,
+   treating all whitespace as semantically identical.
+
+   The ``description`` fields show up in two places: the typed ``description`` field on
+   ``DbtColumn``/``DbtTable``/``DbtSource``, and nested inside arbitrary ``data_tests``
+   entries which are untyped ``list`` content that pydantic doesn't otherwise inspect.
+   This function is used as a validator for both.
+
+
+
+.. py:function:: _normalize_description_field(value: str | None) -> str | None
+
+.. py:function:: _normalize_data_tests_field(value: list | None) -> list | None
+
+.. py:data:: _NormalizedDescription
+
+.. py:data:: _NormalizedDataTests
+
+.. py:class:: _LiteralStr
+
+   Bases: :py:obj:`str`
+
+
+   Marker subclass telling the dumper to use YAML literal block style (``|``).
+
+   Only used for ``description`` fields that we've re-wrapped ourselves, so
+   they read as human-friendly paragraphs on disk instead of one giant line.
+   Everything else (regexes, SQL snippets, argument lists) is left completely
+   alone, since forcing a global line width in the dumper risks reflowing
+   content where whitespace is significant.
+
+
+.. py:function:: _wrap_description(text: str) -> str | _LiteralStr
+
+   Re-wrap a description string to short lines, for readability on disk.
+
+   A description may already contain embedded newlines (e.g. from a blank
+   line in a folded YAML block scalar, or from a previous pass of this same
+   function). We preserve that line structure and only wrap the text
+   *within* each line, so we don't invent new paragraph breaks the human
+   didn't write. We use block style whenever the result spans multiple
+   lines -- including when wrapping made no change to an already-wrapped
+   multi-line value -- since a bare multi-line ``str`` would otherwise fall
+   back to an ugly quoted flow scalar. Single-line results are left as a
+   plain string so short descriptions keep their current compact
+   ``description: ...`` formatting.
+
+
+.. py:function:: _wrap_descriptions(obj: Any) -> Any
+
+   Recursively re-wrap every ``description`` field in a dumped schema dict.
+
+
 .. py:function:: _prettier_yaml_dumps(yaml_contents: dict[str, Any]) -> str
 
    Dump YAML to string that Prettier likes.
@@ -55,18 +138,23 @@ Module Contents
    Define yaml structure of a dbt column.
 
 
+   .. py:attribute:: model_config
+
+      Configuration for the model, should be a dictionary conforming to [`ConfigDict`][pydantic.config.ConfigDict].
+
+
    .. py:attribute:: name
       :type:  str
 
 
    .. py:attribute:: description
-      :type:  str | None
+      :type:  _NormalizedDescription
       :value: None
 
 
 
    .. py:attribute:: data_tests
-      :type:  list | None
+      :type:  _NormalizedDataTests
       :value: None
 
 
@@ -91,18 +179,23 @@ Module Contents
    Define yaml structure of a dbt table.
 
 
+   .. py:attribute:: model_config
+
+      Configuration for the model, should be a dictionary conforming to [`ConfigDict`][pydantic.config.ConfigDict].
+
+
    .. py:attribute:: name
       :type:  str
 
 
    .. py:attribute:: description
-      :type:  str | None
+      :type:  _NormalizedDescription
       :value: None
 
 
 
    .. py:attribute:: data_tests
-      :type:  list | None
+      :type:  _NormalizedDataTests
       :value: None
 
 
@@ -147,6 +240,11 @@ Module Contents
    Define basic dbt yml structure to add a pudl table as a dbt source.
 
 
+   .. py:attribute:: model_config
+
+      Configuration for the model, should be a dictionary conforming to [`ConfigDict`][pydantic.config.ConfigDict].
+
+
    .. py:attribute:: name
       :type:  str
       :value: 'pudl'
@@ -160,7 +258,7 @@ Module Contents
 
 
    .. py:attribute:: description
-      :type:  str | None
+      :type:  _NormalizedDescription
       :value: None
 
 
@@ -177,6 +275,11 @@ Module Contents
 
 
    Define basic structure of a dbt models yaml file.
+
+
+   .. py:attribute:: model_config
+
+      Configuration for the model, should be a dictionary conforming to [`ConfigDict`][pydantic.config.ConfigDict].
 
 
    .. py:attribute:: version

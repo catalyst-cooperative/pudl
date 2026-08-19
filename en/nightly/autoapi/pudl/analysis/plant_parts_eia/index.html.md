@@ -176,45 +176,45 @@ plant_parts_eia = MakePlantParts().execute(
 
 ## Attributes
 
-| [`logger`](#pudl.analysis.plant_parts_eia.logger)                                       |                                                                                                                  |
-|-----------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------|
-| [`PLANT_PARTS`](#pudl.analysis.plant_parts_eia.PLANT_PARTS)                             | this dictionary contains a key for each of the 'plant parts' that should end up                                  |
-| [`PLANT_PARTS_LITERAL`](#pudl.analysis.plant_parts_eia.PLANT_PARTS_LITERAL)             |                                                                                                                  |
-| [`IDX_TO_ADD`](#pudl.analysis.plant_parts_eia.IDX_TO_ADD)                               | list of additional columns to add to the id_cols in [`PLANT_PARTS`](#pudl.analysis.plant_parts_eia.PLANT_PARTS). |
-| [`IDX_OWN_TO_ADD`](#pudl.analysis.plant_parts_eia.IDX_OWN_TO_ADD)                       | list of additional columns beyond the [`IDX_TO_ADD`](#pudl.analysis.plant_parts_eia.IDX_TO_ADD) to add to the    |
-| [`SUM_COLS`](#pudl.analysis.plant_parts_eia.SUM_COLS)                                   | list of columns to sum when aggregating a table.                                                                 |
-| [`WTAVG_DICT`](#pudl.analysis.plant_parts_eia.WTAVG_DICT)                               | a dictionary of columns (keys) to perform weighted averages on and the weight                                    |
-| [`CONSISTENT_ATTRIBUTE_COLS`](#pudl.analysis.plant_parts_eia.CONSISTENT_ATTRIBUTE_COLS) | a list of column names to add as attributes when they are consistent into the                                    |
-| [`PRIORITY_ATTRIBUTES_DICT`](#pudl.analysis.plant_parts_eia.PRIORITY_ATTRIBUTES_DICT)   |                                                                                                                  |
-| [`MAX_MIN_ATTRIBUTES_DICT`](#pudl.analysis.plant_parts_eia.MAX_MIN_ATTRIBUTES_DICT)     |                                                                                                                  |
-| [`FIRST_COLS`](#pudl.analysis.plant_parts_eia.FIRST_COLS)                               |                                                                                                                  |
-| [`plant_parts_assets`](#pudl.analysis.plant_parts_eia.plant_parts_assets)               |                                                                                                                  |
+| [`logger`](#pudl.analysis.plant_parts_eia.logger)                    |                                                                                                                   |
+|----------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------|
+| [`PLANT_PARTS`](#pudl.analysis.plant_parts_eia.PLANT_PARTS)               | this dictionary contains a key for each of the 'plant parts' that should end up                                   |
+| [`PLANT_PARTS_LITERAL`](#pudl.analysis.plant_parts_eia.PLANT_PARTS_LITERAL)       |                                                                                                                   |
+| [`IDX_TO_ADD`](#pudl.analysis.plant_parts_eia.IDX_TO_ADD)                | list of additional columns to add to the id_cols in [`PLANT_PARTS`](#pudl.analysis.plant_parts_eia.PLANT_PARTS). |
+| [`IDX_OWN_TO_ADD`](#pudl.analysis.plant_parts_eia.IDX_OWN_TO_ADD)            | list of additional columns beyond the [`IDX_TO_ADD`](#pudl.analysis.plant_parts_eia.IDX_TO_ADD) to add to the   |
+| [`SUM_COLS`](#pudl.analysis.plant_parts_eia.SUM_COLS)                  | list of columns to sum when aggregating a table.                                                                  |
+| [`WTAVG_DICT`](#pudl.analysis.plant_parts_eia.WTAVG_DICT)                | a dictionary of columns (keys) to perform weighted averages on and the weight                                     |
+| [`CONSISTENT_ATTRIBUTE_COLS`](#pudl.analysis.plant_parts_eia.CONSISTENT_ATTRIBUTE_COLS) | a list of column names to add as attributes when they are consistent into the                                     |
+| [`PRIORITY_ATTRIBUTES_DICT`](#pudl.analysis.plant_parts_eia.PRIORITY_ATTRIBUTES_DICT)  |                                                                                                                   |
+| [`MAX_MIN_ATTRIBUTES_DICT`](#pudl.analysis.plant_parts_eia.MAX_MIN_ATTRIBUTES_DICT)   |                                                                                                                   |
+| [`FIRST_COLS`](#pudl.analysis.plant_parts_eia.FIRST_COLS)                |                                                                                                                   |
+| [`plant_parts_assets`](#pudl.analysis.plant_parts_eia.plant_parts_assets)        |                                                                                                                   |
 
 ## Classes
 
-| [`MakeMegaGenTbl`](#pudl.analysis.plant_parts_eia.MakeMegaGenTbl)                   | Compiler for a MEGA generator table with ownership integrated.              |
-|-------------------------------------------------------------------------------------|-----------------------------------------------------------------------------|
-| [`MakePlantParts`](#pudl.analysis.plant_parts_eia.MakePlantParts)                   | Compile the plant parts for the master unit list.                           |
-| [`PlantPart`](#pudl.analysis.plant_parts_eia.PlantPart)                             | Plant-part table maker.                                                     |
-| [`TrueGranLabeler`](#pudl.analysis.plant_parts_eia.TrueGranLabeler)                 | Label the plant-part table records with their true granularity.             |
-| [`AddAttribute`](#pudl.analysis.plant_parts_eia.AddAttribute)                       | Base class for adding attributes to plant-part tables.                      |
+| [`MakeMegaGenTbl`](#pudl.analysis.plant_parts_eia.MakeMegaGenTbl)          | Compiler for a MEGA generator table with ownership integrated.              |
+|--------------------------------------------------------------------------|-----------------------------------------------------------------------------|
+| [`MakePlantParts`](#pudl.analysis.plant_parts_eia.MakePlantParts)          | Compile the plant parts for the master unit list.                           |
+| [`PlantPart`](#pudl.analysis.plant_parts_eia.PlantPart)               | Plant-part table maker.                                                     |
+| [`TrueGranLabeler`](#pudl.analysis.plant_parts_eia.TrueGranLabeler)         | Label the plant-part table records with their true granularity.             |
+| [`AddAttribute`](#pudl.analysis.plant_parts_eia.AddAttribute)            | Base class for adding attributes to plant-part tables.                      |
 | [`AddConsistentAttributes`](#pudl.analysis.plant_parts_eia.AddConsistentAttributes) | Adder of attributes records to a plant-part table.                          |
-| [`AddPriorityAttribute`](#pudl.analysis.plant_parts_eia.AddPriorityAttribute)       | Add Attributes based on a priority sorting from `PRIORITY_ATTRIBUTES`.      |
-| [`AddMaxMinAttribute`](#pudl.analysis.plant_parts_eia.AddMaxMinAttribute)           | Add Attributes based on the maximum or minimum value of a sorted attribute. |
+| [`AddPriorityAttribute`](#pudl.analysis.plant_parts_eia.AddPriorityAttribute)    | Add Attributes based on a priority sorting from `PRIORITY_ATTRIBUTES`.      |
+| [`AddMaxMinAttribute`](#pudl.analysis.plant_parts_eia.AddMaxMinAttribute)      | Add Attributes based on the maximum or minimum value of a sorted attribute. |
 
 ## Functions
 
 | [`out_eia__yearly_generators_by_ownership`](#pudl.analysis.plant_parts_eia.out_eia__yearly_generators_by_ownership)(→ pandas.DataFrame)   | Create mega generators table asset.                                     |
-|-------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------|
-| [`plant_part_asset_factory`](#pudl.analysis.plant_parts_eia.plant_part_asset_factory)(→ dagster.AssetsDefinition)                         | Asset factory to create assets for each individual plant part.          |
-| [`out_eia__yearly_plant_parts`](#pudl.analysis.plant_parts_eia.out_eia__yearly_plant_parts)(→ pandas.DataFrame)                           | Create plant parts list asset by concatenating all plant-part assets.   |
-| [`make_id_cols_list`](#pudl.analysis.plant_parts_eia.make_id_cols_list)(→ list[Any])                                                      | Get a list of the id columns (primary keys) for all of the plant parts. |
-| [`make_parts_to_ids_dict`](#pudl.analysis.plant_parts_eia.make_parts_to_ids_dict)(→ dict[str, Any])                                       | Make dict w/ plant-part names (keys) to the main id column (values).    |
-| [`add_record_id`](#pudl.analysis.plant_parts_eia.add_record_id)(→ pandas.DataFrame)                                                       | Add a record id to a compiled part df.                                  |
-| [`match_to_single_plant_part`](#pudl.analysis.plant_parts_eia.match_to_single_plant_part)(→ pandas.DataFrame)                             | Match data with a variety of granularities to a single plant-part.      |
-| [`plant_parts_eia_distinct`](#pudl.analysis.plant_parts_eia.plant_parts_eia_distinct)(→ pandas.DataFrame)                                 | Get the EIA plant_parts with only the unique granularities.             |
-| [`reassign_id_ownership_dupes`](#pudl.analysis.plant_parts_eia.reassign_id_ownership_dupes)(→ pandas.DataFrame)                           | Reassign the record_id for the records that are labeled ownership_dupe. |
-| [`out_eia__yearly_assn_plant_parts_plant_gen`](#pudl.analysis.plant_parts_eia.out_eia__yearly_assn_plant_parts_plant_gen)(...)            | Build association table between EIA plant parts and EIA generators.     |
+|----------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------|
+| [`plant_part_asset_factory`](#pudl.analysis.plant_parts_eia.plant_part_asset_factory)(→ dagster.AssetsDefinition)          | Asset factory to create assets for each individual plant part.          |
+| [`out_eia__yearly_plant_parts`](#pudl.analysis.plant_parts_eia.out_eia__yearly_plant_parts)(→ pandas.DataFrame)               | Create plant parts list asset by concatenating all plant-part assets.   |
+| [`make_id_cols_list`](#pudl.analysis.plant_parts_eia.make_id_cols_list)(→ list[Any])                                | Get a list of the id columns (primary keys) for all of the plant parts. |
+| [`make_parts_to_ids_dict`](#pudl.analysis.plant_parts_eia.make_parts_to_ids_dict)(→ dict[str, Any])                      | Make dict w/ plant-part names (keys) to the main id column (values).    |
+| [`add_record_id`](#pudl.analysis.plant_parts_eia.add_record_id)(→ pandas.DataFrame)                             | Add a record id to a compiled part df.                                  |
+| [`match_to_single_plant_part`](#pudl.analysis.plant_parts_eia.match_to_single_plant_part)(→ pandas.DataFrame)                | Match data with a variety of granularities to a single plant-part.      |
+| [`plant_parts_eia_distinct`](#pudl.analysis.plant_parts_eia.plant_parts_eia_distinct)(→ pandas.DataFrame)                  | Get the EIA plant_parts with only the unique granularities.             |
+| [`reassign_id_ownership_dupes`](#pudl.analysis.plant_parts_eia.reassign_id_ownership_dupes)(→ pandas.DataFrame)               | Reassign the record_id for the records that are labeled ownership_dupe. |
+| [`out_eia__yearly_assn_plant_parts_plant_gen`](#pudl.analysis.plant_parts_eia.out_eia__yearly_assn_plant_parts_plant_gen)(...)               | Build association table between EIA plant parts and EIA generators.     |
 
 ## Module Contents
 
@@ -377,10 +377,10 @@ Make the mega generators table with ownership integrated.
 
 * **Parameters:**
   * **mcoe** – generator-based mcoe table with DEFAULT_GENS_COLS generator attributes
-    from [out_eia_\_yearly_generators](../../../../data_dictionaries/pudl_db.md#out-eia-yearly-generators)
-  * **own_eia860** – ownership table from [out_eia_\_yearly_generators](../../../../data_dictionaries/pudl_db.md#out-eia-yearly-generators)
+    from [out_eia_\_yearly_generators](../../../../data_dictionaries/pudl_db.html.md#out-eia-yearly-generators)
+  * **own_eia860** – ownership table from [out_eia_\_yearly_generators](../../../../data_dictionaries/pudl_db.html.md#out-eia-yearly-generators)
   * **scale_cols** – list of columns to slice by ownership fraction in
-    [`pudl.helpers.scale_by_ownership()`](../../helpers/index.md#pudl.helpers.scale_by_ownership). Default is [`SUM_COLS`](#pudl.analysis.plant_parts_eia.SUM_COLS)
+    [`pudl.helpers.scale_by_ownership()`](../../helpers/index.html.md#pudl.helpers.scale_by_ownership). Default is [`SUM_COLS`](#pudl.analysis.plant_parts_eia.SUM_COLS)
   * **validate_own_merge** – how the merge between `mcoe` and `own_eia860`
     is to be validated via `pd.merge`. If there should be one
     record for each plant/generator/date in `mcoe` then the default
@@ -477,7 +477,7 @@ the validation stage of.
   * **plant_parts_eia** – the master unit list table.
   * **part_name** – should always be “plant_match_ferc1”.
   * **path_to_one_to_many** – a Path to the one_to_many csv file in
-    [`pudl.package_data.glue`](../../package_data/glue/index.md#module-pudl.package_data.glue).
+    [`pudl.package_data.glue`](../../package_data/glue/index.html.md#module-pudl.package_data.glue).
 * **Returns:**
   The EIA plant parts table with one-to-many matches aggregated as plant
   parts.

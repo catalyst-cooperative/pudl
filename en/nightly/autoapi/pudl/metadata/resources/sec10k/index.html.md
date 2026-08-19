@@ -5,7 +5,7 @@ Table definitions for the SEC10k tables.
 ## Attributes
 
 | [`RESOURCE_METADATA`](#pudl.metadata.resources.sec10k.RESOURCE_METADATA)   |    |
-|----------------------------------------------------------------------------|----|
+|----------------------------------------------------------------------|----|
 
 ## Module Contents
 

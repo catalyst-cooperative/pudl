@@ -4,26 +4,26 @@ Generic functionality for extractors.
 
 ## Attributes
 
-| [`StrInt`](#pudl.extract.extractor.StrInt)                                   |    |
-|------------------------------------------------------------------------------|----|
-| [`PartitionSelection`](#pudl.extract.extractor.PartitionSelection)           |    |
-| [`logger`](#pudl.extract.extractor.logger)                                   |    |
+| [`StrInt`](#pudl.extract.extractor.StrInt)                  |    |
+|--------------------------------------------------------------------------|----|
+| [`PartitionSelection`](#pudl.extract.extractor.PartitionSelection)      |    |
+| [`logger`](#pudl.extract.extractor.logger)                  |    |
 | [`dagster_dict_str_strint`](#pudl.extract.extractor.dagster_dict_str_strint) |    |
 
 ## Classes
 
 | [`GenericMetadata`](#pudl.extract.extractor.GenericMetadata)   | Load generic metadata from Python package data.   |
-|----------------------------------------------------------------|---------------------------------------------------|
-| [`GenericExtractor`](#pudl.extract.extractor.GenericExtractor) | Generic extractor base class.                     |
+|--------------------------------------------------------------------|---------------------------------------------------|
+| [`GenericExtractor`](#pudl.extract.extractor.GenericExtractor)  | Generic extractor base class.                     |
 
 ## Functions
 
-| [`concat_pages`](#pudl.extract.extractor.concat_pages)(→ dict[str, pandas.DataFrame])                                        | Concatenate similar pages of data from different years into single dataframes.       |
-|------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------|
-| [`_is_dict_str_strint`](#pudl.extract.extractor._is_dict_str_strint)(→ bool)                                                 |                                                                                      |
-| [`partition_extractor_factory`](#pudl.extract.extractor.partition_extractor_factory)(→ dagster.OpDefinition)                 | Construct a Dagster op that extracts one partition of data, given an extractor.      |
+| [`concat_pages`](#pudl.extract.extractor.concat_pages)(→ dict[str, pandas.DataFrame])                 | Concatenate similar pages of data from different years into single dataframes.       |
+|--------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------|
+| [`_is_dict_str_strint`](#pudl.extract.extractor._is_dict_str_strint)(→ bool)                                 |                                                                                      |
+| [`partition_extractor_factory`](#pudl.extract.extractor.partition_extractor_factory)(→ dagster.OpDefinition)         | Construct a Dagster op that extracts one partition of data, given an extractor.      |
 | [`partitions_from_data_config_factory`](#pudl.extract.extractor.partitions_from_data_config_factory)(→ dagster.OpDefinition) | Construct a Dagster op to get target partitions from data config in Dagster context. |
-| [`raw_df_factory`](#pudl.extract.extractor.raw_df_factory)(→ dagster.AssetsDefinition)                                       | Return a dagster graph asset to extract raw DataFrames from CSV or Excel files.      |
+| [`raw_df_factory`](#pudl.extract.extractor.raw_df_factory)(→ dagster.AssetsDefinition)                  | Return a dagster graph asset to extract raw DataFrames from CSV or Excel files.      |
 
 ## Module Contents
 
@@ -82,7 +82,7 @@ Return dictionary of original columns to renamed columns for renaming in a given
 
 Columns that don’t exist in this partition/page will show up as pd.nan, so we need to filter those out.
 
-### *class* pudl.extract.extractor.GenericExtractor(ds: [pudl.workspace.datastore.Datastore](../../workspace/datastore/index.md#pudl.workspace.datastore.Datastore))
+### *class* pudl.extract.extractor.GenericExtractor(ds: [pudl.workspace.datastore.Datastore](../../workspace/datastore/index.html.md#pudl.workspace.datastore.Datastore))
 
 Bases: [`abc.ABC`](https://docs.python.org/3/library/abc.html#abc.ABC)
 
@@ -193,7 +193,7 @@ impact the overall concurrency of the DAG much.
 
 ### pudl.extract.extractor.dagster_dict_str_strint
 
-### pudl.extract.extractor.partition_extractor_factory(extractor_cls: [type](../../metadata/classes/index.md#pudl.metadata.classes.Field.type)[[GenericExtractor](#pudl.extract.extractor.GenericExtractor)], name: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [dagster.OpDefinition](https://docs.dagster.io/api/dagster/ops/#dagster.OpDefinition)
+### pudl.extract.extractor.partition_extractor_factory(extractor_cls: [type](../../metadata/classes/index.html.md#pudl.metadata.classes.Field.type)[[GenericExtractor](#pudl.extract.extractor.GenericExtractor)], name: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [dagster.OpDefinition](https://docs.dagster.io/api/dagster/ops/#dagster.OpDefinition)
 
 Construct a Dagster op that extracts one partition of data, given an extractor.
 
@@ -208,7 +208,7 @@ Construct a Dagster op to get target partitions from data config in Dagster cont
 * **Parameters:**
   **name** – Name of an Excel based dataset (e.g. “eia860”).
 
-### pudl.extract.extractor.raw_df_factory(extractor_cls: [type](../../metadata/classes/index.md#pudl.metadata.classes.Field.type)[[GenericExtractor](#pudl.extract.extractor.GenericExtractor)], name: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [dagster.AssetsDefinition](https://docs.dagster.io/api/dagster/assets/#dagster.AssetsDefinition)
+### pudl.extract.extractor.raw_df_factory(extractor_cls: [type](../../metadata/classes/index.html.md#pudl.metadata.classes.Field.type)[[GenericExtractor](#pudl.extract.extractor.GenericExtractor)], name: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [dagster.AssetsDefinition](https://docs.dagster.io/api/dagster/assets/#dagster.AssetsDefinition)
 
 Return a dagster graph asset to extract raw DataFrames from CSV or Excel files.
 

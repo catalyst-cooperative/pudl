@@ -5,7 +5,7 @@ Check that foreign key constraints in the PUDL database are respected.
 ## Functions
 
 | [`main`](#pudl.scripts.pudl_check_fks.main)(→ int)   | Check that foreign key constraints in the PUDL database are respected.   |
-|------------------------------------------------------|--------------------------------------------------------------------------|
+|----------------------------------------------------------------|--------------------------------------------------------------------------|
 
 ## Module Contents
 

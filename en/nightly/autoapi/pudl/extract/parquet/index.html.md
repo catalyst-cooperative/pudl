@@ -5,26 +5,26 @@ Extractor for Parquet data.
 ## Attributes
 
 | [`logger`](#pudl.extract.parquet.logger)   |    |
-|--------------------------------------------|----|
+|-----------------------------------------------------------|----|
 
 ## Classes
 
 | [`ParquetExtractor`](#pudl.extract.parquet.ParquetExtractor)   | Class for extracting dataframes from parquet files.   |
-|----------------------------------------------------------------|-------------------------------------------------------|
+|---------------------------------------------------------------------|-------------------------------------------------------|
 
 ## Module Contents
 
 ### pudl.extract.parquet.logger
 
-### *class* pudl.extract.parquet.ParquetExtractor(ds: [pudl.workspace.datastore.Datastore](../../workspace/datastore/index.md#pudl.workspace.datastore.Datastore))
+### *class* pudl.extract.parquet.ParquetExtractor(ds: [pudl.workspace.datastore.Datastore](../../workspace/datastore/index.html.md#pudl.workspace.datastore.Datastore))
 
-Bases: [`pudl.extract.extractor.GenericExtractor`](../extractor/index.md#pudl.extract.extractor.GenericExtractor)
+Bases: [`pudl.extract.extractor.GenericExtractor`](../extractor/index.html.md#pudl.extract.extractor.GenericExtractor)
 
 Class for extracting dataframes from parquet files.
 
 The extraction logic is invoked by calling extract() method of this class.
 
-#### source_filename(page: [str](https://docs.python.org/3/library/stdtypes.html#str), \*\*partition: [pudl.extract.extractor.PartitionSelection](../extractor/index.md#pudl.extract.extractor.PartitionSelection)) → [str](https://docs.python.org/3/library/stdtypes.html#str)
+#### source_filename(page: [str](https://docs.python.org/3/library/stdtypes.html#str), \*\*partition: [pudl.extract.extractor.PartitionSelection](../extractor/index.html.md#pudl.extract.extractor.PartitionSelection)) → [str](https://docs.python.org/3/library/stdtypes.html#str)
 
 Produce the source Parquet file name as it will appear in the archive.
 
@@ -36,7 +36,7 @@ Produce the source Parquet file name as it will appear in the archive.
 * **Returns:**
   string name of the parquet file
 
-#### load_source(page: [str](https://docs.python.org/3/library/stdtypes.html#str), \*\*partition: [pudl.extract.extractor.PartitionSelection](../extractor/index.md#pudl.extract.extractor.PartitionSelection)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+#### load_source(page: [str](https://docs.python.org/3/library/stdtypes.html#str), \*\*partition: [pudl.extract.extractor.PartitionSelection](../extractor/index.html.md#pudl.extract.extractor.PartitionSelection)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Produce the dataframe object for the given partition.
 

@@ -18,7 +18,7 @@
     </script>
     
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="dev_setup.html.md" />
-    <title>Development Setup &#8212; PUDL 2026.8.1.dev11 documentation</title>
+    <title>Development Setup &#8212; PUDL 2026.8.1.dev16 documentation</title>
   
   
   
@@ -51,7 +51,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../_static/documentation_options.js?v=11a2fe36"></script>
+    <script src="../_static/documentation_options.js?v=f981bf86"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -142,8 +142,8 @@
       
     
     
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev11 documentation - Home"/>
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev11 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
   
   
 </a></div>
@@ -709,6 +709,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/pudl_deploy/index.html">pudl.scripts.pudl_deploy</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/pudl_null_cols/index.html">pudl.scripts.pudl_null_cols</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/pudl_service_territories/index.html">pudl.scripts.pudl_service_territories</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/pyrefly_baseline_diff/index.html">pudl.scripts.pyrefly_baseline_diff</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/resource_description/index.html">pudl.scripts.resource_description</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/update_zenodo_dois/index.html">pudl.scripts.update_zenodo_dois</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../autoapi/pudl/scripts/zenodo_data_release/index.html">pudl.scripts.zenodo_data_release</a></li>
@@ -1009,7 +1010,7 @@ file.</p>
 <p>If you are adding or updating specific dependencies in <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code>, you can
 update just that dependency:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pixi<span class="w"> </span>add<span class="w"> </span><span class="s2">&quot;package-name&gt;=version&quot;</span><span class="w">  </span><span class="c1"># For new dependencies</span>
-<span class="gp">$ </span>pixi<span class="w"> </span>update<span class="w"> </span>package-name<span class="w">           </span><span class="c1"># To update an existing dependency</span>
+<span class="gp">$ </span>pixi<span class="w"> </span>update<span class="w"> </span>package-name<span class="w">          </span><span class="c1"># To update an existing dependency</span>
 </pre></div>
 </div>
 <p>Our automated GitHub Action handles weekly updates to all dependencies. You should
@@ -1047,6 +1048,19 @@ skills:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pixi<span class="w"> </span>run<span class="w"> </span>npx<span class="w"> </span>skills<span class="w"> </span>add<span class="w"> </span>&lt;source&gt;
 </pre></div>
 </div>
+<section id="pixi-dev-environment">
+<h3>Pixi dev environment<a class="headerlink" href="#pixi-dev-environment" title="Link to this heading">#</a></h3>
+<p>Pixi can manage a number of different python environments as part of the same project.
+These can be entirely separate from or build on the <code class="docutils literal notranslate"><span class="pre">default</span></code> environment. In PUDL we
+have a <code class="docutils literal notranslate"><span class="pre">dev</span></code> environment that adds some additional developer tooling that’s not
+required to run the ETL or the tests and validations that run in the nightly builds.
+The <code class="docutils literal notranslate"><span class="pre">dev</span></code> dependencies are defined under <code class="docutils literal notranslate"><span class="pre">[tool.pixi.feature.dev.dependencies]</span></code> in
+<code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code> and there are a handful of pixi tasks which run in that environment.</p>
+<p>To run a command with pixi inside of the <code class="docutils literal notranslate"><span class="pre">dev</span></code> environment you use <code class="docutils literal notranslate"><span class="pre">-e</span> <span class="pre">dev</span></code> e.g.:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pixi<span class="w"> </span>run<span class="w"> </span>-e<span class="w"> </span>dev<span class="w"> </span>pyrefly<span class="w"> </span>check<span class="w"> </span>src/pudl/path/to/file.py
+</pre></div>
+</div>
+</section>
 </section>
 <section id="set-up-code-linting">
 <span id="linting"></span><h2>Set Up Code Linting<a class="headerlink" href="#set-up-code-linting" title="Link to this heading">#</a></h2>
@@ -1109,6 +1123,68 @@ to auto-correct any remaining typos. To ignore typos in a single line (e.g., cod
 that corrects a typos), add <code class="docutils literal notranslate"><span class="pre">#</span> <span class="pre">spellchecker:ignore</span></code> as a comment to the end of the
 line.</p></li>
 </ul>
+</section>
+<section id="type-checking-with-pyrefly">
+<h3>Type Checking with pyrefly<a class="headerlink" href="#type-checking-with-pyrefly" title="Link to this heading">#</a></h3>
+<p>We use <a class="reference external" href="https://pyrefly.org/">pyrefly</a>, a fast Rust-based Python type checker, to
+catch type errors before they reach CI. It isn’t yet part of the standard pre-commit
+hooks or CI pipeline – PUDL’s codebase predates comprehensive type annotations, so for
+now pyrefly runs as a voluntary check for anyone gradually cleaning up typing issues in
+the code they touch.</p>
+<section id="running-the-checks">
+<h4>Running the checks<a class="headerlink" href="#running-the-checks" title="Link to this heading">#</a></h4>
+<p>For now <code class="docutils literal notranslate"><span class="pre">pyrefly</span></code> is a dev-only dependency, so always run it through the <code class="docutils literal notranslate"><span class="pre">dev</span></code> pixi
+environment:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pixi<span class="w"> </span>run<span class="w"> </span>pyrefly-check<span class="w">                                  </span><span class="c1"># whole project, against the baseline</span>
+<span class="gp">$ </span>pixi<span class="w"> </span>run<span class="w"> </span>-e<span class="w"> </span>dev<span class="w"> </span>pyrefly<span class="w"> </span>check<span class="w"> </span>src/pudl/path/to/file.py<span class="w">  </span><span class="c1"># quick check of one file</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">pyrefly-check</span></code> lives in the <code class="docutils literal notranslate"><span class="pre">dev</span></code> feature’s task table specifically so that plain
+<code class="docutils literal notranslate"><span class="pre">pixi</span> <span class="pre">run</span> <span class="pre">pyrefly-check</span></code> always resolves to the project-pinned <code class="docutils literal notranslate"><span class="pre">pyrefly</span></code> binary,
+rather than silently falling back to a different version found on <code class="docutils literal notranslate"><span class="pre">$PATH</span></code> (e.g. one
+installed globally for editor or language-server integration).</p>
+</section>
+<section id="the-baseline">
+<h4>The baseline<a class="headerlink" href="#the-baseline" title="Link to this heading">#</a></h4>
+<p>PUDL isn’t enforcing full type-checking project-wide yet, so <code class="docutils literal notranslate"><span class="pre">.pyrefly-baseline.json</span></code>
+records every pre-existing type error as of when it was last regenerated, and
+<code class="docutils literal notranslate"><span class="pre">pixi</span> <span class="pre">run</span> <span class="pre">pyrefly-check</span></code> only fails on errors <em>not already in the baseline</em>. This
+makes it possible to catch newly introduced type errors in code you’re touching without
+requiring the whole codebase to be error-free first.</p>
+<p>Regenerate the baseline when:</p>
+<ul class="simple">
+<li><p>You’ve fixed one or more pre-existing errors, to shrink the baseline and prevent them
+from regressing.</p></li>
+<li><p>pyrefly’s own version has been bumped, since a newer version’s stricter (or simply
+different) checks can surface errors in files you never touched.</p></li>
+</ul>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pixi<span class="w"> </span>run<span class="w"> </span>pyrefly-update-baseline
+</pre></div>
+</div>
+<p>Never hand-edit <code class="docutils literal notranslate"><span class="pre">.pyrefly-baseline.json</span></code>, and never regenerate it just to make a
+<em>newly introduced</em> error in your own change disappear – that defeats its purpose as a
+ratchet against regressions. Fix the error instead, or check with the team if you think
+it should legitimately be deferred.</p>
+</section>
+<section id="reviewing-a-baseline-regeneration">
+<h4>Reviewing a baseline regeneration<a class="headerlink" href="#reviewing-a-baseline-regeneration" title="Link to this heading">#</a></h4>
+<p>A raw <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">diff</span> <span class="pre">.pyrefly-baseline.json</span></code> after regenerating is nearly unreadable:
+fixing even one error, or bumping pyrefly’s version, can shift line/column numbers on
+hundreds of unrelated entries without any error actually appearing or disappearing.</p>
+<p>Use <code class="docutils literal notranslate"><span class="pre">pixi</span> <span class="pre">run</span> <span class="pre">pyrefly-baseline-diff</span></code> (<code class="docutils literal notranslate"><span class="pre">src/pudl/scripts/pyrefly_baseline_diff.py</span></code>)
+instead. It diffs the baseline against <code class="docutils literal notranslate"><span class="pre">HEAD</span></code> by <code class="docutils literal notranslate"><span class="pre">(file,</span> <span class="pre">error</span> <span class="pre">code,</span> <span class="pre">description)</span></code>
+rather than by line number, so the output only shows errors that were genuinely fixed or
+newly added:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pixi<span class="w"> </span>run<span class="w"> </span>pyrefly-update-baseline
+<span class="gp">$ </span>pixi<span class="w"> </span>run<span class="w"> </span>pyrefly-baseline-diff
+</pre></div>
+</div>
+<p>Run this every time you regenerate the baseline, before committing it. Confirm the
+“fixed” list matches what you intended to fix, and scrutinize the “newly baselined”
+list carefully – it should only ever contain pre-existing issues you’re knowingly
+deferring (e.g. ones surfaced by a version bump), never something your own change
+introduced.</p>
+</section>
 </section>
 <section id="linting-within-your-editor">
 <h3>Linting Within Your Editor<a class="headerlink" href="#linting-within-your-editor" title="Link to this heading">#</a></h3>
@@ -1254,10 +1330,19 @@ be active in the current shell. Again, note that these are fake example paths:</
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#using-the-devcontainer">Using the Devcontainer</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#updating-the-pudl-development-environment">Updating the PUDL Development Environment</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#updating-the-pudl-development-environment">Updating the PUDL Development Environment</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pixi-dev-environment">Pixi dev environment</a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#set-up-code-linting">Set Up Code Linting</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#git-pre-commit-hooks">Git Pre-commit Hooks</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#linting-and-formatting">Linting and Formatting</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#type-checking-with-pyrefly">Type Checking with pyrefly</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#running-the-checks">Running the checks</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#the-baseline">The baseline</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#reviewing-a-baseline-regeneration">Reviewing a baseline regeneration</a></li>
+</ul>
+</li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#linting-within-your-editor">Linting Within Your Editor</a></li>
 </ul>
 </li>

@@ -54,8 +54,8 @@ asset B. If we only execute asset B on `branch-2`, it will receive A’s value o
 `branch-1`. This is a problem because on `branch-2` asset B expects asset A to be a
 string not an integer. **To avoid a scenario like this, it is recommended you
 re-materialize all assets in the PUDL Dagster code location when you switch branches.**
-The stable code location module is [`pudl.definitions`](../autoapi/pudl/definitions/index.md#module-pudl.definitions), and the canonical assembly
-it exposes lives in [`pudl.dagster`](../autoapi/pudl/dagster/index.md#module-pudl.dagster).
+The stable code location module is [`pudl.definitions`](../autoapi/pudl/definitions/index.html.md#module-pudl.definitions), and the canonical assembly
+it exposes lives in [`pudl.dagster`](../autoapi/pudl/dagster/index.html.md#module-pudl.dagster).
 
 <a id="resource-config"></a>
 
@@ -64,14 +64,14 @@ it exposes lives in [`pudl.dagster`](../autoapi/pudl/dagster/index.md#module-pud
 Dagster resources are python objects that any assets can access. Resources can be
 configured using the Dagster UI or via a YAML config file to change the behavior of a
 given resource. PUDL’s default resource set is assembled in
-[`pudl.dagster.resources`](../autoapi/pudl/dagster/resources/index.md#module-pudl.dagster.resources) and includes datastore access, data config, runtime
+[`pudl.dagster.resources`](../autoapi/pudl/dagster/resources/index.html.md#module-pudl.dagster.resources) and includes datastore access, data config, runtime
 settings, and several IO managers. The resources contributors most often need to adjust
 are:
 
-### [`pudl.dagster.resources.GlobalDataConfigResource`](../autoapi/pudl/dagster/resources/index.md#pudl.dagster.resources.GlobalDataConfigResource)
+### [`pudl.dagster.resources.GlobalDataConfigResource`](../autoapi/pudl/dagster/resources/index.html.md#pudl.dagster.resources.GlobalDataConfigResource)
 
 The `global_data_config` resource loads a validated
-[`pudl.settings.GlobalDataConfig`](../autoapi/pudl/settings/index.md#pudl.settings.GlobalDataConfig) object from a data config YAML file. It controls
+[`pudl.settings.GlobalDataConfig`](../autoapi/pudl/settings/index.html.md#pudl.settings.GlobalDataConfig) object from a data config YAML file. It controls
 which datasets and years are processed by both the `ferc_to_sqlite` and `pudl` jobs.
 The path to the settings file is configured via the `global_data_config_path` field,
 and the standard packaged settings files are under `src/pudl/package_data/settings/`.
@@ -86,32 +86,32 @@ The configuration edits you make in the Dagster UI are only used for a single ru
 To save a resource configuration permanently, update the Dagster config YAML (e.g.
 `dg_fast.yml`) or pass a `--config` flag to `dg launch`.
 
-### [`pudl.dagster.resources.DatastoreResource`](../autoapi/pudl/dagster/resources/index.md#pudl.dagster.resources.DatastoreResource)
+### [`pudl.dagster.resources.DatastoreResource`](../autoapi/pudl/dagster/resources/index.html.md#pudl.dagster.resources.DatastoreResource)
 
 #### NOTE
 The configuration edits you make in the Dagster UI are only used for a single run.
 If you want to save a resource configuration, change the default value of the
 resource, update one of the packaged Dagster YAML profiles, or define a custom job /
-`Definitions` override in [`pudl.dagster.jobs`](../autoapi/pudl/dagster/jobs/index.md#module-pudl.dagster.jobs) or [`pudl.dagster.build`](../autoapi/pudl/dagster/build/index.md#module-pudl.dagster.build).
+`Definitions` override in [`pudl.dagster.jobs`](../autoapi/pudl/dagster/jobs/index.html.md#module-pudl.dagster.jobs) or [`pudl.dagster.build`](../autoapi/pudl/dagster/build/index.html.md#module-pudl.dagster.build).
 
-### [`pudl.dagster.resources.PudlPathsResource`](../autoapi/pudl/dagster/resources/index.md#pudl.dagster.resources.PudlPathsResource)
+### [`pudl.dagster.resources.PudlPathsResource`](../autoapi/pudl/dagster/resources/index.html.md#pudl.dagster.resources.PudlPathsResource)
 
 The `pudl_paths` resource provides the `PUDL_INPUT` and `PUDL_OUTPUT` locations
 used by Dagster-managed IO managers and assets. If you need Dagster to read from or
 write to non-default workspace locations for a single run, override this resource in
 the Dagster UI or construct custom `Definitions` via
-[`pudl.dagster.build.build_interactive_defs()`](../autoapi/pudl/dagster/build/index.md#pudl.dagster.build.build_interactive_defs).
+[`pudl.dagster.build.build_interactive_defs()`](../autoapi/pudl/dagster/build/index.html.md#pudl.dagster.build.build_interactive_defs).
 
-### [`pudl.dagster.resources.datastore_resource`](../autoapi/pudl/dagster/resources/index.md#pudl.dagster.resources.datastore_resource)
+### [`pudl.dagster.resources.datastore_resource`](../autoapi/pudl/dagster/resources/index.html.md#pudl.dagster.resources.datastore_resource)
 
 The datastore resource allows assets to pull data from PUDL’s raw data archives on
 Zenodo.
 
-### [`pudl.dagster.resources.ferc_xbrl_runtime_settings`](../autoapi/pudl/dagster/resources/index.md#pudl.dagster.resources.ferc_xbrl_runtime_settings)
+### [`pudl.dagster.resources.ferc_xbrl_runtime_settings`](../autoapi/pudl/dagster/resources/index.html.md#pudl.dagster.resources.ferc_xbrl_runtime_settings)
 
 The `ferc_xbrl_runtime_settings` resource controls the concurrency and batch size for
 the FERC XBRL extraction.
 
-In addition to these commonly edited resources, [`pudl.dagster.resources`](../autoapi/pudl/dagster/resources/index.md#module-pudl.dagster.resources) also
+In addition to these commonly edited resources, [`pudl.dagster.resources`](../autoapi/pudl/dagster/resources/index.html.md#module-pudl.dagster.resources) also
 registers the standard PUDL IO managers and the `zenodo_dois` resource used to locate
 source archives.

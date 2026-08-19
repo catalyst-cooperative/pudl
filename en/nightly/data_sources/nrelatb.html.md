@@ -16,12 +16,12 @@ We’ve segmented the processed data into the following normalized data tables.
 Clicking on the links will show you a description of the table as well as
 the names and descriptions of each of its fields.
 
-| Data Dictionary                                                                                                                                          | Browse Online                                                                                                                                                                                             |
-|----------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [core_nrelatb_\_yearly_projected_cost_performance](../data_dictionaries/pudl_db.md#core-nrelatb-yearly-projected-cost-performance)                       | [https://data.catalyst.coop/preview/pudl/core_nrelatb_\_yearly_projected_cost_performance](https://data.catalyst.coop/preview/pudl/core_nrelatb__yearly_projected_cost_performance)                       |
-| [core_nrelatb_\_yearly_projected_financial_cases](../data_dictionaries/pudl_db.md#core-nrelatb-yearly-projected-financial-cases)                         | [https://data.catalyst.coop/preview/pudl/core_nrelatb_\_yearly_projected_financial_cases](https://data.catalyst.coop/preview/pudl/core_nrelatb__yearly_projected_financial_cases)                         |
-| [core_nrelatb_\_yearly_projected_financial_cases_by_scenario](../data_dictionaries/pudl_db.md#core-nrelatb-yearly-projected-financial-cases-by-scenario) | [https://data.catalyst.coop/preview/pudl/core_nrelatb_\_yearly_projected_financial_cases_by_scenario](https://data.catalyst.coop/preview/pudl/core_nrelatb__yearly_projected_financial_cases_by_scenario) |
-| [core_nrelatb_\_yearly_technology_status](../data_dictionaries/pudl_db.md#core-nrelatb-yearly-technology-status)                                         | [https://data.catalyst.coop/preview/pudl/core_nrelatb_\_yearly_technology_status](https://data.catalyst.coop/preview/pudl/core_nrelatb__yearly_technology_status)                                         |
+| Data Dictionary                                                                                                                                                      | Browse Online                                                                                                                                                                                             |
+|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [core_nrelatb_\_yearly_projected_cost_performance](../data_dictionaries/pudl_db.html.md#core-nrelatb-yearly-projected-cost-performance)                       | [https://data.catalyst.coop/preview/pudl/core_nrelatb_\_yearly_projected_cost_performance](https://data.catalyst.coop/preview/pudl/core_nrelatb__yearly_projected_cost_performance)                       |
+| [core_nrelatb_\_yearly_projected_financial_cases](../data_dictionaries/pudl_db.html.md#core-nrelatb-yearly-projected-financial-cases)                         | [https://data.catalyst.coop/preview/pudl/core_nrelatb_\_yearly_projected_financial_cases](https://data.catalyst.coop/preview/pudl/core_nrelatb__yearly_projected_financial_cases)                         |
+| [core_nrelatb_\_yearly_projected_financial_cases_by_scenario](../data_dictionaries/pudl_db.html.md#core-nrelatb-yearly-projected-financial-cases-by-scenario) | [https://data.catalyst.coop/preview/pudl/core_nrelatb_\_yearly_projected_financial_cases_by_scenario](https://data.catalyst.coop/preview/pudl/core_nrelatb__yearly_projected_financial_cases_by_scenario) |
+| [core_nrelatb_\_yearly_technology_status](../data_dictionaries/pudl_db.html.md#core-nrelatb-yearly-technology-status)                                         | [https://data.catalyst.coop/preview/pudl/core_nrelatb_\_yearly_technology_status](https://data.catalyst.coop/preview/pudl/core_nrelatb__yearly_technology_status)                                         |
 
 ## Background
 
@@ -98,5 +98,5 @@ documentation is a great place to start.
 ## PUDL Data Transformations
 
 To see the transformations applied to the data in each table, you can read the
-docstrings for [`pudl.transform.nrelatb`](../autoapi/pudl/transform/nrelatb/index.md#module-pudl.transform.nrelatb) created for each table’s
+docstrings for [`pudl.transform.nrelatb`](../autoapi/pudl/transform/nrelatb/index.html.md#module-pudl.transform.nrelatb) created for each table’s
 respective transform function.

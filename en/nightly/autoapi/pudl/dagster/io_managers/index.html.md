@@ -14,33 +14,33 @@ For the underlying Dagster concept, see [https://docs.dagster.io/guides/build/io
 
 ## Attributes
 
-| [`logger`](#pudl.dagster.io_managers.logger)                                                 |    |
-|----------------------------------------------------------------------------------------------|----|
-| [`MINIMUM_SQLITE_VERSION`](#pudl.dagster.io_managers.MINIMUM_SQLITE_VERSION)                 |    |
-| [`ALEMBIC_AUTOGENERATE_PLUGINS`](#pudl.dagster.io_managers.ALEMBIC_AUTOGENERATE_PLUGINS)     |    |
-| [`pudl_mixed_format_io_manager`](#pudl.dagster.io_managers.pudl_mixed_format_io_manager)     |    |
-| [`parquet_io_manager`](#pudl.dagster.io_managers.parquet_io_manager)                         |    |
-| [`ferc1_dbf_sqlite_io_manager`](#pudl.dagster.io_managers.ferc1_dbf_sqlite_io_manager)       |    |
-| [`ferc1_xbrl_sqlite_io_manager`](#pudl.dagster.io_managers.ferc1_xbrl_sqlite_io_manager)     |    |
+| [`logger`](#pudl.dagster.io_managers.logger)                         |    |
+|---------------------------------------------------------------------------------|----|
+| [`MINIMUM_SQLITE_VERSION`](#pudl.dagster.io_managers.MINIMUM_SQLITE_VERSION)         |    |
+| [`ALEMBIC_AUTOGENERATE_PLUGINS`](#pudl.dagster.io_managers.ALEMBIC_AUTOGENERATE_PLUGINS)   |    |
+| [`pudl_mixed_format_io_manager`](#pudl.dagster.io_managers.pudl_mixed_format_io_manager)   |    |
+| [`parquet_io_manager`](#pudl.dagster.io_managers.parquet_io_manager)             |    |
+| [`ferc1_dbf_sqlite_io_manager`](#pudl.dagster.io_managers.ferc1_dbf_sqlite_io_manager)    |    |
+| [`ferc1_xbrl_sqlite_io_manager`](#pudl.dagster.io_managers.ferc1_xbrl_sqlite_io_manager)   |    |
 | [`ferc714_xbrl_sqlite_io_manager`](#pudl.dagster.io_managers.ferc714_xbrl_sqlite_io_manager) |    |
-| [`default_io_managers`](#pudl.dagster.io_managers.default_io_managers)                       |    |
+| [`default_io_managers`](#pudl.dagster.io_managers.default_io_managers)            |    |
 
 ## Classes
 
 | [`PudlMixedFormatIOManager`](#pudl.dagster.io_managers.PudlMixedFormatIOManager)   | Format switching IOManager that supports sqlite and parquet.            |
-|------------------------------------------------------------------------------------|-------------------------------------------------------------------------|
-| [`SqliteIOManager`](#pudl.dagster.io_managers.SqliteIOManager)                     | IO Manager that writes and retrieves dataframes from a SQLite database. |
-| [`PudlParquetIOManager`](#pudl.dagster.io_managers.PudlParquetIOManager)           | IOManager that writes pudl tables to pyarrow parquet files.             |
-| [`PudlSqliteIOManager`](#pudl.dagster.io_managers.PudlSqliteIOManager)             | IO Manager that writes and retrieves dataframes from a SQLite database. |
-| [`FercSqliteIOManagerBase`](#pudl.dagster.io_managers.FercSqliteIOManagerBase)     | Shared lazy-loading behavior for FERC SQLite Dagster IO managers.       |
-| [`FercDbfSqliteIOManager`](#pudl.dagster.io_managers.FercDbfSqliteIOManager)       | IO manager for reading tables from FERC DBF SQLite databases.           |
-| [`FercXbrlSqliteIOManager`](#pudl.dagster.io_managers.FercXbrlSqliteIOManager)     | IO manager for reading tables from a FERC XBRL SQLite database.         |
+|-----------------------------------------------------------------------------|-------------------------------------------------------------------------|
+| [`SqliteIOManager`](#pudl.dagster.io_managers.SqliteIOManager)            | IO Manager that writes and retrieves dataframes from a SQLite database. |
+| [`PudlParquetIOManager`](#pudl.dagster.io_managers.PudlParquetIOManager)       | IOManager that writes pudl tables to pyarrow parquet files.             |
+| [`PudlSqliteIOManager`](#pudl.dagster.io_managers.PudlSqliteIOManager)        | IO Manager that writes and retrieves dataframes from a SQLite database. |
+| [`FercSqliteIOManagerBase`](#pudl.dagster.io_managers.FercSqliteIOManagerBase)    | Shared lazy-loading behavior for FERC SQLite Dagster IO managers.       |
+| [`FercDbfSqliteIOManager`](#pudl.dagster.io_managers.FercDbfSqliteIOManager)     | IO manager for reading tables from FERC DBF SQLite databases.           |
+| [`FercXbrlSqliteIOManager`](#pudl.dagster.io_managers.FercXbrlSqliteIOManager)    | IO manager for reading tables from a FERC XBRL SQLite database.         |
 
 ## Functions
 
 | [`_get_dagster_instance_if_available`](#pudl.dagster.io_managers._get_dagster_instance_if_available)(...)   | Return the Dagster instance from an input context if one was provided.   |
-|-------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------|
-| [`get_table_name_from_context`](#pudl.dagster.io_managers.get_table_name_from_context)(→ str)               | Retrieves the table name from the context object.                        |
+|--------------------------------------------------------------------------------------------|--------------------------------------------------------------------------|
+| [`get_table_name_from_context`](#pudl.dagster.io_managers.get_table_name_from_context)(→ str)        | Retrieves the table name from the context object.                        |
 
 ## Module Contents
 
@@ -83,7 +83,7 @@ If true, data will be written to parquet files.
 
 If true, data will be read from parquet files instead of sqlite.
 
-#### pudl_paths *: dagster.ResourceDependency[[pudl.dagster.resources.PudlPathsResource](../resources/index.md#pudl.dagster.resources.PudlPathsResource)]*
+#### pudl_paths *: dagster.ResourceDependency[[pudl.dagster.resources.PudlPathsResource](../resources/index.html.md#pudl.dagster.resources.PudlPathsResource)]*
 
 #### validate_parquet_settings() → [PudlMixedFormatIOManager](#pudl.dagster.io_managers.PudlMixedFormatIOManager)
 
@@ -184,7 +184,7 @@ Bases: [`dagster.ConfigurableIOManager`](https://docs.dagster.io/api/dagster/io-
 
 IOManager that writes pudl tables to pyarrow parquet files.
 
-#### pudl_paths *: dagster.ResourceDependency[[pudl.dagster.resources.PudlPathsResource](../resources/index.md#pudl.dagster.resources.PudlPathsResource)]*
+#### pudl_paths *: dagster.ResourceDependency[[pudl.dagster.resources.PudlPathsResource](../resources/index.html.md#pudl.dagster.resources.PudlPathsResource)]*
 
 #### *static* \_record_parquet_file_metadata(context: [dagster.OutputContext](https://docs.dagster.io/api/dagster/io-managers/#dagster.OutputContext), parquet_path: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)) → [None](https://docs.python.org/3/library/constants.html#None)
 
@@ -207,14 +207,14 @@ enforce exact column types on disk.
 
 Loads pudl table from parquet file.
 
-### *class* pudl.dagster.io_managers.PudlSqliteIOManager(base_dir: [str](https://docs.python.org/3/library/stdtypes.html#str), db_name: [str](https://docs.python.org/3/library/stdtypes.html#str), package: [pudl.metadata.classes.Package](../../metadata/classes/index.md#pudl.metadata.classes.Package) | [None](https://docs.python.org/3/library/constants.html#None) = None, timeout: [float](https://docs.python.org/3/library/functions.html#float) = 1000.0)
+### *class* pudl.dagster.io_managers.PudlSqliteIOManager(base_dir: [str](https://docs.python.org/3/library/stdtypes.html#str), db_name: [str](https://docs.python.org/3/library/stdtypes.html#str), package: [pudl.metadata.classes.Package](../../metadata/classes/index.html.md#pudl.metadata.classes.Package) | [None](https://docs.python.org/3/library/constants.html#None) = None, timeout: [float](https://docs.python.org/3/library/functions.html#float) = 1000.0)
 
 Bases: [`SqliteIOManager`](#pudl.dagster.io_managers.SqliteIOManager)
 
 IO Manager that writes and retrieves dataframes from a SQLite database.
 
 This class extends the SqliteIOManager class to manage database metadata and dtypes
-using the [`pudl.metadata.classes.Package`](../../metadata/classes/index.md#pudl.metadata.classes.Package) class.
+using the [`pudl.metadata.classes.Package`](../../metadata/classes/index.html.md#pudl.metadata.classes.Package) class.
 
 #### package *= None*
 
@@ -247,11 +247,11 @@ this base class owns three shared responsibilities:
 2. lazily reflecting and caching SQLAlchemy metadata once the database exists
 3. checking Dagster provenance metadata before each read
 
-#### global_data_config *: dagster.ResourceDependency[[pudl.dagster.resources.GlobalDataConfigResource](../resources/index.md#pudl.dagster.resources.GlobalDataConfigResource)]*
+#### global_data_config *: dagster.ResourceDependency[[pudl.dagster.resources.GlobalDataConfigResource](../resources/index.html.md#pudl.dagster.resources.GlobalDataConfigResource)]*
 
-#### pudl_paths *: dagster.ResourceDependency[[pudl.dagster.resources.PudlPathsResource](../resources/index.md#pudl.dagster.resources.PudlPathsResource)]*
+#### pudl_paths *: dagster.ResourceDependency[[pudl.dagster.resources.PudlPathsResource](../resources/index.html.md#pudl.dagster.resources.PudlPathsResource)]*
 
-#### zenodo_dois *: dagster.ResourceDependency[[pudl.dagster.resources.ZenodoDoiSettingsResource](../resources/index.md#pudl.dagster.resources.ZenodoDoiSettingsResource)]*
+#### zenodo_dois *: dagster.ResourceDependency[[pudl.dagster.resources.ZenodoDoiSettingsResource](../resources/index.html.md#pudl.dagster.resources.ZenodoDoiSettingsResource)]*
 
 #### dataset *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
 

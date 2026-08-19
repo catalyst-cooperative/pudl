@@ -8,19 +8,19 @@ This code is for use analyzing EIA Form 861 data.
 
 ## Attributes
 
-| [`logger`](#pudl.extract.eia861.logger)                           |    |
-|-------------------------------------------------------------------|----|
+| [`logger`](#pudl.extract.eia861.logger)              |    |
+|----------------------------------------------------------------------|----|
 | [`raw_eia861__all_dfs`](#pudl.extract.eia861.raw_eia861__all_dfs) |    |
 
 ## Classes
 
 | [`Extractor`](#pudl.extract.eia861.Extractor)   | Extractor for the excel dataset EIA861.   |
-|-------------------------------------------------|-------------------------------------------|
+|--------------------------------------------------------------|-------------------------------------------|
 
 ## Functions
 
 | [`extract_eia861`](#pudl.extract.eia861.extract_eia861)(context, raw_eia861_\_all_dfs)   | Extract raw EIA-861 data from Excel sheets into dataframes.   |
-|------------------------------------------------------------------------------------------|---------------------------------------------------------------|
+|--------------------------------------------------------------------------------------------------|---------------------------------------------------------------|
 
 ## Module Contents
 
@@ -28,7 +28,7 @@ This code is for use analyzing EIA Form 861 data.
 
 ### *class* pudl.extract.eia861.Extractor(\*args, \*\*kwargs)
 
-Bases: [`pudl.extract.excel.ExcelExtractor`](../excel/index.md#pudl.extract.excel.ExcelExtractor)
+Bases: [`pudl.extract.excel.ExcelExtractor`](../excel/index.html.md#pudl.extract.excel.ExcelExtractor)
 
 Extractor for the excel dataset EIA861.
 

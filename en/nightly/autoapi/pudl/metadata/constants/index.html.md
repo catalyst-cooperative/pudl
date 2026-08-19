@@ -4,11 +4,11 @@ Metadata and operational constants.
 
 ## Attributes
 
-| [`LICENSES`](#pudl.metadata.constants.LICENSES)         | License attributes.                                    |
-|---------------------------------------------------------|--------------------------------------------------------|
+| [`LICENSES`](#pudl.metadata.constants.LICENSES)     | License attributes.                                    |
+|---------------------------------------------------------------|--------------------------------------------------------|
 | [`CONTRIBUTORS`](#pudl.metadata.constants.CONTRIBUTORS) | PUDL Contributors for attribution.                     |
-| [`KEYWORDS`](#pudl.metadata.constants.KEYWORDS)         |                                                        |
-| [`XBRL_TABLES`](#pudl.metadata.constants.XBRL_TABLES)   | List of all known to be valid FERC Form 1 XBRL tables. |
+| [`KEYWORDS`](#pudl.metadata.constants.KEYWORDS)     |                                                        |
+| [`XBRL_TABLES`](#pudl.metadata.constants.XBRL_TABLES)  | List of all known to be valid FERC Form 1 XBRL tables. |
 
 ## Module Contents
 

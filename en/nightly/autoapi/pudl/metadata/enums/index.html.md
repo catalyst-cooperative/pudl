@@ -4,71 +4,71 @@ Enumerations of valid field values.
 
 ## Attributes
 
-| [`IMPUTATION_CODES`](#pudl.metadata.enums.IMPUTATION_CODES)                                             |                                                                                 |
-|---------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------|
-| [`COUNTRY_CODES_ISO3166`](#pudl.metadata.enums.COUNTRY_CODES_ISO3166)                                   |                                                                                 |
-| [`SUBDIVISION_CODES_ISO3166`](#pudl.metadata.enums.SUBDIVISION_CODES_ISO3166)                           |                                                                                 |
-| [`EPACEMS_STATES`](#pudl.metadata.enums.EPACEMS_STATES)                                                 |                                                                                 |
-| [`DIVISION_CODES_US_CENSUS`](#pudl.metadata.enums.DIVISION_CODES_US_CENSUS)                             |                                                                                 |
-| [`APPROXIMATE_TIMEZONES`](#pudl.metadata.enums.APPROXIMATE_TIMEZONES)                                   | Mapping of political subdivision code to the most common timezone in that area. |
-| [`EIA191_STORAGE_REGIONS`](#pudl.metadata.enums.EIA191_STORAGE_REGIONS)                                 | EIA storage regions for underground natural gas storage fields (Form 191).      |
-| [`NERC_REGIONS`](#pudl.metadata.enums.NERC_REGIONS)                                                     | North American Reliability Corporation (NERC) regions.                          |
-| [`US_TIMEZONES`](#pudl.metadata.enums.US_TIMEZONES)                                                     |                                                                                 |
-| [`GENERATION_ENERGY_SOURCES_EIA930`](#pudl.metadata.enums.GENERATION_ENERGY_SOURCES_EIA930)             | Energy sources used to categorize generation in the EIA 930 data.               |
-| [`ELECTRICITY_MARKET_MODULE_REGIONS`](#pudl.metadata.enums.ELECTRICITY_MARKET_MODULE_REGIONS)           | Regions that the EIA uses in their Electricity Market Module analysis.          |
-| [`CUSTOMER_CLASSES`](#pudl.metadata.enums.CUSTOMER_CLASSES)                                             |                                                                                 |
-| [`CUSTOMER_CLASSES_EIA176`](#pudl.metadata.enums.CUSTOMER_CLASSES_EIA176)                               |                                                                                 |
-| [`SUPPLY_TYPES_EIA176`](#pudl.metadata.enums.SUPPLY_TYPES_EIA176)                                       |                                                                                 |
-| [`TECH_CLASSES`](#pudl.metadata.enums.TECH_CLASSES)                                                     |                                                                                 |
-| [`REVENUE_CLASSES_EIA861`](#pudl.metadata.enums.REVENUE_CLASSES_EIA861)                                 |                                                                                 |
-| [`REVENUE_CLASSES_EIA176`](#pudl.metadata.enums.REVENUE_CLASSES_EIA176)                                 |                                                                                 |
+| [`IMPUTATION_CODES`](#pudl.metadata.enums.IMPUTATION_CODES)                       |                                                                                 |
+|-----------------------------------------------------------------------------------------|---------------------------------------------------------------------------------|
+| [`COUNTRY_CODES_ISO3166`](#pudl.metadata.enums.COUNTRY_CODES_ISO3166)                  |                                                                                 |
+| [`SUBDIVISION_CODES_ISO3166`](#pudl.metadata.enums.SUBDIVISION_CODES_ISO3166)              |                                                                                 |
+| [`EPACEMS_STATES`](#pudl.metadata.enums.EPACEMS_STATES)                         |                                                                                 |
+| [`DIVISION_CODES_US_CENSUS`](#pudl.metadata.enums.DIVISION_CODES_US_CENSUS)               |                                                                                 |
+| [`APPROXIMATE_TIMEZONES`](#pudl.metadata.enums.APPROXIMATE_TIMEZONES)                  | Mapping of political subdivision code to the most common timezone in that area. |
+| [`EIA191_STORAGE_REGIONS`](#pudl.metadata.enums.EIA191_STORAGE_REGIONS)                 | EIA storage regions for underground natural gas storage fields (Form 191).      |
+| [`NERC_REGIONS`](#pudl.metadata.enums.NERC_REGIONS)                           | North American Reliability Corporation (NERC) regions.                          |
+| [`US_TIMEZONES`](#pudl.metadata.enums.US_TIMEZONES)                           |                                                                                 |
+| [`GENERATION_ENERGY_SOURCES_EIA930`](#pudl.metadata.enums.GENERATION_ENERGY_SOURCES_EIA930)       | Energy sources used to categorize generation in the EIA 930 data.               |
+| [`ELECTRICITY_MARKET_MODULE_REGIONS`](#pudl.metadata.enums.ELECTRICITY_MARKET_MODULE_REGIONS)      | Regions that the EIA uses in their Electricity Market Module analysis.          |
+| [`CUSTOMER_CLASSES`](#pudl.metadata.enums.CUSTOMER_CLASSES)                       |                                                                                 |
+| [`CUSTOMER_CLASSES_EIA176`](#pudl.metadata.enums.CUSTOMER_CLASSES_EIA176)                |                                                                                 |
+| [`SUPPLY_TYPES_EIA176`](#pudl.metadata.enums.SUPPLY_TYPES_EIA176)                    |                                                                                 |
+| [`TECH_CLASSES`](#pudl.metadata.enums.TECH_CLASSES)                           |                                                                                 |
+| [`REVENUE_CLASSES_EIA861`](#pudl.metadata.enums.REVENUE_CLASSES_EIA861)                 |                                                                                 |
+| [`REVENUE_CLASSES_EIA176`](#pudl.metadata.enums.REVENUE_CLASSES_EIA176)                 |                                                                                 |
 | [`SUPPLEMENTAL_GASEOUS_FUEL_TYPES_EIA176`](#pudl.metadata.enums.SUPPLEMENTAL_GASEOUS_FUEL_TYPES_EIA176) |                                                                                 |
-| [`OTHER_DISPOSITION_TYPES_EIA176`](#pudl.metadata.enums.OTHER_DISPOSITION_TYPES_EIA176)                 |                                                                                 |
-| [`RELIABILITY_STANDARDS`](#pudl.metadata.enums.RELIABILITY_STANDARDS)                                   |                                                                                 |
-| [`FUEL_CLASSES`](#pudl.metadata.enums.FUEL_CLASSES)                                                     |                                                                                 |
-| [`RTO_CLASSES`](#pudl.metadata.enums.RTO_CLASSES)                                                       |                                                                                 |
-| [`EPACEMS_MEASUREMENT_CODES`](#pudl.metadata.enums.EPACEMS_MEASUREMENT_CODES)                           | Valid emissions measurement codes for the EPA CEMS hourly data.                 |
-| [`TECH_DESCRIPTIONS`](#pudl.metadata.enums.TECH_DESCRIPTIONS)                                           | Valid technology descriptions from the EIA plant parts list.                    |
-| [`PLANT_PARTS`](#pudl.metadata.enums.PLANT_PARTS)                                                       | The plant parts in the EIA plant parts list.                                    |
-| [`TECH_DESCRIPTIONS_NRELATB`](#pudl.metadata.enums.TECH_DESCRIPTIONS_NRELATB)                           | NREL ATB technology descriptions.                                               |
-| [`TECH_DESCRIPTIONS_EIAAEO`](#pudl.metadata.enums.TECH_DESCRIPTIONS_EIAAEO)                             | Types of generation technology reported in EIA AEO.                             |
-| [`FUEL_TYPES_EIAAEO`](#pudl.metadata.enums.FUEL_TYPES_EIAAEO)                                           | Type of fuel used for generation reported in EIA AEO.                           |
-| [`MODEL_CASES_EIAAEO`](#pudl.metadata.enums.MODEL_CASES_EIAAEO)                                         | Modeling cases for EIA AEO 2023.                                                |
-| [`ENERGY_USE_TYPES_EIAAEO`](#pudl.metadata.enums.ENERGY_USE_TYPES_EIAAEO)                               | Energy use types from Table 2 of EIA AEO 2023-2025.                             |
-| [`ENERGY_SOURCE_TYPES_FERC1`](#pudl.metadata.enums.ENERGY_SOURCE_TYPES_FERC1)                           | Energy source types for FERC Form 1 data.                                       |
-| [`ENERGY_DISPOSITION_TYPES_FERC1`](#pudl.metadata.enums.ENERGY_DISPOSITION_TYPES_FERC1)                 | Energy disposition types for FERC Form 1 data.                                  |
-| [`UTILITY_PLANT_ASSET_TYPES_FERC1`](#pudl.metadata.enums.UTILITY_PLANT_ASSET_TYPES_FERC1)               | Utility plant asset types for FERC Form 1 data.                                 |
-| [`LIABILITY_TYPES_FERC1`](#pudl.metadata.enums.LIABILITY_TYPES_FERC1)                                   | Liability types for FERC Form 1 data.                                           |
-| [`ASSET_TYPES_FERC1`](#pudl.metadata.enums.ASSET_TYPES_FERC1)                                           | Asset types for FERC Form 1 data.                                               |
-| [`INCOME_TYPES_FERC1`](#pudl.metadata.enums.INCOME_TYPES_FERC1)                                         | Income types for FERC Form 1 data.                                              |
-| [`FUNCTIONAL_STATUS_CODES_CENSUS`](#pudl.metadata.enums.FUNCTIONAL_STATUS_CODES_CENSUS)                 | Functional status codes for Census geographic entities.                         |
-| [`MATERIAL_TYPES_PHMSAGAS`](#pudl.metadata.enums.MATERIAL_TYPES_PHMSAGAS)                               |                                                                                 |
-| [`MAIN_PIPE_SIZES_PHMSAGAS`](#pudl.metadata.enums.MAIN_PIPE_SIZES_PHMSAGAS)                             |                                                                                 |
-| [`LEAK_SOURCE_PHMSAGAS`](#pudl.metadata.enums.LEAK_SOURCE_PHMSAGAS)                                     |                                                                                 |
-| [`DAMAGE_TYPES_PHMSAGAS`](#pudl.metadata.enums.DAMAGE_TYPES_PHMSAGAS)                                   |                                                                                 |
-| [`DAMAGE_SUB_TYPES_PHMSAGAS`](#pudl.metadata.enums.DAMAGE_SUB_TYPES_PHMSAGAS)                           |                                                                                 |
-| [`ASSET_TYPES_RUS7`](#pudl.metadata.enums.ASSET_TYPES_RUS7)                                             |                                                                                 |
-| [`LIABILITY_TYPES_RUS7`](#pudl.metadata.enums.LIABILITY_TYPES_RUS7)                                     |                                                                                 |
-| [`ASSET_TYPES_RUS12`](#pudl.metadata.enums.ASSET_TYPES_RUS12)                                           |                                                                                 |
-| [`LIABILITY_TYPES_RUS12`](#pudl.metadata.enums.LIABILITY_TYPES_RUS12)                                   |                                                                                 |
-| [`PRIME_MOVER_TYPES_RUS12`](#pudl.metadata.enums.PRIME_MOVER_TYPES_RUS12)                               |                                                                                 |
-| [`RENEWABLE_FUEL_TYPES_RUS12`](#pudl.metadata.enums.RENEWABLE_FUEL_TYPES_RUS12)                         |                                                                                 |
-| [`PLANT_TYPE_RUS12`](#pudl.metadata.enums.PLANT_TYPE_RUS12)                                             |                                                                                 |
-| [`SOURCE_OF_ENERGY_RUS12`](#pudl.metadata.enums.SOURCE_OF_ENERGY_RUS12)                                 |                                                                                 |
-| [`PLANT_COST_TYPES_RUS12`](#pudl.metadata.enums.PLANT_COST_TYPES_RUS12)                                 |                                                                                 |
-| [`LOAN_STATUS_TYPES_RUS7`](#pudl.metadata.enums.LOAN_STATUS_TYPES_RUS7)                                 |                                                                                 |
-| [`LOAN_UNIT_TYPES_RUS7`](#pudl.metadata.enums.LOAN_UNIT_TYPES_RUS7)                                     |                                                                                 |
-| [`SERVICE_INTERRUPTION_TYPES_RUS7`](#pudl.metadata.enums.SERVICE_INTERRUPTION_TYPES_RUS7)               |                                                                                 |
-| [`SERVICE_INTERRUPTION_PERIODS_RUS7`](#pudl.metadata.enums.SERVICE_INTERRUPTION_PERIODS_RUS7)           |                                                                                 |
-| [`SERVICE_STATUS_RUS7`](#pudl.metadata.enums.SERVICE_STATUS_RUS7)                                       |                                                                                 |
-| [`TRANSMISSION_DISTRIBUTION_TYPES_RUS7`](#pudl.metadata.enums.TRANSMISSION_DISTRIBUTION_TYPES_RUS7)     |                                                                                 |
-| [`UTILITY_PLANT_GROUP_RUS7`](#pudl.metadata.enums.UTILITY_PLANT_GROUP_RUS7)                             |                                                                                 |
-| [`UTILITY_PLANT_ITEM_RUS7`](#pudl.metadata.enums.UTILITY_PLANT_ITEM_RUS7)                               |                                                                                 |
-| [`UTILITY_PLANT_GROUP_RUS12`](#pudl.metadata.enums.UTILITY_PLANT_GROUP_RUS12)                           |                                                                                 |
-| [`UTILITY_PLANT_ITEM_RUS12`](#pudl.metadata.enums.UTILITY_PLANT_ITEM_RUS12)                             |                                                                                 |
-| [`DEPRECIATION_CHANGES_GROUP_RUS12`](#pudl.metadata.enums.DEPRECIATION_CHANGES_GROUP_RUS12)             |                                                                                 |
-| [`DEPRECIATION_CHANGES_ITEMS_RUS12`](#pudl.metadata.enums.DEPRECIATION_CHANGES_ITEMS_RUS12)             |                                                                                 |
-| [`DEPRECIATION_ITEMS_MISC_RUS12`](#pudl.metadata.enums.DEPRECIATION_ITEMS_MISC_RUS12)                   |                                                                                 |
+| [`OTHER_DISPOSITION_TYPES_EIA176`](#pudl.metadata.enums.OTHER_DISPOSITION_TYPES_EIA176)         |                                                                                 |
+| [`RELIABILITY_STANDARDS`](#pudl.metadata.enums.RELIABILITY_STANDARDS)                  |                                                                                 |
+| [`FUEL_CLASSES`](#pudl.metadata.enums.FUEL_CLASSES)                           |                                                                                 |
+| [`RTO_CLASSES`](#pudl.metadata.enums.RTO_CLASSES)                            |                                                                                 |
+| [`EPACEMS_MEASUREMENT_CODES`](#pudl.metadata.enums.EPACEMS_MEASUREMENT_CODES)              | Valid emissions measurement codes for the EPA CEMS hourly data.                 |
+| [`TECH_DESCRIPTIONS`](#pudl.metadata.enums.TECH_DESCRIPTIONS)                      | Valid technology descriptions from the EIA plant parts list.                    |
+| [`PLANT_PARTS`](#pudl.metadata.enums.PLANT_PARTS)                            | The plant parts in the EIA plant parts list.                                    |
+| [`TECH_DESCRIPTIONS_NRELATB`](#pudl.metadata.enums.TECH_DESCRIPTIONS_NRELATB)              | NREL ATB technology descriptions.                                               |
+| [`TECH_DESCRIPTIONS_EIAAEO`](#pudl.metadata.enums.TECH_DESCRIPTIONS_EIAAEO)               | Types of generation technology reported in EIA AEO.                             |
+| [`FUEL_TYPES_EIAAEO`](#pudl.metadata.enums.FUEL_TYPES_EIAAEO)                      | Type of fuel used for generation reported in EIA AEO.                           |
+| [`MODEL_CASES_EIAAEO`](#pudl.metadata.enums.MODEL_CASES_EIAAEO)                     | Modeling cases for EIA AEO 2023.                                                |
+| [`ENERGY_USE_TYPES_EIAAEO`](#pudl.metadata.enums.ENERGY_USE_TYPES_EIAAEO)                | Energy use types from Table 2 of EIA AEO 2023-2025.                             |
+| [`ENERGY_SOURCE_TYPES_FERC1`](#pudl.metadata.enums.ENERGY_SOURCE_TYPES_FERC1)              | Energy source types for FERC Form 1 data.                                       |
+| [`ENERGY_DISPOSITION_TYPES_FERC1`](#pudl.metadata.enums.ENERGY_DISPOSITION_TYPES_FERC1)         | Energy disposition types for FERC Form 1 data.                                  |
+| [`UTILITY_PLANT_ASSET_TYPES_FERC1`](#pudl.metadata.enums.UTILITY_PLANT_ASSET_TYPES_FERC1)        | Utility plant asset types for FERC Form 1 data.                                 |
+| [`LIABILITY_TYPES_FERC1`](#pudl.metadata.enums.LIABILITY_TYPES_FERC1)                  | Liability types for FERC Form 1 data.                                           |
+| [`ASSET_TYPES_FERC1`](#pudl.metadata.enums.ASSET_TYPES_FERC1)                      | Asset types for FERC Form 1 data.                                               |
+| [`INCOME_TYPES_FERC1`](#pudl.metadata.enums.INCOME_TYPES_FERC1)                     | Income types for FERC Form 1 data.                                              |
+| [`FUNCTIONAL_STATUS_CODES_CENSUS`](#pudl.metadata.enums.FUNCTIONAL_STATUS_CODES_CENSUS)         | Functional status codes for Census geographic entities.                         |
+| [`MATERIAL_TYPES_PHMSAGAS`](#pudl.metadata.enums.MATERIAL_TYPES_PHMSAGAS)                |                                                                                 |
+| [`MAIN_PIPE_SIZES_PHMSAGAS`](#pudl.metadata.enums.MAIN_PIPE_SIZES_PHMSAGAS)               |                                                                                 |
+| [`LEAK_SOURCE_PHMSAGAS`](#pudl.metadata.enums.LEAK_SOURCE_PHMSAGAS)                   |                                                                                 |
+| [`DAMAGE_TYPES_PHMSAGAS`](#pudl.metadata.enums.DAMAGE_TYPES_PHMSAGAS)                  |                                                                                 |
+| [`DAMAGE_SUB_TYPES_PHMSAGAS`](#pudl.metadata.enums.DAMAGE_SUB_TYPES_PHMSAGAS)              |                                                                                 |
+| [`ASSET_TYPES_RUS7`](#pudl.metadata.enums.ASSET_TYPES_RUS7)                       |                                                                                 |
+| [`LIABILITY_TYPES_RUS7`](#pudl.metadata.enums.LIABILITY_TYPES_RUS7)                   |                                                                                 |
+| [`ASSET_TYPES_RUS12`](#pudl.metadata.enums.ASSET_TYPES_RUS12)                      |                                                                                 |
+| [`LIABILITY_TYPES_RUS12`](#pudl.metadata.enums.LIABILITY_TYPES_RUS12)                  |                                                                                 |
+| [`PRIME_MOVER_TYPES_RUS12`](#pudl.metadata.enums.PRIME_MOVER_TYPES_RUS12)                |                                                                                 |
+| [`RENEWABLE_FUEL_TYPES_RUS12`](#pudl.metadata.enums.RENEWABLE_FUEL_TYPES_RUS12)             |                                                                                 |
+| [`PLANT_TYPE_RUS12`](#pudl.metadata.enums.PLANT_TYPE_RUS12)                       |                                                                                 |
+| [`SOURCE_OF_ENERGY_RUS12`](#pudl.metadata.enums.SOURCE_OF_ENERGY_RUS12)                 |                                                                                 |
+| [`PLANT_COST_TYPES_RUS12`](#pudl.metadata.enums.PLANT_COST_TYPES_RUS12)                 |                                                                                 |
+| [`LOAN_STATUS_TYPES_RUS7`](#pudl.metadata.enums.LOAN_STATUS_TYPES_RUS7)                 |                                                                                 |
+| [`LOAN_UNIT_TYPES_RUS7`](#pudl.metadata.enums.LOAN_UNIT_TYPES_RUS7)                   |                                                                                 |
+| [`SERVICE_INTERRUPTION_TYPES_RUS7`](#pudl.metadata.enums.SERVICE_INTERRUPTION_TYPES_RUS7)        |                                                                                 |
+| [`SERVICE_INTERRUPTION_PERIODS_RUS7`](#pudl.metadata.enums.SERVICE_INTERRUPTION_PERIODS_RUS7)      |                                                                                 |
+| [`SERVICE_STATUS_RUS7`](#pudl.metadata.enums.SERVICE_STATUS_RUS7)                    |                                                                                 |
+| [`TRANSMISSION_DISTRIBUTION_TYPES_RUS7`](#pudl.metadata.enums.TRANSMISSION_DISTRIBUTION_TYPES_RUS7)   |                                                                                 |
+| [`UTILITY_PLANT_GROUP_RUS7`](#pudl.metadata.enums.UTILITY_PLANT_GROUP_RUS7)               |                                                                                 |
+| [`UTILITY_PLANT_ITEM_RUS7`](#pudl.metadata.enums.UTILITY_PLANT_ITEM_RUS7)                |                                                                                 |
+| [`UTILITY_PLANT_GROUP_RUS12`](#pudl.metadata.enums.UTILITY_PLANT_GROUP_RUS12)              |                                                                                 |
+| [`UTILITY_PLANT_ITEM_RUS12`](#pudl.metadata.enums.UTILITY_PLANT_ITEM_RUS12)               |                                                                                 |
+| [`DEPRECIATION_CHANGES_GROUP_RUS12`](#pudl.metadata.enums.DEPRECIATION_CHANGES_GROUP_RUS12)       |                                                                                 |
+| [`DEPRECIATION_CHANGES_ITEMS_RUS12`](#pudl.metadata.enums.DEPRECIATION_CHANGES_ITEMS_RUS12)       |                                                                                 |
+| [`DEPRECIATION_ITEMS_MISC_RUS12`](#pudl.metadata.enums.DEPRECIATION_ITEMS_MISC_RUS12)          |                                                                                 |
 
 ## Module Contents
 

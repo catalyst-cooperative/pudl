@@ -13,22 +13,22 @@ For the closest Dagster concept, see
 
 ## Attributes
 
-| [`logger`](#pudl.dagster.provenance.logger)                                           |    |
-|---------------------------------------------------------------------------------------|----|
+| [`logger`](#pudl.dagster.provenance.logger)                      |    |
+|------------------------------------------------------------------------------|----|
 | [`FERC_TO_SQLITE_METADATA_KEY`](#pudl.dagster.provenance.FERC_TO_SQLITE_METADATA_KEY) |    |
 
 ## Classes
 
-| [`FercSqliteProvenance`](#pudl.dagster.provenance.FercSqliteProvenance)             | The provenance requirements derived from the current run's data config.   |
-|-------------------------------------------------------------------------------------|---------------------------------------------------------------------------|
+| [`FercSqliteProvenance`](#pudl.dagster.provenance.FercSqliteProvenance)       | The provenance requirements derived from the current run's data config.   |
+|-----------------------------------------------------------------------------|---------------------------------------------------------------------------|
 | [`FercSqliteProvenanceRecord`](#pudl.dagster.provenance.FercSqliteProvenanceRecord) | Stored provenance + extra debugging fields from materialization time.     |
 
 ## Functions
 
 | [`_get_ferc_to_sqlite_asset_key`](#pudl.dagster.provenance._get_ferc_to_sqlite_asset_key)(→ dagster.AssetKey)   | Return the asset key corresponding to a ferc_to_sqlite asset from dataset/format.   |
-|-----------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------|
-| [`get_xbrl_extractor_version`](#pudl.dagster.provenance.get_xbrl_extractor_version)(→ str)                      | Return the installed version of `catalystcoop.ferc_xbrl_extractor`.                 |
-| [`ferc_sqlite_provenance_is_compatible`](#pudl.dagster.provenance.ferc_sqlite_provenance_is_compatible)(→ bool) | Ensure a persisted FERC SQLite prerequisite is compatible with this run.            |
+|------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------|
+| [`get_xbrl_extractor_version`](#pudl.dagster.provenance.get_xbrl_extractor_version)(→ str)                   | Return the installed version of `catalystcoop.ferc_xbrl_extractor`.                 |
+| [`ferc_sqlite_provenance_is_compatible`](#pudl.dagster.provenance.ferc_sqlite_provenance_is_compatible)(→ bool)        | Ensure a persisted FERC SQLite prerequisite is compatible with this run.            |
 
 ## Module Contents
 
@@ -81,7 +81,7 @@ Stored provenance + extra debugging fields from materialization time.
 
 #### years *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[int](https://docs.python.org/3/library/functions.html#int)] | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
 
-#### data_config *: [pudl.settings.FercToSqliteDataConfig](../../settings/index.md#pudl.settings.FercToSqliteDataConfig) | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### data_config *: [pudl.settings.FercToSqliteDataConfig](../../settings/index.html.md#pudl.settings.FercToSqliteDataConfig) | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
 
 #### ferc_xbrl_extractor_version *: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
 
@@ -115,7 +115,7 @@ Ensure a persisted FERC SQLite prerequisite is compatible with this run.
 Compatibility requires three conditions to hold:
 
 1. The Zenodo DOI recorded when the FERC SQLite DB was built must match the
-   current [`ZenodoDoiSettings`](../../workspace/datastore/index.md#pudl.workspace.datastore.ZenodoDoiSettings). A mismatch
+   current [`ZenodoDoiSettings`](../../workspace/datastore/index.html.md#pudl.workspace.datastore.ZenodoDoiSettings). A mismatch
    means the raw archive has changed version and the DB must be rebuilt.
 2. The years stored in the FERC SQLite DB must be a *superset* of the years
    needed by the current downstream data config. This allows a “full” FERC SQLite DB

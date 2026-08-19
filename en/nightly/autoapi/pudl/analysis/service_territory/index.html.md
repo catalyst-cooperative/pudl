@@ -9,24 +9,24 @@ resulting geometries for use in other applications.
 
 ## Attributes
 
-| [`logger`](#pudl.analysis.service_territory.logger)                                                   |    |
-|-------------------------------------------------------------------------------------------------------|----|
-| [`MAP_CRS`](#pudl.analysis.service_territory.MAP_CRS)                                                 |    |
-| [`CALC_CRS`](#pudl.analysis.service_territory.CALC_CRS)                                               |    |
+| [`logger`](#pudl.analysis.service_territory.logger)                          |    |
+|----------------------------------------------------------------------------------|----|
+| [`MAP_CRS`](#pudl.analysis.service_territory.MAP_CRS)                         |    |
+| [`CALC_CRS`](#pudl.analysis.service_territory.CALC_CRS)                        |    |
 | [`service_territory_eia861_assets`](#pudl.analysis.service_territory.service_territory_eia861_assets) |    |
 
 ## Functions
 
-| [`utility_ids_all_eia`](#pudl.analysis.service_territory.utility_ids_all_eia)(→ pandas.DataFrame)                 | Compile IDs and Names of all known EIA Utilities.                                |
-|-------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------|
-| [`get_territory_fips`](#pudl.analysis.service_territory.get_territory_fips)(→ pandas.DataFrame)                   | Compile county FIPS codes associated with an entity's service territory.         |
-| [`add_geometries`](#pudl.analysis.service_territory.add_geometries)(→ geopandas.GeoDataFrame)                     | Merge census geometries into dataframe on county_id_fips, optionally dissolving. |
+| [`utility_ids_all_eia`](#pudl.analysis.service_territory.utility_ids_all_eia)(→ pandas.DataFrame)            | Compile IDs and Names of all known EIA Utilities.                                |
+|-----------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------|
+| [`get_territory_fips`](#pudl.analysis.service_territory.get_territory_fips)(→ pandas.DataFrame)             | Compile county FIPS codes associated with an entity's service territory.         |
+| [`add_geometries`](#pudl.analysis.service_territory.add_geometries)(→ geopandas.GeoDataFrame)           | Merge census geometries into dataframe on county_id_fips, optionally dissolving. |
 | [`get_territory_geometries`](#pudl.analysis.service_territory.get_territory_geometries)(→ geopandas.GeoDataFrame) | Compile service territory geometries based on county_id_fips.                    |
-| [`_save_geoparquet`](#pudl.analysis.service_territory._save_geoparquet)(→ None)                                   | Save utility or balancing authority service territory geometries to GeoParquet.  |
-| [`compile_geoms`](#pudl.analysis.service_territory.compile_geoms)(→ pandas.DataFrame)                             | Compile all available utility or balancing authority geometries.                 |
-| [`service_territory_asset_factory`](#pudl.analysis.service_territory.service_territory_asset_factory)(...)        | Build asset definitions for balancing authority and utility territories.         |
-| [`plot_historical_territory`](#pudl.analysis.service_territory.plot_historical_territory)(→ None)                 | Plot all the historical geometries defined for the specified entity.             |
-| [`plot_all_territories`](#pudl.analysis.service_territory.plot_all_territories)(gdf, report_date[, ...])          | Plot all of the planning areas of a given type for a given report date.          |
+| [`_save_geoparquet`](#pudl.analysis.service_territory._save_geoparquet)(→ None)                           | Save utility or balancing authority service territory geometries to GeoParquet.  |
+| [`compile_geoms`](#pudl.analysis.service_territory.compile_geoms)(→ pandas.DataFrame)                  | Compile all available utility or balancing authority geometries.                 |
+| [`service_territory_asset_factory`](#pudl.analysis.service_territory.service_territory_asset_factory)(...)               | Build asset definitions for balancing authority and utility territories.         |
+| [`plot_historical_territory`](#pudl.analysis.service_territory.plot_historical_territory)(→ None)                  | Plot all the historical geometries defined for the specified entity.             |
+| [`plot_all_territories`](#pudl.analysis.service_territory.plot_all_territories)(gdf, report_date[, ...])      | Plot all of the planning areas of a given type for a given report date.          |
 
 ## Module Contents
 

@@ -4,28 +4,28 @@ A module with functions to aid generating MCOE.
 
 ## Attributes
 
-| [`DEFAULT_GENS_COLS`](#pudl.analysis.mcoe.DEFAULT_GENS_COLS)           | default list of columns from the EIA 860 generators table that will be included   |
-|------------------------------------------------------------------------|-----------------------------------------------------------------------------------|
-| [`mcoe_assets`](#pudl.analysis.mcoe.mcoe_assets)                       |                                                                                   |
+| [`DEFAULT_GENS_COLS`](#pudl.analysis.mcoe.DEFAULT_GENS_COLS)      | default list of columns from the EIA 860 generators table that will be included   |
+|-------------------------------------------------------------------------|-----------------------------------------------------------------------------------|
+| [`mcoe_assets`](#pudl.analysis.mcoe.mcoe_assets)            |                                                                                   |
 | [`mcoe_asset_check_specs`](#pudl.analysis.mcoe.mcoe_asset_check_specs) |                                                                                   |
-| [`mcoe_asset_checks`](#pudl.analysis.mcoe.mcoe_asset_checks)           |                                                                                   |
+| [`mcoe_asset_checks`](#pudl.analysis.mcoe.mcoe_asset_checks)      |                                                                                   |
 
 ## Classes
 
 | [`McoeCheckSpec`](#pudl.analysis.mcoe.McoeCheckSpec)   | A dataclass to hold the specification for a MCOE check.   |
-|--------------------------------------------------------|-----------------------------------------------------------|
+|------------------------------------------------------------------|-----------------------------------------------------------|
 
 ## Functions
 
-| [`mcoe_asset_factory`](#pudl.analysis.mcoe.mcoe_asset_factory)(→ list[dagster.AssetsDefinition])            | Build MCOE related assets at yearly and monthly frequencies.            |
-|-------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------|
+| [`mcoe_asset_factory`](#pudl.analysis.mcoe.mcoe_asset_factory)(→ list[dagster.AssetsDefinition])      | Build MCOE related assets at yearly and monthly frequencies.            |
+|------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------|
 | [`mcoe_asset_check_factory`](#pudl.analysis.mcoe.mcoe_asset_check_factory)(→ dagster.AssetChecksDefinition) | Turn a MCOE check spec into an AssetChecksDefinition.                   |
-| [`heat_rate_by_unit`](#pudl.analysis.mcoe.heat_rate_by_unit)(gen_fuel_by_energy_source, bga)                | Calculate heat rates (mmBTU/MWh) within separable generation units.     |
-| [`heat_rate_by_gen`](#pudl.analysis.mcoe.heat_rate_by_gen)(→ pandas.DataFrame)                              | Convert per-unit heat rate to by-generator, adding fuel type & count.   |
-| [`fuel_cost`](#pudl.analysis.mcoe.fuel_cost)(→ pandas.DataFrame)                                            | Calculate fuel costs per MWh on a per generator basis for MCOE.         |
-| [`capacity_factor`](#pudl.analysis.mcoe.capacity_factor)(→ pandas.DataFrame)                                | Calculate the capacity factor for each generator.                       |
-| [`mcoe`](#pudl.analysis.mcoe.mcoe)(→ pandas.DataFrame)                                                      | Compile marginal cost of electricity (MCOE) at the generator level.     |
-| [`mcoe_generators`](#pudl.analysis.mcoe.mcoe_generators)(→ pandas.DataFrame)                                | Merge generator attributes onto the marginal cost of electricity table. |
+| [`heat_rate_by_unit`](#pudl.analysis.mcoe.heat_rate_by_unit)(gen_fuel_by_energy_source, bga)         | Calculate heat rates (mmBTU/MWh) within separable generation units.     |
+| [`heat_rate_by_gen`](#pudl.analysis.mcoe.heat_rate_by_gen)(→ pandas.DataFrame)                      | Convert per-unit heat rate to by-generator, adding fuel type & count.   |
+| [`fuel_cost`](#pudl.analysis.mcoe.fuel_cost)(→ pandas.DataFrame)                             | Calculate fuel costs per MWh on a per generator basis for MCOE.         |
+| [`capacity_factor`](#pudl.analysis.mcoe.capacity_factor)(→ pandas.DataFrame)                       | Calculate the capacity factor for each generator.                       |
+| [`mcoe`](#pudl.analysis.mcoe.mcoe)(→ pandas.DataFrame)                                  | Compile marginal cost of electricity (MCOE) at the generator level.     |
+| [`mcoe_generators`](#pudl.analysis.mcoe.mcoe_generators)(→ pandas.DataFrame)                       | Merge generator attributes onto the marginal cost of electricity table. |
 
 ## Module Contents
 
@@ -145,7 +145,7 @@ Calculate the capacity factor for each generator.
 
 Capacity Factor is calculated by using the net generation from eia923 and the
 nameplate capacity from eia860. The net gen and capacity are pulled into one
-dataframe and then run through [`pudl.helpers.calc_capacity_factor()`](../../helpers/index.md#pudl.helpers.calc_capacity_factor).
+dataframe and then run through [`pudl.helpers.calc_capacity_factor()`](../../helpers/index.html.md#pudl.helpers.calc_capacity_factor).
 
 ### pudl.analysis.mcoe.mcoe(fuel_cost: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), capacity_factor: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), min_heat_rate: [float](https://docs.python.org/3/library/functions.html#float) = 5.5, min_fuel_cost_per_mwh: [float](https://docs.python.org/3/library/functions.html#float) = 0.0, min_cap_fact: [float](https://docs.python.org/3/library/functions.html#float) = 0.0, max_cap_fact: [float](https://docs.python.org/3/library/functions.html#float) = 1.5) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
@@ -186,7 +186,7 @@ fill in the timeseries for each generator.
   * **mcoe** – The MCOE dataframe outputted from the mcoe analysis function.
   * **gens** – The denormalized dataframe of all EIA generators.
   * **all_gens** – if True, include attributes of all generators in the
-    [core_eia860_\_scd_generators](../../../../data_dictionaries/pudl_db.md#core-eia860-scd-generators) table, rather than just the generators
+    [core_eia860_\_scd_generators](../../../../data_dictionaries/pudl_db.html.md#core-eia860-scd-generators) table, rather than just the generators
     which have records in the derived MCOE values. True by default.
   * **timeseries_fillin** – if True, fill in the full timeseries for each generator in
     the output dataframe. The data in the timeseries will be filled

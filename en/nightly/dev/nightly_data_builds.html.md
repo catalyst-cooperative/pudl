@@ -83,7 +83,7 @@ builds deploy to `staging`. This is passed into the Batch container as the
 `DEPLOYMENT_ENVIRONMENT` environment variable.
 
 Upon a successful build (or if a successful build for the tagged commit already
-exists – see [Run a Versioned Release](run_a_release.md)), `pudl_batch.sh` uses the `gh` CLI to trigger
+exists – see [Run a Versioned Release](run_a_release.html.md)), `pudl_batch.sh` uses the `gh` CLI to trigger
 the `deploy-pudl` action via `workflow_dispatch`, passing the git tag and
 deployment environment as inputs.
 
@@ -98,7 +98,7 @@ The `deploy-pudl` action separates deployment from the build process. It’s
 `workflow_dispatch`-only: it never triggers on its own, it’s always either
 dispatched automatically by `build-pudl`/`pudl_batch.sh` after a successful build,
 or dispatched manually (e.g. to redeploy an existing build, or to test deployment
-changes on a branch – see [Run a Versioned Release](run_a_release.md)).
+changes on a branch – see [Run a Versioned Release](run_a_release.html.md)).
 
 The action takes a git tag, which should already have an associated successful build,
 and a `deployment_environment` (`staging` or `production`). It validates the tag
@@ -117,7 +117,7 @@ a legitimate retry of an already-`main` tag. It then runs `pudl_deploy`
   release path – stable, production deployments only.
 
 Exactly which of these run, and which upload paths are used, is determined by a
-single `DeploymentPlan` (see [`pudl.deploy.pudl.DeploymentPlan`](../autoapi/pudl/deploy/pudl/index.md#pudl.deploy.pudl.DeploymentPlan)).
+single `DeploymentPlan` (see [`pudl.deploy.pudl.DeploymentPlan`](../autoapi/pudl/deploy/pudl/index.html.md#pudl.deploy.pudl.DeploymentPlan)).
 
 A `staging` deployment uploads to a dedicated staging area that mirrors the
 `production` paths with a `staging/` prefix, and triggers a sandbox Zenodo release

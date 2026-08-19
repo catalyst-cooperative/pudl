@@ -15,36 +15,36 @@ should include a raw datasource suffix.
 
 ## Attributes
 
-| [`logger`](#pudl.transform.ferc714.logger)                                                         |                                                                                 |
-|----------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------|
-| [`TIMEZONE_OFFSET_CODE_FIXES`](#pudl.transform.ferc714.TIMEZONE_OFFSET_CODE_FIXES)                 |                                                                                 |
+| [`logger`](#pudl.transform.ferc714.logger)                             |                                                                                 |
+|-------------------------------------------------------------------------------------|---------------------------------------------------------------------------------|
+| [`TIMEZONE_OFFSET_CODE_FIXES`](#pudl.transform.ferc714.TIMEZONE_OFFSET_CODE_FIXES)         |                                                                                 |
 | [`TIMEZONE_OFFSET_CODE_FIXES_BY_YEAR`](#pudl.transform.ferc714.TIMEZONE_OFFSET_CODE_FIXES_BY_YEAR) |                                                                                 |
-| [`DISCONTINUOUS_DATES`](#pudl.transform.ferc714.DISCONTINUOUS_DATES)                               | Identified gaps in hourly timeseries. The vast majority of these are around     |
-| [`DUPLICATED_DATETIMES`](#pudl.transform.ferc714.DUPLICATED_DATETIMES)                             | Identified duplicated UTC datetimes resulting from changes to a planning area's |
-| [`BAD_RESPONDENTS`](#pudl.transform.ferc714.BAD_RESPONDENTS)                                       | Fake respondent IDs for database test entities.                                 |
-| [`TIMEZONE_OFFSET_CODES`](#pudl.transform.ferc714.TIMEZONE_OFFSET_CODES)                           | A mapping of timezone offset codes to Timedelta offsets from UTC.               |
-| [`TIMEZONE_CODES`](#pudl.transform.ferc714.TIMEZONE_CODES)                                         | Mapping between standardized time offset codes and canonical timezones.         |
-| [`EIA_CODE_FIXES`](#pudl.transform.ferc714.EIA_CODE_FIXES)                                         | Overrides of FERC 714 respondent IDs with wrong or missing EIA Codes.           |
-| [`RENAME_COLS`](#pudl.transform.ferc714.RENAME_COLS)                                               |                                                                                 |
+| [`DISCONTINUOUS_DATES`](#pudl.transform.ferc714.DISCONTINUOUS_DATES)                | Identified gaps in hourly timeseries. The vast majority of these are around     |
+| [`DUPLICATED_DATETIMES`](#pudl.transform.ferc714.DUPLICATED_DATETIMES)               | Identified duplicated UTC datetimes resulting from changes to a planning area's |
+| [`BAD_RESPONDENTS`](#pudl.transform.ferc714.BAD_RESPONDENTS)                    | Fake respondent IDs for database test entities.                                 |
+| [`TIMEZONE_OFFSET_CODES`](#pudl.transform.ferc714.TIMEZONE_OFFSET_CODES)              | A mapping of timezone offset codes to Timedelta offsets from UTC.               |
+| [`TIMEZONE_CODES`](#pudl.transform.ferc714.TIMEZONE_CODES)                     | Mapping between standardized time offset codes and canonical timezones.         |
+| [`EIA_CODE_FIXES`](#pudl.transform.ferc714.EIA_CODE_FIXES)                     | Overrides of FERC 714 respondent IDs with wrong or missing EIA Codes.           |
+| [`RENAME_COLS`](#pudl.transform.ferc714.RENAME_COLS)                        |                                                                                 |
 
 ## Classes
 
-| [`RespondentId`](#pudl.transform.ferc714.RespondentId)                                         | Class for building the [core_ferc714_\_respondent_id](../../../../data_dictionaries/pudl_db.md#core-ferc714-respondent-id) asset.                                               |
-|------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [`HourlyPlanningAreaDemand`](#pudl.transform.ferc714.HourlyPlanningAreaDemand)                 | Class for building the [core_ferc714_\_hourly_planning_area_demand](../../../../data_dictionaries/pudl_db.md#core-ferc714-hourly-planning-area-demand) asset.                   |
-| [`YearlyPlanningAreaDemandForecast`](#pudl.transform.ferc714.YearlyPlanningAreaDemandForecast) | Class for building the [core_ferc714_\_yearly_planning_area_demand_forecast](../../../../data_dictionaries/pudl_db.md#core-ferc714-yearly-planning-area-demand-forecast) asset. |
+| [`RespondentId`](#pudl.transform.ferc714.RespondentId)                     | Class for building the [core_ferc714_\_respondent_id](../../../../data_dictionaries/pudl_db.html.md#core-ferc714-respondent-id) asset.                                               |
+|-----------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [`HourlyPlanningAreaDemand`](#pudl.transform.ferc714.HourlyPlanningAreaDemand)         | Class for building the [core_ferc714_\_hourly_planning_area_demand](../../../../data_dictionaries/pudl_db.html.md#core-ferc714-hourly-planning-area-demand) asset.                   |
+| [`YearlyPlanningAreaDemandForecast`](#pudl.transform.ferc714.YearlyPlanningAreaDemandForecast) | Class for building the [core_ferc714_\_yearly_planning_area_demand_forecast](../../../../data_dictionaries/pudl_db.html.md#core-ferc714-yearly-planning-area-demand-forecast) asset. |
 
 ## Functions
 
-| [`_pre_process_csv`](#pudl.transform.ferc714._pre_process_csv)(→ pandas.DataFrame)                                                      | A simple transform function for processing the CSV raw data.                                                                                                 |
-|-----------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [`_assign_respondent_id_ferc714`](#pudl.transform.ferc714._assign_respondent_id_ferc714)(→ pandas.DataFrame)                            | Assign the PUDL-assigned respondent_id_ferc714 based on the native respondent ID.                                                                            |
-| [`_filter_for_freshest_data_xbrl`](#pudl.transform.ferc714._filter_for_freshest_data_xbrl)(raw_xbrl, table_name, ...)                   | Wrapper around filter_for_freshest_data_xbrl.                                                                                                                |
-| [`_fillna_respondent_id_ferc714_source`](#pudl.transform.ferc714._fillna_respondent_id_ferc714_source)(→ pandas.DataFrame)              | Fill missing CSV or XBRL respondent id.                                                                                                                      |
-| [`assign_report_day`](#pudl.transform.ferc714.assign_report_day)(→ pandas.DataFrame)                                                    | Add a report_day column.                                                                                                                                     |
-| [`core_ferc714__respondent_id`](#pudl.transform.ferc714.core_ferc714__respondent_id)(→ pandas.DataFrame)                                | Transform the FERC 714 respondent IDs, names, and EIA utility IDs.                                                                                           |
-| [`core_ferc714__hourly_planning_area_demand`](#pudl.transform.ferc714.core_ferc714__hourly_planning_area_demand)(...)                   | Build the [core_ferc714_\_hourly_planning_area_demand](../../../../data_dictionaries/pudl_db.md#core-ferc714-hourly-planning-area-demand).                   |
-| [`core_ferc714__yearly_planning_area_demand_forecast`](#pudl.transform.ferc714.core_ferc714__yearly_planning_area_demand_forecast)(...) | Build the [core_ferc714_\_yearly_planning_area_demand_forecast](../../../../data_dictionaries/pudl_db.md#core-ferc714-yearly-planning-area-demand-forecast). |
+| [`_pre_process_csv`](#pudl.transform.ferc714._pre_process_csv)(→ pandas.DataFrame)                      | A simple transform function for processing the CSV raw data.                                                                                                    |
+|------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [`_assign_respondent_id_ferc714`](#pudl.transform.ferc714._assign_respondent_id_ferc714)(→ pandas.DataFrame)         | Assign the PUDL-assigned respondent_id_ferc714 based on the native respondent ID.                                                                               |
+| [`_filter_for_freshest_data_xbrl`](#pudl.transform.ferc714._filter_for_freshest_data_xbrl)(raw_xbrl, table_name, ...) | Wrapper around filter_for_freshest_data_xbrl.                                                                                                                   |
+| [`_fillna_respondent_id_ferc714_source`](#pudl.transform.ferc714._fillna_respondent_id_ferc714_source)(→ pandas.DataFrame)  | Fill missing CSV or XBRL respondent id.                                                                                                                         |
+| [`assign_report_day`](#pudl.transform.ferc714.assign_report_day)(→ pandas.DataFrame)                     | Add a report_day column.                                                                                                                                        |
+| [`core_ferc714__respondent_id`](#pudl.transform.ferc714.core_ferc714__respondent_id)(→ pandas.DataFrame)           | Transform the FERC 714 respondent IDs, names, and EIA utility IDs.                                                                                              |
+| [`core_ferc714__hourly_planning_area_demand`](#pudl.transform.ferc714.core_ferc714__hourly_planning_area_demand)(...)            | Build the [core_ferc714_\_hourly_planning_area_demand](../../../../data_dictionaries/pudl_db.html.md#core-ferc714-hourly-planning-area-demand).                   |
+| [`core_ferc714__yearly_planning_area_demand_forecast`](#pudl.transform.ferc714.core_ferc714__yearly_planning_area_demand_forecast)(...)   | Build the [core_ferc714_\_yearly_planning_area_demand_forecast](../../../../data_dictionaries/pudl_db.html.md#core-ferc714-yearly-planning-area-demand-forecast). |
 
 ## Module Contents
 
@@ -127,7 +127,7 @@ these PUDL-assigned ID’s can be accessed in the database tables
   an augmented version of the input `df` with a new column that replaces
   the natively reported respondent ID with the PUDL-assigned respondent ID.
 
-### pudl.transform.ferc714.\_filter_for_freshest_data_xbrl(raw_xbrl: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), table_name: [str](https://docs.python.org/3/library/stdtypes.html#str), instant_or_duration: Literal['instant', 'duration'], pudl_paths: [pudl.workspace.setup.PudlPaths](../../workspace/setup/index.md#pudl.workspace.setup.PudlPaths) | [None](https://docs.python.org/3/library/constants.html#None) = None)
+### pudl.transform.ferc714.\_filter_for_freshest_data_xbrl(raw_xbrl: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), table_name: [str](https://docs.python.org/3/library/stdtypes.html#str), instant_or_duration: Literal['instant', 'duration'], pudl_paths: [pudl.workspace.setup.PudlPaths](../../workspace/setup/index.html.md#pudl.workspace.setup.PudlPaths) | [None](https://docs.python.org/3/library/constants.html#None) = None)
 
 Wrapper around filter_for_freshest_data_xbrl.
 
@@ -153,15 +153,15 @@ Add a report_day column.
 
 ### *class* pudl.transform.ferc714.RespondentId
 
-Class for building the [core_ferc714_\_respondent_id](../../../../data_dictionaries/pudl_db.md#core-ferc714-respondent-id) asset.
+Class for building the [core_ferc714_\_respondent_id](../../../../data_dictionaries/pudl_db.html.md#core-ferc714-respondent-id) asset.
 
 Most of the methods in this class as staticmethods. The purpose of using a class
 in this instance is mostly for organizing the table specific transforms under the
 same name-space.
 
-#### *classmethod* run(raw_csv: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), raw_xbrl_duration: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), pudl_paths: [pudl.workspace.setup.PudlPaths](../../workspace/setup/index.md#pudl.workspace.setup.PudlPaths)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+#### *classmethod* run(raw_csv: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), raw_xbrl_duration: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), pudl_paths: [pudl.workspace.setup.PudlPaths](../../workspace/setup/index.html.md#pudl.workspace.setup.PudlPaths)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
-Build the table for the [core_ferc714_\_respondent_id](../../../../data_dictionaries/pudl_db.md#core-ferc714-respondent-id) asset.
+Build the table for the [core_ferc714_\_respondent_id](../../../../data_dictionaries/pudl_db.html.md#core-ferc714-respondent-id) asset.
 
 Process and combine the CSV and XBRL based data.
 
@@ -243,18 +243,18 @@ build an asset from a function - not a staticmethod of a class.
 
 ### *class* pudl.transform.ferc714.HourlyPlanningAreaDemand
 
-Class for building the [core_ferc714_\_hourly_planning_area_demand](../../../../data_dictionaries/pudl_db.md#core-ferc714-hourly-planning-area-demand) asset.
+Class for building the [core_ferc714_\_hourly_planning_area_demand](../../../../data_dictionaries/pudl_db.html.md#core-ferc714-hourly-planning-area-demand) asset.
 
-The [core_ferc714_\_hourly_planning_area_demand](../../../../data_dictionaries/pudl_db.md#core-ferc714-hourly-planning-area-demand) table is an hourly time
+The [core_ferc714_\_hourly_planning_area_demand](../../../../data_dictionaries/pudl_db.html.md#core-ferc714-hourly-planning-area-demand) table is an hourly time
 series of demand by Planning Area.
 
 Most of the methods in this class as staticmethods. The purpose of using a class
 in this instance is mostly for organizing the table specific transforms under the
 same name-space.
 
-#### *classmethod* run(raw_csv: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), raw_xbrl_duration: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), raw_xbrl_instant: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), pudl_paths: [pudl.workspace.setup.PudlPaths](../../workspace/setup/index.md#pudl.workspace.setup.PudlPaths)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+#### *classmethod* run(raw_csv: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), raw_xbrl_duration: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), raw_xbrl_instant: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), pudl_paths: [pudl.workspace.setup.PudlPaths](../../workspace/setup/index.html.md#pudl.workspace.setup.PudlPaths)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
-Build the [core_ferc714_\_hourly_planning_area_demand](../../../../data_dictionaries/pudl_db.md#core-ferc714-hourly-planning-area-demand) asset.
+Build the [core_ferc714_\_hourly_planning_area_demand](../../../../data_dictionaries/pudl_db.html.md#core-ferc714-hourly-planning-area-demand) asset.
 
 To transform this table we have to process the instant and duration xbrl
 tables so we can merge them together and process the XBRL data. We also
@@ -411,7 +411,7 @@ Spot fix values.
 
 ### pudl.transform.ferc714.core_ferc714_\_hourly_planning_area_demand(context, raw_csv: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), raw_xbrl_duration: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), raw_xbrl_instant: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
-Build the [core_ferc714_\_hourly_planning_area_demand](../../../../data_dictionaries/pudl_db.md#core-ferc714-hourly-planning-area-demand).
+Build the [core_ferc714_\_hourly_planning_area_demand](../../../../data_dictionaries/pudl_db.html.md#core-ferc714-hourly-planning-area-demand).
 
 This is a light wrapper around [`HourlyPlanningAreaDemand`](#pudl.transform.ferc714.HourlyPlanningAreaDemand) because
 it seems you need to build an asset from a function - not a staticmethod of
@@ -419,18 +419,18 @@ a class.
 
 ### *class* pudl.transform.ferc714.YearlyPlanningAreaDemandForecast
 
-Class for building the [core_ferc714_\_yearly_planning_area_demand_forecast](../../../../data_dictionaries/pudl_db.md#core-ferc714-yearly-planning-area-demand-forecast) asset.
+Class for building the [core_ferc714_\_yearly_planning_area_demand_forecast](../../../../data_dictionaries/pudl_db.html.md#core-ferc714-yearly-planning-area-demand-forecast) asset.
 
-The [core_ferc714_\_yearly_planning_area_demand_forecast](../../../../data_dictionaries/pudl_db.md#core-ferc714-yearly-planning-area-demand-forecast) table is an annual, forecasted
+The [core_ferc714_\_yearly_planning_area_demand_forecast](../../../../data_dictionaries/pudl_db.html.md#core-ferc714-yearly-planning-area-demand-forecast) table is an annual, forecasted
 time series of demand by Planning Area.
 
 Most of the methods in this class as staticmethods. The purpose of using a class
 in this instance is mostly for organizing the table specific transforms under the
 same name-space.
 
-#### *classmethod* run(raw_csv: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), raw_xbrl_duration: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), pudl_paths: [pudl.workspace.setup.PudlPaths](../../workspace/setup/index.md#pudl.workspace.setup.PudlPaths)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+#### *classmethod* run(raw_csv: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), raw_xbrl_duration: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), pudl_paths: [pudl.workspace.setup.PudlPaths](../../workspace/setup/index.html.md#pudl.workspace.setup.PudlPaths)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
-Build the [core_ferc714_\_yearly_planning_area_demand_forecast](../../../../data_dictionaries/pudl_db.md#core-ferc714-yearly-planning-area-demand-forecast) asset.
+Build the [core_ferc714_\_yearly_planning_area_demand_forecast](../../../../data_dictionaries/pudl_db.html.md#core-ferc714-yearly-planning-area-demand-forecast) asset.
 
 To transform this table we have to process the CSV data and the XBRL duration data
 (this data has no instant table), merge together the XBRL and CSV data, and
@@ -475,7 +475,7 @@ and average out the rest.
 
 ### pudl.transform.ferc714.core_ferc714_\_yearly_planning_area_demand_forecast(context, raw_csv: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), raw_xbrl_duration: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
-Build the [core_ferc714_\_yearly_planning_area_demand_forecast](../../../../data_dictionaries/pudl_db.md#core-ferc714-yearly-planning-area-demand-forecast).
+Build the [core_ferc714_\_yearly_planning_area_demand_forecast](../../../../data_dictionaries/pudl_db.html.md#core-ferc714-yearly-planning-area-demand-forecast).
 
 This is a light wrapper around [`YearlyPlanningAreaDemandForecast`](#pudl.transform.ferc714.YearlyPlanningAreaDemandForecast) because
 it seems you need to build an asset from a function - not a staticmethod of

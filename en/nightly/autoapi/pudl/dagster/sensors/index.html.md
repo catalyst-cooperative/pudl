@@ -14,9 +14,9 @@ For the underlying Dagster concept, see [https://docs.dagster.io/guides/automate
 
 | [`ferceqr_sensor_status`](#pudl.dagster.sensors.ferceqr_sensor_status)   |    |
 |--------------------------------------------------------------------------|----|
-| [`ferceqr_failure_sensor`](#pudl.dagster.sensors.ferceqr_failure_sensor) |    |
-| [`ferceqr_success_sensor`](#pudl.dagster.sensors.ferceqr_success_sensor) |    |
-| [`default_sensors`](#pudl.dagster.sensors.default_sensors)               |    |
+| [`ferceqr_failure_sensor`](#pudl.dagster.sensors.ferceqr_failure_sensor)  |    |
+| [`ferceqr_success_sensor`](#pudl.dagster.sensors.ferceqr_success_sensor)  |    |
+| [`default_sensors`](#pudl.dagster.sensors.default_sensors)         |    |
 
 ## Module Contents
 

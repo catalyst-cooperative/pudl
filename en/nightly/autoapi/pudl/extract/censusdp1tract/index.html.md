@@ -11,12 +11,12 @@ alongside the FERC and PUDL SQLite databases.
 ## Attributes
 
 | [`logger`](#pudl.extract.censusdp1tract.logger)   |    |
-|---------------------------------------------------|----|
+|-----------------------------------------------------------|----|
 
 ## Functions
 
 | [`raw_censusdp1tract__all_tables`](#pudl.extract.censusdp1tract.raw_censusdp1tract__all_tables)(context)   | Use GDAL's ogr2ogr utility to convert the Census DP1 GeoDB to an SQLite DB.   |
-|------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------|
+|--------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------|
 
 ## Module Contents
 

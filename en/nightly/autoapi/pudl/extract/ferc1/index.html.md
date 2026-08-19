@@ -14,7 +14,7 @@ provide users access to all of the original tables, since we’ve only been able
 clean up a small subset of them.
 
 The conversion from both DBF and XBRL to SQLite is coordinated by the
-[`pudl.dagster.assets.raw.ferc_to_sqlite`](../../dagster/assets/raw/ferc_to_sqlite/index.md#module-pudl.dagster.assets.raw.ferc_to_sqlite) asset module. The code for the XBRL to
+[`pudl.dagster.assets.raw.ferc_to_sqlite`](../../dagster/assets/raw/ferc_to_sqlite/index.html.md#module-pudl.dagster.assets.raw.ferc_to_sqlite) asset module. The code for the XBRL to
 SQLite conversion is used across all the modern FERC forms, and is contained in a
 standalone
 [ferc-xbrl-extractor package](https://github.com/catalyst-cooperative/ferc-xbrl-extractor).
@@ -35,7 +35,7 @@ database schema, since it is capable of containing all the= fields and tables fo
 the other years.  The structure of the database is also informed by other documentation
 we have been able to compile over the years from the FERC website and other sources.
 Copies of these resources are included in the [FERC Form 1 data source
-documentation](../../../../data_sources/ferc1.md)
+documentation](../../../../data_sources/ferc1.html.md)
 
 Using this inferred structure PUDL creates an SQLite database mirroring the FERC
 database using `sqlalchemy`. Then we use a python package called [dbfread](https://dbfread.readthedocs.io/en/latest/) to extract the data from the DBF tables,
@@ -67,25 +67,25 @@ database online [here](https://data.catalyst.coop/ferc1_dbf/).
 
 ## Attributes
 
-| [`logger`](#pudl.extract.ferc1.logger)                                           |                                                                            |
-|----------------------------------------------------------------------------------|----------------------------------------------------------------------------|
-| [`FERC1_DBF_SQLITE_ASSET_KEY`](#pudl.extract.ferc1.FERC1_DBF_SQLITE_ASSET_KEY)   |                                                                            |
+| [`logger`](#pudl.extract.ferc1.logger)                      |                                                                            |
+|------------------------------------------------------------------------------|----------------------------------------------------------------------------|
+| [`FERC1_DBF_SQLITE_ASSET_KEY`](#pudl.extract.ferc1.FERC1_DBF_SQLITE_ASSET_KEY)  |                                                                            |
 | [`FERC1_XBRL_SQLITE_ASSET_KEY`](#pudl.extract.ferc1.FERC1_XBRL_SQLITE_ASSET_KEY) |                                                                            |
-| [`RawFercTableName`](#pudl.extract.ferc1.RawFercTableName)                       |                                                                            |
-| [`TABLE_NAME_MAP_FERC1`](#pudl.extract.ferc1.TABLE_NAME_MAP_FERC1)               | A mapping of PUDL DB table names to their XBRL and DBF source table names. |
-| [`XBRL_META_ONLY_FERC1`](#pudl.extract.ferc1.XBRL_META_ONLY_FERC1)               | A mapping of XBRL to (future) PUDL table names for tables not yet in PUDL. |
-| [`raw_ferc1_assets`](#pudl.extract.ferc1.raw_ferc1_assets)                       |                                                                            |
+| [`RawFercTableName`](#pudl.extract.ferc1.RawFercTableName)            |                                                                            |
+| [`TABLE_NAME_MAP_FERC1`](#pudl.extract.ferc1.TABLE_NAME_MAP_FERC1)        | A mapping of PUDL DB table names to their XBRL and DBF source table names. |
+| [`XBRL_META_ONLY_FERC1`](#pudl.extract.ferc1.XBRL_META_ONLY_FERC1)        | A mapping of XBRL to (future) PUDL table names for tables not yet in PUDL. |
+| [`raw_ferc1_assets`](#pudl.extract.ferc1.raw_ferc1_assets)            |                                                                            |
 
 ## Classes
 
-| [`RawTableMapping`](#pudl.extract.ferc1.RawTableMapping)     | Mapping between normalized PUDL table and raw DBF/XBRL table names.   |
-|--------------------------------------------------------------|-----------------------------------------------------------------------|
+| [`RawTableMapping`](#pudl.extract.ferc1.RawTableMapping)   | Mapping between normalized PUDL table and raw DBF/XBRL table names.   |
+|--------------------------------------------------------------------|-----------------------------------------------------------------------|
 | [`Ferc1DbfExtractor`](#pudl.extract.ferc1.Ferc1DbfExtractor) | Wrapper for running the foxpro to sqlite conversion of FERC1 dataset. |
 
 ## Functions
 
-| [`create_raw_ferc1_assets`](#pudl.extract.ferc1.create_raw_ferc1_assets)(→ list[dagster.AssetSpec])             | Create AssetSpecs for raw ferc1 tables.                         |
-|-----------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------|
+| [`create_raw_ferc1_assets`](#pudl.extract.ferc1.create_raw_ferc1_assets)(→ list[dagster.AssetSpec])       | Create AssetSpecs for raw ferc1 tables.                         |
+|-----------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------|
 | [`raw_ferc1_xbrl__metadata_json`](#pudl.extract.ferc1.raw_ferc1_xbrl__metadata_json)(→ dict[str, dict[str, ...) | Extract the FERC 1 XBRL Taxonomy metadata we've stored as JSON. |
 
 ## Module Contents
@@ -121,9 +121,9 @@ some inter-table XBRL calculations, even though we aren’t yet reading those ta
 PUDL. We pull information about these tables from the XBRL metadata, but the data is
 not extracted from the DBF and XBRL derived SQLite DBs.
 
-### *class* pudl.extract.ferc1.Ferc1DbfExtractor(datastore: [pudl.workspace.datastore.Datastore](../../workspace/datastore/index.md#pudl.workspace.datastore.Datastore), data_config: [pudl.settings.FercDbfToSqliteDataConfig](../../settings/index.md#pudl.settings.FercDbfToSqliteDataConfig), output_path: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path))
+### *class* pudl.extract.ferc1.Ferc1DbfExtractor(datastore: [pudl.workspace.datastore.Datastore](../../workspace/datastore/index.html.md#pudl.workspace.datastore.Datastore), data_config: [pudl.settings.FercDbfToSqliteDataConfig](../../settings/index.html.md#pudl.settings.FercDbfToSqliteDataConfig), output_path: [pathlib.Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path))
 
-Bases: [`pudl.extract.dbf.FercDbfExtractor`](../dbf/index.md#pudl.extract.dbf.FercDbfExtractor)
+Bases: [`pudl.extract.dbf.FercDbfExtractor`](../dbf/index.html.md#pudl.extract.dbf.FercDbfExtractor)
 
 Wrapper for running the foxpro to sqlite conversion of FERC1 dataset.
 
@@ -170,7 +170,7 @@ the table when we clone the database.
 * **Returns:**
   Every respondent ID reported in any of the FERC 1 DB tables.
 
-#### aggregate_table_frames(table_name: [str](https://docs.python.org/3/library/stdtypes.html#str), dfs: [list](https://docs.python.org/3/library/stdtypes.html#list)[[pudl.extract.dbf.PartitionedDataFrame](../dbf/index.md#pudl.extract.dbf.PartitionedDataFrame)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame) | [None](https://docs.python.org/3/library/constants.html#None)
+#### aggregate_table_frames(table_name: [str](https://docs.python.org/3/library/stdtypes.html#str), dfs: [list](https://docs.python.org/3/library/stdtypes.html#list)[[pudl.extract.dbf.PartitionedDataFrame](../dbf/index.html.md#pudl.extract.dbf.PartitionedDataFrame)]) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame) | [None](https://docs.python.org/3/library/constants.html#None)
 
 Deduplicates records in f1_respondent_id table.
 

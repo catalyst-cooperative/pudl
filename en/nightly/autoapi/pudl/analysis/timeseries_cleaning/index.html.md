@@ -3,11 +3,11 @@
 Screen timeseries for anomalies and impute missing and anomalous values.
 
 For a narrative discussion of these methods aimed at data users, see
-[Timeseries Imputation](../../../../methodology/timeseries_imputation.md).
+[Timeseries Imputation](../../../../methodology/timeseries_imputation.html.md).
 
 The screening methods were originally designed to identify unrealistic data in the
-electricity demand timeseries reported in [EIA Form 930 – Hourly and Daily Balancing Authority Operations Report](../../../../data_sources/eia930.md), and we have also
-applied them to demand data from [FERC Form 714 – Annual Electric Balancing Authority Area and Planning Area Report](../../../../data_sources/ferc714.md).
+electricity demand timeseries reported in [EIA Form 930 – Hourly and Daily Balancing Authority Operations Report](../../../../data_sources/eia930.html.md), and we have also
+applied them to demand data from [FERC Form 714 – Annual Electric Balancing Authority Area and Planning Area Report](../../../../data_sources/ferc714.html.md).
 
 Screening methods are adapted from code written and maintained by:
 
@@ -32,70 +32,70 @@ described at:
 
 ## Attributes
 
-| [`logger`](#pudl.analysis.timeseries_cleaning.logger)                             |                                                                 |
-|-----------------------------------------------------------------------------------|-----------------------------------------------------------------|
+| [`logger`](#pudl.analysis.timeseries_cleaning.logger)               |                                                                 |
+|-----------------------------------------------------------------------|-----------------------------------------------------------------|
 | [`STANDARD_UTC_OFFSETS`](#pudl.analysis.timeseries_cleaning.STANDARD_UTC_OFFSETS) | Hour offset from Coordinated Universal Time (UTC) by time zone. |
 
 ## Classes
 
-| [`UTCTimeseriesDataFrame`](#pudl.analysis.timeseries_cleaning.UTCTimeseriesDataFrame)         | Define schema of input tables for timeseries cleaning.                      |
-|-----------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------|
+| [`UTCTimeseriesDataFrame`](#pudl.analysis.timeseries_cleaning.UTCTimeseriesDataFrame)     | Define schema of input tables for timeseries cleaning.                      |
+|-----------------------------------------------------------------------------|-----------------------------------------------------------------------------|
 | [`AlignedTimeseriesDataFrame`](#pudl.analysis.timeseries_cleaning.AlignedTimeseriesDataFrame) | Define schema of input tables for timeseries cleaning.                      |
-| [`TimeseriesMatrix`](#pudl.analysis.timeseries_cleaning.TimeseriesMatrix)                     | Define schema for timeseries matrix used during imputation.                 |
-| [`FlaggedTimeseries`](#pudl.analysis.timeseries_cleaning.FlaggedTimeseries)                   | Container class used to flag values in a timeseries matrix for imputation.  |
-| [`SimulateFlagsSettings`](#pudl.analysis.timeseries_cleaning.SimulateFlagsSettings)           | Define settings used to simulate flagged values for scoring imputation.     |
-| [`SimulationDataFrame`](#pudl.analysis.timeseries_cleaning.SimulationDataFrame)               | Collection of months of data which will be used to simulate flagged values. |
-| [`ImputeTimeseriesSettings`](#pudl.analysis.timeseries_cleaning.ImputeTimeseriesSettings)     | Define settings used for timeseries imputation.                             |
+| [`TimeseriesMatrix`](#pudl.analysis.timeseries_cleaning.TimeseriesMatrix)           | Define schema for timeseries matrix used during imputation.                 |
+| [`FlaggedTimeseries`](#pudl.analysis.timeseries_cleaning.FlaggedTimeseries)          | Container class used to flag values in a timeseries matrix for imputation.  |
+| [`SimulateFlagsSettings`](#pudl.analysis.timeseries_cleaning.SimulateFlagsSettings)      | Define settings used to simulate flagged values for scoring imputation.     |
+| [`SimulationDataFrame`](#pudl.analysis.timeseries_cleaning.SimulationDataFrame)        | Collection of months of data which will be used to simulate flagged values. |
+| [`ImputeTimeseriesSettings`](#pudl.analysis.timeseries_cleaning.ImputeTimeseriesSettings)   | Define settings used for timeseries imputation.                             |
 
 ## Functions
 
-| [`_shift_utc`](#pudl.analysis.timeseries_cleaning._shift_utc)(→ pandas.Series)                                                               | Shift `utc` by UTC offset.                                                                           |
-|----------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------|
-| [`utc_dataframe_to_aligned`](#pudl.analysis.timeseries_cleaning.utc_dataframe_to_aligned)(...)                                               | Return DataFrame with `datetime_utc` shifted by offset to align timeseries'.                         |
-| [`pivot_aligned_timeseries_dataframe`](#pudl.analysis.timeseries_cleaning.pivot_aligned_timeseries_dataframe)(...)                           | Pivot aligned timeseries dataframe into timeseries matrix and pad if needed.                         |
-| [`melt_imputed_timeseries_matrix`](#pudl.analysis.timeseries_cleaning.melt_imputed_timeseries_matrix)(...)                                   | Melt imputed timeseries matrix and flag matrix to time-aligned dataframe.                            |
-| [`slice_axis`](#pudl.analysis.timeseries_cleaning.slice_axis)(→ tuple[slice, Ellipsis])                                                      | Return an index that slices an array along an axis.                                                  |
-| [`array_diff`](#pudl.analysis.timeseries_cleaning.array_diff)(→ numpy.ndarray)                                                               | First discrete difference of array elements.                                                         |
-| [`encode_run_length`](#pudl.analysis.timeseries_cleaning.encode_run_length)(→ tuple[numpy.ndarray, numpy.ndarray])                           | Encode vector with run-length encoding.                                                              |
-| [`insert_run_length`](#pudl.analysis.timeseries_cleaning.insert_run_length)(→ numpy.ndarray)                                                 | Insert run-length encoded values into a vector.                                                      |
-| [`_mat2ten`](#pudl.analysis.timeseries_cleaning._mat2ten)(→ numpy.ndarray)                                                                   | Fold matrix into a tensor.                                                                           |
-| [`_ten2mat`](#pudl.analysis.timeseries_cleaning._ten2mat)(→ numpy.ndarray)                                                                   | Unfold tensor into a matrix.                                                                         |
-| [`_svt_tnn`](#pudl.analysis.timeseries_cleaning._svt_tnn)(→ numpy.ndarray)                                                                   | Singular value thresholding (SVT) truncated nuclear norm (TNN) minimization.                         |
-| [`impute_latc_tnn`](#pudl.analysis.timeseries_cleaning.impute_latc_tnn)(→ numpy.ndarray)                                                     | Impute tensor values with LATC-TNN method by Chen and Sun (2020).                                    |
-| [`_tsvt`](#pudl.analysis.timeseries_cleaning._tsvt)(→ numpy.ndarray)                                                                         | Tensor singular value thresholding (TSVT).                                                           |
-| [`impute_latc_tubal`](#pudl.analysis.timeseries_cleaning.impute_latc_tubal)(→ numpy.ndarray)                                                 | Impute tensor values with LATC-Tubal method by Chen, Chen and Sun (2020).                            |
-| [`flag_null`](#pudl.analysis.timeseries_cleaning.flag_null)(→ FlaggedTimeseries)                                                             | Flag null values (MISSING_VALUE).                                                                    |
-| [`flag_negative_or_zero`](#pudl.analysis.timeseries_cleaning.flag_negative_or_zero)(→ FlaggedTimeseries)                                     | Flag negative or zero values (NEGATIVE_OR_ZERO).                                                     |
-| [`flag_identical_run`](#pudl.analysis.timeseries_cleaning.flag_identical_run)(→ FlaggedTimeseries)                                           | Flag the last values in identical runs (IDENTICAL_RUN).                                              |
-| [`flag_global_outlier`](#pudl.analysis.timeseries_cleaning.flag_global_outlier)(→ FlaggedTimeseries)                                         | Flag values greater or less than n times the global median (GLOBAL_OUTLIER).                         |
-| [`flag_global_outlier_neighbor`](#pudl.analysis.timeseries_cleaning.flag_global_outlier_neighbor)(→ FlaggedTimeseries)                       | Flag values neighboring global outliers (GLOBAL_OUTLIER_NEIGHBOR).                                   |
-| [`rolling_median`](#pudl.analysis.timeseries_cleaning.rolling_median)(→ numpy.ndarray)                                                       | Rolling median of values.                                                                            |
-| [`rolling_median_offset`](#pudl.analysis.timeseries_cleaning.rolling_median_offset)(→ numpy.ndarray)                                         | Values minus the rolling median.                                                                     |
-| [`median_of_rolling_median_offset`](#pudl.analysis.timeseries_cleaning.median_of_rolling_median_offset)() → numpy.ndarray)                   | Median of the offset from the rolling median.                                                        |
-| [`rolling_iqr_of_rolling_median_offset`](#pudl.analysis.timeseries_cleaning.rolling_iqr_of_rolling_median_offset)(→ numpy.ndarray)           | Rolling interquartile range (IQR) of rolling median offset.                                          |
-| [`median_prediction`](#pudl.analysis.timeseries_cleaning.median_prediction)(, long_window)                                                   | Values predicted from local and regional rolling medians.                                            |
-| [`flag_local_outlier`](#pudl.analysis.timeseries_cleaning.flag_local_outlier)(, long_window, iqr_window, ...)                                | Flag local outliers (LOCAL_OUTLIER_HIGH, LOCAL_OUTLIER_LOW).                                         |
-| [`diff`](#pudl.analysis.timeseries_cleaning.diff)(→ numpy.ndarray)                                                                           | Values minus the value of their neighbor.                                                            |
-| [`rolling_iqr_of_diff`](#pudl.analysis.timeseries_cleaning.rolling_iqr_of_diff)(→ numpy.ndarray)                                             | Rolling interquartile range (IQR) of difference between neighboring values.                          |
-| [`flag_double_delta`](#pudl.analysis.timeseries_cleaning.flag_double_delta)(→ FlaggedTimeseries)                                             | Flag values very different from neighbors on either side (DOUBLE_DELTA).                             |
-| [`relative_median_prediction`](#pudl.analysis.timeseries_cleaning.relative_median_prediction)(→ numpy.ndarray)                               | Values divided by their value predicted from medians.                                                |
+| [`_shift_utc`](#pudl.analysis.timeseries_cleaning._shift_utc)(→ pandas.Series)                                | Shift `utc` by UTC offset.                                                                           |
+|-------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------|
+| [`utc_dataframe_to_aligned`](#pudl.analysis.timeseries_cleaning.utc_dataframe_to_aligned)(...)                              | Return DataFrame with `datetime_utc` shifted by offset to align timeseries'.                         |
+| [`pivot_aligned_timeseries_dataframe`](#pudl.analysis.timeseries_cleaning.pivot_aligned_timeseries_dataframe)(...)                    | Pivot aligned timeseries dataframe into timeseries matrix and pad if needed.                         |
+| [`melt_imputed_timeseries_matrix`](#pudl.analysis.timeseries_cleaning.melt_imputed_timeseries_matrix)(...)                        | Melt imputed timeseries matrix and flag matrix to time-aligned dataframe.                            |
+| [`slice_axis`](#pudl.analysis.timeseries_cleaning.slice_axis)(→ tuple[slice, Ellipsis])                       | Return an index that slices an array along an axis.                                                  |
+| [`array_diff`](#pudl.analysis.timeseries_cleaning.array_diff)(→ numpy.ndarray)                                | First discrete difference of array elements.                                                         |
+| [`encode_run_length`](#pudl.analysis.timeseries_cleaning.encode_run_length)(→ tuple[numpy.ndarray, numpy.ndarray])   | Encode vector with run-length encoding.                                                              |
+| [`insert_run_length`](#pudl.analysis.timeseries_cleaning.insert_run_length)(→ numpy.ndarray)                         | Insert run-length encoded values into a vector.                                                      |
+| [`_mat2ten`](#pudl.analysis.timeseries_cleaning._mat2ten)(→ numpy.ndarray)                                  | Fold matrix into a tensor.                                                                           |
+| [`_ten2mat`](#pudl.analysis.timeseries_cleaning._ten2mat)(→ numpy.ndarray)                                  | Unfold tensor into a matrix.                                                                         |
+| [`_svt_tnn`](#pudl.analysis.timeseries_cleaning._svt_tnn)(→ numpy.ndarray)                                  | Singular value thresholding (SVT) truncated nuclear norm (TNN) minimization.                         |
+| [`impute_latc_tnn`](#pudl.analysis.timeseries_cleaning.impute_latc_tnn)(→ numpy.ndarray)                           | Impute tensor values with LATC-TNN method by Chen and Sun (2020).                                    |
+| [`_tsvt`](#pudl.analysis.timeseries_cleaning._tsvt)(→ numpy.ndarray)                                     | Tensor singular value thresholding (TSVT).                                                           |
+| [`impute_latc_tubal`](#pudl.analysis.timeseries_cleaning.impute_latc_tubal)(→ numpy.ndarray)                         | Impute tensor values with LATC-Tubal method by Chen, Chen and Sun (2020).                            |
+| [`flag_null`](#pudl.analysis.timeseries_cleaning.flag_null)(→ FlaggedTimeseries)                             | Flag null values (MISSING_VALUE).                                                                    |
+| [`flag_negative_or_zero`](#pudl.analysis.timeseries_cleaning.flag_negative_or_zero)(→ FlaggedTimeseries)                 | Flag negative or zero values (NEGATIVE_OR_ZERO).                                                     |
+| [`flag_identical_run`](#pudl.analysis.timeseries_cleaning.flag_identical_run)(→ FlaggedTimeseries)                    | Flag the last values in identical runs (IDENTICAL_RUN).                                              |
+| [`flag_global_outlier`](#pudl.analysis.timeseries_cleaning.flag_global_outlier)(→ FlaggedTimeseries)                   | Flag values greater or less than n times the global median (GLOBAL_OUTLIER).                         |
+| [`flag_global_outlier_neighbor`](#pudl.analysis.timeseries_cleaning.flag_global_outlier_neighbor)(→ FlaggedTimeseries)          | Flag values neighboring global outliers (GLOBAL_OUTLIER_NEIGHBOR).                                   |
+| [`rolling_median`](#pudl.analysis.timeseries_cleaning.rolling_median)(→ numpy.ndarray)                            | Rolling median of values.                                                                            |
+| [`rolling_median_offset`](#pudl.analysis.timeseries_cleaning.rolling_median_offset)(→ numpy.ndarray)                     | Values minus the rolling median.                                                                     |
+| [`median_of_rolling_median_offset`](#pudl.analysis.timeseries_cleaning.median_of_rolling_median_offset)() → numpy.ndarray)         | Median of the offset from the rolling median.                                                        |
+| [`rolling_iqr_of_rolling_median_offset`](#pudl.analysis.timeseries_cleaning.rolling_iqr_of_rolling_median_offset)(→ numpy.ndarray)      | Rolling interquartile range (IQR) of rolling median offset.                                          |
+| [`median_prediction`](#pudl.analysis.timeseries_cleaning.median_prediction)(, long_window)                           | Values predicted from local and regional rolling medians.                                            |
+| [`flag_local_outlier`](#pudl.analysis.timeseries_cleaning.flag_local_outlier)(, long_window, iqr_window, ...)         | Flag local outliers (LOCAL_OUTLIER_HIGH, LOCAL_OUTLIER_LOW).                                         |
+| [`diff`](#pudl.analysis.timeseries_cleaning.diff)(→ numpy.ndarray)                                      | Values minus the value of their neighbor.                                                            |
+| [`rolling_iqr_of_diff`](#pudl.analysis.timeseries_cleaning.rolling_iqr_of_diff)(→ numpy.ndarray)                       | Rolling interquartile range (IQR) of difference between neighboring values.                          |
+| [`flag_double_delta`](#pudl.analysis.timeseries_cleaning.flag_double_delta)(→ FlaggedTimeseries)                     | Flag values very different from neighbors on either side (DOUBLE_DELTA).                             |
+| [`relative_median_prediction`](#pudl.analysis.timeseries_cleaning.relative_median_prediction)(→ numpy.ndarray)                | Values divided by their value predicted from medians.                                                |
 | [`iqr_of_diff_of_relative_median_prediction`](#pudl.analysis.timeseries_cleaning.iqr_of_diff_of_relative_median_prediction)(→ numpy.ndarray) | Interquartile range of running difference of relative median prediction.                             |
-| [`_find_single_delta`](#pudl.analysis.timeseries_cleaning._find_single_delta)(→ numpy.ndarray)                                               |                                                                                                      |
-| [`flag_single_delta`](#pudl.analysis.timeseries_cleaning.flag_single_delta)(, long_window, iqr_window, ...)                                  | Flag values very different from the nearest unflagged value (SINGLE_DELTA).                          |
-| [`flag_anomalous_region`](#pudl.analysis.timeseries_cleaning.flag_anomalous_region)(→ FlaggedTimeseries)                                     | Flag values surrounded by flagged values (ANOMALOUS_REGION).                                         |
-| [`flag_bad_years`](#pudl.analysis.timeseries_cleaning.flag_bad_years)(→ FlaggedTimeseries)                                                   | Flag entire years, which are missing a large portion of values (BAD_YEAR).                           |
-| [`flag_ruggles`](#pudl.analysis.timeseries_cleaning.flag_ruggles)(...)                                                                       | Flag values following the method of Ruggles and others (2020).                                       |
-| [`summarize_flags`](#pudl.analysis.timeseries_cleaning.summarize_flags)(→ pandas.DataFrame)                                                  | Summarize flagged values by flag, count and median.                                                  |
-| [`simulate_nulls`](#pudl.analysis.timeseries_cleaning.simulate_nulls)(→ numpy.ndarray)                                                       | Find non-null values to null to match a run-length distribution.                                     |
-| [`fold_tensor`](#pudl.analysis.timeseries_cleaning.fold_tensor)(→ numpy.ndarray)                                                             | Fold into a 3-dimensional tensor representation.                                                     |
-| [`unfold_tensor`](#pudl.analysis.timeseries_cleaning.unfold_tensor)(→ numpy.ndarray)                                                         | Unfold a 3-dimensional tensor representation.                                                        |
-| [`impute`](#pudl.analysis.timeseries_cleaning.impute)(→ pandera.typing.DataFrame[TimeseriesMatrix])                                          | Impute null values.                                                                                  |
-| [`summarize_imputed`](#pudl.analysis.timeseries_cleaning.summarize_imputed)(→ pandas.DataFrame)                                              | Summarize the fit of imputed values to actual values.                                                |
-| [`impute_flagged_values`](#pudl.analysis.timeseries_cleaning.impute_flagged_values)(...)                                                     | Impute null values in input timeseries matrix.                                                       |
-| [`_merge_imputed`](#pudl.analysis.timeseries_cleaning._merge_imputed)(→ pandas.DataFrame)                                                    | Helper function to melt imputed timeseries matrix and merge back on input asset.                     |
-| [`_add_simulated_flag_col`](#pudl.analysis.timeseries_cleaning._add_simulated_flag_col)(...)                                                 | Return a modified `imputed_df` with a column indicating which rows should be flagged for simulation. |
-| [`get_simulated_flag_mask`](#pudl.analysis.timeseries_cleaning.get_simulated_flag_mask)(...)                                                 | Return a flag mask to flag values for simulated imputation.                                          |
-| [`impute_timeseries_asset_factory`](#pudl.analysis.timeseries_cleaning.impute_timeseries_asset_factory)() → pandas.DataFrame)                | Produces assets to impute values for a given timeseries table/column.                                |
+| [`_find_single_delta`](#pudl.analysis.timeseries_cleaning._find_single_delta)(→ numpy.ndarray)                        |                                                                                                      |
+| [`flag_single_delta`](#pudl.analysis.timeseries_cleaning.flag_single_delta)(, long_window, iqr_window, ...)          | Flag values very different from the nearest unflagged value (SINGLE_DELTA).                          |
+| [`flag_anomalous_region`](#pudl.analysis.timeseries_cleaning.flag_anomalous_region)(→ FlaggedTimeseries)                 | Flag values surrounded by flagged values (ANOMALOUS_REGION).                                         |
+| [`flag_bad_years`](#pudl.analysis.timeseries_cleaning.flag_bad_years)(→ FlaggedTimeseries)                        | Flag entire years, which are missing a large portion of values (BAD_YEAR).                           |
+| [`flag_ruggles`](#pudl.analysis.timeseries_cleaning.flag_ruggles)(...)                                          | Flag values following the method of Ruggles and others (2020).                                       |
+| [`summarize_flags`](#pudl.analysis.timeseries_cleaning.summarize_flags)(→ pandas.DataFrame)                        | Summarize flagged values by flag, count and median.                                                  |
+| [`simulate_nulls`](#pudl.analysis.timeseries_cleaning.simulate_nulls)(→ numpy.ndarray)                            | Find non-null values to null to match a run-length distribution.                                     |
+| [`fold_tensor`](#pudl.analysis.timeseries_cleaning.fold_tensor)(→ numpy.ndarray)                               | Fold into a 3-dimensional tensor representation.                                                     |
+| [`unfold_tensor`](#pudl.analysis.timeseries_cleaning.unfold_tensor)(→ numpy.ndarray)                             | Unfold a 3-dimensional tensor representation.                                                        |
+| [`impute`](#pudl.analysis.timeseries_cleaning.impute)(→ pandera.typing.DataFrame[TimeseriesMatrix])       | Impute null values.                                                                                  |
+| [`summarize_imputed`](#pudl.analysis.timeseries_cleaning.summarize_imputed)(→ pandas.DataFrame)                      | Summarize the fit of imputed values to actual values.                                                |
+| [`impute_flagged_values`](#pudl.analysis.timeseries_cleaning.impute_flagged_values)(...)                                 | Impute null values in input timeseries matrix.                                                       |
+| [`_merge_imputed`](#pudl.analysis.timeseries_cleaning._merge_imputed)(→ pandas.DataFrame)                         | Helper function to melt imputed timeseries matrix and merge back on input asset.                     |
+| [`_add_simulated_flag_col`](#pudl.analysis.timeseries_cleaning._add_simulated_flag_col)(...)                               | Return a modified `imputed_df` with a column indicating which rows should be flagged for simulation. |
+| [`get_simulated_flag_mask`](#pudl.analysis.timeseries_cleaning.get_simulated_flag_mask)(...)                               | Return a flag mask to flag values for simulated imputation.                                          |
+| [`impute_timeseries_asset_factory`](#pudl.analysis.timeseries_cleaning.impute_timeseries_asset_factory)() → pandas.DataFrame)      | Produces assets to impute values for a given timeseries table/column.                                |
 
 ## Module Contents
 
@@ -241,7 +241,7 @@ Create a timeseries object from a dataframe.
 
 Convert back to a dataframe.
 
-#### flag(mask: [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray), flag: [pudl.metadata.dfs.ImputationReasonCodes](../../metadata/dfs/index.md#pudl.metadata.dfs.ImputationReasonCodes)) → [FlaggedTimeseries](#pudl.analysis.timeseries_cleaning.FlaggedTimeseries)
+#### flag(mask: [numpy.ndarray](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray), flag: [pudl.metadata.dfs.ImputationReasonCodes](../../metadata/dfs/index.html.md#pudl.metadata.dfs.ImputationReasonCodes)) → [FlaggedTimeseries](#pudl.analysis.timeseries_cleaning.FlaggedTimeseries)
 
 Flag values.
 

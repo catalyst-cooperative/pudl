@@ -18,30 +18,30 @@ and return a [`duckdb.Expression`](https://duckdb.org/docs/lts/clients/python/re
 Dagster assets apply these helpers to produce four core FERC EQR tables, each of which
 is partitioned by `year_quarter`:
 
-- [core_ferceqr_\_quarterly_identity](../../../../data_dictionaries/pudl_db.md#core-ferceqr-quarterly-identity)
-- [core_ferceqr_\_transactions](../../../../data_dictionaries/pudl_db.md#core-ferceqr-transactions)
-- [core_ferceqr_\_contracts](../../../../data_dictionaries/pudl_db.md#core-ferceqr-contracts)
-- [core_ferceqr_\_quarterly_index_pub](../../../../data_dictionaries/pudl_db.md#core-ferceqr-quarterly-index-pub)
+- [core_ferceqr_\_quarterly_identity](../../../../data_dictionaries/pudl_db.html.md#core-ferceqr-quarterly-identity)
+- [core_ferceqr_\_transactions](../../../../data_dictionaries/pudl_db.html.md#core-ferceqr-transactions)
+- [core_ferceqr_\_contracts](../../../../data_dictionaries/pudl_db.html.md#core-ferceqr-contracts)
+- [core_ferceqr_\_quarterly_index_pub](../../../../data_dictionaries/pudl_db.html.md#core-ferceqr-quarterly-index-pub)
 
 ## Attributes
 
 | [`logger`](#pudl.transform.ferceqr.logger)   |    |
-|----------------------------------------------|----|
+|-----------------------------------------------------------|----|
 
 ## Functions
 
-| [`apply_duckdb_dtypes`](#pudl.transform.ferceqr.apply_duckdb_dtypes)(table_data, table_name, conn)             | Cast each column to the dtype declared in the PUDL metadata schema for the table.      |
-|----------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------|
-| [`rename_duckdb_columns`](#pudl.transform.ferceqr.rename_duckdb_columns)(→ duckdb.DuckDBPyRelation)            | Rename one or more columns in a DuckDB relation, passing all others through unchanged. |
+| [`apply_duckdb_dtypes`](#pudl.transform.ferceqr.apply_duckdb_dtypes)(table_data, table_name, conn)         | Cast each column to the dtype declared in the PUDL metadata schema for the table.      |
+|------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------|
+| [`rename_duckdb_columns`](#pudl.transform.ferceqr.rename_duckdb_columns)(→ duckdb.DuckDBPyRelation)          | Rename one or more columns in a DuckDB relation, passing all others through unchanged. |
 | [`apply_column_transforms`](#pudl.transform.ferceqr.apply_column_transforms)(→ duckdb.DuckDBPyRelation)        | Apply a DuckDB expression factory to a set of columns, replacing each in place.        |
-| [`_yn_to_bool`](#pudl.transform.ferceqr._yn_to_bool)(→ duckdb.Expression)                                      | Return a DuckDB expression that converts `'Y'`/`'N'` strings to booleans.              |
-| [`_na_to_null`](#pudl.transform.ferceqr._na_to_null)(→ duckdb.Expression)                                      | Return a DuckDB expression that converts `'N/A'` or `'NA'` strings to NULL.            |
-| [`_parse_datetimes`](#pudl.transform.ferceqr._parse_datetimes)(→ duckdb.Expression)                            | Return a DuckDB expression that parses a datetime string column using `fmt`.           |
-| [`_recode_categoricals`](#pudl.transform.ferceqr._recode_categoricals)(→ duckdb.Expression)                    | Return a DuckDB expression that replaces exact categorical values in a column.         |
-| [`core_ferceqr__quarterly_identity`](#pudl.transform.ferceqr.core_ferceqr__quarterly_identity)(context, ...)   | Transform the raw FERC EQR filer identity table.                                       |
-| [`core_ferceqr__transactions`](#pudl.transform.ferceqr.core_ferceqr__transactions)(context, ...)               | Transform the raw FERC EQR electricity transactions table.                             |
+| [`_yn_to_bool`](#pudl.transform.ferceqr._yn_to_bool)(→ duckdb.Expression)                          | Return a DuckDB expression that converts `'Y'`/`'N'` strings to booleans.              |
+| [`_na_to_null`](#pudl.transform.ferceqr._na_to_null)(→ duckdb.Expression)                          | Return a DuckDB expression that converts `'N/A'` or `'NA'` strings to NULL.            |
+| [`_parse_datetimes`](#pudl.transform.ferceqr._parse_datetimes)(→ duckdb.Expression)                     | Return a DuckDB expression that parses a datetime string column using `fmt`.           |
+| [`_recode_categoricals`](#pudl.transform.ferceqr._recode_categoricals)(→ duckdb.Expression)                 | Return a DuckDB expression that replaces exact categorical values in a column.         |
+| [`core_ferceqr__quarterly_identity`](#pudl.transform.ferceqr.core_ferceqr__quarterly_identity)(context, ...)            | Transform the raw FERC EQR filer identity table.                                       |
+| [`core_ferceqr__transactions`](#pudl.transform.ferceqr.core_ferceqr__transactions)(context, ...)                  | Transform the raw FERC EQR electricity transactions table.                             |
 | [`core_ferceqr__contracts`](#pudl.transform.ferceqr.core_ferceqr__contracts)(context, raw_ferceqr_\_contracts) | Transform the raw FERC EQR electricity contracts table.                                |
-| [`core_ferceqr__quarterly_index_pub`](#pudl.transform.ferceqr.core_ferceqr__quarterly_index_pub)(context, ...) | Transform the raw FERC EQR index price publisher table.                                |
+| [`core_ferceqr__quarterly_index_pub`](#pudl.transform.ferceqr.core_ferceqr__quarterly_index_pub)(context, ...)           | Transform the raw FERC EQR index price publisher table.                                |
 
 ## Module Contents
 
@@ -51,7 +51,7 @@ is partitioned by `year_quarter`:
 
 Cast each column to the dtype declared in the PUDL metadata schema for the table.
 
-Column types are looked up from the [`pudl.metadata.classes.Resource`](../../metadata/classes/index.md#pudl.metadata.classes.Resource) for
+Column types are looked up from the [`pudl.metadata.classes.Resource`](../../metadata/classes/index.html.md#pudl.metadata.classes.Resource) for
 `table_name`. Any custom enum types required by the schema are created in `conn`
 before the cast is applied.
 
@@ -116,18 +116,18 @@ Generates a `CASE WHEN` expression with one equality branch per entry in
   * **replace_mapping** – Maps each observed bad value (key) to its correct
     canonical replacement (value).
 
-### pudl.transform.ferceqr.core_ferceqr_\_quarterly_identity(context: [dagster.AssetExecutionContext](https://docs.dagster.io/api/dagster/execution/#dagster.AssetExecutionContext), raw_ferceqr_\_ident: [pudl.helpers.ParquetData](../../helpers/index.md#pudl.helpers.ParquetData))
+### pudl.transform.ferceqr.core_ferceqr_\_quarterly_identity(context: [dagster.AssetExecutionContext](https://docs.dagster.io/api/dagster/execution/#dagster.AssetExecutionContext), raw_ferceqr_\_ident: [pudl.helpers.ParquetData](../../helpers/index.html.md#pudl.helpers.ParquetData))
 
 Transform the raw FERC EQR filer identity table.
 
-### pudl.transform.ferceqr.core_ferceqr_\_transactions(context, raw_ferceqr_\_transactions: [pudl.helpers.ParquetData](../../helpers/index.md#pudl.helpers.ParquetData))
+### pudl.transform.ferceqr.core_ferceqr_\_transactions(context, raw_ferceqr_\_transactions: [pudl.helpers.ParquetData](../../helpers/index.html.md#pudl.helpers.ParquetData))
 
 Transform the raw FERC EQR electricity transactions table.
 
-### pudl.transform.ferceqr.core_ferceqr_\_contracts(context, raw_ferceqr_\_contracts: [pudl.helpers.ParquetData](../../helpers/index.md#pudl.helpers.ParquetData))
+### pudl.transform.ferceqr.core_ferceqr_\_contracts(context, raw_ferceqr_\_contracts: [pudl.helpers.ParquetData](../../helpers/index.html.md#pudl.helpers.ParquetData))
 
 Transform the raw FERC EQR electricity contracts table.
 
-### pudl.transform.ferceqr.core_ferceqr_\_quarterly_index_pub(context, raw_ferceqr_\_index_pub: [pudl.helpers.ParquetData](../../helpers/index.md#pudl.helpers.ParquetData))
+### pudl.transform.ferceqr.core_ferceqr_\_quarterly_index_pub(context, raw_ferceqr_\_index_pub: [pudl.helpers.ParquetData](../../helpers/index.html.md#pudl.helpers.ParquetData))
 
 Transform the raw FERC EQR index price publisher table.

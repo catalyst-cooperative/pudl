@@ -16,9 +16,9 @@ We’ve segmented the processed data into the following normalized data tables.
 Clicking on the links will show you a description of the table as well as
 the names and descriptions of each of its fields.
 
-| Data Dictionary                                                                                                                | Browse Online                                                                                                                                                                   |
-|--------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [out_vcerare_\_hourly_available_capacity_factor](../data_dictionaries/pudl_db.md#out-vcerare-hourly-available-capacity-factor) | [https://data.catalyst.coop/preview/pudl/out_vcerare_\_hourly_available_capacity_factor](https://data.catalyst.coop/preview/pudl/out_vcerare__hourly_available_capacity_factor) |
+| Data Dictionary                                                                                                                            | Browse Online                                                                                                                                                                   |
+|--------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [out_vcerare_\_hourly_available_capacity_factor](../data_dictionaries/pudl_db.html.md#out-vcerare-hourly-available-capacity-factor) | [https://data.catalyst.coop/preview/pudl/out_vcerare_\_hourly_available_capacity_factor](https://data.catalyst.coop/preview/pudl/out_vcerare__hourly_available_capacity_factor) |
 
 ## Background
 
@@ -106,5 +106,5 @@ standard regardless of leap years. This means that 2020 is missing data for Dece
 ## PUDL Data Transformations
 
 To see the transformations applied to the data in each table, you can read the
-docstrings for [`pudl.transform.vcerare`](../autoapi/pudl/transform/vcerare/index.md#module-pudl.transform.vcerare) created for each table’s
+docstrings for [`pudl.transform.vcerare`](../autoapi/pudl/transform/vcerare/index.html.md#module-pudl.transform.vcerare) created for each table’s
 respective transform function.

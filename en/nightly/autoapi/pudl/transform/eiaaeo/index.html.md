@@ -14,32 +14,32 @@ metadata fields.
 ## Attributes
 
 | [`BASE_AEO_CATEGORIES`](#pudl.transform.eiaaeo.BASE_AEO_CATEGORIES)   |    |
-|-----------------------------------------------------------------------|----|
-| [`check_specs`](#pudl.transform.eiaaeo.check_specs)                   |    |
-| [`_checks`](#pudl.transform.eiaaeo._checks)                           |    |
+|------------------------------------------------------------------------|----|
+| [`check_specs`](#pudl.transform.eiaaeo.check_specs)           |    |
+| [`_checks`](#pudl.transform.eiaaeo._checks)               |    |
 
 ## Classes
 
 | [`AeoCheckSpec`](#pudl.transform.eiaaeo.AeoCheckSpec)   | Define some simple checks that can run on any AEO asset.   |
-|---------------------------------------------------------|------------------------------------------------------------|
+|-----------------------------------------------------------------|------------------------------------------------------------|
 
 ## Functions
 
-| [`__sanitize_string`](#pudl.transform.eiaaeo.__sanitize_string)(→ pandas.Series)                                                                                                     |                                                                                                           |
-|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------|
-| [`get_series_info`](#pudl.transform.eiaaeo.get_series_info)(→ pandas.DataFrame)                                                                                                      | Break human-readable series name into machine-readable fields.                                            |
-| [`get_category_info`](#pudl.transform.eiaaeo.get_category_info)(→ pandas.Series)                                                                                                     | Break human-readable category name into machine-readable fields.                                          |
-| [`subtotals_match_reported_totals_ratio`](#pudl.transform.eiaaeo.subtotals_match_reported_totals_ratio)(→ float)                                                                     | When subtotals and totals are reported in the same column, check their sums.                              |
-| [`series_sum_ratio`](#pudl.transform.eiaaeo.series_sum_ratio)(→ float)                                                                                                               | Find how well multiple columns sum to another column.                                                     |
-| [`filter_enrich_sanitize`](#pudl.transform.eiaaeo.filter_enrich_sanitize)(→ pandas.DataFrame)                                                                                        | Basic cleaning steps common to all AEO tables.                                                            |
-| [`_collect_totals`](#pudl.transform.eiaaeo._collect_totals)(→ pandas.DataFrame)                                                                                                      | Various columns have different names for their "total" fact.                                              |
-| [`unstack`](#pudl.transform.eiaaeo.unstack)(df, eventual_pk)                                                                                                                         | Unstack the values by the various variable names provided.                                                |
+| [`__sanitize_string`](#pudl.transform.eiaaeo.__sanitize_string)(→ pandas.Series)                                             |                                                                                                           |
+|---------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------|
+| [`get_series_info`](#pudl.transform.eiaaeo.get_series_info)(→ pandas.DataFrame)                                            | Break human-readable series name into machine-readable fields.                                            |
+| [`get_category_info`](#pudl.transform.eiaaeo.get_category_info)(→ pandas.Series)                                             | Break human-readable category name into machine-readable fields.                                          |
+| [`subtotals_match_reported_totals_ratio`](#pudl.transform.eiaaeo.subtotals_match_reported_totals_ratio)(→ float)                                 | When subtotals and totals are reported in the same column, check their sums.                              |
+| [`series_sum_ratio`](#pudl.transform.eiaaeo.series_sum_ratio)(→ float)                                                      | Find how well multiple columns sum to another column.                                                     |
+| [`filter_enrich_sanitize`](#pudl.transform.eiaaeo.filter_enrich_sanitize)(→ pandas.DataFrame)                                     | Basic cleaning steps common to all AEO tables.                                                            |
+| [`_collect_totals`](#pudl.transform.eiaaeo._collect_totals)(→ pandas.DataFrame)                                            | Various columns have different names for their "total" fact.                                              |
+| [`unstack`](#pudl.transform.eiaaeo.unstack)(df, eventual_pk)                                                       | Unstack the values by the various variable names provided.                                                |
 | [`core_eiaaeo__yearly_projected_generation_in_electric_sector_by_technology`](#pudl.transform.eiaaeo.core_eiaaeo__yearly_projected_generation_in_electric_sector_by_technology)(...) | Projected net summer generation capacity and additions/retirements.                                       |
-| [`core_eiaaeo__yearly_projected_electric_sales`](#pudl.transform.eiaaeo.core_eiaaeo__yearly_projected_electric_sales)(...)                                                           | Projected electricity sales by customer class.                                                            |
-| [`core_eiaaeo__yearly_projected_generation_in_end_use_sectors_by_fuel_type`](#pudl.transform.eiaaeo.core_eiaaeo__yearly_projected_generation_in_end_use_sectors_by_fuel_type)(...)   | Projected generation capacity + gross generation in end-use sectors.                                      |
-| [`core_eiaaeo__yearly_projected_energy_use_by_sector_and_type`](#pudl.transform.eiaaeo.core_eiaaeo__yearly_projected_energy_use_by_sector_and_type)(...)                             | Projected energy use for commercial, electric power, industrial, residential, and transportation sectors. |
-| [`core_eiaaeo__yearly_projected_fuel_cost_in_electric_sector_by_type`](#pudl.transform.eiaaeo.core_eiaaeo__yearly_projected_fuel_cost_in_electric_sector_by_type)(...)               | Projected fuel cost for the electric power sector.                                                        |
-| [`make_check`](#pudl.transform.eiaaeo.make_check)(→ dagster.AssetChecksDefinition)                                                                                                   | Turn the AeoCheckSpec into an actual Dagster asset check.                                                 |
+| [`core_eiaaeo__yearly_projected_electric_sales`](#pudl.transform.eiaaeo.core_eiaaeo__yearly_projected_electric_sales)(...)                              | Projected electricity sales by customer class.                                                            |
+| [`core_eiaaeo__yearly_projected_generation_in_end_use_sectors_by_fuel_type`](#pudl.transform.eiaaeo.core_eiaaeo__yearly_projected_generation_in_end_use_sectors_by_fuel_type)(...)  | Projected generation capacity + gross generation in end-use sectors.                                      |
+| [`core_eiaaeo__yearly_projected_energy_use_by_sector_and_type`](#pudl.transform.eiaaeo.core_eiaaeo__yearly_projected_energy_use_by_sector_and_type)(...)               | Projected energy use for commercial, electric power, industrial, residential, and transportation sectors. |
+| [`core_eiaaeo__yearly_projected_fuel_cost_in_electric_sector_by_type`](#pudl.transform.eiaaeo.core_eiaaeo__yearly_projected_fuel_cost_in_electric_sector_by_type)(...)        | Projected fuel cost for the electric power sector.                                                        |
+| [`make_check`](#pudl.transform.eiaaeo.make_check)(→ dagster.AssetChecksDefinition)                                    | Turn the AeoCheckSpec into an actual Dagster asset check.                                                 |
 
 ## Module Contents
 

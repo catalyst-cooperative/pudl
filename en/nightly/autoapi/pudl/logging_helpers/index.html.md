@@ -5,11 +5,11 @@ Configure logging for the PUDL package.
 ## Attributes
 
 | [`DEFAULT_DEPENDENCY_LOGLEVELS`](#pudl.logging_helpers.DEFAULT_DEPENDENCY_LOGLEVELS)   |    |
-|----------------------------------------------------------------------------------------|----|
+|---------------------------------------------------------------------------------|----|
 
 ## Functions
 
-| [`get_logger`](#pudl.logging_helpers.get_logger)(name)                         | Helper function to append 'catalystcoop' to logger name and return logger.   |
+| [`get_logger`](#pudl.logging_helpers.get_logger)(name)              | Helper function to append 'catalystcoop' to logger name and return logger.   |
 |--------------------------------------------------------------------------------|------------------------------------------------------------------------------|
 | [`configure_root_logger`](#pudl.logging_helpers.configure_root_logger)(→ None) | Configure the root catalystcoop logger.                                      |
 

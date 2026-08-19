@@ -3,125 +3,125 @@
 Classes & functions to process FERC Form 1 data before loading into the PUDL DB.
 
 Note that many of the classes/objects here inherit from/are instances of classes defined
-in [`pudl.transform.classes`](../classes/index.md#module-pudl.transform.classes). Their design and relationships to each other are
+in [`pudl.transform.classes`](../classes/index.html.md#module-pudl.transform.classes). Their design and relationships to each other are
 documented in that module.
 
-See [`pudl.transform.params.ferc1`](../params/ferc1/index.md#module-pudl.transform.params.ferc1) for the values that parameterize many of these
+See [`pudl.transform.params.ferc1`](../params/ferc1/index.html.md#module-pudl.transform.params.ferc1) for the values that parameterize many of these
 transformations.
 
 ## Attributes
 
-| [`logger`](#pudl.transform.ferc1.logger)                           |    |
-|--------------------------------------------------------------------|----|
-| [`FERC1_TFR_CLASSES`](#pudl.transform.ferc1.FERC1_TFR_CLASSES)     |    |
+| [`logger`](#pudl.transform.ferc1.logger)              |    |
+|----------------------------------------------------------------------|----|
+| [`FERC1_TFR_CLASSES`](#pudl.transform.ferc1.FERC1_TFR_CLASSES)   |    |
 | [`_FERC1_PLANT_TABLES`](#pudl.transform.ferc1._FERC1_PLANT_TABLES) |    |
-| [`ferc1_assets`](#pudl.transform.ferc1.ferc1_assets)               |    |
+| [`ferc1_assets`](#pudl.transform.ferc1.ferc1_assets)        |    |
 
 ## Classes
 
-| [`SourceFerc1`](#pudl.transform.ferc1.SourceFerc1)                                                                 | Enumeration of allowed FERC 1 raw data sources.                                                                                                                                            |
-|--------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [`TableIdFerc1`](#pudl.transform.ferc1.TableIdFerc1)                                                               | Enumeration of the allowed FERC 1 table IDs.                                                                                                                                               |
-| [`RenameColumnsFerc1`](#pudl.transform.ferc1.RenameColumnsFerc1)                                                   | Dictionaries for renaming either XBRL or DBF derived FERC 1 columns.                                                                                                                       |
-| [`WideToTidy`](#pudl.transform.ferc1.WideToTidy)                                                                   | Parameters for converting a wide table to a tidy table with value types.                                                                                                                   |
-| [`WideToTidySourceFerc1`](#pudl.transform.ferc1.WideToTidySourceFerc1)                                             | Parameters for converting either or both XBRL and DBF table from wide to tidy.                                                                                                             |
-| [`MergeXbrlMetadata`](#pudl.transform.ferc1.MergeXbrlMetadata)                                                     | Parameters for merging in XBRL metadata.                                                                                                                                                   |
-| [`DropDuplicateRowsDbf`](#pudl.transform.ferc1.DropDuplicateRowsDbf)                                               | Parameter for dropping duplicate DBF rows.                                                                                                                                                 |
-| [`AlignRowNumbersDbf`](#pudl.transform.ferc1.AlignRowNumbersDbf)                                                   | Parameters for aligning DBF row numbers with metadata from manual maps.                                                                                                                    |
-| [`SelectDbfRowsByCategory`](#pudl.transform.ferc1.SelectDbfRowsByCategory)                                         | Parameters for [`select_dbf_rows_by_category()`](#pudl.transform.ferc1.select_dbf_rows_by_category).                                                                                       |
-| [`UnstackBalancesToReportYearInstantXbrl`](#pudl.transform.ferc1.UnstackBalancesToReportYearInstantXbrl)           | Parameters for [`unstack_balances_to_report_year_instant_xbrl()`](#pudl.transform.ferc1.unstack_balances_to_report_year_instant_xbrl).                                                     |
-| [`CombineAxisColumnsXbrl`](#pudl.transform.ferc1.CombineAxisColumnsXbrl)                                           | Parameters for [`combine_axis_columns_xbrl()`](#pudl.transform.ferc1.combine_axis_columns_xbrl).                                                                                           |
-| [`AssignQuarterlyDataToYearlyDbf`](#pudl.transform.ferc1.AssignQuarterlyDataToYearlyDbf)                           | Parameters for transferring quarterly reported data to annual columns.                                                                                                                     |
-| [`AddColumnWithUniformValue`](#pudl.transform.ferc1.AddColumnWithUniformValue)                                     | Parameters for adding a column to a table with a single value.                                                                                                                             |
-| [`AddColumnsWithUniformValues`](#pudl.transform.ferc1.AddColumnsWithUniformValues)                                 | Parameters for adding columns to a table with a single value.                                                                                                                              |
-| [`IsCloseTolerance`](#pudl.transform.ferc1.IsCloseTolerance)                                                       | Info for testing a particular check.                                                                                                                                                       |
-| [`CalculationIsCloseTolerance`](#pudl.transform.ferc1.CalculationIsCloseTolerance)                                 | Calc params organized by check type.                                                                                                                                                       |
-| [`MetricTolerances`](#pudl.transform.ferc1.MetricTolerances)                                                       | Tolerances for all data checks to be preformed within a grouped df.                                                                                                                        |
-| [`GroupMetricTolerances`](#pudl.transform.ferc1.GroupMetricTolerances)                                             | Data quality expectations related to FERC 1 calculations.                                                                                                                                  |
-| [`GroupMetricChecks`](#pudl.transform.ferc1.GroupMetricChecks)                                                     | Input for checking calculations organized by group and test.                                                                                                                               |
-| [`ReconcileTableCalculations`](#pudl.transform.ferc1.ReconcileTableCalculations)                                   | Parameters for reconciling xbrl-metadata based calculations within a table.                                                                                                                |
-| [`ErrorMetric`](#pudl.transform.ferc1.ErrorMetric)                                                                 | Base class for checking a particular metric within a group.                                                                                                                                |
-| [`ErrorFrequency`](#pudl.transform.ferc1.ErrorFrequency)                                                           | Check error frequency in XBRL calculations.                                                                                                                                                |
-| [`RelativeErrorMagnitude`](#pudl.transform.ferc1.RelativeErrorMagnitude)                                           | Check relative magnitude of errors in XBRL calculations.                                                                                                                                   |
-| [`AbsoluteErrorMagnitude`](#pudl.transform.ferc1.AbsoluteErrorMagnitude)                                           | Check absolute magnitude of errors in XBRL calculations.                                                                                                                                   |
-| [`NullCalculatedValueFrequency`](#pudl.transform.ferc1.NullCalculatedValueFrequency)                               | Check the frequency of null calculated values.                                                                                                                                             |
-| [`NullReportedValueFrequency`](#pudl.transform.ferc1.NullReportedValueFrequency)                                   | Check the frequency of null reported values.                                                                                                                                               |
-| [`Ferc1TableTransformParams`](#pudl.transform.ferc1.Ferc1TableTransformParams)                                     | A model defining what TransformParams are allowed for FERC Form 1.                                                                                                                         |
-| [`Ferc1AbstractTableTransformer`](#pudl.transform.ferc1.Ferc1AbstractTableTransformer)                             | An abstract class defining methods common to many FERC Form 1 tables.                                                                                                                      |
-| [`IdentificationCertificationTableTransformer`](#pudl.transform.ferc1.IdentificationCertificationTableTransformer) | Transformer class for the [core_ferc1_\_yearly_identification_certification](../../../../data_dictionaries/pudl_db.md#core-ferc1-yearly-identification-certification) table.               |
-| [`SteamPlantsFuelTableTransformer`](#pudl.transform.ferc1.SteamPlantsFuelTableTransformer)                         | A table transformer specific to the [core_ferc1_\_yearly_steam_plants_fuel_sched402](../../../../data_dictionaries/pudl_db.md#core-ferc1-yearly-steam-plants-fuel-sched402) table.         |
-| [`SteamPlantsTableTransformer`](#pudl.transform.ferc1.SteamPlantsTableTransformer)                                 | Transformer class for the [core_ferc1_\_yearly_steam_plants_sched402](../../../../data_dictionaries/pudl_db.md#core-ferc1-yearly-steam-plants-sched402) table.                             |
-| [`HydroelectricPlantsTableTransformer`](#pudl.transform.ferc1.HydroelectricPlantsTableTransformer)                 | A table transformer specific to the [core_ferc1_\_yearly_hydroelectric_plants_sched406](../../../../data_dictionaries/pudl_db.md#core-ferc1-yearly-hydroelectric-plants-sched406) table.   |
-| [`PumpedStoragePlantsTableTransformer`](#pudl.transform.ferc1.PumpedStoragePlantsTableTransformer)                 | Transformer class for [core_ferc1_\_yearly_pumped_storage_plants_sched408](../../../../data_dictionaries/pudl_db.md#core-ferc1-yearly-pumped-storage-plants-sched408) table.               |
-| [`PurchasedPowerAndExchangesTableTransformer`](#pudl.transform.ferc1.PurchasedPowerAndExchangesTableTransformer)   | Transformer class for [core_ferc1_\_yearly_purchased_power_and_exchanges_sched326](../../../../data_dictionaries/pudl_db.md#core-ferc1-yearly-purchased-power-and-exchanges-sched326).     |
-| [`PlantInServiceTableTransformer`](#pudl.transform.ferc1.PlantInServiceTableTransformer)                           | A transformer for the [core_ferc1_\_yearly_plant_in_service_sched204](../../../../data_dictionaries/pudl_db.md#core-ferc1-yearly-plant-in-service-sched204) table.                         |
-| [`SmallPlantsTableTransformer`](#pudl.transform.ferc1.SmallPlantsTableTransformer)                                 | A table transformer specific to the [core_ferc1_\_yearly_small_plants_sched410](../../../../data_dictionaries/pudl_db.md#core-ferc1-yearly-small-plants-sched410) table.                   |
-| [`TransmissionLinesTableTransformer`](#pudl.transform.ferc1.TransmissionLinesTableTransformer)                     | A table transformer for the [core_ferc1_\_yearly_transmission_lines_sched422](../../../../data_dictionaries/pudl_db.md#core-ferc1-yearly-transmission-lines-sched422) table.               |
-| [`EnergySourcesTableTransformer`](#pudl.transform.ferc1.EnergySourcesTableTransformer)                             | Transformer class for [core_ferc1_\_yearly_energy_sources_sched401](../../../../data_dictionaries/pudl_db.md#core-ferc1-yearly-energy-sources-sched401) table.                             |
-| [`EnergyDispositionsTableTransformer`](#pudl.transform.ferc1.EnergyDispositionsTableTransformer)                   | Transformer class for [core_ferc1_\_yearly_energy_dispositions_sched401](../../../../data_dictionaries/pudl_db.md#core-ferc1-yearly-energy-dispositions-sched401) table.                   |
-| [`UtilityPlantSummaryTableTransformer`](#pudl.transform.ferc1.UtilityPlantSummaryTableTransformer)                 | Transformer class for [core_ferc1_\_yearly_utility_plant_summary_sched200](../../../../data_dictionaries/pudl_db.md#core-ferc1-yearly-utility-plant-summary-sched200) table.               |
-| [`BalanceSheetLiabilitiesTableTransformer`](#pudl.transform.ferc1.BalanceSheetLiabilitiesTableTransformer)         | Transformer class for [core_ferc1_\_yearly_balance_sheet_liabilities_sched110](../../../../data_dictionaries/pudl_db.md#core-ferc1-yearly-balance-sheet-liabilities-sched110) table.       |
-| [`BalanceSheetAssetsTableTransformer`](#pudl.transform.ferc1.BalanceSheetAssetsTableTransformer)                   | Transformer class for [core_ferc1_\_yearly_balance_sheet_assets_sched110](../../../../data_dictionaries/pudl_db.md#core-ferc1-yearly-balance-sheet-assets-sched110) table.                 |
-| [`IncomeStatementsTableTransformer`](#pudl.transform.ferc1.IncomeStatementsTableTransformer)                       | Transformer class for the [core_ferc1_\_yearly_income_statements_sched114](../../../../data_dictionaries/pudl_db.md#core-ferc1-yearly-income-statements-sched114) table.                   |
-| [`RetainedEarningsTableTransformer`](#pudl.transform.ferc1.RetainedEarningsTableTransformer)                       | Transformer class for [core_ferc1_\_yearly_retained_earnings_sched118](../../../../data_dictionaries/pudl_db.md#core-ferc1-yearly-retained-earnings-sched118) table.                       |
-| [`DepreciationSummaryTableTransformer`](#pudl.transform.ferc1.DepreciationSummaryTableTransformer)                 | Transformer class for [core_ferc1_\_yearly_depreciation_summary_sched336](../../../../data_dictionaries/pudl_db.md#core-ferc1-yearly-depreciation-summary-sched336) table.                 |
-| [`DepreciationFactorsTransformer`](#pudl.transform.ferc1.DepreciationFactorsTransformer)                           | Transformer class for [core_ferc1_\_yearly_depreciation_factors_sched336](../../../../data_dictionaries/pudl_db.md#core-ferc1-yearly-depreciation-factors-sched336) table.                 |
-| [`DepreciationChangesTableTransformer`](#pudl.transform.ferc1.DepreciationChangesTableTransformer)                 | Transformer class for [core_ferc1_\_yearly_depreciation_changes_sched219](../../../../data_dictionaries/pudl_db.md#core-ferc1-yearly-depreciation-changes-sched219) table.                 |
-| [`DepreciationByFunctionTableTransformer`](#pudl.transform.ferc1.DepreciationByFunctionTableTransformer)           | Transformer for [core_ferc1_\_yearly_depreciation_by_function_sched219](../../../../data_dictionaries/pudl_db.md#core-ferc1-yearly-depreciation-by-function-sched219) table.               |
-| [`OperatingExpensesTableTransformer`](#pudl.transform.ferc1.OperatingExpensesTableTransformer)                     | Transformer class for [core_ferc1_\_yearly_operating_expenses_sched320](../../../../data_dictionaries/pudl_db.md#core-ferc1-yearly-operating-expenses-sched320) table.                     |
-| [`OperatingRevenuesTableTransformer`](#pudl.transform.ferc1.OperatingRevenuesTableTransformer)                     | Transformer class for [core_ferc1_\_yearly_operating_revenues_sched300](../../../../data_dictionaries/pudl_db.md#core-ferc1-yearly-operating-revenues-sched300) table.                     |
-| [`CashFlowsTableTransformer`](#pudl.transform.ferc1.CashFlowsTableTransformer)                                     | Transform class for [core_ferc1_\_yearly_cash_flows_sched120](../../../../data_dictionaries/pudl_db.md#core-ferc1-yearly-cash-flows-sched120) table.                                       |
-| [`SalesByRateSchedulesTableTransformer`](#pudl.transform.ferc1.SalesByRateSchedulesTableTransformer)               | Transform class for [core_ferc1_\_yearly_sales_by_rate_schedules_sched304](../../../../data_dictionaries/pudl_db.md#core-ferc1-yearly-sales-by-rate-schedules-sched304) table.             |
-| [`OtherRegulatoryLiabilitiesTableTransformer`](#pudl.transform.ferc1.OtherRegulatoryLiabilitiesTableTransformer)   | Transformer class for [core_ferc1_\_yearly_other_regulatory_liabilities_sched278](../../../../data_dictionaries/pudl_db.md#core-ferc1-yearly-other-regulatory-liabilities-sched278) table. |
-| [`OtherRegulatoryAssetsTableTransformer`](#pudl.transform.ferc1.OtherRegulatoryAssetsTableTransformer)             | Transformer class for [core_ferc1_\_yearly_other_regulatory_assets_sched232](../../../../data_dictionaries/pudl_db.md#core-ferc1-yearly-other-regulatory-assets-sched232) table.           |
+| [`SourceFerc1`](#pudl.transform.ferc1.SourceFerc1)                                 | Enumeration of allowed FERC 1 raw data sources.                                                                                                                                               |
+|----------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [`TableIdFerc1`](#pudl.transform.ferc1.TableIdFerc1)                                | Enumeration of the allowed FERC 1 table IDs.                                                                                                                                                  |
+| [`RenameColumnsFerc1`](#pudl.transform.ferc1.RenameColumnsFerc1)                          | Dictionaries for renaming either XBRL or DBF derived FERC 1 columns.                                                                                                                          |
+| [`WideToTidy`](#pudl.transform.ferc1.WideToTidy)                                  | Parameters for converting a wide table to a tidy table with value types.                                                                                                                      |
+| [`WideToTidySourceFerc1`](#pudl.transform.ferc1.WideToTidySourceFerc1)                       | Parameters for converting either or both XBRL and DBF table from wide to tidy.                                                                                                                |
+| [`MergeXbrlMetadata`](#pudl.transform.ferc1.MergeXbrlMetadata)                           | Parameters for merging in XBRL metadata.                                                                                                                                                      |
+| [`DropDuplicateRowsDbf`](#pudl.transform.ferc1.DropDuplicateRowsDbf)                        | Parameter for dropping duplicate DBF rows.                                                                                                                                                    |
+| [`AlignRowNumbersDbf`](#pudl.transform.ferc1.AlignRowNumbersDbf)                          | Parameters for aligning DBF row numbers with metadata from manual maps.                                                                                                                       |
+| [`SelectDbfRowsByCategory`](#pudl.transform.ferc1.SelectDbfRowsByCategory)                     | Parameters for [`select_dbf_rows_by_category()`](#pudl.transform.ferc1.select_dbf_rows_by_category).                                                                                                |
+| [`UnstackBalancesToReportYearInstantXbrl`](#pudl.transform.ferc1.UnstackBalancesToReportYearInstantXbrl)      | Parameters for [`unstack_balances_to_report_year_instant_xbrl()`](#pudl.transform.ferc1.unstack_balances_to_report_year_instant_xbrl).                                                                               |
+| [`CombineAxisColumnsXbrl`](#pudl.transform.ferc1.CombineAxisColumnsXbrl)                      | Parameters for [`combine_axis_columns_xbrl()`](#pudl.transform.ferc1.combine_axis_columns_xbrl).                                                                                                  |
+| [`AssignQuarterlyDataToYearlyDbf`](#pudl.transform.ferc1.AssignQuarterlyDataToYearlyDbf)              | Parameters for transferring quarterly reported data to annual columns.                                                                                                                        |
+| [`AddColumnWithUniformValue`](#pudl.transform.ferc1.AddColumnWithUniformValue)                   | Parameters for adding a column to a table with a single value.                                                                                                                                |
+| [`AddColumnsWithUniformValues`](#pudl.transform.ferc1.AddColumnsWithUniformValues)                 | Parameters for adding columns to a table with a single value.                                                                                                                                 |
+| [`IsCloseTolerance`](#pudl.transform.ferc1.IsCloseTolerance)                            | Info for testing a particular check.                                                                                                                                                          |
+| [`CalculationIsCloseTolerance`](#pudl.transform.ferc1.CalculationIsCloseTolerance)                 | Calc params organized by check type.                                                                                                                                                          |
+| [`MetricTolerances`](#pudl.transform.ferc1.MetricTolerances)                            | Tolerances for all data checks to be preformed within a grouped df.                                                                                                                           |
+| [`GroupMetricTolerances`](#pudl.transform.ferc1.GroupMetricTolerances)                       | Data quality expectations related to FERC 1 calculations.                                                                                                                                     |
+| [`GroupMetricChecks`](#pudl.transform.ferc1.GroupMetricChecks)                           | Input for checking calculations organized by group and test.                                                                                                                                  |
+| [`ReconcileTableCalculations`](#pudl.transform.ferc1.ReconcileTableCalculations)                  | Parameters for reconciling xbrl-metadata based calculations within a table.                                                                                                                   |
+| [`ErrorMetric`](#pudl.transform.ferc1.ErrorMetric)                                 | Base class for checking a particular metric within a group.                                                                                                                                   |
+| [`ErrorFrequency`](#pudl.transform.ferc1.ErrorFrequency)                              | Check error frequency in XBRL calculations.                                                                                                                                                   |
+| [`RelativeErrorMagnitude`](#pudl.transform.ferc1.RelativeErrorMagnitude)                      | Check relative magnitude of errors in XBRL calculations.                                                                                                                                      |
+| [`AbsoluteErrorMagnitude`](#pudl.transform.ferc1.AbsoluteErrorMagnitude)                      | Check absolute magnitude of errors in XBRL calculations.                                                                                                                                      |
+| [`NullCalculatedValueFrequency`](#pudl.transform.ferc1.NullCalculatedValueFrequency)                | Check the frequency of null calculated values.                                                                                                                                                |
+| [`NullReportedValueFrequency`](#pudl.transform.ferc1.NullReportedValueFrequency)                  | Check the frequency of null reported values.                                                                                                                                                  |
+| [`Ferc1TableTransformParams`](#pudl.transform.ferc1.Ferc1TableTransformParams)                   | A model defining what TransformParams are allowed for FERC Form 1.                                                                                                                            |
+| [`Ferc1AbstractTableTransformer`](#pudl.transform.ferc1.Ferc1AbstractTableTransformer)               | An abstract class defining methods common to many FERC Form 1 tables.                                                                                                                         |
+| [`IdentificationCertificationTableTransformer`](#pudl.transform.ferc1.IdentificationCertificationTableTransformer) | Transformer class for the [core_ferc1_\_yearly_identification_certification](../../../../data_dictionaries/pudl_db.html.md#core-ferc1-yearly-identification-certification) table.               |
+| [`SteamPlantsFuelTableTransformer`](#pudl.transform.ferc1.SteamPlantsFuelTableTransformer)             | A table transformer specific to the [core_ferc1_\_yearly_steam_plants_fuel_sched402](../../../../data_dictionaries/pudl_db.html.md#core-ferc1-yearly-steam-plants-fuel-sched402) table.         |
+| [`SteamPlantsTableTransformer`](#pudl.transform.ferc1.SteamPlantsTableTransformer)                 | Transformer class for the [core_ferc1_\_yearly_steam_plants_sched402](../../../../data_dictionaries/pudl_db.html.md#core-ferc1-yearly-steam-plants-sched402) table.                             |
+| [`HydroelectricPlantsTableTransformer`](#pudl.transform.ferc1.HydroelectricPlantsTableTransformer)         | A table transformer specific to the [core_ferc1_\_yearly_hydroelectric_plants_sched406](../../../../data_dictionaries/pudl_db.html.md#core-ferc1-yearly-hydroelectric-plants-sched406) table.   |
+| [`PumpedStoragePlantsTableTransformer`](#pudl.transform.ferc1.PumpedStoragePlantsTableTransformer)         | Transformer class for [core_ferc1_\_yearly_pumped_storage_plants_sched408](../../../../data_dictionaries/pudl_db.html.md#core-ferc1-yearly-pumped-storage-plants-sched408) table.               |
+| [`PurchasedPowerAndExchangesTableTransformer`](#pudl.transform.ferc1.PurchasedPowerAndExchangesTableTransformer)  | Transformer class for [core_ferc1_\_yearly_purchased_power_and_exchanges_sched326](../../../../data_dictionaries/pudl_db.html.md#core-ferc1-yearly-purchased-power-and-exchanges-sched326).     |
+| [`PlantInServiceTableTransformer`](#pudl.transform.ferc1.PlantInServiceTableTransformer)              | A transformer for the [core_ferc1_\_yearly_plant_in_service_sched204](../../../../data_dictionaries/pudl_db.html.md#core-ferc1-yearly-plant-in-service-sched204) table.                         |
+| [`SmallPlantsTableTransformer`](#pudl.transform.ferc1.SmallPlantsTableTransformer)                 | A table transformer specific to the [core_ferc1_\_yearly_small_plants_sched410](../../../../data_dictionaries/pudl_db.html.md#core-ferc1-yearly-small-plants-sched410) table.                   |
+| [`TransmissionLinesTableTransformer`](#pudl.transform.ferc1.TransmissionLinesTableTransformer)           | A table transformer for the [core_ferc1_\_yearly_transmission_lines_sched422](../../../../data_dictionaries/pudl_db.html.md#core-ferc1-yearly-transmission-lines-sched422) table.               |
+| [`EnergySourcesTableTransformer`](#pudl.transform.ferc1.EnergySourcesTableTransformer)               | Transformer class for [core_ferc1_\_yearly_energy_sources_sched401](../../../../data_dictionaries/pudl_db.html.md#core-ferc1-yearly-energy-sources-sched401) table.                             |
+| [`EnergyDispositionsTableTransformer`](#pudl.transform.ferc1.EnergyDispositionsTableTransformer)          | Transformer class for [core_ferc1_\_yearly_energy_dispositions_sched401](../../../../data_dictionaries/pudl_db.html.md#core-ferc1-yearly-energy-dispositions-sched401) table.                   |
+| [`UtilityPlantSummaryTableTransformer`](#pudl.transform.ferc1.UtilityPlantSummaryTableTransformer)         | Transformer class for [core_ferc1_\_yearly_utility_plant_summary_sched200](../../../../data_dictionaries/pudl_db.html.md#core-ferc1-yearly-utility-plant-summary-sched200) table.               |
+| [`BalanceSheetLiabilitiesTableTransformer`](#pudl.transform.ferc1.BalanceSheetLiabilitiesTableTransformer)     | Transformer class for [core_ferc1_\_yearly_balance_sheet_liabilities_sched110](../../../../data_dictionaries/pudl_db.html.md#core-ferc1-yearly-balance-sheet-liabilities-sched110) table.       |
+| [`BalanceSheetAssetsTableTransformer`](#pudl.transform.ferc1.BalanceSheetAssetsTableTransformer)          | Transformer class for [core_ferc1_\_yearly_balance_sheet_assets_sched110](../../../../data_dictionaries/pudl_db.html.md#core-ferc1-yearly-balance-sheet-assets-sched110) table.                 |
+| [`IncomeStatementsTableTransformer`](#pudl.transform.ferc1.IncomeStatementsTableTransformer)            | Transformer class for the [core_ferc1_\_yearly_income_statements_sched114](../../../../data_dictionaries/pudl_db.html.md#core-ferc1-yearly-income-statements-sched114) table.                   |
+| [`RetainedEarningsTableTransformer`](#pudl.transform.ferc1.RetainedEarningsTableTransformer)            | Transformer class for [core_ferc1_\_yearly_retained_earnings_sched118](../../../../data_dictionaries/pudl_db.html.md#core-ferc1-yearly-retained-earnings-sched118) table.                       |
+| [`DepreciationSummaryTableTransformer`](#pudl.transform.ferc1.DepreciationSummaryTableTransformer)         | Transformer class for [core_ferc1_\_yearly_depreciation_summary_sched336](../../../../data_dictionaries/pudl_db.html.md#core-ferc1-yearly-depreciation-summary-sched336) table.                 |
+| [`DepreciationFactorsTransformer`](#pudl.transform.ferc1.DepreciationFactorsTransformer)              | Transformer class for [core_ferc1_\_yearly_depreciation_factors_sched336](../../../../data_dictionaries/pudl_db.html.md#core-ferc1-yearly-depreciation-factors-sched336) table.                 |
+| [`DepreciationChangesTableTransformer`](#pudl.transform.ferc1.DepreciationChangesTableTransformer)         | Transformer class for [core_ferc1_\_yearly_depreciation_changes_sched219](../../../../data_dictionaries/pudl_db.html.md#core-ferc1-yearly-depreciation-changes-sched219) table.                 |
+| [`DepreciationByFunctionTableTransformer`](#pudl.transform.ferc1.DepreciationByFunctionTableTransformer)      | Transformer for [core_ferc1_\_yearly_depreciation_by_function_sched219](../../../../data_dictionaries/pudl_db.html.md#core-ferc1-yearly-depreciation-by-function-sched219) table.               |
+| [`OperatingExpensesTableTransformer`](#pudl.transform.ferc1.OperatingExpensesTableTransformer)           | Transformer class for [core_ferc1_\_yearly_operating_expenses_sched320](../../../../data_dictionaries/pudl_db.html.md#core-ferc1-yearly-operating-expenses-sched320) table.                     |
+| [`OperatingRevenuesTableTransformer`](#pudl.transform.ferc1.OperatingRevenuesTableTransformer)           | Transformer class for [core_ferc1_\_yearly_operating_revenues_sched300](../../../../data_dictionaries/pudl_db.html.md#core-ferc1-yearly-operating-revenues-sched300) table.                     |
+| [`CashFlowsTableTransformer`](#pudl.transform.ferc1.CashFlowsTableTransformer)                   | Transform class for [core_ferc1_\_yearly_cash_flows_sched120](../../../../data_dictionaries/pudl_db.html.md#core-ferc1-yearly-cash-flows-sched120) table.                                       |
+| [`SalesByRateSchedulesTableTransformer`](#pudl.transform.ferc1.SalesByRateSchedulesTableTransformer)        | Transform class for [core_ferc1_\_yearly_sales_by_rate_schedules_sched304](../../../../data_dictionaries/pudl_db.html.md#core-ferc1-yearly-sales-by-rate-schedules-sched304) table.             |
+| [`OtherRegulatoryLiabilitiesTableTransformer`](#pudl.transform.ferc1.OtherRegulatoryLiabilitiesTableTransformer)  | Transformer class for [core_ferc1_\_yearly_other_regulatory_liabilities_sched278](../../../../data_dictionaries/pudl_db.html.md#core-ferc1-yearly-other-regulatory-liabilities-sched278) table. |
+| [`OtherRegulatoryAssetsTableTransformer`](#pudl.transform.ferc1.OtherRegulatoryAssetsTableTransformer)       | Transformer class for [core_ferc1_\_yearly_other_regulatory_assets_sched232](../../../../data_dictionaries/pudl_db.html.md#core-ferc1-yearly-other-regulatory-assets-sched232) table.           |
 
 ## Functions
 
-| [`_core_ferc1_xbrl__metadata_json`](#pudl.transform.ferc1._core_ferc1_xbrl__metadata_json)(→ dict[str, dict[str, ...)                 | Generate cleaned json xbrl metadata.                                                                                                        |
-|---------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------|
-| [`add_missing_factoid`](#pudl.transform.ferc1.add_missing_factoid)(raw_ferc1_xbrl_\_metadata_json)                                    | Add one missing factoid from core_ferc1_\_yearly_operating_expenses_sched320.                                                               |
-| [`add_source_tables_to_xbrl_metadata`](#pudl.transform.ferc1.add_source_tables_to_xbrl_metadata)(→ dict[str, ...)                     | Add a `source_tables` field into metadata calculation components.                                                                           |
-| [`wide_to_tidy`](#pudl.transform.ferc1.wide_to_tidy)(→ pandas.DataFrame)                                                              | Reshape wide tables with FERC account columns to tidy format.                                                                               |
-| [`merge_xbrl_metadata`](#pudl.transform.ferc1.merge_xbrl_metadata)(→ pandas.DataFrame)                                                | Merge metadata based on params.                                                                                                             |
-| [`drop_duplicate_rows_dbf`](#pudl.transform.ferc1.drop_duplicate_rows_dbf)(→ pandas.DataFrame)                                        | Drop duplicate DBF rows if duplicates have identical data or one row has nulls.                                                             |
-| [`align_row_numbers_dbf`](#pudl.transform.ferc1.align_row_numbers_dbf)(→ pandas.DataFrame)                                            | Rename the xbrl_factoid column after [`align_row_numbers_dbf()`](#pudl.transform.ferc1.align_row_numbers_dbf).                              |
-| [`select_dbf_rows_by_category`](#pudl.transform.ferc1.select_dbf_rows_by_category)(→ pandas.DataFrame)                                | Select DBF rows with values listed or found in XBRL in a categorical-like column.                                                           |
-| [`unstack_balances_to_report_year_instant_xbrl`](#pudl.transform.ferc1.unstack_balances_to_report_year_instant_xbrl)(...)             | Turn start year end year rows into columns for each value type.                                                                             |
-| [`combine_axis_columns_xbrl`](#pudl.transform.ferc1.combine_axis_columns_xbrl)(→ pandas.DataFrame)                                    | Combine axis columns from squished XBRL tables into one column with no NAs.                                                                 |
-| [`assign_quarterly_data_to_yearly_dbf`](#pudl.transform.ferc1.assign_quarterly_data_to_yearly_dbf)(→ pandas.DataFrame)                | Transfer 4th quarter reported data to the annual columns.                                                                                   |
-| [`add_columns_with_uniform_values`](#pudl.transform.ferc1.add_columns_with_uniform_values)(→ pandas.DataFrame)                        | Add a column to a table with a single value.                                                                                                |
-| [`reconcile_table_calculations`](#pudl.transform.ferc1.reconcile_table_calculations)(→ pandas.DataFrame)                              | Ensure intra-table calculated values match reported values within a tolerance.                                                              |
-| [`reconcile_one_type_of_table_calculations`](#pudl.transform.ferc1.reconcile_one_type_of_table_calculations)(...)                     | Calculate vales, run metric checks and add corrections.                                                                                     |
-| [`_calculation_components_subdimension_calculations`](#pudl.transform.ferc1._calculation_components_subdimension_calculations)(...)   | Add total to subdimension calculations into calculation components.                                                                         |
-| [`_add_intra_table_calculation_dimensions`](#pudl.transform.ferc1._add_intra_table_calculation_dimensions)(→ pandas.DataFrame)        | Add all observed subdimensions into the calculation components.                                                                             |
-| [`calculate_values_from_components`](#pudl.transform.ferc1.calculate_values_from_components)(→ pandas.DataFrame)                      | Apply calculations derived from XBRL metadata to reported XBRL data.                                                                        |
-| [`check_calculation_metrics_by_group`](#pudl.transform.ferc1.check_calculation_metrics_by_group)(→ pandas.DataFrame)                  | Tabulate the results of the calculation checks by group.                                                                                    |
-| [`check_calculation_metrics`](#pudl.transform.ferc1.check_calculation_metrics)(→ pandas.DataFrame)                                    | Run the calculation metrics and determine if calculations are within tolerance.                                                             |
-| [`add_corrections`](#pudl.transform.ferc1.add_corrections)(→ pandas.DataFrame)                                                        | Add corrections to discrepancies between reported & calculated values.                                                                      |
-| [`select_current_year_annual_records_duration_xbrl`](#pudl.transform.ferc1.select_current_year_annual_records_duration_xbrl)(df, ...) | Select for annual records within their report_year.                                                                                         |
-| [`get_ferc1_dbf_rows_to_map`](#pudl.transform.ferc1.get_ferc1_dbf_rows_to_map)(→ pandas.DataFrame)                                    | Identify DBF rows that need to be mapped to XBRL columns.                                                                                   |
-| [`update_dbf_to_xbrl_map`](#pudl.transform.ferc1.update_dbf_to_xbrl_map)(→ pandas.DataFrame)                                          | Regenerate the FERC 1 DBF+XBRL glue while retaining existing mappings.                                                                      |
-| [`read_dbf_to_xbrl_map`](#pudl.transform.ferc1.read_dbf_to_xbrl_map)(→ pandas.DataFrame)                                              | Read the manually compiled DBF row to XBRL column mapping for a given table.                                                                |
-| [`fill_dbf_to_xbrl_map`](#pudl.transform.ferc1.fill_dbf_to_xbrl_map)(→ pandas.DataFrame)                                              | Forward-fill missing years in the minimal, manually compiled DBF to XBRL mapping.                                                           |
-| [`get_data_cols_raw_xbrl`](#pudl.transform.ferc1.get_data_cols_raw_xbrl)(→ list[str])                                                 | Get a list of all XBRL data columns appearing in a given XBRL table.                                                                        |
-| [`read_xbrl_calculation_fixes`](#pudl.transform.ferc1.read_xbrl_calculation_fixes)(→ pandas.DataFrame)                                | Read in the table of calculation fixes.                                                                                                     |
-| [`convert_pnynmndtnhnmns_to_years`](#pudl.transform.ferc1.convert_pnynmndtnhnmns_to_years)(dep_factors, life_col)                     | Convert the XBRL-based PnYnMnDTnHnMnS time period into years.                                                                               |
-| [`ferc1_transform_asset_factory`](#pudl.transform.ferc1.ferc1_transform_asset_factory)(→ dagster.AssetsDefinition)                    | Create an asset that pulls in raw ferc Form 1 assets and applies transformations.                                                           |
-| [`create_ferc1_transform_assets`](#pudl.transform.ferc1.create_ferc1_transform_assets)(...)                                           | Create a list of transformed FERC Form 1 assets.                                                                                            |
-| [`other_dimensions`](#pudl.transform.ferc1.other_dimensions)(→ list[str])                                                             | Get a list of the other dimension columns across all of the transformers.                                                                   |
-| [`table_to_xbrl_factoid_name`](#pudl.transform.ferc1.table_to_xbrl_factoid_name)(→ dict[str, str])                                    | Build a dictionary of table name (keys) to `xbrl_factoid` column name.                                                                      |
-| [`table_to_column_to_check`](#pudl.transform.ferc1.table_to_column_to_check)(→ dict[str, list[str]])                                  | Build a dictionary of table name (keys) to column_to_check from reconcile_table_calculations.                                               |
-| [`remove_rare_utility_type_subdimensions_rows`](#pudl.transform.ferc1.remove_rare_utility_type_subdimensions_rows)(...)               | Remove the rare, non-total utility types when all values are duplicated.                                                                    |
-| [`_core_ferc1__table_dimensions`](#pudl.transform.ferc1._core_ferc1__table_dimensions)(→ pandas.DataFrame)                            | Build a table of values of dimensions observed in the transformed data tables.                                                              |
-| [`_core_ferc1_xbrl__metadata`](#pudl.transform.ferc1._core_ferc1_xbrl__metadata)(→ pandas.DataFrame)                                  | Build a table of all of the tables' XBRL metadata.                                                                                          |
-| [`_core_ferc1_xbrl__calculation_components`](#pudl.transform.ferc1._core_ferc1_xbrl__calculation_components)(...)                     | Create calculation-component table from table-level metadata.                                                                               |
-| [`unexpected_total_components`](#pudl.transform.ferc1.unexpected_total_components)(→ pandas.DataFrame)                                | Find unexpected components in within-fact total calculations.                                                                               |
-| [`check_for_calc_components_duplicates`](#pudl.transform.ferc1.check_for_calc_components_duplicates)(→ None)                          | Check for duplicates calculation records.                                                                                                   |
-| [`make_xbrl_factoid_dimensions_explicit`](#pudl.transform.ferc1.make_xbrl_factoid_dimensions_explicit)(→ pandas.DataFrame)            | Fill in null dimensions w/ the values observed in [`_core_ferc1__table_dimensions()`](#pudl.transform.ferc1._core_ferc1__table_dimensions). |
-| [`assign_parent_dimensions`](#pudl.transform.ferc1.assign_parent_dimensions)(→ pandas.DataFrame)                                      | Add dimensions to calculation parents.                                                                                                      |
-| [`infer_intra_factoid_totals`](#pudl.transform.ferc1.infer_intra_factoid_totals)(→ pandas.DataFrame)                                  | Define dimension total calculations.                                                                                                        |
-| [`add_calculation_component_corrections`](#pudl.transform.ferc1.add_calculation_component_corrections)(→ pandas.DataFrame)            | Add records into the calculation components table.                                                                                          |
-| [`_core_ferc1__calculation_metric_checks`](#pudl.transform.ferc1._core_ferc1__calculation_metric_checks)(\*\*kwargs)                  | Check calculation metrics for all transformed tables which have reconciled calcs.                                                           |
+| [`_core_ferc1_xbrl__metadata_json`](#pudl.transform.ferc1._core_ferc1_xbrl__metadata_json)(→ dict[str, dict[str, ...)   | Generate cleaned json xbrl metadata.                                                                                                |
+|---------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------|
+| [`add_missing_factoid`](#pudl.transform.ferc1.add_missing_factoid)(raw_ferc1_xbrl_\_metadata_json)          | Add one missing factoid from core_ferc1_\_yearly_operating_expenses_sched320.                                                       |
+| [`add_source_tables_to_xbrl_metadata`](#pudl.transform.ferc1.add_source_tables_to_xbrl_metadata)(→ dict[str, ...)          | Add a `source_tables` field into metadata calculation components.                                                                   |
+| [`wide_to_tidy`](#pudl.transform.ferc1.wide_to_tidy)(→ pandas.DataFrame)                             | Reshape wide tables with FERC account columns to tidy format.                                                                       |
+| [`merge_xbrl_metadata`](#pudl.transform.ferc1.merge_xbrl_metadata)(→ pandas.DataFrame)                      | Merge metadata based on params.                                                                                                     |
+| [`drop_duplicate_rows_dbf`](#pudl.transform.ferc1.drop_duplicate_rows_dbf)(→ pandas.DataFrame)                  | Drop duplicate DBF rows if duplicates have identical data or one row has nulls.                                                     |
+| [`align_row_numbers_dbf`](#pudl.transform.ferc1.align_row_numbers_dbf)(→ pandas.DataFrame)                    | Rename the xbrl_factoid column after [`align_row_numbers_dbf()`](#pudl.transform.ferc1.align_row_numbers_dbf).                      |
+| [`select_dbf_rows_by_category`](#pudl.transform.ferc1.select_dbf_rows_by_category)(→ pandas.DataFrame)              | Select DBF rows with values listed or found in XBRL in a categorical-like column.                                                   |
+| [`unstack_balances_to_report_year_instant_xbrl`](#pudl.transform.ferc1.unstack_balances_to_report_year_instant_xbrl)(...)            | Turn start year end year rows into columns for each value type.                                                                     |
+| [`combine_axis_columns_xbrl`](#pudl.transform.ferc1.combine_axis_columns_xbrl)(→ pandas.DataFrame)                | Combine axis columns from squished XBRL tables into one column with no NAs.                                                         |
+| [`assign_quarterly_data_to_yearly_dbf`](#pudl.transform.ferc1.assign_quarterly_data_to_yearly_dbf)(→ pandas.DataFrame)      | Transfer 4th quarter reported data to the annual columns.                                                                           |
+| [`add_columns_with_uniform_values`](#pudl.transform.ferc1.add_columns_with_uniform_values)(→ pandas.DataFrame)          | Add a column to a table with a single value.                                                                                        |
+| [`reconcile_table_calculations`](#pudl.transform.ferc1.reconcile_table_calculations)(→ pandas.DataFrame)             | Ensure intra-table calculated values match reported values within a tolerance.                                                      |
+| [`reconcile_one_type_of_table_calculations`](#pudl.transform.ferc1.reconcile_one_type_of_table_calculations)(...)                | Calculate vales, run metric checks and add corrections.                                                                             |
+| [`_calculation_components_subdimension_calculations`](#pudl.transform.ferc1._calculation_components_subdimension_calculations)(...)       | Add total to subdimension calculations into calculation components.                                                                 |
+| [`_add_intra_table_calculation_dimensions`](#pudl.transform.ferc1._add_intra_table_calculation_dimensions)(→ pandas.DataFrame)  | Add all observed subdimensions into the calculation components.                                                                     |
+| [`calculate_values_from_components`](#pudl.transform.ferc1.calculate_values_from_components)(→ pandas.DataFrame)         | Apply calculations derived from XBRL metadata to reported XBRL data.                                                                |
+| [`check_calculation_metrics_by_group`](#pudl.transform.ferc1.check_calculation_metrics_by_group)(→ pandas.DataFrame)       | Tabulate the results of the calculation checks by group.                                                                            |
+| [`check_calculation_metrics`](#pudl.transform.ferc1.check_calculation_metrics)(→ pandas.DataFrame)                | Run the calculation metrics and determine if calculations are within tolerance.                                                     |
+| [`add_corrections`](#pudl.transform.ferc1.add_corrections)(→ pandas.DataFrame)                          | Add corrections to discrepancies between reported & calculated values.                                                              |
+| [`select_current_year_annual_records_duration_xbrl`](#pudl.transform.ferc1.select_current_year_annual_records_duration_xbrl)(df, ...)    | Select for annual records within their report_year.                                                                                 |
+| [`get_ferc1_dbf_rows_to_map`](#pudl.transform.ferc1.get_ferc1_dbf_rows_to_map)(→ pandas.DataFrame)                | Identify DBF rows that need to be mapped to XBRL columns.                                                                           |
+| [`update_dbf_to_xbrl_map`](#pudl.transform.ferc1.update_dbf_to_xbrl_map)(→ pandas.DataFrame)                   | Regenerate the FERC 1 DBF+XBRL glue while retaining existing mappings.                                                              |
+| [`read_dbf_to_xbrl_map`](#pudl.transform.ferc1.read_dbf_to_xbrl_map)(→ pandas.DataFrame)                     | Read the manually compiled DBF row to XBRL column mapping for a given table.                                                        |
+| [`fill_dbf_to_xbrl_map`](#pudl.transform.ferc1.fill_dbf_to_xbrl_map)(→ pandas.DataFrame)                     | Forward-fill missing years in the minimal, manually compiled DBF to XBRL mapping.                                                   |
+| [`get_data_cols_raw_xbrl`](#pudl.transform.ferc1.get_data_cols_raw_xbrl)(→ list[str])                          | Get a list of all XBRL data columns appearing in a given XBRL table.                                                                |
+| [`read_xbrl_calculation_fixes`](#pudl.transform.ferc1.read_xbrl_calculation_fixes)(→ pandas.DataFrame)              | Read in the table of calculation fixes.                                                                                             |
+| [`convert_pnynmndtnhnmns_to_years`](#pudl.transform.ferc1.convert_pnynmndtnhnmns_to_years)(dep_factors, life_col)       | Convert the XBRL-based PnYnMnDTnHnMnS time period into years.                                                                       |
+| [`ferc1_transform_asset_factory`](#pudl.transform.ferc1.ferc1_transform_asset_factory)(→ dagster.AssetsDefinition)    | Create an asset that pulls in raw ferc Form 1 assets and applies transformations.                                                   |
+| [`create_ferc1_transform_assets`](#pudl.transform.ferc1.create_ferc1_transform_assets)(...)                           | Create a list of transformed FERC Form 1 assets.                                                                                    |
+| [`other_dimensions`](#pudl.transform.ferc1.other_dimensions)(→ list[str])                                | Get a list of the other dimension columns across all of the transformers.                                                           |
+| [`table_to_xbrl_factoid_name`](#pudl.transform.ferc1.table_to_xbrl_factoid_name)(→ dict[str, str])                 | Build a dictionary of table name (keys) to `xbrl_factoid` column name.                                                              |
+| [`table_to_column_to_check`](#pudl.transform.ferc1.table_to_column_to_check)(→ dict[str, list[str]])             | Build a dictionary of table name (keys) to column_to_check from reconcile_table_calculations.                                       |
+| [`remove_rare_utility_type_subdimensions_rows`](#pudl.transform.ferc1.remove_rare_utility_type_subdimensions_rows)(...)             | Remove the rare, non-total utility types when all values are duplicated.                                                            |
+| [`_core_ferc1__table_dimensions`](#pudl.transform.ferc1._core_ferc1__table_dimensions)(→ pandas.DataFrame)            | Build a table of values of dimensions observed in the transformed data tables.                                                      |
+| [`_core_ferc1_xbrl__metadata`](#pudl.transform.ferc1._core_ferc1_xbrl__metadata)(→ pandas.DataFrame)               | Build a table of all of the tables' XBRL metadata.                                                                                  |
+| [`_core_ferc1_xbrl__calculation_components`](#pudl.transform.ferc1._core_ferc1_xbrl__calculation_components)(...)                | Create calculation-component table from table-level metadata.                                                                       |
+| [`unexpected_total_components`](#pudl.transform.ferc1.unexpected_total_components)(→ pandas.DataFrame)              | Find unexpected components in within-fact total calculations.                                                                       |
+| [`check_for_calc_components_duplicates`](#pudl.transform.ferc1.check_for_calc_components_duplicates)(→ None)                 | Check for duplicates calculation records.                                                                                           |
+| [`make_xbrl_factoid_dimensions_explicit`](#pudl.transform.ferc1.make_xbrl_factoid_dimensions_explicit)(→ pandas.DataFrame)    | Fill in null dimensions w/ the values observed in [`_core_ferc1__table_dimensions()`](#pudl.transform.ferc1._core_ferc1__table_dimensions). |
+| [`assign_parent_dimensions`](#pudl.transform.ferc1.assign_parent_dimensions)(→ pandas.DataFrame)                 | Add dimensions to calculation parents.                                                                                              |
+| [`infer_intra_factoid_totals`](#pudl.transform.ferc1.infer_intra_factoid_totals)(→ pandas.DataFrame)               | Define dimension total calculations.                                                                                                |
+| [`add_calculation_component_corrections`](#pudl.transform.ferc1.add_calculation_component_corrections)(→ pandas.DataFrame)    | Add records into the calculation components table.                                                                                  |
+| [`_core_ferc1__calculation_metric_checks`](#pudl.transform.ferc1._core_ferc1__calculation_metric_checks)(\*\*kwargs)           | Check calculation metrics for all transformed tables which have reconciled calcs.                                                   |
 
 ## Module Contents
 
@@ -228,13 +228,13 @@ Package. But this works for now.
 
 ### *class* pudl.transform.ferc1.RenameColumnsFerc1(/, \*\*data: Any)
 
-Bases: [`pudl.transform.classes.TransformParams`](../classes/index.md#pudl.transform.classes.TransformParams)
+Bases: [`pudl.transform.classes.TransformParams`](../classes/index.html.md#pudl.transform.classes.TransformParams)
 
 Dictionaries for renaming either XBRL or DBF derived FERC 1 columns.
 
 This is FERC 1 specific, because we need to store both DBF and XBRL rename
 dictionaries separately. Note that this parameter model does not have its own unique
-transform function. Like the generic [`pudl.transform.classes.RenameColumns`](../classes/index.md#pudl.transform.classes.RenameColumns)
+transform function. Like the generic [`pudl.transform.classes.RenameColumns`](../classes/index.html.md#pudl.transform.classes.RenameColumns)
 it depends on the build in `pd.rename()` method, which is called with the values
 DBF or XBRL parameters depending on the context.
 
@@ -249,13 +249,13 @@ Potential parameters validations that could be implemented
   because there will be cases in which the original column gets dropped or modified,
   e.g. in the case of unit conversions with a column rename.
 
-#### dbf *: [pudl.transform.classes.RenameColumns](../classes/index.md#pudl.transform.classes.RenameColumns)*
+#### dbf *: [pudl.transform.classes.RenameColumns](../classes/index.html.md#pudl.transform.classes.RenameColumns)*
 
-#### xbrl *: [pudl.transform.classes.RenameColumns](../classes/index.md#pudl.transform.classes.RenameColumns)*
+#### xbrl *: [pudl.transform.classes.RenameColumns](../classes/index.html.md#pudl.transform.classes.RenameColumns)*
 
-#### duration_xbrl *: [pudl.transform.classes.RenameColumns](../classes/index.md#pudl.transform.classes.RenameColumns)*
+#### duration_xbrl *: [pudl.transform.classes.RenameColumns](../classes/index.html.md#pudl.transform.classes.RenameColumns)*
 
-#### instant_xbrl *: [pudl.transform.classes.RenameColumns](../classes/index.md#pudl.transform.classes.RenameColumns)*
+#### instant_xbrl *: [pudl.transform.classes.RenameColumns](../classes/index.html.md#pudl.transform.classes.RenameColumns)*
 
 #### *property* rename_dicts_xbrl
 
@@ -263,7 +263,7 @@ Compile all of the XBRL rename dictionaries into an ordered list.
 
 ### *class* pudl.transform.ferc1.WideToTidy(/, \*\*data: Any)
 
-Bases: [`pudl.transform.classes.TransformParams`](../classes/index.md#pudl.transform.classes.TransformParams)
+Bases: [`pudl.transform.classes.TransformParams`](../classes/index.html.md#pudl.transform.classes.TransformParams)
 
 Parameters for converting a wide table to a tidy table with value types.
 
@@ -303,7 +303,7 @@ raised.
 
 ### *class* pudl.transform.ferc1.WideToTidySourceFerc1(/, \*\*data: Any)
 
-Bases: [`pudl.transform.classes.TransformParams`](../classes/index.md#pudl.transform.classes.TransformParams)
+Bases: [`pudl.transform.classes.TransformParams`](../classes/index.html.md#pudl.transform.classes.TransformParams)
 
 Parameters for converting either or both XBRL and DBF table from wide to tidy.
 
@@ -335,13 +335,13 @@ production plant -> all electric utility plant) though the categorical columns
 required for that aggregation are added later.
 
 For table that have a internal relationship between the values in the
-`params.value_types`, such as the [core_ferc1_\_yearly_plant_in_service_sched204](../../../../data_dictionaries/pudl_db.md#core-ferc1-yearly-plant-in-service-sched204) table, this also
+`params.value_types`, such as the [core_ferc1_\_yearly_plant_in_service_sched204](../../../../data_dictionaries/pudl_db.html.md#core-ferc1-yearly-plant-in-service-sched204) table, this also
 enables aggregation across columns to calculate the ending balance based on the
 starting balance and all of the reported changes.
 
 ### *class* pudl.transform.ferc1.MergeXbrlMetadata(/, \*\*data: Any)
 
-Bases: [`pudl.transform.classes.TransformParams`](../classes/index.md#pudl.transform.classes.TransformParams)
+Bases: [`pudl.transform.classes.TransformParams`](../classes/index.html.md#pudl.transform.classes.TransformParams)
 
 Parameters for merging in XBRL metadata.
 
@@ -361,7 +361,7 @@ Merge metadata based on params.
 
 ### *class* pudl.transform.ferc1.DropDuplicateRowsDbf(/, \*\*data: Any)
 
-Bases: [`pudl.transform.classes.TransformParams`](../classes/index.md#pudl.transform.classes.TransformParams)
+Bases: [`pudl.transform.classes.TransformParams`](../classes/index.html.md#pudl.transform.classes.TransformParams)
 
 Parameter for dropping duplicate DBF rows.
 
@@ -393,7 +393,7 @@ not contain the same data or half null data, an assertion will be raised.
 
 ### *class* pudl.transform.ferc1.AlignRowNumbersDbf(/, \*\*data: Any)
 
-Bases: [`pudl.transform.classes.TransformParams`](../classes/index.md#pudl.transform.classes.TransformParams)
+Bases: [`pudl.transform.classes.TransformParams`](../classes/index.html.md#pudl.transform.classes.TransformParams)
 
 Parameters for aligning DBF row numbers with metadata from manual maps.
 
@@ -409,7 +409,7 @@ Rename the xbrl_factoid column after [`align_row_numbers_dbf()`](#pudl.transform
 
 ### *class* pudl.transform.ferc1.SelectDbfRowsByCategory(/, \*\*data: Any)
 
-Bases: [`pudl.transform.classes.TransformParams`](../classes/index.md#pudl.transform.classes.TransformParams)
+Bases: [`pudl.transform.classes.TransformParams`](../classes/index.html.md#pudl.transform.classes.TransformParams)
 
 Parameters for [`select_dbf_rows_by_category()`](#pudl.transform.ferc1.select_dbf_rows_by_category).
 
@@ -469,7 +469,7 @@ parameter.
 
 ### *class* pudl.transform.ferc1.UnstackBalancesToReportYearInstantXbrl(/, \*\*data: Any)
 
-Bases: [`pudl.transform.classes.TransformParams`](../classes/index.md#pudl.transform.classes.TransformParams)
+Bases: [`pudl.transform.classes.TransformParams`](../classes/index.html.md#pudl.transform.classes.TransformParams)
 
 Parameters for [`unstack_balances_to_report_year_instant_xbrl()`](#pudl.transform.ferc1.unstack_balances_to_report_year_instant_xbrl).
 
@@ -511,7 +511,7 @@ Params:
 
 ### *class* pudl.transform.ferc1.CombineAxisColumnsXbrl(/, \*\*data: Any)
 
-Bases: [`pudl.transform.classes.TransformParams`](../classes/index.md#pudl.transform.classes.TransformParams)
+Bases: [`pudl.transform.classes.TransformParams`](../classes/index.html.md#pudl.transform.classes.TransformParams)
 
 Parameters for [`combine_axis_columns_xbrl()`](#pudl.transform.ferc1.combine_axis_columns_xbrl).
 
@@ -564,7 +564,7 @@ vs. this:
 
 ### *class* pudl.transform.ferc1.AssignQuarterlyDataToYearlyDbf(/, \*\*data: Any)
 
-Bases: [`pudl.transform.classes.TransformParams`](../classes/index.md#pudl.transform.classes.TransformParams)
+Bases: [`pudl.transform.classes.TransformParams`](../classes/index.html.md#pudl.transform.classes.TransformParams)
 
 Parameters for transferring quarterly reported data to annual columns.
 
@@ -584,7 +584,7 @@ to the 4th quarter.
 
 ### *class* pudl.transform.ferc1.AddColumnWithUniformValue(/, \*\*data: Any)
 
-Bases: [`pudl.transform.classes.TransformParams`](../classes/index.md#pudl.transform.classes.TransformParams)
+Bases: [`pudl.transform.classes.TransformParams`](../classes/index.html.md#pudl.transform.classes.TransformParams)
 
 Parameters for adding a column to a table with a single value.
 
@@ -594,7 +594,7 @@ Parameters for adding a column to a table with a single value.
 
 ### *class* pudl.transform.ferc1.AddColumnsWithUniformValues(/, \*\*data: Any)
 
-Bases: [`pudl.transform.classes.TransformParams`](../classes/index.md#pudl.transform.classes.TransformParams)
+Bases: [`pudl.transform.classes.TransformParams`](../classes/index.html.md#pudl.transform.classes.TransformParams)
 
 Parameters for adding columns to a table with a single value.
 
@@ -612,21 +612,21 @@ Add a column to a table with a single value.
 
 ### *class* pudl.transform.ferc1.IsCloseTolerance(/, \*\*data: Any)
 
-Bases: [`pudl.transform.classes.TransformParams`](../classes/index.md#pudl.transform.classes.TransformParams)
+Bases: [`pudl.transform.classes.TransformParams`](../classes/index.html.md#pudl.transform.classes.TransformParams)
 
 Info for testing a particular check.
 
-#### isclose_rtol *: Annotated[[float](https://docs.python.org/3/library/functions.html#float), [Field](../../metadata/classes/index.md#pudl.metadata.classes.Field)(ge=0.0)]* *= 1e-05*
+#### isclose_rtol *: Annotated[[float](https://docs.python.org/3/library/functions.html#float), [Field](../../metadata/classes/index.html.md#pudl.metadata.classes.Field)(ge=0.0)]* *= 1e-05*
 
 Relative tolerance to use in `np.isclose()` for determining equality.
 
-#### isclose_atol *: Annotated[[float](https://docs.python.org/3/library/functions.html#float), [Field](../../metadata/classes/index.md#pudl.metadata.classes.Field)(ge=0.0, le=0.01)]* *= 1e-08*
+#### isclose_atol *: Annotated[[float](https://docs.python.org/3/library/functions.html#float), [Field](../../metadata/classes/index.html.md#pudl.metadata.classes.Field)(ge=0.0, le=0.01)]* *= 1e-08*
 
 Absolute tolerance to use in `np.isclose()` for determining equality.
 
 ### *class* pudl.transform.ferc1.CalculationIsCloseTolerance(/, \*\*data: Any)
 
-Bases: [`pudl.transform.classes.TransformParams`](../classes/index.md#pudl.transform.classes.TransformParams)
+Bases: [`pudl.transform.classes.TransformParams`](../classes/index.html.md#pudl.transform.classes.TransformParams)
 
 Calc params organized by check type.
 
@@ -642,25 +642,25 @@ Calc params organized by check type.
 
 ### *class* pudl.transform.ferc1.MetricTolerances(/, \*\*data: Any)
 
-Bases: [`pudl.transform.classes.TransformParams`](../classes/index.md#pudl.transform.classes.TransformParams)
+Bases: [`pudl.transform.classes.TransformParams`](../classes/index.html.md#pudl.transform.classes.TransformParams)
 
 Tolerances for all data checks to be preformed within a grouped df.
 
-#### error_frequency *: Annotated[[float](https://docs.python.org/3/library/functions.html#float), [Field](../../metadata/classes/index.md#pudl.metadata.classes.Field)(ge=0.0, le=1.0)]* *= 0.01*
+#### error_frequency *: Annotated[[float](https://docs.python.org/3/library/functions.html#float), [Field](../../metadata/classes/index.html.md#pudl.metadata.classes.Field)(ge=0.0, le=1.0)]* *= 0.01*
 
-#### relative_error_magnitude *: Annotated[[float](https://docs.python.org/3/library/functions.html#float), [Field](../../metadata/classes/index.md#pudl.metadata.classes.Field)(ge=0.0)]* *= 0.2*
+#### relative_error_magnitude *: Annotated[[float](https://docs.python.org/3/library/functions.html#float), [Field](../../metadata/classes/index.html.md#pudl.metadata.classes.Field)(ge=0.0)]* *= 0.2*
 
-#### null_calculated_value_frequency *: Annotated[[float](https://docs.python.org/3/library/functions.html#float), [Field](../../metadata/classes/index.md#pudl.metadata.classes.Field)(ge=0.0, le=1.0)]* *= 0.7*
+#### null_calculated_value_frequency *: Annotated[[float](https://docs.python.org/3/library/functions.html#float), [Field](../../metadata/classes/index.html.md#pudl.metadata.classes.Field)(ge=0.0, le=1.0)]* *= 0.7*
 
 Fraction of records with non-null reported values and null calculated values.
 
-#### absolute_error_magnitude *: Annotated[[float](https://docs.python.org/3/library/functions.html#float), [Field](../../metadata/classes/index.md#pudl.metadata.classes.Field)(ge=0.0)]*
+#### absolute_error_magnitude *: Annotated[[float](https://docs.python.org/3/library/functions.html#float), [Field](../../metadata/classes/index.html.md#pudl.metadata.classes.Field)(ge=0.0)]*
 
-#### null_reported_value_frequency *: Annotated[[float](https://docs.python.org/3/library/functions.html#float), [Field](../../metadata/classes/index.md#pudl.metadata.classes.Field)(ge=0.0, le=1.0)]* *= 1.0*
+#### null_reported_value_frequency *: Annotated[[float](https://docs.python.org/3/library/functions.html#float), [Field](../../metadata/classes/index.html.md#pudl.metadata.classes.Field)(ge=0.0, le=1.0)]* *= 1.0*
 
 ### *class* pudl.transform.ferc1.GroupMetricTolerances(/, \*\*data: Any)
 
-Bases: [`pudl.transform.classes.TransformParams`](../classes/index.md#pudl.transform.classes.TransformParams)
+Bases: [`pudl.transform.classes.TransformParams`](../classes/index.html.md#pudl.transform.classes.TransformParams)
 
 Data quality expectations related to FERC 1 calculations.
 
@@ -688,7 +688,7 @@ version of Form 1 when filing.
 
 ### *class* pudl.transform.ferc1.GroupMetricChecks(/, \*\*data: Any)
 
-Bases: [`pudl.transform.classes.TransformParams`](../classes/index.md#pudl.transform.classes.TransformParams)
+Bases: [`pudl.transform.classes.TransformParams`](../classes/index.html.md#pudl.transform.classes.TransformParams)
 
 Input for checking calculations organized by group and test.
 
@@ -706,7 +706,7 @@ Grouped tolerance should always be greater than or equal to ungrouped.
 
 ### *class* pudl.transform.ferc1.ReconcileTableCalculations(/, \*\*data: Any)
 
-Bases: [`pudl.transform.classes.TransformParams`](../classes/index.md#pudl.transform.classes.TransformParams)
+Bases: [`pudl.transform.classes.TransformParams`](../classes/index.html.md#pudl.transform.classes.TransformParams)
 
 Parameters for reconciling xbrl-metadata based calculations within a table.
 
@@ -970,12 +970,12 @@ calculation components during the metadata processing.
 
 ### *class* pudl.transform.ferc1.Ferc1TableTransformParams(/, \*\*data: Any)
 
-Bases: [`pudl.transform.classes.TableTransformParams`](../classes/index.md#pudl.transform.classes.TableTransformParams)
+Bases: [`pudl.transform.classes.TableTransformParams`](../classes/index.html.md#pudl.transform.classes.TableTransformParams)
 
 A model defining what TransformParams are allowed for FERC Form 1.
 
 This adds additional parameter models beyond the ones inherited from the
-[`pudl.transform.classes.AbstractTableTransformer`](../classes/index.md#pudl.transform.classes.AbstractTableTransformer) class.
+[`pudl.transform.classes.AbstractTableTransformer`](../classes/index.html.md#pudl.transform.classes.AbstractTableTransformer) class.
 
 #### rename_columns_ferc1 *: [RenameColumnsFerc1](#pudl.transform.ferc1.RenameColumnsFerc1)*
 
@@ -1104,9 +1104,9 @@ Get a list of all XBRL data columns appearing in a given XBRL table.
 
 Read in the table of calculation fixes.
 
-### *class* pudl.transform.ferc1.Ferc1AbstractTableTransformer(xbrl_metadata_json: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[Literal['instant', 'duration'], [list](https://docs.python.org/3/library/stdtypes.html#list)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]]] | [None](https://docs.python.org/3/library/constants.html#None) = None, params: [pudl.transform.classes.TableTransformParams](../classes/index.md#pudl.transform.classes.TableTransformParams) | [None](https://docs.python.org/3/library/constants.html#None) = None, cache_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = False, clear_cached_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = True, pudl_paths: [pudl.workspace.setup.PudlPaths](../../workspace/setup/index.md#pudl.workspace.setup.PudlPaths) | [None](https://docs.python.org/3/library/constants.html#None) = None)
+### *class* pudl.transform.ferc1.Ferc1AbstractTableTransformer(xbrl_metadata_json: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[Literal['instant', 'duration'], [list](https://docs.python.org/3/library/stdtypes.html#list)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]]] | [None](https://docs.python.org/3/library/constants.html#None) = None, params: [pudl.transform.classes.TableTransformParams](../classes/index.html.md#pudl.transform.classes.TableTransformParams) | [None](https://docs.python.org/3/library/constants.html#None) = None, cache_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = False, clear_cached_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = True, pudl_paths: [pudl.workspace.setup.PudlPaths](../../workspace/setup/index.html.md#pudl.workspace.setup.PudlPaths) | [None](https://docs.python.org/3/library/constants.html#None) = None)
 
-Bases: [`pudl.transform.classes.AbstractTableTransformer`](../classes/index.md#pudl.transform.classes.AbstractTableTransformer)
+Bases: [`pudl.transform.classes.AbstractTableTransformer`](../classes/index.html.md#pudl.transform.classes.AbstractTableTransformer)
 
 An abstract class defining methods common to many FERC Form 1 tables.
 
@@ -1354,7 +1354,7 @@ DBF-specific transformations that take place before concatenation.
 
 XBRL-specific transformations that take place before concatenation.
 
-#### rename_columns(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), rename_stage: Literal['dbf', 'xbrl', 'xbrl_instant', 'xbrl_duration'] | [None](https://docs.python.org/3/library/constants.html#None) = None, params: [pudl.transform.classes.RenameColumns](../classes/index.md#pudl.transform.classes.RenameColumns) | [None](https://docs.python.org/3/library/constants.html#None) = None)
+#### rename_columns(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), rename_stage: Literal['dbf', 'xbrl', 'xbrl_instant', 'xbrl_duration'] | [None](https://docs.python.org/3/library/constants.html#None) = None, params: [pudl.transform.classes.RenameColumns](../classes/index.html.md#pudl.transform.classes.RenameColumns) | [None](https://docs.python.org/3/library/constants.html#None) = None)
 
 Grab the params based on the rename stage and run default rename_columns.
 
@@ -1506,11 +1506,11 @@ these PUDL-assigned ID’s can be accessed in the database tables
 
 Check how well a table’s calculated values match reported values.
 
-### *class* pudl.transform.ferc1.IdentificationCertificationTableTransformer(xbrl_metadata_json: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[Literal['instant', 'duration'], [list](https://docs.python.org/3/library/stdtypes.html#list)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]]] | [None](https://docs.python.org/3/library/constants.html#None) = None, params: [pudl.transform.classes.TableTransformParams](../classes/index.md#pudl.transform.classes.TableTransformParams) | [None](https://docs.python.org/3/library/constants.html#None) = None, cache_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = False, clear_cached_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = True, pudl_paths: [pudl.workspace.setup.PudlPaths](../../workspace/setup/index.md#pudl.workspace.setup.PudlPaths) | [None](https://docs.python.org/3/library/constants.html#None) = None)
+### *class* pudl.transform.ferc1.IdentificationCertificationTableTransformer(xbrl_metadata_json: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[Literal['instant', 'duration'], [list](https://docs.python.org/3/library/stdtypes.html#list)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]]] | [None](https://docs.python.org/3/library/constants.html#None) = None, params: [pudl.transform.classes.TableTransformParams](../classes/index.html.md#pudl.transform.classes.TableTransformParams) | [None](https://docs.python.org/3/library/constants.html#None) = None, cache_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = False, clear_cached_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = True, pudl_paths: [pudl.workspace.setup.PudlPaths](../../workspace/setup/index.html.md#pudl.workspace.setup.PudlPaths) | [None](https://docs.python.org/3/library/constants.html#None) = None)
 
 Bases: [`Ferc1AbstractTableTransformer`](#pudl.transform.ferc1.Ferc1AbstractTableTransformer)
 
-Transformer class for the [core_ferc1_\_yearly_identification_certification](../../../../data_dictionaries/pudl_db.md#core-ferc1-yearly-identification-certification) table.
+Transformer class for the [core_ferc1_\_yearly_identification_certification](../../../../data_dictionaries/pudl_db.html.md#core-ferc1-yearly-identification-certification) table.
 
 #### table_id *: [TableIdFerc1](#pudl.transform.ferc1.TableIdFerc1)*
 
@@ -1541,14 +1541,14 @@ Standard transform_main plus address normalization and string cleaning.
 Transformations include phone number normalization, address parsing using
 usaddress, null normalization, and converting names and titles to title case.
 
-### *class* pudl.transform.ferc1.SteamPlantsFuelTableTransformer(xbrl_metadata_json: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[Literal['instant', 'duration'], [list](https://docs.python.org/3/library/stdtypes.html#list)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]]] | [None](https://docs.python.org/3/library/constants.html#None) = None, params: [pudl.transform.classes.TableTransformParams](../classes/index.md#pudl.transform.classes.TableTransformParams) | [None](https://docs.python.org/3/library/constants.html#None) = None, cache_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = False, clear_cached_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = True, pudl_paths: [pudl.workspace.setup.PudlPaths](../../workspace/setup/index.md#pudl.workspace.setup.PudlPaths) | [None](https://docs.python.org/3/library/constants.html#None) = None)
+### *class* pudl.transform.ferc1.SteamPlantsFuelTableTransformer(xbrl_metadata_json: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[Literal['instant', 'duration'], [list](https://docs.python.org/3/library/stdtypes.html#list)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]]] | [None](https://docs.python.org/3/library/constants.html#None) = None, params: [pudl.transform.classes.TableTransformParams](../classes/index.html.md#pudl.transform.classes.TableTransformParams) | [None](https://docs.python.org/3/library/constants.html#None) = None, cache_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = False, clear_cached_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = True, pudl_paths: [pudl.workspace.setup.PudlPaths](../../workspace/setup/index.html.md#pudl.workspace.setup.PudlPaths) | [None](https://docs.python.org/3/library/constants.html#None) = None)
 
 Bases: [`Ferc1AbstractTableTransformer`](#pudl.transform.ferc1.Ferc1AbstractTableTransformer)
 
-A table transformer specific to the [core_ferc1_\_yearly_steam_plants_fuel_sched402](../../../../data_dictionaries/pudl_db.md#core-ferc1-yearly-steam-plants-fuel-sched402) table.
+A table transformer specific to the [core_ferc1_\_yearly_steam_plants_fuel_sched402](../../../../data_dictionaries/pudl_db.html.md#core-ferc1-yearly-steam-plants-fuel-sched402) table.
 
-The [core_ferc1_\_yearly_steam_plants_fuel_sched402](../../../../data_dictionaries/pudl_db.md#core-ferc1-yearly-steam-plants-fuel-sched402) table reports data about fuel consumed by large thermal power
-plants in the [core_ferc1_\_yearly_steam_plants_sched402](../../../../data_dictionaries/pudl_db.md#core-ferc1-yearly-steam-plants-sched402) table. Each record in the steam table is
+The [core_ferc1_\_yearly_steam_plants_fuel_sched402](../../../../data_dictionaries/pudl_db.html.md#core-ferc1-yearly-steam-plants-fuel-sched402) table reports data about fuel consumed by large thermal power
+plants in the [core_ferc1_\_yearly_steam_plants_sched402](../../../../data_dictionaries/pudl_db.html.md#core-ferc1-yearly-steam-plants-sched402) table. Each record in the steam table is
 typically associated with several records in the fuel table, with each fuel record
 reporting data for a particular type of fuel consumed by that plant over the course
 of a year. The fuel table presents several challenges.
@@ -1626,7 +1626,7 @@ extensively modified in the cleaning process.
 
 #### process_xbrl(raw_xbrl_instant: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), raw_xbrl_duration: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
-Special pre-concat treatment of the [core_ferc1_\_yearly_steam_plants_fuel_sched402](../../../../data_dictionaries/pudl_db.md#core-ferc1-yearly-steam-plants-fuel-sched402) table.
+Special pre-concat treatment of the [core_ferc1_\_yearly_steam_plants_fuel_sched402](../../../../data_dictionaries/pudl_db.html.md#core-ferc1-yearly-steam-plants-fuel-sched402) table.
 
 We have to do most of the transformation before the DBF and XBRL data have been
 concatenated because the fuel type column is part of the primary key and it is
@@ -1696,7 +1696,7 @@ are null AND there’s a non-null value in the `fuel_mmbtu_per_mwh` column, as
 it typically indicates a “total” row for a plant. We also require a null value
 for the fuel_units and an “other” value for the fuel type.
 
-#### drop_invalid_rows(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), params: [pudl.transform.classes.InvalidRows](../classes/index.md#pudl.transform.classes.InvalidRows) | [None](https://docs.python.org/3/library/constants.html#None) = None) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+#### drop_invalid_rows(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), params: [pudl.transform.classes.InvalidRows](../classes/index.html.md#pudl.transform.classes.InvalidRows) | [None](https://docs.python.org/3/library/constants.html#None) = None) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Drop invalid rows from the fuel table.
 
@@ -1704,11 +1704,11 @@ This method both drops rows in which all required data columns are null (using
 the inherited parameterized method) and then also drops those rows we believe
 represent plant totals. See [`SteamPlantsFuelTableTransformer.drop_total_rows()`](#pudl.transform.ferc1.SteamPlantsFuelTableTransformer.drop_total_rows).
 
-### *class* pudl.transform.ferc1.SteamPlantsTableTransformer(xbrl_metadata_json: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[Literal['instant', 'duration'], [list](https://docs.python.org/3/library/stdtypes.html#list)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]]] | [None](https://docs.python.org/3/library/constants.html#None) = None, params: [pudl.transform.classes.TableTransformParams](../classes/index.md#pudl.transform.classes.TableTransformParams) | [None](https://docs.python.org/3/library/constants.html#None) = None, cache_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = False, clear_cached_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = True, pudl_paths: [pudl.workspace.setup.PudlPaths](../../workspace/setup/index.md#pudl.workspace.setup.PudlPaths) | [None](https://docs.python.org/3/library/constants.html#None) = None)
+### *class* pudl.transform.ferc1.SteamPlantsTableTransformer(xbrl_metadata_json: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[Literal['instant', 'duration'], [list](https://docs.python.org/3/library/stdtypes.html#list)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]]] | [None](https://docs.python.org/3/library/constants.html#None) = None, params: [pudl.transform.classes.TableTransformParams](../classes/index.html.md#pudl.transform.classes.TableTransformParams) | [None](https://docs.python.org/3/library/constants.html#None) = None, cache_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = False, clear_cached_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = True, pudl_paths: [pudl.workspace.setup.PudlPaths](../../workspace/setup/index.html.md#pudl.workspace.setup.PudlPaths) | [None](https://docs.python.org/3/library/constants.html#None) = None)
 
 Bases: [`Ferc1AbstractTableTransformer`](#pudl.transform.ferc1.Ferc1AbstractTableTransformer)
 
-Transformer class for the [core_ferc1_\_yearly_steam_plants_sched402](../../../../data_dictionaries/pudl_db.md#core-ferc1-yearly-steam-plants-sched402) table.
+Transformer class for the [core_ferc1_\_yearly_steam_plants_sched402](../../../../data_dictionaries/pudl_db.html.md#core-ferc1-yearly-steam-plants-sched402) table.
 
 #### table_id *: [TableIdFerc1](#pudl.transform.ferc1.TableIdFerc1)*
 
@@ -1717,11 +1717,11 @@ Name of the PUDL database table that this table transformer produces.
 Must be defined in the database schema / metadata. This ID is used to instantiate
 the appropriate `TableTransformParams` object.
 
-### *class* pudl.transform.ferc1.HydroelectricPlantsTableTransformer(xbrl_metadata_json: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[Literal['instant', 'duration'], [list](https://docs.python.org/3/library/stdtypes.html#list)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]]] | [None](https://docs.python.org/3/library/constants.html#None) = None, params: [pudl.transform.classes.TableTransformParams](../classes/index.md#pudl.transform.classes.TableTransformParams) | [None](https://docs.python.org/3/library/constants.html#None) = None, cache_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = False, clear_cached_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = True, pudl_paths: [pudl.workspace.setup.PudlPaths](../../workspace/setup/index.md#pudl.workspace.setup.PudlPaths) | [None](https://docs.python.org/3/library/constants.html#None) = None)
+### *class* pudl.transform.ferc1.HydroelectricPlantsTableTransformer(xbrl_metadata_json: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[Literal['instant', 'duration'], [list](https://docs.python.org/3/library/stdtypes.html#list)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]]] | [None](https://docs.python.org/3/library/constants.html#None) = None, params: [pudl.transform.classes.TableTransformParams](../classes/index.html.md#pudl.transform.classes.TableTransformParams) | [None](https://docs.python.org/3/library/constants.html#None) = None, cache_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = False, clear_cached_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = True, pudl_paths: [pudl.workspace.setup.PudlPaths](../../workspace/setup/index.html.md#pudl.workspace.setup.PudlPaths) | [None](https://docs.python.org/3/library/constants.html#None) = None)
 
 Bases: [`Ferc1AbstractTableTransformer`](#pudl.transform.ferc1.Ferc1AbstractTableTransformer)
 
-A table transformer specific to the [core_ferc1_\_yearly_hydroelectric_plants_sched406](../../../../data_dictionaries/pudl_db.md#core-ferc1-yearly-hydroelectric-plants-sched406) table.
+A table transformer specific to the [core_ferc1_\_yearly_hydroelectric_plants_sched406](../../../../data_dictionaries/pudl_db.html.md#core-ferc1-yearly-hydroelectric-plants-sched406) table.
 
 #### table_id *: [TableIdFerc1](#pudl.transform.ferc1.TableIdFerc1)*
 
@@ -1743,11 +1743,11 @@ There are two records in 2019 with a `utility_id_ferc1` of 200 and a
 eachother, except one have nulls in the capex columns. Surgically remove the
 record with the nulls.
 
-### *class* pudl.transform.ferc1.PumpedStoragePlantsTableTransformer(xbrl_metadata_json: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[Literal['instant', 'duration'], [list](https://docs.python.org/3/library/stdtypes.html#list)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]]] | [None](https://docs.python.org/3/library/constants.html#None) = None, params: [pudl.transform.classes.TableTransformParams](../classes/index.md#pudl.transform.classes.TableTransformParams) | [None](https://docs.python.org/3/library/constants.html#None) = None, cache_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = False, clear_cached_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = True, pudl_paths: [pudl.workspace.setup.PudlPaths](../../workspace/setup/index.md#pudl.workspace.setup.PudlPaths) | [None](https://docs.python.org/3/library/constants.html#None) = None)
+### *class* pudl.transform.ferc1.PumpedStoragePlantsTableTransformer(xbrl_metadata_json: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[Literal['instant', 'duration'], [list](https://docs.python.org/3/library/stdtypes.html#list)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]]] | [None](https://docs.python.org/3/library/constants.html#None) = None, params: [pudl.transform.classes.TableTransformParams](../classes/index.html.md#pudl.transform.classes.TableTransformParams) | [None](https://docs.python.org/3/library/constants.html#None) = None, cache_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = False, clear_cached_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = True, pudl_paths: [pudl.workspace.setup.PudlPaths](../../workspace/setup/index.html.md#pudl.workspace.setup.PudlPaths) | [None](https://docs.python.org/3/library/constants.html#None) = None)
 
 Bases: [`Ferc1AbstractTableTransformer`](#pudl.transform.ferc1.Ferc1AbstractTableTransformer)
 
-Transformer class for [core_ferc1_\_yearly_pumped_storage_plants_sched408](../../../../data_dictionaries/pudl_db.md#core-ferc1-yearly-pumped-storage-plants-sched408) table.
+Transformer class for [core_ferc1_\_yearly_pumped_storage_plants_sched408](../../../../data_dictionaries/pudl_db.html.md#core-ferc1-yearly-pumped-storage-plants-sched408) table.
 
 #### table_id *: [TableIdFerc1](#pudl.transform.ferc1.TableIdFerc1)*
 
@@ -1756,11 +1756,11 @@ Name of the PUDL database table that this table transformer produces.
 Must be defined in the database schema / metadata. This ID is used to instantiate
 the appropriate `TableTransformParams` object.
 
-### *class* pudl.transform.ferc1.PurchasedPowerAndExchangesTableTransformer(xbrl_metadata_json: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[Literal['instant', 'duration'], [list](https://docs.python.org/3/library/stdtypes.html#list)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]]] | [None](https://docs.python.org/3/library/constants.html#None) = None, params: [pudl.transform.classes.TableTransformParams](../classes/index.md#pudl.transform.classes.TableTransformParams) | [None](https://docs.python.org/3/library/constants.html#None) = None, cache_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = False, clear_cached_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = True, pudl_paths: [pudl.workspace.setup.PudlPaths](../../workspace/setup/index.md#pudl.workspace.setup.PudlPaths) | [None](https://docs.python.org/3/library/constants.html#None) = None)
+### *class* pudl.transform.ferc1.PurchasedPowerAndExchangesTableTransformer(xbrl_metadata_json: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[Literal['instant', 'duration'], [list](https://docs.python.org/3/library/stdtypes.html#list)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]]] | [None](https://docs.python.org/3/library/constants.html#None) = None, params: [pudl.transform.classes.TableTransformParams](../classes/index.html.md#pudl.transform.classes.TableTransformParams) | [None](https://docs.python.org/3/library/constants.html#None) = None, cache_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = False, clear_cached_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = True, pudl_paths: [pudl.workspace.setup.PudlPaths](../../workspace/setup/index.html.md#pudl.workspace.setup.PudlPaths) | [None](https://docs.python.org/3/library/constants.html#None) = None)
 
 Bases: [`Ferc1AbstractTableTransformer`](#pudl.transform.ferc1.Ferc1AbstractTableTransformer)
 
-Transformer class for [core_ferc1_\_yearly_purchased_power_and_exchanges_sched326](../../../../data_dictionaries/pudl_db.md#core-ferc1-yearly-purchased-power-and-exchanges-sched326).
+Transformer class for [core_ferc1_\_yearly_purchased_power_and_exchanges_sched326](../../../../data_dictionaries/pudl_db.html.md#core-ferc1-yearly-purchased-power-and-exchanges-sched326).
 
 This table has data about inter-utility power purchases into the PUDL DB. This
 includes how much electricity was purchased, how much it cost, and who it was
@@ -1776,11 +1776,11 @@ Name of the PUDL database table that this table transformer produces.
 Must be defined in the database schema / metadata. This ID is used to instantiate
 the appropriate `TableTransformParams` object.
 
-### *class* pudl.transform.ferc1.PlantInServiceTableTransformer(xbrl_metadata_json: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[Literal['instant', 'duration'], [list](https://docs.python.org/3/library/stdtypes.html#list)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]]] | [None](https://docs.python.org/3/library/constants.html#None) = None, params: [pudl.transform.classes.TableTransformParams](../classes/index.md#pudl.transform.classes.TableTransformParams) | [None](https://docs.python.org/3/library/constants.html#None) = None, cache_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = False, clear_cached_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = True, pudl_paths: [pudl.workspace.setup.PudlPaths](../../workspace/setup/index.md#pudl.workspace.setup.PudlPaths) | [None](https://docs.python.org/3/library/constants.html#None) = None)
+### *class* pudl.transform.ferc1.PlantInServiceTableTransformer(xbrl_metadata_json: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[Literal['instant', 'duration'], [list](https://docs.python.org/3/library/stdtypes.html#list)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]]] | [None](https://docs.python.org/3/library/constants.html#None) = None, params: [pudl.transform.classes.TableTransformParams](../classes/index.html.md#pudl.transform.classes.TableTransformParams) | [None](https://docs.python.org/3/library/constants.html#None) = None, cache_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = False, clear_cached_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = True, pudl_paths: [pudl.workspace.setup.PudlPaths](../../workspace/setup/index.html.md#pudl.workspace.setup.PudlPaths) | [None](https://docs.python.org/3/library/constants.html#None) = None)
 
 Bases: [`Ferc1AbstractTableTransformer`](#pudl.transform.ferc1.Ferc1AbstractTableTransformer)
 
-A transformer for the [core_ferc1_\_yearly_plant_in_service_sched204](../../../../data_dictionaries/pudl_db.md#core-ferc1-yearly-plant-in-service-sched204) table.
+A transformer for the [core_ferc1_\_yearly_plant_in_service_sched204](../../../../data_dictionaries/pudl_db.html.md#core-ferc1-yearly-plant-in-service-sched204) table.
 
 #### table_id *: [TableIdFerc1](#pudl.transform.ferc1.TableIdFerc1)*
 
@@ -1863,11 +1863,11 @@ Annotates and alters data based on information from the XBRL taxonomy metadata.
 Also assigns utility type, plant status & function for use in table explosions.
 Make all electric_plant_sold balances positive.
 
-### *class* pudl.transform.ferc1.SmallPlantsTableTransformer(xbrl_metadata_json: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[Literal['instant', 'duration'], [list](https://docs.python.org/3/library/stdtypes.html#list)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]]] | [None](https://docs.python.org/3/library/constants.html#None) = None, params: [pudl.transform.classes.TableTransformParams](../classes/index.md#pudl.transform.classes.TableTransformParams) | [None](https://docs.python.org/3/library/constants.html#None) = None, cache_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = False, clear_cached_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = True, pudl_paths: [pudl.workspace.setup.PudlPaths](../../workspace/setup/index.md#pudl.workspace.setup.PudlPaths) | [None](https://docs.python.org/3/library/constants.html#None) = None)
+### *class* pudl.transform.ferc1.SmallPlantsTableTransformer(xbrl_metadata_json: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[Literal['instant', 'duration'], [list](https://docs.python.org/3/library/stdtypes.html#list)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]]] | [None](https://docs.python.org/3/library/constants.html#None) = None, params: [pudl.transform.classes.TableTransformParams](../classes/index.html.md#pudl.transform.classes.TableTransformParams) | [None](https://docs.python.org/3/library/constants.html#None) = None, cache_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = False, clear_cached_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = True, pudl_paths: [pudl.workspace.setup.PudlPaths](../../workspace/setup/index.html.md#pudl.workspace.setup.PudlPaths) | [None](https://docs.python.org/3/library/constants.html#None) = None)
 
 Bases: [`Ferc1AbstractTableTransformer`](#pudl.transform.ferc1.Ferc1AbstractTableTransformer)
 
-A table transformer specific to the [core_ferc1_\_yearly_small_plants_sched410](../../../../data_dictionaries/pudl_db.md#core-ferc1-yearly-small-plants-sched410) table.
+A table transformer specific to the [core_ferc1_\_yearly_small_plants_sched410](../../../../data_dictionaries/pudl_db.html.md#core-ferc1-yearly-small-plants-sched410) table.
 
 #### table_id *: [TableIdFerc1](#pudl.transform.ferc1.TableIdFerc1)*
 
@@ -2186,9 +2186,9 @@ We trust the values originally reported in the `fuel_type` and `plant_type`
 columns more than the extracted and forward filled header values, so we only
 want to replace `fuel_type` and `plant_type` values that are labeled as
 `pd.NA` or `other`. The values reported to those columns are extremely messy
-and must be cleaned via [`pudl.transform.classes.categorize_strings()`](../classes/index.md#pudl.transform.classes.categorize_strings) in
+and must be cleaned via [`pudl.transform.classes.categorize_strings()`](../classes/index.html.md#pudl.transform.classes.categorize_strings) in
 order for us to know which are truly `pd.NA` or `other`. Because we also
-use [`pudl.transform.classes.categorize_strings()`](../classes/index.md#pudl.transform.classes.categorize_strings) to map the headers to fuel
+use [`pudl.transform.classes.categorize_strings()`](../classes/index.html.md#pudl.transform.classes.categorize_strings) to map the headers to fuel
 and plant types, it makes sense to clean all four columns at once and then
 combine them.
 
@@ -2348,11 +2348,11 @@ Params:
 * **Returns:**
   The same input DataFrame but with some spot fixes corrected.
 
-### *class* pudl.transform.ferc1.TransmissionLinesTableTransformer(xbrl_metadata_json: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[Literal['instant', 'duration'], [list](https://docs.python.org/3/library/stdtypes.html#list)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]]] | [None](https://docs.python.org/3/library/constants.html#None) = None, params: [pudl.transform.classes.TableTransformParams](../classes/index.md#pudl.transform.classes.TableTransformParams) | [None](https://docs.python.org/3/library/constants.html#None) = None, cache_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = False, clear_cached_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = True, pudl_paths: [pudl.workspace.setup.PudlPaths](../../workspace/setup/index.md#pudl.workspace.setup.PudlPaths) | [None](https://docs.python.org/3/library/constants.html#None) = None)
+### *class* pudl.transform.ferc1.TransmissionLinesTableTransformer(xbrl_metadata_json: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[Literal['instant', 'duration'], [list](https://docs.python.org/3/library/stdtypes.html#list)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]]] | [None](https://docs.python.org/3/library/constants.html#None) = None, params: [pudl.transform.classes.TableTransformParams](../classes/index.html.md#pudl.transform.classes.TableTransformParams) | [None](https://docs.python.org/3/library/constants.html#None) = None, cache_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = False, clear_cached_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = True, pudl_paths: [pudl.workspace.setup.PudlPaths](../../workspace/setup/index.html.md#pudl.workspace.setup.PudlPaths) | [None](https://docs.python.org/3/library/constants.html#None) = None)
 
 Bases: [`Ferc1AbstractTableTransformer`](#pudl.transform.ferc1.Ferc1AbstractTableTransformer)
 
-A table transformer for the [core_ferc1_\_yearly_transmission_lines_sched422](../../../../data_dictionaries/pudl_db.md#core-ferc1-yearly-transmission-lines-sched422) table.
+A table transformer for the [core_ferc1_\_yearly_transmission_lines_sched422](../../../../data_dictionaries/pudl_db.html.md#core-ferc1-yearly-transmission-lines-sched422) table.
 
 #### table_id *: [TableIdFerc1](#pudl.transform.ferc1.TableIdFerc1)*
 
@@ -2375,11 +2375,11 @@ the transformed data.
 
 Do some string-to-numeric ninja moves.
 
-### *class* pudl.transform.ferc1.EnergySourcesTableTransformer(xbrl_metadata_json: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[Literal['instant', 'duration'], [list](https://docs.python.org/3/library/stdtypes.html#list)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]]] | [None](https://docs.python.org/3/library/constants.html#None) = None, params: [pudl.transform.classes.TableTransformParams](../classes/index.md#pudl.transform.classes.TableTransformParams) | [None](https://docs.python.org/3/library/constants.html#None) = None, cache_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = False, clear_cached_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = True, pudl_paths: [pudl.workspace.setup.PudlPaths](../../workspace/setup/index.md#pudl.workspace.setup.PudlPaths) | [None](https://docs.python.org/3/library/constants.html#None) = None)
+### *class* pudl.transform.ferc1.EnergySourcesTableTransformer(xbrl_metadata_json: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[Literal['instant', 'duration'], [list](https://docs.python.org/3/library/stdtypes.html#list)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]]] | [None](https://docs.python.org/3/library/constants.html#None) = None, params: [pudl.transform.classes.TableTransformParams](../classes/index.html.md#pudl.transform.classes.TableTransformParams) | [None](https://docs.python.org/3/library/constants.html#None) = None, cache_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = False, clear_cached_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = True, pudl_paths: [pudl.workspace.setup.PudlPaths](../../workspace/setup/index.html.md#pudl.workspace.setup.PudlPaths) | [None](https://docs.python.org/3/library/constants.html#None) = None)
 
 Bases: [`Ferc1AbstractTableTransformer`](#pudl.transform.ferc1.Ferc1AbstractTableTransformer)
 
-Transformer class for [core_ferc1_\_yearly_energy_sources_sched401](../../../../data_dictionaries/pudl_db.md#core-ferc1-yearly-energy-sources-sched401) table.
+Transformer class for [core_ferc1_\_yearly_energy_sources_sched401](../../../../data_dictionaries/pudl_db.html.md#core-ferc1-yearly-energy-sources-sched401) table.
 
 The raw DBF and XBRL table will be split up into two tables. This transformer
 generates the sources of electricity for utilities, dropping the information about
@@ -2411,11 +2411,11 @@ Perform default xbrl metadata processing plus adding 1 new xbrl_factoid.
 Note: we should probably parameterize this and add it into the standard
 `process_xbrl_metadata()`.
 
-### *class* pudl.transform.ferc1.EnergyDispositionsTableTransformer(xbrl_metadata_json: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[Literal['instant', 'duration'], [list](https://docs.python.org/3/library/stdtypes.html#list)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]]] | [None](https://docs.python.org/3/library/constants.html#None) = None, params: [pudl.transform.classes.TableTransformParams](../classes/index.md#pudl.transform.classes.TableTransformParams) | [None](https://docs.python.org/3/library/constants.html#None) = None, cache_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = False, clear_cached_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = True, pudl_paths: [pudl.workspace.setup.PudlPaths](../../workspace/setup/index.md#pudl.workspace.setup.PudlPaths) | [None](https://docs.python.org/3/library/constants.html#None) = None)
+### *class* pudl.transform.ferc1.EnergyDispositionsTableTransformer(xbrl_metadata_json: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[Literal['instant', 'duration'], [list](https://docs.python.org/3/library/stdtypes.html#list)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]]] | [None](https://docs.python.org/3/library/constants.html#None) = None, params: [pudl.transform.classes.TableTransformParams](../classes/index.html.md#pudl.transform.classes.TableTransformParams) | [None](https://docs.python.org/3/library/constants.html#None) = None, cache_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = False, clear_cached_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = True, pudl_paths: [pudl.workspace.setup.PudlPaths](../../workspace/setup/index.html.md#pudl.workspace.setup.PudlPaths) | [None](https://docs.python.org/3/library/constants.html#None) = None)
 
 Bases: [`Ferc1AbstractTableTransformer`](#pudl.transform.ferc1.Ferc1AbstractTableTransformer)
 
-Transformer class for [core_ferc1_\_yearly_energy_dispositions_sched401](../../../../data_dictionaries/pudl_db.md#core-ferc1-yearly-energy-dispositions-sched401) table.
+Transformer class for [core_ferc1_\_yearly_energy_dispositions_sched401](../../../../data_dictionaries/pudl_db.html.md#core-ferc1-yearly-energy-dispositions-sched401) table.
 
 #### table_id *: [TableIdFerc1](#pudl.transform.ferc1.TableIdFerc1)*
 
@@ -2434,11 +2434,11 @@ output records, and so we should not expect record IDs to be unique. In those ca
 they serve only a forensic purpose, telling us where to find the original source of
 the transformed data.
 
-### *class* pudl.transform.ferc1.UtilityPlantSummaryTableTransformer(xbrl_metadata_json: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[Literal['instant', 'duration'], [list](https://docs.python.org/3/library/stdtypes.html#list)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]]] | [None](https://docs.python.org/3/library/constants.html#None) = None, params: [pudl.transform.classes.TableTransformParams](../classes/index.md#pudl.transform.classes.TableTransformParams) | [None](https://docs.python.org/3/library/constants.html#None) = None, cache_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = False, clear_cached_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = True, pudl_paths: [pudl.workspace.setup.PudlPaths](../../workspace/setup/index.md#pudl.workspace.setup.PudlPaths) | [None](https://docs.python.org/3/library/constants.html#None) = None)
+### *class* pudl.transform.ferc1.UtilityPlantSummaryTableTransformer(xbrl_metadata_json: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[Literal['instant', 'duration'], [list](https://docs.python.org/3/library/stdtypes.html#list)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]]] | [None](https://docs.python.org/3/library/constants.html#None) = None, params: [pudl.transform.classes.TableTransformParams](../classes/index.html.md#pudl.transform.classes.TableTransformParams) | [None](https://docs.python.org/3/library/constants.html#None) = None, cache_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = False, clear_cached_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = True, pudl_paths: [pudl.workspace.setup.PudlPaths](../../workspace/setup/index.html.md#pudl.workspace.setup.PudlPaths) | [None](https://docs.python.org/3/library/constants.html#None) = None)
 
 Bases: [`Ferc1AbstractTableTransformer`](#pudl.transform.ferc1.Ferc1AbstractTableTransformer)
 
-Transformer class for [core_ferc1_\_yearly_utility_plant_summary_sched200](../../../../data_dictionaries/pudl_db.md#core-ferc1-yearly-utility-plant-summary-sched200) table.
+Transformer class for [core_ferc1_\_yearly_utility_plant_summary_sched200](../../../../data_dictionaries/pudl_db.html.md#core-ferc1-yearly-utility-plant-summary-sched200) table.
 
 #### table_id *: [TableIdFerc1](#pudl.transform.ferc1.TableIdFerc1)*
 
@@ -2474,15 +2474,15 @@ Default transforming, plus spot fixing and building aggregate xbrl_factoid.
 
 #### aggregated_xbrl_factoids(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
-Aggregate xbrl_factoids records for linking to [core_ferc1_\_yearly_plant_in_service_sched204](../../../../data_dictionaries/pudl_db.md#core-ferc1-yearly-plant-in-service-sched204).
+Aggregate xbrl_factoids records for linking to [core_ferc1_\_yearly_plant_in_service_sched204](../../../../data_dictionaries/pudl_db.html.md#core-ferc1-yearly-plant-in-service-sched204).
 
 This table has two `xbrl_factoid` which can be linked via calculations to one
-`xbrl_factoid` in the [core_ferc1_\_yearly_plant_in_service_sched204](../../../../data_dictionaries/pudl_db.md#core-ferc1-yearly-plant-in-service-sched204).
+`xbrl_factoid` in the [core_ferc1_\_yearly_plant_in_service_sched204](../../../../data_dictionaries/pudl_db.html.md#core-ferc1-yearly-plant-in-service-sched204).
 Doing this 2:1 linkage would be fine in theory. But the
-[core_ferc1_\_yearly_plant_in_service_sched204](../../../../data_dictionaries/pudl_db.md#core-ferc1-yearly-plant-in-service-sched204) is in most senses
+[core_ferc1_\_yearly_plant_in_service_sched204](../../../../data_dictionaries/pudl_db.html.md#core-ferc1-yearly-plant-in-service-sched204) is in most senses
 the table with the more details and of our desire to build tree-link
 relationships between factoids, we need to build a new factoid to link in a 1:1
-manner between this table and the [core_ferc1_\_yearly_plant_in_service_sched204](../../../../data_dictionaries/pudl_db.md#core-ferc1-yearly-plant-in-service-sched204).
+manner between this table and the [core_ferc1_\_yearly_plant_in_service_sched204](../../../../data_dictionaries/pudl_db.html.md#core-ferc1-yearly-plant-in-service-sched204).
 
 We’ll also add this factoid into the metadata via `process_xbrl_metadata()`
 and add the linking calculation via `apply_xbrl_calculation_fixes()`.
@@ -2491,11 +2491,11 @@ and add the linking calculation via `apply_xbrl_calculation_fixes()`.
 
 Spot fix depreciation_utility_plant_in_service records with bad signs.
 
-### *class* pudl.transform.ferc1.BalanceSheetLiabilitiesTableTransformer(xbrl_metadata_json: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[Literal['instant', 'duration'], [list](https://docs.python.org/3/library/stdtypes.html#list)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]]] | [None](https://docs.python.org/3/library/constants.html#None) = None, params: [pudl.transform.classes.TableTransformParams](../classes/index.md#pudl.transform.classes.TableTransformParams) | [None](https://docs.python.org/3/library/constants.html#None) = None, cache_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = False, clear_cached_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = True, pudl_paths: [pudl.workspace.setup.PudlPaths](../../workspace/setup/index.md#pudl.workspace.setup.PudlPaths) | [None](https://docs.python.org/3/library/constants.html#None) = None)
+### *class* pudl.transform.ferc1.BalanceSheetLiabilitiesTableTransformer(xbrl_metadata_json: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[Literal['instant', 'duration'], [list](https://docs.python.org/3/library/stdtypes.html#list)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]]] | [None](https://docs.python.org/3/library/constants.html#None) = None, params: [pudl.transform.classes.TableTransformParams](../classes/index.html.md#pudl.transform.classes.TableTransformParams) | [None](https://docs.python.org/3/library/constants.html#None) = None, cache_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = False, clear_cached_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = True, pudl_paths: [pudl.workspace.setup.PudlPaths](../../workspace/setup/index.html.md#pudl.workspace.setup.PudlPaths) | [None](https://docs.python.org/3/library/constants.html#None) = None)
 
 Bases: [`Ferc1AbstractTableTransformer`](#pudl.transform.ferc1.Ferc1AbstractTableTransformer)
 
-Transformer class for [core_ferc1_\_yearly_balance_sheet_liabilities_sched110](../../../../data_dictionaries/pudl_db.md#core-ferc1-yearly-balance-sheet-liabilities-sched110) table.
+Transformer class for [core_ferc1_\_yearly_balance_sheet_liabilities_sched110](../../../../data_dictionaries/pudl_db.html.md#core-ferc1-yearly-balance-sheet-liabilities-sched110) table.
 
 #### table_id *: [TableIdFerc1](#pudl.transform.ferc1.TableIdFerc1)*
 
@@ -2537,11 +2537,11 @@ calculations and need to be distinguishable from each other.
 Note: we should probably parameterize this and add it into the standard
 `process_xbrl_metadata()`.
 
-### *class* pudl.transform.ferc1.BalanceSheetAssetsTableTransformer(xbrl_metadata_json: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[Literal['instant', 'duration'], [list](https://docs.python.org/3/library/stdtypes.html#list)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]]] | [None](https://docs.python.org/3/library/constants.html#None) = None, params: [pudl.transform.classes.TableTransformParams](../classes/index.md#pudl.transform.classes.TableTransformParams) | [None](https://docs.python.org/3/library/constants.html#None) = None, cache_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = False, clear_cached_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = True, pudl_paths: [pudl.workspace.setup.PudlPaths](../../workspace/setup/index.md#pudl.workspace.setup.PudlPaths) | [None](https://docs.python.org/3/library/constants.html#None) = None)
+### *class* pudl.transform.ferc1.BalanceSheetAssetsTableTransformer(xbrl_metadata_json: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[Literal['instant', 'duration'], [list](https://docs.python.org/3/library/stdtypes.html#list)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]]] | [None](https://docs.python.org/3/library/constants.html#None) = None, params: [pudl.transform.classes.TableTransformParams](../classes/index.html.md#pudl.transform.classes.TableTransformParams) | [None](https://docs.python.org/3/library/constants.html#None) = None, cache_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = False, clear_cached_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = True, pudl_paths: [pudl.workspace.setup.PudlPaths](../../workspace/setup/index.html.md#pudl.workspace.setup.PudlPaths) | [None](https://docs.python.org/3/library/constants.html#None) = None)
 
 Bases: [`Ferc1AbstractTableTransformer`](#pudl.transform.ferc1.Ferc1AbstractTableTransformer)
 
-Transformer class for [core_ferc1_\_yearly_balance_sheet_assets_sched110](../../../../data_dictionaries/pudl_db.md#core-ferc1-yearly-balance-sheet-assets-sched110) table.
+Transformer class for [core_ferc1_\_yearly_balance_sheet_assets_sched110](../../../../data_dictionaries/pudl_db.html.md#core-ferc1-yearly-balance-sheet-assets-sched110) table.
 
 #### table_id *: [TableIdFerc1](#pudl.transform.ferc1.TableIdFerc1)*
 
@@ -2583,11 +2583,11 @@ calculations and need to be distinguishable from each other.
 Note: we should probably parameterize this and add it into the standard
 `process_xbrl_metadata()`.
 
-### *class* pudl.transform.ferc1.IncomeStatementsTableTransformer(xbrl_metadata_json: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[Literal['instant', 'duration'], [list](https://docs.python.org/3/library/stdtypes.html#list)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]]] | [None](https://docs.python.org/3/library/constants.html#None) = None, params: [pudl.transform.classes.TableTransformParams](../classes/index.md#pudl.transform.classes.TableTransformParams) | [None](https://docs.python.org/3/library/constants.html#None) = None, cache_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = False, clear_cached_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = True, pudl_paths: [pudl.workspace.setup.PudlPaths](../../workspace/setup/index.md#pudl.workspace.setup.PudlPaths) | [None](https://docs.python.org/3/library/constants.html#None) = None)
+### *class* pudl.transform.ferc1.IncomeStatementsTableTransformer(xbrl_metadata_json: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[Literal['instant', 'duration'], [list](https://docs.python.org/3/library/stdtypes.html#list)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]]] | [None](https://docs.python.org/3/library/constants.html#None) = None, params: [pudl.transform.classes.TableTransformParams](../classes/index.html.md#pudl.transform.classes.TableTransformParams) | [None](https://docs.python.org/3/library/constants.html#None) = None, cache_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = False, clear_cached_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = True, pudl_paths: [pudl.workspace.setup.PudlPaths](../../workspace/setup/index.html.md#pudl.workspace.setup.PudlPaths) | [None](https://docs.python.org/3/library/constants.html#None) = None)
 
 Bases: [`Ferc1AbstractTableTransformer`](#pudl.transform.ferc1.Ferc1AbstractTableTransformer)
 
-Transformer class for the [core_ferc1_\_yearly_income_statements_sched114](../../../../data_dictionaries/pudl_db.md#core-ferc1-yearly-income-statements-sched114) table.
+Transformer class for the [core_ferc1_\_yearly_income_statements_sched114](../../../../data_dictionaries/pudl_db.html.md#core-ferc1-yearly-income-statements-sched114) table.
 
 #### table_id *: [TableIdFerc1](#pudl.transform.ferc1.TableIdFerc1)*
 
@@ -2640,11 +2640,11 @@ form, it ends up introducing a bunch of duplicated records, so we need to drop
 one of them. Since the value is used in the calculations that are part of the
 second page, we’ll drop it from the first page.
 
-### *class* pudl.transform.ferc1.RetainedEarningsTableTransformer(xbrl_metadata_json: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[Literal['instant', 'duration'], [list](https://docs.python.org/3/library/stdtypes.html#list)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]]] | [None](https://docs.python.org/3/library/constants.html#None) = None, params: [pudl.transform.classes.TableTransformParams](../classes/index.md#pudl.transform.classes.TableTransformParams) | [None](https://docs.python.org/3/library/constants.html#None) = None, cache_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = False, clear_cached_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = True, pudl_paths: [pudl.workspace.setup.PudlPaths](../../workspace/setup/index.md#pudl.workspace.setup.PudlPaths) | [None](https://docs.python.org/3/library/constants.html#None) = None)
+### *class* pudl.transform.ferc1.RetainedEarningsTableTransformer(xbrl_metadata_json: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[Literal['instant', 'duration'], [list](https://docs.python.org/3/library/stdtypes.html#list)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]]] | [None](https://docs.python.org/3/library/constants.html#None) = None, params: [pudl.transform.classes.TableTransformParams](../classes/index.html.md#pudl.transform.classes.TableTransformParams) | [None](https://docs.python.org/3/library/constants.html#None) = None, cache_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = False, clear_cached_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = True, pudl_paths: [pudl.workspace.setup.PudlPaths](../../workspace/setup/index.html.md#pudl.workspace.setup.PudlPaths) | [None](https://docs.python.org/3/library/constants.html#None) = None)
 
 Bases: [`Ferc1AbstractTableTransformer`](#pudl.transform.ferc1.Ferc1AbstractTableTransformer)
 
-Transformer class for [core_ferc1_\_yearly_retained_earnings_sched118](../../../../data_dictionaries/pudl_db.md#core-ferc1-yearly-retained-earnings-sched118) table.
+Transformer class for [core_ferc1_\_yearly_retained_earnings_sched118](../../../../data_dictionaries/pudl_db.html.md#core-ferc1-yearly-retained-earnings-sched118) table.
 
 #### table_id *: [TableIdFerc1](#pudl.transform.ferc1.TableIdFerc1)*
 
@@ -2763,16 +2763,16 @@ calculations and ferc account #’s), for every single [`wide_to_tidy()`](#pudl.
 column.
 
 Note: This is **almost** the same as the method for
-[core_ferc1_\_yearly_operating_revenues_sched300](../../../../data_dictionaries/pudl_db.md#core-ferc1-yearly-operating-revenues-sched300). If we wanted to lean into this
+[core_ferc1_\_yearly_operating_revenues_sched300](../../../../data_dictionaries/pudl_db.html.md#core-ferc1-yearly-operating-revenues-sched300). If we wanted to lean into this
 version of deduplication more generally this might be a fine way start to an
 abstraction, but ideally we wouldn’t need to dedupe this at all and instead
 enable metadata for every value column from [`wide_to_tidy()`](#pudl.transform.ferc1.wide_to_tidy).
 
-### *class* pudl.transform.ferc1.DepreciationSummaryTableTransformer(xbrl_metadata_json: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[Literal['instant', 'duration'], [list](https://docs.python.org/3/library/stdtypes.html#list)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]]] | [None](https://docs.python.org/3/library/constants.html#None) = None, params: [pudl.transform.classes.TableTransformParams](../classes/index.md#pudl.transform.classes.TableTransformParams) | [None](https://docs.python.org/3/library/constants.html#None) = None, cache_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = False, clear_cached_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = True, pudl_paths: [pudl.workspace.setup.PudlPaths](../../workspace/setup/index.md#pudl.workspace.setup.PudlPaths) | [None](https://docs.python.org/3/library/constants.html#None) = None)
+### *class* pudl.transform.ferc1.DepreciationSummaryTableTransformer(xbrl_metadata_json: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[Literal['instant', 'duration'], [list](https://docs.python.org/3/library/stdtypes.html#list)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]]] | [None](https://docs.python.org/3/library/constants.html#None) = None, params: [pudl.transform.classes.TableTransformParams](../classes/index.html.md#pudl.transform.classes.TableTransformParams) | [None](https://docs.python.org/3/library/constants.html#None) = None, cache_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = False, clear_cached_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = True, pudl_paths: [pudl.workspace.setup.PudlPaths](../../workspace/setup/index.html.md#pudl.workspace.setup.PudlPaths) | [None](https://docs.python.org/3/library/constants.html#None) = None)
 
 Bases: [`Ferc1AbstractTableTransformer`](#pudl.transform.ferc1.Ferc1AbstractTableTransformer)
 
-Transformer class for [core_ferc1_\_yearly_depreciation_summary_sched336](../../../../data_dictionaries/pudl_db.md#core-ferc1-yearly-depreciation-summary-sched336) table.
+Transformer class for [core_ferc1_\_yearly_depreciation_summary_sched336](../../../../data_dictionaries/pudl_db.html.md#core-ferc1-yearly-depreciation-summary-sched336) table.
 
 #### table_id *: [TableIdFerc1](#pudl.transform.ferc1.TableIdFerc1)*
 
@@ -2809,11 +2809,11 @@ fact of four years, seven months, and 12 days.
 As a format, its a fine standard despite not being a widely used format for
 duration of time. not super standard but is acceptable. but the DBF data is all reported - seemingly - in years.
 
-### *class* pudl.transform.ferc1.DepreciationFactorsTransformer(xbrl_metadata_json: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[Literal['instant', 'duration'], [list](https://docs.python.org/3/library/stdtypes.html#list)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]]] | [None](https://docs.python.org/3/library/constants.html#None) = None, params: [pudl.transform.classes.TableTransformParams](../classes/index.md#pudl.transform.classes.TableTransformParams) | [None](https://docs.python.org/3/library/constants.html#None) = None, cache_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = False, clear_cached_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = True, pudl_paths: [pudl.workspace.setup.PudlPaths](../../workspace/setup/index.md#pudl.workspace.setup.PudlPaths) | [None](https://docs.python.org/3/library/constants.html#None) = None)
+### *class* pudl.transform.ferc1.DepreciationFactorsTransformer(xbrl_metadata_json: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[Literal['instant', 'duration'], [list](https://docs.python.org/3/library/stdtypes.html#list)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]]] | [None](https://docs.python.org/3/library/constants.html#None) = None, params: [pudl.transform.classes.TableTransformParams](../classes/index.html.md#pudl.transform.classes.TableTransformParams) | [None](https://docs.python.org/3/library/constants.html#None) = None, cache_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = False, clear_cached_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = True, pudl_paths: [pudl.workspace.setup.PudlPaths](../../workspace/setup/index.html.md#pudl.workspace.setup.PudlPaths) | [None](https://docs.python.org/3/library/constants.html#None) = None)
 
 Bases: [`Ferc1AbstractTableTransformer`](#pudl.transform.ferc1.Ferc1AbstractTableTransformer)
 
-Transformer class for [core_ferc1_\_yearly_depreciation_factors_sched336](../../../../data_dictionaries/pudl_db.md#core-ferc1-yearly-depreciation-factors-sched336) table.
+Transformer class for [core_ferc1_\_yearly_depreciation_factors_sched336](../../../../data_dictionaries/pudl_db.html.md#core-ferc1-yearly-depreciation-factors-sched336) table.
 
 #### table_id *: [TableIdFerc1](#pudl.transform.ferc1.TableIdFerc1)*
 
@@ -2836,11 +2836,11 @@ the transformed data.
 
 Convert $1000s to $s & standardize life cols after standard transform_main.
 
-### *class* pudl.transform.ferc1.DepreciationChangesTableTransformer(xbrl_metadata_json: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[Literal['instant', 'duration'], [list](https://docs.python.org/3/library/stdtypes.html#list)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]]] | [None](https://docs.python.org/3/library/constants.html#None) = None, params: [pudl.transform.classes.TableTransformParams](../classes/index.md#pudl.transform.classes.TableTransformParams) | [None](https://docs.python.org/3/library/constants.html#None) = None, cache_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = False, clear_cached_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = True, pudl_paths: [pudl.workspace.setup.PudlPaths](../../workspace/setup/index.md#pudl.workspace.setup.PudlPaths) | [None](https://docs.python.org/3/library/constants.html#None) = None)
+### *class* pudl.transform.ferc1.DepreciationChangesTableTransformer(xbrl_metadata_json: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[Literal['instant', 'duration'], [list](https://docs.python.org/3/library/stdtypes.html#list)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]]] | [None](https://docs.python.org/3/library/constants.html#None) = None, params: [pudl.transform.classes.TableTransformParams](../classes/index.html.md#pudl.transform.classes.TableTransformParams) | [None](https://docs.python.org/3/library/constants.html#None) = None, cache_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = False, clear_cached_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = True, pudl_paths: [pudl.workspace.setup.PudlPaths](../../workspace/setup/index.html.md#pudl.workspace.setup.PudlPaths) | [None](https://docs.python.org/3/library/constants.html#None) = None)
 
 Bases: [`Ferc1AbstractTableTransformer`](#pudl.transform.ferc1.Ferc1AbstractTableTransformer)
 
-Transformer class for [core_ferc1_\_yearly_depreciation_changes_sched219](../../../../data_dictionaries/pudl_db.md#core-ferc1-yearly-depreciation-changes-sched219) table.
+Transformer class for [core_ferc1_\_yearly_depreciation_changes_sched219](../../../../data_dictionaries/pudl_db.html.md#core-ferc1-yearly-depreciation-changes-sched219) table.
 
 #### table_id *: [TableIdFerc1](#pudl.transform.ferc1.TableIdFerc1)*
 
@@ -2892,11 +2892,11 @@ starting / ending balances have been usntacked, but before the instant &
 duration tables are merged. This method just reversed the order in which these
 operations happen, compared to the inherited method.
 
-### *class* pudl.transform.ferc1.DepreciationByFunctionTableTransformer(xbrl_metadata_json: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[Literal['instant', 'duration'], [list](https://docs.python.org/3/library/stdtypes.html#list)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]]] | [None](https://docs.python.org/3/library/constants.html#None) = None, params: [pudl.transform.classes.TableTransformParams](../classes/index.md#pudl.transform.classes.TableTransformParams) | [None](https://docs.python.org/3/library/constants.html#None) = None, cache_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = False, clear_cached_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = True, pudl_paths: [pudl.workspace.setup.PudlPaths](../../workspace/setup/index.md#pudl.workspace.setup.PudlPaths) | [None](https://docs.python.org/3/library/constants.html#None) = None)
+### *class* pudl.transform.ferc1.DepreciationByFunctionTableTransformer(xbrl_metadata_json: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[Literal['instant', 'duration'], [list](https://docs.python.org/3/library/stdtypes.html#list)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]]] | [None](https://docs.python.org/3/library/constants.html#None) = None, params: [pudl.transform.classes.TableTransformParams](../classes/index.html.md#pudl.transform.classes.TableTransformParams) | [None](https://docs.python.org/3/library/constants.html#None) = None, cache_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = False, clear_cached_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = True, pudl_paths: [pudl.workspace.setup.PudlPaths](../../workspace/setup/index.html.md#pudl.workspace.setup.PudlPaths) | [None](https://docs.python.org/3/library/constants.html#None) = None)
 
 Bases: [`Ferc1AbstractTableTransformer`](#pudl.transform.ferc1.Ferc1AbstractTableTransformer)
 
-Transformer for [core_ferc1_\_yearly_depreciation_by_function_sched219](../../../../data_dictionaries/pudl_db.md#core-ferc1-yearly-depreciation-by-function-sched219) table.
+Transformer for [core_ferc1_\_yearly_depreciation_by_function_sched219](../../../../data_dictionaries/pudl_db.html.md#core-ferc1-yearly-depreciation-by-function-sched219) table.
 
 #### table_id *: [TableIdFerc1](#pudl.transform.ferc1.TableIdFerc1)*
 
@@ -2980,13 +2980,13 @@ sub-dimension (e.g. `plant_status == "in_service"` and `plant_function ==
 "total"`) aren’t linked to double-total parent factoids. To ensure that there
 aren’t many instances of data where most or all of the data is reported in these
 mixed-total records, we add a validation step to ward against large-scale data
-loss in [`pudl.output.ferc1.Exploder`](../../output/ferc1/index.md#pudl.output.ferc1.Exploder).
+loss in [`pudl.output.ferc1.Exploder`](../../output/ferc1/index.html.md#pudl.output.ferc1.Exploder).
 
-### *class* pudl.transform.ferc1.OperatingExpensesTableTransformer(xbrl_metadata_json: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[Literal['instant', 'duration'], [list](https://docs.python.org/3/library/stdtypes.html#list)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]]] | [None](https://docs.python.org/3/library/constants.html#None) = None, params: [pudl.transform.classes.TableTransformParams](../classes/index.md#pudl.transform.classes.TableTransformParams) | [None](https://docs.python.org/3/library/constants.html#None) = None, cache_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = False, clear_cached_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = True, pudl_paths: [pudl.workspace.setup.PudlPaths](../../workspace/setup/index.md#pudl.workspace.setup.PudlPaths) | [None](https://docs.python.org/3/library/constants.html#None) = None)
+### *class* pudl.transform.ferc1.OperatingExpensesTableTransformer(xbrl_metadata_json: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[Literal['instant', 'duration'], [list](https://docs.python.org/3/library/stdtypes.html#list)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]]] | [None](https://docs.python.org/3/library/constants.html#None) = None, params: [pudl.transform.classes.TableTransformParams](../classes/index.html.md#pudl.transform.classes.TableTransformParams) | [None](https://docs.python.org/3/library/constants.html#None) = None, cache_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = False, clear_cached_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = True, pudl_paths: [pudl.workspace.setup.PudlPaths](../../workspace/setup/index.html.md#pudl.workspace.setup.PudlPaths) | [None](https://docs.python.org/3/library/constants.html#None) = None)
 
 Bases: [`Ferc1AbstractTableTransformer`](#pudl.transform.ferc1.Ferc1AbstractTableTransformer)
 
-Transformer class for [core_ferc1_\_yearly_operating_expenses_sched320](../../../../data_dictionaries/pudl_db.md#core-ferc1-yearly-operating-expenses-sched320) table.
+Transformer class for [core_ferc1_\_yearly_operating_expenses_sched320](../../../../data_dictionaries/pudl_db.html.md#core-ferc1-yearly-operating-expenses-sched320) table.
 
 #### table_id *: [TableIdFerc1](#pudl.transform.ferc1.TableIdFerc1)*
 
@@ -3024,11 +3024,11 @@ Note: we should probably parameterize this and add it into the standard
 
 Process DBF but drop a bad row that is flagged by drop_duplicates.
 
-### *class* pudl.transform.ferc1.OperatingRevenuesTableTransformer(xbrl_metadata_json: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[Literal['instant', 'duration'], [list](https://docs.python.org/3/library/stdtypes.html#list)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]]] | [None](https://docs.python.org/3/library/constants.html#None) = None, params: [pudl.transform.classes.TableTransformParams](../classes/index.md#pudl.transform.classes.TableTransformParams) | [None](https://docs.python.org/3/library/constants.html#None) = None, cache_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = False, clear_cached_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = True, pudl_paths: [pudl.workspace.setup.PudlPaths](../../workspace/setup/index.md#pudl.workspace.setup.PudlPaths) | [None](https://docs.python.org/3/library/constants.html#None) = None)
+### *class* pudl.transform.ferc1.OperatingRevenuesTableTransformer(xbrl_metadata_json: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[Literal['instant', 'duration'], [list](https://docs.python.org/3/library/stdtypes.html#list)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]]] | [None](https://docs.python.org/3/library/constants.html#None) = None, params: [pudl.transform.classes.TableTransformParams](../classes/index.html.md#pudl.transform.classes.TableTransformParams) | [None](https://docs.python.org/3/library/constants.html#None) = None, cache_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = False, clear_cached_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = True, pudl_paths: [pudl.workspace.setup.PudlPaths](../../workspace/setup/index.html.md#pudl.workspace.setup.PudlPaths) | [None](https://docs.python.org/3/library/constants.html#None) = None)
 
 Bases: [`Ferc1AbstractTableTransformer`](#pudl.transform.ferc1.Ferc1AbstractTableTransformer)
 
-Transformer class for [core_ferc1_\_yearly_operating_revenues_sched300](../../../../data_dictionaries/pudl_db.md#core-ferc1-yearly-operating-revenues-sched300) table.
+Transformer class for [core_ferc1_\_yearly_operating_revenues_sched300](../../../../data_dictionaries/pudl_db.html.md#core-ferc1-yearly-operating-revenues-sched300) table.
 
 #### table_id *: [TableIdFerc1](#pudl.transform.ferc1.TableIdFerc1)*
 
@@ -3072,11 +3072,11 @@ Add duplicate removal after standard transform_main & assign utility type.
 
 Drop one duplicate records from 2011, utility_id_ferc1 295.
 
-### *class* pudl.transform.ferc1.CashFlowsTableTransformer(xbrl_metadata_json: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[Literal['instant', 'duration'], [list](https://docs.python.org/3/library/stdtypes.html#list)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]]] | [None](https://docs.python.org/3/library/constants.html#None) = None, params: [pudl.transform.classes.TableTransformParams](../classes/index.md#pudl.transform.classes.TableTransformParams) | [None](https://docs.python.org/3/library/constants.html#None) = None, cache_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = False, clear_cached_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = True, pudl_paths: [pudl.workspace.setup.PudlPaths](../../workspace/setup/index.md#pudl.workspace.setup.PudlPaths) | [None](https://docs.python.org/3/library/constants.html#None) = None)
+### *class* pudl.transform.ferc1.CashFlowsTableTransformer(xbrl_metadata_json: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[Literal['instant', 'duration'], [list](https://docs.python.org/3/library/stdtypes.html#list)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]]] | [None](https://docs.python.org/3/library/constants.html#None) = None, params: [pudl.transform.classes.TableTransformParams](../classes/index.html.md#pudl.transform.classes.TableTransformParams) | [None](https://docs.python.org/3/library/constants.html#None) = None, cache_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = False, clear_cached_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = True, pudl_paths: [pudl.workspace.setup.PudlPaths](../../workspace/setup/index.html.md#pudl.workspace.setup.PudlPaths) | [None](https://docs.python.org/3/library/constants.html#None) = None)
 
 Bases: [`Ferc1AbstractTableTransformer`](#pudl.transform.ferc1.Ferc1AbstractTableTransformer)
 
-Transform class for [core_ferc1_\_yearly_cash_flows_sched120](../../../../data_dictionaries/pudl_db.md#core-ferc1-yearly-cash-flows-sched120) table.
+Transform class for [core_ferc1_\_yearly_cash_flows_sched120](../../../../data_dictionaries/pudl_db.html.md#core-ferc1-yearly-cash-flows-sched120) table.
 
 #### table_id *: [TableIdFerc1](#pudl.transform.ferc1.TableIdFerc1)*
 
@@ -3131,11 +3131,11 @@ starting_balance / ending_balance since we pull those two values into their own
 separate labeled rows, each of which should get the original metadata for the
 Instant column.
 
-### *class* pudl.transform.ferc1.SalesByRateSchedulesTableTransformer(xbrl_metadata_json: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[Literal['instant', 'duration'], [list](https://docs.python.org/3/library/stdtypes.html#list)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]]] | [None](https://docs.python.org/3/library/constants.html#None) = None, params: [pudl.transform.classes.TableTransformParams](../classes/index.md#pudl.transform.classes.TableTransformParams) | [None](https://docs.python.org/3/library/constants.html#None) = None, cache_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = False, clear_cached_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = True, pudl_paths: [pudl.workspace.setup.PudlPaths](../../workspace/setup/index.md#pudl.workspace.setup.PudlPaths) | [None](https://docs.python.org/3/library/constants.html#None) = None)
+### *class* pudl.transform.ferc1.SalesByRateSchedulesTableTransformer(xbrl_metadata_json: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[Literal['instant', 'duration'], [list](https://docs.python.org/3/library/stdtypes.html#list)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]]] | [None](https://docs.python.org/3/library/constants.html#None) = None, params: [pudl.transform.classes.TableTransformParams](../classes/index.html.md#pudl.transform.classes.TableTransformParams) | [None](https://docs.python.org/3/library/constants.html#None) = None, cache_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = False, clear_cached_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = True, pudl_paths: [pudl.workspace.setup.PudlPaths](../../workspace/setup/index.html.md#pudl.workspace.setup.PudlPaths) | [None](https://docs.python.org/3/library/constants.html#None) = None)
 
 Bases: [`Ferc1AbstractTableTransformer`](#pudl.transform.ferc1.Ferc1AbstractTableTransformer)
 
-Transform class for [core_ferc1_\_yearly_sales_by_rate_schedules_sched304](../../../../data_dictionaries/pudl_db.md#core-ferc1-yearly-sales-by-rate-schedules-sched304) table.
+Transform class for [core_ferc1_\_yearly_sales_by_rate_schedules_sched304](../../../../data_dictionaries/pudl_db.html.md#core-ferc1-yearly-sales-by-rate-schedules-sched304) table.
 
 #### table_id *: [TableIdFerc1](#pudl.transform.ferc1.TableIdFerc1)*
 
@@ -3180,11 +3180,11 @@ before that gets dropped.
 
 Rename columns before running wide_to_tidy.
 
-### *class* pudl.transform.ferc1.OtherRegulatoryLiabilitiesTableTransformer(xbrl_metadata_json: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[Literal['instant', 'duration'], [list](https://docs.python.org/3/library/stdtypes.html#list)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]]] | [None](https://docs.python.org/3/library/constants.html#None) = None, params: [pudl.transform.classes.TableTransformParams](../classes/index.md#pudl.transform.classes.TableTransformParams) | [None](https://docs.python.org/3/library/constants.html#None) = None, cache_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = False, clear_cached_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = True, pudl_paths: [pudl.workspace.setup.PudlPaths](../../workspace/setup/index.md#pudl.workspace.setup.PudlPaths) | [None](https://docs.python.org/3/library/constants.html#None) = None)
+### *class* pudl.transform.ferc1.OtherRegulatoryLiabilitiesTableTransformer(xbrl_metadata_json: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[Literal['instant', 'duration'], [list](https://docs.python.org/3/library/stdtypes.html#list)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]]] | [None](https://docs.python.org/3/library/constants.html#None) = None, params: [pudl.transform.classes.TableTransformParams](../classes/index.html.md#pudl.transform.classes.TableTransformParams) | [None](https://docs.python.org/3/library/constants.html#None) = None, cache_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = False, clear_cached_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = True, pudl_paths: [pudl.workspace.setup.PudlPaths](../../workspace/setup/index.html.md#pudl.workspace.setup.PudlPaths) | [None](https://docs.python.org/3/library/constants.html#None) = None)
 
 Bases: [`Ferc1AbstractTableTransformer`](#pudl.transform.ferc1.Ferc1AbstractTableTransformer)
 
-Transformer class for [core_ferc1_\_yearly_other_regulatory_liabilities_sched278](../../../../data_dictionaries/pudl_db.md#core-ferc1-yearly-other-regulatory-liabilities-sched278) table.
+Transformer class for [core_ferc1_\_yearly_other_regulatory_liabilities_sched278](../../../../data_dictionaries/pudl_db.html.md#core-ferc1-yearly-other-regulatory-liabilities-sched278) table.
 
 #### table_id *: [TableIdFerc1](#pudl.transform.ferc1.TableIdFerc1)*
 
@@ -3203,11 +3203,11 @@ output records, and so we should not expect record IDs to be unique. In those ca
 they serve only a forensic purpose, telling us where to find the original source of
 the transformed data.
 
-### *class* pudl.transform.ferc1.OtherRegulatoryAssetsTableTransformer(xbrl_metadata_json: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[Literal['instant', 'duration'], [list](https://docs.python.org/3/library/stdtypes.html#list)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]]] | [None](https://docs.python.org/3/library/constants.html#None) = None, params: [pudl.transform.classes.TableTransformParams](../classes/index.md#pudl.transform.classes.TableTransformParams) | [None](https://docs.python.org/3/library/constants.html#None) = None, cache_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = False, clear_cached_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = True, pudl_paths: [pudl.workspace.setup.PudlPaths](../../workspace/setup/index.md#pudl.workspace.setup.PudlPaths) | [None](https://docs.python.org/3/library/constants.html#None) = None)
+### *class* pudl.transform.ferc1.OtherRegulatoryAssetsTableTransformer(xbrl_metadata_json: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[Literal['instant', 'duration'], [list](https://docs.python.org/3/library/stdtypes.html#list)[[dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]]] | [None](https://docs.python.org/3/library/constants.html#None) = None, params: [pudl.transform.classes.TableTransformParams](../classes/index.html.md#pudl.transform.classes.TableTransformParams) | [None](https://docs.python.org/3/library/constants.html#None) = None, cache_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = False, clear_cached_dfs: [bool](https://docs.python.org/3/library/functions.html#bool) = True, pudl_paths: [pudl.workspace.setup.PudlPaths](../../workspace/setup/index.html.md#pudl.workspace.setup.PudlPaths) | [None](https://docs.python.org/3/library/constants.html#None) = None)
 
 Bases: [`Ferc1AbstractTableTransformer`](#pudl.transform.ferc1.Ferc1AbstractTableTransformer)
 
-Transformer class for [core_ferc1_\_yearly_other_regulatory_assets_sched232](../../../../data_dictionaries/pudl_db.md#core-ferc1-yearly-other-regulatory-assets-sched232) table.
+Transformer class for [core_ferc1_\_yearly_other_regulatory_assets_sched232](../../../../data_dictionaries/pudl_db.html.md#core-ferc1-yearly-other-regulatory-assets-sched232) table.
 
 #### table_id *: [TableIdFerc1](#pudl.transform.ferc1.TableIdFerc1)*
 
@@ -3240,7 +3240,7 @@ labeled as `totals` instead of `total` because there are some records (~3%) from
 the `other_regulatory_assets_account_182_3_232` table that are labeled as total
 and will break the pk expectations.
 
-### pudl.transform.ferc1.FERC1_TFR_CLASSES *: [collections.abc.Mapping](https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping)[[str](https://docs.python.org/3/library/stdtypes.html#str), [type](../../metadata/classes/index.md#pudl.metadata.classes.Field.type)[[Ferc1AbstractTableTransformer](#pudl.transform.ferc1.Ferc1AbstractTableTransformer)]]*
+### pudl.transform.ferc1.FERC1_TFR_CLASSES *: [collections.abc.Mapping](https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping)[[str](https://docs.python.org/3/library/stdtypes.html#str), [type](../../metadata/classes/index.html.md#pudl.metadata.classes.Field.type)[[Ferc1AbstractTableTransformer](#pudl.transform.ferc1.Ferc1AbstractTableTransformer)]]*
 
 ### pudl.transform.ferc1.\_FERC1_PLANT_TABLES
 
@@ -3304,7 +3304,7 @@ Build a table of values of dimensions observed in the transformed data tables.
 Compile a dataframe indicating what distinct values are observed in the data for
 each dimension column in association with each unique combination of `table_name`
 and `xbrl_factoid`. E.g. for all factoids found in the
-[core_ferc1_\_yearly_depreciation_by_function_sched219](../../../../data_dictionaries/pudl_db.md#core-ferc1-yearly-depreciation-by-function-sched219) table,
+[core_ferc1_\_yearly_depreciation_by_function_sched219](../../../../data_dictionaries/pudl_db.html.md#core-ferc1-yearly-depreciation-by-function-sched219) table,
 the only value observed for `utility_type` is `electric` and the values observed
 for `plant_status` include: `future`, `in_service`, `leased` and `total`.
 
@@ -3362,11 +3362,11 @@ components because the same calculation is assumed to apply in all cases.
 
 We have extended this calculation system to allow independent calculations to be
 specified for different values within a given dimension. For example, the
-[core_ferc1_\_yearly_utility_plant_summary_sched200](../../../../data_dictionaries/pudl_db.md#core-ferc1-yearly-utility-plant-summary-sched200) table contains records with a variety of
+[core_ferc1_\_yearly_utility_plant_summary_sched200](../../../../data_dictionaries/pudl_db.html.md#core-ferc1-yearly-utility-plant-summary-sched200) table contains records with a variety of
 different `utility_type` values (gas, electric, etc.). For many combinations of
 fact and `utility_type`, no more detailed information about the source of the data
 is available, but for some, and only in the case of electric utilities, much more
-detail can be found in the [core_ferc1_\_yearly_plant_in_service_sched204](../../../../data_dictionaries/pudl_db.md#core-ferc1-yearly-plant-in-service-sched204) table.
+detail can be found in the [core_ferc1_\_yearly_plant_in_service_sched204](../../../../data_dictionaries/pudl_db.html.md#core-ferc1-yearly-plant-in-service-sched204) table.
 In order to use this additional information when it is available, we sometimes
 explicitly specify different calculations for different values of additional
 dimension columns.

@@ -5,13 +5,13 @@ Load excel metadata CSV files form a python data package.
 ## Attributes
 
 | [`logger`](#pudl.extract.excel.logger)   |    |
-|------------------------------------------|----|
+|-----------------------------------------------------------|----|
 
 ## Classes
 
 | [`ExcelMetadata`](#pudl.extract.excel.ExcelMetadata)   | Load Excel metadata from Python package data.                |
-|--------------------------------------------------------|--------------------------------------------------------------|
-| [`ExcelExtractor`](#pudl.extract.excel.ExcelExtractor) | Logic for extracting `pd.DataFrame` from Excel spreadsheets. |
+|------------------------------------------------------------------|--------------------------------------------------------------|
+| [`ExcelExtractor`](#pudl.extract.excel.ExcelExtractor)  | Logic for extracting `pd.DataFrame` from Excel spreadsheets. |
 
 ## Module Contents
 
@@ -19,7 +19,7 @@ Load excel metadata CSV files form a python data package.
 
 ### *class* pudl.extract.excel.ExcelMetadata(dataset_name: [str](https://docs.python.org/3/library/stdtypes.html#str))
 
-Bases: [`pudl.extract.extractor.GenericMetadata`](../extractor/index.md#pudl.extract.extractor.GenericMetadata)
+Bases: [`pudl.extract.extractor.GenericMetadata`](../extractor/index.html.md#pudl.extract.extractor.GenericMetadata)
 
 Load Excel metadata from Python package data.
 
@@ -79,9 +79,9 @@ Returns file name of given partition and page.
 
 Returns the form name for a given page.
 
-### *class* pudl.extract.excel.ExcelExtractor(ds: [pudl.workspace.datastore.Datastore](../../workspace/datastore/index.md#pudl.workspace.datastore.Datastore))
+### *class* pudl.extract.excel.ExcelExtractor(ds: [pudl.workspace.datastore.Datastore](../../workspace/datastore/index.html.md#pudl.workspace.datastore.Datastore))
 
-Bases: [`pudl.extract.extractor.GenericExtractor`](../extractor/index.md#pudl.extract.extractor.GenericExtractor)
+Bases: [`pudl.extract.extractor.GenericExtractor`](../extractor/index.html.md#pudl.extract.extractor.GenericExtractor)
 
 Logic for extracting `pd.DataFrame` from Excel spreadsheets.
 
@@ -124,11 +124,11 @@ Instance of metadata object to use with this extractor.
 
 #### \_file_cache
 
-#### process_raw(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), page: [str](https://docs.python.org/3/library/stdtypes.html#str), \*\*partition: [pudl.extract.extractor.PartitionSelection](../extractor/index.md#pudl.extract.extractor.PartitionSelection)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+#### process_raw(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), page: [str](https://docs.python.org/3/library/stdtypes.html#str), \*\*partition: [pudl.extract.extractor.PartitionSelection](../extractor/index.html.md#pudl.extract.extractor.PartitionSelection)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Transforms raw dataframe and rename columns.
 
-#### add_data_maturity(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), page: [str](https://docs.python.org/3/library/stdtypes.html#str), \*\*partition: [pudl.extract.extractor.PartitionSelection](../extractor/index.md#pudl.extract.extractor.PartitionSelection)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+#### add_data_maturity(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), page: [str](https://docs.python.org/3/library/stdtypes.html#str), \*\*partition: [pudl.extract.extractor.PartitionSelection](../extractor/index.html.md#pudl.extract.extractor.PartitionSelection)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Add data_maturity column to indicate the maturity of partition data.
 
@@ -142,11 +142,11 @@ determine if a df should be labeled as `monthly_update` by checking if the
 This method adds a column and thus adds `data_maturity` to
 `self.cols_added`.
 
-#### *static* get_dtypes(page: [str](https://docs.python.org/3/library/stdtypes.html#str), \*\*partition: [pudl.extract.extractor.PartitionSelection](../extractor/index.md#pudl.extract.extractor.PartitionSelection)) → [dict](https://docs.python.org/3/library/stdtypes.html#dict)
+#### *static* get_dtypes(page: [str](https://docs.python.org/3/library/stdtypes.html#str), \*\*partition: [pudl.extract.extractor.PartitionSelection](../extractor/index.html.md#pudl.extract.extractor.PartitionSelection)) → [dict](https://docs.python.org/3/library/stdtypes.html#dict)
 
 Provide custom dtypes for given page and partition.
 
-#### zipfile_resource_partitions(page: [str](https://docs.python.org/3/library/stdtypes.html#str), \*\*partition: [pudl.extract.extractor.PartitionSelection](../extractor/index.md#pudl.extract.extractor.PartitionSelection)) → [dict](https://docs.python.org/3/library/stdtypes.html#dict)
+#### zipfile_resource_partitions(page: [str](https://docs.python.org/3/library/stdtypes.html#str), \*\*partition: [pudl.extract.extractor.PartitionSelection](../extractor/index.html.md#pudl.extract.extractor.PartitionSelection)) → [dict](https://docs.python.org/3/library/stdtypes.html#dict)
 
 Specify the partitions used for returning a zipfile from the datastore.
 
@@ -156,7 +156,7 @@ maps and just return the same partition that is passed in. If you have
 dataset-specific partition mappings that are needed to return a zipfile from the
 datastore, override this method to return the desired partitions.
 
-#### load_source(page: [str](https://docs.python.org/3/library/stdtypes.html#str), \*\*partition: [pudl.extract.extractor.PartitionSelection](../extractor/index.md#pudl.extract.extractor.PartitionSelection)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+#### load_source(page: [str](https://docs.python.org/3/library/stdtypes.html#str), \*\*partition: [pudl.extract.extractor.PartitionSelection](../extractor/index.html.md#pudl.extract.extractor.PartitionSelection)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Produce the ExcelFile object for the given (partition, page).
 
@@ -169,7 +169,7 @@ Produce the ExcelFile object for the given (partition, page).
 * **Returns:**
   pd.DataFrame instance with the parsed Excel spreadsheet frame
 
-#### source_filename(page: [str](https://docs.python.org/3/library/stdtypes.html#str), \*\*partition: [pudl.extract.extractor.PartitionSelection](../extractor/index.md#pudl.extract.extractor.PartitionSelection)) → [str](https://docs.python.org/3/library/stdtypes.html#str)
+#### source_filename(page: [str](https://docs.python.org/3/library/stdtypes.html#str), \*\*partition: [pudl.extract.extractor.PartitionSelection](../extractor/index.html.md#pudl.extract.extractor.PartitionSelection)) → [str](https://docs.python.org/3/library/stdtypes.html#str)
 
 Produce the xlsx document file name as it will appear in the archive.
 

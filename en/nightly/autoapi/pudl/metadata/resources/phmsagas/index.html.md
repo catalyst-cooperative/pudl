@@ -5,8 +5,8 @@ Tables definitions for data coming from PHMSA natural gas data.
 ## Attributes
 
 | [`GENERIC_CLEANING_STATE_WARNING`](#pudl.metadata.resources.phmsagas.GENERIC_CLEANING_STATE_WARNING)   |    |
-|--------------------------------------------------------------------------------------------------------|----|
-| [`RESOURCE_METADATA`](#pudl.metadata.resources.phmsagas.RESOURCE_METADATA)                             |    |
+|-----------------------------------------------------------------------------------|----|
+| [`RESOURCE_METADATA`](#pudl.metadata.resources.phmsagas.RESOURCE_METADATA)                |    |
 
 ## Module Contents
 

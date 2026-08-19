@@ -5,7 +5,7 @@ Table definitions for the RUS tables.
 ## Attributes
 
 | [`RESOURCE_METADATA`](#pudl.metadata.resources.rus.RESOURCE_METADATA)   |    |
-|-------------------------------------------------------------------------|----|
+|----------------------------------------------------------------------|----|
 
 ## Module Contents
 

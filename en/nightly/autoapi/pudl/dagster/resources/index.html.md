@@ -16,28 +16,28 @@ For the underlying Dagster concept, see
 ## Attributes
 
 | [`global_data_config_resource`](#pudl.dagster.resources.global_data_config_resource)   |    |
-|----------------------------------------------------------------------------------------|----|
-| [`pudl_paths_resource`](#pudl.dagster.resources.pudl_paths_resource)                   |    |
-| [`zenodo_doi_settings_resource`](#pudl.dagster.resources.zenodo_doi_settings_resource) |    |
-| [`datastore_resource`](#pudl.dagster.resources.datastore_resource)                     |    |
-| [`ferc_xbrl_runtime_settings`](#pudl.dagster.resources.ferc_xbrl_runtime_settings)     |    |
-| [`ferceqr_archive`](#pudl.dagster.resources.ferceqr_archive)                           |    |
-| [`ferceqr_deployment_targets`](#pudl.dagster.resources.ferceqr_deployment_targets)     |    |
+|--------------------------------------------------------------------------------|----|
+| [`pudl_paths_resource`](#pudl.dagster.resources.pudl_paths_resource)           |    |
+| [`zenodo_doi_settings_resource`](#pudl.dagster.resources.zenodo_doi_settings_resource)  |    |
+| [`datastore_resource`](#pudl.dagster.resources.datastore_resource)            |    |
+| [`ferc_xbrl_runtime_settings`](#pudl.dagster.resources.ferc_xbrl_runtime_settings)    |    |
+| [`ferceqr_archive`](#pudl.dagster.resources.ferceqr_archive)               |    |
+| [`ferceqr_deployment_targets`](#pudl.dagster.resources.ferceqr_deployment_targets)    |    |
 | [`zulip_notification_resource`](#pudl.dagster.resources.zulip_notification_resource)   |    |
-| [`default_resources`](#pudl.dagster.resources.default_resources)                       |    |
+| [`default_resources`](#pudl.dagster.resources.default_resources)             |    |
 
 ## Classes
 
-| [`PudlPathsResource`](#pudl.dagster.resources.PudlPathsResource)                         | Load the input/output paths used by Dagster-managed PUDL runs.          |
-|------------------------------------------------------------------------------------------|-------------------------------------------------------------------------|
-| [`FercXbrlRuntimeSettings`](#pudl.dagster.resources.FercXbrlRuntimeSettings)             | Encodes runtime settings for the ferc_to_sqlite graphs.                 |
-| [`GlobalDataConfigResource`](#pudl.dagster.resources.GlobalDataConfigResource)           | Load validated PUDL data configuration from a shared ETL YAML file.     |
-| [`ZenodoDoiSettingsResource`](#pudl.dagster.resources.ZenodoDoiSettingsResource)         | Load the canonical Zenodo DOI settings for Dagster-managed runs.        |
-| [`DatastoreResource`](#pudl.dagster.resources.DatastoreResource)                         | Dagster resource to interact with Zenodo archives.                      |
-| [`FercEqrArchiveResource`](#pudl.dagster.resources.FercEqrArchiveResource)               | Configure which archived FERC EQR filings are available for extraction. |
+| [`PudlPathsResource`](#pudl.dagster.resources.PudlPathsResource)             | Load the input/output paths used by Dagster-managed PUDL runs.          |
+|--------------------------------------------------------------------------------|-------------------------------------------------------------------------|
+| [`FercXbrlRuntimeSettings`](#pudl.dagster.resources.FercXbrlRuntimeSettings)       | Encodes runtime settings for the ferc_to_sqlite graphs.                 |
+| [`GlobalDataConfigResource`](#pudl.dagster.resources.GlobalDataConfigResource)      | Load validated PUDL data configuration from a shared ETL YAML file.     |
+| [`ZenodoDoiSettingsResource`](#pudl.dagster.resources.ZenodoDoiSettingsResource)     | Load the canonical Zenodo DOI settings for Dagster-managed runs.        |
+| [`DatastoreResource`](#pudl.dagster.resources.DatastoreResource)             | Dagster resource to interact with Zenodo archives.                      |
+| [`FercEqrArchiveResource`](#pudl.dagster.resources.FercEqrArchiveResource)        | Configure which archived FERC EQR filings are available for extraction. |
 | [`FercEqrDeploymentTargetConfig`](#pudl.dagster.resources.FercEqrDeploymentTargetConfig) | A single deployment destination for FERC EQR outputs.                   |
-| [`FercEqrDeploymentResource`](#pudl.dagster.resources.FercEqrDeploymentResource)         | One or more deployment destinations for FERC EQR outputs.               |
-| [`ZulipNotificationResource`](#pudl.dagster.resources.ZulipNotificationResource)         | Send notifications to Zulip streams via the Zulip API.                  |
+| [`FercEqrDeploymentResource`](#pudl.dagster.resources.FercEqrDeploymentResource)     | One or more deployment destinations for FERC EQR outputs.               |
+| [`ZulipNotificationResource`](#pudl.dagster.resources.ZulipNotificationResource)     | Send notifications to Zulip streams via the Zulip API.                  |
 
 ## Module Contents
 
@@ -55,7 +55,7 @@ and container-provided environment variables all share a single typed entry poin
 
 #### pudl_output *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
 
-#### create_resource(context) → [pudl.workspace.setup.PudlPaths](../../workspace/setup/index.md#pudl.workspace.setup.PudlPaths)
+#### create_resource(context) → [pudl.workspace.setup.PudlPaths](../../workspace/setup/index.html.md#pudl.workspace.setup.PudlPaths)
 
 Create validated runtime path settings for the current Dagster run.
 
@@ -79,7 +79,7 @@ Load validated PUDL data configuration from a shared ETL YAML file.
 
 #### global_data_config_path *: [str](https://docs.python.org/3/library/stdtypes.html#str)* *= ''*
 
-#### create_resource(context) → [pudl.settings.GlobalDataConfig](../../settings/index.md#pudl.settings.GlobalDataConfig)
+#### create_resource(context) → [pudl.settings.GlobalDataConfig](../../settings/index.html.md#pudl.settings.GlobalDataConfig)
 
 Create runtime data configuration from the configured YAML file.
 
@@ -92,7 +92,7 @@ Load the canonical Zenodo DOI settings for Dagster-managed runs.
 Two configuration paths are supported:
 
 * **Inline defaults** (`zenodo_dois_path=None`): uses the canonical Zenodo DOIs
-  that are hardcoded as defaults in [`ZenodoDoiSettings`](../../workspace/datastore/index.md#pudl.workspace.datastore.ZenodoDoiSettings).
+  that are hardcoded as defaults in [`ZenodoDoiSettings`](../../workspace/datastore/index.html.md#pudl.workspace.datastore.ZenodoDoiSettings).
   This is the normal production path — no extra config file is needed.
 * **Path override** (`zenodo_dois_path="..."`): loads DOIs from an external YAML
   file, allowing deployments or tests to substitute different DOIs without modifying
@@ -100,7 +100,7 @@ Two configuration paths are supported:
 
 #### zenodo_dois_path *: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
 
-#### create_resource(context) → [pudl.workspace.datastore.ZenodoDoiSettings](../../workspace/datastore/index.md#pudl.workspace.datastore.ZenodoDoiSettings)
+#### create_resource(context) → [pudl.workspace.datastore.ZenodoDoiSettings](../../workspace/datastore/index.html.md#pudl.workspace.datastore.ZenodoDoiSettings)
 
 Create runtime DOI settings, optionally from an override YAML file.
 
@@ -118,7 +118,7 @@ Dagster resource to interact with Zenodo archives.
 
 #### use_local_cache *: [bool](https://docs.python.org/3/library/functions.html#bool)* *= True*
 
-#### create_resource(context) → [pudl.workspace.datastore.Datastore](../../workspace/datastore/index.md#pudl.workspace.datastore.Datastore)
+#### create_resource(context) → [pudl.workspace.datastore.Datastore](../../workspace/datastore/index.html.md#pudl.workspace.datastore.Datastore)
 
 Create a configured datastore runtime object.
 

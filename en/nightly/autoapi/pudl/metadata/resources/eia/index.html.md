@@ -4,8 +4,8 @@ Definitions of data tables primarily coming from EIA 860/861/923.
 
 ## Attributes
 
-| [`AGG_FREQS`](#pudl.metadata.resources.eia.AGG_FREQS)                 |                                                                                 |
-|-----------------------------------------------------------------------|---------------------------------------------------------------------------------|
+| [`AGG_FREQS`](#pudl.metadata.resources.eia.AGG_FREQS)         |                                                                                 |
+|--------------------------------------------------------------------|---------------------------------------------------------------------------------|
 | [`RESOURCE_METADATA`](#pudl.metadata.resources.eia.RESOURCE_METADATA) | Generic EIA resource attributes organized by PUDL identifier (`resource.name`). |
 
 ## Module Contents
@@ -16,5 +16,5 @@ Definitions of data tables primarily coming from EIA 860/861/923.
 
 Generic EIA resource attributes organized by PUDL identifier (`resource.name`).
 
-See [`pudl.metadata.helpers.build_foreign_keys()`](../../helpers/index.md#pudl.metadata.helpers.build_foreign_keys) for the expected format of
+See [`pudl.metadata.helpers.build_foreign_keys()`](../../helpers/index.html.md#pudl.metadata.helpers.build_foreign_keys) for the expected format of
 `foreign_key_rules`.

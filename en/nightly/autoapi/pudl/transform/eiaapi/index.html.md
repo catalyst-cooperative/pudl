@@ -23,11 +23,11 @@ relationships are defined for aggregates over fuel, sector, geography, and time.
 
 ## Functions
 
-| [`_extract_keys_from_series_id`](#pudl.transform.eiaapi._extract_keys_from_series_id)(→ pandas.DataFrame)           | Parse primary key codes from EIA series_id.    |
-|---------------------------------------------------------------------------------------------------------------------|------------------------------------------------|
+| [`_extract_keys_from_series_id`](#pudl.transform.eiaapi._extract_keys_from_series_id)(→ pandas.DataFrame)      | Parse primary key codes from EIA series_id.    |
+|--------------------------------------------------------------------------------------------------------|------------------------------------------------|
 | [`_map_key_codes_to_readable_values`](#pudl.transform.eiaapi._map_key_codes_to_readable_values)(→ pandas.DataFrame) |                                                |
-| [`_transform_timeseries`](#pudl.transform.eiaapi._transform_timeseries)(→ pandas.DataFrame)                         | Transform raw timeseries.                      |
-| [`transform`](#pudl.transform.eiaapi.transform)(→ pandas.DataFrame)                                                 | Transform raw EIA bulk electricity aggregates. |
+| [`_transform_timeseries`](#pudl.transform.eiaapi._transform_timeseries)(→ pandas.DataFrame)             | Transform raw timeseries.                      |
+| [`transform`](#pudl.transform.eiaapi.transform)(→ pandas.DataFrame)                         | Transform raw EIA bulk electricity aggregates. |
 
 ## Module Contents
 

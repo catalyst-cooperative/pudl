@@ -5,7 +5,7 @@ Tiny CLI for showing table descriptions without building the full docs.
 ## Functions
 
 | [`main`](#pudl.scripts.resource_description.main)(→ None)   | Compute and display the description components for a resource.   |
-|-------------------------------------------------------------|------------------------------------------------------------------|
+|-----------------------------------------------------------------|------------------------------------------------------------------|
 
 ## Module Contents
 
@@ -17,4 +17,4 @@ These components are used to build the full resource description which goes into
 data dictionary, datapackage, and other downstream applications.
 
 Useful when adding a new table, if you have the top-level structure installed in
-[`pudl.metadata.resources`](../../metadata/resources/index.md#module-pudl.metadata.resources) but don’t yet have public documentation written.
+[`pudl.metadata.resources`](../../metadata/resources/index.html.md#module-pudl.metadata.resources) but don’t yet have public documentation written.

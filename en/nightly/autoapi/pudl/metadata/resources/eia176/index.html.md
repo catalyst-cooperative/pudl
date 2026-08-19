@@ -5,7 +5,7 @@ Definitions of data tables primarily coming from EIA-176.
 ## Attributes
 
 | [`RESOURCE_METADATA`](#pudl.metadata.resources.eia176.RESOURCE_METADATA)   |    |
-|----------------------------------------------------------------------------|----|
+|----------------------------------------------------------------------|----|
 
 ## Module Contents
 

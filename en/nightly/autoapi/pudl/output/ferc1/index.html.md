@@ -4,66 +4,66 @@ A collection of denormalized FERC assets and helper functions.
 
 ## Attributes
 
-| [`logger`](#pudl.output.ferc1.logger)                                                     |                                                                          |
-|-------------------------------------------------------------------------------------------|--------------------------------------------------------------------------|
+| [`logger`](#pudl.output.ferc1.logger)                           |                                                                          |
+|-----------------------------------------------------------------------------------|--------------------------------------------------------------------------|
 | [`EXPLOSION_CALCULATION_TOLERANCES`](#pudl.output.ferc1.EXPLOSION_CALCULATION_TOLERANCES) |                                                                          |
-| [`MANUAL_DBF_METADATA_FIXES`](#pudl.output.ferc1.MANUAL_DBF_METADATA_FIXES)               | Manually compiled metadata from DBF-only or PUDL-generated xbrl_factios. |
-| [`out_ferc1_assets`](#pudl.output.ferc1.out_ferc1_assets)                                 |                                                                          |
-| [`EXPLOSION_ARGS`](#pudl.output.ferc1.EXPLOSION_ARGS)                                     |                                                                          |
-| [`exploded_ferc1_assets`](#pudl.output.ferc1.exploded_ferc1_assets)                       |                                                                          |
+| [`MANUAL_DBF_METADATA_FIXES`](#pudl.output.ferc1.MANUAL_DBF_METADATA_FIXES)        | Manually compiled metadata from DBF-only or PUDL-generated xbrl_factios. |
+| [`out_ferc1_assets`](#pudl.output.ferc1.out_ferc1_assets)                 |                                                                          |
+| [`EXPLOSION_ARGS`](#pudl.output.ferc1.EXPLOSION_ARGS)                   |                                                                          |
+| [`exploded_ferc1_assets`](#pudl.output.ferc1.exploded_ferc1_assets)            |                                                                          |
 | [`check_specs_detailed_tables_tags`](#pudl.output.ferc1.check_specs_detailed_tables_tags) |                                                                          |
-| [`_tag_checks`](#pudl.output.ferc1._tag_checks)                                           |                                                                          |
-| [`check_specs`](#pudl.output.ferc1.check_specs)                                           |                                                                          |
-| [`_idx_checks`](#pudl.output.ferc1._idx_checks)                                           |                                                                          |
+| [`_tag_checks`](#pudl.output.ferc1._tag_checks)                      |                                                                          |
+| [`check_specs`](#pudl.output.ferc1.check_specs)                      |                                                                          |
+| [`_idx_checks`](#pudl.output.ferc1._idx_checks)                      |                                                                          |
 
 ## Classes
 
-| [`NodeId`](#pudl.output.ferc1.NodeId)                                         | The primary keys which identify a node in a calculation tree.               |
-|-------------------------------------------------------------------------------|-----------------------------------------------------------------------------|
-| [`OffByFactoid`](#pudl.output.ferc1.OffByFactoid)                             | A calculated factoid which is off by one other factoid.                     |
-| [`Exploder`](#pudl.output.ferc1.Exploder)                                     | Get unique, granular datapoints from a set of related, nested FERC1 tables. |
+| [`NodeId`](#pudl.output.ferc1.NodeId)                     | The primary keys which identify a node in a calculation tree.               |
+|-----------------------------------------------------------------------------|-----------------------------------------------------------------------------|
+| [`OffByFactoid`](#pudl.output.ferc1.OffByFactoid)               | A calculated factoid which is off by one other factoid.                     |
+| [`Exploder`](#pudl.output.ferc1.Exploder)                   | Get unique, granular datapoints from a set of related, nested FERC1 tables. |
 | [`XbrlCalculationForestFerc1`](#pudl.output.ferc1.XbrlCalculationForestFerc1) | A class for manipulating groups of hierarchically nested XBRL calculations. |
-| [`Ferc1DetailedCheckSpec`](#pudl.output.ferc1.Ferc1DetailedCheckSpec)         | Define some simple checks that can run on FERC 1 assets.                    |
+| [`Ferc1DetailedCheckSpec`](#pudl.output.ferc1.Ferc1DetailedCheckSpec)     | Define some simple checks that can run on FERC 1 assets.                    |
 
 ## Functions
 
-| [`get_core_ferc1_asset_description`](#pudl.output.ferc1.get_core_ferc1_asset_description)(→ str)                                         | Get the asset description portion of a core FERC FORM 1 asset.                        |
-|------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------|
-| [`ferc1_output_asset_factory`](#pudl.output.ferc1.ferc1_output_asset_factory)(→ dagster.AssetsDefinition)                                | Define an output asset for the FERC1 table by adding in utility IDs.                  |
-| [`_out_ferc1__yearly_plants_utilities`](#pudl.output.ferc1._out_ferc1__yearly_plants_utilities)(→ pandas.DataFrame)                      | A denormalized table containing FERC plant and utility names and IDs.                 |
-| [`out_ferc1__yearly_steam_plants_sched402`](#pudl.output.ferc1.out_ferc1__yearly_steam_plants_sched402)(→ pandas.DataFrame)              | Select and joins some useful fields from the FERC Form 1 steam table.                 |
-| [`out_ferc1__yearly_small_plants_sched410`](#pudl.output.ferc1.out_ferc1__yearly_small_plants_sched410)(→ pandas.DataFrame)              | Pull a useful dataframe related to the FERC Form 1 small plants.                      |
-| [`out_ferc1__yearly_hydroelectric_plants_sched406`](#pudl.output.ferc1.out_ferc1__yearly_hydroelectric_plants_sched406)(...)             | Pull a useful dataframe related to the FERC Form 1 hydro plants.                      |
-| [`out_ferc1__yearly_pumped_storage_plants_sched408`](#pudl.output.ferc1.out_ferc1__yearly_pumped_storage_plants_sched408)(...)           | Pull a dataframe of FERC Form 1 Pumped Storage plant data.                            |
-| [`out_ferc1__yearly_steam_plants_fuel_sched402`](#pudl.output.ferc1.out_ferc1__yearly_steam_plants_fuel_sched402)(...)                   | Pull a useful dataframe related to FERC Form 1 fuel information.                      |
-| [`out_ferc1__yearly_all_plants`](#pudl.output.ferc1.out_ferc1__yearly_all_plants)(→ pandas.DataFrame)                                    | Combine the steam, small generators, hydro, and pumped storage tables.                |
-| [`out_ferc1__yearly_steam_plants_fuel_by_plant_sched402`](#pudl.output.ferc1.out_ferc1__yearly_steam_plants_fuel_by_plant_sched402)(...) | Summarize FERC fuel data by plant for output.                                         |
-| [`calc_annual_capital_additions_ferc1`](#pudl.output.ferc1.calc_annual_capital_additions_ferc1)(→ pandas.DataFrame)                      | Calculate annual capital additions for FERC1 steam records.                           |
-| [`add_mean_cap_additions`](#pudl.output.ferc1.add_mean_cap_additions)(steam_df)                                                          | Add mean capital additions over lifetime of plant.                                    |
-| [`_out_ferc1__detailed_tags`](#pudl.output.ferc1._out_ferc1__detailed_tags)(→ pandas.DataFrame)                                          | Grab the stored tables of tags and add inferred dimension.                            |
-| [`_get_tags`](#pudl.output.ferc1._get_tags)(→ pandas.DataFrame)                                                                          | Grab tags from a stored CSV file and apply `make_xbrl_factoid_dimensions_explicit()`. |
-| [`_aggregatable_dimension_tags`](#pudl.output.ferc1._aggregatable_dimension_tags)(→ pandas.DataFrame)                                    |                                                                                       |
-| [`exploded_table_asset_factory`](#pudl.output.ferc1.exploded_table_asset_factory)(→ dagster.AssetsDefinition)                            | Create an exploded table based on a set of related input tables.                      |
-| [`create_exploded_table_assets`](#pudl.output.ferc1.create_exploded_table_assets)(...)                                                   | Create a list of exploded FERC Form 1 assets.                                         |
-| [`nodes_to_df`](#pudl.output.ferc1.nodes_to_df)(→ pandas.DataFrame)                                                                      | Construct a dataframe from a list of nodes, including their annotations.              |
-| [`_propagate_tag`](#pudl.output.ferc1._propagate_tag)(→ networkx.DiGraph)                                                                | Set the tag for nodes when all of its successors or predecessorshave same tag.        |
-| [`_propagate_tags_to_corrections`](#pudl.output.ferc1._propagate_tags_to_corrections)(→ networkx.DiGraph)                                |                                                                                       |
-| [`check_tag_propagation_compared_to_compiled_tags`](#pudl.output.ferc1.check_tag_propagation_compared_to_compiled_tags)(df, ...)         | Check if tags got propagated.                                                         |
-| [`check_for_correction_xbrl_factoids_with_tag`](#pudl.output.ferc1.check_for_correction_xbrl_factoids_with_tag)(df, ...)                 | Check if any correction records have tags.                                            |
-| [`make_check_tag_propagation`](#pudl.output.ferc1.make_check_tag_propagation)(→ dagster.AssetChecksDefinition)                           | Check the propagation of tags.                                                        |
-| [`make_check_correction_tags`](#pudl.output.ferc1.make_check_correction_tags)(→ dagster.AssetChecksDefinition)                           | Check the propagation of tags.                                                        |
-| [`out_ferc1__yearly_rate_base`](#pudl.output.ferc1.out_ferc1__yearly_rate_base)(→ pandas.DataFrame)                                      | Make a table of granular utility rate base data.                                      |
-| [`replace_dimension_columns_with_aggregatable`](#pudl.output.ferc1.replace_dimension_columns_with_aggregatable)(...)                     | Replace the dimension columns with their aggregatable counterparts.                   |
-| [`make_idx_check`](#pudl.output.ferc1.make_idx_check)(→ dagster.AssetChecksDefinition)                                                   | Turn the Ferc1DetailedCheckSpec into an actual Dagster asset check.                   |
-| [`prep_cash_working_capital`](#pudl.output.ferc1.prep_cash_working_capital)(→ pandas.DataFrame)                                          | Extract a new `cash_working_capital` `xbrl_factoid` for the rate base table.          |
-| [`disaggregate_null_or_total_tag`](#pudl.output.ferc1.disaggregate_null_or_total_tag)(→ pandas.DataFrame)                                | Disaggregate records with an null or total value in the `tag_col`.                    |
-| [`get_column_value_ratio`](#pudl.output.ferc1.get_column_value_ratio)(→ pandas.DataFrame)                                                | Calculate the percentage of the `ending_balance` within each value in the column.     |
+| [`get_core_ferc1_asset_description`](#pudl.output.ferc1.get_core_ferc1_asset_description)(→ str)                     | Get the asset description portion of a core FERC FORM 1 asset.                        |
+|--------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------|
+| [`ferc1_output_asset_factory`](#pudl.output.ferc1.ferc1_output_asset_factory)(→ dagster.AssetsDefinition)      | Define an output asset for the FERC1 table by adding in utility IDs.                  |
+| [`_out_ferc1__yearly_plants_utilities`](#pudl.output.ferc1._out_ferc1__yearly_plants_utilities)(→ pandas.DataFrame)     | A denormalized table containing FERC plant and utility names and IDs.                 |
+| [`out_ferc1__yearly_steam_plants_sched402`](#pudl.output.ferc1.out_ferc1__yearly_steam_plants_sched402)(→ pandas.DataFrame) | Select and joins some useful fields from the FERC Form 1 steam table.                 |
+| [`out_ferc1__yearly_small_plants_sched410`](#pudl.output.ferc1.out_ferc1__yearly_small_plants_sched410)(→ pandas.DataFrame) | Pull a useful dataframe related to the FERC Form 1 small plants.                      |
+| [`out_ferc1__yearly_hydroelectric_plants_sched406`](#pudl.output.ferc1.out_ferc1__yearly_hydroelectric_plants_sched406)(...)        | Pull a useful dataframe related to the FERC Form 1 hydro plants.                      |
+| [`out_ferc1__yearly_pumped_storage_plants_sched408`](#pudl.output.ferc1.out_ferc1__yearly_pumped_storage_plants_sched408)(...)       | Pull a dataframe of FERC Form 1 Pumped Storage plant data.                            |
+| [`out_ferc1__yearly_steam_plants_fuel_sched402`](#pudl.output.ferc1.out_ferc1__yearly_steam_plants_fuel_sched402)(...)           | Pull a useful dataframe related to FERC Form 1 fuel information.                      |
+| [`out_ferc1__yearly_all_plants`](#pudl.output.ferc1.out_ferc1__yearly_all_plants)(→ pandas.DataFrame)            | Combine the steam, small generators, hydro, and pumped storage tables.                |
+| [`out_ferc1__yearly_steam_plants_fuel_by_plant_sched402`](#pudl.output.ferc1.out_ferc1__yearly_steam_plants_fuel_by_plant_sched402)(...)  | Summarize FERC fuel data by plant for output.                                         |
+| [`calc_annual_capital_additions_ferc1`](#pudl.output.ferc1.calc_annual_capital_additions_ferc1)(→ pandas.DataFrame)     | Calculate annual capital additions for FERC1 steam records.                           |
+| [`add_mean_cap_additions`](#pudl.output.ferc1.add_mean_cap_additions)(steam_df)                            | Add mean capital additions over lifetime of plant.                                    |
+| [`_out_ferc1__detailed_tags`](#pudl.output.ferc1._out_ferc1__detailed_tags)(→ pandas.DataFrame)               | Grab the stored tables of tags and add inferred dimension.                            |
+| [`_get_tags`](#pudl.output.ferc1._get_tags)(→ pandas.DataFrame)                               | Grab tags from a stored CSV file and apply `make_xbrl_factoid_dimensions_explicit()`. |
+| [`_aggregatable_dimension_tags`](#pudl.output.ferc1._aggregatable_dimension_tags)(→ pandas.DataFrame)            |                                                                                       |
+| [`exploded_table_asset_factory`](#pudl.output.ferc1.exploded_table_asset_factory)(→ dagster.AssetsDefinition)    | Create an exploded table based on a set of related input tables.                      |
+| [`create_exploded_table_assets`](#pudl.output.ferc1.create_exploded_table_assets)(...)                           | Create a list of exploded FERC Form 1 assets.                                         |
+| [`nodes_to_df`](#pudl.output.ferc1.nodes_to_df)(→ pandas.DataFrame)                             | Construct a dataframe from a list of nodes, including their annotations.              |
+| [`_propagate_tag`](#pudl.output.ferc1._propagate_tag)(→ networkx.DiGraph)                          | Set the tag for nodes when all of its successors or predecessorshave same tag.        |
+| [`_propagate_tags_to_corrections`](#pudl.output.ferc1._propagate_tags_to_corrections)(→ networkx.DiGraph)          |                                                                                       |
+| [`check_tag_propagation_compared_to_compiled_tags`](#pudl.output.ferc1.check_tag_propagation_compared_to_compiled_tags)(df, ...)    | Check if tags got propagated.                                                         |
+| [`check_for_correction_xbrl_factoids_with_tag`](#pudl.output.ferc1.check_for_correction_xbrl_factoids_with_tag)(df, ...)        | Check if any correction records have tags.                                            |
+| [`make_check_tag_propagation`](#pudl.output.ferc1.make_check_tag_propagation)(→ dagster.AssetChecksDefinition) | Check the propagation of tags.                                                        |
+| [`make_check_correction_tags`](#pudl.output.ferc1.make_check_correction_tags)(→ dagster.AssetChecksDefinition) | Check the propagation of tags.                                                        |
+| [`out_ferc1__yearly_rate_base`](#pudl.output.ferc1.out_ferc1__yearly_rate_base)(→ pandas.DataFrame)             | Make a table of granular utility rate base data.                                      |
+| [`replace_dimension_columns_with_aggregatable`](#pudl.output.ferc1.replace_dimension_columns_with_aggregatable)(...)            | Replace the dimension columns with their aggregatable counterparts.                   |
+| [`make_idx_check`](#pudl.output.ferc1.make_idx_check)(→ dagster.AssetChecksDefinition)             | Turn the Ferc1DetailedCheckSpec into an actual Dagster asset check.                   |
+| [`prep_cash_working_capital`](#pudl.output.ferc1.prep_cash_working_capital)(→ pandas.DataFrame)               | Extract a new `cash_working_capital` `xbrl_factoid` for the rate base table.          |
+| [`disaggregate_null_or_total_tag`](#pudl.output.ferc1.disaggregate_null_or_total_tag)(→ pandas.DataFrame)          | Disaggregate records with an null or total value in the `tag_col`.                    |
+| [`get_column_value_ratio`](#pudl.output.ferc1.get_column_value_ratio)(→ pandas.DataFrame)                  | Calculate the percentage of the `ending_balance` within each value in the column.     |
 
 ## Module Contents
 
 ### pudl.output.ferc1.logger
 
-### pudl.output.ferc1.EXPLOSION_CALCULATION_TOLERANCES *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [pudl.transform.ferc1.GroupMetricChecks](../../transform/ferc1/index.md#pudl.transform.ferc1.GroupMetricChecks)]*
+### pudl.output.ferc1.EXPLOSION_CALCULATION_TOLERANCES *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [pudl.transform.ferc1.GroupMetricChecks](../../transform/ferc1/index.html.md#pudl.transform.ferc1.GroupMetricChecks)]*
 
 ### pudl.output.ferc1.MANUAL_DBF_METADATA_FIXES *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str) | [int](https://docs.python.org/3/library/functions.html#int) | pandas._libs.missing.NAType]]*
 
@@ -179,7 +179,7 @@ the big annual fluctuations.
 * **Parameters:**
   * **steam_df** – result of prep_plants_ferc()
   * **window** – number of years for window to generate rolling average. Argument for
-    [`pudl.helpers.generate_rolling_avg()`](../../helpers/index.md#pudl.helpers.generate_rolling_avg)
+    [`pudl.helpers.generate_rolling_avg()`](../../helpers/index.html.md#pudl.helpers.generate_rolling_avg)
 * **Returns:**
   `capex_annual_addition` and `capex_annual_addition_rolling`.
 * **Return type:**
@@ -256,7 +256,7 @@ Grab tags from a stored CSV file and apply `make_xbrl_factoid_dimensions_explici
 
 ### pudl.output.ferc1.\_aggregatable_dimension_tags(\_core_ferc1_\_table_dimensions: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), dimension: Literal['plant_status', 'plant_function']) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
-### pudl.output.ferc1.exploded_table_asset_factory(root_table: [str](https://docs.python.org/3/library/stdtypes.html#str), table_names: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], seed_nodes: [list](https://docs.python.org/3/library/stdtypes.html#list)[[NodeId](#pudl.output.ferc1.NodeId)], group_metric_checks: [pudl.transform.ferc1.GroupMetricChecks](../../transform/ferc1/index.md#pudl.transform.ferc1.GroupMetricChecks), off_by_facts: [list](https://docs.python.org/3/library/stdtypes.html#list)[[OffByFactoid](#pudl.output.ferc1.OffByFactoid)], io_manager_key: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None) → [dagster.AssetsDefinition](https://docs.dagster.io/api/dagster/assets/#dagster.AssetsDefinition)
+### pudl.output.ferc1.exploded_table_asset_factory(root_table: [str](https://docs.python.org/3/library/stdtypes.html#str), table_names: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], seed_nodes: [list](https://docs.python.org/3/library/stdtypes.html#list)[[NodeId](#pudl.output.ferc1.NodeId)], group_metric_checks: [pudl.transform.ferc1.GroupMetricChecks](../../transform/ferc1/index.html.md#pudl.transform.ferc1.GroupMetricChecks), off_by_facts: [list](https://docs.python.org/3/library/stdtypes.html#list)[[OffByFactoid](#pudl.output.ferc1.OffByFactoid)], io_manager_key: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None) = None) → [dagster.AssetsDefinition](https://docs.dagster.io/api/dagster/assets/#dagster.AssetsDefinition)
 
 Create an exploded table based on a set of related input tables.
 
@@ -272,7 +272,7 @@ Create a list of exploded FERC Form 1 assets.
 
 ### pudl.output.ferc1.exploded_ferc1_assets
 
-### *class* pudl.output.ferc1.Exploder(table_names: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], root_table: [str](https://docs.python.org/3/library/stdtypes.html#str), metadata_xbrl_ferc1: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), calculation_components_xbrl_ferc1: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), seed_nodes: [list](https://docs.python.org/3/library/stdtypes.html#list)[[NodeId](#pudl.output.ferc1.NodeId)], tags: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame) = pd.DataFrame(), group_metric_checks: [pudl.transform.ferc1.GroupMetricChecks](../../transform/ferc1/index.md#pudl.transform.ferc1.GroupMetricChecks) = GroupMetricChecks(), off_by_facts: [list](https://docs.python.org/3/library/stdtypes.html#list)[[OffByFactoid](#pudl.output.ferc1.OffByFactoid)] = None)
+### *class* pudl.output.ferc1.Exploder(table_names: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], root_table: [str](https://docs.python.org/3/library/stdtypes.html#str), metadata_xbrl_ferc1: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), calculation_components_xbrl_ferc1: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), seed_nodes: [list](https://docs.python.org/3/library/stdtypes.html#list)[[NodeId](#pudl.output.ferc1.NodeId)], tags: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame) = pd.DataFrame(), group_metric_checks: [pudl.transform.ferc1.GroupMetricChecks](../../transform/ferc1/index.html.md#pudl.transform.ferc1.GroupMetricChecks) = GroupMetricChecks(), off_by_facts: [list](https://docs.python.org/3/library/stdtypes.html#list)[[OffByFactoid](#pudl.output.ferc1.OffByFactoid)] = None)
 
 Get unique, granular datapoints from a set of related, nested FERC1 tables.
 
@@ -394,7 +394,7 @@ identified the handful of worst calculable `xbrl_factoid` offenders
 The data corrections are identified by calculating the absolute difference
 between the reported value and calculable value from the standard set of
 subcomponents (via
-[`pudl.transform.ferc1.calculate_values_from_components()`](../../transform/ferc1/index.md#pudl.transform.ferc1.calculate_values_from_components)) and finding the
+[`pudl.transform.ferc1.calculate_values_from_components()`](../../transform/ferc1/index.html.md#pudl.transform.ferc1.calculate_values_from_components)) and finding the
 child factoids that have (approximately) the same value as the absolute
 difference. This indicates that the calculable parent factoid is off by that
 corresponding child fact.
@@ -440,8 +440,8 @@ Bases: [`pydantic.BaseModel`](https://pydantic.dev/docs/validation/latest/api/py
 A class for manipulating groups of hierarchically nested XBRL calculations.
 
 We expect that the facts reported in less granular FERC tables like
-[core_ferc1_\_yearly_income_statements_sched114](../../../../data_dictionaries/pudl_db.md#core-ferc1-yearly-income-statements-sched114) and
-[core_ferc1_\_yearly_balance_sheet_assets_sched110](../../../../data_dictionaries/pudl_db.md#core-ferc1-yearly-balance-sheet-assets-sched110) should be
+[core_ferc1_\_yearly_income_statements_sched114](../../../../data_dictionaries/pudl_db.html.md#core-ferc1-yearly-income-statements-sched114) and
+[core_ferc1_\_yearly_balance_sheet_assets_sched110](../../../../data_dictionaries/pudl_db.html.md#core-ferc1-yearly-balance-sheet-assets-sched110) should be
 calculable from many individually reported granular values, based on the
 calculations encoded in the XBRL Metadata, and that these relationships should have
 a hierarchical tree structure. Several individual values from the less granular
@@ -469,7 +469,7 @@ from calculation relationships and relies heavily on `networkx` terminology.
 
 #### tags *: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)*
 
-#### group_metric_checks *: [pudl.transform.ferc1.GroupMetricChecks](../../transform/ferc1/index.md#pudl.transform.ferc1.GroupMetricChecks)*
+#### group_metric_checks *: [pudl.transform.ferc1.GroupMetricChecks](../../transform/ferc1/index.html.md#pudl.transform.ferc1.GroupMetricChecks)*
 
 #### model_config
 
@@ -840,7 +840,7 @@ nested calculations. We chose only the most granular data from these tables.
 See [`Exploder`](#pudl.output.ferc1.Exploder) for more details.
 
 This rate base table also contains one new “cash_working_capital” xbrl_factoid
-from [core_ferc1_\_yearly_operating_expenses_sched320](../../../../data_dictionaries/pudl_db.md#core-ferc1-yearly-operating-expenses-sched320) via
+from [core_ferc1_\_yearly_operating_expenses_sched320](../../../../data_dictionaries/pudl_db.html.md#core-ferc1-yearly-operating-expenses-sched320) via
 [`prep_cash_working_capital()`](#pudl.output.ferc1.prep_cash_working_capital).
 
 We also disaggregate records that have nulls or totals in two of the key

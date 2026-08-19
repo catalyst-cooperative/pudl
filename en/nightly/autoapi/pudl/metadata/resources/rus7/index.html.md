@@ -5,8 +5,8 @@ Table definitions for the RUS7 tables.
 ## Attributes
 
 | [`RESOURCE_METADATA_BASE`](#pudl.metadata.resources.rus7.RESOURCE_METADATA_BASE)   |    |
-|------------------------------------------------------------------------------------|----|
-| [`RESOURCE_METADATA`](#pudl.metadata.resources.rus7.RESOURCE_METADATA)             |    |
+|---------------------------------------------------------------------------|----|
+| [`RESOURCE_METADATA`](#pudl.metadata.resources.rus7.RESOURCE_METADATA)        |    |
 
 ## Module Contents
 

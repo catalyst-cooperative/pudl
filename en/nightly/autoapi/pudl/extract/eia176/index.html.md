@@ -5,24 +5,24 @@ Extract EIA Form 176 data from CSVs.
 ## Attributes
 
 | [`raw_eia176__all_dfs`](#pudl.extract.eia176.raw_eia176__all_dfs)   |    |
-|---------------------------------------------------------------------|----|
-| [`raw_eia176_assets`](#pudl.extract.eia176.raw_eia176_assets)       |    |
+|------------------------------------------------------------------------|----|
+| [`raw_eia176_assets`](#pudl.extract.eia176.raw_eia176_assets)     |    |
 
 ## Classes
 
 | [`Extractor`](#pudl.extract.eia176.Extractor)   | Extractor for EIA form 176.   |
-|-------------------------------------------------|-------------------------------|
+|--------------------------------------------------------------|-------------------------------|
 
 ## Functions
 
 | [`raw_eia176_asset_factory`](#pudl.extract.eia176.raw_eia176_asset_factory)(in_page[, out_page])   | Create raw EIA 176 asset for a specific page.   |
-|----------------------------------------------------------------------------------------------------|-------------------------------------------------|
+|--------------------------------------------------------------------------------------------------|-------------------------------------------------|
 
 ## Module Contents
 
 ### *class* pudl.extract.eia176.Extractor(\*args, \*\*kwargs)
 
-Bases: [`pudl.extract.csv.CsvExtractor`](../csv/index.md#pudl.extract.csv.CsvExtractor)
+Bases: [`pudl.extract.csv.CsvExtractor`](../csv/index.html.md#pudl.extract.csv.CsvExtractor)
 
 Extractor for EIA form 176.
 
@@ -30,7 +30,7 @@ Extractor for EIA form 176.
 
 Instance of metadata object to use with this extractor.
 
-#### source_filename(page: [str](https://docs.python.org/3/library/stdtypes.html#str), \*\*partition: [pudl.extract.extractor.PartitionSelection](../extractor/index.md#pudl.extract.extractor.PartitionSelection)) → [str](https://docs.python.org/3/library/stdtypes.html#str)
+#### source_filename(page: [str](https://docs.python.org/3/library/stdtypes.html#str), \*\*partition: [pudl.extract.extractor.PartitionSelection](../extractor/index.html.md#pudl.extract.extractor.PartitionSelection)) → [str](https://docs.python.org/3/library/stdtypes.html#str)
 
 Produce the source file name as it will appear in the ZIP archive.
 
@@ -49,7 +49,7 @@ mirrors the behavior of the other extractors that do rely on file_map.csv.
 * **Returns:**
   Full name of the CSV file within the ZIP archive as a string.
 
-#### process_raw(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), page: [str](https://docs.python.org/3/library/stdtypes.html#str), \*\*partition: [pudl.extract.extractor.PartitionSelection](../extractor/index.md#pudl.extract.extractor.PartitionSelection)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+#### process_raw(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), page: [str](https://docs.python.org/3/library/stdtypes.html#str), \*\*partition: [pudl.extract.extractor.PartitionSelection](../extractor/index.html.md#pudl.extract.extractor.PartitionSelection)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Append report year to df to distinguish data from other years.
 

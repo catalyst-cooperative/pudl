@@ -11,17 +11,17 @@ tools from scikit-learn
 
 ## Attributes
 
-| [`logger`](#pudl.analysis.record_linkage.classify_plants_ferc1.logger)                                   |    |
-|----------------------------------------------------------------------------------------------------------|----|
-| [`_FUEL_COLS`](#pudl.analysis.record_linkage.classify_plants_ferc1._FUEL_COLS)                           |    |
+| [`logger`](#pudl.analysis.record_linkage.classify_plants_ferc1.logger)                  |    |
+|--------------------------------------------------------------------------|----|
+| [`_FUEL_COLS`](#pudl.analysis.record_linkage.classify_plants_ferc1._FUEL_COLS)              |    |
 | [`ferc_dataframe_embedder`](#pudl.analysis.record_linkage.classify_plants_ferc1.ferc_dataframe_embedder) |    |
 
 ## Functions
 
 | [`plants_steam_validate_ids`](#pudl.analysis.record_linkage.classify_plants_ferc1.plants_steam_validate_ids)(→ pandas.DataFrame)   | Tests that plant_id_ferc1 timeseries includes one record per year.         |
-|------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------|
-| [`merge_steam_fuel_dfs`](#pudl.analysis.record_linkage.classify_plants_ferc1.merge_steam_fuel_dfs)(→ pandas.DataFrame)             | Merge steam plants and fuel dfs to prepare inputs for ferc plant matching. |
-| [`ferc_to_ferc`](#pudl.analysis.record_linkage.classify_plants_ferc1.ferc_to_ferc)(→ pandas.DataFrame)                             | Assign IDs to the large steam plants.                                      |
+|--------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------|
+| [`merge_steam_fuel_dfs`](#pudl.analysis.record_linkage.classify_plants_ferc1.merge_steam_fuel_dfs)(→ pandas.DataFrame)        | Merge steam plants and fuel dfs to prepare inputs for ferc plant matching. |
+| [`ferc_to_ferc`](#pudl.analysis.record_linkage.classify_plants_ferc1.ferc_to_ferc)(→ pandas.DataFrame)                | Assign IDs to the large steam plants.                                      |
 
 ## Module Contents
 
@@ -31,7 +31,7 @@ tools from scikit-learn
 
 ### pudl.analysis.record_linkage.classify_plants_ferc1.ferc_dataframe_embedder
 
-### pudl.analysis.record_linkage.classify_plants_ferc1.plants_steam_validate_ids(ferc_to_ferc_tracker: [pudl.analysis.ml_tools.experiment_tracking.ExperimentTracker](../../ml_tools/experiment_tracking/index.md#pudl.analysis.ml_tools.experiment_tracking.ExperimentTracker), ferc1_steam_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), label_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.analysis.record_linkage.classify_plants_ferc1.plants_steam_validate_ids(ferc_to_ferc_tracker: [pudl.analysis.ml_tools.experiment_tracking.ExperimentTracker](../../ml_tools/experiment_tracking/index.html.md#pudl.analysis.ml_tools.experiment_tracking.ExperimentTracker), ferc1_steam_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), label_df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Tests that plant_id_ferc1 timeseries includes one record per year.
 
@@ -45,6 +45,6 @@ Tests that plant_id_ferc1 timeseries includes one record per year.
 
 Merge steam plants and fuel dfs to prepare inputs for ferc plant matching.
 
-### pudl.analysis.record_linkage.classify_plants_ferc1.ferc_to_ferc(experiment_tracker: [pudl.analysis.ml_tools.experiment_tracking.ExperimentTracker](../../ml_tools/experiment_tracking/index.md#pudl.analysis.ml_tools.experiment_tracking.ExperimentTracker), core_ferc1_\_yearly_steam_plants_sched402: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), out_ferc1_\_yearly_steam_plants_fuel_by_plant_sched402: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+### pudl.analysis.record_linkage.classify_plants_ferc1.ferc_to_ferc(experiment_tracker: [pudl.analysis.ml_tools.experiment_tracking.ExperimentTracker](../../ml_tools/experiment_tracking/index.html.md#pudl.analysis.ml_tools.experiment_tracking.ExperimentTracker), core_ferc1_\_yearly_steam_plants_sched402: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), out_ferc1_\_yearly_steam_plants_fuel_by_plant_sched402: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Assign IDs to the large steam plants.

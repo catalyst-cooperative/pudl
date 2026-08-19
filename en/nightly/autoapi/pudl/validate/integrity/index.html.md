@@ -11,19 +11,19 @@ shrink accordingly.
 ## Attributes
 
 | [`logger`](#pudl.validate.integrity.logger)   |    |
-|-----------------------------------------------|----|
+|-----------------------------------------------------------|----|
 
 ## Exceptions
 
 | [`ForeignKeyError`](#pudl.validate.integrity.ForeignKeyError)   | Raised when data in a database violates a foreign key constraint.        |
-|-----------------------------------------------------------------|--------------------------------------------------------------------------|
-| [`ForeignKeyErrors`](#pudl.validate.integrity.ForeignKeyErrors) | Raised when data in a database violate multiple foreign key constraints. |
+|--------------------------------------------------------------------|--------------------------------------------------------------------------|
+| [`ForeignKeyErrors`](#pudl.validate.integrity.ForeignKeyErrors)  | Raised when data in a database violate multiple foreign key constraints. |
 
 ## Functions
 
 | [`_get_fk_list`](#pudl.validate.integrity._get_fk_list)(→ pandas.DataFrame)   | Retrieve a dataframe of foreign keys for a table.   |
-|-------------------------------------------------------------------------------|-----------------------------------------------------|
-| [`check_foreign_keys`](#pudl.validate.integrity.check_foreign_keys)(engine)   | Check foreign key relationships in the database.    |
+|-------------------------------------------------------------------------------------|-----------------------------------------------------|
+| [`check_foreign_keys`](#pudl.validate.integrity.check_foreign_keys)(engine)         | Check foreign key relationships in the database.    |
 
 ## Module Contents
 

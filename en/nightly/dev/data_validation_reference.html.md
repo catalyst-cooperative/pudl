@@ -79,7 +79,7 @@ run the full ETL locally, the nightly builds / branch build also generate update
 count expectations. After a branch build completes, you can download the updated
 `etl_full_row_counts.csv` file from the build outputs that are uploaded to
 `gs://builds.catalyst.coop/<build-id>/etl_full_row_counts.csv` See the
-[Nightly Data Builds](nightly_data_builds.md) documentation for more details on accessing the nightly build
+[Nightly Data Builds](nightly_data_builds.html.md) documentation for more details on accessing the nightly build
 outputs. Replace the `etl_full_row_counts.csv` in your local PUDL git repo with the
 one you’ve downloaded and use `git diff` to see what has changed. Make sure to review
 the row count changes closely to see if there’s anything unexpected.
@@ -134,7 +134,7 @@ not related to the data being tested.
 There are a handful of data validation tests that have been implemented using
 [Dagster’s asset checks](https://docs.dagster.io/guides/test/asset-checks).
 Typically these tests weren’t well suited to SQL, weren’t performance bottlenecks,
-and had already been implemented in Python. E.g. [`pudl.validate.quality.no_null_rows()`](../autoapi/pudl/validate/quality/index.md#pudl.validate.quality.no_null_rows).
+and had already been implemented in Python. E.g. [`pudl.validate.quality.no_null_rows()`](../autoapi/pudl/validate/quality/index.html.md#pudl.validate.quality.no_null_rows).
 
 ## Data validation in our integration tests
 
@@ -727,7 +727,7 @@ These include `check_row_counts_by_partition` and `expect_columns_not_all_null`.
 
 You need to add these to the `schema.human.yml` file for your table.
 
-We talk about `check_row_counts_by_partition` in [Updating row counts](data_validation_quickstart.md#row-counts).
+We talk about `check_row_counts_by_partition` in [Updating row counts](data_validation_quickstart.html.md#row-counts).
 
 ### Checking for entirely null columns
 
@@ -932,7 +932,7 @@ data to cover many different use cases of the macro.
 
 If the test is particularly weird and hard to get good debug
 info for, you can add custom debug handlers for your test type in
-[`pudl.validate.dbt.build_with_context()`](../autoapi/pudl/validate/dbt/index.md#pudl.validate.dbt.build_with_context), which gives you access to the full
+[`pudl.validate.dbt.build_with_context()`](../autoapi/pudl/validate/dbt/index.html.md#pudl.validate.dbt.build_with_context), which gives you access to the full
 power of Python.
 
 <a id="intermediate-tables"></a>

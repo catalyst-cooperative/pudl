@@ -8,20 +8,20 @@ This code is for use analyzing EIA Form 860 data.
 
 ## Attributes
 
-| [`logger`](#pudl.extract.eia860.logger)                                 |    |
+| [`logger`](#pudl.extract.eia860.logger)                 |    |
 |-------------------------------------------------------------------------|----|
 | [`RAW_EIA860_TABLE_NAMES`](#pudl.extract.eia860.RAW_EIA860_TABLE_NAMES) |    |
-| [`raw_eia860__all_dfs`](#pudl.extract.eia860.raw_eia860__all_dfs)       |    |
+| [`raw_eia860__all_dfs`](#pudl.extract.eia860.raw_eia860__all_dfs)    |    |
 
 ## Classes
 
 | [`Extractor`](#pudl.extract.eia860.Extractor)   | Extractor for the excel dataset EIA860.   |
-|-------------------------------------------------|-------------------------------------------|
+|--------------------------------------------------------------|-------------------------------------------|
 
 ## Functions
 
 | [`extract_eia860`](#pudl.extract.eia860.extract_eia860)(context, raw_eia860_\_all_dfs, ...)   | Extract raw EIA data from excel sheets into dataframes.   |
-|-----------------------------------------------------------------------------------------------|-----------------------------------------------------------|
+|-------------------------------------------------------------------------------------------------------|-----------------------------------------------------------|
 
 ## Module Contents
 
@@ -29,7 +29,7 @@ This code is for use analyzing EIA Form 860 data.
 
 ### *class* pudl.extract.eia860.Extractor(\*args, \*\*kwargs)
 
-Bases: [`pudl.extract.excel.ExcelExtractor`](../excel/index.md#pudl.extract.excel.ExcelExtractor)
+Bases: [`pudl.extract.excel.ExcelExtractor`](../excel/index.html.md#pudl.extract.excel.ExcelExtractor)
 
 Extractor for the excel dataset EIA860.
 

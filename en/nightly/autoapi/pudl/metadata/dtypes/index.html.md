@@ -26,30 +26,30 @@ cycle.
 
 ## Attributes
 
-| [`FIELD_DTYPES_POLARS`](#pudl.metadata.dtypes.FIELD_DTYPES_POLARS)       | Polars data type by simplified PUDL field type.                       |
-|--------------------------------------------------------------------------|-----------------------------------------------------------------------|
-| [`FIELD_DTYPES_DUCKDB`](#pudl.metadata.dtypes.FIELD_DTYPES_DUCKDB)       | DuckDB data type by simplified PUDL field type.                       |
-| [`FIELD_DTYPES_PANDAS`](#pudl.metadata.dtypes.FIELD_DTYPES_PANDAS)       | Pandas data type by simplified PUDL field type.                       |
-| [`FIELD_DTYPES_PYARROW`](#pudl.metadata.dtypes.FIELD_DTYPES_PYARROW)     | Pyarrow data type by simplified PUDL field type.                      |
-| [`FIELD_DTYPES_SQLITE`](#pudl.metadata.dtypes.FIELD_DTYPES_SQLITE)       | SQLAlchemy column types by simplified PUDL field type.                |
-| [`CONSTRAINT_DTYPES`](#pudl.metadata.dtypes.CONSTRAINT_DTYPES)           | Python types for field constraints by simplified PUDL field type.     |
-| [`PERIODS`](#pudl.metadata.dtypes.PERIODS)                               | Functions converting datetimes to period start times, by time period. |
-| [`PudlDtypeBackend`](#pudl.metadata.dtypes.PudlDtypeBackend)             |                                                                       |
+| [`FIELD_DTYPES_POLARS`](#pudl.metadata.dtypes.FIELD_DTYPES_POLARS)    | Polars data type by simplified PUDL field type.                       |
+|-------------------------------------------------------------------------|-----------------------------------------------------------------------|
+| [`FIELD_DTYPES_DUCKDB`](#pudl.metadata.dtypes.FIELD_DTYPES_DUCKDB)    | DuckDB data type by simplified PUDL field type.                       |
+| [`FIELD_DTYPES_PANDAS`](#pudl.metadata.dtypes.FIELD_DTYPES_PANDAS)    | Pandas data type by simplified PUDL field type.                       |
+| [`FIELD_DTYPES_PYARROW`](#pudl.metadata.dtypes.FIELD_DTYPES_PYARROW)   | Pyarrow data type by simplified PUDL field type.                      |
+| [`FIELD_DTYPES_SQLITE`](#pudl.metadata.dtypes.FIELD_DTYPES_SQLITE)    | SQLAlchemy column types by simplified PUDL field type.                |
+| [`CONSTRAINT_DTYPES`](#pudl.metadata.dtypes.CONSTRAINT_DTYPES)      | Python types for field constraints by simplified PUDL field type.     |
+| [`PERIODS`](#pudl.metadata.dtypes.PERIODS)                | Functions converting datetimes to period start times, by time period. |
+| [`PudlDtypeBackend`](#pudl.metadata.dtypes.PudlDtypeBackend)       |                                                                       |
 | [`_DTYPE_MAPS_BY_BACKEND`](#pudl.metadata.dtypes._DTYPE_MAPS_BY_BACKEND) |                                                                       |
 
 ## Functions
 
-| [`_get_applicable_dtypes`](#pudl.metadata.dtypes._get_applicable_dtypes)(→ dict[str, Any])         | Return the subset of resolved dtypes needed to cast the given columns.            |
-|----------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------|
-| [`get_pudl_dtypes`](#pudl.metadata.dtypes.get_pudl_dtypes)(→ dict[str, Any])                       | Compile a dictionary of field dtypes.                                             |
+| [`_get_applicable_dtypes`](#pudl.metadata.dtypes._get_applicable_dtypes)(→ dict[str, Any])     | Return the subset of resolved dtypes needed to cast the given columns.            |
+|-----------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------|
+| [`get_pudl_dtypes`](#pudl.metadata.dtypes.get_pudl_dtypes)(→ dict[str, Any])            | Compile a dictionary of field dtypes.                                             |
 | [`_get_pudl_namespace_dtypes`](#pudl.metadata.dtypes._get_pudl_namespace_dtypes)(→ dict[str, Any]) | Compile a dictionary of field dtypes based on the namespace-level field metadata. |
-| [`_get_pudl_resource_dtypes`](#pudl.metadata.dtypes._get_pudl_resource_dtypes)(→ dict[str, Any])   | Compile a dictionary of field dtypes for a specific PUDL resource.                |
-| [`apply_pudl_dtypes`](#pudl.metadata.dtypes.apply_pudl_dtypes)(...)                                | Apply dtypes to those columns in a dataframe that have PUDL types defined.        |
-| [`apply_pudl_dtypes_polars`](#pudl.metadata.dtypes.apply_pudl_dtypes_polars)(→ polars.LazyFrame)   | Apply dtypes to those columns in a dataframe that have PUDL types defined.        |
+| [`_get_pudl_resource_dtypes`](#pudl.metadata.dtypes._get_pudl_resource_dtypes)(→ dict[str, Any])  | Compile a dictionary of field dtypes for a specific PUDL resource.                |
+| [`apply_pudl_dtypes`](#pudl.metadata.dtypes.apply_pudl_dtypes)(...)                       | Apply dtypes to those columns in a dataframe that have PUDL types defined.        |
+| [`apply_pudl_dtypes_polars`](#pudl.metadata.dtypes.apply_pudl_dtypes_polars)(→ polars.LazyFrame) | Apply dtypes to those columns in a dataframe that have PUDL types defined.        |
 
 ## Module Contents
 
-### pudl.metadata.dtypes.FIELD_DTYPES_POLARS *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [type](../classes/index.md#pudl.metadata.classes.Field.type)[polars.DataType] | polars.DataType]*
+### pudl.metadata.dtypes.FIELD_DTYPES_POLARS *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [type](../classes/index.html.md#pudl.metadata.classes.Field.type)[polars.DataType] | polars.DataType]*
 
 Polars data type by simplified PUDL field type.
 
@@ -65,11 +65,11 @@ Pandas data type by simplified PUDL field type.
 
 Pyarrow data type by simplified PUDL field type.
 
-### pudl.metadata.dtypes.FIELD_DTYPES_SQLITE *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [type](../classes/index.md#pudl.metadata.classes.Field.type)[[sqlalchemy.types.TypeEngine](https://docs.sqlalchemy.org/en/21/core/type_api.html#sqlalchemy.types.TypeEngine)] | [sqlalchemy.types.TypeEngine](https://docs.sqlalchemy.org/en/21/core/type_api.html#sqlalchemy.types.TypeEngine)]*
+### pudl.metadata.dtypes.FIELD_DTYPES_SQLITE *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [type](../classes/index.html.md#pudl.metadata.classes.Field.type)[[sqlalchemy.types.TypeEngine](https://docs.sqlalchemy.org/en/21/core/type_api.html#sqlalchemy.types.TypeEngine)] | [sqlalchemy.types.TypeEngine](https://docs.sqlalchemy.org/en/21/core/type_api.html#sqlalchemy.types.TypeEngine)]*
 
 SQLAlchemy column types by simplified PUDL field type.
 
-### pudl.metadata.dtypes.CONSTRAINT_DTYPES *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [type](../classes/index.md#pudl.metadata.classes.Field.type)]*
+### pudl.metadata.dtypes.CONSTRAINT_DTYPES *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [type](../classes/index.html.md#pudl.metadata.classes.Field.type)]*
 
 Python types for field constraints by simplified PUDL field type.
 

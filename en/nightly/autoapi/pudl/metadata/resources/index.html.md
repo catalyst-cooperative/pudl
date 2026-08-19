@@ -4,42 +4,42 @@ A subpackage to define and organize PUDL database tables by data group.
 
 ## Submodules
 
-* [pudl.metadata.resources.allocate_gen_fuel](allocate_gen_fuel/index.md)
-* [pudl.metadata.resources.censusdp1tract](censusdp1tract/index.md)
-* [pudl.metadata.resources.eia](eia/index.md)
-* [pudl.metadata.resources.eia176](eia176/index.md)
-* [pudl.metadata.resources.eia191](eia191/index.md)
-* [pudl.metadata.resources.eia860](eia860/index.md)
-* [pudl.metadata.resources.eia860m](eia860m/index.md)
-* [pudl.metadata.resources.eia861](eia861/index.md)
-* [pudl.metadata.resources.eia923](eia923/index.md)
-* [pudl.metadata.resources.eia930](eia930/index.md)
-* [pudl.metadata.resources.eiaaeo](eiaaeo/index.md)
-* [pudl.metadata.resources.eiaapi](eiaapi/index.md)
-* [pudl.metadata.resources.epacems](epacems/index.md)
-* [pudl.metadata.resources.ferc1](ferc1/index.md)
-* [pudl.metadata.resources.ferc1_eia_record_linkage](ferc1_eia_record_linkage/index.md)
-* [pudl.metadata.resources.ferc714](ferc714/index.md)
-* [pudl.metadata.resources.ferccid](ferccid/index.md)
-* [pudl.metadata.resources.ferceqr](ferceqr/index.md)
-* [pudl.metadata.resources.glue](glue/index.md)
-* [pudl.metadata.resources.gridpathratoolkit](gridpathratoolkit/index.md)
-* [pudl.metadata.resources.nrelatb](nrelatb/index.md)
-* [pudl.metadata.resources.phmsagas](phmsagas/index.md)
-* [pudl.metadata.resources.pudl](pudl/index.md)
-* [pudl.metadata.resources.rus](rus/index.md)
-* [pudl.metadata.resources.rus12](rus12/index.md)
-* [pudl.metadata.resources.rus7](rus7/index.md)
-* [pudl.metadata.resources.sec10k](sec10k/index.md)
-* [pudl.metadata.resources.vcerare](vcerare/index.md)
+* [pudl.metadata.resources.allocate_gen_fuel](allocate_gen_fuel/index.html.md)
+* [pudl.metadata.resources.censusdp1tract](censusdp1tract/index.html.md)
+* [pudl.metadata.resources.eia](eia/index.html.md)
+* [pudl.metadata.resources.eia176](eia176/index.html.md)
+* [pudl.metadata.resources.eia191](eia191/index.html.md)
+* [pudl.metadata.resources.eia860](eia860/index.html.md)
+* [pudl.metadata.resources.eia860m](eia860m/index.html.md)
+* [pudl.metadata.resources.eia861](eia861/index.html.md)
+* [pudl.metadata.resources.eia923](eia923/index.html.md)
+* [pudl.metadata.resources.eia930](eia930/index.html.md)
+* [pudl.metadata.resources.eiaaeo](eiaaeo/index.html.md)
+* [pudl.metadata.resources.eiaapi](eiaapi/index.html.md)
+* [pudl.metadata.resources.epacems](epacems/index.html.md)
+* [pudl.metadata.resources.ferc1](ferc1/index.html.md)
+* [pudl.metadata.resources.ferc1_eia_record_linkage](ferc1_eia_record_linkage/index.html.md)
+* [pudl.metadata.resources.ferc714](ferc714/index.html.md)
+* [pudl.metadata.resources.ferccid](ferccid/index.html.md)
+* [pudl.metadata.resources.ferceqr](ferceqr/index.html.md)
+* [pudl.metadata.resources.glue](glue/index.html.md)
+* [pudl.metadata.resources.gridpathratoolkit](gridpathratoolkit/index.html.md)
+* [pudl.metadata.resources.nrelatb](nrelatb/index.html.md)
+* [pudl.metadata.resources.phmsagas](phmsagas/index.html.md)
+* [pudl.metadata.resources.pudl](pudl/index.html.md)
+* [pudl.metadata.resources.rus](rus/index.html.md)
+* [pudl.metadata.resources.rus12](rus12/index.html.md)
+* [pudl.metadata.resources.rus7](rus7/index.html.md)
+* [pudl.metadata.resources.sec10k](sec10k/index.html.md)
+* [pudl.metadata.resources.vcerare](vcerare/index.html.md)
 
 ## Attributes
 
 | [`RESOURCE_METADATA`](#pudl.metadata.resources.RESOURCE_METADATA)   |                                                                                |
-|---------------------------------------------------------------------|--------------------------------------------------------------------------------|
-| [`module`](#pudl.metadata.resources.module)                         |                                                                                |
-| [`FOREIGN_KEYS`](#pudl.metadata.resources.FOREIGN_KEYS)             | Generated foreign key constraints by resource name.                            |
-| [`ENTITIES`](#pudl.metadata.resources.ENTITIES)                     | Columns kept for either entity or annual EIA tables in the harvesting process. |
+|----------------------------------------------------------------------|--------------------------------------------------------------------------------|
+| [`module`](#pudl.metadata.resources.module)              |                                                                                |
+| [`FOREIGN_KEYS`](#pudl.metadata.resources.FOREIGN_KEYS)        | Generated foreign key constraints by resource name.                            |
+| [`ENTITIES`](#pudl.metadata.resources.ENTITIES)            | Columns kept for either entity or annual EIA tables in the harvesting process. |
 
 ## Functions
 
@@ -106,7 +106,7 @@ be assigned a foreign key (foreign_keys) to the reference’s primary key:
 
 Generated foreign key constraints by resource name.
 
-See [`pudl.metadata.helpers.build_foreign_keys()`](../helpers/index.md#pudl.metadata.helpers.build_foreign_keys).
+See [`pudl.metadata.helpers.build_foreign_keys()`](../helpers/index.html.md#pudl.metadata.helpers.build_foreign_keys).
 
 ### pudl.metadata.resources.ENTITIES *: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)] | [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str)]]]*
 

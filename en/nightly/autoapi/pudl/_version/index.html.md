@@ -2,13 +2,13 @@
 
 ## Attributes
 
-| [`version`](#pudl._version.version)                     |    |
-|---------------------------------------------------------|----|
-| [`__version__`](#pudl._version.__version__)             |    |
+| [`version`](#pudl._version.version)           |    |
+|--------------------------------------------------------------------|----|
+| [`__version__`](#pudl._version.__version__)       |    |
 | [`__version_tuple__`](#pudl._version.__version_tuple__) |    |
-| [`version_tuple`](#pudl._version.version_tuple)         |    |
-| [`commit_id`](#pudl._version.commit_id)                 |    |
-| [`__commit_id__`](#pudl._version.__commit_id__)         |    |
+| [`version_tuple`](#pudl._version.version_tuple)     |    |
+| [`commit_id`](#pudl._version.commit_id)         |    |
+| [`__commit_id__`](#pudl._version.__commit_id__)     |    |
 
 ## Module Contents
 

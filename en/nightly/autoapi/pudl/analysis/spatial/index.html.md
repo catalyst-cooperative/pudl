@@ -4,14 +4,14 @@ Spatial operations for demand allocation.
 
 ## Functions
 
-| [`check_gdf`](#pudl.analysis.spatial.check_gdf)(→ None)                     | Check that GeoDataFrame contains (Multi)Polygon geometries with non-zero area.   |
-|-----------------------------------------------------------------------------|----------------------------------------------------------------------------------|
+| [`check_gdf`](#pudl.analysis.spatial.check_gdf)(→ None)                    | Check that GeoDataFrame contains (Multi)Polygon geometries with non-zero area.   |
+|---------------------------------------------------------------------------------------|----------------------------------------------------------------------------------|
 | [`polygonize`](#pudl.analysis.spatial.polygonize)(...)                      | Convert geometry to (Multi)Polygon.                                              |
-| [`explode`](#pudl.analysis.spatial.explode)(→ geopandas.GeoDataFrame)       | Explode MultiPolygon to multiple Polygon geometries.                             |
+| [`explode`](#pudl.analysis.spatial.explode)(→ geopandas.GeoDataFrame)    | Explode MultiPolygon to multiple Polygon geometries.                             |
 | [`self_union`](#pudl.analysis.spatial.self_union)(→ geopandas.GeoDataFrame) | Calculate the geometric union of a feature layer with itself.                    |
-| [`dissolve`](#pudl.analysis.spatial.dissolve)(→ geopandas.GeoDataFrame)     | Dissolve layer by aggregating features based on common attributes.               |
-| [`overlay`](#pudl.analysis.spatial.overlay)(→ geopandas.GeoDataFrame)       | Overlay multiple layers incrementally.                                           |
-| [`get_data_columns`](#pudl.analysis.spatial.get_data_columns)(→ list)       | Return list of columns, ignoring geometry.                                       |
+| [`dissolve`](#pudl.analysis.spatial.dissolve)(→ geopandas.GeoDataFrame)   | Dissolve layer by aggregating features based on common attributes.               |
+| [`overlay`](#pudl.analysis.spatial.overlay)(→ geopandas.GeoDataFrame)    | Overlay multiple layers incrementally.                                           |
+| [`get_data_columns`](#pudl.analysis.spatial.get_data_columns)(→ list)             | Return list of columns, ignoring geometry.                                       |
 
 ## Module Contents
 

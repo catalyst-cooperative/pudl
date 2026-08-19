@@ -19,17 +19,17 @@ Static reported vs. imputed values with color coded points for the imputations
 
 ## Functions
 
-| [`_filter_df`](#pudl.analysis.timeseries_evaluation._filter_df)(→ pandas.DataFrame)                                                 | Filter a dataframe based on index columns and date range.               |
-|-------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------|
-| [`extract_baseline_eia930_imputation`](#pudl.analysis.timeseries_evaluation.extract_baseline_eia930_imputation)(→ pandas.DataFrame) | Download and extract an existing imputation of the EIA-930 demand data. |
-| [`plot_correlation`](#pudl.analysis.timeseries_evaluation.plot_correlation)(df, timeseries_x, timeseries_y, idx_cols)               | Plot the correlation between two analogous time series.                 |
-| [`plot_imputation`](#pudl.analysis.timeseries_evaluation.plot_imputation)(df, idx_cols, idx_vals, start_date, ...)                  | Compare reported values with imputed values visually.                   |
-| [`plot_compare_imputation`](#pudl.analysis.timeseries_evaluation.plot_compare_imputation)(df, idx_cols, idx_vals, ...[, ...])       | Plot two timeseries of the same information like demand for comparison. |
-| [`encode_run_length`](#pudl.analysis.timeseries_evaluation.encode_run_length)(→ tuple[numpy.ndarray, numpy.ndarray])                | Encode vector with run-length encoding.                                 |
-| [`insert_run_length`](#pudl.analysis.timeseries_evaluation.insert_run_length)(→ numpy.ndarray)                                      | Insert run-length encoded values into a vector.                         |
-| [`summarize_flags`](#pudl.analysis.timeseries_evaluation.summarize_flags)(→ pandas.DataFrame)                                       | Summarize flagged values by flag, count and median.                     |
-| [`plot_flags`](#pudl.analysis.timeseries_evaluation.plot_flags)(→ None)                                                             | Plot cleaned series and anomalous values colored by flag.               |
-| [`simulate_nulls`](#pudl.analysis.timeseries_evaluation.simulate_nulls)(→ numpy.ndarray)                                            | Find non-null values to null to match a run-length distribution.        |
+| [`_filter_df`](#pudl.analysis.timeseries_evaluation._filter_df)(→ pandas.DataFrame)                              | Filter a dataframe based on index columns and date range.               |
+|--------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------|
+| [`extract_baseline_eia930_imputation`](#pudl.analysis.timeseries_evaluation.extract_baseline_eia930_imputation)(→ pandas.DataFrame)      | Download and extract an existing imputation of the EIA-930 demand data. |
+| [`plot_correlation`](#pudl.analysis.timeseries_evaluation.plot_correlation)(df, timeseries_x, timeseries_y, idx_cols)  | Plot the correlation between two analogous time series.                 |
+| [`plot_imputation`](#pudl.analysis.timeseries_evaluation.plot_imputation)(df, idx_cols, idx_vals, start_date, ...)    | Compare reported values with imputed values visually.                   |
+| [`plot_compare_imputation`](#pudl.analysis.timeseries_evaluation.plot_compare_imputation)(df, idx_cols, idx_vals, ...[, ...]) | Plot two timeseries of the same information like demand for comparison. |
+| [`encode_run_length`](#pudl.analysis.timeseries_evaluation.encode_run_length)(→ tuple[numpy.ndarray, numpy.ndarray])    | Encode vector with run-length encoding.                                 |
+| [`insert_run_length`](#pudl.analysis.timeseries_evaluation.insert_run_length)(→ numpy.ndarray)                          | Insert run-length encoded values into a vector.                         |
+| [`summarize_flags`](#pudl.analysis.timeseries_evaluation.summarize_flags)(→ pandas.DataFrame)                         | Summarize flagged values by flag, count and median.                     |
+| [`plot_flags`](#pudl.analysis.timeseries_evaluation.plot_flags)(→ None)                                          | Plot cleaned series and anomalous values colored by flag.               |
+| [`simulate_nulls`](#pudl.analysis.timeseries_evaluation.simulate_nulls)(→ numpy.ndarray)                             | Find non-null values to null to match a run-length distribution.        |
 
 ## Module Contents
 

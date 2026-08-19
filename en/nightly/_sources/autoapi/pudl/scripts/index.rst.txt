@@ -112,6 +112,7 @@ Submodules
    /autoapi/pudl/scripts/pudl_deploy/index
    /autoapi/pudl/scripts/pudl_null_cols/index
    /autoapi/pudl/scripts/pudl_service_territories/index
+   /autoapi/pudl/scripts/pyrefly_baseline_diff/index
    /autoapi/pudl/scripts/resource_description/index
    /autoapi/pudl/scripts/update_zenodo_dois/index
    /autoapi/pudl/scripts/zenodo_data_release/index

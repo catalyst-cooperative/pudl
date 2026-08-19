@@ -5,7 +5,7 @@ Tables definitions for data from the EIA bulk electricity aggregates.
 ## Attributes
 
 | [`RESOURCE_METADATA`](#pudl.metadata.resources.eiaapi.RESOURCE_METADATA)   |    |
-|----------------------------------------------------------------------------|----|
+|----------------------------------------------------------------------|----|
 
 ## Module Contents
 

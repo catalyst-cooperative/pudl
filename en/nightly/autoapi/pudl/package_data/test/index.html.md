@@ -4,4 +4,4 @@ Excel spreadsheet extraction maps for testing.
 
 ## Submodules
 
-* [pudl.package_data.test.column_maps](column_maps/index.md)
+* [pudl.package_data.test.column_maps](column_maps/index.html.md)

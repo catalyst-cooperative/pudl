@@ -10,18 +10,18 @@ asset checks, or when they don’t cleanly apply to an individual asset.
 ## Attributes
 
 | [`logger`](#pudl.validate.quality.logger)   |    |
-|---------------------------------------------|----|
+|-----------------------------------------------------------|----|
 
 ## Exceptions
 
 | [`ExcessiveNullRowsError`](#pudl.validate.quality.ExcessiveNullRowsError)   | Exception raised when rows have excessive null values.   |
-|-----------------------------------------------------------------------------|----------------------------------------------------------|
+|---------------------------------------------------------------------------|----------------------------------------------------------|
 
 ## Functions
 
 | [`no_null_rows`](#pudl.validate.quality.no_null_rows)(→ pandas.DataFrame)   | Check for rows with excessive missing values, usually due to a merge gone wrong.   |
-|-----------------------------------------------------------------------------|------------------------------------------------------------------------------------|
-| [`weighted_quantile`](#pudl.validate.quality.weighted_quantile)(→ float)    | Calculate the weighted quantile of a Series or DataFrame column.                   |
+|-------------------------------------------------------------------------------------|------------------------------------------------------------------------------------|
+| [`weighted_quantile`](#pudl.validate.quality.weighted_quantile)(→ float)         | Calculate the weighted quantile of a Series or DataFrame column.                   |
 
 ## Module Contents
 

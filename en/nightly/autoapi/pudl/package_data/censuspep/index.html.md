@@ -4,4 +4,4 @@ Excel spreadsheet extraction maps for Census PEP FIPS codes, plus territories to
 
 ## Submodules
 
-* [pudl.package_data.censuspep.column_maps](column_maps/index.md)
+* [pudl.package_data.censuspep.column_maps](column_maps/index.html.md)

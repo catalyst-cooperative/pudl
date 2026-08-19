@@ -5,29 +5,29 @@ Module to perform data cleaning functions on EIA860 data tables.
 ## Attributes
 
 | [`logger`](#pudl.transform.eia860.logger)   |    |
-|---------------------------------------------|----|
+|-----------------------------------------------------------|----|
 
 ## Functions
 
-| [`_core_eia860__ownership`](#pudl.transform.eia860._core_eia860__ownership)(→ pandas.DataFrame)                                              | Pull and transform the ownership table.                            |
-|----------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------|
-| [`_core_eia860__generators`](#pudl.transform.eia860._core_eia860__generators)(→ pandas.DataFrame)                                            | Pull and transform the generators table.                           |
-| [`_core_eia860__generators_solar`](#pudl.transform.eia860._core_eia860__generators_solar)(→ pandas.DataFrame)                                | Transform the solar-specific generators table.                     |
-| [`_core_eia860__generators_energy_storage`](#pudl.transform.eia860._core_eia860__generators_energy_storage)(→ pandas.DataFrame)              | Transform the energy storage specific generators table.            |
-| [`_core_eia860__generators_wind`](#pudl.transform.eia860._core_eia860__generators_wind)(→ pandas.DataFrame)                                  | Transform the wind-specific generators table.                      |
-| [`_core_eia860__generators_multifuel`](#pudl.transform.eia860._core_eia860__generators_multifuel)(→ pandas.DataFrame)                        | Transform the multifuel generators table.                          |
-| [`_core_eia860__plants`](#pudl.transform.eia860._core_eia860__plants)(→ pandas.DataFrame)                                                    | Pull and transform the plants table.                               |
-| [`_core_eia860__boiler_generator_assn`](#pudl.transform.eia860._core_eia860__boiler_generator_assn)(→ pandas.DataFrame)                      | Pull and transform the boilder generator association table.        |
-| [`_core_eia860__utilities`](#pudl.transform.eia860._core_eia860__utilities)(→ pandas.DataFrame)                                              | Pull and transform the utilities table.                            |
-| [`_core_eia860__boilers`](#pudl.transform.eia860._core_eia860__boilers)(→ pandas.DataFrame)                                                  | Pull and transform the boilers table.                              |
-| [`_core_eia860__emissions_control_equipment`](#pudl.transform.eia860._core_eia860__emissions_control_equipment)(...)                         | Pull and transform the emissions control equipment table.          |
-| [`_core_eia860__boiler_emissions_control_equipment_assn`](#pudl.transform.eia860._core_eia860__boiler_emissions_control_equipment_assn)(...) | Pull and transform the emissions control <> boiler ID link tables. |
-| [`_core_eia860__boiler_cooling`](#pudl.transform.eia860._core_eia860__boiler_cooling)(→ pandas.DataFrame)                                    | Pull and transform the EIA 860 boiler to cooler ID table.          |
-| [`_core_eia860__boiler_stack_flue`](#pudl.transform.eia860._core_eia860__boiler_stack_flue)(→ pandas.DataFrame)                              | Pull and transform the EIA 860 boiler to stack flue ID table.      |
-| [`_core_eia860__cooling_equipment`](#pudl.transform.eia860._core_eia860__cooling_equipment)(→ pandas.DataFrame)                              | Transform the EIA 860 cooling equipment table.                     |
-| [`cooling_equipment_continuity`](#pudl.transform.eia860.cooling_equipment_continuity)(cooling_equipment)                                     | Check to see if columns vary as slowly as expected.                |
-| [`_core_eia860__fgd_equipment`](#pudl.transform.eia860._core_eia860__fgd_equipment)(→ pandas.DataFrame)                                      | Transform the EIA 860 FGD equipment table.                         |
-| [`fgd_equipment_continuity`](#pudl.transform.eia860.fgd_equipment_continuity)(fgd)                                                           | Check to see if columns vary as slowly as expected.                |
+| [`_core_eia860__ownership`](#pudl.transform.eia860._core_eia860__ownership)(→ pandas.DataFrame)                 | Pull and transform the ownership table.                            |
+|--------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------|
+| [`_core_eia860__generators`](#pudl.transform.eia860._core_eia860__generators)(→ pandas.DataFrame)                | Pull and transform the generators table.                           |
+| [`_core_eia860__generators_solar`](#pudl.transform.eia860._core_eia860__generators_solar)(→ pandas.DataFrame)          | Transform the solar-specific generators table.                     |
+| [`_core_eia860__generators_energy_storage`](#pudl.transform.eia860._core_eia860__generators_energy_storage)(→ pandas.DataFrame) | Transform the energy storage specific generators table.            |
+| [`_core_eia860__generators_wind`](#pudl.transform.eia860._core_eia860__generators_wind)(→ pandas.DataFrame)           | Transform the wind-specific generators table.                      |
+| [`_core_eia860__generators_multifuel`](#pudl.transform.eia860._core_eia860__generators_multifuel)(→ pandas.DataFrame)      | Transform the multifuel generators table.                          |
+| [`_core_eia860__plants`](#pudl.transform.eia860._core_eia860__plants)(→ pandas.DataFrame)                    | Pull and transform the plants table.                               |
+| [`_core_eia860__boiler_generator_assn`](#pudl.transform.eia860._core_eia860__boiler_generator_assn)(→ pandas.DataFrame)     | Pull and transform the boilder generator association table.        |
+| [`_core_eia860__utilities`](#pudl.transform.eia860._core_eia860__utilities)(→ pandas.DataFrame)                 | Pull and transform the utilities table.                            |
+| [`_core_eia860__boilers`](#pudl.transform.eia860._core_eia860__boilers)(→ pandas.DataFrame)                   | Pull and transform the boilers table.                              |
+| [`_core_eia860__emissions_control_equipment`](#pudl.transform.eia860._core_eia860__emissions_control_equipment)(...)              | Pull and transform the emissions control equipment table.          |
+| [`_core_eia860__boiler_emissions_control_equipment_assn`](#pudl.transform.eia860._core_eia860__boiler_emissions_control_equipment_assn)(...)  | Pull and transform the emissions control <> boiler ID link tables. |
+| [`_core_eia860__boiler_cooling`](#pudl.transform.eia860._core_eia860__boiler_cooling)(→ pandas.DataFrame)            | Pull and transform the EIA 860 boiler to cooler ID table.          |
+| [`_core_eia860__boiler_stack_flue`](#pudl.transform.eia860._core_eia860__boiler_stack_flue)(→ pandas.DataFrame)         | Pull and transform the EIA 860 boiler to stack flue ID table.      |
+| [`_core_eia860__cooling_equipment`](#pudl.transform.eia860._core_eia860__cooling_equipment)(→ pandas.DataFrame)         | Transform the EIA 860 cooling equipment table.                     |
+| [`cooling_equipment_continuity`](#pudl.transform.eia860.cooling_equipment_continuity)(cooling_equipment)             | Check to see if columns vary as slowly as expected.                |
+| [`_core_eia860__fgd_equipment`](#pudl.transform.eia860._core_eia860__fgd_equipment)(→ pandas.DataFrame)             | Transform the EIA 860 FGD equipment table.                         |
+| [`fgd_equipment_continuity`](#pudl.transform.eia860.fgd_equipment_continuity)(fgd)                               | Check to see if columns vary as slowly as expected.                |
 
 ## Module Contents
 
@@ -108,7 +108,7 @@ Some notes for possible cleaning later:
 
 * technology_description: this field didn’t exist in 2013. We could try to backfill.
   this is an annual scd so it’ll get slurped up there and backfilling does happen
-  in the output layer via [`pudl.output.eia.fill_generator_technology_description()`](../../output/eia/index.md#pudl.output.eia.fill_generator_technology_description)
+  in the output layer via [`pudl.output.eia.fill_generator_technology_description()`](../../output/eia/index.html.md#pudl.output.eia.fill_generator_technology_description)
 * turbines_num: this field doesn’t show up in this table for 2013 and 2014, but it does
   exist in the 2001-2012 generators tab. This is an annual generator scd.
 

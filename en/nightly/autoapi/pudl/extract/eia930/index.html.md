@@ -14,34 +14,34 @@ dump out the concatenated pages to Parquet.
 ## Attributes
 
 | [`logger`](#pudl.extract.eia930.logger)   |    |
-|-------------------------------------------|----|
+|-----------------------------------------------------------|----|
 
 ## Functions
 
-| [`raw_eia930__balance`](#pudl.extract.eia930.raw_eia930__balance)(→ pudl.helpers.ParquetData)         | Raw balance page.                                                |
-|-------------------------------------------------------------------------------------------------------|------------------------------------------------------------------|
+| [`raw_eia930__balance`](#pudl.extract.eia930.raw_eia930__balance)(→ pudl.helpers.ParquetData)     | Raw balance page.                                                |
+|------------------------------------------------------------------------------------------------------|------------------------------------------------------------------|
 | [`raw_eia930__interchange`](#pudl.extract.eia930.raw_eia930__interchange)(→ pudl.helpers.ParquetData) | Raw interchange page.                                            |
-| [`raw_eia930__subregion`](#pudl.extract.eia930.raw_eia930__subregion)(→ pudl.helpers.ParquetData)     | Raw subregion page - only exists after 2018h2.                   |
-| [`extract_page`](#pudl.extract.eia930.extract_page)(→ pudl.helpers.ParquetData)                       | Pull data for a page across many half-years into a Parquet file. |
-| [`extract_half_year_page`](#pudl.extract.eia930.extract_half_year_page)(→ str)                        | Extract data from a single CSV.                                  |
+| [`raw_eia930__subregion`](#pudl.extract.eia930.raw_eia930__subregion)(→ pudl.helpers.ParquetData)   | Raw subregion page - only exists after 2018h2.                   |
+| [`extract_page`](#pudl.extract.eia930.extract_page)(→ pudl.helpers.ParquetData)            | Pull data for a page across many half-years into a Parquet file. |
+| [`extract_half_year_page`](#pudl.extract.eia930.extract_half_year_page)(→ str)                       | Extract data from a single CSV.                                  |
 
 ## Module Contents
 
 ### pudl.extract.eia930.logger
 
-### pudl.extract.eia930.raw_eia930_\_balance(context) → [pudl.helpers.ParquetData](../../helpers/index.md#pudl.helpers.ParquetData)
+### pudl.extract.eia930.raw_eia930_\_balance(context) → [pudl.helpers.ParquetData](../../helpers/index.html.md#pudl.helpers.ParquetData)
 
 Raw balance page.
 
-### pudl.extract.eia930.raw_eia930_\_interchange(context) → [pudl.helpers.ParquetData](../../helpers/index.md#pudl.helpers.ParquetData)
+### pudl.extract.eia930.raw_eia930_\_interchange(context) → [pudl.helpers.ParquetData](../../helpers/index.html.md#pudl.helpers.ParquetData)
 
 Raw interchange page.
 
-### pudl.extract.eia930.raw_eia930_\_subregion(context) → [pudl.helpers.ParquetData](../../helpers/index.md#pudl.helpers.ParquetData)
+### pudl.extract.eia930.raw_eia930_\_subregion(context) → [pudl.helpers.ParquetData](../../helpers/index.html.md#pudl.helpers.ParquetData)
 
 Raw subregion page - only exists after 2018h2.
 
-### pudl.extract.eia930.extract_page(datastore: [pudl.workspace.datastore.Datastore](../../workspace/datastore/index.md#pudl.workspace.datastore.Datastore), page: [str](https://docs.python.org/3/library/stdtypes.html#str), half_years: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]) → [pudl.helpers.ParquetData](../../helpers/index.md#pudl.helpers.ParquetData)
+### pudl.extract.eia930.extract_page(datastore: [pudl.workspace.datastore.Datastore](../../workspace/datastore/index.html.md#pudl.workspace.datastore.Datastore), page: [str](https://docs.python.org/3/library/stdtypes.html#str), half_years: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)]) → [pudl.helpers.ParquetData](../../helpers/index.html.md#pudl.helpers.ParquetData)
 
 Pull data for a page across many half-years into a Parquet file.
 
@@ -55,7 +55,7 @@ together and expanding the schema to fit all the columns we see.
 * **Returns:**
   ParquetData pointing to parquet file with raw table data.
 
-### pudl.extract.eia930.extract_half_year_page(con: [duckdb.DuckDBPyConnection](https://duckdb.org/docs/lts/clients/python/reference/index.html#duckdb.DuckDBPyConnection), datastore: [pudl.workspace.datastore.Datastore](../../workspace/datastore/index.md#pudl.workspace.datastore.Datastore), half_year: [str](https://docs.python.org/3/library/stdtypes.html#str), page: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [str](https://docs.python.org/3/library/stdtypes.html#str)
+### pudl.extract.eia930.extract_half_year_page(con: [duckdb.DuckDBPyConnection](https://duckdb.org/docs/lts/clients/python/reference/index.html#duckdb.DuckDBPyConnection), datastore: [pudl.workspace.datastore.Datastore](../../workspace/datastore/index.html.md#pudl.workspace.datastore.Datastore), half_year: [str](https://docs.python.org/3/library/stdtypes.html#str), page: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [str](https://docs.python.org/3/library/stdtypes.html#str)
 
 Extract data from a single CSV.
 

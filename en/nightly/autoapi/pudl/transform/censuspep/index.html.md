@@ -5,7 +5,7 @@ Transform Census PEP FIPS codes data.
 ## Functions
 
 | [`_core_censuspep__yearly_geocodes`](#pudl.transform.censuspep._core_censuspep__yearly_geocodes)(raw_censuspep_\_geocodes)   | Create a cleaned up table of FIPS codes.   |
-|------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------|
+|---------------------------------------------------------------------------------------------------------------|--------------------------------------------|
 
 ## Module Contents
 

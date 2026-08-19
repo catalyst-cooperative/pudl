@@ -5,28 +5,99 @@ Define dbt schema types and merging logic.
 We generate dbt schema.yml files by translating our metadata into schema.yml
 format, then applying human-sourced patches to the auto-generated schemas.
 
+## Attributes
+
+| [`_DESCRIPTION_WRAP_WIDTH`](#pudl.dbt_schema._DESCRIPTION_WRAP_WIDTH)   |    |
+|----------------------------------------------------------------------------|----|
+| [`_NormalizedDescription`](#pudl.dbt_schema._NormalizedDescription)    |    |
+| [`_NormalizedDataTests`](#pudl.dbt_schema._NormalizedDataTests)      |    |
+
 ## Classes
 
-| [`DbtColumn`](#pudl.dbt_schema.DbtColumn)   | Define yaml structure of a dbt column.                              |
-|---------------------------------------------|---------------------------------------------------------------------|
-| [`DbtTable`](#pudl.dbt_schema.DbtTable)     | Define yaml structure of a dbt table.                               |
-| [`DbtSource`](#pudl.dbt_schema.DbtSource)   | Define basic dbt yml structure to add a pudl table as a dbt source. |
-| [`DbtSchema`](#pudl.dbt_schema.DbtSchema)   | Define basic structure of a dbt models yaml file.                   |
+| [`_LiteralStr`](#pudl.dbt_schema._LiteralStr)   | Marker subclass telling the dumper to use YAML literal block style (`|`).   |
+|----------------------------------------------------------------|-----------------------------------------------------------------------------|
+| [`DbtColumn`](#pudl.dbt_schema.DbtColumn)     | Define yaml structure of a dbt column.                                      |
+| [`DbtTable`](#pudl.dbt_schema.DbtTable)      | Define yaml structure of a dbt table.                                       |
+| [`DbtSource`](#pudl.dbt_schema.DbtSource)     | Define basic dbt yml structure to add a pudl table as a dbt source.         |
+| [`DbtSchema`](#pudl.dbt_schema.DbtSchema)     | Define basic structure of a dbt models yaml file.                           |
 
 ## Functions
 
-| [`_prettier_yaml_dumps`](#pudl.dbt_schema._prettier_yaml_dumps)(→ str)               | Dump YAML to string that Prettier likes.                                           |
-|--------------------------------------------------------------------------------------|------------------------------------------------------------------------------------|
-| [`merge_schema`](#pudl.dbt_schema.merge_schema)(→ DbtSchema)                         | Merge two DbtSchemas by applying human-schema as a patch on top of machine-schema. |
-| [`merge_by_name`](#pudl.dbt_schema.merge_by_name)(→ list)                            | Perform a generic merge of two lists of dbt elements, matching by name.            |
-| [`merge_sources_by_name`](#pudl.dbt_schema.merge_sources_by_name)(→ list[DbtSource]) | Match machine/human sources by name, then merge them.                              |
-| [`merge_source`](#pudl.dbt_schema.merge_source)(→ DbtSource)                         | Merge two DbtSources by applying human-source as a patch on top of machine-source. |
-| [`merge_tables_by_name`](#pudl.dbt_schema.merge_tables_by_name)(→ list[DbtTable])    | Match machine/human tables by name, then merge them.                               |
-| [`merge_table`](#pudl.dbt_schema.merge_table)(→ DbtTable)                            | Merge two DbtTables by applying human-table as a patch on top of machine-table.    |
-| [`merge_columns_by_name`](#pudl.dbt_schema.merge_columns_by_name)(→ list[DbtColumn]) | Match machine/human columns by name, then merge them.                              |
-| [`merge_column`](#pudl.dbt_schema.merge_column)(→ DbtColumn)                         | Merge two DbtColumns by applying human-column as a patch on top of machine-column. |
+| [`_normalize_whitespace`](#pudl.dbt_schema._normalize_whitespace)(→ str)               | Collapse all whitespace (including blank lines) to single spaces.                  |
+|---------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------|
+| [`_normalize_descriptions`](#pudl.dbt_schema._normalize_descriptions)(→ Any)             | Recursively collapse whitespace in every `description` field.                      |
+| [`_normalize_description_field`](#pudl.dbt_schema._normalize_description_field)(→ str | None) |                                                                                    |
+| [`_normalize_data_tests_field`](#pudl.dbt_schema._normalize_data_tests_field)(→ list | None) |                                                                                    |
+| [`_wrap_description`](#pudl.dbt_schema._wrap_description)(→ str | \_LiteralStr)    | Re-wrap a description string to short lines, for readability on disk.              |
+| [`_wrap_descriptions`](#pudl.dbt_schema._wrap_descriptions)(→ Any)                  | Recursively re-wrap every `description` field in a dumped schema dict.             |
+| [`_prettier_yaml_dumps`](#pudl.dbt_schema._prettier_yaml_dumps)(→ str)                | Dump YAML to string that Prettier likes.                                           |
+| [`merge_schema`](#pudl.dbt_schema.merge_schema)(→ DbtSchema)                  | Merge two DbtSchemas by applying human-schema as a patch on top of machine-schema. |
+| [`merge_by_name`](#pudl.dbt_schema.merge_by_name)(→ list)                      | Perform a generic merge of two lists of dbt elements, matching by name.            |
+| [`merge_sources_by_name`](#pudl.dbt_schema.merge_sources_by_name)(→ list[DbtSource])   | Match machine/human sources by name, then merge them.                              |
+| [`merge_source`](#pudl.dbt_schema.merge_source)(→ DbtSource)                  | Merge two DbtSources by applying human-source as a patch on top of machine-source. |
+| [`merge_tables_by_name`](#pudl.dbt_schema.merge_tables_by_name)(→ list[DbtTable])     | Match machine/human tables by name, then merge them.                               |
+| [`merge_table`](#pudl.dbt_schema.merge_table)(→ DbtTable)                    | Merge two DbtTables by applying human-table as a patch on top of machine-table.    |
+| [`merge_columns_by_name`](#pudl.dbt_schema.merge_columns_by_name)(→ list[DbtColumn])   | Match machine/human columns by name, then merge them.                              |
+| [`merge_column`](#pudl.dbt_schema.merge_column)(→ DbtColumn)                  | Merge two DbtColumns by applying human-column as a patch on top of machine-column. |
 
 ## Module Contents
+
+### pudl.dbt_schema.\_DESCRIPTION_WRAP_WIDTH *= 88*
+
+### pudl.dbt_schema.\_normalize_whitespace(text: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [str](https://docs.python.org/3/library/stdtypes.html#str)
+
+Collapse all whitespace (including blank lines) to single spaces.
+
+### pudl.dbt_schema.\_normalize_descriptions(obj: Any) → Any
+
+Recursively collapse whitespace in every `description` field.
+
+Normalizing whitespace at parse time reduces spurious diffs and round trip errors,
+treating all whitespace as semantically identical.
+
+The `description` fields show up in two places: the typed `description` field on
+`DbtColumn`/`DbtTable`/`DbtSource`, and nested inside arbitrary `data_tests`
+entries which are untyped `list` content that pydantic doesn’t otherwise inspect.
+This function is used as a validator for both.
+
+### pudl.dbt_schema.\_normalize_description_field(value: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None)) → [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None)
+
+### pudl.dbt_schema.\_normalize_data_tests_field(value: [list](https://docs.python.org/3/library/stdtypes.html#list) | [None](https://docs.python.org/3/library/constants.html#None)) → [list](https://docs.python.org/3/library/stdtypes.html#list) | [None](https://docs.python.org/3/library/constants.html#None)
+
+### pudl.dbt_schema.\_NormalizedDescription
+
+### pudl.dbt_schema.\_NormalizedDataTests
+
+### *class* pudl.dbt_schema.\_LiteralStr
+
+Bases: [`str`](https://docs.python.org/3/library/stdtypes.html#str)
+
+Marker subclass telling the dumper to use YAML literal block style (`|`).
+
+Only used for `description` fields that we’ve re-wrapped ourselves, so
+they read as human-friendly paragraphs on disk instead of one giant line.
+Everything else (regexes, SQL snippets, argument lists) is left completely
+alone, since forcing a global line width in the dumper risks reflowing
+content where whitespace is significant.
+
+### pudl.dbt_schema.\_wrap_description(text: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [str](https://docs.python.org/3/library/stdtypes.html#str) | [\_LiteralStr](#pudl.dbt_schema._LiteralStr)
+
+Re-wrap a description string to short lines, for readability on disk.
+
+A description may already contain embedded newlines (e.g. from a blank
+line in a folded YAML block scalar, or from a previous pass of this same
+function). We preserve that line structure and only wrap the text
+*within* each line, so we don’t invent new paragraph breaks the human
+didn’t write. We use block style whenever the result spans multiple
+lines – including when wrapping made no change to an already-wrapped
+multi-line value – since a bare multi-line `str` would otherwise fall
+back to an ugly quoted flow scalar. Single-line results are left as a
+plain string so short descriptions keep their current compact
+`description: ...` formatting.
+
+### pudl.dbt_schema.\_wrap_descriptions(obj: Any) → Any
+
+Recursively re-wrap every `description` field in a dumped schema dict.
 
 ### pudl.dbt_schema.\_prettier_yaml_dumps(yaml_contents: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), Any]) → [str](https://docs.python.org/3/library/stdtypes.html#str)
 
@@ -38,11 +109,15 @@ Bases: [`pydantic.BaseModel`](https://pydantic.dev/docs/validation/latest/api/py
 
 Define yaml structure of a dbt column.
 
+#### model_config
+
+Configuration for the model, should be a dictionary conforming to [ConfigDict][pydantic.config.ConfigDict].
+
 #### name *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
 
-#### description *: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### description *: [\_NormalizedDescription](#pudl.dbt_schema._NormalizedDescription)* *= None*
 
-#### data_tests *: [list](https://docs.python.org/3/library/stdtypes.html#list) | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### data_tests *: [\_NormalizedDataTests](#pudl.dbt_schema._NormalizedDataTests)* *= None*
 
 #### meta *: [dict](https://docs.python.org/3/library/stdtypes.html#dict) | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
 
@@ -54,11 +129,15 @@ Bases: [`pydantic.BaseModel`](https://pydantic.dev/docs/validation/latest/api/py
 
 Define yaml structure of a dbt table.
 
+#### model_config
+
+Configuration for the model, should be a dictionary conforming to [ConfigDict][pydantic.config.ConfigDict].
+
 #### name *: [str](https://docs.python.org/3/library/stdtypes.html#str)*
 
-#### description *: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### description *: [\_NormalizedDescription](#pudl.dbt_schema._NormalizedDescription)* *= None*
 
-#### data_tests *: [list](https://docs.python.org/3/library/stdtypes.html#list) | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### data_tests *: [\_NormalizedDataTests](#pudl.dbt_schema._NormalizedDataTests)* *= None*
 
 #### columns *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[DbtColumn](#pudl.dbt_schema.DbtColumn)] | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
 
@@ -78,11 +157,15 @@ Bases: [`pydantic.BaseModel`](https://pydantic.dev/docs/validation/latest/api/py
 
 Define basic dbt yml structure to add a pudl table as a dbt source.
 
+#### model_config
+
+Configuration for the model, should be a dictionary conforming to [ConfigDict][pydantic.config.ConfigDict].
+
 #### name *: [str](https://docs.python.org/3/library/stdtypes.html#str)* *= 'pudl'*
 
 #### tables *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[DbtTable](#pudl.dbt_schema.DbtTable)] | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
 
-#### description *: [str](https://docs.python.org/3/library/stdtypes.html#str) | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
+#### description *: [\_NormalizedDescription](#pudl.dbt_schema._NormalizedDescription)* *= None*
 
 #### meta *: [dict](https://docs.python.org/3/library/stdtypes.html#dict) | [None](https://docs.python.org/3/library/constants.html#None)* *= None*
 
@@ -91,6 +174,10 @@ Define basic dbt yml structure to add a pudl table as a dbt source.
 Bases: [`pydantic.BaseModel`](https://pydantic.dev/docs/validation/latest/api/pydantic/base_model/#pydantic.BaseModel)
 
 Define basic structure of a dbt models yaml file.
+
+#### model_config
+
+Configuration for the model, should be a dictionary conforming to [ConfigDict][pydantic.config.ConfigDict].
 
 #### version *: [int](https://docs.python.org/3/library/functions.html#int)* *= 2*
 

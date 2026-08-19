@@ -9,12 +9,12 @@ core asset graph.
 ## Attributes
 
 | [`logger`](#pudl.dagster.assets.core.eiaapi_electricity.logger)   |    |
-|-------------------------------------------------------------------|----|
+|-----------------------------------------------------------|----|
 
 ## Functions
 
 | [`core_eia__yearly_fuel_receipts_costs_aggs`](#pudl.dagster.assets.core.eiaapi_electricity.core_eia__yearly_fuel_receipts_costs_aggs)(context)   | Extract and transform EIA API electricity aggregates.   |
-|--------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------|
+|-------------------------------------------------------------------------------------------------------|---------------------------------------------------------|
 
 ## Module Contents
 

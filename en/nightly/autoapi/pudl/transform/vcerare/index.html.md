@@ -8,24 +8,24 @@ in this module, as they have exactly the same structure.
 ## Attributes
 
 | [`logger`](#pudl.transform.vcerare.logger)   |    |
-|----------------------------------------------|----|
+|-----------------------------------------------------------|----|
 
 ## Functions
 
-| [`_prep_lat_long_fips_df`](#pudl.transform.vcerare._prep_lat_long_fips_df)(→ pandas.DataFrame)                                    | Prep the lat_long_fips table to merge into the capacity factor tables.                      |
-|-----------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------|
-| [`_add_time_cols`](#pudl.transform.vcerare._add_time_cols)(→ pandas.DataFrame)                                                    | Add datetime and hour_of_year columns.                                                      |
-| [`_drop_city_cols`](#pudl.transform.vcerare._drop_city_cols)(→ pandas.DataFrame)                                                  | Drop city columns from the capacity factor tables before stacking.                          |
-| [`_stack_cap_fac_df`](#pudl.transform.vcerare._stack_cap_fac_df)(→ pandas.DataFrame)                                              | Function to transform each capacity factor table individually to save memory.               |
-| [`_make_cap_fac_frac`](#pudl.transform.vcerare._make_cap_fac_frac)(→ pandas.DataFrame)                                            | Make the capacity factor column a fraction instead of a percentage.                         |
-| [`_check_for_valid_counties`](#pudl.transform.vcerare._check_for_valid_counties)(→ pandas.DataFrame)                              | Make sure the state_county values show up in the FIPS table.                                |
-| [`_standardize_census_names`](#pudl.transform.vcerare._standardize_census_names)(vce_fips_df, census_pep_data)                    | Make sure that the VCE place names correspond to the latest census vintage.                 |
-| [`_clip_unexpected_2016_pv_capacity`](#pudl.transform.vcerare._clip_unexpected_2016_pv_capacity)(df, df_name, year)               | Handle unexpectedly large PV capacity values in 2016.                                       |
-| [`_spot_fix_great_lakes_values`](#pudl.transform.vcerare._spot_fix_great_lakes_values)(→ pandas.Series)                           | Normalize spelling of great lakes in cell values.                                           |
-| [`_spot_fix_great_lakes_columns`](#pudl.transform.vcerare._spot_fix_great_lakes_columns)(→ pandas.DataFrame)                      | Normalize spelling of great lakes in column names.                                          |
+| [`_prep_lat_long_fips_df`](#pudl.transform.vcerare._prep_lat_long_fips_df)(→ pandas.DataFrame)                 | Prep the lat_long_fips table to merge into the capacity factor tables.                      |
+|-------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------|
+| [`_add_time_cols`](#pudl.transform.vcerare._add_time_cols)(→ pandas.DataFrame)                         | Add datetime and hour_of_year columns.                                                      |
+| [`_drop_city_cols`](#pudl.transform.vcerare._drop_city_cols)(→ pandas.DataFrame)                        | Drop city columns from the capacity factor tables before stacking.                          |
+| [`_stack_cap_fac_df`](#pudl.transform.vcerare._stack_cap_fac_df)(→ pandas.DataFrame)                      | Function to transform each capacity factor table individually to save memory.               |
+| [`_make_cap_fac_frac`](#pudl.transform.vcerare._make_cap_fac_frac)(→ pandas.DataFrame)                     | Make the capacity factor column a fraction instead of a percentage.                         |
+| [`_check_for_valid_counties`](#pudl.transform.vcerare._check_for_valid_counties)(→ pandas.DataFrame)              | Make sure the state_county values show up in the FIPS table.                                |
+| [`_standardize_census_names`](#pudl.transform.vcerare._standardize_census_names)(vce_fips_df, census_pep_data)    | Make sure that the VCE place names correspond to the latest census vintage.                 |
+| [`_clip_unexpected_2016_pv_capacity`](#pudl.transform.vcerare._clip_unexpected_2016_pv_capacity)(df, df_name, year)       | Handle unexpectedly large PV capacity values in 2016.                                       |
+| [`_spot_fix_great_lakes_values`](#pudl.transform.vcerare._spot_fix_great_lakes_values)(→ pandas.Series)              | Normalize spelling of great lakes in cell values.                                           |
+| [`_spot_fix_great_lakes_columns`](#pudl.transform.vcerare._spot_fix_great_lakes_columns)(→ pandas.DataFrame)          | Normalize spelling of great lakes in column names.                                          |
 | [`one_year_hourly_available_capacity_factor`](#pudl.transform.vcerare.one_year_hourly_available_capacity_factor)(→ dict[str, ...) | Transform raw Vibrant Clean Energy renewable generation profiles.                           |
-| [`merge_all_vce_tables`](#pudl.transform.vcerare.merge_all_vce_tables)(→ pudl.helpers.ParquetData)                                | Merge cleaned VCE tables to create final `out` table and write as partitioned parquet file. |
-| [`out_vcerare__hourly_available_capacity_factor`](#pudl.transform.vcerare.out_vcerare__hourly_available_capacity_factor)(...)     | Transform raw Vibrant Clean Energy renewable generation profiles.                           |
+| [`merge_all_vce_tables`](#pudl.transform.vcerare.merge_all_vce_tables)(→ pudl.helpers.ParquetData)           | Merge cleaned VCE tables to create final `out` table and write as partitioned parquet file. |
+| [`out_vcerare__hourly_available_capacity_factor`](#pudl.transform.vcerare.out_vcerare__hourly_available_capacity_factor)(...)         | Transform raw Vibrant Clean Energy renewable generation profiles.                           |
 
 ## Module Contents
 
@@ -126,18 +126,18 @@ Normalize spelling of great lakes in cell values.
 
 Normalize spelling of great lakes in column names.
 
-### pudl.transform.vcerare.one_year_hourly_available_capacity_factor(year: [int](https://docs.python.org/3/library/functions.html#int), fips_df_census: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), raw_vcerare_\_fixed_solar_pv_lat_upv: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), raw_vcerare_\_offshore_wind_power_140m: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), raw_vcerare_\_onshore_wind_power_100m: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [pudl.helpers.ParquetData](../../helpers/index.md#pudl.helpers.ParquetData)]
+### pudl.transform.vcerare.one_year_hourly_available_capacity_factor(year: [int](https://docs.python.org/3/library/functions.html#int), fips_df_census: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), raw_vcerare_\_fixed_solar_pv_lat_upv: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), raw_vcerare_\_offshore_wind_power_140m: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), raw_vcerare_\_onshore_wind_power_100m: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [pudl.helpers.ParquetData](../../helpers/index.html.md#pudl.helpers.ParquetData)]
 
 Transform raw Vibrant Clean Energy renewable generation profiles.
 
 Concatenates the solar and wind capacity factors into a single table and turns
 the columns for each county or subregion into a single place_name column.
 
-### pudl.transform.vcerare.merge_all_vce_tables(transformed_tables: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [pudl.helpers.ParquetData](../../helpers/index.md#pudl.helpers.ParquetData)], vce_fips_table: [pudl.helpers.ParquetData](../../helpers/index.md#pudl.helpers.ParquetData), table_name: [str](https://docs.python.org/3/library/stdtypes.html#str), year: [int](https://docs.python.org/3/library/functions.html#int)) → [pudl.helpers.ParquetData](../../helpers/index.md#pudl.helpers.ParquetData)
+### pudl.transform.vcerare.merge_all_vce_tables(transformed_tables: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[str](https://docs.python.org/3/library/stdtypes.html#str), [pudl.helpers.ParquetData](../../helpers/index.html.md#pudl.helpers.ParquetData)], vce_fips_table: [pudl.helpers.ParquetData](../../helpers/index.html.md#pudl.helpers.ParquetData), table_name: [str](https://docs.python.org/3/library/stdtypes.html#str), year: [int](https://docs.python.org/3/library/functions.html#int)) → [pudl.helpers.ParquetData](../../helpers/index.html.md#pudl.helpers.ParquetData)
 
 Merge cleaned VCE tables to create final `out` table and write as partitioned parquet file.
 
-### pudl.transform.vcerare.out_vcerare_\_hourly_available_capacity_factor(context, raw_vcerare_\_fixed_solar_pv_lat_upv: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[int](https://docs.python.org/3/library/functions.html#int), [pudl.helpers.ParquetData](../../helpers/index.md#pudl.helpers.ParquetData)], raw_vcerare_\_offshore_wind_power_140m: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[int](https://docs.python.org/3/library/functions.html#int), [pudl.helpers.ParquetData](../../helpers/index.md#pudl.helpers.ParquetData)], raw_vcerare_\_onshore_wind_power_100m: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[int](https://docs.python.org/3/library/functions.html#int), [pudl.helpers.ParquetData](../../helpers/index.md#pudl.helpers.ParquetData)], raw_vcerare_\_lat_lon_fips: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), \_core_censuspep_\_yearly_geocodes: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → polars.LazyFrame
+### pudl.transform.vcerare.out_vcerare_\_hourly_available_capacity_factor(context, raw_vcerare_\_fixed_solar_pv_lat_upv: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[int](https://docs.python.org/3/library/functions.html#int), [pudl.helpers.ParquetData](../../helpers/index.html.md#pudl.helpers.ParquetData)], raw_vcerare_\_offshore_wind_power_140m: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[int](https://docs.python.org/3/library/functions.html#int), [pudl.helpers.ParquetData](../../helpers/index.html.md#pudl.helpers.ParquetData)], raw_vcerare_\_onshore_wind_power_100m: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[int](https://docs.python.org/3/library/functions.html#int), [pudl.helpers.ParquetData](../../helpers/index.html.md#pudl.helpers.ParquetData)], raw_vcerare_\_lat_lon_fips: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), \_core_censuspep_\_yearly_geocodes: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → polars.LazyFrame
 
 Transform raw Vibrant Clean Energy renewable generation profiles.
 

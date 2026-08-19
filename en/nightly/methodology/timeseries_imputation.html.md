@@ -9,9 +9,9 @@ will have missing or anomalous values, which can make them unsuitable for use in
 modeling or analysis tasks. To better support these applications PUDL detects and
 imputes anomalous and missing values in some of the timeseries data we publish, while
 also providing access to the originally reported values. The infrastructure for this
-work lives in the [`pudl.analysis.timeseries_cleaning`](../autoapi/pudl/analysis/timeseries_cleaning/index.md#module-pudl.analysis.timeseries_cleaning) module. Thus far we have only
-applied these methods to the [EIA Form 930 – Hourly and Daily Balancing Authority Operations Report](../data_sources/eia930.md) and
-[FERC Form 714 – Annual Electric Balancing Authority Area and Planning Area Report](../data_sources/ferc714.md) hourly electricity demand data.
+work lives in the [`pudl.analysis.timeseries_cleaning`](../autoapi/pudl/analysis/timeseries_cleaning/index.html.md#module-pudl.analysis.timeseries_cleaning) module. Thus far we have only
+applied these methods to the [EIA Form 930 – Hourly and Daily Balancing Authority Operations Report](../data_sources/eia930.html.md) and
+[FERC Form 714 – Annual Electric Balancing Authority Area and Planning Area Report](../data_sources/ferc714.html.md) hourly electricity demand data.
 
 ### Anomaly Detection Heuristics
 
@@ -36,7 +36,7 @@ back to 2006, vs.  2015 for the EIA-930).
 
 ### Exploratory Notebooks
 
-While integrating the [EIA Form 930 – Hourly and Daily Balancing Authority Operations Report](../data_sources/eia930.md) data and developing and debugging the
+While integrating the [EIA Form 930 – Hourly and Daily Balancing Authority Operations Report](../data_sources/eia930.html.md) data and developing and debugging the
 electricity demand imputation, we created a couple of Jupyter notebooks, which are
 available on Kaggle if you would like to explore the data and imputation results
 further:
@@ -69,7 +69,7 @@ net generation.
 First we identify any values which are missing or deemed anomalous using the heuristics
 developed by Ruggels et al., and then we impute those “flagged” values. You can see the
 list of reasons why a value might be flagged for imputation in the
-[core_pudl_\_codes_imputation_reasons](../data_dictionaries/pudl_db.md#core-pudl-codes-imputation-reasons) table. After we’ve flagged the missing and
+[core_pudl_\_codes_imputation_reasons](../data_dictionaries/pudl_db.html.md#core-pudl-codes-imputation-reasons) table. After we’ve flagged the missing and
 anomalous values, each year is imputed independently, meaning the imputation within a
 given year does not depend on the values in any other year. This is done to limit the
 memory usage of the process.
@@ -147,7 +147,7 @@ Visual inspections of heavily imputed months don’t show any obvious individual
 ## Programming Interface (for developers)
 
 We use an [asset factory](https://docs.dagster.io/guides/build/assets/creating-asset-factories) called
-[`pudl.analysis.timeseries_cleaning.impute_timeseries_asset_factory()`](../autoapi/pudl/analysis/timeseries_cleaning/index.md#pudl.analysis.timeseries_cleaning.impute_timeseries_asset_factory), to generate
+[`pudl.analysis.timeseries_cleaning.impute_timeseries_asset_factory()`](../autoapi/pudl/analysis/timeseries_cleaning/index.html.md#pudl.analysis.timeseries_cleaning.impute_timeseries_asset_factory), to generate
 a set of assets that impute an upstream timeseries. These generated assets expect the
 input to contain an ID column, an hourly `datetime` column, and a column with values
 to impute. For example:
@@ -164,9 +164,9 @@ In this instance, the final asset produced from the imputation would contain two
 columns, `demand_imputed_pudl_mwh` and `demand_imputed_pudl_mwh_imputation_code`
 (and any other columns which were in the input table). The `imputation_code` column
 will contain a code for each imputed value, which corresponds to one of those described
-in [core_pudl_\_codes_imputation_reasons](../data_dictionaries/pudl_db.md#core-pudl-codes-imputation-reasons).
+in [core_pudl_\_codes_imputation_reasons](../data_dictionaries/pudl_db.html.md#core-pudl-codes-imputation-reasons).
 
 To configure the asset factory, there are a number of parameters to the function, which
 are used to specify the names of columns, and there is a settings object called
-[`pudl.analysis.timeseries_cleaning.ImputeTimeseriesSettings`](../autoapi/pudl/analysis/timeseries_cleaning/index.md#pudl.analysis.timeseries_cleaning.ImputeTimeseriesSettings), which configures
+[`pudl.analysis.timeseries_cleaning.ImputeTimeseriesSettings`](../autoapi/pudl/analysis/timeseries_cleaning/index.html.md#pudl.analysis.timeseries_cleaning.ImputeTimeseriesSettings), which configures
 the actual imputation methods.

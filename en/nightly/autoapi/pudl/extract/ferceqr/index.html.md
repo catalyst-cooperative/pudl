@@ -5,19 +5,19 @@ Extract FERC EQR data.
 ## Attributes
 
 | [`logger`](#pudl.extract.ferceqr.logger)   |    |
-|--------------------------------------------|----|
+|-----------------------------------------------------------|----|
 
 ## Functions
 
-| [`_get_csv`](#pudl.extract.ferceqr._get_csv)(→ zipfile.ZipFile)                                        | Download CSV to a tempmorary directory to avoid reading into memory.             |
-|--------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------|
-| [`_clean_csv_name`](#pudl.extract.ferceqr._clean_csv_name)(→ pathlib.Path)                             | Standardize zip file names to avoid errors when opening.                         |
-| [`_get_table_name`](#pudl.extract.ferceqr._get_table_name)(→ str)                                      |                                                                                  |
-| [`_extract_ident`](#pudl.extract.ferceqr._extract_ident)(→ str)                                        | Extract data from ident csv, write to parquet, and return CID from table.        |
-| [`_extract_other_table`](#pudl.extract.ferceqr._extract_other_table)(table_type, csv_path, ...)        | Extract data from a table other than ident and add year_quarter and CID columns. |
+| [`_get_csv`](#pudl.extract.ferceqr._get_csv)(→ zipfile.ZipFile)                                | Download CSV to a tempmorary directory to avoid reading into memory.             |
+|-------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------|
+| [`_clean_csv_name`](#pudl.extract.ferceqr._clean_csv_name)(→ pathlib.Path)                            | Standardize zip file names to avoid errors when opening.                         |
+| [`_get_table_name`](#pudl.extract.ferceqr._get_table_name)(→ str)                                     |                                                                                  |
+| [`_extract_ident`](#pudl.extract.ferceqr._extract_ident)(→ str)                                      | Extract data from ident csv, write to parquet, and return CID from table.        |
+| [`_extract_other_table`](#pudl.extract.ferceqr._extract_other_table)(table_type, csv_path, ...)            | Extract data from a table other than ident and add year_quarter and CID columns. |
 | [`_csvs_to_parquet`](#pudl.extract.ferceqr._csvs_to_parquet)(csv_path, year_quarter, filing_name, ...) | Mirror CSVs in filing to a parquet file.                                         |
-| [`_save_extract_errors`](#pudl.extract.ferceqr._save_extract_errors)(year_quarter, duckdb_connection)  | Create parquet file with metadata on any CSV parsing errors.                     |
-| [`extract_ferceqr`](#pudl.extract.ferceqr.extract_ferceqr)() → tuple[pudl.helpers.ParquetData, ...)    | Extract year quarter from CSVs and load to parquet files.                        |
+| [`_save_extract_errors`](#pudl.extract.ferceqr._save_extract_errors)(year_quarter, duckdb_connection)      | Create parquet file with metadata on any CSV parsing errors.                     |
+| [`extract_ferceqr`](#pudl.extract.ferceqr.extract_ferceqr)() → tuple[pudl.helpers.ParquetData, ...)   | Extract year quarter from CSVs and load to parquet files.                        |
 
 ## Module Contents
 
@@ -55,7 +55,7 @@ to a separate parquet file.
 
 Create parquet file with metadata on any CSV parsing errors.
 
-### pudl.extract.ferceqr.extract_ferceqr(context: [dagster.AssetExecutionContext](https://docs.dagster.io/api/dagster/execution/#dagster.AssetExecutionContext), ferceqr_archive: [pudl.dagster.resources.FercEqrArchiveResource](../../dagster/resources/index.md#pudl.dagster.resources.FercEqrArchiveResource) = FercEqrArchiveResource()) → [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[pudl.helpers.ParquetData](../../helpers/index.md#pudl.helpers.ParquetData), [pudl.helpers.ParquetData](../../helpers/index.md#pudl.helpers.ParquetData), [pudl.helpers.ParquetData](../../helpers/index.md#pudl.helpers.ParquetData), [pudl.helpers.ParquetData](../../helpers/index.md#pudl.helpers.ParquetData), [pudl.helpers.ParquetData](../../helpers/index.md#pudl.helpers.ParquetData)]
+### pudl.extract.ferceqr.extract_ferceqr(context: [dagster.AssetExecutionContext](https://docs.dagster.io/api/dagster/execution/#dagster.AssetExecutionContext), ferceqr_archive: [pudl.dagster.resources.FercEqrArchiveResource](../../dagster/resources/index.html.md#pudl.dagster.resources.FercEqrArchiveResource) = FercEqrArchiveResource()) → [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[pudl.helpers.ParquetData](../../helpers/index.html.md#pudl.helpers.ParquetData), [pudl.helpers.ParquetData](../../helpers/index.html.md#pudl.helpers.ParquetData), [pudl.helpers.ParquetData](../../helpers/index.html.md#pudl.helpers.ParquetData), [pudl.helpers.ParquetData](../../helpers/index.html.md#pudl.helpers.ParquetData), [pudl.helpers.ParquetData](../../helpers/index.html.md#pudl.helpers.ParquetData)]
 
 Extract year quarter from CSVs and load to parquet files.
 

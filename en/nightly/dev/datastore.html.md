@@ -15,13 +15,13 @@ Zenodo and store it locally in a file hierarchy organized by dataset and the
 versioned DOI of the corresponding Zenodo deposition.
 
 The `pudl_datastore` script can also be used to pre-download the raw input data in
-bulk. It uses the routines defined in the [`pudl.workspace.datastore`](../autoapi/pudl/workspace/datastore/index.md#module-pudl.workspace.datastore) module. For
+bulk. It uses the routines defined in the [`pudl.workspace.datastore`](../autoapi/pudl/workspace/datastore/index.html.md#module-pudl.workspace.datastore) module. For
 details on what data is available, for what time periods, and how much of it there
-is, see the PUDL [Data Sources](../data_sources/index.md). At present the `pudl_datastore` script
+is, see the PUDL [Data Sources](../data_sources/index.html.md). At present the `pudl_datastore` script
 downloads the entire collection of data available for each dataset. For the FERC Form
 1 and EPA CEMS datasets, this is several gigabytes.
 
-For example, to download the full [EIA Form 860 – Annual Electric Generator Report](../data_sources/eia860.md) dataset
+For example, to download the full [EIA Form 860 – Annual Electric Generator Report](../data_sources/eia860.html.md) dataset
 (covering 2001-present) you would use:
 
 ```console
@@ -66,7 +66,7 @@ for information on adding datasets to the datastore.
 Once you have used pudl-archiver to prepare a Zenodo archive as above, you
 can make the PUDL Datastore aware of it by updating the appropriate DOI in the
 `src/pudl/package_data/settings/zenodo_dois.yml` settings file.  This file is used
-to initialize the [`pudl.workspace.datastore.ZenodoDoiSettings`](../autoapi/pudl/workspace/datastore/index.md#pudl.workspace.datastore.ZenodoDoiSettings) class by default.
+to initialize the [`pudl.workspace.datastore.ZenodoDoiSettings`](../autoapi/pudl/workspace/datastore/index.html.md#pudl.workspace.datastore.ZenodoDoiSettings) class by default.
 DOIs can refer to resources from the [Zenodo sandbox server](https://sandbox.zenodo.org) for archives that are still in testing or development
 (sandbox DOIs have a prefix of `10.5072`), or the [Zenodo production server](https://zenodo.org) server if the archive is ready for public use (production DOIs
 have a prefix of `10.5281`).

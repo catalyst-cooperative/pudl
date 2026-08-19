@@ -239,7 +239,7 @@ Module Contents
    Return dictionary of values, listed by index.
 
 
-.. py:function:: try_aggfunc(func: collections.abc.Callable, raised: bool = True, error: str | collections.abc.Callable = None) -> collections.abc.Callable
+.. py:function:: try_aggfunc(func: collections.abc.Callable, raised: bool = True, error: str | collections.abc.Callable | None = None) -> collections.abc.Callable
 
    Wrap aggregate function in a try-except for error handling.
 
@@ -274,7 +274,7 @@ Module Contents
    AggregationError({'a': [0, 0, 1], 'b': [1]})
 
 
-.. py:function:: groupby_apply(df: pandas.DataFrame, by: collections.abc.Iterable, aggfuncs: dict[Any, collections.abc.Callable], raised: bool = True, error: collections.abc.Callable = None) -> tuple[pandas.DataFrame, dict[Any, pandas.Series]]
+.. py:function:: groupby_apply(df: pandas.DataFrame, by: collections.abc.Iterable, aggfuncs: dict[Any, collections.abc.Callable], raised: bool = True, error: collections.abc.Callable | None = None) -> tuple[pandas.DataFrame, dict[Any, pandas.Series]]
 
    Aggregate dataframe and capture errors (using apply).
 
@@ -318,7 +318,7 @@ Module Contents
    dtype: object
 
 
-.. py:function:: groupby_aggregate(df: pandas.DataFrame, by: collections.abc.Iterable, aggfuncs: dict[Any, collections.abc.Callable], raised: bool = True, error: collections.abc.Callable = None) -> tuple[pandas.DataFrame, dict[Any, pandas.Series]]
+.. py:function:: groupby_aggregate(df: pandas.DataFrame, by: collections.abc.Iterable, aggfuncs: dict[Any, collections.abc.Callable], raised: bool = True, error: collections.abc.Callable | None = None) -> tuple[pandas.DataFrame, dict[Any, pandas.Series]]
 
    Aggregate dataframe and capture errors (using aggregate).
 
