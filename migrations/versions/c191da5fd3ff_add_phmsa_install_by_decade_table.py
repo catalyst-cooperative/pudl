@@ -1,8 +1,8 @@
-"""Add PHMSA install decade table
+"""Add PHMSA install by decade table
 
-Revision ID: 683cc0aa7069
-Revises: 9a8d47bd495e
-Create Date: 2026-08-10 11:00:52.321266
+Revision ID: c191da5fd3ff
+Revises: 2a9482a0cd4b
+Create Date: 2026-08-19 14:37:56.112680
 
 """
 from alembic import op
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '683cc0aa7069'
-down_revision = '9a8d47bd495e'
+revision = 'c191da5fd3ff'
+down_revision = '2a9482a0cd4b'
 branch_labels = None
 depends_on = None
 
@@ -23,8 +23,8 @@ def upgrade() -> None:
     sa.Column('report_date', sa.Date(), nullable=False, comment='Date reported.'),
     sa.Column('operator_id_phmsa', sa.Integer(), nullable=False, comment='PHMSA unique operator ID. A value of zero represents an unknown operator ID.'),
     sa.Column('commodity', sa.Enum('all', 'natural_gas', 'propane_gas', 'landfill_gas', 'synthetic_gas', 'hydrogen_gas', 'nitrogen_gas', 'other'), nullable=False, comment='The type of gas delivered by the distribution pipeline.'),
-    sa.Column('operating_state', sa.Text(), nullable=True, comment='Two-letter postal abbreviation for the state or territory the distribution utility is reporting for.'),
-    sa.Column('install_decade', sa.Enum('pre_1940', '1940s', '1950s', '1960s', '1970s', '1980s', '1990s', '2000s', '2010s', '2020s', 'unknown_decade'), nullable=False, comment='The decade the distribution pipeline was installed.'),
+    sa.Column('operating_state', sa.Enum('SC', 'ID', 'NC', 'MN', 'NJ', 'HI', 'MD', 'NL', 'WV', 'MB', 'ND', 'DC', 'AR', 'WA', 'MO', 'NU', 'NT', 'MI', 'IN', 'VA', 'NV', 'MP', 'KS', 'PR', 'OK', 'TX', 'CT', 'AB', 'PE', 'BC', 'NS', 'IA', 'FL', 'WY', 'PA', 'GA', 'ON', 'AZ', 'RI', 'VI', 'AS', 'CO', 'OH', 'AK', 'AL', 'KY', 'GU', 'NH', 'NY', 'SK', 'VT', 'TN', 'YT', 'CA', 'OR', 'UT', 'SD', 'ME', 'MS', 'MT', 'WI', 'IL', 'NM', 'QC', 'MA', 'DE', 'LA', 'NB', 'NE'), nullable=True, comment='Two-letter postal abbreviation for the state or territory the distribution utility is reporting for.'),
+    sa.Column('install_decade', sa.Text(), nullable=False, comment='The decade the distribution pipeline was installed.'),
     sa.Column('mains_miles', sa.Float(), nullable=True, comment='The miles of mains distribution pipeline.'),
     sa.Column('services', sa.Integer(), nullable=True, comment='Number of services in system at end of year.'),
     sa.ForeignKeyConstraint(['report_id', 'report_date', 'operator_id_phmsa'], ['core_phmsagas__yearly_distribution_operators.report_id', 'core_phmsagas__yearly_distribution_operators.report_date', 'core_phmsagas__yearly_distribution_operators.operator_id_phmsa'], name=op.f('fk_core_phmsagas__yearly_distribution_by_install_decade_report_id_core_phmsagas__yearly_distribution_operators')),

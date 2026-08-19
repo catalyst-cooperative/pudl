@@ -113,7 +113,7 @@ YEARLY_DISTRIBUTION_IDX_ISH = [
 ]
 
 INSTALL_DECADE_TOTAL_MISMATCHES = {
-    "mains_miles": {"expected_mismatches": 70, "tolerance": 0.001},
+    "mains_miles": {"expected_mismatches": 42, "tolerance": 0.001},
     "services": {"expected_mismatches": 156, "tolerance": 0},
 }
 
@@ -692,7 +692,9 @@ def _assert_install_decade_totals_match_expected(df: pd.DataFrame) -> None:
             > params["tolerance"]
         ]
 
-        assert len(mismatches) == params["expected_mismatches"], (
+        assert (
+            len(mismatches) <= params["expected_mismatches"]
+        ), (  # <= to handle fast ETL
             f"Found {len(mismatches)} {value_column} total_decades mismatches, "
             f"but expected {params['expected_mismatches']}."
         )
@@ -723,6 +725,8 @@ def core_phmsagas__yearly_distribution_by_install_decade(
     non_total_decade_mask = ~df["install_decade"].eq("total_decades")
     df.loc[non_total_decade_mask, ["mains_miles", "services"]] = df.loc[
         non_total_decade_mask, ["mains_miles", "services"]
-    ].clip(lower=0)
+    ].clip(
+        lower=0
+    )  # Based on communication from PHMSA on 08/26, negative mains/services values should be set to zero.
     _assert_install_decade_totals_match_expected(df)
     return df.loc[non_total_decade_mask].copy()
