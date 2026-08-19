@@ -8,7 +8,7 @@ sources:
           - check_row_counts_per_partition:
               arguments:
                 table_name: out_eia__yearly_generators_by_ownership
-                partition_expr: "EXTRACT(YEAR FROM report_date)"
+                partition_expr: EXTRACT(YEAR FROM report_date)
           - dbt_expectations.expect_compound_columns_to_be_unique:
               arguments:
                 column_list:

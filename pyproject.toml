@@ -64,7 +64,7 @@ alembic = ">=1.17"
 boto3 = ">=1.35"
 bottleneck = ">=1.5.0"
 "catalystcoop.dbfread" = ">=3.0,<3.1"
-"catalystcoop.ferc_xbrl_extractor" = ">=1.10,<1.11"
+"catalystcoop.ferc_xbrl_extractor" = ">=1.11,<1.12"
 click = ">=8.4"
 coloredlogs = ">=14.0"
 coverage = ">=7.15"
@@ -87,6 +87,7 @@ gdal = ">=3.13.2"
 geoarrow-pyarrow = ">=0.2"
 geopandas = ">=1.1.4"
 google-cloud-sdk = ">=535"
+google-cloud-storage = ">=3.13"
 # grpcio packages all need to have same version to avoid conflicts.
 # They are also compiled and finnicky. Check compatibility before upgrading.
 grpcio = "==1.78.1"
@@ -184,12 +185,37 @@ marimo = ">=0.23.15"
 matplotx = ">=0.3.10"
 plotly = ">=6.6"
 ripgrep = ">=15" # Primarily for agent skills use
-pyrefly = ">=1.1.1" # Experimental, also for agent skills use
+pyrefly = ">=1.2.0" # Experimental, also for agent skills use
+types-pyyaml = ">=6.0.12"
+types-pytz = ">=2026.3.1"
+types-python-dateutil = ">=2.9.0"
+types-networkx = ">=3.6.1"
+types-shapely = ">=2.1.0"
 
 # linux-aarch64 (e.g. Docker via OrbStack on Apple Silicon) only has marimo <=0.13
 # available on conda-forge, so relax the version requirement for that platform only.
 [tool.pixi.feature.dev.target.linux-aarch64.dependencies]
 marimo = ">=0.13"
+
+# pyrefly is a dev-only dependency (see above), so this task is scoped to the dev
+# feature rather than the default task table. That makes it uniquely defined in the
+# dev environment, so `pixi run pyrefly-check` resolves there automatically -- no
+# `-e dev` needed, and no risk of silently falling back to a `pyrefly` found on $PATH
+# outside the pixi environment (e.g. one installed globally for editor/LSP use).
+[tool.pixi.feature.dev.tasks.pyrefly-check]
+cmd = "pyrefly check --baseline .pyrefly-baseline.json"
+description = "Type-check with pyrefly against the tracked baseline"
+
+[tool.pixi.feature.dev.tasks.pyrefly-update-baseline]
+cmd = "pyrefly check --baseline .pyrefly-baseline.json --update-baseline"
+
+[tool.pixi.feature.dev.tasks.pyrefly-baseline-diff]
+cmd = "pyrefly_baseline_diff"
+description = """
+Diff .pyrefly-baseline.json against git HEAD by (file, code, description), ignoring \
+line/column churn. Run after `pyrefly check --baseline .pyrefly-baseline.json \
+--update-baseline` to sanity-check the regenerated baseline before committing it.
+"""
 
 [tool.pixi.environments]
 dev = { features = ["dev"], solve-group = "default" }
@@ -408,10 +434,6 @@ npx -y @devcontainers/cli build --workspace-folder . --log-level info
 """
 description = "Rebuild devcontainer image metadata (workspace .pixi and caches are now separate volumes)"
 
-[tool.pixi.tasks.pyrefly-check]
-cmd = "pyrefly check --baseline .pyrefly-baseline.json"
-description = "Type-check with pyrefly against the tracked baseline"
-
 # Coding agent environment
 # NOTE (2026-03-17): We're using the `experimental_install` command
 # which is the workaround for "restoring from a lockfile" - see
@@ -438,6 +460,7 @@ resource_description = "pudl.scripts.resource_description:main"
 update_zenodo_dois = "pudl.scripts.update_zenodo_dois:main"
 zenodo_data_release = "pudl.scripts.zenodo_data_release:main"
 generate_ferc_provenance = "pudl.scripts.generate_ferc_provenance:main"
+pyrefly_baseline_diff = "pudl.scripts.pyrefly_baseline_diff:main"
 
 [tool.ruff]
 # Configurations that apply to both the `format` and `lint` subcommands.

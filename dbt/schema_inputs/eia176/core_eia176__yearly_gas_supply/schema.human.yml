@@ -32,7 +32,7 @@ sources:
               row_condition: "report_year <= 2010"
               config:
                 error_if: ">90"
-              description: "Check pre-2011 gas supply totals against subcomponents, using total citygate receipts."
+              description: Check pre-2011 gas supply totals against subcomponents, using total citygate receipts.
           - subcomponents_sum_to_total:
               arguments:
                 group_by_columns: [operator_id_eia, report_year]
@@ -56,7 +56,7 @@ sources:
               row_condition: "report_year > 2010"
               config:
                 error_if: ">97"
-              description: "Check post-2010 gas supply totals against subcomponents, using split citygate receipts."
+              description: Check post-2010 gas supply totals against subcomponents, using split citygate receipts.
 
         columns:
           - name: volume_mcf

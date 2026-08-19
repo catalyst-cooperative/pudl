@@ -89,9 +89,7 @@ sources:
                     error_if: ">1"
                   arguments:
                     min_value: 0.0
-                  description:
-                    This is currently failing for one record, ID 17690211AL in
-                    2014.
+                  description: This is currently failing for one record, ID 17690211AL in 2014.
           - name: total_disposition_mcf
             data_tests:
               - dbt_expectations.expect_column_min_to_be_between:

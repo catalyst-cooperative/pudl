@@ -8,14 +8,16 @@ sources:
           - check_row_counts_per_partition:
               arguments:
                 table_name: core_pudl__assn_utilities_plants
-                partition_expr:
+                partition_expr: null
         columns:
           - name: utility_id_pudl
           - name: plant_id_pudl
-            tests:
+            data_tests:
               - one_value_per_key:
                   arguments:
                     other_column_name: utility_id_pudl
-                  description: We expect each plant to only be assigned to one utility, but we still need to deduplicate ID assignment. See issue 4988.
+                  description: |-
+                    We expect each plant to only be assigned to one utility, but we still need to
+                    deduplicate ID assignment. See issue 4988.
                   config:
                     severity: warn

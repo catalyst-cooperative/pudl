@@ -58,6 +58,18 @@ logger = pudl.logging_helpers.get_logger(__name__)
 
 MINIMUM_SQLITE_VERSION = "3.32.0"
 
+# Alembic >=1.19 added a "checkconstraint_byname" autogenerate plugin that only
+# looks for CheckConstraints attached at the Table level, but every constraint
+# PUDL generates (see Field.to_sql()) is attached at the Column level instead.
+# That mismatch makes the plugin report every real, unchanged check constraint
+# as "removed" on each run. Disable it until upstream handles column-level
+# CheckConstraints -- this restores the pre-1.19 behavior of not diffing CHECK
+# constraints at all.
+ALEMBIC_AUTOGENERATE_PLUGINS = [
+    "alembic.autogenerate.*",
+    "~alembic.autogenerate.checkconstraint_byname",
+]
+
 
 def _get_dagster_instance_if_available(
     context: InputContext,
@@ -469,8 +481,12 @@ class PudlSqliteIOManager(SqliteIOManager):
 
         super().__init__(base_dir, db_name, md, timeout)
 
-        existing_schema_context = MigrationContext.configure(self.engine.connect())
-        metadata_diff = compare_metadata(existing_schema_context, self.md)
+        with self.engine.connect() as connection:
+            existing_schema_context = MigrationContext.configure(
+                connection,
+                opts={"autogenerate_plugins": ALEMBIC_AUTOGENERATE_PLUGINS},
+            )
+            metadata_diff = compare_metadata(existing_schema_context, self.md)
         if metadata_diff:
             logger.info(f"Metadata diff:\n\n{metadata_diff}")
             raise RuntimeError(

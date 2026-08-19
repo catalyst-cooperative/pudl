@@ -1,0 +1,85 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: out_epacems__yearly_operational_characteristics
+        data_tests:
+          - expect_columns_not_all_null
+          - check_row_counts_per_partition:
+              arguments:
+                table_name: out_epacems__yearly_operational_characteristics
+                partition_expr: report_year
+        columns:
+          - name: min_stable_load_factor
+            data_tests:
+              - dbt_expectations.expect_column_values_to_be_between:
+                  arguments:
+                    min_value: 0.0
+                    max_value: 1.0
+          - name: min_up_time_hours
+            data_tests:
+              - dbt_expectations.expect_column_values_to_be_between:
+                  description: |-
+                    min_up_time_hours is the minimum observed run length for a unit. Under etl-fast (a
+                    single EPA CEMS quarter instead of the 12 trailing quarters used in production), that
+                    minimum is drawn from a much smaller sample of up/down events, so it's a far noisier
+                    statistic and routinely falls outside this range. Disabled for etl-fast rather than
+                    loosened, since there's no principled single-quarter outlier count to pick.
+                  arguments:
+                    # A min of 0.0 would not count as up time. 1.0 is lowest possible.
+                    min_value: 1.0
+                    # Baseload CCGTs have mandatory inspections every 8-12k hours.
+                    max_value: 12000
+                  config:
+                    enabled: "{{ target.name == 'etl-full' }}"
+          - name: min_down_time_hours
+            data_tests:
+              - dbt_expectations.expect_column_values_to_be_between:
+                  description: |-
+                    Same reasoning as min_up_time_hours above: this is a minimum-of-a-small-sample statistic
+                    that's too noisy to check meaningfully against etl-fast's single quarter of EPA CEMS
+                    data.
+                  arguments:
+                    # A min of 0.0 would not count as down time. 1.0 is lowest possible.
+                    min_value: 1.0
+                    # Number of hours in 3 years. Some units never fire.
+                    max_value: 26304
+                  config:
+                    enabled: "{{ target.name == 'etl-full' }}"
+          - name: heat_rate_at_max_load_factor_mmbtu_per_mwh
+            data_tests:
+              - dbt_expectations.expect_column_values_to_be_between:
+                  description: |-
+                    This is a per-unit median heat rate computed only from the hours in that unit's single
+                    highest load-factor bin. Under etl-fast's single quarter of data that bin can contain
+                    very few hours, making the median far more volatile than in production (12 trailing
+                    quarters), so this check is disabled for etl-fast.
+                  arguments:
+                    # World record for most efficient CCGT is 5.5
+                    min_value: 5.4
+                    max_value: 25.0
+                  config:
+                    error_if: ">50"
+                    enabled: "{{ target.name == 'etl-full' }}"
+          - name: heat_rate_at_min_stable_load_factor_mmbtu_per_mwh
+            data_tests:
+              - dbt_expectations.expect_column_values_to_be_between:
+                  arguments:
+                    # World record for most efficient CCGT is 5.5
+                    min_value: 5.4
+                    max_value: 25.0
+                  config:
+                    error_if: ">60"
+                    enabled: "{{ target.name == 'etl-full' }}"
+          - name: ramp_up_rate_per_min
+            data_tests:
+              - dbt_expectations.expect_column_values_to_be_between:
+                  arguments:
+                    min_value: 0.0
+                    max_value: 0.017
+          - name: ramp_down_rate_per_min
+            data_tests:
+              - dbt_expectations.expect_column_values_to_be_between:
+                  arguments:
+                    min_value: -0.017
+                    max_value: 0.0

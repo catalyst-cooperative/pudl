@@ -26,7 +26,7 @@ jobs:
         uses: actions/create-github-app-token@v3
         id: generate-token
         with:
-          app-id: ${{ secrets.BOT_AUTO_MERGE_PRS_APP_ID }}
+          client-id: ${{ secrets.BOT_AUTO_MERGE_PRS_CLIENT_ID }}
           private-key: ${{ secrets.BOT_AUTO_MERGE_PRS_APP_KEY }}
 
       - name: Approve and enable auto-merge
@@ -40,4 +40,4 @@ jobs:
           PR_URL: ${{ github.event.pull_request.html_url }}
         run: |
           gh pr review --approve "$PR_URL"
-          gh pr merge --auto "$PR_URL"
+          gh pr merge --merge --auto "$PR_URL"
