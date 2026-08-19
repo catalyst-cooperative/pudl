@@ -16,6 +16,6 @@ sources:
                     min_value: 0.0
                   config:
                     error_if: ">126"
-                  description:
-                    Check that most of the ending_balance's are positive. About
-                    4% of the table is negative, which seems reasonable.
+                  description: |-
+                    Check that most of the ending_balance's are positive. About 4% of the table is negative,
+                    which seems reasonable.

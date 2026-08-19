@@ -149,7 +149,11 @@ class EpaMatsDatastore:
             lf = pl.scan_csv(csv_file, low_memory=True, schema_overrides=DTYPE_DICT)
             lf = (
                 lf.select(list(RENAME_DICT))
-                .cast(DTYPE_DICT, strict=False)
+                # dict[str, ...] can't satisfy Mapping's invariant key type
+                # against the union `.cast()` declares, even though `str` is
+                # one of the union members -- a typeshed limitation, not a
+                # real type mismatch.
+                .cast(DTYPE_DICT, strict=False)  # type: ignore[bad-argument-type]
                 .rename(RENAME_DICT, strict=False)
             )
 

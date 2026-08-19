@@ -736,7 +736,7 @@ class Field(PudlMeta):
         instead of being coerced. ``Categorical`` round-trips through Parquet fine.
         """
         if self.constraints.enum:
-            return pl.Categorical
+            return pl.Categorical()
         return FIELD_DTYPES_POLARS[self.type]
 
     def to_pandas_dtype(self) -> str | pd.CategoricalDtype:
@@ -918,7 +918,7 @@ class Field(PudlMeta):
             # Field.to_polars_dtype / Field.to_pandas_dtype); the enum value
             # constraint itself is enforced by the `checks` (Check.isin) above,
             # not by the declared column dtype.
-            column_type = "category" if use_pandas_backend else pl.Categorical
+            column_type = "category" if use_pandas_backend else pl.Categorical()
         elif self.type == "geometry":
             column_type = gpd.array.GeometryDtype()
         else:

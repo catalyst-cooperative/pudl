@@ -8,15 +8,15 @@ sources:
           - check_row_counts_per_partition:
               arguments:
                 table_name: core_pudl__assn_eia_pudl_utilities
-                partition_expr:
+                partition_expr: null
         columns:
           - name: utility_id_eia
-            tests:
+            data_tests:
               - not_null
               - one_value_per_key:
                   arguments:
                     other_column_name: utility_id_pudl
           - name: utility_name_eia
           - name: utility_id_pudl
-            tests:
+            data_tests:
               - not_null

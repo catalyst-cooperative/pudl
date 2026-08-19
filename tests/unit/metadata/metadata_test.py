@@ -146,18 +146,21 @@ def test_datetime_field_sql_check_constraint_accepts_real_values(
     metadata = sa.MetaData()
     sa.Table("t", metadata, field.to_sql())
     engine = sa.create_engine("sqlite:///:memory:")
-    metadata.create_all(engine)
+    try:
+        metadata.create_all(engine)
 
-    insert = sa.text("INSERT INTO t (some_datetime) VALUES (:value)")
-    if expected_valid:
-        with engine.begin() as conn:
-            conn.execute(insert, {"value": value})
-    else:
-        with (
-            engine.begin() as conn,
-            pytest.raises(sa.exc.IntegrityError, match="CHECK constraint failed"),
-        ):
-            conn.execute(insert, {"value": value})
+        insert = sa.text("INSERT INTO t (some_datetime) VALUES (:value)")
+        if expected_valid:
+            with engine.begin() as conn:
+                conn.execute(insert, {"value": value})
+        else:
+            with (
+                engine.begin() as conn,
+                pytest.raises(sa.exc.IntegrityError, match="CHECK constraint failed"),
+            ):
+                conn.execute(insert, {"value": value})
+    finally:
+        engine.dispose()
 
 
 def test_encoders() -> None:
