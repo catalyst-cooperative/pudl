@@ -96,6 +96,13 @@ EIA-861
 * Added early release data from 2025 for :doc:`EIA-861 <data_sources/eia861>`.
   See issue :issue:`5492` and PR :pr:`5493`.
 
+PHMSA
+~~~~~
+
+* Added the ``core_phmsagas__yearly_distribution_by_install_decade`` table, which
+  reports :doc:`PHMSA <data_sources/phmsagas>` gas distribution mains miles and
+  services by installation decade. See issue :issue:`5266` and PR :pr:`5443`.
+
 .. _release-v2026.8.0:
 
 ---------------------------------------------------------------------------------------
