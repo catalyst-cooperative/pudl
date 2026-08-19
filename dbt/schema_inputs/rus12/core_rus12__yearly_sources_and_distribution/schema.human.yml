@@ -8,13 +8,75 @@ sources:
               arguments:
                 table_name: core_rus12__yearly_sources_and_distribution
                 partition_expr: EXTRACT(YEAR FROM report_date)
+          - subcomponents_sum_to_total:
+              arguments:
+                group_by_columns: [borrower_id_rus, report_date]
+                categorical_column: source_of_energy
+                value_column: net_energy_received_mwh
+                subcomponents_list: ["received_into_system_gross"]
+                negative_subcomponents_list: ["delivered_out_of_system_gross"]
+                total_label: "net_interchange"
+                tolerance: 1
+              description: "Check that net_interchange equals received minus delivered (gross)."
+          - subcomponents_sum_to_total:
+              arguments:
+                group_by_columns: [borrower_id_rus, report_date]
+                categorical_column: source_of_energy
+                value_column: net_energy_received_mwh
+                subcomponents_list: ["energy_available_for_sale"]
+                negative_subcomponents_list: ["total_energy_accounted"]
+                total_label: "total_energy_losses"
+                tolerance: 1
+              description: "Check that total_energy_losses equals energy_available_for_sale minus total_energy_accounted."
+          - subcomponents_sum_to_total:
+              arguments:
+                group_by_columns: [borrower_id_rus, report_date]
+                categorical_column: source_of_energy
+                value_column: net_energy_received_mwh
+                subcomponents_list: ["received_into_system_wheeling"]
+                negative_subcomponents_list:
+                  ["delivered_out_of_system_wheeling"]
+                total_label: "net_energy_wheeled"
+                tolerance: 1
+              description: "Check that net_energy_wheeled equals received minus delivered (wheeling)."
+          - subcomponents_sum_to_total:
+              arguments:
+                group_by_columns: [borrower_id_rus, report_date]
+                categorical_column: source_of_energy
+                value_column: net_energy_received_mwh
+                subcomponents_list:
+                  [
+                    "total_plant",
+                    "purchased_power",
+                    "net_interchange",
+                    "net_energy_wheeled",
+                  ]
+                total_label: "energy_available_for_sale"
+                tolerance: 1
+              description: "Check that energy_available_for_sale equals total_plant + purchased_power + net_interchange + net_energy_wheeled."
+              config:
+                error_if: ">4"
+          - subcomponents_sum_to_total:
+              arguments:
+                group_by_columns: [borrower_id_rus, report_date]
+                categorical_column: source_of_energy
+                value_column: net_energy_received_mwh
+                subcomponents_list:
+                  [
+                    "total_sales",
+                    "energy_furnished_without_charge",
+                    "energy_used_by_borrower",
+                  ]
+                tolerance: 1
+                total_label: "total_energy_accounted"
+              description: "Check that total_energy_accounted equals total_sales + energy_furnished_without_charge + energy_used_by_borrower."
         columns:
           - name: net_energy_received_mwh
             data_tests:
               - dbt_expectations.expect_column_min_to_be_between:
                   arguments:
                     min_value: 0.0
-                  row_condition: source_of_energy != 'net_interchange'
+                    row_condition: source_of_energy != 'net_interchange'
                   config:
                     error_if: ">22"
           - name: cost
@@ -22,6 +84,6 @@ sources:
               - dbt_expectations.expect_column_min_to_be_between:
                   arguments:
                     min_value: 0.0
-                  row_condition: net_energy_received_mwh >= 0
+                    row_condition: net_energy_received_mwh >= 0
                   config:
                     error_if: ">8"
