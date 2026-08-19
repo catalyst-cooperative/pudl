@@ -26,6 +26,7 @@ from pudl.metadata.enums import (
     ENERGY_USE_TYPES_EIAAEO,
     EPACEMS_MEASUREMENT_CODES,
     EPACEMS_STATES,
+    EPAMATS_MEASUREMENT_CODES,
     FUEL_CLASSES,
     FUEL_TYPES_EIAAEO,
     FUNCTIONAL_STATUS_CODES_CENSUS,
@@ -580,6 +581,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "Indicates whether the generator is associated with a combined heat and power system"
         ),
+    },
+    "associated_stacks": {
+        "type": "string",
+        "description": "EPA-associated stack IDs for the emissions unit.",
     },
     "attention_line": {
         "type": "string",
@@ -4043,6 +4048,28 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
         "unit": "MW",
     },
+    "hcl_input_rate_lb_per_mmbtu": {
+        "type": "number",
+        "description": "Hydrogen chloride (HCl) emissions per unit of heat content.",
+        "unit": "lb / MMBtu",
+    },
+    "hcl_mass_lbs": {
+        "type": "number",
+        "description": "Hydrogen chloride (HCl) emissions in pounds.",
+        "unit": "pound",
+    },
+    "hcl_mass_measurement_code": {
+        "type": "string",
+        "description": (
+            "Identifies whether the reported value of hydrogen chloride (HCl) emissions was measured, calculated, startup or shutdown, or unavailable."
+        ),
+        "constraints": {"enum": EPAMATS_MEASUREMENT_CODES},
+    },
+    "hcl_output_rate_lb_per_mwh": {
+        "type": "number",
+        "description": "Hydrogen chloride (HCl) output emissions rate.",
+        "unit": "lb / MWh",
+    },
     "headquarters_city": {
         "type": "string",
         "description": "City where an operator's headquarters are located.",
@@ -4125,6 +4152,32 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Heat rate penalty for retrofitting. This column only has contents to retrofit technologies. It seems to be a rate between 0.35 and 0.09"
         ),
         "unit": "MMBtu / MWh",
+    },
+    "hg_controls": {
+        "type": "string",
+        "description": "Type of mercury (Hg) control technology installed.",
+    },
+    "hg_input_rate_lb_per_tbtu": {
+        "type": "number",
+        "description": "Mercury (Hg) emissions per unit of heat content.",
+        "unit": "lb / TBtu",
+    },
+    "hg_mass_lbs": {
+        "type": "number",
+        "description": "Mercury (Hg) emissions in pounds.",
+        "unit": "pound",
+    },
+    "hg_mass_measurement_code": {
+        "type": "string",
+        "description": (
+            "Identifies whether the reported value of mercury (Hg) emissions was measured, calculated, startup or shutdown, or unavailable."
+        ),
+        "constraints": {"enum": EPAMATS_MEASUREMENT_CODES},
+    },
+    "hg_output_rate_lb_per_gwh": {
+        "type": "number",
+        "description": "Mercury (Hg) output emissions rate.",
+        "unit": "lb / GWh",
     },
     "highest_distribution_voltage_kv": {
         "type": "number",
@@ -5493,6 +5546,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         ),
         "constraints": {"enum": EPACEMS_MEASUREMENT_CODES},
     },
+    "nox_controls": {
+        "type": "string",
+        "description": "Type of nitrogen oxide (NOx) control technology installed.",
+    },
     "nuclear_fraction_cost": {
         "type": "number",
         "description": "Nuclear cost as a fraction (0-1) of overall fuel cost.",
@@ -6450,6 +6507,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": "PUDL plant ID and report year of the record.",
     },
     "plant_name_eia": {"type": "string", "description": "Plant name."},
+    "plant_name_epa": {
+        "type": "string",
+        "description": "Plant name as reported to the EPA.",
+    },
     "plant_name_ferc1": {
         "type": "string",
         "description": (
@@ -6530,6 +6591,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "Is the reporting entity an owner of power plants reported on Schedule 2 of the form?"
         ),
+    },
+    "pm_controls": {
+        "type": "string",
+        "description": "Type of particulate matter (PM) control technology installed.",
     },
     "pond_cost": {
         "description": (
@@ -6641,6 +6706,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "primary_fuel_by_mmbtu": {
         "type": "string",
         "description": "Primary fuel for plant as a percentage of heat content.",
+    },
+    "primary_fuel_type": {
+        "type": "string",
+        "description": "Primary fuel type burned by the unit.",
     },
     "primary_purpose_id_naics": {
         "type": "integer",
@@ -7342,6 +7411,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Transportation mode for the second longest distance transported."
         ),
     },
+    "secondary_fuel_type": {
+        "type": "string",
+        "description": "Secondary fuel type burned by the unit.",
+    },
     "sector_agg": {
         "type": "string",
         "description": "Category of sectoral aggregation in EIA bulk electricity data.",
@@ -7612,6 +7685,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "Proposed strategy to comply with the most stringent sulfur dioxide regulation."
         ),
+    },
+    "so2_controls": {
+        "type": "string",
+        "description": "Type of sulfur dioxide (SO2) control technology installed.",
     },
     "so2_emission_rate_lbs_per_hour": {
         "type": "number",
@@ -8588,6 +8665,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "Numeric value for the unit of measurement specified for sulfur dioxide."
         ),
+    },
+    "unit_type": {
+        "type": "string",
+        "description": "Type of emissions unit (e.g. boiler, combustion turbine).",
     },
     "uprate_derate_completed_date": {
         "type": "date",
