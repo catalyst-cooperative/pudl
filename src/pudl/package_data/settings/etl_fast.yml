@@ -21,7 +21,7 @@ ferc_to_sqlite:
   ferc60_xbrl:
     years: []
   ferc714_xbrl:
-    years: [2021, 2024]
+    years: [2021, 2025]
 
 ###########################################################################
 # Settings for the main PUDL ETL
@@ -37,7 +37,7 @@ pudl:
   ferc1:
     years: [2020, 2021, 2025]
   ferc714:
-    years: [2020, 2024]
+    years: [2020, 2025]
   eia:
     eia176:
       years: [2020, 2024]
@@ -57,7 +57,7 @@ pudl:
       # be materialized. If you modify this list, be sure to update the matching
       # pudl_service_territories commands in
       # tests/integration/scripts/console_scripts_test.py
-      years: [2020, 2024]
+      years: [2020, 2025]
     eia930:
       half_years: ["2026half1"]
     eiaaeo:
