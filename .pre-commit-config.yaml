@@ -196,12 +196,35 @@ repos:
 
       - id: unit-tests
         name: unit-tests
+        # Lower priority value = scheduled earlier; hooks sharing a priority run
+        # concurrently. This hook is slow, so give it priority 0. See:
+        # https://prek.j178.dev/reference/configuration/#priority
+        priority: 0
         stages: [pre-commit]
         language: unsupported
         verbose: false
         pass_filenames: false
         always_run: true
         entry: pixi run pytest --no-cov --doctest-modules src/pudl tests/unit -m "not slow"
+
+      - id: dbt-schema-regen
+        name: dbt-schema-regen
+        description: >-
+          Regenerate dbt/models/**/schema.yml from dbt/schema_inputs/**/schema.human.yml
+          and PUDL metadata. Never hand-edit a generated schema.yml -- if this hook
+          changes it, that means either a schema.human.yml override needs to be added or
+          updated, or a direct edit to the generated file is about to be silently
+          overwritten. Review the diff and re-stage.
+        # Same priority as unit-tests above, so the two slowest hooks in the suite
+        # are guaranteed to run concurrently with each other instead of one
+        # finishing before the other starts.
+        priority: 0
+        stages: [pre-commit]
+        language: system
+        verbose: false
+        pass_filenames: false
+        always_run: true
+        entry: pixi run dbt_helper update-tables --schema --clobber all
 
 # Configuration for pre-commit.ci
 ci:
@@ -215,6 +238,7 @@ ci:
   autoupdate_schedule: weekly
   skip:
     [
+      dbt-schema-regen,
       detect-secrets,
       nb-output-clear,
       pixi-lock-update,
