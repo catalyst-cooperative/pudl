@@ -647,6 +647,40 @@ def backfill_ba_codes_by_ba_id(df: pd.DataFrame) -> pd.DataFrame:
     return ba_eia861_filled
 
 
+def _dedupe_cols_agg(
+    data_dupes: pd.DataFrame, df_name: str, idx_cols: list[str], class_type: str
+) -> dict:
+    """Sum numeric duplicates and keep non-null value for non-numeric columns."""
+    non_numeric_cols = data_dupes.select_dtypes(exclude="number").columns.tolist()
+    non_numeric_non_idx_cols = [
+        col for col in non_numeric_cols if col not in idx_cols + [class_type]
+    ]
+    agg = {
+        col: "sum"
+        for col in data_dupes.columns
+        if col not in idx_cols + non_numeric_non_idx_cols + [class_type]
+    }
+    for col in non_numeric_non_idx_cols:
+        if col in data_dupes.columns:
+
+            def _keep_non_null_value(s: pd.Series, col_name: str = col) -> object:
+                """Make sure there's only one non-null value to keep."""
+                non_null = s.dropna()
+                if non_null.empty:
+                    return pd.NA
+                unique_values = non_null.unique()
+                if len(unique_values) > 1:
+                    raise AssertionError(
+                        f"Found conflicting non-null values in {col_name} while "
+                        f"consolidating duplicated records for {df_name}: "
+                        f"{list(unique_values)}"
+                    )
+                return unique_values[0]
+
+            agg[col] = _keep_non_null_value
+    return agg
+
+
 def _tidy_class_dfs(
     df: pd.DataFrame,
     df_name: str,
@@ -750,7 +784,9 @@ def _tidy_class_dfs(
     if fraction_data_dupes <= 0.005:
         err_msg += "Consolidating duplicated records."
         logger.info(err_msg)
-        deduped = data_dupes.groupby(idx_cols + [class_type], as_index=False).sum()
+        deduped = data_dupes.groupby(idx_cols + [class_type], as_index=False).agg(
+            _dedupe_cols_agg(data_dupes, df_name, idx_cols, class_type)
+        )
         data_cols = pd.concat([data_cols[~data_dupe_mask], deduped], axis="index")
         # PK dupes also affect denorm_cols. Drop dupes to ensure clean 1 to many merge:
         if fraction_denorm_dupes > 0.005:

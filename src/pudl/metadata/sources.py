@@ -258,7 +258,7 @@ SOURCES: dict[str, Any] = {
         ),
         "concept_doi": "10.5281/zenodo.4127028",
         "working_partitions": {
-            "years": sorted(set(range(2001, 2025))),
+            "years": sorted(set(range(2001, 2026))),
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
