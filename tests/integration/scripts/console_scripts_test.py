@@ -56,13 +56,20 @@ def test_resource_description(script_runner, resource_id: str, expected_success:
     reason="Zenodo sandbox token required to exercise uploads",
 )
 @pytest.mark.xfail(reason="Sadly the Zenodo sandbox has become flaketastic.")
-def test_zenodo_data_release(script_runner, tmp_path: Path):
+def test_zenodo_data_release(script_runner, tmp_path: Path, mocker):
     """Round-trip upload a tiny release directory to the Zenodo sandbox.
 
     The CLI accepts any fsspec-compatible path. Using ``Path.as_uri()`` yields a
     ``file://`` prefix so the integration test exercises that codepath while
     keeping all artifacts confined to pytest's temporary directory management.
+
+    Mock out the Zulip notification the script sends on completion: it fires
+    for real whenever ZULIP_API_KEY happens to be set in the environment
+    (e.g. copied from a nightly-build shell profile), which would otherwise
+    spam the pudl-deployments stream every time this test runs -- now on
+    every PR rather than only in the merge queue.
     """
+    mocker.patch("pudl.scripts.zenodo_data_release.send_zulip_message", autospec=True)
 
     source_dir = tmp_path / "release"
     source_dir.mkdir()
