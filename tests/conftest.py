@@ -151,6 +151,48 @@ def pytest_collection_finish(session) -> None:
         )
 
 
+def _pipeline_fixture_violations(items) -> list[str]:
+    """Return nodeids of tests that depend on the ETL outside their allowed homes.
+
+    Every fixture that actually runs the Dagster pipeline (``pudl_engine``,
+    ``ferc1_engine_dbf``, ``ferc1_engine_xbrl``, ``ferc714_engine_xbrl``,
+    ``asset_value_loader``, and the FERC IO-manager/taxonomy-metadata fixtures built on
+    top of them) depends, directly or transitively, on ``prebuilt_outputs``. Checking
+    for that one fixture in each item's full (transitive) fixture closure is therefore
+    sufficient to catch all of them, without having to enumerate every fixture name by
+    hand.
+    """
+    allowed_prefixes = ("tests/pipeline/", "tests/validate/")
+    return [
+        item.nodeid
+        for item in items
+        if "prebuilt_outputs" in getattr(item, "fixturenames", ())
+        and not item.nodeid.startswith(allowed_prefixes)
+    ]
+
+
+def pytest_collection_modifyitems(session: pytest.Session, items: list) -> None:
+    """Enforce that only tests/pipeline/ and tests/validate/ depend on the ETL.
+
+    tests/unit/ and tests/integration/ are meant to run without a full ETL build. A test
+    that sneaks a ``prebuilt_outputs`` dependency into either directory would silently
+    make those tests very slow.
+    """
+    if hasattr(session.config, "workerinput"):
+        return
+
+    violations = _pipeline_fixture_violations(items)
+    if violations:
+        violation_list = "\n".join(f"  {nodeid}" for nodeid in violations)
+        pytest.exit(
+            "Found tests outside tests/pipeline/ and tests/validate/ that depend "
+            f"on prebuilt_outputs (directly or transitively):\n{violation_list}\n"
+            "Move them to tests/pipeline/, or remove the pipeline fixture "
+            "dependency.",
+            returncode=4,
+        )
+
+
 ################################################################################
 # Main test configuration, helper functions, and fixture definitions start here.
 ################################################################################
