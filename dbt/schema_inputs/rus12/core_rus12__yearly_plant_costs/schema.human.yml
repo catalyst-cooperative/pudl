@@ -34,8 +34,6 @@ sources:
                 tolerance: 10
               row_condition: plant_type == 'steam'
               description: Check that steam fuel subcomponents sum to total.
-              config:
-                error_if: ">8"
           - subcomponents_sum_to_total:
               arguments:
                 group_by_columns:
@@ -53,9 +51,7 @@ sources:
                 total_label: total_fuel
                 tolerance: 10
               row_condition: plant_type IN ('internal_combustion', 'combined_cycle')
-              description: Check that IC fuel subcomponents sum to total.
-              config:
-                error_if: ">1"
+              description: Check that IC and CC fuel subcomponents sum to total.
           - subcomponents_sum_to_total:
               arguments:
                 group_by_columns:
@@ -67,11 +63,16 @@ sources:
                 value_column: cost
                 subcomponents_list:
                   - fuel
+                # All reported values of this adjustment are zero so far; the
+                # raw column name (lessfuelacquisitionadjustment) indicates it
+                # is subtracted.
+                negative_subcomponents_list:
                   - less_fuel_acquisition_adjustment
-                total_label: total_fuel
+                total_label: net_fuel
                 tolerance: 10
               row_condition: plant_type == 'nuclear'
-              description: Check that nuclear fuel subcomponents sum to total.
+              description: Check that nuclear fuel less the acquisition adjustment sums to net fuel.
+          # CALCULATE NON-FUEL OPERATION COST SUBTOTALS BY PLANT TYPE
           - subcomponents_sum_to_total:
               arguments:
                 group_by_columns:
@@ -85,14 +86,13 @@ sources:
                   - supervision_and_engineering
                   - steam
                   - electric
-                  - miscellaneous_power_generation
-                  - generation
+                  - steam_power
                   - allowances
                   - rents
-                total_label: non_fuels_total
-                tolerance: 0
-              row_condition: plant_type IN ('steam', 'combined_cycle')
-              description: Check that steam non-fuel subcomponents sum to total.
+                total_label: non_fuels_subtotal
+                tolerance: 10
+              row_condition: plant_type == 'steam'
+              description: Check that steam non-fuel subcomponents sum to the non-fuels subtotal.
           - subcomponents_sum_to_total:
               arguments:
                 group_by_columns:
@@ -105,12 +105,35 @@ sources:
                 subcomponents_list:
                   - supervision_and_engineering
                   - generation
-                  - miscellaneous_power_generation
+                  - other_generation
+                  - steam
+                  - electric
+                  - steam_power
+                  - allowances
                   - rents
-                total_label: non_fuels_total
-                tolerance: 0
+                total_label: non_fuels_subtotal
+                tolerance: 10
+              row_condition: plant_type == 'combined_cycle'
+              description: Check that CC non-fuel subcomponents sum to the non-fuels subtotal.
+          - subcomponents_sum_to_total:
+              arguments:
+                group_by_columns:
+                  - borrower_id_rus
+                  - report_date
+                  - plant_name_rus
+                  - plant_type
+                categorical_column: cost_type
+                value_column: cost
+                subcomponents_list:
+                  - supervision_and_engineering
+                  - generation
+                  - other_generation
+                  - rents
+                total_label: non_fuels_subtotal
+                tolerance: 10
               row_condition: plant_type == 'internal_combustion'
-              description: Check that steam non-fuel subcomponents sum to total.
+              description: Check that IC non-fuel subcomponents sum to the non-fuels subtotal.
+          # CALCULATE OPERATIONS COST TOTALS BY PLANT TYPE
           - subcomponents_sum_to_total:
               arguments:
                 group_by_columns:
@@ -122,13 +145,11 @@ sources:
                 value_column: cost
                 subcomponents_list:
                   - total_fuel
-                  - non_fuels_total
+                  - non_fuels_subtotal
                 total_label: operations_total
-                tolerance: 0
+                tolerance: 10
               row_condition: plant_type IN ('steam', 'internal_combustion', 'combined_cycle')
               description: Check that steam, IC and CC operation subcomponents sum to total.
-              config:
-                error_if: ">2300" # This is almost all of them, INVESTIGATE!
           - subcomponents_sum_to_total:
               arguments:
                 group_by_columns:
@@ -147,7 +168,7 @@ sources:
                   - miscellaneous_power_generation
                   - rents
                 total_label: operations_total
-                tolerance: 0
+                tolerance: 10
               row_condition: plant_type == 'hydro'
               description: Check that hydro operation subcomponents sum to total.
           - subcomponents_sum_to_total:
@@ -166,14 +187,150 @@ sources:
                   - steam
                   - steam_other_sources
                   - electric
-                  - miscellaneous_power_generation
+                  - other_nuclear_power
                   - rents
                 total_label: operations_total
-                tolerance: 0
+                tolerance: 10
               row_condition: plant_type == 'nuclear'
               description: Check that nuclear operation subcomponents sum to total.
-              config:
-                error_if: ">129" # This is almost all of them, INVESTIGATE!
+          # CALCULATE MAINTENANCE COST TOTALS BY PLANT TYPE
+          - subcomponents_sum_to_total:
+              arguments:
+                group_by_columns:
+                  - borrower_id_rus
+                  - report_date
+                  - plant_name_rus
+                  - plant_type
+                categorical_column: cost_type
+                value_column: cost
+                subcomponents_list:
+                  - maintenance_supervision_and_engineering
+                  - maintenance_structures
+                  - maintenance_boiler_plant
+                  - maintenance_electric_plant
+                  - maintenance_other_plant
+                total_label: maintenance_total
+                tolerance: 10
+              row_condition: plant_type == 'steam'
+              description: Check that steam maintenance subcomponents sum to total.
+          - subcomponents_sum_to_total:
+              arguments:
+                group_by_columns:
+                  - borrower_id_rus
+                  - report_date
+                  - plant_name_rus
+                  - plant_type
+                categorical_column: cost_type
+                value_column: cost
+                subcomponents_list:
+                  - maintenance_supervision_and_engineering
+                  - maintenance_structures
+                  - maintenance_reservoirs_dams_waterways
+                  - maintenance_electric_plant
+                  - maintenance_miscellaneous_plant
+                total_label: maintenance_total
+                tolerance: 10
+              row_condition: plant_type == 'hydro'
+              description: Check that hydro maintenance subcomponents sum to total.
+          - subcomponents_sum_to_total:
+              arguments:
+                group_by_columns:
+                  - borrower_id_rus
+                  - report_date
+                  - plant_name_rus
+                  - plant_type
+                categorical_column: cost_type
+                value_column: cost
+                subcomponents_list:
+                  - maintenance_supervision_and_engineering
+                  - maintenance_structures
+                  - maintenance_reactor_plant_equipment
+                  - maintenance_electric_plant
+                  - maintenance_other_plant
+                total_label: maintenance_total
+                tolerance: 10
+              row_condition: plant_type == 'nuclear'
+              description: Check that nuclear maintenance subcomponents sum to total.
+          - subcomponents_sum_to_total:
+              arguments:
+                group_by_columns:
+                  - borrower_id_rus
+                  - report_date
+                  - plant_name_rus
+                  - plant_type
+                categorical_column: cost_type
+                value_column: cost
+                subcomponents_list:
+                  - maintenance_supervision_and_engineering
+                  - maintenance_structures
+                  - maintenance_generating_and_electric_plant
+                  - maintenance_other_plant
+                total_label: maintenance_total
+                tolerance: 10
+              row_condition: plant_type IN ('internal_combustion', 'combined_cycle')
+              description: Check that IC and CC maintenance subcomponents sum to total.
+          # CALCULATE TOTAL OPERATIONS AND MAINTENANCE COSTS
+          - subcomponents_sum_to_total:
+              arguments:
+                group_by_columns:
+                  - borrower_id_rus
+                  - report_date
+                  - plant_name_rus
+                  - plant_type
+                categorical_column: cost_type
+                value_column: cost
+                subcomponents_list:
+                  - operations_total
+                  - maintenance_total
+                # reactor_credits is only reported for nuclear plants and all
+                # reported values are zero so far; the form labels it a credit
+                # so it is subtracted.
+                negative_subcomponents_list:
+                  - reactor_credits
+                total_label: total
+                tolerance: 10
+              description: Check that operations and maintenance totals sum to total opex.
+          # CALCULATE TOTAL FIXED COSTS
+          - subcomponents_sum_to_total:
+              arguments:
+                group_by_columns:
+                  - borrower_id_rus
+                  - report_date
+                  - plant_name_rus
+                  - plant_type
+                categorical_column: cost_type
+                value_column: cost
+                subcomponents_list:
+                  - depreciation
+                  - interest
+                total_label: total_fixed
+                tolerance: 10
+              row_condition: cost_group == 'capex'
+              description: Check that fixed cost subcomponents sum to total fixed costs.
+          # CALCULATE TOTAL POWER COSTS ACROSS COST GROUPS
+          # This calculation crosses the cost_group and cost_type columns, so
+          # subcomponents are identified by (cost_group, cost_type) tuples.
+          - subcomponents_sum_to_total:
+              arguments:
+                group_by_columns:
+                  - borrower_id_rus
+                  - report_date
+                  - plant_name_rus
+                  - plant_type
+                categorical_column:
+                  - cost_group
+                  - cost_type
+                value_column: cost
+                subcomponents_list:
+                  - [opex, total]
+                  - [capex, total_fixed]
+                # The raw column name (lessplantacquisitionadjustment)
+                # indicates this nuclear-only adjustment is subtracted.
+                negative_subcomponents_list:
+                  - [capex, plant_acquisition_adjustment]
+                total_label: [total, power]
+                tolerance: 10
+              description: Check that opex and fixed cost totals sum to total power costs.
         columns:
           - name: cost
             data_tests:
