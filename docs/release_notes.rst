@@ -103,6 +103,19 @@ PHMSA
   reports :doc:`PHMSA <data_sources/phmsagas>` gas distribution mains miles and
   services by installation decade. See issue :issue:`5266` and PR :pr:`5443`.
 
+New Data Tests & Validations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* The ``subcomponents_sum_to_total`` dbt test can now identify subcomponents and
+  totals by a combination of categorical columns (e.g. ``(cost_group, cost_type)``
+  tuples) rather than values from a single column, enabling validation of
+  calculations that cross more than one categorical column. Used this to complete
+  the totals validations for :ref:`core_rus12__yearly_plant_costs` and
+  :ref:`out_rus12__yearly_plant_costs`, adding maintenance, operations &
+  maintenance, fixed cost, and total power cost checks, and fixing several
+  existing checks that referenced non-existent cost categories. See issues
+  :issue:`5378,5154` and PR :pr:`5510`.
+
 .. _release-v2026.8.0:
 
 ---------------------------------------------------------------------------------------
