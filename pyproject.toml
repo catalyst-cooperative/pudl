@@ -299,8 +299,12 @@ cmd = "pytest --cov-fail-under=0 --doctest-modules src/pudl tests/unit"
 description = "Run unit tests and doctests"
 
 [tool.pixi.tasks.pytest-integration]
-cmd = "pytest --cov-fail-under=0 tests/integration tests/validate/data_test.py"
-description = "Run integration and (non-row-count) validation tests."
+cmd = "pytest --cov-fail-under=0 tests/integration"
+description = "Run fast integration tests that don't require a full ETL run."
+
+[tool.pixi.tasks.pytest-pipeline]
+cmd = "pytest --cov-fail-under=0 tests/pipeline tests/validate/data_test.py"
+description = "Run pipeline tests (full ETL run) and (non-row-count) validation tests."
 env = { PUDL_INTEGRATION_TESTS = "true" }
 
 [tool.pixi.tasks.pytest-validate]
@@ -312,8 +316,12 @@ cmd = "pytest -n auto --no-cov --dg-config $DG_NIGHTLY_CONFIG --doctest-modules 
 description = "Run nightly-build unit tests with the nightly Dagster config"
 
 [tool.pixi.tasks.pytest-integration-nightly]
-cmd = "pytest -n auto --no-cov --live-pudl-output --dg-config $DG_NIGHTLY_CONFIG tests/integration"
-description = "Run nightly-build integration tests against live nightly-style outputs"
+cmd = "pytest -n auto --no-cov --dg-config $DG_NIGHTLY_CONFIG tests/integration"
+description = "Run nightly-build fast integration tests with the nightly Dagster config"
+
+[tool.pixi.tasks.pytest-pipeline-nightly]
+cmd = "pytest -n auto --no-cov --live-pudl-output --dg-config $DG_NIGHTLY_CONFIG tests/pipeline"
+description = "Run nightly-build pipeline tests against live nightly-style outputs"
 
 [tool.pixi.tasks.pytest-validate-nightly]
 cmd = "pytest -n auto --no-cov --live-pudl-output --dg-config $DG_NIGHTLY_CONFIG tests/validate/data_test.py"
@@ -328,6 +336,7 @@ cmd = "true"
 depends-on = [
     "pytest-unit-nightly",
     "pytest-integration-nightly",
+    "pytest-pipeline-nightly",
     "pytest-validate-nightly",
     "pytest-validate-row-counts-nightly",
 ]
@@ -340,11 +349,12 @@ depends-on = [
     "docs-check",
     "pytest-unit",
     "pytest-integration",
+    "pytest-pipeline",
 ]
 description = "Run all CI tests and report test coverage"
 
 [tool.pixi.tasks.pytest-jupyter]
-cmd = "pytest --live-pudl-output tests/integration/notebooks_test.py"
+cmd = "pytest --live-pudl-output tests/pipeline/notebooks_test.py"
 description = "Test Jupyter notebooks"
 # Build the FERC 1 and PUDL DBs.
 # Identify any plant or utility IDs in the DBs that haven't yet been mapped
@@ -354,7 +364,7 @@ cmd = """
 pytest \
     --save-unmapped-ids
     --dg-config $DG_FULL_CONFIG \
-    tests/integration/glue/glue_test.py
+    tests/pipeline/glue/glue_test.py
 """
 description = "Identify unmapped plant and utility IDs"
 

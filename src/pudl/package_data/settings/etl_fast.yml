@@ -56,7 +56,7 @@ pudl:
       # These years must overlap with FERC-714 to allow assets that depend on both to
       # be materialized. If you modify this list, be sure to update the matching
       # pudl_service_territories commands in
-      # tests/integration/scripts/console_scripts_test.py
+      # tests/pipeline/scripts/console_scripts_test.py
       years: [2020, 2025]
     eia930:
       half_years: ["2026half1"]
