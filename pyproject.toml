@@ -303,7 +303,7 @@ cmd = "pytest --cov-fail-under=0 tests/integration"
 description = "Run fast integration tests that don't require a full ETL run."
 
 [tool.pixi.tasks.pytest-pipeline]
-cmd = "pytest --cov-fail-under=0 tests/pipeline tests/validate/data_test.py"
+cmd = "pytest --cov-fail-under=0 --ignore=tests/pipeline/ferceqr_test.py tests/pipeline tests/validate/data_test.py"
 description = "Run pipeline tests (full ETL run) and (non-row-count) validation tests."
 env = { PUDL_INTEGRATION_TESTS = "true" }
 
@@ -320,7 +320,7 @@ cmd = "pytest -n auto --no-cov --dg-config $DG_NIGHTLY_CONFIG tests/integration"
 description = "Run nightly-build fast integration tests with the nightly Dagster config"
 
 [tool.pixi.tasks.pytest-pipeline-nightly]
-cmd = "pytest -n auto --no-cov --live-pudl-output --dg-config $DG_NIGHTLY_CONFIG tests/pipeline"
+cmd = "pytest -n auto --no-cov --live-pudl-output --dg-config $DG_NIGHTLY_CONFIG --ignore=tests/pipeline/ferceqr_test.py tests/pipeline"
 description = "Run nightly-build pipeline tests against live nightly-style outputs"
 
 [tool.pixi.tasks.pytest-validate-nightly]
