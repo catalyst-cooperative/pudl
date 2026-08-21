@@ -597,7 +597,6 @@ def test_partitions_with_json_normalize(global_data_config: GlobalDataConfig):
         )
 
 
-@pytest.mark.slow
 def test_partitions_for_datasource_table(
     global_data_config: GlobalDataConfig,
     pudl_test_paths: PudlPaths,

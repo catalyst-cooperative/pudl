@@ -599,7 +599,6 @@ filterwarnings = [
     "ignore:invalid escape sequence:SyntaxWarning:parsedatetime",
 ]
 
-markers = ["slow: marks tests as slow (deselect with '-m \"not slow\"')"]
 # must not end with `--cov` since that will treat the first argument you pass
 # to pytest as a coverage source! see
 # https://github.com/catalyst-cooperative/pudl/issues/3609
