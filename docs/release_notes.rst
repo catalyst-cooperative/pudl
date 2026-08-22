@@ -27,6 +27,19 @@ Bug Fixes & Data Cleaning
   key instead of ``data_tests:``, meaning ``dbt_helper`` silently discarded the tests
   they contained instead of merging them into the generated ``schema.yml``. See PR
   :pr:`5458`.
+* Fixed several sources of non-deterministic row counts, where identical code and data
+  produced different results on different machines (e.g. local macOS vs. nightly Linux
+  builds) because several functions resolved ties among candidate values using
+  incidental pandas/numpy sort or dedup behavior instead of an explicit, deterministic
+  rule. Affected tables now use the standard, exact ``check_row_counts_per_partition``
+  dbt test in place of the looser row-count range checks previously used to work around
+  the instability. See :issue:`4574`, :issue:`4254`, and :pr:`5503`.
+* Fixed ``add_null_overrides()`` in the FERC1-EIA record linkage nulling out the
+  condensed ``report_date``, ``report_year``, ``plant_id_pudl``, and
+  ``utility_id_pudl`` columns for every known-unmatched FERC1 record, instead of only
+  the EIA match columns. This caused 788 otherwise-valid records in
+  ``out_pudl__yearly_assn_eia_ferc1_plant_parts`` to have a NULL ``report_date``.
+  See issue :issue:`4130` and PR :pr:`5503`
 
 Developer Experience
 ^^^^^^^^^^^^^^^^^^^^

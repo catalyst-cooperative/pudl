@@ -18,6 +18,7 @@ from pudl.helpers import (
     convert_to_date,
     date_merge,
     dedupe_and_drop_nas,
+    dedupe_on_category,
     diff_wide_tables,
     env_var_is_true,
     expand_timeseries,
@@ -738,6 +739,39 @@ def test_dedupe_drop_na():
     assert deduped.iloc[2]["val_1"] == 13
     assert deduped.iloc[2]["val_2"] == 23
     assert len(deduped.index) == 3
+
+
+def test_dedupe_on_category_prefers_sorter_priority_regardless_of_row_order():
+    """The preferred category should win no matter which row appears first.
+
+    ``dedupe_on_category`` is documented to retain the value that comes first
+    in ``sorter`` (its priority order), e.g. plant_parts_eia.py uses it to
+    prefer "existing" generators over "retired" ones. Reproduces a bug where
+    the function never actually sorts by the category before deduplicating,
+    so it silently falls back to first-occurrence-in-the-input behavior,
+    making the harvested value depend on upstream row order.
+    """
+    sorter = ["existing", "proposed", "retired"]
+
+    retired_first = pd.DataFrame(
+        {"plant_id_eia": [1, 1], "operational_status": ["retired", "existing"]}
+    )
+    existing_first = pd.DataFrame(
+        {"plant_id_eia": [1, 1], "operational_status": ["existing", "retired"]}
+    )
+
+    deduped_retired_first = dedupe_on_category(
+        retired_first, ["plant_id_eia"], "operational_status", sorter
+    )
+    deduped_existing_first = dedupe_on_category(
+        existing_first, ["plant_id_eia"], "operational_status", sorter
+    )
+
+    assert (
+        deduped_retired_first["operational_status"].iloc[0]
+        == deduped_existing_first["operational_status"].iloc[0]
+        == "existing"
+    )
 
 
 def test_standardize_percentages_ratio():
