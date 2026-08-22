@@ -62,7 +62,7 @@ Developer Experience
   tests weren't getting run until the merge queue, leading to unexpected late-stage
   failures. A pytest collection hook enforces the ETL/no-ETL split. Also fixed a live
   Zulip notification firing from the test suite and tightened the dbt ``schema.yml``
-  round-trip test. See PR :pr:`5507`.
+  round-trip test. See issue :issue:`5508` and PR :pr:`5507`.
 
 New Data
 ^^^^^^^^
