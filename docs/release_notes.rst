@@ -9,91 +9,6 @@ v2026.9.0 (2026-09-xx)
 
 This is the upcoming PUDL release.
 
-Bug Fixes & Data Cleaning
-^^^^^^^^^^^^^^^^^^^^^^^^^
-
-* Fixed ``set_gcs_temporary_hold`` only protecting the top level of a versioned
-  release path from deletion. It shelled out to ``gcloud storage objects update
-  gs://bucket/prefix/*``, and that glob only matches one path segment, so anything
-  nested in a subdirectory was silently left unheld. Updated the function to use the
-  ``google-cloud-storage`` API to recursively hold every object under the prefix and
-  verify after the fact that none were missed. Manually re-applied the hold to 4,000+
-  previously published versioned release objects that had been missed by the original
-  bug. See PR pr:`5477`.
-* Fixed EIA-176 extraction bug where ``raw_eia176__operation_types_and_sector_items``
-  was always empty due to a mismatched page key. See :issue:`4697` and :pr:`5412`.
-* Recovered dbt data validation tests that were being silently dropped from several
-  tables as their source ``schema.human.yml`` files still used the deprecated ``tests:``
-  key instead of ``data_tests:``, meaning ``dbt_helper`` silently discarded the tests
-  they contained instead of merging them into the generated ``schema.yml``. See PR
-  :pr:`5458`.
-* Fixed a bug in ``allocate_gen_fuel.identify_proposed_plants()`` where a plant that
-  transitions from ``proposed`` to ``existing`` status across the years spanned by a
-  multi-year ETL run had its legitimately all-proposed years' generation and fuel data
-  silently dropped. The "entirely proposed" check compared operational status across
-  the full multi-year input rather than per year, so a plant with mixed statuses across
-  its history would never pass the check for *any* of its years. Thanks to
-  :user:`grgmiller` for this contribution. See :issue:`5440` and :pr:`5419`.
-* Fixed the same multi-year status bug in the sibling function
-  ``allocate_gen_fuel.identify_retired_plants()``, found while reviewing the
-  ``identify_proposed_plants()`` fix above. A plant that is entirely ``retired`` in
-  one year but has ``existing`` generators reported at the same ``plant_id_eia`` in
-  another year (e.g. a repowered or rebuilt site) never passed the "entirely retired"
-  check for *any* of its years, silently dropping legitimate retired-but-reporting
-  generation and fuel data. See :issue:`5440` and :pr:`5419`.
-* Unified the retiring/retired and coming-online/proposed generator and plant
-  detection logic in ``allocate_gen_fuel.py`` into two shared helper functions
-  (``_identify_transitioning_generators`` and
-  ``_identify_entirely_transitioned_plants``), so the "generator retiring" and
-  "generator coming online" cases -- previously two independently hand-maintained,
-  supposedly mirror-image implementations -- can no longer silently drift out of
-  sync with each other. Also plumbed the actual, confirmed ``generator_operating_date``
-  into the allocation pipeline (mirroring the existing use of
-  ``generator_retirement_date``), enabling ``identify_generators_coming_online()`` to
-  recognize a generator that's already operating mid-year even before it has any
-  reported generation or fuel data, and ``identify_proposed_plants()`` to detect a
-  proposed plant reporting generation anomalously before its confirmed operating
-  date, mirroring ``identify_retired_plants()``'s post-retirement anomaly check.
-  A null transition date (``generator_operating_date`` or
-  ``generator_retirement_date``) is treated as unable to disprove an anomaly, rather
-  than excluded by default. This matters mainly on the proposed side:
-  ``generator_operating_date`` is a harvested-once entity attribute (unlike
-  ``generator_retirement_date``, which is populated for ~99.96% of retired
-  generator-years), so it's null only for generators never yet observed as
-  ``existing`` -- mostly cancelled or still-pending proposed projects that never
-  report real generation or fuel to begin with, and so never enter this analysis at
-  all. Only a small minority of the rows rescued on the proposed side actually depend
-  on this null-date fallback; most come from generators that do eventually come
-  online and already have a known operating date. See :issue:`5440` and :pr:`5419`.
-* Fixed several sources of non-deterministic row counts, where identical code and data
-  produced different results on different machines (e.g. local macOS vs. nightly Linux
-  builds) because several functions resolved ties among candidate values using
-  incidental pandas/numpy sort or dedup behavior instead of an explicit, deterministic
-  rule. Affected tables now use the standard, exact ``check_row_counts_per_partition``
-  dbt test in place of the looser row-count range checks previously used to work around
-  the instability. See :issue:`4574`, :issue:`4254`, and :pr:`5503`.
-* Fixed ``add_null_overrides()`` in the FERC1-EIA record linkage nulling out the
-  condensed ``report_date``, ``report_year``, ``plant_id_pudl``, and
-  ``utility_id_pudl`` columns for every known-unmatched FERC1 record, instead of only
-  the EIA match columns. This caused 788 otherwise-valid records in
-  ``out_pudl__yearly_assn_eia_ferc1_plant_parts`` to have a NULL ``report_date``.
-  See issue :issue:`4130` and PR :pr:`5503`
-
-Developer Experience
-^^^^^^^^^^^^^^^^^^^^
-
-* Fixed several issues with how ``dbt_helper update-tables`` renders ``schema.yml``
-  (:mod:`pudl.dbt_schema`): long ``description:`` fields are now wrapped into readable
-  paragraph blocks and strings that need quoting prefer double quotes. This now matches
-  Prettier's YAML conventions, minimizing the need for reformatting after generation.
-  Standardized multi-line ``description:`` fields across all ``schema.human.yml``
-  inputs. ``dbt_helper update-tables --schema --clobber all`` is now idempotent across
-  all tables. See PR :pr:`5458`.
-* Pydantic models representing ``dbt`` structures defined in  :mod:`pudl.dbt_schema`
-  now reject any unrecognized keys (like stray ``tests:`` instead of ``data_tests:``) at
-  parse time instead of silently discarding them. Whitespace in description fields is
-  also normalized at parse-time to avoid spurious diffs. See PR :pr:`5458`.
-
 New Data
 ^^^^^^^^
 
@@ -153,6 +68,63 @@ PHMSA
 * Added the ``core_phmsagas__yearly_distribution_by_install_decade`` table, which
   reports :doc:`PHMSA <data_sources/phmsagas>` gas distribution mains miles and
   services by installation decade. See issue :issue:`5266` and PR :pr:`5443`.
+
+Bug Fixes & Data Cleaning
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Fixed ``set_gcs_temporary_hold`` only protecting the top level of a versioned
+  release path from deletion. It shelled out to ``gcloud storage objects update
+  gs://bucket/prefix/*``, and that glob only matches one path segment, so anything
+  nested in a subdirectory was silently left unheld. Updated the function to use the
+  ``google-cloud-storage`` API to recursively hold every object under the prefix and
+  verify after the fact that none were missed. Manually re-applied the hold to 4,000+
+  previously published versioned release objects that had been missed by the original
+  bug. See PR pr:`5477`.
+* Fixed EIA-176 extraction bug where ``raw_eia176__operation_types_and_sector_items``
+  was always empty due to a mismatched page key. See :issue:`4697` and :pr:`5412`.
+* Recovered dbt data validation tests that were being silently dropped from several
+  tables as their source ``schema.human.yml`` files still used the deprecated ``tests:``
+  key instead of ``data_tests:``, meaning ``dbt_helper`` silently discarded the tests
+  they contained instead of merging them into the generated ``schema.yml``. See PR
+  :pr:`5458`.
+* Fixed ``allocate_gen_fuel.py`` silently dropping legitimate generation and fuel data
+  for plants and generators transitioning between ``proposed``/``existing`` or
+  ``existing``/``retired`` status across a multi-year ETL run, since the status checks
+  compared each plant's operational status across its *entire* history instead of per
+  year. Fixed the same bug in the mirror-image ``retired``-plant check, unified the two
+  previously hand-maintained, drifted-apart implementations into shared helpers, and
+  added ``generator_operating_date``-based detection to the coming-online side to
+  match the existing ``generator_retirement_date``-based detection on the retiring
+  side. Thanks to :user:`grgmiller` for surfacing and starting this fix. See
+  :issue:`5440` and :pr:`5419`.
+* Fixed several sources of non-deterministic row counts, where identical code and data
+  produced different results on different machines (e.g. local macOS vs. nightly Linux
+  builds) because several functions resolved ties among candidate values using
+  incidental pandas/numpy sort or dedup behavior instead of an explicit, deterministic
+  rule. Affected tables now use the standard, exact ``check_row_counts_per_partition``
+  dbt test in place of the looser row-count range checks previously used to work around
+  the instability. See :issue:`4574`, :issue:`4254`, and :pr:`5503`.
+* Fixed ``add_null_overrides()`` in the FERC1-EIA record linkage nulling out the
+  condensed ``report_date``, ``report_year``, ``plant_id_pudl``, and
+  ``utility_id_pudl`` columns for every known-unmatched FERC1 record, instead of only
+  the EIA match columns. This caused 788 otherwise-valid records in
+  ``out_pudl__yearly_assn_eia_ferc1_plant_parts`` to have a NULL ``report_date``.
+  See issue :issue:`4130` and PR :pr:`5503`
+
+Developer Experience
+^^^^^^^^^^^^^^^^^^^^
+
+* Fixed several issues with how ``dbt_helper update-tables`` renders ``schema.yml``
+  (:mod:`pudl.dbt_schema`): long ``description:`` fields are now wrapped into readable
+  paragraph blocks and strings that need quoting prefer double quotes. This now matches
+  Prettier's YAML conventions, minimizing the need for reformatting after generation.
+  Standardized multi-line ``description:`` fields across all ``schema.human.yml``
+  inputs. ``dbt_helper update-tables --schema --clobber all`` is now idempotent across
+  all tables. See PR :pr:`5458`.
+* Pydantic models representing ``dbt`` structures defined in  :mod:`pudl.dbt_schema`
+  now reject any unrecognized keys (like stray ``tests:`` instead of ``data_tests:``) at
+  parse time instead of silently discarding them. Whitespace in description fields is
+  also normalized at parse-time to avoid spurious diffs. See PR :pr:`5458`.
 
 .. _release-v2026.8.0:
 
@@ -275,13 +247,6 @@ Bug Fixes & Data Cleaning
   asset group and its downstream assets now also captures the EIA-860 assets that
   rely on it, instead of silently leaving them stale. See :issue:`4327` and
   PR :pr:`5409`.
-* Fixed a bug in ``allocate_gen_fuel.identify_proposed_plants()`` where a plant that
-  transitions from ``proposed`` to ``existing`` status across the years spanned by a
-  multi-year ETL run had its legitimately all-proposed years' generation and fuel data
-  silently dropped. The "entirely proposed" check compared operational status across
-  the full multi-year input rather than per year, so a plant with mixed statuses across
-  its history would never pass the check for *any* of its years. Thanks to
-  :user:`grgmiller` for this contribution. See :issue:`TODO` and :pr:`TODO`.
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
