@@ -79,9 +79,9 @@ jurisdiction, and classification as non-public utilities.
 
 ### Download additional documentation
 
-* [`Rus12 Blank 2010 (PDF)`](rus12/rus12_blank_2010.pdf)
-* [`Rus12 Blank 2013 (PDF)`](rus12/rus12_blank_2013.pdf)
-* [`Uep Bulletin 1717B-3 2006-05-17 (PDF)`](rus12/uep_bulletin_1717B-3_2006-05-17.pdf)
+* [`Rus12 Blank 2010 (PDF)`](_downloads/66eb052cc3ef47c37e91d25f2071d019/rus12_blank_2010.pdf)
+* [`Rus12 Blank 2013 (PDF)`](_downloads/2cdce0bf7b969d4fadf5704070e44b5c/rus12_blank_2013.pdf)
+* [`Uep Bulletin 1717B-3 2006-05-17 (PDF)`](_downloads/63e2ee8ba027087f4e51d407f80e8c25/uep_bulletin_1717B-3_2006-05-17.pdf)
 
 ### What data is available through PUDL?
 

@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.dagster.assets.core.eiaapi_electricity &#8212; PUDL 2026.8.1.dev18 documentation</title>
+    <title>pudl.dagster.assets.core.eiaapi_electricity &#8212; PUDL 2026.8.1.dev19 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../../../_static/documentation_options.js?v=f2b63aa7"></script>
+    <script src="../../../../../_static/documentation_options.js?v=5bf64ec1"></script>
     <script src="../../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev18 documentation - Home"/>
-    <img src="../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev18 documentation - Home"/>
+    <img src="../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev19 documentation - Home"/>
+    <img src="../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev19 documentation - Home"/>
   
   
 </a></div>
@@ -871,12 +871,12 @@ window.runMermaid = runMermaid;</script>
                 <article class="bd-article">
                   
   <h1>Source code for pudl.dagster.assets.core.eiaapi_electricity</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Dagster assets for EIA API electricity aggregates.</span>
+<span></span><span class="sd">"""Dagster assets for EIA API electricity aggregates.</span>
 
 <span class="sd">This module defines asset logic for the aggregate EIA electricity data products that</span>
 <span class="sd">PUDL derives from the archived EIA API electricity JSON data and then loads into the</span>
 <span class="sd">core asset graph.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">dagster</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">dg</span>
 
@@ -891,19 +891,19 @@ window.runMermaid = runMermaid;</script>
 
 
 <span class="nd">@dg</span><span class="o">.</span><span class="n">asset</span><span class="p">(</span>
-    <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">&quot;pudl_io_manager&quot;</span><span class="p">,</span>
-    <span class="n">required_resource_keys</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;datastore&quot;</span><span class="p">},</span>
+    <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"pudl_io_manager"</span><span class="p">,</span>
+    <span class="n">required_resource_keys</span><span class="o">=</span><span class="p">{</span><span class="s2">"datastore"</span><span class="p">},</span>
 <span class="p">)</span>
 <div class="viewcode-block" id="core_eia__yearly_fuel_receipts_costs_aggs">
 <a class="viewcode-back" href="../../../../../autoapi/pudl/dagster/assets/core/eiaapi_electricity/index.html#pudl.dagster.assets.core.eiaapi_electricity.core_eia__yearly_fuel_receipts_costs_aggs">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">core_eia__yearly_fuel_receipts_costs_aggs</span><span class="p">(</span><span class="n">context</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract and transform EIA API electricity aggregates.</span>
+<span class="w">    </span><span class="sd">"""Extract and transform EIA API electricity aggregates.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A dictionary of DataFrames whose keys are the names of the corresponding</span>
 <span class="sd">        database table.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Processing EIA API electricity aggregates.&quot;</span><span class="p">)</span>
+<span class="sd">    """</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Processing EIA API electricity aggregates."</span><span class="p">)</span>
     <span class="n">ds</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">datastore</span>
     <span class="n">raw_eiaapi_dfs</span> <span class="o">=</span> <span class="n">pudl</span><span class="o">.</span><span class="n">extract</span><span class="o">.</span><span class="n">eiaapi</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">pudl</span><span class="o">.</span><span class="n">transform</span><span class="o">.</span><span class="n">eiaapi</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">raw_eiaapi_dfs</span><span class="p">)</span></div>

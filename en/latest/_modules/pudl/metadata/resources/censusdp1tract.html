@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.metadata.resources.censusdp1tract &#8212; PUDL 2026.8.1.dev18 documentation</title>
+    <title>pudl.metadata.resources.censusdp1tract &#8212; PUDL 2026.8.1.dev19 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../../_static/documentation_options.js?v=f2b63aa7"></script>
+    <script src="../../../../_static/documentation_options.js?v=5bf64ec1"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev18 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev18 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev19 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev19 documentation - Home"/>
   
   
 </a></div>
@@ -871,296 +871,296 @@ window.runMermaid = runMermaid;</script>
                 <article class="bd-article">
                   
   <h1>Source code for pudl.metadata.resources.censusdp1tract</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Resources derived from the US Census Demographic Profile 1 dataset.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Resources derived from the US Census Demographic Profile 1 dataset."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
 
 <div class="viewcode-block" id="CENSUS_DP1_DEMOGRAPHIC_COLUMNS">
 <a class="viewcode-back" href="../../../../autoapi/pudl/metadata/resources/censusdp1tract/index.html#pudl.metadata.resources.censusdp1tract.CENSUS_DP1_DEMOGRAPHIC_COLUMNS">[docs]</a>
 <span class="n">CENSUS_DP1_DEMOGRAPHIC_COLUMNS</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s2">&quot;dp0010001&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0010002&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0010003&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0010004&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0010005&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0010006&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0010007&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0010008&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0010009&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0010010&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0010011&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0010012&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0010013&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0010014&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0010015&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0010016&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0010017&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0010018&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0010019&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0010020&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0010021&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0010022&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0010023&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0010024&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0010025&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0010026&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0010027&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0010028&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0010029&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0010030&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0010031&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0010032&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0010033&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0010034&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0010035&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0010036&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0010037&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0010038&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0010039&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0010040&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0010041&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0010042&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0010043&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0010044&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0010045&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0010046&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0010047&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0010048&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0010049&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0010050&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0010051&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0010052&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0010053&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0010054&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0010055&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0010056&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0010057&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0020001&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0020002&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0020003&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0030001&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0030002&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0030003&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0040001&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0040002&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0040003&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0050001&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0050002&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0050003&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0060001&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0060002&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0060003&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0070001&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0070002&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0070003&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0080001&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0080002&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0080003&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0080004&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0080005&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0080006&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0080007&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0080008&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0080009&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0080010&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0080011&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0080012&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0080013&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0080014&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0080015&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0080016&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0080017&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0080018&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0080019&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0080020&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0080021&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0080022&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0080023&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0080024&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0090001&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0090002&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0090003&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0090004&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0090005&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0090006&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0100001&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0100002&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0100003&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0100004&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0100005&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0100006&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0100007&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0110001&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0110002&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0110003&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0110004&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0110005&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0110006&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0110007&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0110008&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0110009&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0110010&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0110011&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0110012&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0110013&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0110014&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0110015&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0110016&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0110017&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0120001&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0120002&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0120003&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0120004&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0120005&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0120006&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0120007&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0120008&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0120009&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0120010&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0120011&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0120012&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0120013&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0120014&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0120015&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0120016&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0120017&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0120018&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0120019&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0120020&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0130001&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0130002&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0130003&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0130004&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0130005&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0130006&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0130007&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0130008&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0130009&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0130010&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0130011&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0130012&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0130013&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0130014&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0130015&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0140001&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0150001&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0160001&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0170001&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0180001&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0180002&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0180003&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0180004&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0180005&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0180006&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0180007&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0180008&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0180009&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0190001&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0200001&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0210001&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0210002&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0210003&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0220001&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0220002&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0230001&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;dp0230002&quot;</span><span class="p">,</span>
+    <span class="s2">"dp0010001"</span><span class="p">,</span>
+    <span class="s2">"dp0010002"</span><span class="p">,</span>
+    <span class="s2">"dp0010003"</span><span class="p">,</span>
+    <span class="s2">"dp0010004"</span><span class="p">,</span>
+    <span class="s2">"dp0010005"</span><span class="p">,</span>
+    <span class="s2">"dp0010006"</span><span class="p">,</span>
+    <span class="s2">"dp0010007"</span><span class="p">,</span>
+    <span class="s2">"dp0010008"</span><span class="p">,</span>
+    <span class="s2">"dp0010009"</span><span class="p">,</span>
+    <span class="s2">"dp0010010"</span><span class="p">,</span>
+    <span class="s2">"dp0010011"</span><span class="p">,</span>
+    <span class="s2">"dp0010012"</span><span class="p">,</span>
+    <span class="s2">"dp0010013"</span><span class="p">,</span>
+    <span class="s2">"dp0010014"</span><span class="p">,</span>
+    <span class="s2">"dp0010015"</span><span class="p">,</span>
+    <span class="s2">"dp0010016"</span><span class="p">,</span>
+    <span class="s2">"dp0010017"</span><span class="p">,</span>
+    <span class="s2">"dp0010018"</span><span class="p">,</span>
+    <span class="s2">"dp0010019"</span><span class="p">,</span>
+    <span class="s2">"dp0010020"</span><span class="p">,</span>
+    <span class="s2">"dp0010021"</span><span class="p">,</span>
+    <span class="s2">"dp0010022"</span><span class="p">,</span>
+    <span class="s2">"dp0010023"</span><span class="p">,</span>
+    <span class="s2">"dp0010024"</span><span class="p">,</span>
+    <span class="s2">"dp0010025"</span><span class="p">,</span>
+    <span class="s2">"dp0010026"</span><span class="p">,</span>
+    <span class="s2">"dp0010027"</span><span class="p">,</span>
+    <span class="s2">"dp0010028"</span><span class="p">,</span>
+    <span class="s2">"dp0010029"</span><span class="p">,</span>
+    <span class="s2">"dp0010030"</span><span class="p">,</span>
+    <span class="s2">"dp0010031"</span><span class="p">,</span>
+    <span class="s2">"dp0010032"</span><span class="p">,</span>
+    <span class="s2">"dp0010033"</span><span class="p">,</span>
+    <span class="s2">"dp0010034"</span><span class="p">,</span>
+    <span class="s2">"dp0010035"</span><span class="p">,</span>
+    <span class="s2">"dp0010036"</span><span class="p">,</span>
+    <span class="s2">"dp0010037"</span><span class="p">,</span>
+    <span class="s2">"dp0010038"</span><span class="p">,</span>
+    <span class="s2">"dp0010039"</span><span class="p">,</span>
+    <span class="s2">"dp0010040"</span><span class="p">,</span>
+    <span class="s2">"dp0010041"</span><span class="p">,</span>
+    <span class="s2">"dp0010042"</span><span class="p">,</span>
+    <span class="s2">"dp0010043"</span><span class="p">,</span>
+    <span class="s2">"dp0010044"</span><span class="p">,</span>
+    <span class="s2">"dp0010045"</span><span class="p">,</span>
+    <span class="s2">"dp0010046"</span><span class="p">,</span>
+    <span class="s2">"dp0010047"</span><span class="p">,</span>
+    <span class="s2">"dp0010048"</span><span class="p">,</span>
+    <span class="s2">"dp0010049"</span><span class="p">,</span>
+    <span class="s2">"dp0010050"</span><span class="p">,</span>
+    <span class="s2">"dp0010051"</span><span class="p">,</span>
+    <span class="s2">"dp0010052"</span><span class="p">,</span>
+    <span class="s2">"dp0010053"</span><span class="p">,</span>
+    <span class="s2">"dp0010054"</span><span class="p">,</span>
+    <span class="s2">"dp0010055"</span><span class="p">,</span>
+    <span class="s2">"dp0010056"</span><span class="p">,</span>
+    <span class="s2">"dp0010057"</span><span class="p">,</span>
+    <span class="s2">"dp0020001"</span><span class="p">,</span>
+    <span class="s2">"dp0020002"</span><span class="p">,</span>
+    <span class="s2">"dp0020003"</span><span class="p">,</span>
+    <span class="s2">"dp0030001"</span><span class="p">,</span>
+    <span class="s2">"dp0030002"</span><span class="p">,</span>
+    <span class="s2">"dp0030003"</span><span class="p">,</span>
+    <span class="s2">"dp0040001"</span><span class="p">,</span>
+    <span class="s2">"dp0040002"</span><span class="p">,</span>
+    <span class="s2">"dp0040003"</span><span class="p">,</span>
+    <span class="s2">"dp0050001"</span><span class="p">,</span>
+    <span class="s2">"dp0050002"</span><span class="p">,</span>
+    <span class="s2">"dp0050003"</span><span class="p">,</span>
+    <span class="s2">"dp0060001"</span><span class="p">,</span>
+    <span class="s2">"dp0060002"</span><span class="p">,</span>
+    <span class="s2">"dp0060003"</span><span class="p">,</span>
+    <span class="s2">"dp0070001"</span><span class="p">,</span>
+    <span class="s2">"dp0070002"</span><span class="p">,</span>
+    <span class="s2">"dp0070003"</span><span class="p">,</span>
+    <span class="s2">"dp0080001"</span><span class="p">,</span>
+    <span class="s2">"dp0080002"</span><span class="p">,</span>
+    <span class="s2">"dp0080003"</span><span class="p">,</span>
+    <span class="s2">"dp0080004"</span><span class="p">,</span>
+    <span class="s2">"dp0080005"</span><span class="p">,</span>
+    <span class="s2">"dp0080006"</span><span class="p">,</span>
+    <span class="s2">"dp0080007"</span><span class="p">,</span>
+    <span class="s2">"dp0080008"</span><span class="p">,</span>
+    <span class="s2">"dp0080009"</span><span class="p">,</span>
+    <span class="s2">"dp0080010"</span><span class="p">,</span>
+    <span class="s2">"dp0080011"</span><span class="p">,</span>
+    <span class="s2">"dp0080012"</span><span class="p">,</span>
+    <span class="s2">"dp0080013"</span><span class="p">,</span>
+    <span class="s2">"dp0080014"</span><span class="p">,</span>
+    <span class="s2">"dp0080015"</span><span class="p">,</span>
+    <span class="s2">"dp0080016"</span><span class="p">,</span>
+    <span class="s2">"dp0080017"</span><span class="p">,</span>
+    <span class="s2">"dp0080018"</span><span class="p">,</span>
+    <span class="s2">"dp0080019"</span><span class="p">,</span>
+    <span class="s2">"dp0080020"</span><span class="p">,</span>
+    <span class="s2">"dp0080021"</span><span class="p">,</span>
+    <span class="s2">"dp0080022"</span><span class="p">,</span>
+    <span class="s2">"dp0080023"</span><span class="p">,</span>
+    <span class="s2">"dp0080024"</span><span class="p">,</span>
+    <span class="s2">"dp0090001"</span><span class="p">,</span>
+    <span class="s2">"dp0090002"</span><span class="p">,</span>
+    <span class="s2">"dp0090003"</span><span class="p">,</span>
+    <span class="s2">"dp0090004"</span><span class="p">,</span>
+    <span class="s2">"dp0090005"</span><span class="p">,</span>
+    <span class="s2">"dp0090006"</span><span class="p">,</span>
+    <span class="s2">"dp0100001"</span><span class="p">,</span>
+    <span class="s2">"dp0100002"</span><span class="p">,</span>
+    <span class="s2">"dp0100003"</span><span class="p">,</span>
+    <span class="s2">"dp0100004"</span><span class="p">,</span>
+    <span class="s2">"dp0100005"</span><span class="p">,</span>
+    <span class="s2">"dp0100006"</span><span class="p">,</span>
+    <span class="s2">"dp0100007"</span><span class="p">,</span>
+    <span class="s2">"dp0110001"</span><span class="p">,</span>
+    <span class="s2">"dp0110002"</span><span class="p">,</span>
+    <span class="s2">"dp0110003"</span><span class="p">,</span>
+    <span class="s2">"dp0110004"</span><span class="p">,</span>
+    <span class="s2">"dp0110005"</span><span class="p">,</span>
+    <span class="s2">"dp0110006"</span><span class="p">,</span>
+    <span class="s2">"dp0110007"</span><span class="p">,</span>
+    <span class="s2">"dp0110008"</span><span class="p">,</span>
+    <span class="s2">"dp0110009"</span><span class="p">,</span>
+    <span class="s2">"dp0110010"</span><span class="p">,</span>
+    <span class="s2">"dp0110011"</span><span class="p">,</span>
+    <span class="s2">"dp0110012"</span><span class="p">,</span>
+    <span class="s2">"dp0110013"</span><span class="p">,</span>
+    <span class="s2">"dp0110014"</span><span class="p">,</span>
+    <span class="s2">"dp0110015"</span><span class="p">,</span>
+    <span class="s2">"dp0110016"</span><span class="p">,</span>
+    <span class="s2">"dp0110017"</span><span class="p">,</span>
+    <span class="s2">"dp0120001"</span><span class="p">,</span>
+    <span class="s2">"dp0120002"</span><span class="p">,</span>
+    <span class="s2">"dp0120003"</span><span class="p">,</span>
+    <span class="s2">"dp0120004"</span><span class="p">,</span>
+    <span class="s2">"dp0120005"</span><span class="p">,</span>
+    <span class="s2">"dp0120006"</span><span class="p">,</span>
+    <span class="s2">"dp0120007"</span><span class="p">,</span>
+    <span class="s2">"dp0120008"</span><span class="p">,</span>
+    <span class="s2">"dp0120009"</span><span class="p">,</span>
+    <span class="s2">"dp0120010"</span><span class="p">,</span>
+    <span class="s2">"dp0120011"</span><span class="p">,</span>
+    <span class="s2">"dp0120012"</span><span class="p">,</span>
+    <span class="s2">"dp0120013"</span><span class="p">,</span>
+    <span class="s2">"dp0120014"</span><span class="p">,</span>
+    <span class="s2">"dp0120015"</span><span class="p">,</span>
+    <span class="s2">"dp0120016"</span><span class="p">,</span>
+    <span class="s2">"dp0120017"</span><span class="p">,</span>
+    <span class="s2">"dp0120018"</span><span class="p">,</span>
+    <span class="s2">"dp0120019"</span><span class="p">,</span>
+    <span class="s2">"dp0120020"</span><span class="p">,</span>
+    <span class="s2">"dp0130001"</span><span class="p">,</span>
+    <span class="s2">"dp0130002"</span><span class="p">,</span>
+    <span class="s2">"dp0130003"</span><span class="p">,</span>
+    <span class="s2">"dp0130004"</span><span class="p">,</span>
+    <span class="s2">"dp0130005"</span><span class="p">,</span>
+    <span class="s2">"dp0130006"</span><span class="p">,</span>
+    <span class="s2">"dp0130007"</span><span class="p">,</span>
+    <span class="s2">"dp0130008"</span><span class="p">,</span>
+    <span class="s2">"dp0130009"</span><span class="p">,</span>
+    <span class="s2">"dp0130010"</span><span class="p">,</span>
+    <span class="s2">"dp0130011"</span><span class="p">,</span>
+    <span class="s2">"dp0130012"</span><span class="p">,</span>
+    <span class="s2">"dp0130013"</span><span class="p">,</span>
+    <span class="s2">"dp0130014"</span><span class="p">,</span>
+    <span class="s2">"dp0130015"</span><span class="p">,</span>
+    <span class="s2">"dp0140001"</span><span class="p">,</span>
+    <span class="s2">"dp0150001"</span><span class="p">,</span>
+    <span class="s2">"dp0160001"</span><span class="p">,</span>
+    <span class="s2">"dp0170001"</span><span class="p">,</span>
+    <span class="s2">"dp0180001"</span><span class="p">,</span>
+    <span class="s2">"dp0180002"</span><span class="p">,</span>
+    <span class="s2">"dp0180003"</span><span class="p">,</span>
+    <span class="s2">"dp0180004"</span><span class="p">,</span>
+    <span class="s2">"dp0180005"</span><span class="p">,</span>
+    <span class="s2">"dp0180006"</span><span class="p">,</span>
+    <span class="s2">"dp0180007"</span><span class="p">,</span>
+    <span class="s2">"dp0180008"</span><span class="p">,</span>
+    <span class="s2">"dp0180009"</span><span class="p">,</span>
+    <span class="s2">"dp0190001"</span><span class="p">,</span>
+    <span class="s2">"dp0200001"</span><span class="p">,</span>
+    <span class="s2">"dp0210001"</span><span class="p">,</span>
+    <span class="s2">"dp0210002"</span><span class="p">,</span>
+    <span class="s2">"dp0210003"</span><span class="p">,</span>
+    <span class="s2">"dp0220001"</span><span class="p">,</span>
+    <span class="s2">"dp0220002"</span><span class="p">,</span>
+    <span class="s2">"dp0230001"</span><span class="p">,</span>
+    <span class="s2">"dp0230002"</span><span class="p">,</span>
 <span class="p">]</span></div>
 
 
 <div class="viewcode-block" id="CENSUS_CAVEAT">
 <a class="viewcode-back" href="../../../../autoapi/pudl/metadata/resources/censusdp1tract/index.html#pudl.metadata.resources.censusdp1tract.CENSUS_CAVEAT">[docs]</a>
 <span class="n">CENSUS_CAVEAT</span> <span class="o">=</span> <span class="p">(</span>
-    <span class="s2">&quot;Based on the 2010 Census. Used &quot;</span>
-    <span class="s2">&quot;as a convenient source of geospatial information within PUDL, but should &quot;</span>
-    <span class="s2">&quot;not be treated as authoritative.&quot;</span>
+    <span class="s2">"Based on the 2010 Census. Used "</span>
+    <span class="s2">"as a convenient source of geospatial information within PUDL, but should "</span>
+    <span class="s2">"not be treated as authoritative."</span>
 <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="RESOURCE_METADATA">
 <a class="viewcode-back" href="../../../../autoapi/pudl/metadata/resources/censusdp1tract/index.html#pudl.metadata.resources.censusdp1tract.RESOURCE_METADATA">[docs]</a>
 <span class="n">RESOURCE_METADATA</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;out_censusdp1tract__states&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;State-level summarized US Census demographic information, along with a geometry describing state boundaries.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="n">CENSUS_CAVEAT</span><span class="p">,</span>
-            <span class="s2">&quot;availability_text&quot;</span><span class="p">:</span> <span class="s2">&quot;2010&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;discontinued_data&quot;</span><span class="p">],</span>
+    <span class="s2">"out_censusdp1tract__states"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="s2">"State-level summarized US Census demographic information, along with a geometry describing state boundaries."</span><span class="p">,</span>
+            <span class="s2">"additional_details_text"</span><span class="p">:</span> <span class="n">CENSUS_CAVEAT</span><span class="p">,</span>
+            <span class="s2">"availability_text"</span><span class="p">:</span> <span class="s2">"2010"</span><span class="p">,</span>
+            <span class="s2">"usage_warnings"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"discontinued_data"</span><span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;state_id_fips&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;geometry&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;state_name&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;state&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;land_area&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;water_area&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;internal_point_latitude&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;internal_point_longitude&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;shape_length&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;shape_area&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"state_id_fips"</span><span class="p">,</span>
+                <span class="s2">"geometry"</span><span class="p">,</span>
+                <span class="s2">"state_name"</span><span class="p">,</span>
+                <span class="s2">"state"</span><span class="p">,</span>
+                <span class="s2">"land_area"</span><span class="p">,</span>
+                <span class="s2">"water_area"</span><span class="p">,</span>
+                <span class="s2">"internal_point_latitude"</span><span class="p">,</span>
+                <span class="s2">"internal_point_longitude"</span><span class="p">,</span>
+                <span class="s2">"shape_length"</span><span class="p">,</span>
+                <span class="s2">"shape_area"</span><span class="p">,</span>
             <span class="p">]</span>
             <span class="o">+</span> <span class="n">CENSUS_DP1_DEMOGRAPHIC_COLUMNS</span><span class="p">,</span>
-            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;state_id_fips&quot;</span><span class="p">],</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"state_id_fips"</span><span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;censusdp1tract&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;censusdp1tract&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;censusdp1tract&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;create_database_schema&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"censusdp1tract"</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"censusdp1tract"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"censusdp1tract"</span><span class="p">,</span>
+        <span class="s2">"create_database_schema"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;out_censusdp1tract__counties&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;County-level summarized US Census demographic information, along with a geometry describing county boundaries.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="n">CENSUS_CAVEAT</span><span class="p">,</span>
-            <span class="s2">&quot;availability_text&quot;</span><span class="p">:</span> <span class="s2">&quot;2010&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;discontinued_data&quot;</span><span class="p">],</span>
+    <span class="s2">"out_censusdp1tract__counties"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="s2">"County-level summarized US Census demographic information, along with a geometry describing county boundaries."</span><span class="p">,</span>
+            <span class="s2">"additional_details_text"</span><span class="p">:</span> <span class="n">CENSUS_CAVEAT</span><span class="p">,</span>
+            <span class="s2">"availability_text"</span><span class="p">:</span> <span class="s2">"2010"</span><span class="p">,</span>
+            <span class="s2">"usage_warnings"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"discontinued_data"</span><span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;county_id_fips&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;geometry&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;county&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;functional_status_code_census&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;land_area&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;water_area&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;internal_point_latitude&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;internal_point_longitude&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;shape_length&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;shape_area&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"county_id_fips"</span><span class="p">,</span>
+                <span class="s2">"geometry"</span><span class="p">,</span>
+                <span class="s2">"county"</span><span class="p">,</span>
+                <span class="s2">"functional_status_code_census"</span><span class="p">,</span>
+                <span class="s2">"land_area"</span><span class="p">,</span>
+                <span class="s2">"water_area"</span><span class="p">,</span>
+                <span class="s2">"internal_point_latitude"</span><span class="p">,</span>
+                <span class="s2">"internal_point_longitude"</span><span class="p">,</span>
+                <span class="s2">"shape_length"</span><span class="p">,</span>
+                <span class="s2">"shape_area"</span><span class="p">,</span>
             <span class="p">]</span>
             <span class="o">+</span> <span class="n">CENSUS_DP1_DEMOGRAPHIC_COLUMNS</span><span class="p">,</span>
-            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;county_id_fips&quot;</span><span class="p">],</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"county_id_fips"</span><span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;censusdp1tract&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;censusdp1tract&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;censusdp1tract&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;create_database_schema&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"censusdp1tract"</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"censusdp1tract"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"censusdp1tract"</span><span class="p">,</span>
+        <span class="s2">"create_database_schema"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;out_censusdp1tract__tracts&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;Census tract-level summarized US Census demographic information, along with a geometry describing tract boundaries.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="n">CENSUS_CAVEAT</span><span class="p">,</span>
-            <span class="s2">&quot;availability_text&quot;</span><span class="p">:</span> <span class="s2">&quot;2010&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;discontinued_data&quot;</span><span class="p">],</span>
+    <span class="s2">"out_censusdp1tract__tracts"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="s2">"Census tract-level summarized US Census demographic information, along with a geometry describing tract boundaries."</span><span class="p">,</span>
+            <span class="s2">"additional_details_text"</span><span class="p">:</span> <span class="n">CENSUS_CAVEAT</span><span class="p">,</span>
+            <span class="s2">"availability_text"</span><span class="p">:</span> <span class="s2">"2010"</span><span class="p">,</span>
+            <span class="s2">"usage_warnings"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"discontinued_data"</span><span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;tract_id_fips&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;geometry&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;tract_name&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;land_area&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;water_area&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;internal_point_latitude&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;internal_point_longitude&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;shape_length&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;shape_area&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"tract_id_fips"</span><span class="p">,</span>
+                <span class="s2">"geometry"</span><span class="p">,</span>
+                <span class="s2">"tract_name"</span><span class="p">,</span>
+                <span class="s2">"land_area"</span><span class="p">,</span>
+                <span class="s2">"water_area"</span><span class="p">,</span>
+                <span class="s2">"internal_point_latitude"</span><span class="p">,</span>
+                <span class="s2">"internal_point_longitude"</span><span class="p">,</span>
+                <span class="s2">"shape_length"</span><span class="p">,</span>
+                <span class="s2">"shape_area"</span><span class="p">,</span>
             <span class="p">]</span>
             <span class="o">+</span> <span class="n">CENSUS_DP1_DEMOGRAPHIC_COLUMNS</span><span class="p">,</span>
-            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;tract_id_fips&quot;</span><span class="p">],</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"tract_id_fips"</span><span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;censusdp1tract&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;censusdp1tract&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;censusdp1tract&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;create_database_schema&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"censusdp1tract"</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"censusdp1tract"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"censusdp1tract"</span><span class="p">,</span>
+        <span class="s2">"create_database_schema"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">},</span>
 <span class="p">}</span></div>
 

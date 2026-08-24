@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.output.eiaapi &#8212; PUDL 2026.8.1.dev18 documentation</title>
+    <title>pudl.output.eiaapi &#8212; PUDL 2026.8.1.dev19 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=f2b63aa7"></script>
+    <script src="../../../_static/documentation_options.js?v=5bf64ec1"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev18 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev18 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev19 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev19 documentation - Home"/>
   
   
 </a></div>
@@ -868,7 +868,7 @@ window.runMermaid = runMermaid;</script>
                 <article class="bd-article">
                   
   <h1>Source code for pudl.output.eiaapi</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Interim and output tables derived from the EIA Bulk Electricity data.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Interim and output tables derived from the EIA Bulk Electricity data."""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dagster</span><span class="w"> </span><span class="kn">import</span> <span class="n">asset</span>
@@ -881,46 +881,46 @@ window.runMermaid = runMermaid;</script>
 
 
 
-<span class="nd">@asset</span><span class="p">(</span><span class="n">io_manager_key</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">compute_kind</span><span class="o">=</span><span class="s2">&quot;Python&quot;</span><span class="p">)</span>
+<span class="nd">@asset</span><span class="p">(</span><span class="n">io_manager_key</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">compute_kind</span><span class="o">=</span><span class="s2">"Python"</span><span class="p">)</span>
 <div class="viewcode-block" id="_out_eia__monthly_state_fuel_prices">
 <a class="viewcode-back" href="../../../autoapi/pudl/output/eiaapi/index.html#pudl.output.eiaapi._out_eia__monthly_state_fuel_prices">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_out_eia__monthly_state_fuel_prices</span><span class="p">(</span>
     <span class="n">core_eia__yearly_fuel_receipts_costs_aggs</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get state-level average fuel costs from EIA&#39;s bulk electricity data.</span>
+<span class="w">    </span><span class="sd">"""Get state-level average fuel costs from EIA's bulk electricity data.</span>
 
 <span class="sd">    This data is used to fill in missing fuel prices in the</span>
 <span class="sd">    :ref:`core_eia923__fuel_receipts_costs` table. It was created as a drop-in replacement</span>
-<span class="sd">    for data we were previously obtaining from EIA&#39;s unreliable API.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    for data we were previously obtaining from EIA's unreliable API.</span>
+<span class="sd">    """</span>
     <span class="n">aggregates</span> <span class="o">=</span> <span class="n">core_eia__yearly_fuel_receipts_costs_aggs</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
         <span class="p">:,</span>
         <span class="p">[</span>
-            <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;sector_agg&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;temporal_agg&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;fuel_agg&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;geo_agg&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;fuel_cost_per_mmbtu&quot;</span><span class="p">,</span>
+            <span class="s2">"report_date"</span><span class="p">,</span>
+            <span class="s2">"sector_agg"</span><span class="p">,</span>
+            <span class="s2">"temporal_agg"</span><span class="p">,</span>
+            <span class="s2">"fuel_agg"</span><span class="p">,</span>
+            <span class="s2">"geo_agg"</span><span class="p">,</span>
+            <span class="s2">"fuel_cost_per_mmbtu"</span><span class="p">,</span>
         <span class="p">],</span>
     <span class="p">]</span>
     <span class="n">aggregates</span> <span class="o">=</span> <span class="n">aggregates</span><span class="p">[</span>
-        <span class="p">(</span><span class="n">aggregates</span><span class="o">.</span><span class="n">sector_agg</span> <span class="o">==</span> <span class="s2">&quot;all_electric_power&quot;</span><span class="p">)</span>
-        <span class="o">&amp;</span> <span class="p">(</span><span class="n">aggregates</span><span class="o">.</span><span class="n">temporal_agg</span> <span class="o">==</span> <span class="s2">&quot;monthly&quot;</span><span class="p">)</span>
-        <span class="o">&amp;</span> <span class="p">(</span><span class="n">aggregates</span><span class="o">.</span><span class="n">fuel_agg</span><span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="s2">&quot;all_coal&quot;</span><span class="p">,</span> <span class="s2">&quot;petroleum_liquids&quot;</span><span class="p">,</span> <span class="s2">&quot;natural_gas&quot;</span><span class="p">]))</span>
+        <span class="p">(</span><span class="n">aggregates</span><span class="o">.</span><span class="n">sector_agg</span> <span class="o">==</span> <span class="s2">"all_electric_power"</span><span class="p">)</span>
+        <span class="o">&amp;</span> <span class="p">(</span><span class="n">aggregates</span><span class="o">.</span><span class="n">temporal_agg</span> <span class="o">==</span> <span class="s2">"monthly"</span><span class="p">)</span>
+        <span class="o">&amp;</span> <span class="p">(</span><span class="n">aggregates</span><span class="o">.</span><span class="n">fuel_agg</span><span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="s2">"all_coal"</span><span class="p">,</span> <span class="s2">"petroleum_liquids"</span><span class="p">,</span> <span class="s2">"natural_gas"</span><span class="p">]))</span>
         <span class="o">&amp;</span> <span class="p">(</span><span class="n">aggregates</span><span class="o">.</span><span class="n">fuel_cost_per_mmbtu</span><span class="o">.</span><span class="n">notnull</span><span class="p">())</span>
-    <span class="p">]</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;sector_agg&quot;</span><span class="p">,</span> <span class="s2">&quot;temporal_agg&quot;</span><span class="p">])</span>
+    <span class="p">]</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">"sector_agg"</span><span class="p">,</span> <span class="s2">"temporal_agg"</span><span class="p">])</span>
     <span class="n">fuel_map</span> <span class="o">=</span> <span class="p">{</span>  <span class="c1"># convert to fuel_type_code_pudl categories</span>
-        <span class="s2">&quot;all_coal&quot;</span><span class="p">:</span> <span class="s2">&quot;coal&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;natural_gas&quot;</span><span class="p">:</span> <span class="s2">&quot;gas&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;petroleum_liquids&quot;</span><span class="p">:</span> <span class="s2">&quot;oil&quot;</span><span class="p">,</span>
+        <span class="s2">"all_coal"</span><span class="p">:</span> <span class="s2">"coal"</span><span class="p">,</span>
+        <span class="s2">"natural_gas"</span><span class="p">:</span> <span class="s2">"gas"</span><span class="p">,</span>
+        <span class="s2">"petroleum_liquids"</span><span class="p">:</span> <span class="s2">"oil"</span><span class="p">,</span>
     <span class="p">}</span>
-    <span class="n">aggregates</span><span class="p">[</span><span class="s2">&quot;fuel_type_code_pudl&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">aggregates</span><span class="p">[</span><span class="s2">&quot;fuel_agg&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">fuel_map</span><span class="p">)</span>
-    <span class="n">aggregates</span> <span class="o">=</span> <span class="n">aggregates</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="s2">&quot;fuel_agg&quot;</span><span class="p">)</span>
+    <span class="n">aggregates</span><span class="p">[</span><span class="s2">"fuel_type_code_pudl"</span><span class="p">]</span> <span class="o">=</span> <span class="n">aggregates</span><span class="p">[</span><span class="s2">"fuel_agg"</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">fuel_map</span><span class="p">)</span>
+    <span class="n">aggregates</span> <span class="o">=</span> <span class="n">aggregates</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="s2">"fuel_agg"</span><span class="p">)</span>
 
     <span class="n">col_rename_dict</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;geo_agg&quot;</span><span class="p">:</span> <span class="s2">&quot;state&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;fuel_cost_per_mmbtu&quot;</span><span class="p">:</span> <span class="s2">&quot;bulk_agg_fuel_cost_per_mmbtu&quot;</span><span class="p">,</span>
+        <span class="s2">"geo_agg"</span><span class="p">:</span> <span class="s2">"state"</span><span class="p">,</span>
+        <span class="s2">"fuel_cost_per_mmbtu"</span><span class="p">:</span> <span class="s2">"bulk_agg_fuel_cost_per_mmbtu"</span><span class="p">,</span>
     <span class="p">}</span>
     <span class="n">aggregates</span> <span class="o">=</span> <span class="n">aggregates</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">col_rename_dict</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">aggregates</span></div>

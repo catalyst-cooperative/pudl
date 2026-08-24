@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.workspace.resource_cache &#8212; PUDL 2026.8.1.dev18 documentation</title>
+    <title>pudl.workspace.resource_cache &#8212; PUDL 2026.8.1.dev19 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=f2b63aa7"></script>
+    <script src="../../../_static/documentation_options.js?v=5bf64ec1"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev18 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev18 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev19 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev19 documentation - Home"/>
   
   
 </a></div>
@@ -868,7 +868,7 @@ window.runMermaid = runMermaid;</script>
                 <article class="bd-article">
                   
   <h1>Source code for pudl.workspace.resource_cache</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Implementations of datastore resource caches.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Implementations of datastore resource caches."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
@@ -892,7 +892,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="PudlResourceKey">
 <a class="viewcode-back" href="../../../autoapi/pudl/workspace/resource_cache/index.html#pudl.workspace.resource_cache.PudlResourceKey">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">PudlResourceKey</span><span class="p">(</span><span class="n">NamedTuple</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Uniquely identifies a specific resource.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Uniquely identifies a specific resource."""</span>
 
 <div class="viewcode-block" id="PudlResourceKey.dataset">
 <a class="viewcode-back" href="../../../autoapi/pudl/workspace/resource_cache/index.html#pudl.workspace.resource_cache.PudlResourceKey.dataset">[docs]</a>
@@ -910,15 +910,15 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="PudlResourceKey.__repr__">
 <a class="viewcode-back" href="../../../autoapi/pudl/workspace/resource_cache/index.html#pudl.workspace.resource_cache.PudlResourceKey.__repr__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns string representation of PudlResourceKey.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Resource(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">doi</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">)&quot;</span></div>
+<span class="w">        </span><span class="sd">"""Returns string representation of PudlResourceKey."""</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"Resource(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">doi</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">)"</span></div>
 
 
 <div class="viewcode-block" id="PudlResourceKey.get_local_path">
 <a class="viewcode-back" href="../../../autoapi/pudl/workspace/resource_cache/index.html#pudl.workspace.resource_cache.PudlResourceKey.get_local_path">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_local_path</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns (relative) path that should be used when caching this resource.&quot;&quot;&quot;</span>
-        <span class="n">doi_dirname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">doi</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="sd">"""Returns (relative) path that should be used when caching this resource."""</span>
+        <span class="n">doi_dirname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">doi</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"/"</span><span class="p">,</span> <span class="s2">"-"</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">)</span> <span class="o">/</span> <span class="n">doi_dirname</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span></div>
 </div>
 
@@ -927,10 +927,10 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="AbstractCache">
 <a class="viewcode-back" href="../../../autoapi/pudl/workspace/resource_cache/index.html#pudl.workspace.resource_cache.AbstractCache">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">AbstractCache</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Defines interaface for the generic resource caching layer.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Defines interaface for the generic resource caching layer."""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">read_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Constructs instance and sets read_only attribute.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Constructs instance and sets read_only attribute."""</span>
 <div class="viewcode-block" id="AbstractCache._read_only">
 <a class="viewcode-back" href="../../../autoapi/pudl/workspace/resource_cache/index.html#pudl.workspace.resource_cache.AbstractCache._read_only">[docs]</a>
         <span class="bp">self</span><span class="o">.</span><span class="n">_read_only</span> <span class="o">=</span> <span class="n">read_only</span></div>
@@ -939,7 +939,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="AbstractCache.is_read_only">
 <a class="viewcode-back" href="../../../autoapi/pudl/workspace/resource_cache/index.html#pudl.workspace.resource_cache.AbstractCache.is_read_only">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">is_read_only</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns true if the cache is read-only and should not be modified.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Returns true if the cache is read-only and should not be modified."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_only</span></div>
 
 
@@ -947,28 +947,28 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="AbstractCache.get">
 <a class="viewcode-back" href="../../../autoapi/pudl/workspace/resource_cache/index.html#pudl.workspace.resource_cache.AbstractCache.get">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resource</span><span class="p">:</span> <span class="n">PudlResourceKey</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retrieves content of given resource or throws KeyError.&quot;&quot;&quot;</span></div>
+<span class="w">        </span><span class="sd">"""Retrieves content of given resource or throws KeyError."""</span></div>
 
 
     <span class="nd">@abstractmethod</span>
 <div class="viewcode-block" id="AbstractCache.add">
 <a class="viewcode-back" href="../../../autoapi/pudl/workspace/resource_cache/index.html#pudl.workspace.resource_cache.AbstractCache.add">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resource</span><span class="p">:</span> <span class="n">PudlResourceKey</span><span class="p">,</span> <span class="n">content</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Adds resource to the cache and sets the content.&quot;&quot;&quot;</span></div>
+<span class="w">        </span><span class="sd">"""Adds resource to the cache and sets the content."""</span></div>
 
 
     <span class="nd">@abstractmethod</span>
 <div class="viewcode-block" id="AbstractCache.delete">
 <a class="viewcode-back" href="../../../autoapi/pudl/workspace/resource_cache/index.html#pudl.workspace.resource_cache.AbstractCache.delete">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resource</span><span class="p">:</span> <span class="n">PudlResourceKey</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Removes the resource from cache.&quot;&quot;&quot;</span></div>
+<span class="w">        </span><span class="sd">"""Removes the resource from cache."""</span></div>
 
 
     <span class="nd">@abstractmethod</span>
 <div class="viewcode-block" id="AbstractCache.contains">
 <a class="viewcode-back" href="../../../autoapi/pudl/workspace/resource_cache/index.html#pudl.workspace.resource_cache.AbstractCache.contains">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">contains</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resource</span><span class="p">:</span> <span class="n">PudlResourceKey</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns True if the resource is present in the cache.&quot;&quot;&quot;</span></div>
+<span class="w">        </span><span class="sd">"""Returns True if the resource is present in the cache."""</span></div>
 </div>
 
 
@@ -976,9 +976,9 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="UPathCache">
 <a class="viewcode-back" href="../../../autoapi/pudl/workspace/resource_cache/index.html#pudl.workspace.resource_cache.UPathCache">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">UPathCache</span><span class="p">(</span><span class="n">AbstractCache</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Implements file cache using UPath for unified access to multiple storage backends.</span>
+<span class="w">    </span><span class="sd">"""Implements file cache using UPath for unified access to multiple storage backends.</span>
 
-<span class="sd">    This cache uses universal_pathlib&#39;s UPath to provide a unified interface</span>
+<span class="sd">    This cache uses universal_pathlib's UPath to provide a unified interface</span>
 <span class="sd">    for accessing data stored in S3, GCS, or local filesystems. It handles backend-specific</span>
 <span class="sd">    authentication and credential management internally.</span>
 
@@ -986,15 +986,15 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        - s3://bucket-name/path/prefix</span>
 <span class="sd">        - gs://bucket-name/path/prefix</span>
 <span class="sd">        - file:///local/path</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="UPathCache.supported_protocols">
 <a class="viewcode-back" href="../../../autoapi/pudl/workspace/resource_cache/index.html#pudl.workspace.resource_cache.UPathCache.supported_protocols">[docs]</a>
-    <span class="n">supported_protocols</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;s3&quot;</span><span class="p">,</span> <span class="s2">&quot;gs&quot;</span><span class="p">,</span> <span class="s2">&quot;file&quot;</span><span class="p">}</span></div>
+    <span class="n">supported_protocols</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"s3"</span><span class="p">,</span> <span class="s2">"gs"</span><span class="p">,</span> <span class="s2">"file"</span><span class="p">}</span></div>
 
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">storage_upath</span><span class="p">:</span> <span class="n">UPath</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Constructs new cache using UPath for storage backend access.</span>
+<span class="w">        </span><span class="sd">"""Constructs new cache using UPath for storage backend access.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            storage_upath: UPath object pointing to where data should be stored.</span>
@@ -1002,7 +1002,7 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">        Raises:</span>
 <span class="sd">            ValueError: if storage_upath uses an unsupported scheme</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
 <div class="viewcode-block" id="UPathCache._protocol">
@@ -1013,8 +1013,8 @@ window.runMermaid = runMermaid;</script>
         <span class="c1"># Validate supported schemes</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_protocol</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">supported_protocols</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Unsupported storage scheme: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_protocol</span><span class="si">}</span><span class="s2">. &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;Supported schemes are: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">supported_protocols</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">"Unsupported storage scheme: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_protocol</span><span class="si">}</span><span class="s2">. "</span>
+                <span class="sa">f</span><span class="s2">"Supported schemes are: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">supported_protocols</span><span class="si">}</span><span class="s2">"</span>
             <span class="p">)</span>
 
         <span class="c1"># Initialize UPath with appropriate storage options</span>
@@ -1029,64 +1029,64 @@ window.runMermaid = runMermaid;</script>
 
 
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;UPathCache initialized with scheme=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_protocol</span><span class="si">}</span><span class="s2">, &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;base_path=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_path</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">"UPathCache initialized with scheme=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_protocol</span><span class="si">}</span><span class="s2">, "</span>
+            <span class="sa">f</span><span class="s2">"base_path=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_path</span><span class="si">}</span><span class="s2">"</span>
         <span class="p">)</span>
 
 <div class="viewcode-block" id="UPathCache.__repr__">
 <a class="viewcode-back" href="../../../autoapi/pudl/workspace/resource_cache/index.html#pudl.workspace.resource_cache.UPathCache.__repr__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns string representation of UPathCache.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;UPathCache(storage_path=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_path</span><span class="si">}</span><span class="s2">)&quot;</span></div>
+<span class="w">        </span><span class="sd">"""Returns string representation of UPathCache."""</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"UPathCache(storage_path=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_path</span><span class="si">}</span><span class="s2">)"</span></div>
 
 
 <div class="viewcode-block" id="UPathCache._setup_credentials">
 <a class="viewcode-back" href="../../../autoapi/pudl/workspace/resource_cache/index.html#pudl.workspace.resource_cache.UPathCache._setup_credentials">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_setup_credentials</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set up backend-specific credentials and storage options.</span>
+<span class="w">        </span><span class="sd">"""Set up backend-specific credentials and storage options.</span>
 
 <span class="sd">        This should be the only place where backend-specific logic is required.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            Dictionary of storage options to pass to UPath</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">storage_options</span> <span class="o">=</span> <span class="p">{}</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_protocol</span> <span class="o">==</span> <span class="s2">&quot;s3&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_protocol</span> <span class="o">==</span> <span class="s2">"s3"</span><span class="p">:</span>
             <span class="c1"># Check if AWS credentials are available</span>
             <span class="n">session</span> <span class="o">=</span> <span class="n">boto3</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
             <span class="n">credentials</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">get_credentials</span><span class="p">()</span>
 
             <span class="k">if</span> <span class="n">credentials</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="c1"># No credentials available, use anonymous access for public buckets</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;No AWS credentials found, using anonymous S3 access&quot;</span><span class="p">)</span>
-                <span class="n">storage_options</span><span class="p">[</span><span class="s2">&quot;anon&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"No AWS credentials found, using anonymous S3 access"</span><span class="p">)</span>
+                <span class="n">storage_options</span><span class="p">[</span><span class="s2">"anon"</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_only</span><span class="p">:</span>
                     <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                        <span class="s2">&quot;Marking cache as read-only due to missing credentials.&quot;</span>
+                        <span class="s2">"Marking cache as read-only due to missing credentials."</span>
                     <span class="p">)</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_read_only</span> <span class="o">=</span> <span class="kc">True</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Using AWS credentials for S3 access&quot;</span><span class="p">)</span>
-                <span class="n">storage_options</span><span class="p">[</span><span class="s2">&quot;anon&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Using AWS credentials for S3 access"</span><span class="p">)</span>
+                <span class="n">storage_options</span><span class="p">[</span><span class="s2">"anon"</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
 
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_protocol</span> <span class="o">==</span> <span class="s2">&quot;gs&quot;</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_protocol</span> <span class="o">==</span> <span class="s2">"gs"</span><span class="p">:</span>
             <span class="c1"># For GCS, attempt to get default credentials</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">credentials</span><span class="p">,</span> <span class="n">project_id</span> <span class="o">=</span> <span class="n">google</span><span class="o">.</span><span class="n">auth</span><span class="o">.</span><span class="n">default</span><span class="p">()</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Using GCP credentials with project_id=</span><span class="si">{</span><span class="n">project_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-                <span class="c1"># fsspec&#39;s gcsfs will automatically use default credentials</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Using GCP credentials with project_id=</span><span class="si">{</span><span class="n">project_id</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+                <span class="c1"># fsspec's gcsfs will automatically use default credentials</span>
                 <span class="c1"># We can pass the project for requester-pays buckets</span>
                 <span class="k">if</span> <span class="n">project_id</span><span class="p">:</span>
-                    <span class="n">storage_options</span><span class="p">[</span><span class="s2">&quot;project&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">project_id</span>
+                    <span class="n">storage_options</span><span class="p">[</span><span class="s2">"project"</span><span class="p">]</span> <span class="o">=</span> <span class="n">project_id</span>
             <span class="k">except</span> <span class="n">google</span><span class="o">.</span><span class="n">auth</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">GoogleAuthError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Could not load GCP credentials: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">. Attempting anonymous access.&quot;</span>
+                    <span class="sa">f</span><span class="s2">"Could not load GCP credentials: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">. Attempting anonymous access."</span>
                 <span class="p">)</span>
-                <span class="n">storage_options</span><span class="p">[</span><span class="s2">&quot;token&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;anon&quot;</span>  <span class="c1"># noqa: S105</span>
+                <span class="n">storage_options</span><span class="p">[</span><span class="s2">"token"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"anon"</span>  <span class="c1"># noqa: S105</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_only</span><span class="p">:</span>
                     <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                        <span class="s2">&quot;Marking cache as read-only due to missing credentials.&quot;</span>
+                        <span class="s2">"Marking cache as read-only due to missing credentials."</span>
                     <span class="p">)</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_read_only</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="c1"># For local filesystem, no special credentials needed</span>
@@ -1096,32 +1096,32 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="UPathCache._resource_path">
 <a class="viewcode-back" href="../../../autoapi/pudl/workspace/resource_cache/index.html#pudl.workspace.resource_cache.UPathCache._resource_path">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_resource_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resource</span><span class="p">:</span> <span class="n">PudlResourceKey</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UPath</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the UPath for a given resource.</span>
+<span class="w">        </span><span class="sd">"""Get the UPath for a given resource.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            resource: The resource to get the path for</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            UPath object pointing to the resource location</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_base_path</span> <span class="o">/</span> <span class="n">resource</span><span class="o">.</span><span class="n">get_local_path</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="UPathCache.is_anonymous">
 <a class="viewcode-back" href="../../../autoapi/pudl/workspace/resource_cache/index.html#pudl.workspace.resource_cache.UPathCache.is_anonymous">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">is_anonymous</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns True if the cache is using anonymous access (no credentials).&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_protocol</span> <span class="o">==</span> <span class="s2">&quot;s3&quot;</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_storage_options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;anon&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_protocol</span> <span class="o">==</span> <span class="s2">&quot;gs&quot;</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_storage_options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;token&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;anon&quot;</span>
+<span class="w">        </span><span class="sd">"""Returns True if the cache is using anonymous access (no credentials)."""</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_protocol</span> <span class="o">==</span> <span class="s2">"s3"</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_storage_options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"anon"</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_protocol</span> <span class="o">==</span> <span class="s2">"gs"</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_storage_options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"token"</span><span class="p">)</span> <span class="o">==</span> <span class="s2">"anon"</span>
         <span class="k">return</span> <span class="kc">False</span></div>
 
 
 <div class="viewcode-block" id="UPathCache.get">
 <a class="viewcode-back" href="../../../autoapi/pudl/workspace/resource_cache/index.html#pudl.workspace.resource_cache.UPathCache.get">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resource</span><span class="p">:</span> <span class="n">PudlResourceKey</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retrieves value associated with given resource.</span>
+<span class="w">        </span><span class="sd">"""Retrieves value associated with given resource.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            resource: The resource to retrieve</span>
@@ -1130,22 +1130,22 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">            The content of the resource as bytes</span>
 
 <span class="sd">        Raises:</span>
-<span class="sd">            KeyError: if the resource doesn&#39;t exist</span>
+<span class="sd">            KeyError: if the resource doesn't exist</span>
 <span class="sd">            Exception: for other storage backend errors</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resource_path</span><span class="p">(</span><span class="n">resource</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Getting </span><span class="si">{</span><span class="n">resource</span><span class="si">}</span><span class="s2"> from UPath cache at </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Getting </span><span class="si">{</span><span class="n">resource</span><span class="si">}</span><span class="s2"> from UPath cache at </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">path</span><span class="o">.</span><span class="n">read_bytes</span><span class="p">()</span>
         <span class="k">except</span> <span class="ne">FileNotFoundError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">resource</span><span class="si">}</span><span class="s2"> not found at </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span></div>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">resource</span><span class="si">}</span><span class="s2"> not found at </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span></div>
 
 
 <div class="viewcode-block" id="UPathCache.add">
 <a class="viewcode-back" href="../../../autoapi/pudl/workspace/resource_cache/index.html#pudl.workspace.resource_cache.UPathCache.add">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resource</span><span class="p">:</span> <span class="n">PudlResourceKey</span><span class="p">,</span> <span class="n">content</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Adds (or updates) resource to the cache with given content.</span>
+<span class="w">        </span><span class="sd">"""Adds (or updates) resource to the cache with given content.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            resource: The resource to add</span>
@@ -1153,16 +1153,16 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">        Raises:</span>
 <span class="sd">            RuntimeError: if cache is read-only or credentials are insufficient</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_read_only</span><span class="p">():</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_anonymous</span><span class="p">():</span>
-                <span class="n">reason</span> <span class="o">=</span> <span class="s2">&quot;Only anonymous credentials are available.&quot;</span>
+                <span class="n">reason</span> <span class="o">=</span> <span class="s2">"Only anonymous credentials are available."</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">reason</span> <span class="o">=</span> <span class="s2">&quot;The cache was explicitly initialized with read_only=True.&quot;</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cannot add </span><span class="si">{</span><span class="n">resource</span><span class="si">}</span><span class="s2"> to cache. </span><span class="si">{</span><span class="n">reason</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">reason</span> <span class="o">=</span> <span class="s2">"The cache was explicitly initialized with read_only=True."</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Cannot add </span><span class="si">{</span><span class="n">resource</span><span class="si">}</span><span class="s2"> to cache. </span><span class="si">{</span><span class="n">reason</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
         <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resource_path</span><span class="p">(</span><span class="n">resource</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Adding </span><span class="si">{</span><span class="n">resource</span><span class="si">}</span><span class="s2"> to UPath cache at </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Adding </span><span class="si">{</span><span class="n">resource</span><span class="si">}</span><span class="s2"> to UPath cache at </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
         <span class="c1"># Ensure parent directories exist</span>
         <span class="n">path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -1171,55 +1171,55 @@ window.runMermaid = runMermaid;</script>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">path</span><span class="o">.</span><span class="n">write_bytes</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
         <span class="k">except</span> <span class="p">(</span><span class="ne">OSError</span><span class="p">,</span> <span class="n">botocore</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">ClientError</span><span class="p">,</span> <span class="n">gcsfs</span><span class="o">.</span><span class="n">retry</span><span class="o">.</span><span class="n">HttpError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="c1"># If we aren&#39;t read-only but writing failed, it&#39;s likely a permission issue</span>
+            <span class="c1"># If we aren't read-only but writing failed, it's likely a permission issue</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Failed to write </span><span class="si">{</span><span class="n">resource</span><span class="si">}</span><span class="s2"> to cache. You have credentials, &quot;</span>
-                <span class="s2">&quot;but they may not give you write permissions for this object.&quot;</span>
+                <span class="sa">f</span><span class="s2">"Failed to write </span><span class="si">{</span><span class="n">resource</span><span class="si">}</span><span class="s2"> to cache. You have credentials, "</span>
+                <span class="s2">"but they may not give you write permissions for this object."</span>
             <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span></div>
 
 
 <div class="viewcode-block" id="UPathCache.delete">
 <a class="viewcode-back" href="../../../autoapi/pudl/workspace/resource_cache/index.html#pudl.workspace.resource_cache.UPathCache.delete">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resource</span><span class="p">:</span> <span class="n">PudlResourceKey</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Deletes resource from the cache.</span>
+<span class="w">        </span><span class="sd">"""Deletes resource from the cache.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            resource: The resource to delete</span>
 
 <span class="sd">        Raises:</span>
 <span class="sd">            RuntimeError: if cache is read-only or credentials are insufficient</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_read_only</span><span class="p">():</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_anonymous</span><span class="p">():</span>
-                <span class="n">reason</span> <span class="o">=</span> <span class="s2">&quot;Only anonymous credentials are available.&quot;</span>
+                <span class="n">reason</span> <span class="o">=</span> <span class="s2">"Only anonymous credentials are available."</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">reason</span> <span class="o">=</span> <span class="s2">&quot;The cache was explicitly initialized with read_only=True.&quot;</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cannot delete </span><span class="si">{</span><span class="n">resource</span><span class="si">}</span><span class="s2"> from cache. </span><span class="si">{</span><span class="n">reason</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">reason</span> <span class="o">=</span> <span class="s2">"The cache was explicitly initialized with read_only=True."</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Cannot delete </span><span class="si">{</span><span class="n">resource</span><span class="si">}</span><span class="s2"> from cache. </span><span class="si">{</span><span class="n">reason</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
         <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resource_path</span><span class="p">(</span><span class="n">resource</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Deleting </span><span class="si">{</span><span class="n">resource</span><span class="si">}</span><span class="s2"> from UPath cache at </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Deleting </span><span class="si">{</span><span class="n">resource</span><span class="si">}</span><span class="s2"> from UPath cache at </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
         <span class="k">try</span><span class="p">:</span>
             <span class="n">path</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">missing_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">except</span> <span class="p">(</span><span class="ne">OSError</span><span class="p">,</span> <span class="n">botocore</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">ClientError</span><span class="p">,</span> <span class="n">gcsfs</span><span class="o">.</span><span class="n">retry</span><span class="o">.</span><span class="n">HttpError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error deleting </span><span class="si">{</span><span class="n">resource</span><span class="si">}</span><span class="s2"> from UPath cache: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Error deleting </span><span class="si">{</span><span class="n">resource</span><span class="si">}</span><span class="s2"> from UPath cache: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Failed to delete </span><span class="si">{</span><span class="n">resource</span><span class="si">}</span><span class="s2"> from cache. You have credentials, &quot;</span>
-                <span class="s2">&quot;but they may not give you write permissions for this object.&quot;</span>
+                <span class="sa">f</span><span class="s2">"Failed to delete </span><span class="si">{</span><span class="n">resource</span><span class="si">}</span><span class="s2"> from cache. You have credentials, "</span>
+                <span class="s2">"but they may not give you write permissions for this object."</span>
             <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span></div>
 
 
 <div class="viewcode-block" id="UPathCache.contains">
 <a class="viewcode-back" href="../../../autoapi/pudl/workspace/resource_cache/index.html#pudl.workspace.resource_cache.UPathCache.contains">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">contains</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resource</span><span class="p">:</span> <span class="n">PudlResourceKey</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns True if resource is present in the cache.</span>
+<span class="w">        </span><span class="sd">"""Returns True if resource is present in the cache.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            resource: The resource to check</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            True if the resource exists, False otherwise</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resource_path</span><span class="p">(</span><span class="n">resource</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span></div>
 </div>
 
@@ -1228,7 +1228,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="LayeredCache">
 <a class="viewcode-back" href="../../../autoapi/pudl/workspace/resource_cache/index.html#pudl.workspace.resource_cache.LayeredCache">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">LayeredCache</span><span class="p">(</span><span class="n">AbstractCache</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Implements multi-layered system of caches.</span>
+<span class="w">    </span><span class="sd">"""Implements multi-layered system of caches.</span>
 
 <span class="sd">    This allows building multi-layered system of caches. The idea is that you can have</span>
 <span class="sd">    faster local caches with fall-back to the more remote or expensive caches that can</span>
@@ -1236,15 +1236,15 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">    Only the closest layer is being written to (set, delete), while all remaining layers</span>
 <span class="sd">    are read-only (get).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">caches</span><span class="p">:</span> <span class="n">AbstractCache</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Creates layered cache consisting of given cache layers.</span>
+<span class="w">        </span><span class="sd">"""Creates layered cache consisting of given cache layers.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            caches: List of caching layers to uses. These are given in the order</span>
 <span class="sd">              of decreasing priority.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 <div class="viewcode-block" id="LayeredCache._caches">
 <a class="viewcode-back" href="../../../autoapi/pudl/workspace/resource_cache/index.html#pudl.workspace.resource_cache.LayeredCache._caches">[docs]</a>
@@ -1254,32 +1254,32 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="LayeredCache.add_cache_layer">
 <a class="viewcode-back" href="../../../autoapi/pudl/workspace/resource_cache/index.html#pudl.workspace.resource_cache.LayeredCache.add_cache_layer">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">add_cache_layer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cache</span><span class="p">:</span> <span class="n">AbstractCache</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Adds caching layer.</span>
+<span class="w">        </span><span class="sd">"""Adds caching layer.</span>
 
 <span class="sd">        The priority is below all other.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_caches</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cache</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="LayeredCache.num_layers">
 <a class="viewcode-back" href="../../../autoapi/pudl/workspace/resource_cache/index.html#pudl.workspace.resource_cache.LayeredCache.num_layers">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">num_layers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns number of caching layers that are in this LayeredCache.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Returns number of caching layers that are in this LayeredCache."""</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_caches</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="LayeredCache.get">
 <a class="viewcode-back" href="../../../autoapi/pudl/workspace/resource_cache/index.html#pudl.workspace.resource_cache.LayeredCache.get">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resource</span><span class="p">:</span> <span class="n">PudlResourceKey</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns content of a given resource.</span>
+<span class="w">        </span><span class="sd">"""Returns content of a given resource.</span>
 
 <span class="sd">        When a resource is found in a distant cache layer, it is automatically populated</span>
 <span class="sd">        into all closer (higher-priority) cache layers that are writable.  This ensures</span>
 <span class="sd">        optimal cache performance for subsequent accesses.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">cache</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_caches</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">cache</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="n">resource</span><span class="p">):</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;get:</span><span class="si">{</span><span class="n">resource</span><span class="si">}</span><span class="s2"> found in layer </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">cache</span><span class="si">}</span><span class="s2">).&quot;</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">"get:</span><span class="si">{</span><span class="n">resource</span><span class="si">}</span><span class="s2"> found in layer </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">cache</span><span class="si">}</span><span class="s2">)."</span><span class="p">)</span>
                 <span class="n">content</span> <span class="o">=</span> <span class="n">cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">resource</span><span class="p">)</span>
 
                 <span class="c1"># Populate all closer cache layers with this content</span>
@@ -1288,54 +1288,54 @@ window.runMermaid = runMermaid;</script>
                     <span class="k">if</span> <span class="ow">not</span> <span class="n">closer_cache</span><span class="o">.</span><span class="n">is_read_only</span><span class="p">():</span>
                         <span class="k">if</span> <span class="n">closer_cache</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="n">resource</span><span class="p">):</span>
                             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">resource</span><span class="si">}</span><span class="s2"> already exists in layer </span><span class="si">{</span><span class="n">j</span><span class="si">}</span><span class="s2"> &quot;</span>
-                                <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="n">closer_cache</span><span class="si">}</span><span class="s2">). Skipping update.&quot;</span>
+                                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">resource</span><span class="si">}</span><span class="s2"> already exists in layer </span><span class="si">{</span><span class="n">j</span><span class="si">}</span><span class="s2"> "</span>
+                                <span class="sa">f</span><span class="s2">"(</span><span class="si">{</span><span class="n">closer_cache</span><span class="si">}</span><span class="s2">). Skipping update."</span>
                             <span class="p">)</span>
                             <span class="k">continue</span>
                         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                            <span class="sa">f</span><span class="s2">&quot;Populating </span><span class="si">{</span><span class="n">resource</span><span class="si">}</span><span class="s2"> into closer layer </span><span class="si">{</span><span class="n">j</span><span class="si">}</span><span class="s2"> &quot;</span>
-                            <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="n">closer_cache</span><span class="si">}</span><span class="s2">) from layer </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span>
+                            <span class="sa">f</span><span class="s2">"Populating </span><span class="si">{</span><span class="n">resource</span><span class="si">}</span><span class="s2"> into closer layer </span><span class="si">{</span><span class="n">j</span><span class="si">}</span><span class="s2"> "</span>
+                            <span class="sa">f</span><span class="s2">"(</span><span class="si">{</span><span class="n">closer_cache</span><span class="si">}</span><span class="s2">) from layer </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">"</span>
                         <span class="p">)</span>
                         <span class="k">try</span><span class="p">:</span>
                             <span class="n">closer_cache</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="n">content</span><span class="p">)</span>
                         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
                             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                                <span class="sa">f</span><span class="s2">&quot;Failed to populate </span><span class="si">{</span><span class="n">resource</span><span class="si">}</span><span class="s2"> into layer </span><span class="si">{</span><span class="n">j</span><span class="si">}</span><span class="s2"> &quot;</span>
-                                <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="n">closer_cache</span><span class="si">}</span><span class="s2">): </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+                                <span class="sa">f</span><span class="s2">"Failed to populate </span><span class="si">{</span><span class="n">resource</span><span class="si">}</span><span class="s2"> into layer </span><span class="si">{</span><span class="n">j</span><span class="si">}</span><span class="s2"> "</span>
+                                <span class="sa">f</span><span class="s2">"(</span><span class="si">{</span><span class="n">closer_cache</span><span class="si">}</span><span class="s2">): </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span>
                             <span class="p">)</span>
 
                 <span class="k">return</span> <span class="n">content</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;get:</span><span class="si">{</span><span class="n">resource</span><span class="si">}</span><span class="s2"> not found in the layered cache.&quot;</span><span class="p">)</span>
-        <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">resource</span><span class="si">}</span><span class="s2"> not found in the layered cache&quot;</span><span class="p">)</span></div>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">"get:</span><span class="si">{</span><span class="n">resource</span><span class="si">}</span><span class="s2"> not found in the layered cache."</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">resource</span><span class="si">}</span><span class="s2"> not found in the layered cache"</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="LayeredCache.add">
 <a class="viewcode-back" href="../../../autoapi/pudl/workspace/resource_cache/index.html#pudl.workspace.resource_cache.LayeredCache.add">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resource</span><span class="p">:</span> <span class="n">PudlResourceKey</span><span class="p">,</span> <span class="n">content</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Adds (or replaces) resource into the cache with given content.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Adds (or replaces) resource into the cache with given content."""</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_read_only</span><span class="p">():</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Read only cache: ignoring set(</span><span class="si">{</span><span class="n">resource</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Read only cache: ignoring set(</span><span class="si">{</span><span class="n">resource</span><span class="si">}</span><span class="s2">)"</span><span class="p">)</span>
             <span class="k">return</span>
         <span class="k">for</span> <span class="n">cache_layer</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_caches</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">cache_layer</span><span class="o">.</span><span class="n">is_read_only</span><span class="p">():</span>
                 <span class="k">continue</span>
             <span class="k">if</span> <span class="n">cache_layer</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="n">resource</span><span class="p">):</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">resource</span><span class="si">}</span><span class="s2"> already exists in layer </span><span class="si">{</span><span class="n">cache_layer</span><span class="si">}</span><span class="s2">. &quot;</span>
-                    <span class="s2">&quot;Skipping update.&quot;</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">resource</span><span class="si">}</span><span class="s2"> already exists in layer </span><span class="si">{</span><span class="n">cache_layer</span><span class="si">}</span><span class="s2">. "</span>
+                    <span class="s2">"Skipping update."</span>
                 <span class="p">)</span>
                 <span class="k">continue</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Adding </span><span class="si">{</span><span class="n">resource</span><span class="si">}</span><span class="s2"> to cache </span><span class="si">{</span><span class="n">cache_layer</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Adding </span><span class="si">{</span><span class="n">resource</span><span class="si">}</span><span class="s2"> to cache </span><span class="si">{</span><span class="n">cache_layer</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
             <span class="n">cache_layer</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="n">content</span><span class="p">)</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Added </span><span class="si">{</span><span class="n">resource</span><span class="si">}</span><span class="s2"> to cache layer </span><span class="si">{</span><span class="n">cache_layer</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span></div>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Added </span><span class="si">{</span><span class="n">resource</span><span class="si">}</span><span class="s2"> to cache layer </span><span class="si">{</span><span class="n">cache_layer</span><span class="si">}</span><span class="s2">)"</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="LayeredCache.delete">
 <a class="viewcode-back" href="../../../autoapi/pudl/workspace/resource_cache/index.html#pudl.workspace.resource_cache.LayeredCache.delete">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resource</span><span class="p">:</span> <span class="n">PudlResourceKey</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Removes resource from the cache if the cache is not in the read_only mode.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Removes resource from the cache if the cache is not in the read_only mode."""</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_read_only</span><span class="p">():</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Read only cache: not removing </span><span class="si">{</span><span class="n">resource</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Read only cache: not removing </span><span class="si">{</span><span class="n">resource</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
             <span class="k">return</span>
         <span class="k">for</span> <span class="n">cache_layer</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_caches</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">cache_layer</span><span class="o">.</span><span class="n">is_read_only</span><span class="p">():</span>
@@ -1346,23 +1346,23 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="LayeredCache.contains">
 <a class="viewcode-back" href="../../../autoapi/pudl/workspace/resource_cache/index.html#pudl.workspace.resource_cache.LayeredCache.contains">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">contains</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resource</span><span class="p">:</span> <span class="n">PudlResourceKey</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns True if resource is present in the cache.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Returns True if resource is present in the cache."""</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">cache</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_caches</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">cache</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="n">resource</span><span class="p">):</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;contains: </span><span class="si">{</span><span class="n">resource</span><span class="si">}</span><span class="s2"> found in layer </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">cache</span><span class="si">}</span><span class="s2">).&quot;</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">"contains: </span><span class="si">{</span><span class="n">resource</span><span class="si">}</span><span class="s2"> found in layer </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">cache</span><span class="si">}</span><span class="s2">)."</span><span class="p">)</span>
                 <span class="k">return</span> <span class="kc">True</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;contains: </span><span class="si">{</span><span class="n">resource</span><span class="si">}</span><span class="s2"> not found in layered cache.&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">"contains: </span><span class="si">{</span><span class="n">resource</span><span class="si">}</span><span class="s2"> not found in layered cache."</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">False</span></div>
 
 
 <div class="viewcode-block" id="LayeredCache.is_optimally_cached">
 <a class="viewcode-back" href="../../../autoapi/pudl/workspace/resource_cache/index.html#pudl.workspace.resource_cache.LayeredCache.is_optimally_cached">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">is_optimally_cached</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resource</span><span class="p">:</span> <span class="n">PudlResourceKey</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return True if resource is contained in the closest write-enabled layer.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return True if resource is contained in the closest write-enabled layer."""</span>
         <span class="k">for</span> <span class="n">cache_layer</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_caches</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">cache_layer</span><span class="o">.</span><span class="n">is_read_only</span><span class="p">():</span>
                 <span class="k">continue</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">resource</span><span class="si">}</span><span class="s2"> optimally cached in </span><span class="si">{</span><span class="n">cache_layer</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">resource</span><span class="si">}</span><span class="s2"> optimally cached in </span><span class="si">{</span><span class="n">cache_layer</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">cache_layer</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="n">resource</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">False</span></div>
 </div>

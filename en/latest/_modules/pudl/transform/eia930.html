@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.transform.eia930 &#8212; PUDL 2026.8.1.dev18 documentation</title>
+    <title>pudl.transform.eia930 &#8212; PUDL 2026.8.1.dev19 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=f2b63aa7"></script>
+    <script src="../../../_static/documentation_options.js?v=5bf64ec1"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev18 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev18 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev19 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev19 documentation - Home"/>
   
   
 </a></div>
@@ -868,7 +868,7 @@ window.runMermaid = runMermaid;</script>
                 <article class="bd-article">
                   
   <h1>Source code for pudl.transform.eia930</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Module to perform data cleaning functions on EIA930 data tables.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Module to perform data cleaning functions on EIA930 data tables."""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
 
@@ -896,57 +896,57 @@ window.runMermaid = runMermaid;</script>
 <span class="k">def</span><span class="w"> </span><span class="nf">_transform_netgen_by_source</span><span class="p">(</span>
     <span class="n">table</span><span class="p">:</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">DuckDBPyRelation</span><span class="p">,</span> <span class="n">conn</span><span class="p">:</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">DuckDBPyConnection</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ParquetData</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Transform the eia930 netgen by source table.&quot;&quot;&quot;</span>
-    <span class="n">statuses</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;reported&quot;</span><span class="p">,</span> <span class="s2">&quot;adjusted&quot;</span><span class="p">,</span> <span class="s2">&quot;imputed&quot;</span><span class="p">]</span>
+<span class="w">    </span><span class="sd">"""Transform the eia930 netgen by source table."""</span>
+    <span class="n">statuses</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"reported"</span><span class="p">,</span> <span class="s2">"adjusted"</span><span class="p">,</span> <span class="s2">"imputed"</span><span class="p">]</span>
     <span class="n">nondata_cols</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="s2">&quot;datetime_utc&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;balancing_authority_code_eia&quot;</span><span class="p">,</span>
+        <span class="s2">"datetime_utc"</span><span class="p">,</span>
+        <span class="s2">"balancing_authority_code_eia"</span><span class="p">,</span>
     <span class="p">]</span>
     <span class="n">data_cols</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;net_generation_</span><span class="si">{</span><span class="n">fuel</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s2">_mwh&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">fuel</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="p">(</span><span class="sa">f</span><span class="s2">"net_generation_</span><span class="si">{</span><span class="n">fuel</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s2">_mwh"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">fuel</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">fuel</span> <span class="ow">in</span> <span class="n">GENERATION_ENERGY_SOURCES_EIA930</span>
         <span class="k">for</span> <span class="n">status</span> <span class="ow">in</span> <span class="n">statuses</span>
     <span class="p">]</span>
 
     <span class="c1"># Select only the columns that pertain to individual energy sources. Note that for</span>
-    <span class="c1"># the &quot;unknown&quot; energy source there are only &quot;reported&quot; values.</span>
+    <span class="c1"># the "unknown" energy source there are only "reported" values.</span>
     <span class="n">table</span><span class="o">.</span><span class="n">select</span><span class="p">(</span>
-        <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+        <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
             <span class="n">nondata_cols</span>
             <span class="o">+</span> <span class="p">[</span>
                 <span class="c1"># Set NULL vals to -1 to avoid rows being dropped in UNPIVOT</span>
-                <span class="sa">f</span><span class="s2">&quot;COALESCE(CAST(</span><span class="si">{</span><span class="n">long</span><span class="si">}</span><span class="s2"> AS FLOAT), -1) AS </span><span class="si">{</span><span class="n">short</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">"COALESCE(CAST(</span><span class="si">{</span><span class="n">long</span><span class="si">}</span><span class="s2"> AS FLOAT), -1) AS </span><span class="si">{</span><span class="n">short</span><span class="si">}</span><span class="s2">"</span>
                 <span class="k">for</span> <span class="n">long</span><span class="p">,</span> <span class="n">short</span> <span class="ow">in</span> <span class="n">data_cols</span>
             <span class="p">]</span>
         <span class="p">)</span>
-    <span class="p">)</span><span class="o">.</span><span class="n">to_view</span><span class="p">(</span><span class="s2">&quot;raw&quot;</span><span class="p">)</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">to_view</span><span class="p">(</span><span class="s2">"raw"</span><span class="p">)</span>
     <span class="n">conn</span><span class="o">.</span><span class="n">query</span><span class="p">(</span>
         <span class="c1"># Transform wide table to long</span>
         <span class="c1"># category column will contain values formatted like ``{energy_source}_{adjusted|imputed|reported}``</span>
-        <span class="s2">&quot;UNPIVOT raw &quot;</span>
-        <span class="sa">f</span><span class="s2">&quot;ON </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">short</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">_</span><span class="p">,</span><span class="w"> </span><span class="n">short</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">data_cols</span><span class="p">])</span><span class="si">}</span><span class="s2"> &quot;</span>
-        <span class="s2">&quot;INTO NAME category VALUE net_generation_mwh&quot;</span><span class="p">,</span>
+        <span class="s2">"UNPIVOT raw "</span>
+        <span class="sa">f</span><span class="s2">"ON </span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">short</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">_</span><span class="p">,</span><span class="w"> </span><span class="n">short</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">data_cols</span><span class="p">])</span><span class="si">}</span><span class="s2"> "</span>
+        <span class="s2">"INTO NAME category VALUE net_generation_mwh"</span><span class="p">,</span>
     <span class="p">)</span><span class="o">.</span><span class="n">select</span><span class="p">(</span>
         <span class="c1"># Split category column to separate generation_energy_source and status columns</span>
-        <span class="s2">&quot;* EXCLUDE(category, net_generation_mwh), &quot;</span>
-        <span class="s2">&quot;regexp_extract(category, &#39;^(.*)_([^_]*)$&#39;, 1) AS generation_energy_source, &quot;</span>
-        <span class="s2">&quot;regexp_extract(category, &#39;^(.*)_([^_]*)$&#39;, 2) AS value_type, &quot;</span>
-        <span class="s2">&quot;CASE WHEN net_generation_mwh = -1 THEN NULL ELSE net_generation_mwh END as net_generation_mwh&quot;</span>
-    <span class="p">)</span><span class="o">.</span><span class="n">to_view</span><span class="p">(</span><span class="s2">&quot;long&quot;</span><span class="p">)</span>
+        <span class="s2">"* EXCLUDE(category, net_generation_mwh), "</span>
+        <span class="s2">"regexp_extract(category, '^(.*)_([^_]*)$', 1) AS generation_energy_source, "</span>
+        <span class="s2">"regexp_extract(category, '^(.*)_([^_]*)$', 2) AS value_type, "</span>
+        <span class="s2">"CASE WHEN net_generation_mwh = -1 THEN NULL ELSE net_generation_mwh END as net_generation_mwh"</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">to_view</span><span class="p">(</span><span class="s2">"long"</span><span class="p">)</span>
     <span class="n">netgen_by_source</span> <span class="o">=</span> <span class="p">(</span>
         <span class="c1"># Widen table slightly contain one column per status</span>
-        <span class="n">conn</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s2">&quot;PIVOT long ON value_type USING first(net_generation_mwh)&quot;</span><span class="p">)</span>
+        <span class="n">conn</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s2">"PIVOT long ON value_type USING first(net_generation_mwh)"</span><span class="p">)</span>
         <span class="o">.</span><span class="n">select</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;* EXCLUDE(</span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">statuses</span><span class="p">)</span><span class="si">}</span><span class="s2">), &quot;</span>
-            <span class="s2">&quot;imputed as net_generation_imputed_eia_mwh, &quot;</span>
-            <span class="s2">&quot;reported as net_generation_reported_mwh, &quot;</span>
-            <span class="s2">&quot;adjusted as net_generation_adjusted_mwh&quot;</span>
+            <span class="sa">f</span><span class="s2">"* EXCLUDE(</span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">statuses</span><span class="p">)</span><span class="si">}</span><span class="s2">), "</span>
+            <span class="s2">"imputed as net_generation_imputed_eia_mwh, "</span>
+            <span class="s2">"reported as net_generation_reported_mwh, "</span>
+            <span class="s2">"adjusted as net_generation_adjusted_mwh"</span>
         <span class="p">)</span>
-        <span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="s2">&quot;datetime_utc, balancing_authority_code_eia, generation_energy_source&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="s2">"datetime_utc, balancing_authority_code_eia, generation_energy_source"</span><span class="p">)</span>
     <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">persist_table_as_parquet</span><span class="p">(</span>
-        <span class="n">netgen_by_source</span><span class="p">,</span> <span class="s2">&quot;core_eia930__hourly_net_generation_by_energy_source&quot;</span>
+        <span class="n">netgen_by_source</span><span class="p">,</span> <span class="s2">"core_eia930__hourly_net_generation_by_energy_source"</span>
     <span class="p">)</span></div>
 
 
@@ -956,56 +956,56 @@ window.runMermaid = runMermaid;</script>
 <span class="k">def</span><span class="w"> </span><span class="nf">_transform_hourly_operations</span><span class="p">(</span>
     <span class="n">table</span><span class="p">:</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">DuckDBPyRelation</span><span class="p">,</span> <span class="n">conn</span><span class="p">:</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">DuckDBPyConnection</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ParquetData</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Transform the eia930 hourly operations table.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Transform the eia930 hourly operations table."""</span>
     <span class="n">nondata_cols</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="s2">&quot;datetime_utc&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;balancing_authority_code_eia&quot;</span><span class="p">,</span>
+        <span class="s2">"datetime_utc"</span><span class="p">,</span>
+        <span class="s2">"balancing_authority_code_eia"</span><span class="p">,</span>
     <span class="p">]</span>
-    <span class="n">data_col_pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;(demand|interchange|net_generation_total)&quot;</span>
+    <span class="n">data_col_pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">"(demand|interchange|net_generation_total)"</span>
 
     <span class="c1"># Grab columns and rename as needed</span>
     <span class="n">operations</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">select</span><span class="p">(</span>
         <span class="o">*</span><span class="p">[</span>
             <span class="n">duckdb</span><span class="o">.</span><span class="n">ColumnExpression</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span>
-                <span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;net_generation_total_&quot;</span><span class="p">,</span> <span class="s2">&quot;net_generation_&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
-                    <span class="s2">&quot;imputed_mwh&quot;</span><span class="p">,</span> <span class="s2">&quot;imputed_eia_mwh&quot;</span>
+                <span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"net_generation_total_"</span><span class="p">,</span> <span class="s2">"net_generation_"</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+                    <span class="s2">"imputed_mwh"</span><span class="p">,</span> <span class="s2">"imputed_eia_mwh"</span>
                 <span class="p">)</span>
             <span class="p">)</span>
             <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">table</span><span class="o">.</span><span class="n">columns</span>
             <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">nondata_cols</span> <span class="ow">or</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">data_col_pattern</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
         <span class="p">],</span>
     <span class="p">)</span>
-    <span class="k">return</span> <span class="n">persist_table_as_parquet</span><span class="p">(</span><span class="n">operations</span><span class="p">,</span> <span class="s2">&quot;core_eia930__hourly_operations&quot;</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">persist_table_as_parquet</span><span class="p">(</span><span class="n">operations</span><span class="p">,</span> <span class="s2">"core_eia930__hourly_operations"</span><span class="p">)</span></div>
 
 
 
 <span class="nd">@multi_asset</span><span class="p">(</span>
     <span class="n">outs</span><span class="o">=</span><span class="p">{</span>
-        <span class="s2">&quot;core_eia930__hourly_net_generation_by_energy_source&quot;</span><span class="p">:</span> <span class="n">AssetOut</span><span class="p">(</span>
-            <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">&quot;parquet_io_manager&quot;</span>
+        <span class="s2">"core_eia930__hourly_net_generation_by_energy_source"</span><span class="p">:</span> <span class="n">AssetOut</span><span class="p">(</span>
+            <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"parquet_io_manager"</span>
         <span class="p">),</span>
-        <span class="s2">&quot;core_eia930__hourly_operations&quot;</span><span class="p">:</span> <span class="n">AssetOut</span><span class="p">(</span><span class="n">io_manager_key</span><span class="o">=</span><span class="s2">&quot;parquet_io_manager&quot;</span><span class="p">),</span>
+        <span class="s2">"core_eia930__hourly_operations"</span><span class="p">:</span> <span class="n">AssetOut</span><span class="p">(</span><span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"parquet_io_manager"</span><span class="p">),</span>
     <span class="p">},</span>
-    <span class="n">compute_kind</span><span class="o">=</span><span class="s2">&quot;pandas&quot;</span><span class="p">,</span>
+    <span class="n">compute_kind</span><span class="o">=</span><span class="s2">"pandas"</span><span class="p">,</span>
 <span class="p">)</span>
 <div class="viewcode-block" id="core_eia930__hourly_operations_assets">
 <a class="viewcode-back" href="../../../autoapi/pudl/transform/eia930/index.html#pudl.transform.eia930.core_eia930__hourly_operations_assets">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">core_eia930__hourly_operations_assets</span><span class="p">(</span>
     <span class="n">raw_eia930__balance</span><span class="p">:</span> <span class="n">ParquetData</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Separate raw_eia930__balance into net generation and demand tables.</span>
+<span class="w">    </span><span class="sd">"""Separate raw_eia930__balance into net generation and demand tables.</span>
 
 <span class="sd">    Energy source starts out in the column names, but is stacked into a categorical</span>
-<span class="sd">    column. For structural purposes &quot;interchange&quot; is also treated as an &quot;energy source&quot;</span>
-<span class="sd">    and stacked into the same column. For the moment &quot;total&quot; (sum of all energy sources)</span>
+<span class="sd">    column. For structural purposes "interchange" is also treated as an "energy source"</span>
+<span class="sd">    and stacked into the same column. For the moment "total" (sum of all energy sources)</span>
 <span class="sd">    is also included, because the reported and calculated totals across all energy</span>
 <span class="sd">    sources have significant differences which should be further explored.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">with</span> <span class="n">duckdb_relation_from_parquet</span><span class="p">(</span><span class="n">raw_eia930__balance</span><span class="p">)</span> <span class="k">as</span> <span class="p">(</span>
         <span class="n">tbl</span><span class="p">,</span>
         <span class="n">conn</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="n">conn</span><span class="o">.</span><span class="n">sql</span><span class="p">(</span><span class="s2">&quot;SET memory_limit = &#39;16GB&#39;;&quot;</span><span class="p">)</span>
+        <span class="n">conn</span><span class="o">.</span><span class="n">sql</span><span class="p">(</span><span class="s2">"SET memory_limit = '16GB';"</span><span class="p">)</span>
         <span class="n">netgen_parquet</span> <span class="o">=</span> <span class="n">_transform_netgen_by_source</span><span class="p">(</span><span class="n">tbl</span><span class="p">,</span> <span class="n">conn</span><span class="p">)</span>
         <span class="n">operations</span> <span class="o">=</span> <span class="n">_transform_hourly_operations</span><span class="p">(</span><span class="n">tbl</span><span class="p">,</span> <span class="n">conn</span><span class="p">)</span>
 
@@ -1014,61 +1014,61 @@ window.runMermaid = runMermaid;</script>
     <span class="k">return</span> <span class="p">(</span>
         <span class="n">Output</span><span class="p">(</span>
             <span class="n">value</span><span class="o">=</span><span class="n">lf_from_parquet</span><span class="p">(</span><span class="n">netgen_parquet</span><span class="p">),</span>
-            <span class="n">output_name</span><span class="o">=</span><span class="s2">&quot;core_eia930__hourly_net_generation_by_energy_source&quot;</span><span class="p">,</span>
+            <span class="n">output_name</span><span class="o">=</span><span class="s2">"core_eia930__hourly_net_generation_by_energy_source"</span><span class="p">,</span>
         <span class="p">),</span>
         <span class="n">Output</span><span class="p">(</span>
             <span class="n">value</span><span class="o">=</span><span class="n">lf_from_parquet</span><span class="p">(</span><span class="n">operations</span><span class="p">),</span>
-            <span class="n">output_name</span><span class="o">=</span><span class="s2">&quot;core_eia930__hourly_operations&quot;</span><span class="p">,</span>
+            <span class="n">output_name</span><span class="o">=</span><span class="s2">"core_eia930__hourly_operations"</span><span class="p">,</span>
         <span class="p">),</span>
     <span class="p">)</span></div>
 
 
 
 <span class="nd">@asset</span><span class="p">(</span>
-    <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">&quot;parquet_io_manager&quot;</span><span class="p">,</span>
-    <span class="n">compute_kind</span><span class="o">=</span><span class="s2">&quot;pandas&quot;</span><span class="p">,</span>
+    <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"parquet_io_manager"</span><span class="p">,</span>
+    <span class="n">compute_kind</span><span class="o">=</span><span class="s2">"pandas"</span><span class="p">,</span>
 <span class="p">)</span>
 <div class="viewcode-block" id="core_eia930__hourly_subregion_demand">
 <a class="viewcode-back" href="../../../autoapi/pudl/transform/eia930/index.html#pudl.transform.eia930.core_eia930__hourly_subregion_demand">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">core_eia930__hourly_subregion_demand</span><span class="p">(</span>
     <span class="n">raw_eia930__subregion</span><span class="p">:</span> <span class="n">ParquetData</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Produce a normalized table of hourly electricity demand by BA subregion.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Produce a normalized table of hourly electricity demand by BA subregion."""</span>
     <span class="n">raw_eia930__subregion_df</span> <span class="o">=</span> <span class="n">df_from_parquet</span><span class="p">(</span><span class="n">raw_eia930__subregion</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">raw_eia930__subregion_df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
         <span class="n">balancing_authority_subregion_code_eia</span><span class="o">=</span><span class="k">lambda</span> <span class="n">df</span><span class="p">:</span> <span class="n">df</span><span class="p">[</span>
-            <span class="s2">&quot;balancing_authority_subregion_code_eia&quot;</span>
+            <span class="s2">"balancing_authority_subregion_code_eia"</span>
         <span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
     <span class="p">)</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
         <span class="p">:,</span>
         <span class="p">[</span>
-            <span class="s2">&quot;datetime_utc&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;balancing_authority_code_eia&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;balancing_authority_subregion_code_eia&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;demand_reported_mwh&quot;</span><span class="p">,</span>
+            <span class="s2">"datetime_utc"</span><span class="p">,</span>
+            <span class="s2">"balancing_authority_code_eia"</span><span class="p">,</span>
+            <span class="s2">"balancing_authority_subregion_code_eia"</span><span class="p">,</span>
+            <span class="s2">"demand_reported_mwh"</span><span class="p">,</span>
         <span class="p">],</span>
     <span class="p">]</span></div>
 
 
 
 <span class="nd">@asset</span><span class="p">(</span>
-    <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">&quot;parquet_io_manager&quot;</span><span class="p">,</span>
-    <span class="n">compute_kind</span><span class="o">=</span><span class="s2">&quot;pandas&quot;</span><span class="p">,</span>
+    <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"parquet_io_manager"</span><span class="p">,</span>
+    <span class="n">compute_kind</span><span class="o">=</span><span class="s2">"pandas"</span><span class="p">,</span>
 <span class="p">)</span>
 <div class="viewcode-block" id="core_eia930__hourly_interchange">
 <a class="viewcode-back" href="../../../autoapi/pudl/transform/eia930/index.html#pudl.transform.eia930.core_eia930__hourly_interchange">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">core_eia930__hourly_interchange</span><span class="p">(</span>
     <span class="n">raw_eia930__interchange</span><span class="p">:</span> <span class="n">ParquetData</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Produce a normalized table of hourly interchange by balancing authority.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Produce a normalized table of hourly interchange by balancing authority."""</span>
     <span class="n">raw_eia930__interchange_df</span> <span class="o">=</span> <span class="n">df_from_parquet</span><span class="p">(</span><span class="n">raw_eia930__interchange</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">raw_eia930__interchange_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
         <span class="p">:,</span>
         <span class="p">[</span>
-            <span class="s2">&quot;datetime_utc&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;balancing_authority_code_eia&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;balancing_authority_code_adjacent_eia&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;interchange_reported_mwh&quot;</span><span class="p">,</span>
+            <span class="s2">"datetime_utc"</span><span class="p">,</span>
+            <span class="s2">"balancing_authority_code_eia"</span><span class="p">,</span>
+            <span class="s2">"balancing_authority_code_adjacent_eia"</span><span class="p">,</span>
+            <span class="s2">"interchange_reported_mwh"</span><span class="p">,</span>
         <span class="p">],</span>
     <span class="p">]</span></div>
 

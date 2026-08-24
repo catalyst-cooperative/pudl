@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.metadata.descriptions &#8212; PUDL 2026.8.1.dev18 documentation</title>
+    <title>pudl.metadata.descriptions &#8212; PUDL 2026.8.1.dev19 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=f2b63aa7"></script>
+    <script src="../../../_static/documentation_options.js?v=5bf64ec1"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev18 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev18 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev19 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev19 documentation - Home"/>
   
   
 </a></div>
@@ -868,7 +868,7 @@ window.runMermaid = runMermaid;</script>
                 <article class="bd-article">
                   
   <h1>Source code for pudl.metadata.descriptions</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Mechanisms and constants for setting standard resource descriptions.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Mechanisms and constants for setting standard resource descriptions."""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">namedtuple</span>
@@ -886,54 +886,54 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="LAYER_DESCRIPTIONS">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/descriptions/index.html#pudl.metadata.descriptions.LAYER_DESCRIPTIONS">[docs]</a>
 <span class="n">LAYER_DESCRIPTIONS</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;raw&quot;</span><span class="p">:</span> <span class="p">(</span>
-        <span class="s2">&quot;Data has been extracted from original format, columns have been renamed for &quot;</span>
-        <span class="s2">&quot;consistency, and multiple reporting periods have been concatenated, but no &quot;</span>
-        <span class="s2">&quot;transformations or cleaning have been applied.&quot;</span>
+    <span class="s2">"raw"</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">"Data has been extracted from original format, columns have been renamed for "</span>
+        <span class="s2">"consistency, and multiple reporting periods have been concatenated, but no "</span>
+        <span class="s2">"transformations or cleaning have been applied."</span>
     <span class="p">),</span>
-    <span class="s2">&quot;_core&quot;</span><span class="p">:</span> <span class="p">(</span>
-        <span class="s2">&quot;Data has been cleaned but not tidied/normalized. Published only &quot;</span>
-        <span class="s2">&quot;temporarily and may be removed without notice.&quot;</span>
+    <span class="s2">"_core"</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">"Data has been cleaned but not tidied/normalized. Published only "</span>
+        <span class="s2">"temporarily and may be removed without notice."</span>
     <span class="p">),</span>
-    <span class="s2">&quot;core&quot;</span><span class="p">:</span> <span class="p">(</span>
-        <span class="s2">&quot;Data has been cleaned and organized into well-modeled tables that serve as &quot;</span>
-        <span class="s2">&quot;building blocks for downstream wide tables and analyses.&quot;</span>
+    <span class="s2">"core"</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">"Data has been cleaned and organized into well-modeled tables that serve as "</span>
+        <span class="s2">"building blocks for downstream wide tables and analyses."</span>
     <span class="p">),</span>
-    <span class="s2">&quot;out&quot;</span><span class="p">:</span> <span class="p">(</span>
-        <span class="s2">&quot;Data has been expanded into a wide/denormalized format, with IDs and codes &quot;</span>
-        <span class="s2">&quot;accompanied by human-readable names and descriptions.&quot;</span>
+    <span class="s2">"out"</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">"Data has been expanded into a wide/denormalized format, with IDs and codes "</span>
+        <span class="s2">"accompanied by human-readable names and descriptions."</span>
     <span class="p">),</span>
-    <span class="s2">&quot;out_narrow&quot;</span><span class="p">:</span> <span class="p">(</span>
+    <span class="s2">"out_narrow"</span><span class="p">:</span> <span class="p">(</span>
         <span class="c1"># this is a pseudo layer that does not appear in table names, but</span>
         <span class="c1"># allows us to accurately describe the few out tables that remain in</span>
         <span class="c1"># normalized format.</span>
-        <span class="s2">&quot;Data is ready for use in analyses, but for practical reasons has not been &quot;</span>
-        <span class="s2">&quot;denormalized and remains in narrow format.&quot;</span>
+        <span class="s2">"Data is ready for use in analyses, but for practical reasons has not been "</span>
+        <span class="s2">"denormalized and remains in narrow format."</span>
     <span class="p">),</span>
-    <span class="s2">&quot;test&quot;</span><span class="p">:</span> <span class="p">(</span>
-        <span class="s2">&quot;Only used in unit and integration testing; not intended for public &quot;</span>
-        <span class="s2">&quot;consumption.&quot;</span>
+    <span class="s2">"test"</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">"Only used in unit and integration testing; not intended for public "</span>
+        <span class="s2">"consumption."</span>
     <span class="p">),</span>
 <span class="p">}</span></div>
 
-<span class="sd">&quot;&quot;&quot;Standard descriptive text to appear in the Processing section of resource descriptions.&quot;&quot;&quot;</span>
+<span class="sd">"""Standard descriptive text to appear in the Processing section of resource descriptions."""</span>
 
 <span class="c1"># TODO: add link to https://docs.catalyst.coop/pudl/en/latest/data_sources/{datasource_name}.html</span>
 <span class="c1"># if we have a data_sources page for it.</span>
 <div class="viewcode-block" id="SOURCE_DESCRIPTIONS">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/descriptions/index.html#pudl.metadata.descriptions.SOURCE_DESCRIPTIONS">[docs]</a>
 <span class="n">SOURCE_DESCRIPTIONS</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="n">source_name</span><span class="p">:</span> <span class="n">SOURCES</span><span class="p">[</span><span class="n">source_name</span><span class="p">][</span><span class="s2">&quot;title&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">source_name</span> <span class="ow">in</span> <span class="n">SOURCES</span>
+    <span class="n">source_name</span><span class="p">:</span> <span class="n">SOURCES</span><span class="p">[</span><span class="n">source_name</span><span class="p">][</span><span class="s2">"title"</span><span class="p">]</span> <span class="k">for</span> <span class="n">source_name</span> <span class="ow">in</span> <span class="n">SOURCES</span>
 <span class="p">}</span> <span class="o">|</span> <span class="p">{</span>
-    <span class="s2">&quot;eia&quot;</span><span class="p">:</span> <span class="s2">&quot;EIA -- Mix of multiple EIA Forms&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;epa&quot;</span><span class="p">:</span> <span class="s2">&quot;EPA -- Mix of multiple EPA sources&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;ferc&quot;</span><span class="p">:</span> <span class="s2">&quot;FERC -- Mix of multiple FERC Forms&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;ferc1_xbrl&quot;</span><span class="p">:</span> <span class="s2">&quot;FERC 1 XBRL -- Post-2021 years of Annual Report of Major Electric Utilities&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;ferc1_dbf&quot;</span><span class="p">:</span> <span class="s2">&quot;FERC 1 DBF -- Pre-2021 years of Annual Report of Major Electric Utilities&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;rus&quot;</span><span class="p">:</span> <span class="s2">&quot;RUS -- Mix of multiple RUS forms&quot;</span><span class="p">,</span>
+    <span class="s2">"eia"</span><span class="p">:</span> <span class="s2">"EIA -- Mix of multiple EIA Forms"</span><span class="p">,</span>
+    <span class="s2">"epa"</span><span class="p">:</span> <span class="s2">"EPA -- Mix of multiple EPA sources"</span><span class="p">,</span>
+    <span class="s2">"ferc"</span><span class="p">:</span> <span class="s2">"FERC -- Mix of multiple FERC Forms"</span><span class="p">,</span>
+    <span class="s2">"ferc1_xbrl"</span><span class="p">:</span> <span class="s2">"FERC 1 XBRL -- Post-2021 years of Annual Report of Major Electric Utilities"</span><span class="p">,</span>
+    <span class="s2">"ferc1_dbf"</span><span class="p">:</span> <span class="s2">"FERC 1 DBF -- Pre-2021 years of Annual Report of Major Electric Utilities"</span><span class="p">,</span>
+    <span class="s2">"rus"</span><span class="p">:</span> <span class="s2">"RUS -- Mix of multiple RUS forms"</span><span class="p">,</span>
 <span class="p">}</span></div>
 
-<span class="sd">&quot;&quot;&quot;Standard descriptive text to appear in the Source section of resource descriptions.&quot;&quot;&quot;</span>
+<span class="sd">"""Standard descriptive text to appear in the Source section of resource descriptions."""</span>
 
 
 <div class="viewcode-block" id="TableTypeFragments.conjunction">
@@ -942,27 +942,27 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/descriptions/index.html#pudl.metadata.descriptions.TableTypeFragments.subject">[docs]</a>
 <div class="viewcode-block" id="TableTypeFragments">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/descriptions/index.html#pudl.metadata.descriptions.TableTypeFragments">[docs]</a>
-<span class="n">TableTypeFragments</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;TableTypeFragments&quot;</span><span class="p">,</span> <span class="s2">&quot;subject conjunction&quot;</span><span class="p">)</span></div>
+<span class="n">TableTypeFragments</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s2">"TableTypeFragments"</span><span class="p">,</span> <span class="s2">"subject conjunction"</span><span class="p">)</span></div>
 </div>
 </div>
 
 <div class="viewcode-block" id="TABLE_TYPE_FRAGMENTS">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/descriptions/index.html#pudl.metadata.descriptions.TABLE_TYPE_FRAGMENTS">[docs]</a>
 <span class="n">TABLE_TYPE_FRAGMENTS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">TableTypeFragments</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;assn&quot;</span><span class="p">:</span> <span class="n">TableTypeFragments</span><span class="p">(</span><span class="s2">&quot;Association table&quot;</span><span class="p">,</span> <span class="s2">&quot;providing connections between&quot;</span><span class="p">),</span>
-    <span class="s2">&quot;changelog&quot;</span><span class="p">:</span> <span class="n">TableTypeFragments</span><span class="p">(</span><span class="s2">&quot;Changelog table&quot;</span><span class="p">,</span> <span class="s2">&quot;tracking changes in&quot;</span><span class="p">),</span>
-    <span class="s2">&quot;codes&quot;</span><span class="p">:</span> <span class="n">TableTypeFragments</span><span class="p">(</span>
-        <span class="s2">&quot;Code table containing descriptions of categorical codes&quot;</span><span class="p">,</span> <span class="s2">&quot;for&quot;</span>
+    <span class="s2">"assn"</span><span class="p">:</span> <span class="n">TableTypeFragments</span><span class="p">(</span><span class="s2">"Association table"</span><span class="p">,</span> <span class="s2">"providing connections between"</span><span class="p">),</span>
+    <span class="s2">"changelog"</span><span class="p">:</span> <span class="n">TableTypeFragments</span><span class="p">(</span><span class="s2">"Changelog table"</span><span class="p">,</span> <span class="s2">"tracking changes in"</span><span class="p">),</span>
+    <span class="s2">"codes"</span><span class="p">:</span> <span class="n">TableTypeFragments</span><span class="p">(</span>
+        <span class="s2">"Code table containing descriptions of categorical codes"</span><span class="p">,</span> <span class="s2">"for"</span>
     <span class="p">),</span>
-    <span class="s2">&quot;entity&quot;</span><span class="p">:</span> <span class="n">TableTypeFragments</span><span class="p">(</span><span class="s2">&quot;Entity table containing static information&quot;</span><span class="p">,</span> <span class="s2">&quot;about&quot;</span><span class="p">),</span>
-    <span class="s2">&quot;scd&quot;</span><span class="p">:</span> <span class="n">TableTypeFragments</span><span class="p">(</span>
-        <span class="s2">&quot;Slowly changing dimension (SCD) table&quot;</span><span class="p">,</span> <span class="s2">&quot;describing attributes of&quot;</span>
+    <span class="s2">"entity"</span><span class="p">:</span> <span class="n">TableTypeFragments</span><span class="p">(</span><span class="s2">"Entity table containing static information"</span><span class="p">,</span> <span class="s2">"about"</span><span class="p">),</span>
+    <span class="s2">"scd"</span><span class="p">:</span> <span class="n">TableTypeFragments</span><span class="p">(</span>
+        <span class="s2">"Slowly changing dimension (SCD) table"</span><span class="p">,</span> <span class="s2">"describing attributes of"</span>
     <span class="p">),</span>
-    <span class="s2">&quot;timeseries&quot;</span><span class="p">:</span> <span class="n">TableTypeFragments</span><span class="p">(</span><span class="s2">&quot;time series&quot;</span><span class="p">,</span> <span class="s2">&quot;of&quot;</span><span class="p">),</span>
-    <span class="s2">&quot;forensics&quot;</span><span class="p">:</span> <span class="n">TableTypeFragments</span><span class="p">(</span><span class="s2">&quot;Forensic table&quot;</span><span class="p">,</span> <span class="s2">&quot;of&quot;</span><span class="p">),</span>
+    <span class="s2">"timeseries"</span><span class="p">:</span> <span class="n">TableTypeFragments</span><span class="p">(</span><span class="s2">"time series"</span><span class="p">,</span> <span class="s2">"of"</span><span class="p">),</span>
+    <span class="s2">"forensics"</span><span class="p">:</span> <span class="n">TableTypeFragments</span><span class="p">(</span><span class="s2">"Forensic table"</span><span class="p">,</span> <span class="s2">"of"</span><span class="p">),</span>
 <span class="p">}</span></div>
 
-<span class="sd">&quot;&quot;&quot;Standard descriptive text to appear in the Summary (first line) of resource descriptions.</span>
+<span class="sd">"""Standard descriptive text to appear in the Summary (first line) of resource descriptions.</span>
 
 <span class="sd">These are split into fragments to permit some resources to do without any additional descriptive text beyond the basic table type.</span>
 <span class="sd">Such resources should not provide :attr:`~pudl.metadata.classes.PudlResourceDescriptor.PudlDescriptionComponents.additional_summary_text`,</span>
@@ -971,16 +971,16 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">the system will apply both fragments from the corresponding :data:`table_type_fragments` entry, so that the summary starts with standardized text but finishes with more specific information.</span>
 
 <span class="sd">Examples:</span>
-<span class="sd">    * Rendered summary: &quot;Association table&quot;</span>
+<span class="sd">    * Rendered summary: "Association table"</span>
 
 <span class="sd">      * resource name: [layer]_[source]__assn_[slug]</span>
 <span class="sd">      * :attr:`~pudl.metadata.classes.PudlResourceDescriptor.PudlDescriptionComponents.additional_summary_text`: not specified</span>
 
-<span class="sd">    * Rendered summary: &quot;Association table providing connections between cats and Catalysters.&quot;</span>
+<span class="sd">    * Rendered summary: "Association table providing connections between cats and Catalysters."</span>
 
 <span class="sd">      * resource name: [layer]_[source]__assn_[slug]</span>
-<span class="sd">      * :attr:`~pudl.metadata.classes.PudlResourceDescriptor.PudlDescriptionComponents.additional_summary_text`: &quot;cats and Catalysters.&quot;</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">      * :attr:`~pudl.metadata.classes.PudlResourceDescriptor.PudlDescriptionComponents.additional_summary_text`: "cats and Catalysters."</span>
+<span class="sd">"""</span>
 <div class="viewcode-block" id="NONE_TABLETYPE_FRAGMENTS">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/descriptions/index.html#pudl.metadata.descriptions.NONE_TABLETYPE_FRAGMENTS">[docs]</a>
 <span class="n">NONE_TABLETYPE_FRAGMENTS</span> <span class="o">=</span> <span class="n">TableTypeFragments</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span></div>
@@ -989,61 +989,61 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="TIMESERIES_RESOLUTION_FRAGMENTS">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/descriptions/index.html#pudl.metadata.descriptions.TIMESERIES_RESOLUTION_FRAGMENTS">[docs]</a>
 <span class="n">TIMESERIES_RESOLUTION_FRAGMENTS</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;quarterly&quot;</span><span class="p">:</span> <span class="s2">&quot;Quarterly&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;yearly&quot;</span><span class="p">:</span> <span class="s2">&quot;Annual&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;monthly&quot;</span><span class="p">:</span> <span class="s2">&quot;Monthly&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;hourly&quot;</span><span class="p">:</span> <span class="s2">&quot;Hourly&quot;</span><span class="p">,</span>
+    <span class="s2">"quarterly"</span><span class="p">:</span> <span class="s2">"Quarterly"</span><span class="p">,</span>
+    <span class="s2">"yearly"</span><span class="p">:</span> <span class="s2">"Annual"</span><span class="p">,</span>
+    <span class="s2">"monthly"</span><span class="p">:</span> <span class="s2">"Monthly"</span><span class="p">,</span>
+    <span class="s2">"hourly"</span><span class="p">:</span> <span class="s2">"Hourly"</span><span class="p">,</span>
 <span class="p">}</span></div>
 
-<span class="sd">&quot;&quot;&quot;More standard descriptive text to appear in the Summary (first line) of resource descriptions, for timeseries resources.&quot;&quot;&quot;</span>
+<span class="sd">"""More standard descriptive text to appear in the Summary (first line) of resource descriptions, for timeseries resources."""</span>
 
 
 <div class="viewcode-block" id="half_year_offset">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/descriptions/index.html#pudl.metadata.descriptions.half_year_offset">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">half_year_offset</span><span class="p">(</span><span class="n">partition</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Offset a half_year partition by the specified number of half_years.&quot;&quot;&quot;</span>
-    <span class="n">yr</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">half</span> <span class="o">=</span> <span class="n">partition</span><span class="o">.</span><span class="n">partition</span><span class="p">(</span><span class="s2">&quot;half&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">"""Offset a half_year partition by the specified number of half_years."""</span>
+    <span class="n">yr</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">half</span> <span class="o">=</span> <span class="n">partition</span><span class="o">.</span><span class="n">partition</span><span class="p">(</span><span class="s2">"half"</span><span class="p">)</span>
     <span class="n">offset</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span>
         <span class="n">year</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">yr</span><span class="p">),</span> <span class="n">month</span><span class="o">=</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">half</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="mi">6</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">day</span><span class="o">=</span><span class="mi">1</span>
     <span class="p">)</span> <span class="o">+</span> <span class="n">pd</span><span class="o">.</span><span class="n">DateOffset</span><span class="p">(</span><span class="n">months</span><span class="o">=</span><span class="n">offset</span> <span class="o">*</span> <span class="mi">6</span><span class="p">)</span>
-    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">offset</span><span class="o">.</span><span class="n">year</span><span class="si">}</span><span class="s2">half</span><span class="si">{</span><span class="n">offset</span><span class="o">.</span><span class="n">month</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">6</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2">&quot;</span></div>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">offset</span><span class="o">.</span><span class="n">year</span><span class="si">}</span><span class="s2">half</span><span class="si">{</span><span class="n">offset</span><span class="o">.</span><span class="n">month</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">6</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2">"</span></div>
 
 
 
 <div class="viewcode-block" id="PARTITION_OFFSETS">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/descriptions/index.html#pudl.metadata.descriptions.PARTITION_OFFSETS">[docs]</a>
 <span class="n">PARTITION_OFFSETS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;years&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">partition</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span>
-        <span class="n">pd</span><span class="o">.</span><span class="n">Period</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="n">partition</span><span class="p">)</span> <span class="o">+</span> <span class="n">pd</span><span class="o">.</span><span class="n">DateOffset</span><span class="p">(</span><span class="n">years</span><span class="o">=</span><span class="n">offset</span><span class="p">),</span> <span class="n">freq</span><span class="o">=</span><span class="s2">&quot;Y&quot;</span><span class="p">)</span>
+    <span class="s2">"years"</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">partition</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">Period</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="n">partition</span><span class="p">)</span> <span class="o">+</span> <span class="n">pd</span><span class="o">.</span><span class="n">DateOffset</span><span class="p">(</span><span class="n">years</span><span class="o">=</span><span class="n">offset</span><span class="p">),</span> <span class="n">freq</span><span class="o">=</span><span class="s2">"Y"</span><span class="p">)</span>
     <span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span>
-    <span class="s2">&quot;year_quarters&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">partition</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span>
-        <span class="n">pd</span><span class="o">.</span><span class="n">Period</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="n">partition</span><span class="p">)</span> <span class="o">+</span> <span class="n">pd</span><span class="o">.</span><span class="n">DateOffset</span><span class="p">(</span><span class="n">months</span><span class="o">=</span><span class="n">offset</span> <span class="o">*</span> <span class="mi">3</span><span class="p">),</span> <span class="n">freq</span><span class="o">=</span><span class="s2">&quot;Q&quot;</span><span class="p">)</span>
+    <span class="s2">"year_quarters"</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">partition</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">Period</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="n">partition</span><span class="p">)</span> <span class="o">+</span> <span class="n">pd</span><span class="o">.</span><span class="n">DateOffset</span><span class="p">(</span><span class="n">months</span><span class="o">=</span><span class="n">offset</span> <span class="o">*</span> <span class="mi">3</span><span class="p">),</span> <span class="n">freq</span><span class="o">=</span><span class="s2">"Q"</span><span class="p">)</span>
     <span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span>
-    <span class="s2">&quot;half_years&quot;</span><span class="p">:</span> <span class="n">half_year_offset</span><span class="p">,</span>
-    <span class="s2">&quot;year_months&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">partition</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span>
-        <span class="n">pd</span><span class="o">.</span><span class="n">Period</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="n">partition</span><span class="p">)</span> <span class="o">+</span> <span class="n">pd</span><span class="o">.</span><span class="n">DateOffset</span><span class="p">(</span><span class="n">months</span><span class="o">=</span><span class="n">offset</span><span class="p">),</span> <span class="n">freq</span><span class="o">=</span><span class="s2">&quot;M&quot;</span><span class="p">)</span>
+    <span class="s2">"half_years"</span><span class="p">:</span> <span class="n">half_year_offset</span><span class="p">,</span>
+    <span class="s2">"year_months"</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">partition</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">Period</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="n">partition</span><span class="p">)</span> <span class="o">+</span> <span class="n">pd</span><span class="o">.</span><span class="n">DateOffset</span><span class="p">(</span><span class="n">months</span><span class="o">=</span><span class="n">offset</span><span class="p">),</span> <span class="n">freq</span><span class="o">=</span><span class="s2">"M"</span><span class="p">)</span>
     <span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span>
 <span class="p">}</span></div>
 
-<span class="sd">&quot;&quot;&quot;Lookup table for computing offsets of temporal partitions.</span>
+<span class="sd">"""Lookup table for computing offsets of temporal partitions.</span>
 
 <span class="sd">Maps each partition key to a function that, given a partition (2026, 2026q3,</span>
 <span class="sd">2026half1, 2026-07) and an integer offset, returns the partition ``offset``</span>
-<span class="sd">partition-units away from the input partition.&quot;&quot;&quot;</span>
+<span class="sd">partition-units away from the input partition."""</span>
 
 
-<span class="c1"># [jul 2025 kmm] This is a mirror of pudl.metadata.PudlMeta, which can&#39;t be included here because it creates a circular import.</span>
+<span class="c1"># [jul 2025 kmm] This is a mirror of pudl.metadata.PudlMeta, which can't be included here because it creates a circular import.</span>
 <span class="c1"># Collecting all the description mechanisms in one file seemed more important than a few lines of duplication, but if</span>
 <span class="c1"># PudlMeta changes, we may wish to apply the same change here.</span>
 <div class="viewcode-block" id="DescriptionMeta">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/descriptions/index.html#pudl.metadata.descriptions.DescriptionMeta">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">DescriptionMeta</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A base model that configures some options for PUDL description classes.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""A base model that configures some options for PUDL description classes."""</span>
 
 <div class="viewcode-block" id="DescriptionMeta.model_config">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/descriptions/index.html#pudl.metadata.descriptions.DescriptionMeta.model_config">[docs]</a>
     <span class="n">model_config</span> <span class="o">=</span> <span class="n">ConfigDict</span><span class="p">(</span>
-        <span class="n">extra</span><span class="o">=</span><span class="s2">&quot;forbid&quot;</span><span class="p">,</span>
+        <span class="n">extra</span><span class="o">=</span><span class="s2">"forbid"</span><span class="p">,</span>
         <span class="n">validate_default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">validate_assignment</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span></div>
@@ -1054,26 +1054,26 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="ResourceTrait">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/descriptions/index.html#pudl.metadata.descriptions.ResourceTrait">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ResourceTrait</span><span class="p">(</span><span class="n">DescriptionMeta</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Keeps the categorical information for one facet of a resource together with its prose description.</span>
+<span class="w">    </span><span class="sd">"""Keeps the categorical information for one facet of a resource together with its prose description.</span>
 
 <span class="sd">    * type - the category code; one of the keys from the dictionaries above</span>
 <span class="sd">    * description - the text which will be included in the resource description block. This could be</span>
 <span class="sd">      one of the values from the dictionaries above, or a more complex string composed of multiple</span>
 <span class="sd">      pieces of standardized and manually-provided text.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="ResourceTrait.type">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/descriptions/index.html#pudl.metadata.descriptions.ResourceTrait.type">[docs]</a>
     <span class="nb">type</span><span class="p">:</span> <span class="nb">str</span></div>
 
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Category code for this aspect of the resource.</span>
+<span class="w">    </span><span class="sd">"""Category code for this aspect of the resource.</span>
 
-<span class="sd">    Primarily used for debugging descriptions; not shown to users.&quot;&quot;&quot;</span>
+<span class="sd">    Primarily used for debugging descriptions; not shown to users."""</span>
 <div class="viewcode-block" id="ResourceTrait.description">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/descriptions/index.html#pudl.metadata.descriptions.ResourceTrait.description">[docs]</a>
     <span class="n">description</span><span class="p">:</span> <span class="nb">str</span></div>
 
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Text to be included in the rendered resource description.&quot;&quot;&quot;</span></div>
+<span class="w">    </span><span class="sd">"""Text to be included in the rendered resource description."""</span></div>
 
 
 
@@ -1081,13 +1081,13 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="first_non_none">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/descriptions/index.html#pudl.metadata.descriptions.first_non_none">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">first_non_none</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the first argument which is not None.</span>
+<span class="w">    </span><span class="sd">"""Return the first argument which is not None.</span>
 
 <span class="sd">    Useful when you have multiple candidates for a value, some of which are preferred but rarely available.</span>
-<span class="sd">    Call with candidates in order of descending preference, and you&#39;ll get the most-preferred value available.</span>
+<span class="sd">    Call with candidates in order of descending preference, and you'll get the most-preferred value available.</span>
 
 <span class="sd">    Returns None only if no such argument is found.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">x</span>
@@ -1099,7 +1099,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="ResolvedResourceDescription">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/descriptions/index.html#pudl.metadata.descriptions.ResolvedResourceDescription">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ResolvedResourceDescription</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;The fully-resolved components of a resource description.</span>
+<span class="w">    </span><span class="sd">"""The fully-resolved components of a resource description.</span>
 
 <span class="sd">    This class stores the different components of a resource description, as computed by :class:`ResourceDescriptionBuilder`.</span>
 
@@ -1118,7 +1118,7 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">    This object serves as the input to the resource_description template, which assembles the components into a static text block</span>
 <span class="sd">    appropriate for including in a data dictionary, datapackage export, or sqlachemy operation.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="ResolvedResourceDescription.resource_id">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/descriptions/index.html#pudl.metadata.descriptions.ResolvedResourceDescription.resource_id">[docs]</a>
@@ -1156,29 +1156,29 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="ResolvedResourceDescription.summarize">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/descriptions/index.html#pudl.metadata.descriptions.ResolvedResourceDescription.summarize">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">summarize</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Show all computed description components, including type/category information.</span>
+<span class="w">        </span><span class="sd">"""Show all computed description components, including type/category information.</span>
 
 <span class="sd">        This is suitable for low-overhead previews and debugging.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"""</span>
 <span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">resource_id</span><span class="si">}</span>
 <span class="s2">     Summary [</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">summary</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s2">]: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">summary</span><span class="o">.</span><span class="n">description</span><span class="si">}</span>
 <span class="s2">Availability [</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">availability</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s2">]: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">availability</span><span class="o">.</span><span class="n">description</span><span class="si">}</span>
 <span class="s2">       Layer [</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">layer</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s2">]: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">layer</span><span class="o">.</span><span class="n">description</span><span class="si">}</span>
 <span class="s2">      Source [</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">source</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s2">]: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">source</span><span class="o">.</span><span class="n">description</span><span class="si">}</span>
 <span class="s2">          PK [</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">primary_key</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s2">]: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">primary_key</span><span class="o">.</span><span class="n">description</span><span class="si">}</span>
-<span class="s2">    Warnings [</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">usage_warnings</span><span class="p">)</span><span class="si">}</span><span class="s2">]:</span><span class="si">{</span><span class="s2">&quot;</span><span class="se">\n\t</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;&quot;</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">uw</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">uw</span><span class="o">.</span><span class="n">description</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">uw</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">usage_warnings</span><span class="p">])</span><span class="si">}</span>
+<span class="s2">    Warnings [</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">usage_warnings</span><span class="p">)</span><span class="si">}</span><span class="s2">]:</span><span class="si">{</span><span class="s2">"</span><span class="se">\n\t</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">""</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">uw</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">uw</span><span class="o">.</span><span class="n">description</span><span class="si">}</span><span class="s2">"</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">uw</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">usage_warnings</span><span class="p">])</span><span class="si">}</span>
 <span class="s2">     Details [</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">details</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s2">]:</span>
 <span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">details</span><span class="o">.</span><span class="n">description</span><span class="si">}</span>
-<span class="s2">&quot;&quot;&quot;</span></div>
+<span class="s2">"""</span></div>
 
 
 <div class="viewcode-block" id="ResolvedResourceDescription.jinja_render">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/descriptions/index.html#pudl.metadata.descriptions.ResolvedResourceDescription.jinja_render">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">jinja_render</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">jinja_environment</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Render all description components into the full static description text block using the resource_description template.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Render all description components into the full static description text block using the resource_description template."""</span>
         <span class="k">return</span> <span class="p">(</span>
-            <span class="n">jinja_environment</span><span class="o">.</span><span class="n">get_template</span><span class="p">(</span><span class="s2">&quot;resource_description.rst.jinja&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">render</span><span class="p">(</span>
+            <span class="n">jinja_environment</span><span class="o">.</span><span class="n">get_template</span><span class="p">(</span><span class="s2">"resource_description.rst.jinja"</span><span class="p">)</span><span class="o">.</span><span class="n">render</span><span class="p">(</span>
                 <span class="n">descriptions</span><span class="o">=</span><span class="bp">self</span>
             <span class="p">)</span>
         <span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span></div>
@@ -1191,7 +1191,7 @@ window.runMermaid = runMermaid;</script>
 <span class="k">def</span><span class="w"> </span><span class="nf">component</span><span class="p">(</span>
     <span class="n">fn</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">ResourceTrait</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">ResourceTrait</span><span class="p">]],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">ResourceTrait</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">ResourceTrait</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Decorator for functions which resolve a description component.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Decorator for functions which resolve a description component."""</span>
     <span class="n">fn</span><span class="o">.</span><span class="n">__is_component</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="k">return</span> <span class="n">fn</span></div>
 
@@ -1200,30 +1200,30 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="ResourceDescriptionBuilder">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/descriptions/index.html#pudl.metadata.descriptions.ResourceDescriptionBuilder">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ResourceDescriptionBuilder</span><span class="p">:</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Generate the static text of a resource description from its decomposed parts.</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""Generate the static text of a resource description from its decomposed parts.</span>
 
 <span class="sd">    Information for deciding what descriptive text to display in a resource description comes from several places:</span>
 
-<span class="sd">    * The resource metadata dictionary, containing manually-specified description codes and text in the &quot;description&quot; section</span>
+<span class="sd">    * The resource metadata dictionary, containing manually-specified description codes and text in the "description" section</span>
 <span class="sd">    * :class:`ResourceNameComponents`, which automatically extracts appropriate description codes from the resource id</span>
 <span class="sd">    * The \*_descriptions and \*_fragments dictionaries in this file, which set standardized text for each code</span>
 <span class="sd">    * Some limited logic in this class which detects automatic usage warnings and primary key information</span>
 
 <span class="sd">    In order to keep manually-specified and -maintained components to a minimum, most keys in the</span>
-<span class="sd">    resource metadata dictionary&#39;s description section are optional. Keys which have not been manually specified are filled</span>
+<span class="sd">    resource metadata dictionary's description section are optional. Keys which have not been manually specified are filled</span>
 <span class="sd">    in using :class:`ResourceNameComponents` or left blank. See :class:`~pudl.metadata.classes.PudlResourceDescriptor.PudlDescriptionComponents` for</span>
 <span class="sd">    complete documentation on manually-specifiable keys.</span>
 
-<span class="sd">    This class computes &quot;final&quot; description components from all available inputs, and outputs a :class:`ResolvedResourceDescription` which may be rendered in one or more ways.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    This class computes "final" description components from all available inputs, and outputs a :class:`ResolvedResourceDescription` which may be rendered in one or more ways.</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resource_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">settings</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a new builder for a resource description.</span>
+<span class="w">        </span><span class="sd">"""Create a new builder for a resource description.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            resource_id: a snake-case string uniquely identifying the resource; aka the table name.</span>
 <span class="sd">            settings: a dictionary of resource metadata, usually obtained as a :class:`~pudl.metadata.classes.PudlResourceDescriptor` model dump.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 <div class="viewcode-block" id="ResourceDescriptionBuilder.resource_id">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/descriptions/index.html#pudl.metadata.descriptions.ResourceDescriptionBuilder.resource_id">[docs]</a>
         <span class="bp">self</span><span class="o">.</span><span class="n">resource_id</span> <span class="o">=</span> <span class="n">resource_id</span></div>
@@ -1235,8 +1235,8 @@ window.runMermaid = runMermaid;</script>
 
         <span class="c1"># make a copy and move all the description keys up a level</span>
         <span class="n">settings</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">settings</span><span class="p">)</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;description&quot;</span><span class="p">),</span> <span class="nb">dict</span><span class="p">):</span>
-            <span class="n">settings</span> <span class="o">=</span> <span class="n">settings</span> <span class="o">|</span> <span class="n">settings</span><span class="p">[</span><span class="s2">&quot;description&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"description"</span><span class="p">),</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="n">settings</span> <span class="o">=</span> <span class="n">settings</span> <span class="o">|</span> <span class="n">settings</span><span class="p">[</span><span class="s2">"description"</span><span class="p">]</span>
 <div class="viewcode-block" id="ResourceDescriptionBuilder.settings">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/descriptions/index.html#pudl.metadata.descriptions.ResourceDescriptionBuilder.settings">[docs]</a>
         <span class="bp">self</span><span class="o">.</span><span class="n">settings</span> <span class="o">=</span> <span class="n">settings</span></div>
@@ -1247,14 +1247,14 @@ window.runMermaid = runMermaid;</script>
         <span class="bp">self</span><span class="o">.</span><span class="n">components</span> <span class="o">=</span> <span class="p">[</span>
             <span class="n">name</span>
             <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">dir</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-            <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">),</span> <span class="s2">&quot;__is_component&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">),</span> <span class="s2">"__is_component"</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
         <span class="p">]</span></div>
 
 
 <div class="viewcode-block" id="ResourceDescriptionBuilder.build">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/descriptions/index.html#pudl.metadata.descriptions.ResourceDescriptionBuilder.build">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute and store all description components from manually-specified settings and automatic sources.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Compute and store all description components from manually-specified settings and automatic sources."""</span>
         <span class="k">return</span> <span class="n">ResolvedResourceDescription</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">resource_id</span><span class="p">,</span>
             <span class="o">**</span><span class="p">{</span>
@@ -1268,21 +1268,21 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="ResourceDescriptionBuilder.offset_source_availability">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/descriptions/index.html#pudl.metadata.descriptions.ResourceDescriptionBuilder.offset_source_availability">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">offset_source_availability</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute an availability date from the most recent available partition for a DataSource, offset by some number of partition-length units.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Compute an availability date from the most recent available partition for a DataSource, offset by some number of partition-length units."""</span>
         <span class="n">availability</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">source</span><span class="o">.</span><span class="n">get_temporal_partitions</span><span class="p">()</span> <span class="ow">or</span> <span class="p">[</span><span class="kc">None</span><span class="p">])</span>
         <span class="k">if</span> <span class="n">availability</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="c1"># source availability isn&#39;t temporal so we don&#39;t care about it for offset purposes</span>
+            <span class="c1"># source availability isn't temporal so we don't care about it for offset purposes</span>
             <span class="k">return</span> <span class="n">availability</span>
         <span class="n">availability</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">availability</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">offset</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="c1"># we&#39;re not offsetting the source availability</span>
+            <span class="c1"># we're not offsetting the source availability</span>
             <span class="k">return</span> <span class="n">availability</span>
         <span class="k">for</span> <span class="n">partition_key</span> <span class="ow">in</span> <span class="n">source</span><span class="o">.</span><span class="n">working_partitions</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">partition_key</span> <span class="ow">in</span> <span class="n">PARTITION_OFFSETS</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">PARTITION_OFFSETS</span><span class="p">[</span><span class="n">partition_key</span><span class="p">](</span><span class="n">availability</span><span class="p">,</span> <span class="n">offset</span><span class="p">)</span>
-        <span class="c1"># we don&#39;t have an offset function configured for this key</span>
+        <span class="c1"># we don't have an offset function configured for this key</span>
         <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Need to offset temporal availability (</span><span class="si">{</span><span class="n">availability</span><span class="si">}</span><span class="s2">) from </span><span class="si">{</span><span class="n">source</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> but couldn&#39;t find a partition key we know how to offset&quot;</span>
+            <span class="sa">f</span><span class="s2">"Need to offset temporal availability (</span><span class="si">{</span><span class="n">availability</span><span class="si">}</span><span class="s2">) from </span><span class="si">{</span><span class="n">source</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> but couldn't find a partition key we know how to offset"</span>
         <span class="p">)</span></div>
 
 
@@ -1290,15 +1290,15 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="ResourceDescriptionBuilder.compute_rowcounts_availability">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/descriptions/index.html#pudl.metadata.descriptions.ResourceDescriptionBuilder.compute_rowcounts_availability">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">compute_rowcounts_availability</span><span class="p">(</span><span class="n">resource_id</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute an availability date from the most recent available partition for a resource, according to the row counts file.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Compute an availability date from the most recent available partition for a resource, according to the row counts file."""</span>
         <span class="n">rowcount_partition_lookups</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
-                <span class="n">PUDL_DBT_PATH</span> <span class="o">/</span> <span class="s2">&quot;seeds&quot;</span> <span class="o">/</span> <span class="s2">&quot;etl_full_row_counts.csv&quot;</span><span class="p">,</span>
+                <span class="n">PUDL_DBT_PATH</span> <span class="o">/</span> <span class="s2">"seeds"</span> <span class="o">/</span> <span class="s2">"etl_full_row_counts.csv"</span><span class="p">,</span>
                 <span class="c1"># [kmm dec 2025] currently all non-null row count partitions are integer years.</span>
-                <span class="c1"># if we add other kinds of partitions to the row counts file, we&#39;ll need to revise this code.</span>
-                <span class="n">dtype</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;partition&quot;</span><span class="p">:</span> <span class="s2">&quot;Int64&quot;</span><span class="p">,</span> <span class="s2">&quot;table_name&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">},</span>
+                <span class="c1"># if we add other kinds of partitions to the row counts file, we'll need to revise this code.</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="p">{</span><span class="s2">"partition"</span><span class="p">:</span> <span class="s2">"Int64"</span><span class="p">,</span> <span class="s2">"table_name"</span><span class="p">:</span> <span class="s2">"string"</span><span class="p">},</span>
             <span class="p">)</span>
-            <span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;table_name&quot;</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">"table_name"</span><span class="p">)</span>
             <span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">resource_id</span><span class="p">:</span><span class="n">resource_id</span><span class="p">]</span>
             <span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
             <span class="o">.</span><span class="n">partition</span>
@@ -1311,22 +1311,22 @@ window.runMermaid = runMermaid;</script>
     <span class="nd">@component</span>
 <div class="viewcode-block" id="ResourceDescriptionBuilder.summary">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/descriptions/index.html#pudl.metadata.descriptions.ResourceDescriptionBuilder.summary">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">summary</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">settings</span><span class="p">,</span> <span class="n">defaults</span><span class="p">:</span> <span class="s2">&quot;ResourceNameComponents&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ResourceTrait</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute the summary component (first line) of the resource description.</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">summary</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">settings</span><span class="p">,</span> <span class="n">defaults</span><span class="p">:</span> <span class="s2">"ResourceNameComponents"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ResourceTrait</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Compute the summary component (first line) of the resource description.</span>
 
 <span class="sd">        The summary is standardized based on table type, and if the table type is timeseries, the timeseries resolution.</span>
 <span class="sd">        Any :attr:`~pudl.metadata.classes.PudlResourceDescriptor.PudlDescriptionComponents.additional_summary_text`, if present, is included after the standard text for the timeseries resolution and table type.</span>
-<span class="sd">        If the timeseries resolution and table type aren&#39;t set manually and can&#39;t be auto detected, fall back to</span>
+<span class="sd">        If the timeseries resolution and table type aren't set manually and can't be auto detected, fall back to</span>
 <span class="sd">        the :attr:`~pudl.metadata.classes.PudlResourceDescriptor.PudlDescriptionComponents.additional_summary_text` key and use it as a complete sentence instead of just a predicate fragment.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">timeseries_resolution_code</span> <span class="o">=</span> <span class="n">first_non_none</span><span class="p">(</span>
-            <span class="n">settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;timeseries_resolution_code&quot;</span><span class="p">),</span>
+            <span class="n">settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"timeseries_resolution_code"</span><span class="p">),</span>
             <span class="n">defaults</span><span class="o">.</span><span class="n">timeseries_resolution_code</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">table_type_code</span> <span class="o">=</span> <span class="n">first_non_none</span><span class="p">(</span>
-            <span class="n">settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;table_type_code&quot;</span><span class="p">),</span> <span class="n">defaults</span><span class="o">.</span><span class="n">table_type_code</span>
+            <span class="n">settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"table_type_code"</span><span class="p">),</span> <span class="n">defaults</span><span class="o">.</span><span class="n">table_type_code</span>
         <span class="p">)</span>
-        <span class="n">additional_summary_text</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;additional_summary_text&quot;</span><span class="p">)</span>
+        <span class="n">additional_summary_text</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"additional_summary_text"</span><span class="p">)</span>
         <span class="c1"># permit a none tabletype for weirdos like core_ferc714__respondent_id</span>
         <span class="n">type_fragments</span> <span class="o">=</span> <span class="n">TABLE_TYPE_FRAGMENTS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
             <span class="n">table_type_code</span><span class="p">,</span> <span class="n">NONE_TABLETYPE_FRAGMENTS</span>
@@ -1339,7 +1339,7 @@ window.runMermaid = runMermaid;</script>
             <span class="n">type_fragments</span><span class="o">.</span><span class="n">subject</span><span class="p">,</span>
         <span class="p">]</span>
 
-        <span class="c1"># only include the conjunction fragment for the table type if there&#39;s manually-specified text to go after it.</span>
+        <span class="c1"># only include the conjunction fragment for the table type if there's manually-specified text to go after it.</span>
         <span class="c1"># conjunction may be none, depending on the resource name.</span>
         <span class="k">if</span> <span class="n">additional_summary_text</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">components</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
@@ -1350,9 +1350,9 @@ window.runMermaid = runMermaid;</script>
             <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">ResourceTrait</span><span class="p">(</span>
-            <span class="nb">type</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">table_type_code</span><span class="si">}</span><span class="s2">[</span><span class="si">{</span><span class="n">timeseries_resolution_code</span><span class="si">}</span><span class="s2">]&quot;</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">table_type_code</span><span class="si">}</span><span class="s2">[</span><span class="si">{</span><span class="n">timeseries_resolution_code</span><span class="si">}</span><span class="s2">]"</span><span class="p">,</span>
             <span class="c1"># glue all the component parts into a single string, skipping any missing bits.</span>
-            <span class="n">description</span><span class="o">=</span><span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">components</span> <span class="k">if</span> <span class="n">c</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">" "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">components</span> <span class="k">if</span> <span class="n">c</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">),</span>
         <span class="p">)</span></div>
 
 
@@ -1360,7 +1360,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="ResourceDescriptionBuilder.availability">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/descriptions/index.html#pudl.metadata.descriptions.ResourceDescriptionBuilder.availability">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">availability</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">settings</span><span class="p">,</span> <span class="n">defaults</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ResourceTrait</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute the availability component of the resource description.</span>
+<span class="w">        </span><span class="sd">"""Compute the availability component of the resource description.</span>
 
 <span class="sd">        If</span>
 <span class="sd">        :attr:`~pudl.metadata.classes.PudlResourceDescriptor.PudlDescriptionComponents.availability_text`</span>
@@ -1373,33 +1373,33 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        partitions, use the most recent source partition, optionally offset by</span>
 <span class="sd">        :attr:`~pudl.metadata.classes.PudlResourceDescriptor.PudlDescriptionComponents.availability_offset`.</span>
 
-<span class="sd">        Otherwise, use &quot;Unknown&quot; and set :attr:`ResourceTrait.type`=``False`` to</span>
+<span class="sd">        Otherwise, use "Unknown" and set :attr:`ResourceTrait.type`=``False`` to</span>
 <span class="sd">        permit display logics to hide this component.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># go ahead and compute all of these; there are never more than 3</span>
         <span class="n">source_availabilities</span> <span class="o">=</span> <span class="p">[</span>
             <span class="n">ResourceDescriptionBuilder</span><span class="o">.</span><span class="n">offset_source_availability</span><span class="p">(</span>
-                <span class="n">source</span><span class="p">,</span> <span class="n">settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;availability_offset&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="n">source</span><span class="p">,</span> <span class="n">settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"availability_offset"</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
             <span class="p">)</span>
-            <span class="k">for</span> <span class="n">source</span> <span class="ow">in</span> <span class="n">settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;sources&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">source</span> <span class="ow">in</span> <span class="n">settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"sources"</span><span class="p">)</span>
         <span class="p">]</span>
         <span class="n">most_recent_data</span> <span class="o">=</span> <span class="n">first_non_none</span><span class="p">(</span>
-            <span class="n">settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;availability_text&quot;</span><span class="p">),</span>
+            <span class="n">settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"availability_text"</span><span class="p">),</span>
             <span class="c1"># first fallback: use row counts file</span>
             <span class="n">ResourceDescriptionBuilder</span><span class="o">.</span><span class="n">compute_rowcounts_availability</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">resource_id</span><span class="p">),</span>
-            <span class="c1"># second fallback: use source partitions, but only if there&#39;s only one source</span>
+            <span class="c1"># second fallback: use source partitions, but only if there's only one source</span>
             <span class="nb">str</span><span class="p">(</span><span class="n">source_availabilities</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
             <span class="k">if</span> <span class="p">(</span>
                 <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">source_availabilities</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
                 <span class="ow">and</span> <span class="n">source_availabilities</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
             <span class="p">)</span>
             <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="s2">&quot;Unknown&quot;</span><span class="p">,</span>
+            <span class="s2">"Unknown"</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="c1"># the availability ResourceTrait uses a boolean type: True if present, False otherwise.</span>
         <span class="c1"># this lets us condition display of the availability component on the type.</span>
         <span class="k">return</span> <span class="n">ResourceTrait</span><span class="p">(</span>
-            <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">most_recent_data</span> <span class="o">!=</span> <span class="s2">&quot;Unknown&quot;</span><span class="p">),</span> <span class="n">description</span><span class="o">=</span><span class="n">most_recent_data</span>
+            <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">most_recent_data</span> <span class="o">!=</span> <span class="s2">"Unknown"</span><span class="p">),</span> <span class="n">description</span><span class="o">=</span><span class="n">most_recent_data</span>
         <span class="p">)</span></div>
 
 
@@ -1410,14 +1410,14 @@ window.runMermaid = runMermaid;</script>
         <span class="n">attr</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">lookup</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
         <span class="n">settings</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
-        <span class="n">defaults</span><span class="p">:</span> <span class="s2">&quot;ResourceNameComponents&quot;</span><span class="p">,</span>
+        <span class="n">defaults</span><span class="p">:</span> <span class="s2">"ResourceNameComponents"</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute a generic component of the resource description.</span>
+<span class="w">        </span><span class="sd">"""Compute a generic component of the resource description.</span>
 
 <span class="sd">        This function applies to any component whose computation is a straightforward cascade:</span>
 
 <span class="sd">        1. Use the manually-specified category code</span>
-<span class="sd">        2. If that&#39;s not available, use the auto-extracted category code</span>
+<span class="sd">        2. If that's not available, use the auto-extracted category code</span>
 <span class="sd">        3. Fetch the standard text for the computed category code</span>
 <span class="sd">        4. Follow up with any additional manually-specified description text</span>
 
@@ -1426,18 +1426,18 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">            lookup: dictionary containing the mapping from the category code to the corresponding display text</span>
 <span class="sd">            settings: a dictionary of resource metadata, lightly-processed by the constructor to make description keys easier to access</span>
 <span class="sd">            defaults: a :class:`ResourceNameComponents` instance for this resource, containing the default category codes as extracted from the resource id</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">attr_value</span> <span class="o">=</span> <span class="n">first_non_none</span><span class="p">(</span>
-            <span class="n">settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">attr</span><span class="si">}</span><span class="s2">_code&quot;</span><span class="p">),</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">defaults</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">attr</span><span class="si">}</span><span class="s2">_code&quot;</span><span class="p">)</span>
+            <span class="n">settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">attr</span><span class="si">}</span><span class="s2">_code"</span><span class="p">),</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">defaults</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">attr</span><span class="si">}</span><span class="s2">_code"</span><span class="p">)</span>
         <span class="p">)</span>
 
         <span class="c1"># assemble the parts of the component description in display order.</span>
         <span class="c1"># any or all of these may be none, depending on the resource name and manually specified information.</span>
-        <span class="n">components</span> <span class="o">=</span> <span class="p">[</span><span class="n">lookup</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">attr_value</span><span class="p">),</span> <span class="n">settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;additional_</span><span class="si">{</span><span class="n">attr</span><span class="si">}</span><span class="s2">_text&quot;</span><span class="p">)]</span>
+        <span class="n">components</span> <span class="o">=</span> <span class="p">[</span><span class="n">lookup</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">attr_value</span><span class="p">),</span> <span class="n">settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">"additional_</span><span class="si">{</span><span class="n">attr</span><span class="si">}</span><span class="s2">_text"</span><span class="p">)]</span>
         <span class="k">return</span> <span class="n">ResourceTrait</span><span class="p">(</span>
             <span class="nb">type</span><span class="o">=</span><span class="n">attr_value</span><span class="p">,</span>
             <span class="c1"># glue all the component parts into a single string, skipping any missing bits.</span>
-            <span class="n">description</span><span class="o">=</span><span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">components</span> <span class="k">if</span> <span class="n">c</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">" "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">components</span> <span class="k">if</span> <span class="n">c</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">),</span>
         <span class="p">)</span></div>
 
 
@@ -1445,25 +1445,25 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="ResourceDescriptionBuilder.layer">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/descriptions/index.html#pudl.metadata.descriptions.ResourceDescriptionBuilder.layer">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">layer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">settings</span><span class="p">,</span> <span class="n">defaults</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute the processing layer component of the resource description.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Compute the processing layer component of the resource description."""</span>
         <span class="k">if</span> <span class="p">(</span>  <span class="c1"># use narrow variant for hourly output tables</span>
-            <span class="n">defaults</span><span class="o">.</span><span class="n">layer_code</span> <span class="o">==</span> <span class="s2">&quot;out&quot;</span>
-            <span class="ow">and</span> <span class="n">defaults</span><span class="o">.</span><span class="n">timeseries_resolution_code</span> <span class="o">==</span> <span class="s2">&quot;hourly&quot;</span>
+            <span class="n">defaults</span><span class="o">.</span><span class="n">layer_code</span> <span class="o">==</span> <span class="s2">"out"</span>
+            <span class="ow">and</span> <span class="n">defaults</span><span class="o">.</span><span class="n">timeseries_resolution_code</span> <span class="o">==</span> <span class="s2">"hourly"</span>
         <span class="p">):</span>
-            <span class="n">settings</span><span class="p">[</span><span class="s2">&quot;layer_code&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">first_non_none</span><span class="p">(</span>  <span class="c1"># keep any manual overrides</span>
-                <span class="n">settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;layer_code&quot;</span><span class="p">),</span> <span class="s2">&quot;out_narrow&quot;</span>
+            <span class="n">settings</span><span class="p">[</span><span class="s2">"layer_code"</span><span class="p">]</span> <span class="o">=</span> <span class="n">first_non_none</span><span class="p">(</span>  <span class="c1"># keep any manual overrides</span>
+                <span class="n">settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"layer_code"</span><span class="p">),</span> <span class="s2">"out_narrow"</span>
             <span class="p">)</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generic_component</span><span class="p">(</span><span class="s2">&quot;layer&quot;</span><span class="p">,</span> <span class="n">LAYER_DESCRIPTIONS</span><span class="p">,</span> <span class="n">settings</span><span class="p">,</span> <span class="n">defaults</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generic_component</span><span class="p">(</span><span class="s2">"layer"</span><span class="p">,</span> <span class="n">LAYER_DESCRIPTIONS</span><span class="p">,</span> <span class="n">settings</span><span class="p">,</span> <span class="n">defaults</span><span class="p">)</span></div>
 
 
     <span class="nd">@component</span>
 <div class="viewcode-block" id="ResourceDescriptionBuilder.source">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/descriptions/index.html#pudl.metadata.descriptions.ResourceDescriptionBuilder.source">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">source</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">settings</span><span class="p">,</span> <span class="n">defaults</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute the data source component of the resource description.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Compute the data source component of the resource description."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generic_component</span><span class="p">(</span>
-            <span class="s2">&quot;source&quot;</span><span class="p">,</span> <span class="n">SOURCE_DESCRIPTIONS</span><span class="p">,</span> <span class="n">settings</span><span class="p">,</span> <span class="n">defaults</span>
+            <span class="s2">"source"</span><span class="p">,</span> <span class="n">SOURCE_DESCRIPTIONS</span><span class="p">,</span> <span class="n">settings</span><span class="p">,</span> <span class="n">defaults</span>
         <span class="p">)</span></div>
 
 
@@ -1471,7 +1471,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="ResourceDescriptionBuilder.primary_key">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/descriptions/index.html#pudl.metadata.descriptions.ResourceDescriptionBuilder.primary_key">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">primary_key</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">settings</span><span class="p">,</span> <span class="n">defaults</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute the primary key component of the resource description.</span>
+<span class="w">        </span><span class="sd">"""Compute the primary key component of the resource description.</span>
 
 <span class="sd">        If a primary key is available in the resource schema, include a list of the primary key columns.</span>
 
@@ -1481,24 +1481,24 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">        If the primary key is available, *and* :attr:`~pudl.metadata.classes.PudlResourceDescriptor.PudlDescriptionComponents.additional_primary_key_text` is specified,</span>
 <span class="sd">        the manually-specified text will be placed after the primary key listing.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">has_primary_key</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="s2">&quot;primary_key&quot;</span> <span class="ow">in</span> <span class="n">settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;schema&quot;</span><span class="p">,</span> <span class="p">{})</span>
-            <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s2">&quot;schema&quot;</span><span class="p">][</span><span class="s2">&quot;primary_key&quot;</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span>
+            <span class="s2">"primary_key"</span> <span class="ow">in</span> <span class="n">settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"schema"</span><span class="p">,</span> <span class="p">{})</span>
+            <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s2">"schema"</span><span class="p">][</span><span class="s2">"primary_key"</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span>
         <span class="p">)</span>
 
         <span class="c1"># assemble the parts of the pk description in display order.</span>
         <span class="c1"># the last part may be none.</span>
         <span class="n">components</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s2">&quot;schema&quot;</span><span class="p">][</span><span class="s2">&quot;primary_key&quot;</span><span class="p">])</span>
+            <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s2">"schema"</span><span class="p">][</span><span class="s2">"primary_key"</span><span class="p">])</span>
             <span class="k">if</span> <span class="n">has_primary_key</span>
-            <span class="k">else</span> <span class="s2">&quot;This table has no primary key.&quot;</span><span class="p">,</span>
-            <span class="n">settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;additional_primary_key_text&quot;</span><span class="p">),</span>
+            <span class="k">else</span> <span class="s2">"This table has no primary key."</span><span class="p">,</span>
+            <span class="n">settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"additional_primary_key_text"</span><span class="p">),</span>
         <span class="p">]</span>
         <span class="k">return</span> <span class="n">ResourceTrait</span><span class="p">(</span>
             <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">has_primary_key</span><span class="p">),</span>
             <span class="c1"># glue all the component parts into a single string, skipping any missing bits.</span>
-            <span class="n">description</span><span class="o">=</span><span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">components</span> <span class="k">if</span> <span class="n">c</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">" "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">components</span> <span class="k">if</span> <span class="n">c</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">),</span>
         <span class="p">)</span></div>
 
 
@@ -1506,21 +1506,21 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="ResourceDescriptionBuilder.details">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/descriptions/index.html#pudl.metadata.descriptions.ResourceDescriptionBuilder.details">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">details</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">settings</span><span class="p">,</span> <span class="n">defaults</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute the details component of the resource description.</span>
+<span class="w">        </span><span class="sd">"""Compute the details component of the resource description.</span>
 
 <span class="sd">        There is no standardized text for this component, and manually specifying it is optional.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># TODO: remove this handling after migration is complete</span>
         <span class="c1"># temporary description-&gt;description_details passthrough for legacy description text</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;description&quot;</span><span class="p">),</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="n">settings</span><span class="p">[</span><span class="s2">&quot;additional_details_text&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s2">&quot;description&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"description"</span><span class="p">),</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">settings</span><span class="p">[</span><span class="s2">"additional_details_text"</span><span class="p">]</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="s2">"description"</span><span class="p">]</span>
         <span class="c1"># end TODO: remove</span>
 
         <span class="c1"># the additional-details ResourceTrait uses a boolean type: True if present, False otherwise.</span>
         <span class="c1"># this lets us condition display of the additional-details component on the type.</span>
         <span class="k">return</span> <span class="n">ResourceTrait</span><span class="p">(</span>
-            <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;additional_details_text&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">),</span>
-            <span class="n">description</span><span class="o">=</span><span class="n">first_non_none</span><span class="p">(</span><span class="n">settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;additional_details_text&quot;</span><span class="p">),</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+            <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"additional_details_text"</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="n">description</span><span class="o">=</span><span class="n">first_non_none</span><span class="p">(</span><span class="n">settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"additional_details_text"</span><span class="p">),</span> <span class="s2">""</span><span class="p">),</span>
         <span class="p">)</span></div>
 
 
@@ -1528,18 +1528,18 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="ResourceDescriptionBuilder.usage_warnings">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/descriptions/index.html#pudl.metadata.descriptions.ResourceDescriptionBuilder.usage_warnings">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">usage_warnings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">settings</span><span class="p">,</span> <span class="n">defaults</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Combine manually-provided warnings and automatically-detected warnings for the requested resource.</span>
+<span class="w">        </span><span class="sd">"""Combine manually-provided warnings and automatically-detected warnings for the requested resource.</span>
 
 <span class="sd">        We automatically detect and include the following usage warnings:</span>
 
-<span class="sd">        * multiple_inputs - for all resources that specify more than one source_id as part of their toplevel metadata (not description.source, that&#39;s meant to be more summative)</span>
-<span class="sd">        * ferc_is_hard - for all resources that include the string &quot;ferc&quot; in the resource id</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">usage_warnings</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">first_non_none</span><span class="p">(</span><span class="n">settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;usage_warnings&quot;</span><span class="p">),</span> <span class="p">[]))</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s2">&quot;sources&quot;</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="n">usage_warnings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;multiple_inputs&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="s2">&quot;ferc&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">resource_id</span><span class="p">:</span>
-            <span class="n">usage_warnings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;ferc_is_hard&quot;</span><span class="p">)</span>
+<span class="sd">        * multiple_inputs - for all resources that specify more than one source_id as part of their toplevel metadata (not description.source, that's meant to be more summative)</span>
+<span class="sd">        * ferc_is_hard - for all resources that include the string "ferc" in the resource id</span>
+<span class="sd">        """</span>
+        <span class="n">usage_warnings</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">first_non_none</span><span class="p">(</span><span class="n">settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"usage_warnings"</span><span class="p">),</span> <span class="p">[]))</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s2">"sources"</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">usage_warnings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"multiple_inputs"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s2">"ferc"</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">resource_id</span><span class="p">:</span>
+            <span class="n">usage_warnings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"ferc_is_hard"</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">[</span>
             <span class="n">ResourceTrait</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">uw</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="n">USAGE_WARNINGS</span><span class="p">[</span><span class="n">uw</span><span class="p">])</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">uw</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
@@ -1553,37 +1553,37 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="ResourceNameComponents">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/descriptions/index.html#pudl.metadata.descriptions.ResourceNameComponents">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ResourceNameComponents</span><span class="p">(</span><span class="n">DescriptionMeta</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract basic information from the name of a resource.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Extract basic information from the name of a resource."""</span>
 
 <div class="viewcode-block" id="ResourceNameComponents.name">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/descriptions/index.html#pudl.metadata.descriptions.ResourceNameComponents.name">[docs]</a>
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span></div>
 
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Resource name (aka table name).&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Resource name (aka table name)."""</span>
 
     <span class="c1"># define match groups for the different parts of a resource name</span>
 <div class="viewcode-block" id="ResourceNameComponents.layer_options">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/descriptions/index.html#pudl.metadata.descriptions.ResourceNameComponents.layer_options">[docs]</a>
-    <span class="n">layer_options</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;|&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">LAYER_DESCRIPTIONS</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span></div>
+    <span class="n">layer_options</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"|"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">LAYER_DESCRIPTIONS</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span></div>
 
 <div class="viewcode-block" id="ResourceNameComponents.source_options">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/descriptions/index.html#pudl.metadata.descriptions.ResourceNameComponents.source_options">[docs]</a>
-    <span class="n">source_options</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;|&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">SOURCE_DESCRIPTIONS</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span></div>
+    <span class="n">source_options</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"|"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">SOURCE_DESCRIPTIONS</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span></div>
 
 <div class="viewcode-block" id="ResourceNameComponents.timeseries_resolution_options">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/descriptions/index.html#pudl.metadata.descriptions.ResourceNameComponents.timeseries_resolution_options">[docs]</a>
-    <span class="n">timeseries_resolution_options</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;|&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+    <span class="n">timeseries_resolution_options</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"|"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
         <span class="n">TIMESERIES_RESOLUTION_FRAGMENTS</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
     <span class="p">)</span></div>
 
 <div class="viewcode-block" id="ResourceNameComponents.table_type_options">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/descriptions/index.html#pudl.metadata.descriptions.ResourceNameComponents.table_type_options">[docs]</a>
-    <span class="n">table_type_options</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;|&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">TABLE_TYPE_FRAGMENTS</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span></div>
+    <span class="n">table_type_options</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"|"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">TABLE_TYPE_FRAGMENTS</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span></div>
 
 
 <div class="viewcode-block" id="ResourceNameComponents.resource_name_pattern">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/descriptions/index.html#pudl.metadata.descriptions.ResourceNameComponents.resource_name_pattern">[docs]</a>
-    <span class="n">resource_name_pattern</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="sa">rf</span><span class="s2">&quot;^(?P&lt;layer&gt;</span><span class="si">{</span><span class="n">layer_options</span><span class="si">}</span><span class="s2">)_(?P&lt;source&gt;</span><span class="si">{</span><span class="n">source_options</span><span class="si">}</span><span class="s2">)__(?P&lt;timeseries_resolution&gt;</span><span class="si">{</span><span class="n">timeseries_resolution_options</span><span class="si">}</span><span class="s2">|)(?:_|)(?P&lt;table_type&gt;</span><span class="si">{</span><span class="n">table_type_options</span><span class="si">}</span><span class="s2">|)(?:_|)(?:_|)(?P&lt;slug&gt;.*)$&quot;</span></div>
+    <span class="n">resource_name_pattern</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="sa">rf</span><span class="s2">"^(?P&lt;layer&gt;</span><span class="si">{</span><span class="n">layer_options</span><span class="si">}</span><span class="s2">)_(?P&lt;source&gt;</span><span class="si">{</span><span class="n">source_options</span><span class="si">}</span><span class="s2">)__(?P&lt;timeseries_resolution&gt;</span><span class="si">{</span><span class="n">timeseries_resolution_options</span><span class="si">}</span><span class="s2">|)(?:_|)(?P&lt;table_type&gt;</span><span class="si">{</span><span class="n">table_type_options</span><span class="si">}</span><span class="s2">|)(?:_|)(?:_|)(?P&lt;slug&gt;.*)$"</span></div>
 
 
 <div class="viewcode-block" id="ResourceNameComponents._match">
@@ -1595,7 +1595,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="ResourceNameComponents.match">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/descriptions/index.html#pudl.metadata.descriptions.ResourceNameComponents.match">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">match</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the regex match for the resource name.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the regex match for the resource name."""</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_match</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">resource_name_pattern</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_match</span></div>
@@ -1605,27 +1605,27 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="ResourceNameComponents.layer_code">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/descriptions/index.html#pudl.metadata.descriptions.ResourceNameComponents.layer_code">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">layer_code</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Layer extracted from resource name.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">&quot;layer&quot;</span><span class="p">)</span></div>
+<span class="w">        </span><span class="sd">"""Layer extracted from resource name."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">"layer"</span><span class="p">)</span></div>
 
 
     <span class="nd">@property</span>
 <div class="viewcode-block" id="ResourceNameComponents.source_code">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/descriptions/index.html#pudl.metadata.descriptions.ResourceNameComponents.source_code">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">source_code</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Source extracted from resource name.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">&quot;source&quot;</span><span class="p">)</span></div>
+<span class="w">        </span><span class="sd">"""Source extracted from resource name."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">"source"</span><span class="p">)</span></div>
 
 
     <span class="nd">@property</span>
 <div class="viewcode-block" id="ResourceNameComponents.table_type_code">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/descriptions/index.html#pudl.metadata.descriptions.ResourceNameComponents.table_type_code">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">table_type_code</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Table type extracted from resource name.&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">tt</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">&quot;table_type&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Table type extracted from resource name."""</span>
+        <span class="k">if</span> <span class="n">tt</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">"table_type"</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">tt</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">&quot;timeseries_resolution&quot;</span><span class="p">):</span>
-            <span class="k">return</span> <span class="s2">&quot;timeseries&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">"timeseries_resolution"</span><span class="p">):</span>
+            <span class="k">return</span> <span class="s2">"timeseries"</span>
         <span class="k">return</span> <span class="kc">None</span></div>
 
 
@@ -1633,29 +1633,29 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="ResourceNameComponents.timeseries_resolution_code">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/descriptions/index.html#pudl.metadata.descriptions.ResourceNameComponents.timeseries_resolution_code">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">timeseries_resolution_code</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Timeseries resolution extracted from resource name.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">&quot;timeseries_resolution&quot;</span><span class="p">)</span></div>
+<span class="w">        </span><span class="sd">"""Timeseries resolution extracted from resource name."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">"timeseries_resolution"</span><span class="p">)</span></div>
 
 
     <span class="nd">@property</span>
 <div class="viewcode-block" id="ResourceNameComponents.slug_text">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/descriptions/index.html#pudl.metadata.descriptions.ResourceNameComponents.slug_text">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">slug_text</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Slug extracted from resource name.</span>
+<span class="w">        </span><span class="sd">"""Slug extracted from resource name.</span>
 
 <span class="sd">        Possible use case: extract what is being associated from an assn table.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">&quot;slug&quot;</span><span class="p">)</span></div>
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">"slug"</span><span class="p">)</span></div>
 
 
-    <span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;after&quot;</span><span class="p">)</span>
+    <span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">"after"</span><span class="p">)</span>
 <div class="viewcode-block" id="ResourceNameComponents.table_name_check">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/descriptions/index.html#pudl.metadata.descriptions.ResourceNameComponents.table_name_check">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">table_name_check</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check the expected pattern of the resource name.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Check the expected pattern of the resource name."""</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">match</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Resource name not formatted as expected. Resource name found: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">.</span><span class="se">\n</span><span class="s2">Expected resource name pattern: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">resource_name_pattern</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">"Resource name not formatted as expected. Resource name found: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">.</span><span class="se">\n</span><span class="s2">Expected resource name pattern: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">resource_name_pattern</span><span class="si">}</span><span class="s2">"</span>
             <span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span></div>
 </div>

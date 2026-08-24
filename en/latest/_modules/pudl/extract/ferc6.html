@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.extract.ferc6 &#8212; PUDL 2026.8.1.dev18 documentation</title>
+    <title>pudl.extract.ferc6 &#8212; PUDL 2026.8.1.dev19 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=f2b63aa7"></script>
+    <script src="../../../_static/documentation_options.js?v=5bf64ec1"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev18 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev18 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev19 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev19 documentation - Home"/>
   
   
 </a></div>
@@ -868,7 +868,7 @@ window.runMermaid = runMermaid;</script>
                 <article class="bd-article">
                   
   <h1>Source code for pudl.extract.ferc6</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Extract FERC Form 6 data from DBF archives.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Extract FERC Form 6 data from DBF archives."""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">sqlalchemy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sa</span>
@@ -884,23 +884,23 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="Ferc6DbfExtractor">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/ferc6/index.html#pudl.extract.ferc6.Ferc6DbfExtractor">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Ferc6DbfExtractor</span><span class="p">(</span><span class="n">FercDbfExtractor</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extracts FERC Form 6 data from the legacy DBF archives.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Extracts FERC Form 6 data from the legacy DBF archives."""</span>
 
 <div class="viewcode-block" id="Ferc6DbfExtractor.DATASET">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/ferc6/index.html#pudl.extract.ferc6.Ferc6DbfExtractor.DATASET">[docs]</a>
-    <span class="n">DATASET</span> <span class="o">=</span> <span class="s2">&quot;ferc6&quot;</span></div>
+    <span class="n">DATASET</span> <span class="o">=</span> <span class="s2">"ferc6"</span></div>
 
 <div class="viewcode-block" id="Ferc6DbfExtractor.DATABASE_NAME">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/ferc6/index.html#pudl.extract.ferc6.Ferc6DbfExtractor.DATABASE_NAME">[docs]</a>
-    <span class="n">DATABASE_NAME</span> <span class="o">=</span> <span class="s2">&quot;ferc6_dbf.sqlite&quot;</span></div>
+    <span class="n">DATABASE_NAME</span> <span class="o">=</span> <span class="s2">"ferc6_dbf.sqlite"</span></div>
 
 
 <div class="viewcode-block" id="Ferc6DbfExtractor.finalize_schema">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/ferc6/index.html#pudl.extract.ferc6.Ferc6DbfExtractor.finalize_schema">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">finalize_schema</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">meta</span><span class="p">:</span> <span class="n">sa</span><span class="o">.</span><span class="n">MetaData</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">sa</span><span class="o">.</span><span class="n">MetaData</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add primary and foreign keys for respondent_id.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Add primary and foreign keys for respondent_id."""</span>
         <span class="k">return</span> <span class="n">add_key_constraints</span><span class="p">(</span>
-            <span class="n">meta</span><span class="p">,</span> <span class="n">pk_table</span><span class="o">=</span><span class="s2">&quot;f6_s0_respondent_id&quot;</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="s2">&quot;respondent_id&quot;</span>
+            <span class="n">meta</span><span class="p">,</span> <span class="n">pk_table</span><span class="o">=</span><span class="s2">"f6_s0_respondent_id"</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="s2">"respondent_id"</span>
         <span class="p">)</span></div>
 
 
@@ -909,13 +909,13 @@ window.runMermaid = runMermaid;</script>
     <span class="k">def</span><span class="w"> </span><span class="nf">aggregate_table_frames</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">table_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">dfs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">PartitionedDataFrame</span><span class="p">]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Runs the deduplication on f6_s0_respondent_id table.</span>
+<span class="w">        </span><span class="sd">"""Runs the deduplication on f6_s0_respondent_id table.</span>
 
 <span class="sd">        Other tables are aggregated as usual, meaning that the partial frames are simply</span>
 <span class="sd">        concatenated.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">table_name</span> <span class="o">==</span> <span class="s2">&quot;f6_s0_respondent_id&quot;</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">deduplicate_by_year</span><span class="p">(</span><span class="n">dfs</span><span class="p">,</span> <span class="s2">&quot;respondent_id&quot;</span><span class="p">)</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="n">table_name</span> <span class="o">==</span> <span class="s2">"f6_s0_respondent_id"</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">deduplicate_by_year</span><span class="p">(</span><span class="n">dfs</span><span class="p">,</span> <span class="s2">"respondent_id"</span><span class="p">)</span>
         <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">aggregate_table_frames</span><span class="p">(</span><span class="n">table_name</span><span class="p">,</span> <span class="n">dfs</span><span class="p">)</span></div>
 </div>
 

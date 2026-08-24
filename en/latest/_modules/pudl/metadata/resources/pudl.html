@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.metadata.resources.pudl &#8212; PUDL 2026.8.1.dev18 documentation</title>
+    <title>pudl.metadata.resources.pudl &#8212; PUDL 2026.8.1.dev19 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../../_static/documentation_options.js?v=f2b63aa7"></script>
+    <script src="../../../../_static/documentation_options.js?v=5bf64ec1"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev18 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev18 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev19 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev19 documentation - Home"/>
   
   
 </a></div>
@@ -871,127 +871,127 @@ window.runMermaid = runMermaid;</script>
                 <article class="bd-article">
                   
   <h1>Source code for pudl.metadata.resources.pudl</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Definitions for the connection between PUDL-specific IDs and other datasets.</span>
+<span></span><span class="sd">"""Definitions for the connection between PUDL-specific IDs and other datasets.</span>
 
 <span class="sd">Most of this is compiled from handmapping records.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
 
 <div class="viewcode-block" id="RESOURCE_METADATA">
 <a class="viewcode-back" href="../../../../autoapi/pudl/metadata/resources/pudl/index.html#pudl.metadata.resources.pudl.RESOURCE_METADATA">[docs]</a>
 <span class="n">RESOURCE_METADATA</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;core_pudl__codes_subdivisions&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Political Subdivisions&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;states, provinces, and other sub-national political subdivisions.&quot;</span><span class="p">,</span>
+    <span class="s2">"core_pudl__codes_subdivisions"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"title"</span><span class="p">:</span> <span class="s2">"Political Subdivisions"</span><span class="p">,</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="s2">"states, provinces, and other sub-national political subdivisions."</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;country_code&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;country_name&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;subdivision_code&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;subdivision_name&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;subdivision_type&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;timezone_approx&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;state_id_fips&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;division_name_us_census&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;division_code_us_census&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;region_name_us_census&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;is_epacems_state&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"country_code"</span><span class="p">,</span>
+                <span class="s2">"country_name"</span><span class="p">,</span>
+                <span class="s2">"subdivision_code"</span><span class="p">,</span>
+                <span class="s2">"subdivision_name"</span><span class="p">,</span>
+                <span class="s2">"subdivision_type"</span><span class="p">,</span>
+                <span class="s2">"timezone_approx"</span><span class="p">,</span>
+                <span class="s2">"state_id_fips"</span><span class="p">,</span>
+                <span class="s2">"division_name_us_census"</span><span class="p">,</span>
+                <span class="s2">"division_code_us_census"</span><span class="p">,</span>
+                <span class="s2">"region_name_us_census"</span><span class="p">,</span>
+                <span class="s2">"is_epacems_state"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;country_code&quot;</span><span class="p">,</span> <span class="s2">&quot;subdivision_code&quot;</span><span class="p">],</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"country_code"</span><span class="p">,</span> <span class="s2">"subdivision_code"</span><span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;static_pudl&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;pudl&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;pudl&quot;</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"static_pudl"</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"pudl"</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"pudl"</span><span class="p">],</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_pudl__codes_imputation_reasons&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Imputation Reason Codes&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;the reasons a value might be flagged for imputation.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="s2">&quot;Any time a column is imputed, there should be a corresponding column which contains codes for every value in the column that was imputed.&quot;</span><span class="p">,</span>
+    <span class="s2">"core_pudl__codes_imputation_reasons"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"title"</span><span class="p">:</span> <span class="s2">"Imputation Reason Codes"</span><span class="p">,</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="s2">"the reasons a value might be flagged for imputation."</span><span class="p">,</span>
+            <span class="s2">"additional_details_text"</span><span class="p">:</span> <span class="s2">"Any time a column is imputed, there should be a corresponding column which contains codes for every value in the column that was imputed."</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;code&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;description&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"code"</span><span class="p">,</span>
+                <span class="s2">"description"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;code&quot;</span><span class="p">],</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"code"</span><span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;static_pudl&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;pudl&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;pudl&quot;</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"static_pudl"</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"pudl"</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"pudl"</span><span class="p">],</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_pudl__entity_plants_pudl&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;PUDL Plants&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;PUDL-assigned plant IDs.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="s2">&quot;These IDs are manually generated each year when new FERC and EIA reporting is integrated, and any newly identified plants are added to the list with a new ID. Each ID maps to a power plant which is reported in at least one FERC or EIA data set. This table is read in from a spreadsheet stored in the PUDL repository: src/pudl/package_data/glue/pudl_id_mapping.xlsx&quot;</span><span class="p">,</span>
+    <span class="s2">"core_pudl__entity_plants_pudl"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"title"</span><span class="p">:</span> <span class="s2">"PUDL Plants"</span><span class="p">,</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="s2">"PUDL-assigned plant IDs."</span><span class="p">,</span>
+            <span class="s2">"additional_details_text"</span><span class="p">:</span> <span class="s2">"These IDs are manually generated each year when new FERC and EIA reporting is integrated, and any newly identified plants are added to the list with a new ID. Each ID maps to a power plant which is reported in at least one FERC or EIA data set. This table is read in from a spreadsheet stored in the PUDL repository: src/pudl/package_data/glue/pudl_id_mapping.xlsx"</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;plant_id_pudl&quot;</span><span class="p">,</span> <span class="s2">&quot;plant_name_pudl&quot;</span><span class="p">],</span>
-            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;plant_id_pudl&quot;</span><span class="p">],</span>
-            <span class="s2">&quot;foreign_key_rules&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[[</span><span class="s2">&quot;plant_id_pudl&quot;</span><span class="p">]]},</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"plant_id_pudl"</span><span class="p">,</span> <span class="s2">"plant_name_pudl"</span><span class="p">],</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"plant_id_pudl"</span><span class="p">],</span>
+            <span class="s2">"foreign_key_rules"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"fields"</span><span class="p">:</span> <span class="p">[[</span><span class="s2">"plant_id_pudl"</span><span class="p">]]},</span>
         <span class="p">},</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;glue&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;pudl&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;pudl&quot;</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"glue"</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"pudl"</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"pudl"</span><span class="p">],</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_pudl__entity_utilities_pudl&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;PUDL Utilities&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;PUDL-assigned utility IDs.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="s2">&quot;These IDs are manually generated each year when new FERC and EIA reporting is integrated, and any newly found utilities are added to the list with a new ID. Each ID maps to a power plant owning or operating entity which is reported in at least one FERC or EIA data set. This table is read in from a spreadsheet stored in the PUDL repository: src/pudl/package_data/glue/pudl_id_mapping.xlsx&quot;</span><span class="p">,</span>
+    <span class="s2">"core_pudl__entity_utilities_pudl"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"title"</span><span class="p">:</span> <span class="s2">"PUDL Utilities"</span><span class="p">,</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="s2">"PUDL-assigned utility IDs."</span><span class="p">,</span>
+            <span class="s2">"additional_details_text"</span><span class="p">:</span> <span class="s2">"These IDs are manually generated each year when new FERC and EIA reporting is integrated, and any newly found utilities are added to the list with a new ID. Each ID maps to a power plant owning or operating entity which is reported in at least one FERC or EIA data set. This table is read in from a spreadsheet stored in the PUDL repository: src/pudl/package_data/glue/pudl_id_mapping.xlsx"</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;utility_id_pudl&quot;</span><span class="p">,</span> <span class="s2">&quot;utility_name_pudl&quot;</span><span class="p">],</span>
-            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;utility_id_pudl&quot;</span><span class="p">],</span>
-            <span class="s2">&quot;foreign_key_rules&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[[</span><span class="s2">&quot;utility_id_pudl&quot;</span><span class="p">]]},</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"utility_id_pudl"</span><span class="p">,</span> <span class="s2">"utility_name_pudl"</span><span class="p">],</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"utility_id_pudl"</span><span class="p">],</span>
+            <span class="s2">"foreign_key_rules"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"fields"</span><span class="p">:</span> <span class="p">[[</span><span class="s2">"utility_id_pudl"</span><span class="p">]]},</span>
         <span class="p">},</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;glue&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;pudl&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;pudl&quot;</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"glue"</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"pudl"</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"pudl"</span><span class="p">],</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_pudl__assn_utilities_plants&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;PUDL Utility-Plant Associations&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;PUDL utility IDs and PUDL plant IDs.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="s2">&quot;This table is read in from a spreadsheet stored in the PUDL repository: src/pudl/package_data/glue/pudl_id_mapping.xlsx&quot;</span><span class="p">,</span>
+    <span class="s2">"core_pudl__assn_utilities_plants"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"title"</span><span class="p">:</span> <span class="s2">"PUDL Utility-Plant Associations"</span><span class="p">,</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="s2">"PUDL utility IDs and PUDL plant IDs."</span><span class="p">,</span>
+            <span class="s2">"additional_details_text"</span><span class="p">:</span> <span class="s2">"This table is read in from a spreadsheet stored in the PUDL repository: src/pudl/package_data/glue/pudl_id_mapping.xlsx"</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;utility_id_pudl&quot;</span><span class="p">,</span> <span class="s2">&quot;plant_id_pudl&quot;</span><span class="p">],</span>
-            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;utility_id_pudl&quot;</span><span class="p">,</span> <span class="s2">&quot;plant_id_pudl&quot;</span><span class="p">],</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"utility_id_pudl"</span><span class="p">,</span> <span class="s2">"plant_id_pudl"</span><span class="p">],</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"utility_id_pudl"</span><span class="p">,</span> <span class="s2">"plant_id_pudl"</span><span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;glue&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;pudl&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;pudl&quot;</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"glue"</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"pudl"</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"pudl"</span><span class="p">],</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_pudl__codes_datasources&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;PUDL Data Sources&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;the data sources that PUDL integrates.&quot;</span><span class="p">,</span>
+    <span class="s2">"core_pudl__codes_datasources"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"title"</span><span class="p">:</span> <span class="s2">"PUDL Data Sources"</span><span class="p">,</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="s2">"the data sources that PUDL integrates."</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;datasource&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;partitions&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;doi&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;pudl_version&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"datasource"</span><span class="p">,</span>
+                <span class="s2">"partitions"</span><span class="p">,</span>
+                <span class="s2">"doi"</span><span class="p">,</span>
+                <span class="s2">"pudl_version"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;datasource&quot;</span><span class="p">],</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"datasource"</span><span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;static_pudl&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;pudl&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;pudl&quot;</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"static_pudl"</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"pudl"</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"pudl"</span><span class="p">],</span>
     <span class="p">},</span>
-    <span class="s2">&quot;out_ferc714__hourly_estimated_state_demand&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;estimated electricity demand for each state, scaled such that it matches the total electricity sales by state reported in EIA 861.&quot;</span>
+    <span class="s2">"out_ferc714__hourly_estimated_state_demand"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"estimated electricity demand for each state, scaled such that it matches the total electricity sales by state reported in EIA 861."</span>
             <span class="p">),</span>
-            <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;estimated_values&quot;</span><span class="p">,</span> <span class="s2">&quot;multiple_inputs&quot;</span><span class="p">,</span> <span class="s2">&quot;scale_hazard&quot;</span><span class="p">],</span>
-            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;&quot;This table uses hourly</span>
+            <span class="s2">"usage_warnings"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"estimated_values"</span><span class="p">,</span> <span class="s2">"multiple_inputs"</span><span class="p">,</span> <span class="s2">"scale_hazard"</span><span class="p">],</span>
+            <span class="s2">"additional_details_text"</span><span class="p">:</span> <span class="s2">"""This table uses hourly</span>
 <span class="s2">electricity demand and information about service territories to estimate the total</span>
 <span class="s2">hourly electricity demand for each US state. Hourly demand is drawn from the FERC</span>
 <span class="s2">714, which reports at the balancing authority and utility level. Service territories</span>
@@ -1006,31 +1006,31 @@ window.runMermaid = runMermaid;</script>
 
 <span class="s2">This table includes the state FIPS codes - see :ref:`out_censusdp1tract__states` for</span>
 <span class="s2">additional information about FIPS state codes.</span>
-<span class="s2">&quot;&quot;&quot;</span><span class="p">,</span>
+<span class="s2">"""</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;state_id_fips&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;datetime_utc&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;demand_mwh&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;scaled_demand_mwh&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"state_id_fips"</span><span class="p">,</span>
+                <span class="s2">"datetime_utc"</span><span class="p">,</span>
+                <span class="s2">"demand_mwh"</span><span class="p">,</span>
+                <span class="s2">"scaled_demand_mwh"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;state_id_fips&quot;</span><span class="p">,</span> <span class="s2">&quot;datetime_utc&quot;</span><span class="p">],</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"state_id_fips"</span><span class="p">,</span> <span class="s2">"datetime_utc"</span><span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;state_demand&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;pudl&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;ferc714&quot;</span><span class="p">,</span> <span class="s2">&quot;eia861&quot;</span><span class="p">,</span> <span class="s2">&quot;censusdp1&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;create_database_schema&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"state_demand"</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"pudl"</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"ferc714"</span><span class="p">,</span> <span class="s2">"eia861"</span><span class="p">,</span> <span class="s2">"censusdp1"</span><span class="p">],</span>
+        <span class="s2">"create_database_schema"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">},</span>
 <span class="p">}</span></div>
 
-<span class="sd">&quot;&quot;&quot;PUDL-specific resource attributes by PUDL identifier (``resource.name``).</span>
+<span class="sd">"""PUDL-specific resource attributes by PUDL identifier (``resource.name``).</span>
 
 <span class="sd">Keys are in alphabetical order.</span>
 
 <span class="sd">See :func:`pudl.metadata.helpers.build_foreign_keys` for the expected format of</span>
 <span class="sd">``foreign_key_rules``.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 </pre></div>
 
                 </article>

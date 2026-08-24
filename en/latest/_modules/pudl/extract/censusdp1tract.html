@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.extract.censusdp1tract &#8212; PUDL 2026.8.1.dev18 documentation</title>
+    <title>pudl.extract.censusdp1tract &#8212; PUDL 2026.8.1.dev19 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=f2b63aa7"></script>
+    <script src="../../../_static/documentation_options.js?v=5bf64ec1"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev18 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev18 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev19 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev19 documentation - Home"/>
   
   
 </a></div>
@@ -868,14 +868,14 @@ window.runMermaid = runMermaid;</script>
                 <article class="bd-article">
                   
   <h1>Source code for pudl.extract.censusdp1tract</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Extract the US Census DP1 ESRI GeoDatabase into an SQLite Database.</span>
+<span></span><span class="sd">"""Extract the US Census DP1 ESRI GeoDatabase into an SQLite Database.</span>
 
 <span class="sd">This is a thin wrapper around the GDAL ogr2ogr command line tool. We use it to convert</span>
 <span class="sd">the Census DP1 data which is distributed as an ESRI GeoDB into an SQLite DB. The module</span>
 <span class="sd">provides ogr2ogr with the Census DP 1 data from the PUDL datastore, and writes the</span>
 <span class="sd">output into the output directory indicated by the ``$PUDL_OUTPUT`` environment variable</span>
 <span class="sd">alongside the FERC and PUDL SQLite databases.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>  <span class="c1"># noqa: S404</span>
@@ -895,21 +895,21 @@ window.runMermaid = runMermaid;</script>
 
 <span class="nd">@asset</span><span class="p">(</span>
     <span class="n">config_schema</span><span class="o">=</span><span class="p">{</span>
-        <span class="s2">&quot;clobber&quot;</span><span class="p">:</span> <span class="n">Field</span><span class="p">(</span>
-            <span class="nb">bool</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Clobber existing Census database.&quot;</span><span class="p">,</span> <span class="n">default_value</span><span class="o">=</span><span class="kc">True</span>
+        <span class="s2">"clobber"</span><span class="p">:</span> <span class="n">Field</span><span class="p">(</span>
+            <span class="nb">bool</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">"Clobber existing Census database."</span><span class="p">,</span> <span class="n">default_value</span><span class="o">=</span><span class="kc">True</span>
         <span class="p">),</span>
-        <span class="s2">&quot;year&quot;</span><span class="p">:</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="s2">"year"</span><span class="p">:</span> <span class="n">Field</span><span class="p">(</span>
             <span class="nb">int</span><span class="p">,</span>
-            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Year of Census data to extract (currently must be 2010).&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">"Year of Census data to extract (currently must be 2010)."</span><span class="p">,</span>
             <span class="n">default_value</span><span class="o">=</span><span class="mi">2010</span><span class="p">,</span>
         <span class="p">),</span>
     <span class="p">},</span>
-    <span class="n">required_resource_keys</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;datastore&quot;</span><span class="p">,</span> <span class="s2">&quot;pudl_paths&quot;</span><span class="p">},</span>
+    <span class="n">required_resource_keys</span><span class="o">=</span><span class="p">{</span><span class="s2">"datastore"</span><span class="p">,</span> <span class="s2">"pudl_paths"</span><span class="p">},</span>
 <span class="p">)</span>
 <div class="viewcode-block" id="raw_censusdp1tract__all_tables">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/censusdp1tract/index.html#pudl.extract.censusdp1tract.raw_censusdp1tract__all_tables">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">raw_censusdp1tract__all_tables</span><span class="p">(</span><span class="n">context</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Use GDAL&#39;s ogr2ogr utility to convert the Census DP1 GeoDB to an SQLite DB.</span>
+<span class="w">    </span><span class="sd">"""Use GDAL's ogr2ogr utility to convert the Census DP1 GeoDB to an SQLite DB.</span>
 
 <span class="sd">    The Census DP1 GeoDB is read from the datastore, where it is stored as a</span>
 <span class="sd">    zipped archive. This archive is unzipped into a temporary directory so</span>
@@ -919,21 +919,21 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        None</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">ds</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">datastore</span>
     <span class="k">if</span> <span class="n">ds</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">ds</span> <span class="o">=</span> <span class="n">Datastore</span><span class="p">()</span>
-    <span class="c1"># If we&#39;re in a conda environment, use the version of ogr2ogr that has been</span>
+    <span class="c1"># If we're in a conda environment, use the version of ogr2ogr that has been</span>
     <span class="c1"># installed by conda. Otherwise, try and use a system installed version</span>
     <span class="c1"># at /usr/bin/ogr2ogr  This allows us to avoid simply running whatever</span>
-    <span class="c1"># program happens to be in the user&#39;s path and named ogr2ogr. This is a</span>
+    <span class="c1"># program happens to be in the user's path and named ogr2ogr. This is a</span>
     <span class="c1"># fragile solution that will not work on all platforms, but should cover</span>
     <span class="c1"># conda environments, Docker, and continuous integration on GitHub.</span>
-    <span class="n">ogr2ogr</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;CONDA_PREFIX&quot;</span><span class="p">,</span> <span class="s2">&quot;/usr&quot;</span><span class="p">))</span> <span class="o">/</span> <span class="s2">&quot;bin/ogr2ogr&quot;</span>
+    <span class="n">ogr2ogr</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"CONDA_PREFIX"</span><span class="p">,</span> <span class="s2">"/usr"</span><span class="p">))</span> <span class="o">/</span> <span class="s2">"bin/ogr2ogr"</span>
     <span class="k">assert</span> <span class="n">ogr2ogr</span><span class="o">.</span><span class="n">is_file</span><span class="p">()</span>
     <span class="c1"># Extract the sippzed GeoDB archive from the Datastore into a temporary</span>
     <span class="c1"># directory so that ogr2ogr can operate on it. Output the resulting SQLite</span>
-    <span class="c1"># database into the user&#39;s PUDL workspace. We do not need to keep the</span>
+    <span class="c1"># database into the user's PUDL workspace. We do not need to keep the</span>
     <span class="c1"># unzipped GeoDB around after this conversion. Using a temporary directory</span>
     <span class="c1"># makes the cleanup automatic.</span>
     <span class="k">with</span> <span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmpdir</span><span class="p">:</span>
@@ -941,27 +941,27 @@ window.runMermaid = runMermaid;</script>
         <span class="n">tmpdir_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tmpdir</span><span class="p">)</span>
         <span class="k">assert</span> <span class="n">tmpdir_path</span><span class="o">.</span><span class="n">is_dir</span><span class="p">()</span>
         <span class="k">with</span> <span class="n">ds</span><span class="o">.</span><span class="n">get_zipfile_resource</span><span class="p">(</span>
-            <span class="s2">&quot;censusdp1tract&quot;</span><span class="p">,</span> <span class="n">year</span><span class="o">=</span><span class="n">context</span><span class="o">.</span><span class="n">op_config</span><span class="p">[</span><span class="s2">&quot;year&quot;</span><span class="p">]</span>
+            <span class="s2">"censusdp1tract"</span><span class="p">,</span> <span class="n">year</span><span class="o">=</span><span class="n">context</span><span class="o">.</span><span class="n">op_config</span><span class="p">[</span><span class="s2">"year"</span><span class="p">]</span>
         <span class="p">)</span> <span class="k">as</span> <span class="n">zip_ref</span><span class="p">:</span>
             <span class="n">extract_root</span> <span class="o">=</span> <span class="n">tmpdir_path</span> <span class="o">/</span> <span class="n">Path</span><span class="p">(</span><span class="n">zip_ref</span><span class="o">.</span><span class="n">filelist</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">filename</span><span class="p">)</span>
             <span class="n">out_dir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">pudl_paths</span><span class="o">.</span><span class="n">pudl_output</span>
             <span class="k">assert</span> <span class="n">out_dir</span><span class="o">.</span><span class="n">is_dir</span><span class="p">()</span>
-            <span class="n">out_path</span> <span class="o">=</span> <span class="n">out_dir</span> <span class="o">/</span> <span class="s2">&quot;censusdp1tract.sqlite&quot;</span>
+            <span class="n">out_path</span> <span class="o">=</span> <span class="n">out_dir</span> <span class="o">/</span> <span class="s2">"censusdp1tract.sqlite"</span>
 
             <span class="k">if</span> <span class="n">out_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
-                <span class="k">if</span> <span class="n">context</span><span class="o">.</span><span class="n">op_config</span><span class="p">[</span><span class="s2">&quot;clobber&quot;</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">context</span><span class="o">.</span><span class="n">op_config</span><span class="p">[</span><span class="s2">"clobber"</span><span class="p">]:</span>
                     <span class="n">out_path</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="ne">SystemExit</span><span class="p">(</span>
-                        <span class="s2">&quot;The Census DB already exists, and we don&#39;t want to clobber it.</span><span class="se">\n</span><span class="s2">&quot;</span>
-                        <span class="sa">f</span><span class="s2">&quot;Move </span><span class="si">{</span><span class="n">out_path</span><span class="si">}</span><span class="s2"> aside or set clobber=True and try again.&quot;</span>
+                        <span class="s2">"The Census DB already exists, and we don't want to clobber it.</span><span class="se">\n</span><span class="s2">"</span>
+                        <span class="sa">f</span><span class="s2">"Move </span><span class="si">{</span><span class="n">out_path</span><span class="si">}</span><span class="s2"> aside or set clobber=True and try again."</span>
                     <span class="p">)</span>
 
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Extracting the Census DP1 GeoDB to </span><span class="si">{</span><span class="n">out_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Extracting the Census DP1 GeoDB to </span><span class="si">{</span><span class="n">out_path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
             <span class="n">zip_ref</span><span class="o">.</span><span class="n">extractall</span><span class="p">(</span><span class="n">tmpdir_path</span><span class="p">)</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;extract_root = </span><span class="si">{</span><span class="n">extract_root</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"extract_root = </span><span class="si">{</span><span class="n">extract_root</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
             <span class="k">assert</span> <span class="n">extract_root</span><span class="o">.</span><span class="n">is_dir</span><span class="p">()</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;out_path = </span><span class="si">{</span><span class="n">out_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"out_path = </span><span class="si">{</span><span class="n">out_path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
             <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>  <span class="c1"># noqa: S603</span>
                 <span class="p">[</span><span class="n">ogr2ogr</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">out_path</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">extract_root</span><span class="p">)],</span>
                 <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>

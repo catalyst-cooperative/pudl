@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.analysis.record_linkage.link_cross_year &#8212; PUDL 2026.8.1.dev18 documentation</title>
+    <title>pudl.analysis.record_linkage.link_cross_year &#8212; PUDL 2026.8.1.dev19 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../../_static/documentation_options.js?v=f2b63aa7"></script>
+    <script src="../../../../_static/documentation_options.js?v=5bf64ec1"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev18 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev18 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev19 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev19 documentation - Home"/>
   
   
 </a></div>
@@ -868,7 +868,7 @@ window.runMermaid = runMermaid;</script>
                 <article class="bd-article">
                   
   <h1>Source code for pudl.analysis.record_linkage.link_cross_year</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Define a record linkage model interface and implement common functionality.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Define a record linkage model interface and implement common functionality."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tempfile</span><span class="w"> </span><span class="kn">import</span> <span class="n">TemporaryDirectory</span>
@@ -896,11 +896,11 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="PenalizeReportYearDistanceConfig">
 <a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/link_cross_year/index.html#pudl.analysis.record_linkage.link_cross_year.PenalizeReportYearDistanceConfig">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">PenalizeReportYearDistanceConfig</span><span class="p">(</span><span class="n">Config</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute distance between records and add penalty to records from same year.</span>
+<span class="w">    </span><span class="sd">"""Compute distance between records and add penalty to records from same year.</span>
 
 <span class="sd">    The metric can be any string accepted by :func:`scipy.spatial.distance.pdist`, e.g.</span>
 <span class="sd">    ``cosine`` or ``euclidean``.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="PenalizeReportYearDistanceConfig.distance_penalty">
 <a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/link_cross_year/index.html#pudl.analysis.record_linkage.link_cross_year.PenalizeReportYearDistanceConfig.distance_penalty">[docs]</a>
@@ -908,7 +908,7 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="PenalizeReportYearDistanceConfig.metric">
 <a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/link_cross_year/index.html#pudl.analysis.record_linkage.link_cross_year.PenalizeReportYearDistanceConfig.metric">[docs]</a>
-    <span class="n">metric</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;euclidean&quot;</span></div>
+    <span class="n">metric</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"euclidean"</span></div>
 </div>
 
 
@@ -916,7 +916,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="DistanceMatrix">
 <a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/link_cross_year/index.html#pudl.analysis.record_linkage.link_cross_year.DistanceMatrix">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">DistanceMatrix</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Class to wrap a distance matrix saved in a np.memmap.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Class to wrap a distance matrix saved in a np.memmap."""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -924,19 +924,19 @@ window.runMermaid = runMermaid;</script>
         <span class="n">original_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
         <span class="n">config</span><span class="p">:</span> <span class="n">PenalizeReportYearDistanceConfig</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute distance matrix from feature_matrix and write to memmap.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Compute distance matrix from feature_matrix and write to memmap."""</span>
 <div class="viewcode-block" id="DistanceMatrix.file_buffer">
 <a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/link_cross_year/index.html#pudl.analysis.record_linkage.link_cross_year.DistanceMatrix.file_buffer">[docs]</a>
         <span class="bp">self</span><span class="o">.</span><span class="n">file_buffer</span> <span class="o">=</span> <span class="n">TemporaryDirectory</span><span class="p">()</span></div>
 
 
-        <span class="n">filename</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">file_buffer</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;distance_matrix.dat&quot;</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">file_buffer</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="o">/</span> <span class="s2">"distance_matrix.dat"</span>
 <div class="viewcode-block" id="DistanceMatrix.distance_matrix">
 <a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/link_cross_year/index.html#pudl.analysis.record_linkage.link_cross_year.DistanceMatrix.distance_matrix">[docs]</a>
         <span class="bp">self</span><span class="o">.</span><span class="n">distance_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">memmap</span><span class="p">(</span>
             <span class="n">filename</span><span class="p">,</span>
-            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float32&quot;</span><span class="p">,</span>
-            <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;w+&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">"float32"</span><span class="p">,</span>
+            <span class="n">mode</span><span class="o">=</span><span class="s2">"w+"</span><span class="p">,</span>
             <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">feature_matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">feature_matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
         <span class="p">)</span></div>
 
@@ -949,7 +949,7 @@ window.runMermaid = runMermaid;</script>
             <span class="n">row_start</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">chunk</span><span class="p">)</span>
 
         <span class="c1"># Apply distance penalty to records from the same year</span>
-        <span class="n">year_inds</span> <span class="o">=</span> <span class="n">original_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;report_year&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">indices</span>
+        <span class="n">year_inds</span> <span class="o">=</span> <span class="n">original_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">"report_year"</span><span class="p">)</span><span class="o">.</span><span class="n">indices</span>
         <span class="k">for</span> <span class="n">inds</span> <span class="ow">in</span> <span class="n">year_inds</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
             <span class="n">matching_year_inds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">inds</span><span class="p">,</span> <span class="n">inds</span><span class="p">))</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">distance_matrix</span><span class="p">[</span><span class="n">matching_year_inds</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">matching_year_inds</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="p">(</span>
@@ -962,8 +962,8 @@ window.runMermaid = runMermaid;</script>
         <span class="c1"># Convert distance matrix to read only memory map</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">distance_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">memmap</span><span class="p">(</span>
             <span class="n">filename</span><span class="p">,</span>
-            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float32&quot;</span><span class="p">,</span>
-            <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">"float32"</span><span class="p">,</span>
+            <span class="n">mode</span><span class="o">=</span><span class="s2">"r"</span><span class="p">,</span>
             <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">feature_matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">feature_matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
         <span class="p">)</span></div>
 
@@ -974,7 +974,7 @@ window.runMermaid = runMermaid;</script>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_cluster_distance_matrix</span><span class="p">(</span>
     <span class="n">distance_matrix</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">cluster_inds</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a distance matrix with only distances within a cluster.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return a distance matrix with only distances within a cluster."""</span>
     <span class="n">cluster_size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">cluster_inds</span><span class="p">)</span>
     <span class="n">dist_inds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">cluster_inds</span><span class="p">,</span> <span class="n">cluster_inds</span><span class="p">))</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">distance_matrix</span><span class="p">[</span><span class="n">dist_inds</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">dist_inds</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span>
@@ -990,7 +990,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">distance_matrix</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">cluster_groups</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute average distance between two clusters of records given indices of each cluster.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Compute average distance between two clusters of records given indices of each cluster."""</span>
     <span class="c1"># Prepare a distance matrix of (n_clusters x n_clusters)</span>
     <span class="c1"># Distance matrix contains average distance between each cluster</span>
     <span class="n">n_clusters</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">cluster_groups</span><span class="p">)</span>
@@ -1012,7 +1012,7 @@ window.runMermaid = runMermaid;</script>
 
 
 
-<span class="nd">@op</span><span class="p">(</span><span class="n">tags</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;memory-use&quot;</span><span class="p">:</span> <span class="s2">&quot;high&quot;</span><span class="p">})</span>
+<span class="nd">@op</span><span class="p">(</span><span class="n">tags</span><span class="o">=</span><span class="p">{</span><span class="s2">"memory-use"</span><span class="p">:</span> <span class="s2">"high"</span><span class="p">})</span>
 <div class="viewcode-block" id="compute_distance_with_year_penalty">
 <a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/link_cross_year/index.html#pudl.analysis.record_linkage.link_cross_year.compute_distance_with_year_penalty">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">compute_distance_with_year_penalty</span><span class="p">(</span>
@@ -1020,8 +1020,8 @@ window.runMermaid = runMermaid;</script>
     <span class="n">feature_matrix</span><span class="p">:</span> <span class="n">FeatureMatrix</span><span class="p">,</span>
     <span class="n">original_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DistanceMatrix</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute a distance matrix and penalize records from the same year.&quot;&quot;&quot;</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Dist metric: </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">metric</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">"""Compute a distance matrix and penalize records from the same year."""</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Dist metric: </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">metric</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">DistanceMatrix</span><span class="p">(</span><span class="n">feature_matrix</span><span class="o">.</span><span class="n">matrix</span><span class="p">,</span> <span class="n">original_df</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span></div>
 
 
@@ -1029,7 +1029,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="DBSCANConfig">
 <a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/link_cross_year/index.html#pudl.analysis.record_linkage.link_cross_year.DBSCANConfig">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">DBSCANConfig</span><span class="p">(</span><span class="n">Config</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Configuration for DBSCAN step.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Configuration for DBSCAN step."""</span>
 
     <span class="c1">#: See :class:`sklearn.cluster.DBSCAN` for details.</span>
 <div class="viewcode-block" id="DBSCANConfig.eps">
@@ -1052,28 +1052,28 @@ window.runMermaid = runMermaid;</script>
     <span class="n">original_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
     <span class="n">experiment_tracker</span><span class="p">:</span> <span class="n">experiment_tracking</span><span class="o">.</span><span class="n">ExperimentTracker</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate initial IDs using DBSCAN algorithm.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Generate initial IDs using DBSCAN algorithm."""</span>
     <span class="c1"># DBSCAN is very efficient when passed a sparse radius neighbor graph</span>
-    <span class="n">neighbor_computer</span> <span class="o">=</span> <span class="n">NearestNeighbors</span><span class="p">(</span><span class="n">radius</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">eps</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="s2">&quot;precomputed&quot;</span><span class="p">)</span>
+    <span class="n">neighbor_computer</span> <span class="o">=</span> <span class="n">NearestNeighbors</span><span class="p">(</span><span class="n">radius</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">eps</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="s2">"precomputed"</span><span class="p">)</span>
     <span class="n">neighbor_computer</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">distance_matrix</span><span class="o">.</span><span class="n">distance_matrix</span><span class="p">)</span>
-    <span class="n">neighbor_graph</span> <span class="o">=</span> <span class="n">neighbor_computer</span><span class="o">.</span><span class="n">radius_neighbors_graph</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;distance&quot;</span><span class="p">)</span>
+    <span class="n">neighbor_graph</span> <span class="o">=</span> <span class="n">neighbor_computer</span><span class="o">.</span><span class="n">radius_neighbors_graph</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">"distance"</span><span class="p">)</span>
 
     <span class="c1"># Classify records</span>
-    <span class="n">classifier</span> <span class="o">=</span> <span class="n">DBSCAN</span><span class="p">(</span><span class="n">metric</span><span class="o">=</span><span class="s2">&quot;precomputed&quot;</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">eps</span><span class="p">,</span> <span class="n">min_samples</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">classifier</span> <span class="o">=</span> <span class="n">DBSCAN</span><span class="p">(</span><span class="n">metric</span><span class="o">=</span><span class="s2">"precomputed"</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">eps</span><span class="p">,</span> <span class="n">min_samples</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 
     <span class="c1"># Create dataframe containing only report year and label columns</span>
     <span class="n">id_year_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
         <span class="p">{</span>
-            <span class="s2">&quot;report_year&quot;</span><span class="p">:</span> <span class="n">original_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">&quot;report_year&quot;</span><span class="p">],</span>
-            <span class="s2">&quot;record_label&quot;</span><span class="p">:</span> <span class="n">classifier</span><span class="o">.</span><span class="n">fit_predict</span><span class="p">(</span><span class="n">neighbor_graph</span><span class="p">),</span>
+            <span class="s2">"report_year"</span><span class="p">:</span> <span class="n">original_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">"report_year"</span><span class="p">],</span>
+            <span class="s2">"record_label"</span><span class="p">:</span> <span class="n">classifier</span><span class="o">.</span><span class="n">fit_predict</span><span class="p">(</span><span class="n">neighbor_graph</span><span class="p">),</span>
         <span class="p">}</span>
     <span class="p">)</span>
 
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">id_year_df</span><span class="o">.</span><span class="n">record_label</span><span class="o">.</span><span class="n">nunique</span><span class="p">()</span><span class="si">}</span><span class="s2"> unique record IDs found after DBSCAN step.&quot;</span>
+        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">id_year_df</span><span class="o">.</span><span class="n">record_label</span><span class="o">.</span><span class="n">nunique</span><span class="p">()</span><span class="si">}</span><span class="s2"> unique record IDs found after DBSCAN step."</span>
     <span class="p">)</span>
     <span class="n">experiment_tracker</span><span class="o">.</span><span class="n">execute_logging</span><span class="p">(</span>
-        <span class="k">lambda</span><span class="p">:</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">log_metric</span><span class="p">(</span><span class="s2">&quot;dbscan_unique&quot;</span><span class="p">,</span> <span class="n">id_year_df</span><span class="o">.</span><span class="n">record_label</span><span class="o">.</span><span class="n">nunique</span><span class="p">())</span>
+        <span class="k">lambda</span><span class="p">:</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">log_metric</span><span class="p">(</span><span class="s2">"dbscan_unique"</span><span class="p">,</span> <span class="n">id_year_df</span><span class="o">.</span><span class="n">record_label</span><span class="o">.</span><span class="n">nunique</span><span class="p">())</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">id_year_df</span></div>
 
@@ -1082,7 +1082,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="SplitClustersConfig">
 <a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/link_cross_year/index.html#pudl.analysis.record_linkage.link_cross_year.SplitClustersConfig">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">SplitClustersConfig</span><span class="p">(</span><span class="n">Config</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Configuration for AgglomerativeClustering used to split overmerged clusters.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Configuration for AgglomerativeClustering used to split overmerged clusters."""</span>
 
     <span class="c1">#: See :class:`sklearn.cluster.AgglomerativeClustering` for details.</span>
 <div class="viewcode-block" id="SplitClustersConfig.distance_threshold">
@@ -1101,7 +1101,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">id_year_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
     <span class="n">experiment_tracker</span><span class="p">:</span> <span class="n">experiment_tracking</span><span class="o">.</span><span class="n">ExperimentTracker</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Split clusters with multiple records from same report_year.</span>
+<span class="w">    </span><span class="sd">"""Split clusters with multiple records from same report_year.</span>
 
 <span class="sd">    DBSCAN will sometimes match records from the same report year, which breaks the</span>
 <span class="sd">    assumption that there should only be one record for each entity from a single</span>
@@ -1110,24 +1110,24 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    step to avoid these matches in the first place, however, it is very inneficient on</span>
 <span class="sd">    a large number of records, so applying to smaller sets of overmerged records is</span>
 <span class="sd">    much faster and uses much less memory.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_generate_cluster_ids</span><span class="p">(</span><span class="n">max_cluster_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get new unique cluster id.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Get new unique cluster id."""</span>
         <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
             <span class="n">max_cluster_id</span> <span class="o">+=</span> <span class="mi">1</span>
             <span class="k">yield</span> <span class="n">max_cluster_id</span>
 
     <span class="n">cluster_id_generator</span> <span class="o">=</span> <span class="n">_generate_cluster_ids</span><span class="p">(</span><span class="n">id_year_df</span><span class="o">.</span><span class="n">record_label</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
     <span class="n">classifier</span> <span class="o">=</span> <span class="n">AgglomerativeClustering</span><span class="p">(</span>
-        <span class="n">metric</span><span class="o">=</span><span class="s2">&quot;precomputed&quot;</span><span class="p">,</span>
-        <span class="n">linkage</span><span class="o">=</span><span class="s2">&quot;average&quot;</span><span class="p">,</span>
+        <span class="n">metric</span><span class="o">=</span><span class="s2">"precomputed"</span><span class="p">,</span>
+        <span class="n">linkage</span><span class="o">=</span><span class="s2">"average"</span><span class="p">,</span>
         <span class="n">distance_threshold</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">distance_threshold</span><span class="p">,</span>
         <span class="n">n_clusters</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">duplicated_ids</span> <span class="o">=</span> <span class="n">id_year_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
-        <span class="n">id_year_df</span><span class="o">.</span><span class="n">duplicated</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;report_year&quot;</span><span class="p">,</span> <span class="s2">&quot;record_label&quot;</span><span class="p">]),</span>
-        <span class="s2">&quot;record_label&quot;</span><span class="p">,</span>
+        <span class="n">id_year_df</span><span class="o">.</span><span class="n">duplicated</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">"report_year"</span><span class="p">,</span> <span class="s2">"record_label"</span><span class="p">]),</span>
+        <span class="s2">"record_label"</span><span class="p">,</span>
     <span class="p">]</span>
 
     <span class="k">for</span> <span class="n">duplicated_id</span> <span class="ow">in</span> <span class="n">duplicated_ids</span><span class="o">.</span><span class="n">unique</span><span class="p">():</span>
@@ -1145,14 +1145,14 @@ window.runMermaid = runMermaid;</script>
         <span class="n">new_labels</span> <span class="o">=</span> <span class="n">classifier</span><span class="o">.</span><span class="n">fit_predict</span><span class="p">(</span><span class="n">cluster_distances</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">new_label</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">new_labels</span><span class="p">):</span>
             <span class="n">df_inds</span> <span class="o">=</span> <span class="n">cluster_inds</span><span class="p">[</span><span class="n">new_labels</span> <span class="o">==</span> <span class="n">new_label</span><span class="p">]</span>
-            <span class="n">id_year_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df_inds</span><span class="p">,</span> <span class="s2">&quot;record_label&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">cluster_id_generator</span><span class="p">)</span>
+            <span class="n">id_year_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df_inds</span><span class="p">,</span> <span class="s2">"record_label"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">cluster_id_generator</span><span class="p">)</span>
 
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">id_year_df</span><span class="o">.</span><span class="n">record_label</span><span class="o">.</span><span class="n">nunique</span><span class="p">()</span><span class="si">}</span><span class="s2"> unique record IDs found after split clusters step.&quot;</span>
+        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">id_year_df</span><span class="o">.</span><span class="n">record_label</span><span class="o">.</span><span class="n">nunique</span><span class="p">()</span><span class="si">}</span><span class="s2"> unique record IDs found after split clusters step."</span>
     <span class="p">)</span>
     <span class="n">experiment_tracker</span><span class="o">.</span><span class="n">execute_logging</span><span class="p">(</span>
         <span class="k">lambda</span><span class="p">:</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">log_metric</span><span class="p">(</span>
-            <span class="s2">&quot;split_clusters_unique&quot;</span><span class="p">,</span> <span class="n">id_year_df</span><span class="o">.</span><span class="n">record_label</span><span class="o">.</span><span class="n">nunique</span><span class="p">()</span>
+            <span class="s2">"split_clusters_unique"</span><span class="p">,</span> <span class="n">id_year_df</span><span class="o">.</span><span class="n">record_label</span><span class="o">.</span><span class="n">nunique</span><span class="p">()</span>
         <span class="p">)</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">id_year_df</span></div>
@@ -1162,7 +1162,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="MatchOrphanedRecordsConfig">
 <a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/link_cross_year/index.html#pudl.analysis.record_linkage.link_cross_year.MatchOrphanedRecordsConfig">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">MatchOrphanedRecordsConfig</span><span class="p">(</span><span class="n">Config</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Configuration for :func:`match_orphaned_records` op.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Configuration for :func:`match_orphaned_records` op."""</span>
 
     <span class="c1">#: See :class:`sklearn.cluster.AgglomerativeClustering` for details.</span>
 <div class="viewcode-block" id="MatchOrphanedRecordsConfig.distance_threshold">
@@ -1172,7 +1172,7 @@ window.runMermaid = runMermaid;</script>
 
 
 
-<span class="nd">@op</span><span class="p">(</span><span class="n">tags</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;memory-use&quot;</span><span class="p">:</span> <span class="s2">&quot;high&quot;</span><span class="p">})</span>
+<span class="nd">@op</span><span class="p">(</span><span class="n">tags</span><span class="o">=</span><span class="p">{</span><span class="s2">"memory-use"</span><span class="p">:</span> <span class="s2">"high"</span><span class="p">})</span>
 <div class="viewcode-block" id="match_orphaned_records">
 <a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/link_cross_year/index.html#pudl.analysis.record_linkage.link_cross_year.match_orphaned_records">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">match_orphaned_records</span><span class="p">(</span>
@@ -1181,22 +1181,22 @@ window.runMermaid = runMermaid;</script>
     <span class="n">id_year_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
     <span class="n">experiment_tracker</span><span class="p">:</span> <span class="n">experiment_tracking</span><span class="o">.</span><span class="n">ExperimentTracker</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;DBSCAN assigns &#39;noisy&#39; records a label of &#39;-1&#39;, which will be labeled by this step.</span>
+<span class="w">    </span><span class="sd">"""DBSCAN assigns 'noisy' records a label of '-1', which will be labeled by this step.</span>
 
 <span class="sd">    To label orphaned records, points are separated into clusters where each orphaned record</span>
 <span class="sd">    is a cluster of a single point. Then, a distance matrix is computed with the average</span>
 <span class="sd">    distance between each cluster, and is used in a round of agglomerative clustering.</span>
-<span class="sd">    This will match orphaned records to existing clusters, or assign them unique ID&#39;s if</span>
-<span class="sd">    they don&#39;t appear close enough to any existing clusters.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    This will match orphaned records to existing clusters, or assign them unique ID's if</span>
+<span class="sd">    they don't appear close enough to any existing clusters.</span>
+<span class="sd">    """</span>
     <span class="n">classifier</span> <span class="o">=</span> <span class="n">AgglomerativeClustering</span><span class="p">(</span>
-        <span class="n">metric</span><span class="o">=</span><span class="s2">&quot;precomputed&quot;</span><span class="p">,</span>
-        <span class="n">linkage</span><span class="o">=</span><span class="s2">&quot;average&quot;</span><span class="p">,</span>
+        <span class="n">metric</span><span class="o">=</span><span class="s2">"precomputed"</span><span class="p">,</span>
+        <span class="n">linkage</span><span class="o">=</span><span class="s2">"average"</span><span class="p">,</span>
         <span class="n">distance_threshold</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">distance_threshold</span><span class="p">,</span>
         <span class="n">n_clusters</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span>
 
-    <span class="n">cluster_inds</span> <span class="o">=</span> <span class="n">id_year_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;record_label&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">indices</span>
+    <span class="n">cluster_inds</span> <span class="o">=</span> <span class="n">id_year_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">"record_label"</span><span class="p">)</span><span class="o">.</span><span class="n">indices</span>
 
     <span class="c1"># Orphaned records are considered a cluster of a single record</span>
     <span class="n">cluster_groups</span> <span class="o">=</span> <span class="p">[</span><span class="n">List</span><span class="p">([</span><span class="n">ind</span><span class="p">])</span> <span class="k">for</span> <span class="n">ind</span> <span class="ow">in</span> <span class="n">cluster_inds</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">[])]</span>
@@ -1212,14 +1212,14 @@ window.runMermaid = runMermaid;</script>
     <span class="c1"># Assign new labels to all points</span>
     <span class="n">new_labels</span> <span class="o">=</span> <span class="n">classifier</span><span class="o">.</span><span class="n">fit_predict</span><span class="p">(</span><span class="n">average_dist_matrix</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">inds</span><span class="p">,</span> <span class="n">label</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">cluster_groups</span><span class="p">,</span> <span class="n">new_labels</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-        <span class="n">id_year_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">inds</span><span class="p">,</span> <span class="s2">&quot;record_label&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">label</span>
+        <span class="n">id_year_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">inds</span><span class="p">,</span> <span class="s2">"record_label"</span><span class="p">]</span> <span class="o">=</span> <span class="n">label</span>
 
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">id_year_df</span><span class="o">.</span><span class="n">record_label</span><span class="o">.</span><span class="n">nunique</span><span class="p">()</span><span class="si">}</span><span class="s2"> unique record IDs found after match orphaned records step.&quot;</span>
+        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">id_year_df</span><span class="o">.</span><span class="n">record_label</span><span class="o">.</span><span class="n">nunique</span><span class="p">()</span><span class="si">}</span><span class="s2"> unique record IDs found after match orphaned records step."</span>
     <span class="p">)</span>
     <span class="n">experiment_tracker</span><span class="o">.</span><span class="n">execute_logging</span><span class="p">(</span>
         <span class="k">lambda</span><span class="p">:</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">log_metric</span><span class="p">(</span>
-            <span class="s2">&quot;match_orphaned_unique&quot;</span><span class="p">,</span> <span class="n">id_year_df</span><span class="o">.</span><span class="n">record_label</span><span class="o">.</span><span class="n">nunique</span><span class="p">()</span>
+            <span class="s2">"match_orphaned_unique"</span><span class="p">,</span> <span class="n">id_year_df</span><span class="o">.</span><span class="n">record_label</span><span class="o">.</span><span class="n">nunique</span><span class="p">()</span>
         <span class="p">)</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">id_year_df</span></div>
@@ -1234,7 +1234,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">feature_matrix</span><span class="p">:</span> <span class="n">FeatureMatrix</span><span class="p">,</span>
     <span class="n">experiment_tracker</span><span class="p">:</span> <span class="n">experiment_tracking</span><span class="o">.</span><span class="n">ExperimentTracker</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Apply model and return column of estimated record labels.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Apply model and return column of estimated record labels."""</span>
     <span class="c1"># Compute distances and apply penalty for records from same year</span>
     <span class="n">distance_matrix</span> <span class="o">=</span> <span class="n">compute_distance_with_year_penalty</span><span class="p">(</span><span class="n">feature_matrix</span><span class="p">,</span> <span class="n">df</span><span class="p">)</span>
 

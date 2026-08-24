@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.output.censusdp1tract &#8212; PUDL 2026.8.1.dev18 documentation</title>
+    <title>pudl.output.censusdp1tract &#8212; PUDL 2026.8.1.dev19 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=f2b63aa7"></script>
+    <script src="../../../_static/documentation_options.js?v=5bf64ec1"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev18 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev18 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev19 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev19 documentation - Home"/>
   
   
 </a></div>
@@ -868,7 +868,7 @@ window.runMermaid = runMermaid;</script>
                 <article class="bd-article">
                   
   <h1>Source code for pudl.output.censusdp1tract</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Functions for reading data out of the Census DP1 SQLite Database.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Functions for reading data out of the Census DP1 SQLite Database."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">TypedDict</span>
 
@@ -888,7 +888,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="LayerParams">
 <a class="viewcode-back" href="../../../autoapi/pudl/output/censusdp1tract/index.html#pudl.output.censusdp1tract.LayerParams">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">LayerParams</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Simple class defining the expected structure of the layer processing params.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Simple class defining the expected structure of the layer processing params."""</span>
 
 <div class="viewcode-block" id="LayerParams.plural">
 <a class="viewcode-back" href="../../../autoapi/pudl/output/censusdp1tract/index.html#pudl.output.censusdp1tract.LayerParams.plural">[docs]</a>
@@ -904,82 +904,82 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="census_asset_factory">
 <a class="viewcode-back" href="../../../autoapi/pudl/output/censusdp1tract/index.html#pudl.output.censusdp1tract.census_asset_factory">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">census_asset_factory</span><span class="p">(</span>
-    <span class="n">layer</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;state&quot;</span><span class="p">,</span> <span class="s2">&quot;county&quot;</span><span class="p">,</span> <span class="s2">&quot;tract&quot;</span><span class="p">],</span>
+    <span class="n">layer</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"state"</span><span class="p">,</span> <span class="s2">"county"</span><span class="p">,</span> <span class="s2">"tract"</span><span class="p">],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AssetsDefinition</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;An asset factory for finished EIA tables.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""An asset factory for finished EIA tables."""</span>
     <span class="n">common_rename</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;aland10&quot;</span><span class="p">:</span> <span class="s2">&quot;land_area&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;awater10&quot;</span><span class="p">:</span> <span class="s2">&quot;water_area&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;intptlat10&quot;</span><span class="p">:</span> <span class="s2">&quot;internal_point_latitude&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;intptlon10&quot;</span><span class="p">:</span> <span class="s2">&quot;internal_point_longitude&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;shape_length&quot;</span><span class="p">:</span> <span class="s2">&quot;shape_length&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;shape_area&quot;</span><span class="p">:</span> <span class="s2">&quot;shape_area&quot;</span><span class="p">,</span>
+        <span class="s2">"aland10"</span><span class="p">:</span> <span class="s2">"land_area"</span><span class="p">,</span>
+        <span class="s2">"awater10"</span><span class="p">:</span> <span class="s2">"water_area"</span><span class="p">,</span>
+        <span class="s2">"intptlat10"</span><span class="p">:</span> <span class="s2">"internal_point_latitude"</span><span class="p">,</span>
+        <span class="s2">"intptlon10"</span><span class="p">:</span> <span class="s2">"internal_point_longitude"</span><span class="p">,</span>
+        <span class="s2">"shape_length"</span><span class="p">:</span> <span class="s2">"shape_length"</span><span class="p">,</span>
+        <span class="s2">"shape_area"</span><span class="p">:</span> <span class="s2">"shape_area"</span><span class="p">,</span>
     <span class="p">}</span>
 
     <span class="n">layer_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">LayerParams</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;state&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;plural&quot;</span><span class="p">:</span> <span class="s2">&quot;states&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;rename&quot;</span><span class="p">:</span> <span class="n">common_rename</span>
+        <span class="s2">"state"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"plural"</span><span class="p">:</span> <span class="s2">"states"</span><span class="p">,</span>
+            <span class="s2">"rename"</span><span class="p">:</span> <span class="n">common_rename</span>
             <span class="o">|</span> <span class="p">{</span>
-                <span class="s2">&quot;geoid10&quot;</span><span class="p">:</span> <span class="s2">&quot;state_id_fips&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;name10&quot;</span><span class="p">:</span> <span class="s2">&quot;state_name&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;stusps10&quot;</span><span class="p">:</span> <span class="s2">&quot;state&quot;</span><span class="p">,</span>
+                <span class="s2">"geoid10"</span><span class="p">:</span> <span class="s2">"state_id_fips"</span><span class="p">,</span>
+                <span class="s2">"name10"</span><span class="p">:</span> <span class="s2">"state_name"</span><span class="p">,</span>
+                <span class="s2">"stusps10"</span><span class="p">:</span> <span class="s2">"state"</span><span class="p">,</span>
             <span class="p">},</span>
         <span class="p">},</span>
-        <span class="s2">&quot;county&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;plural&quot;</span><span class="p">:</span> <span class="s2">&quot;counties&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;rename&quot;</span><span class="p">:</span> <span class="n">common_rename</span>
+        <span class="s2">"county"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"plural"</span><span class="p">:</span> <span class="s2">"counties"</span><span class="p">,</span>
+            <span class="s2">"rename"</span><span class="p">:</span> <span class="n">common_rename</span>
             <span class="o">|</span> <span class="p">{</span>
-                <span class="s2">&quot;geoid10&quot;</span><span class="p">:</span> <span class="s2">&quot;county_id_fips&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;namelsad10&quot;</span><span class="p">:</span> <span class="s2">&quot;county&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;funcstat10&quot;</span><span class="p">:</span> <span class="s2">&quot;functional_status_code_census&quot;</span><span class="p">,</span>
+                <span class="s2">"geoid10"</span><span class="p">:</span> <span class="s2">"county_id_fips"</span><span class="p">,</span>
+                <span class="s2">"namelsad10"</span><span class="p">:</span> <span class="s2">"county"</span><span class="p">,</span>
+                <span class="s2">"funcstat10"</span><span class="p">:</span> <span class="s2">"functional_status_code_census"</span><span class="p">,</span>
             <span class="p">},</span>
         <span class="p">},</span>
-        <span class="s2">&quot;tract&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;plural&quot;</span><span class="p">:</span> <span class="s2">&quot;tracts&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;rename&quot;</span><span class="p">:</span> <span class="n">common_rename</span>
+        <span class="s2">"tract"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"plural"</span><span class="p">:</span> <span class="s2">"tracts"</span><span class="p">,</span>
+            <span class="s2">"rename"</span><span class="p">:</span> <span class="n">common_rename</span>
             <span class="o">|</span> <span class="p">{</span>
-                <span class="s2">&quot;geoid10&quot;</span><span class="p">:</span> <span class="s2">&quot;tract_id_fips&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;namelsad10&quot;</span><span class="p">:</span> <span class="s2">&quot;tract_name&quot;</span><span class="p">,</span>
+                <span class="s2">"geoid10"</span><span class="p">:</span> <span class="s2">"tract_id_fips"</span><span class="p">,</span>
+                <span class="s2">"namelsad10"</span><span class="p">:</span> <span class="s2">"tract_name"</span><span class="p">,</span>
             <span class="p">},</span>
         <span class="p">},</span>
     <span class="p">}</span>
 
     <span class="nd">@asset</span><span class="p">(</span>
         <span class="n">ins</span><span class="o">=</span><span class="p">{</span>
-            <span class="s2">&quot;raw_censusdp1tract__all_tables&quot;</span><span class="p">:</span> <span class="n">AssetIn</span><span class="p">(</span><span class="s2">&quot;raw_censusdp1tract__all_tables&quot;</span><span class="p">)</span>
+            <span class="s2">"raw_censusdp1tract__all_tables"</span><span class="p">:</span> <span class="n">AssetIn</span><span class="p">(</span><span class="s2">"raw_censusdp1tract__all_tables"</span><span class="p">)</span>
         <span class="p">},</span>
-        <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;out_censusdp1tract__</span><span class="si">{</span><span class="n">layer_params</span><span class="p">[</span><span class="n">layer</span><span class="p">][</span><span class="s1">&#39;plural&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-        <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">&quot;parquet_io_manager&quot;</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">"out_censusdp1tract__</span><span class="si">{</span><span class="n">layer_params</span><span class="p">[</span><span class="n">layer</span><span class="p">][</span><span class="s1">'plural'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+        <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"parquet_io_manager"</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">census_layer</span><span class="p">(</span><span class="n">raw_censusdp1tract__all_tables</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Select one layer from the Census DP1 database.</span>
+<span class="w">        </span><span class="sd">"""Select one layer from the Census DP1 database.</span>
 
 <span class="sd">        Uses information within the Census DP1 database to set the coordinate reference</span>
 <span class="sd">        system and to identify the column containing the geometry. The geometry column</span>
-<span class="sd">        is renamed to &quot;geometry&quot; as that&#39;s the default within GeoPandas. Non-demographic</span>
+<span class="sd">        is renamed to "geometry" as that's the default within GeoPandas. Non-demographic</span>
 <span class="sd">        columns are renamed for readability, but the ~175 demographic data column names</span>
 <span class="sd">        are left untouched.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">census_conn</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;sqlite:///</span><span class="si">{</span><span class="n">raw_censusdp1tract__all_tables</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="sd">        """</span>
+        <span class="n">census_conn</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"sqlite:///</span><span class="si">{</span><span class="n">raw_censusdp1tract__all_tables</span><span class="si">}</span><span class="s2">"</span>
         <span class="n">dp1_engine</span> <span class="o">=</span> <span class="n">sa</span><span class="o">.</span><span class="n">create_engine</span><span class="p">(</span><span class="n">census_conn</span><span class="p">)</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">get_layer</span><span class="p">(</span>
-            <span class="n">layer</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;state&quot;</span><span class="p">,</span> <span class="s2">&quot;county&quot;</span><span class="p">,</span> <span class="s2">&quot;tract&quot;</span><span class="p">],</span> <span class="n">dp1_engine</span><span class="p">:</span> <span class="n">sa</span><span class="o">.</span><span class="n">Engine</span>
+            <span class="n">layer</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"state"</span><span class="p">,</span> <span class="s2">"county"</span><span class="p">,</span> <span class="s2">"tract"</span><span class="p">],</span> <span class="n">dp1_engine</span><span class="p">:</span> <span class="n">sa</span><span class="o">.</span><span class="n">Engine</span>
         <span class="p">):</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">layer</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Argument &#39;layer&#39; must be a string, got arg of type </span><span class="si">{</span><span class="n">layer</span><span class="si">}</span><span class="s2">.&quot;</span>
+                    <span class="sa">f</span><span class="s2">"Argument 'layer' must be a string, got arg of type </span><span class="si">{</span><span class="n">layer</span><span class="si">}</span><span class="s2">."</span>
                 <span class="p">)</span>
             <span class="n">layer</span> <span class="o">=</span> <span class="n">layer</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
-            <span class="k">if</span> <span class="n">layer</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;state&quot;</span><span class="p">,</span> <span class="s2">&quot;county&quot;</span><span class="p">,</span> <span class="s2">&quot;tract&quot;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">layer</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"state"</span><span class="p">,</span> <span class="s2">"county"</span><span class="p">,</span> <span class="s2">"tract"</span><span class="p">]:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="s2">&quot;Census DP1 layer must be one of &#39;state&#39;, &#39;county&#39; or &#39;tract&#39;, &quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;but got </span><span class="si">{</span><span class="n">layer</span><span class="si">}</span><span class="s2">.&quot;</span>
+                    <span class="s2">"Census DP1 layer must be one of 'state', 'county' or 'tract', "</span>
+                    <span class="sa">f</span><span class="s2">"but got </span><span class="si">{</span><span class="n">layer</span><span class="si">}</span><span class="s2">."</span>
                 <span class="p">)</span>
-            <span class="n">table_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">layer</span><span class="si">}</span><span class="s2">_2010census_dp1&quot;</span>
+            <span class="n">table_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">layer</span><span class="si">}</span><span class="s2">_2010census_dp1"</span>
             <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span>
-<span class="w">                </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">                </span><span class="sd">"""</span>
 <span class="sd">SELECT geom_cols.f_table_name as table_name,</span>
 <span class="sd">    geom_cols.f_geometry_column as geom_col,</span>
 <span class="sd">    crs.auth_name as auth_name,</span>
@@ -988,31 +988,31 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">INNER JOIN spatial_ref_sys crs</span>
 <span class="sd">    ON geom_cols.srid = crs.srid</span>
 <span class="sd">WHERE table_name = ?</span>
-<span class="sd">&quot;&quot;&quot;</span><span class="p">,</span>
+<span class="sd">"""</span><span class="p">,</span>
                 <span class="n">dp1_engine</span><span class="p">,</span>
                 <span class="n">params</span><span class="o">=</span><span class="p">(</span><span class="n">table_name</span><span class="p">,),</span>
             <span class="p">)</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Expected exactly 1 geometry description, but found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="sa">f</span><span class="s2">"Expected exactly 1 geometry description, but found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
                 <span class="p">)</span>
 
-            <span class="n">geom_col</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;geom_col&quot;</span><span class="p">]</span>
-            <span class="n">crs_auth_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;auth_name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;auth_srid&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+            <span class="n">geom_col</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"geom_col"</span><span class="p">]</span>
+            <span class="n">crs_auth_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="s1">'auth_name'</span><span class="p">]</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="s1">'auth_srid'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
 
             <span class="n">gdf</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">=</span> <span class="p">(</span>
                 <span class="n">gpd</span><span class="o">.</span><span class="n">read_postgis</span><span class="p">(</span>
                     <span class="n">sql</span><span class="o">=</span><span class="n">table_name</span><span class="p">,</span> <span class="n">con</span><span class="o">=</span><span class="n">dp1_engine</span><span class="p">,</span> <span class="n">geom_col</span><span class="o">=</span><span class="n">geom_col</span><span class="p">,</span> <span class="n">crs</span><span class="o">=</span><span class="n">crs_auth_str</span>
                 <span class="p">)</span>
-                <span class="o">.</span><span class="n">rename_geometry</span><span class="p">(</span><span class="s2">&quot;geometry&quot;</span><span class="p">)</span>
-                <span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;objectid&quot;</span><span class="p">])</span>
-                <span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">layer_params</span><span class="p">[</span><span class="n">layer</span><span class="p">][</span><span class="s2">&quot;rename&quot;</span><span class="p">])</span>
+                <span class="o">.</span><span class="n">rename_geometry</span><span class="p">(</span><span class="s2">"geometry"</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">"objectid"</span><span class="p">])</span>
+                <span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">layer_params</span><span class="p">[</span><span class="n">layer</span><span class="p">][</span><span class="s2">"rename"</span><span class="p">])</span>
                 <span class="o">.</span><span class="n">astype</span><span class="p">(</span>
                     <span class="p">{</span>
-                        <span class="s2">&quot;land_area&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-                        <span class="s2">&quot;water_area&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-                        <span class="s2">&quot;internal_point_latitude&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-                        <span class="s2">&quot;internal_point_longitude&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+                        <span class="s2">"land_area"</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+                        <span class="s2">"water_area"</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+                        <span class="s2">"internal_point_latitude"</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+                        <span class="s2">"internal_point_longitude"</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
                     <span class="p">}</span>
                 <span class="p">)</span>
             <span class="p">)</span>
@@ -1031,7 +1031,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="census_dp1_layers">
 <a class="viewcode-back" href="../../../autoapi/pudl/output/censusdp1tract/index.html#pudl.output.censusdp1tract.census_dp1_layers">[docs]</a>
 <span class="n">census_dp1_layers</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="n">census_asset_factory</span><span class="p">(</span><span class="n">layer</span><span class="p">)</span> <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;state&quot;</span><span class="p">,</span> <span class="s2">&quot;county&quot;</span><span class="p">,</span> <span class="s2">&quot;tract&quot;</span><span class="p">]</span>
+    <span class="n">census_asset_factory</span><span class="p">(</span><span class="n">layer</span><span class="p">)</span> <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"state"</span><span class="p">,</span> <span class="s2">"county"</span><span class="p">,</span> <span class="s2">"tract"</span><span class="p">]</span>
 <span class="p">]</span></div>
 
 </pre></div>

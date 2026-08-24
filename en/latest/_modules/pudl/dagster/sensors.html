@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.dagster.sensors &#8212; PUDL 2026.8.1.dev18 documentation</title>
+    <title>pudl.dagster.sensors &#8212; PUDL 2026.8.1.dev19 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=f2b63aa7"></script>
+    <script src="../../../_static/documentation_options.js?v=5bf64ec1"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev18 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev18 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev19 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev19 documentation - Home"/>
   
   
 </a></div>
@@ -868,7 +868,7 @@ window.runMermaid = runMermaid;</script>
                 <article class="bd-article">
                   
   <h1>Source code for pudl.dagster.sensors</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Dagster sensors for PUDL.</span>
+<span></span><span class="sd">"""Dagster sensors for PUDL.</span>
 
 <span class="sd">This module defines sensor-based automation that watches the state of the PUDL code</span>
 <span class="sd">location and requests follow-on work when specific conditions are met. Add sensor</span>
@@ -877,7 +877,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">the module focused on automation entrypoints and their shared defaults.</span>
 
 <span class="sd">For the underlying Dagster concept, see https://docs.dagster.io/guides/automate/sensors</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span>
@@ -917,7 +917,7 @@ window.runMermaid = runMermaid;</script>
 <span class="k">def</span><span class="w"> </span><span class="nf">_backfill_sensor_skip_reason_or_runs</span><span class="p">(</span>
     <span class="n">context</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">RunStatusSensorContext</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dg</span><span class="o">.</span><span class="n">SkipReason</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">dg</span><span class="o">.</span><span class="n">DagsterRun</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return SkipReason while backfill runs, ``(backfill_id, runs)`` when finished.</span>
+<span class="w">    </span><span class="sd">"""Return SkipReason while backfill runs, ``(backfill_id, runs)`` when finished.</span>
 
 <span class="sd">    Shared by the success and failure sensors so they both coordinate on the same</span>
 <span class="sd">    backfill state checks. Only one sensor invocation per backfill will make it past</span>
@@ -933,12 +933,12 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    terminal status (success, failure, or canceled). Callers inspect the run statuses</span>
 <span class="sd">    to decide whether the success sensor or the failure sensor should produce a</span>
 <span class="sd">    ``RunRequest``.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">backfill_id</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">dagster_run</span><span class="o">.</span><span class="n">tags</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">DAGSTER_BACKFILL_TAG</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">backfill_id</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">dg</span><span class="o">.</span><span class="n">SkipReason</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Run </span><span class="si">{</span><span class="n">context</span><span class="o">.</span><span class="n">dagster_run</span><span class="o">.</span><span class="n">run_id</span><span class="si">}</span><span class="s2"> has no </span><span class="si">{</span><span class="n">DAGSTER_BACKFILL_TAG</span><span class="si">}</span><span class="s2"> tag; &quot;</span>
-            <span class="s2">&quot;FERC EQR deployment sensor only triggers on backfill runs.&quot;</span>
+            <span class="sa">f</span><span class="s2">"Run </span><span class="si">{</span><span class="n">context</span><span class="o">.</span><span class="n">dagster_run</span><span class="o">.</span><span class="n">run_id</span><span class="si">}</span><span class="s2"> has no </span><span class="si">{</span><span class="n">DAGSTER_BACKFILL_TAG</span><span class="si">}</span><span class="s2"> tag; "</span>
+            <span class="s2">"FERC EQR deployment sensor only triggers on backfill runs."</span>
         <span class="p">)</span>
 
     <span class="n">backfill_runs</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">instance</span><span class="o">.</span><span class="n">get_runs</span><span class="p">(</span>
@@ -950,26 +950,26 @@ window.runMermaid = runMermaid;</script>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">backfill_runs</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">dg</span><span class="o">.</span><span class="n">SkipReason</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;No runs found for FERC EQR backfill </span><span class="si">{</span><span class="n">backfill_id</span><span class="si">}</span><span class="s2">; &quot;</span>
-            <span class="s2">&quot;waiting for backfill state to settle.&quot;</span>
+            <span class="sa">f</span><span class="s2">"No runs found for FERC EQR backfill </span><span class="si">{</span><span class="n">backfill_id</span><span class="si">}</span><span class="s2">; "</span>
+            <span class="s2">"waiting for backfill state to settle."</span>
         <span class="p">)</span>
 
     <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">run</span><span class="o">.</span><span class="n">status</span> <span class="ow">in</span> <span class="n">NON_TERMINAL_RUN_STATUSES</span> <span class="k">for</span> <span class="n">run</span> <span class="ow">in</span> <span class="n">backfill_runs</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">dg</span><span class="o">.</span><span class="n">SkipReason</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;FERCEQR backfill </span><span class="si">{</span><span class="n">backfill_id</span><span class="si">}</span><span class="s2"> still in progress; &quot;</span>
-            <span class="s2">&quot;waiting for all runs to complete before sending a single notification.&quot;</span>
+            <span class="sa">f</span><span class="s2">"FERCEQR backfill </span><span class="si">{</span><span class="n">backfill_id</span><span class="si">}</span><span class="s2"> still in progress; "</span>
+            <span class="s2">"waiting for all runs to complete before sending a single notification."</span>
         <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">backfill_id</span><span class="p">,</span> <span class="n">backfill_runs</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_collect_source_partitions</span><span class="p">(</span><span class="n">backfill_runs</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">dg</span><span class="o">.</span><span class="n">DagsterRun</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return sorted, deduplicated partition keys from a set of backfill runs.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return sorted, deduplicated partition keys from a set of backfill runs."""</span>
     <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span>
         <span class="p">{</span>
             <span class="n">partition</span>
             <span class="k">for</span> <span class="n">run</span> <span class="ow">in</span> <span class="n">backfill_runs</span>
-            <span class="k">if</span> <span class="p">(</span><span class="n">partition</span> <span class="o">:=</span> <span class="n">run</span><span class="o">.</span><span class="n">tags</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dagster/partition&quot;</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">partition</span> <span class="o">:=</span> <span class="n">run</span><span class="o">.</span><span class="n">tags</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"dagster/partition"</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
         <span class="p">}</span>
     <span class="p">)</span>
 
@@ -977,14 +977,14 @@ window.runMermaid = runMermaid;</script>
 <span class="k">def</span><span class="w"> </span><span class="nf">_evaluate_ferceqr_backfill_sensor_condition</span><span class="p">(</span>
     <span class="n">context</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">RunStatusSensorContext</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dg</span><span class="o">.</span><span class="n">SkipReason</span> <span class="o">|</span> <span class="n">dg</span><span class="o">.</span><span class="n">RunRequest</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Apply the shared FERC EQR backfill sensor decision logic.</span>
+<span class="w">    </span><span class="sd">"""Apply the shared FERC EQR backfill sensor decision logic.</span>
 
 <span class="sd">    Both the success and failure sensors delegate here. Once all backfill runs are</span>
 <span class="sd">    terminal, the function checks whether any failed and routes to the appropriate</span>
 <span class="sd">    downstream deployment asset. If both sensors happen to fire at the same time (race),</span>
 <span class="sd">    they produce RunRequests with the same ``run_key`` prefix so Dagster deduplicates</span>
 <span class="sd">    them automatically.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">result</span> <span class="o">=</span> <span class="n">_backfill_sensor_skip_reason_or_runs</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">dg</span><span class="o">.</span><span class="n">SkipReason</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">result</span>
@@ -994,15 +994,15 @@ window.runMermaid = runMermaid;</script>
 
     <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">run</span><span class="o">.</span><span class="n">status</span> <span class="ow">in</span> <span class="n">FAILED_TERMINAL_RUN_STATUSES</span> <span class="k">for</span> <span class="n">run</span> <span class="ow">in</span> <span class="n">backfill_runs</span><span class="p">):</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;FERCEQR backfill </span><span class="si">{</span><span class="n">backfill_id</span><span class="si">}</span><span class="s2"> completed with failures; &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;requesting aggregated failure notification for partitions: &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">source_partitions</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">"FERCEQR backfill </span><span class="si">{</span><span class="n">backfill_id</span><span class="si">}</span><span class="s2"> completed with failures; "</span>
+            <span class="sa">f</span><span class="s2">"requesting aggregated failure notification for partitions: "</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">source_partitions</span><span class="si">}</span><span class="s2">"</span>
         <span class="p">)</span>
-        <span class="n">run_key_prefix</span> <span class="o">=</span> <span class="s2">&quot;ferceqr_deployment_failure_backfill&quot;</span>
-        <span class="n">asset_name</span> <span class="o">=</span> <span class="s2">&quot;handle_ferceqr_failure&quot;</span>
+        <span class="n">run_key_prefix</span> <span class="o">=</span> <span class="s2">"ferceqr_deployment_failure_backfill"</span>
+        <span class="n">asset_name</span> <span class="o">=</span> <span class="s2">"handle_ferceqr_failure"</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">run_key_prefix</span> <span class="o">=</span> <span class="s2">&quot;ferceqr_deployment_success_backfill&quot;</span>
-        <span class="n">asset_name</span> <span class="o">=</span> <span class="s2">&quot;deploy_ferceqr&quot;</span>
+        <span class="n">run_key_prefix</span> <span class="o">=</span> <span class="s2">"ferceqr_deployment_success_backfill"</span>
+        <span class="n">asset_name</span> <span class="o">=</span> <span class="s2">"deploy_ferceqr"</span>
 
     <span class="n">tags</span> <span class="o">=</span> <span class="p">{</span>
         <span class="n">FERCEQR_SOURCE_RUN_ID_TAG</span><span class="p">:</span> <span class="n">context</span><span class="o">.</span><span class="n">dagster_run</span><span class="o">.</span><span class="n">run_id</span><span class="p">,</span>
@@ -1010,7 +1010,7 @@ window.runMermaid = runMermaid;</script>
     <span class="p">}</span>
 
     <span class="k">return</span> <span class="n">dg</span><span class="o">.</span><span class="n">RunRequest</span><span class="p">(</span>
-        <span class="n">run_key</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">run_key_prefix</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">backfill_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">run_key</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">run_key_prefix</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">backfill_id</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
         <span class="n">tags</span><span class="o">=</span><span class="n">tags</span><span class="p">,</span>
         <span class="n">asset_selection</span><span class="o">=</span><span class="p">[</span><span class="n">dg</span><span class="o">.</span><span class="n">AssetKey</span><span class="p">(</span><span class="n">asset_name</span><span class="p">)],</span>
     <span class="p">)</span>
@@ -1019,7 +1019,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="ferceqr_failure_sensor">
 <a class="viewcode-back" href="../../../autoapi/pudl/dagster/sensors/index.html#pudl.dagster.sensors.ferceqr_failure_sensor">[docs]</a>
 <span class="n">ferceqr_failure_sensor</span> <span class="o">=</span> <span class="n">dg</span><span class="o">.</span><span class="n">run_status_sensor</span><span class="p">(</span>
-    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;ferceqr_failure_sensor&quot;</span><span class="p">,</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">"ferceqr_failure_sensor"</span><span class="p">,</span>
     <span class="n">run_status</span><span class="o">=</span><span class="n">dg</span><span class="o">.</span><span class="n">DagsterRunStatus</span><span class="o">.</span><span class="n">FAILURE</span><span class="p">,</span>
     <span class="n">monitored_jobs</span><span class="o">=</span><span class="p">[</span><span class="n">ferceqr_job</span><span class="p">],</span>
     <span class="n">request_job</span><span class="o">=</span><span class="n">ferceqr_deployment_job</span><span class="p">,</span>
@@ -1031,7 +1031,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="ferceqr_success_sensor">
 <a class="viewcode-back" href="../../../autoapi/pudl/dagster/sensors/index.html#pudl.dagster.sensors.ferceqr_success_sensor">[docs]</a>
 <span class="n">ferceqr_success_sensor</span> <span class="o">=</span> <span class="n">dg</span><span class="o">.</span><span class="n">run_status_sensor</span><span class="p">(</span>
-    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;ferceqr_success_sensor&quot;</span><span class="p">,</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">"ferceqr_success_sensor"</span><span class="p">,</span>
     <span class="n">run_status</span><span class="o">=</span><span class="n">dg</span><span class="o">.</span><span class="n">DagsterRunStatus</span><span class="o">.</span><span class="n">SUCCESS</span><span class="p">,</span>
     <span class="n">monitored_jobs</span><span class="o">=</span><span class="p">[</span><span class="n">ferceqr_job</span><span class="p">],</span>
     <span class="n">request_job</span><span class="o">=</span><span class="n">ferceqr_deployment_job</span><span class="p">,</span>
@@ -1049,10 +1049,10 @@ window.runMermaid = runMermaid;</script>
 
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s2">&quot;default_sensors&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;ferceqr_failure_sensor&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;ferceqr_success_sensor&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;ferceqr_sensor_status&quot;</span><span class="p">,</span>
+    <span class="s2">"default_sensors"</span><span class="p">,</span>
+    <span class="s2">"ferceqr_failure_sensor"</span><span class="p">,</span>
+    <span class="s2">"ferceqr_success_sensor"</span><span class="p">,</span>
+    <span class="s2">"ferceqr_sensor_status"</span><span class="p">,</span>
 <span class="p">]</span>
 </pre></div>
 

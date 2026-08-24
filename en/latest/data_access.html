@@ -18,7 +18,7 @@
     </script>
     
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="data_access.html.md" />
-    <title>Data Access &#8212; PUDL 2026.8.1.dev18 documentation</title>
+    <title>Data Access &#8212; PUDL 2026.8.1.dev19 documentation</title>
   
   
   
@@ -51,7 +51,7 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="_static/documentation_options.js?v=f2b63aa7"></script>
+    <script src="_static/documentation_options.js?v=5bf64ec1"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/design-tabs.js?v=f930bc37"></script>
@@ -142,8 +142,8 @@
       
     
     
-    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev18 documentation - Home"/>
-    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev18 documentation - Home"/>
+    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev19 documentation - Home"/>
+    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev19 documentation - Home"/>
   
   
 </a></div>
@@ -741,11 +741,11 @@ remotely using a number of different tools. Some examples below:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 
 <span class="c1"># Outputs from the most recent nightly build:</span>
-<span class="n">nightly_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="s2">&quot;s3://pudl.catalyst.coop/nightly/core_eia__codes_energy_sources.parquet&quot;</span><span class="p">)</span>
+<span class="n">nightly_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="s2">"s3://pudl.catalyst.coop/nightly/core_eia__codes_energy_sources.parquet"</span><span class="p">)</span>
 <span class="c1"># Outputs from the most recent stable data release:</span>
-<span class="n">stable_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="s2">&quot;s3://pudl.catalyst.coop/stable/core_eia__codes_energy_sources.parquet&quot;</span><span class="p">)</span>
+<span class="n">stable_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="s2">"s3://pudl.catalyst.coop/stable/core_eia__codes_energy_sources.parquet"</span><span class="p">)</span>
 <span class="c1"># A specific stable version of the data:</span>
-<span class="n">versioned_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="s2">&quot;s3://pudl.catalyst.coop/v2024.11.0/core_eia__codes_energy_sources.parquet&quot;</span><span class="p">)</span>
+<span class="n">versioned_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="s2">"s3://pudl.catalyst.coop/v2024.11.0/core_eia__codes_energy_sources.parquet"</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
@@ -755,7 +755,7 @@ remotely using a number of different tools. Some examples below:</p>
 and the <a class="reference external" href="https://duckdb.org/docs/guides/network_cloud_storage/s3_import.html">httpfs extension</a></p>
 <div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="c1">-- Install the httpfs extension once and it will be available in subsequent sessions</span>
 <span class="n">INSTALL</span><span class="w"> </span><span class="n">httpfs</span><span class="p">;</span>
-<span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">read_parquet</span><span class="p">(</span><span class="s1">&#39;s3://pudl.catalyst.coop/nightly/core_eia__codes_energy_sources.parquet&#39;</span><span class="p">);</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">read_parquet</span><span class="p">(</span><span class="s1">'s3://pudl.catalyst.coop/nightly/core_eia__codes_energy_sources.parquet'</span><span class="p">);</span>
 </pre></div>
 </div>
 </section>
@@ -855,7 +855,7 @@ inside. Suitable for bulk download to a local machine.</p></li>
 DuckDB as an output format. Currently it only includes the more recent XBRL data. Within
 DuckDB you can now do queries like this:</p>
 <div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="n">INSTALL</span><span class="w"> </span><span class="n">httpfs</span><span class="p">;</span><span class="w"> </span><span class="k">LOAD</span><span class="w"> </span><span class="n">httpfs</span><span class="p">;</span>
-<span class="n">ATTACH</span><span class="w"> </span><span class="s1">&#39;s3://pudl.catalyst.coop/nightly/ferc1_xbrl.duckdb&#39;</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">ferc1_xbrl</span><span class="w"> </span><span class="p">(</span><span class="n">READ_ONLY</span><span class="p">);</span>
+<span class="n">ATTACH</span><span class="w"> </span><span class="s1">'s3://pudl.catalyst.coop/nightly/ferc1_xbrl.duckdb'</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">ferc1_xbrl</span><span class="w"> </span><span class="p">(</span><span class="n">READ_ONLY</span><span class="p">);</span>
 <span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">ferc1_xbrl</span><span class="p">.</span><span class="n">transmission_lines_added_during_year_424_duration</span><span class="p">;</span>
 </pre></div>
 </div>
@@ -904,8 +904,8 @@ examples:</p>
 <input checked="checked" id="sd-tab-item-0" name="sd-tab-set-0" type="radio">
 <label class="sd-tab-label" for="sd-tab-item-0">
 SQL (DuckDB)</label><div class="sd-tab-content docutils">
-<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="s1">&#39;s3://pudl.catalyst.coop/ferceqr/core_ferceqr__contracts/*.parquet&#39;</span>
-<span class="k">WHERE</span><span class="w"> </span><span class="n">seller_company_name</span><span class="w"> </span><span class="k">LIKE</span><span class="w"> </span><span class="s1">&#39;%Bonneville%&#39;</span>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="s1">'s3://pudl.catalyst.coop/ferceqr/core_ferceqr__contracts/*.parquet'</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">seller_company_name</span><span class="w"> </span><span class="k">LIKE</span><span class="w"> </span><span class="s1">'%Bonneville%'</span>
 <span class="k">LIMIT</span><span class="w"> </span><span class="mi">10</span><span class="p">;</span>
 </pre></div>
 </div>
@@ -916,12 +916,12 @@ Python (DuckDB/Pandas)</label><div class="sd-tab-content docutils">
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">duckdb</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="c1"># Query S3 with DuckDB and convert the result to pandas</span>
-<span class="n">df</span> <span class="o">=</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s2">"""</span>
 <span class="s2">   SELECT *</span>
-<span class="s2">   FROM &#39;s3://pudl.catalyst.coop/ferceqr/core_ferceqr__contracts/*.parquet&#39;</span>
-<span class="s2">   WHERE seller_company_name LIKE &#39;%Bonneville%&#39;</span>
+<span class="s2">   FROM 's3://pudl.catalyst.coop/ferceqr/core_ferceqr__contracts/*.parquet'</span>
+<span class="s2">   WHERE seller_company_name LIKE '%Bonneville%'</span>
 <span class="s2">   LIMIT 10</span>
-<span class="s2">&quot;&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to_df</span><span class="p">()</span>
+<span class="s2">"""</span><span class="p">)</span><span class="o">.</span><span class="n">to_df</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -932,10 +932,10 @@ Python (Polars)</label><div class="sd-tab-content docutils">
 <span class="c1"># Use scan_parquet (lazy evaluation) and filter</span>
 <span class="n">df</span> <span class="o">=</span> <span class="p">(</span>
    <span class="n">pl</span><span class="o">.</span><span class="n">scan_parquet</span><span class="p">(</span>
-         <span class="s2">&quot;s3://pudl.catalyst.coop/ferceqr/core_ferceqr__contracts/*.parquet&quot;</span><span class="p">,</span>
-         <span class="n">storage_options</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;aws_region&quot;</span><span class="p">:</span> <span class="s2">&quot;us-west-2&quot;</span><span class="p">,</span> <span class="s2">&quot;aws_skip_signature&quot;</span><span class="p">:</span> <span class="s2">&quot;True&quot;</span><span class="p">},</span>
+         <span class="s2">"s3://pudl.catalyst.coop/ferceqr/core_ferceqr__contracts/*.parquet"</span><span class="p">,</span>
+         <span class="n">storage_options</span><span class="o">=</span><span class="p">{</span><span class="s2">"aws_region"</span><span class="p">:</span> <span class="s2">"us-west-2"</span><span class="p">,</span> <span class="s2">"aws_skip_signature"</span><span class="p">:</span> <span class="s2">"True"</span><span class="p">},</span>
    <span class="p">)</span>
-   <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;seller_company_name&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s2">&quot;Bonneville&quot;</span><span class="p">))</span>
+   <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">"seller_company_name"</span><span class="p">)</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s2">"Bonneville"</span><span class="p">))</span>
    <span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
    <span class="o">.</span><span class="n">collect</span><span class="p">()</span>
 <span class="p">)</span>

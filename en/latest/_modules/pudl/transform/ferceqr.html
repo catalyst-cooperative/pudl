@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.transform.ferceqr &#8212; PUDL 2026.8.1.dev18 documentation</title>
+    <title>pudl.transform.ferceqr &#8212; PUDL 2026.8.1.dev19 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=f2b63aa7"></script>
+    <script src="../../../_static/documentation_options.js?v=5bf64ec1"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev18 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev18 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev19 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev19 documentation - Home"/>
   
   
 </a></div>
@@ -868,7 +868,7 @@ window.runMermaid = runMermaid;</script>
                 <article class="bd-article">
                   
   <h1>Source code for pudl.transform.ferceqr</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Transform FERC Electric Quarterly Report (EQR) data.</span>
+<span></span><span class="sd">"""Transform FERC Electric Quarterly Report (EQR) data.</span>
 
 <span class="sd">This module implements the transformation stage of the PUDL pipeline for FERC EQR data.</span>
 <span class="sd">Raw EQR data is ingested as quarterly-partitioned Apache Parquet files and transformed</span>
@@ -890,7 +890,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">- :ref:`core_ferceqr__transactions`</span>
 <span class="sd">- :ref:`core_ferceqr__contracts`</span>
 <span class="sd">- :ref:`core_ferceqr__quarterly_index_pub`</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span>
 
@@ -919,7 +919,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">table_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">conn</span><span class="p">:</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">DuckDBPyConnection</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Cast each column to the dtype declared in the PUDL metadata schema for the table.</span>
+<span class="w">    </span><span class="sd">"""Cast each column to the dtype declared in the PUDL metadata schema for the table.</span>
 
 <span class="sd">    Column types are looked up from the :class:`pudl.metadata.classes.Resource` for</span>
 <span class="sd">    ``table_name``. Any custom enum types required by the schema are created in ``conn``</span>
@@ -929,7 +929,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        table_data: DuckDB relation whose columns will be cast.</span>
 <span class="sd">        table_name: PUDL table name used to look up the schema from the metadata.</span>
 <span class="sd">        conn: DuckDB connection used to register custom enum types as needed.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">dtypes</span> <span class="o">=</span> <span class="n">Resource</span><span class="o">.</span><span class="n">from_id</span><span class="p">(</span><span class="n">table_name</span><span class="p">)</span><span class="o">.</span><span class="n">to_duckdb_dtypes</span><span class="p">(</span><span class="n">conn</span><span class="p">)</span>
 
     <span class="c1"># Cast columns</span>
@@ -948,12 +948,12 @@ window.runMermaid = runMermaid;</script>
 <span class="k">def</span><span class="w"> </span><span class="nf">rename_duckdb_columns</span><span class="p">(</span>
     <span class="n">table_data</span><span class="p">:</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">DuckDBPyRelation</span><span class="p">,</span> <span class="n">mapping</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">DuckDBPyRelation</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Rename one or more columns in a DuckDB relation, passing all others through unchanged.</span>
+<span class="w">    </span><span class="sd">"""Rename one or more columns in a DuckDB relation, passing all others through unchanged.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        table_data: DuckDB relation containing the columns to rename.</span>
 <span class="sd">        mapping: Maps existing column names to their new names.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="n">table_data</span><span class="o">.</span><span class="n">select</span><span class="p">(</span>
         <span class="n">duckdb</span><span class="o">.</span><span class="n">StarExpression</span><span class="p">(</span><span class="n">exclude</span><span class="o">=</span><span class="n">mapping</span><span class="o">.</span><span class="n">keys</span><span class="p">()),</span>
         <span class="o">*</span><span class="p">[</span>
@@ -971,7 +971,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">columns</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
     <span class="n">transform</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">Expression</span><span class="p">],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">DuckDBPyRelation</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Apply a DuckDB expression factory to a set of columns, replacing each in place.</span>
+<span class="w">    </span><span class="sd">"""Apply a DuckDB expression factory to a set of columns, replacing each in place.</span>
 
 <span class="sd">    The ``transform`` callable is invoked once per column name and must return a</span>
 <span class="sd">    :class:`duckdb.Expression` whose result will be aliased back to the original column</span>
@@ -982,7 +982,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        columns: Names of the columns to which ``transform`` will be applied.</span>
 <span class="sd">        transform: Callable that accepts a column name and returns a DuckDB Expression</span>
 <span class="sd">            defining the transformation for that column.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="n">table_data</span><span class="o">.</span><span class="n">select</span><span class="p">(</span>
         <span class="n">duckdb</span><span class="o">.</span><span class="n">StarExpression</span><span class="p">(</span><span class="n">exclude</span><span class="o">=</span><span class="n">columns</span><span class="p">),</span>
         <span class="o">*</span><span class="p">[</span><span class="n">transform</span><span class="p">(</span><span class="n">col</span><span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="n">col</span><span class="p">)</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">],</span>
@@ -993,30 +993,30 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="_yn_to_bool">
 <a class="viewcode-back" href="../../../autoapi/pudl/transform/ferceqr/index.html#pudl.transform.ferceqr._yn_to_bool">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_yn_to_bool</span><span class="p">(</span><span class="n">col</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">Expression</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a DuckDB expression that converts ``&#39;Y&#39;``/``&#39;N&#39;`` strings to booleans.</span>
+<span class="w">    </span><span class="sd">"""Return a DuckDB expression that converts ``'Y'``/``'N'`` strings to booleans.</span>
 
-<span class="sd">    The comparison is case-insensitive. Any value other than ``&#39;Y&#39;`` or ``&#39;N&#39;`` is</span>
+<span class="sd">    The comparison is case-insensitive. Any value other than ``'Y'`` or ``'N'`` is</span>
 <span class="sd">    mapped to ``NULL``.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">SQLExpression</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">SQLExpression</span><span class="p">(</span><span class="sa">f</span><span class="s2">"""</span>
 <span class="s2">CASE</span>
-<span class="s2">    WHEN UPPER(</span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2">) = &#39;Y&#39; THEN TRUE</span>
-<span class="s2">    WHEN UPPER(</span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2">) = &#39;N&#39; THEN FALSE</span>
+<span class="s2">    WHEN UPPER(</span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2">) = 'Y' THEN TRUE</span>
+<span class="s2">    WHEN UPPER(</span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2">) = 'N' THEN FALSE</span>
 <span class="s2">    ELSE NULL</span>
-<span class="s2">END&quot;&quot;&quot;</span><span class="p">)</span></div>
+<span class="s2">END"""</span><span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="_na_to_null">
 <a class="viewcode-back" href="../../../autoapi/pudl/transform/ferceqr/index.html#pudl.transform.ferceqr._na_to_null">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_na_to_null</span><span class="p">(</span><span class="n">col_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">Expression</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a DuckDB expression that converts ``&#39;N/A&#39;`` or ``&#39;NA&#39;`` strings to NULL.</span>
+<span class="w">    </span><span class="sd">"""Return a DuckDB expression that converts ``'N/A'`` or ``'NA'`` strings to NULL.</span>
 
 <span class="sd">    The comparison is case-insensitive. All other values are uppercased and returned</span>
 <span class="sd">    unchanged.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">SQLExpression</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;CASE WHEN UPPER(</span><span class="si">{</span><span class="n">col_name</span><span class="si">}</span><span class="s2">) IN (&#39;N/A&#39;, &#39;NA&#39;) THEN NULL ELSE UPPER(</span><span class="si">{</span><span class="n">col_name</span><span class="si">}</span><span class="s2">) END&quot;</span>
+        <span class="sa">f</span><span class="s2">"CASE WHEN UPPER(</span><span class="si">{</span><span class="n">col_name</span><span class="si">}</span><span class="s2">) IN ('N/A', 'NA') THEN NULL ELSE UPPER(</span><span class="si">{</span><span class="n">col_name</span><span class="si">}</span><span class="s2">) END"</span>
     <span class="p">)</span></div>
 
 
@@ -1024,12 +1024,12 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="_parse_datetimes">
 <a class="viewcode-back" href="../../../autoapi/pudl/transform/ferceqr/index.html#pudl.transform.ferceqr._parse_datetimes">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_parse_datetimes</span><span class="p">(</span><span class="n">col_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">fmt</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">Expression</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a DuckDB expression that parses a datetime string column using ``fmt``.</span>
+<span class="w">    </span><span class="sd">"""Return a DuckDB expression that parses a datetime string column using ``fmt``.</span>
 
-<span class="sd">    Uses DuckDB&#39;s ``TRY_STRPTIME``, so values that cannot be parsed return ``NULL``</span>
+<span class="sd">    Uses DuckDB's ``TRY_STRPTIME``, so values that cannot be parsed return ``NULL``</span>
 <span class="sd">    rather than raising an error.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">SQLExpression</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;TRY_STRPTIME(</span><span class="si">{</span><span class="n">col_name</span><span class="si">}</span><span class="s2">, &#39;</span><span class="si">{</span><span class="n">fmt</span><span class="si">}</span><span class="s2">&#39;)&quot;</span><span class="p">)</span></div>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">SQLExpression</span><span class="p">(</span><span class="sa">f</span><span class="s2">"TRY_STRPTIME(</span><span class="si">{</span><span class="n">col_name</span><span class="si">}</span><span class="s2">, '</span><span class="si">{</span><span class="n">fmt</span><span class="si">}</span><span class="s2">')"</span><span class="p">)</span></div>
 
 
 
@@ -1038,7 +1038,7 @@ window.runMermaid = runMermaid;</script>
 <span class="k">def</span><span class="w"> </span><span class="nf">_recode_categoricals</span><span class="p">(</span>
     <span class="n">col_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">replace_mapping</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">Expression</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a DuckDB expression that replaces exact categorical values in a column.</span>
+<span class="w">    </span><span class="sd">"""Return a DuckDB expression that replaces exact categorical values in a column.</span>
 
 <span class="sd">    Generates a ``CASE WHEN`` expression with one equality branch per entry in</span>
 <span class="sd">    ``replace_mapping``. Keys not in the mapping are passed through unchanged via the</span>
@@ -1048,12 +1048,12 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        col_name: Name of the DuckDB column whose values will be recoded.</span>
 <span class="sd">        replace_mapping: Maps each observed bad value (key) to its correct</span>
 <span class="sd">            canonical replacement (value).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">when_clauses</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;WHEN </span><span class="si">{</span><span class="n">col_name</span><span class="si">}</span><span class="s2"> = &#39;</span><span class="si">{</span><span class="n">to_replace</span><span class="si">}</span><span class="s2">&#39; THEN &#39;</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+<span class="sd">    """</span>
+    <span class="n">when_clauses</span> <span class="o">=</span> <span class="s2">" "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">"WHEN </span><span class="si">{</span><span class="n">col_name</span><span class="si">}</span><span class="s2"> = '</span><span class="si">{</span><span class="n">to_replace</span><span class="si">}</span><span class="s2">' THEN '</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">'"</span>
         <span class="k">for</span> <span class="n">to_replace</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">replace_mapping</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
     <span class="p">)</span>
-    <span class="k">return</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">SQLExpression</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;CASE </span><span class="si">{</span><span class="n">when_clauses</span><span class="si">}</span><span class="s2"> ELSE </span><span class="si">{</span><span class="n">col_name</span><span class="si">}</span><span class="s2"> END&quot;</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">SQLExpression</span><span class="p">(</span><span class="sa">f</span><span class="s2">"CASE </span><span class="si">{</span><span class="n">when_clauses</span><span class="si">}</span><span class="s2"> ELSE </span><span class="si">{</span><span class="n">col_name</span><span class="si">}</span><span class="s2"> END"</span><span class="p">)</span></div>
 
 
 
@@ -1063,10 +1063,10 @@ window.runMermaid = runMermaid;</script>
 <span class="k">def</span><span class="w"> </span><span class="nf">core_ferceqr__quarterly_identity</span><span class="p">(</span>
     <span class="n">context</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">AssetExecutionContext</span><span class="p">,</span> <span class="n">raw_ferceqr__ident</span><span class="p">:</span> <span class="n">ParquetData</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Transform the raw FERC EQR filer identity table.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Transform the raw FERC EQR filer identity table."""</span>
     <span class="n">year_quarter</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">partition_key</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Transforming ferceqr identity table for </span><span class="si">{</span><span class="n">year_quarter</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="n">table_name</span> <span class="o">=</span> <span class="s2">&quot;core_ferceqr__quarterly_identity&quot;</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Transforming ferceqr identity table for </span><span class="si">{</span><span class="n">year_quarter</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="n">table_name</span> <span class="o">=</span> <span class="s2">"core_ferceqr__quarterly_identity"</span>
 
     <span class="k">with</span> <span class="n">duckdb_relation_from_parquet</span><span class="p">(</span><span class="n">raw_ferceqr__ident</span><span class="p">,</span> <span class="n">use_all_partitions</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">as</span> <span class="p">(</span>
         <span class="n">table</span><span class="p">,</span>
@@ -1074,13 +1074,13 @@ window.runMermaid = runMermaid;</script>
     <span class="p">):</span>
         <span class="n">table_data</span> <span class="o">=</span> <span class="n">apply_column_transforms</span><span class="p">(</span>
             <span class="n">table_data</span><span class="o">=</span><span class="n">table</span><span class="p">,</span>
-            <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;transactions_reported_to_index_price_publishers&quot;</span><span class="p">],</span>
+            <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">"transactions_reported_to_index_price_publishers"</span><span class="p">],</span>
             <span class="n">transform</span><span class="o">=</span><span class="n">_yn_to_bool</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">table_data</span> <span class="o">=</span> <span class="n">rename_duckdb_columns</span><span class="p">(</span>
             <span class="n">table_data</span><span class="p">,</span>
             <span class="p">{</span>
-                <span class="s2">&quot;company_identifier&quot;</span><span class="p">:</span> <span class="s2">&quot;company_id_ferc&quot;</span><span class="p">,</span>
+                <span class="s2">"company_identifier"</span><span class="p">:</span> <span class="s2">"company_id_ferc"</span><span class="p">,</span>
             <span class="p">},</span>
         <span class="p">)</span>
         <span class="n">table_data</span> <span class="o">=</span> <span class="n">apply_duckdb_dtypes</span><span class="p">(</span><span class="n">table_data</span><span class="p">,</span> <span class="n">table_name</span><span class="p">,</span> <span class="n">conn</span><span class="p">)</span>
@@ -1088,7 +1088,7 @@ window.runMermaid = runMermaid;</script>
         <span class="k">return</span> <span class="n">persist_table_as_parquet</span><span class="p">(</span>
             <span class="n">table_name</span><span class="o">=</span><span class="n">table_name</span><span class="p">,</span>
             <span class="n">table_data</span><span class="o">=</span><span class="n">table_data</span><span class="p">,</span>
-            <span class="n">partitions</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;year_quarter&quot;</span><span class="p">:</span> <span class="n">year_quarter</span><span class="p">},</span>
+            <span class="n">partitions</span><span class="o">=</span><span class="p">{</span><span class="s2">"year_quarter"</span><span class="p">:</span> <span class="n">year_quarter</span><span class="p">},</span>
         <span class="p">)</span></div>
 
 
@@ -1099,10 +1099,10 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="core_ferceqr__transactions">
 <a class="viewcode-back" href="../../../autoapi/pudl/transform/ferceqr/index.html#pudl.transform.ferceqr.core_ferceqr__transactions">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">core_ferceqr__transactions</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">raw_ferceqr__transactions</span><span class="p">:</span> <span class="n">ParquetData</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Transform the raw FERC EQR electricity transactions table.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Transform the raw FERC EQR electricity transactions table."""</span>
     <span class="n">year_quarter</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">partition_key</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Transforming ferceqr transactions table for </span><span class="si">{</span><span class="n">year_quarter</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="n">table_name</span> <span class="o">=</span> <span class="s2">&quot;core_ferceqr__transactions&quot;</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Transforming ferceqr transactions table for </span><span class="si">{</span><span class="n">year_quarter</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="n">table_name</span> <span class="o">=</span> <span class="s2">"core_ferceqr__transactions"</span>
 
     <span class="k">with</span> <span class="n">duckdb_relation_from_parquet</span><span class="p">(</span>
         <span class="n">raw_ferceqr__transactions</span><span class="p">,</span> <span class="n">use_all_partitions</span><span class="o">=</span><span class="kc">True</span>
@@ -1110,67 +1110,67 @@ window.runMermaid = runMermaid;</script>
         <span class="n">table_data</span> <span class="o">=</span> <span class="n">apply_column_transforms</span><span class="p">(</span>
             <span class="n">table_data</span><span class="o">=</span><span class="n">table</span><span class="p">,</span>
             <span class="n">columns</span><span class="o">=</span><span class="p">[</span>
-                <span class="s2">&quot;exchange_brokerage_service&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;type_of_rate&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;time_zone&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;class_name&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;term_name&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;increment_name&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;increment_peaking_name&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;product_name&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;rate_units&quot;</span><span class="p">,</span>
+                <span class="s2">"exchange_brokerage_service"</span><span class="p">,</span>
+                <span class="s2">"type_of_rate"</span><span class="p">,</span>
+                <span class="s2">"time_zone"</span><span class="p">,</span>
+                <span class="s2">"class_name"</span><span class="p">,</span>
+                <span class="s2">"term_name"</span><span class="p">,</span>
+                <span class="s2">"increment_name"</span><span class="p">,</span>
+                <span class="s2">"increment_peaking_name"</span><span class="p">,</span>
+                <span class="s2">"product_name"</span><span class="p">,</span>
+                <span class="s2">"rate_units"</span><span class="p">,</span>
             <span class="p">],</span>
             <span class="n">transform</span><span class="o">=</span><span class="n">_na_to_null</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="c1"># Normalize categorical string</span>
         <span class="n">table_data</span> <span class="o">=</span> <span class="n">apply_column_transforms</span><span class="p">(</span>
             <span class="n">table_data</span><span class="o">=</span><span class="n">table_data</span><span class="p">,</span>
-            <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;product_name&quot;</span><span class="p">],</span>
+            <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">"product_name"</span><span class="p">],</span>
             <span class="n">transform</span><span class="o">=</span><span class="k">lambda</span> <span class="n">col</span><span class="p">:</span> <span class="n">_recode_categoricals</span><span class="p">(</span>
-                <span class="n">col</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;NEGOTIATED RATE TRANSMISSION&quot;</span><span class="p">:</span> <span class="s2">&quot;NEGOTIATED-RATE TRANSMISSION&quot;</span><span class="p">}</span>
+                <span class="n">col</span><span class="p">,</span> <span class="p">{</span><span class="s2">"NEGOTIATED RATE TRANSMISSION"</span><span class="p">:</span> <span class="s2">"NEGOTIATED-RATE TRANSMISSION"</span><span class="p">}</span>
             <span class="p">),</span>
         <span class="p">)</span>
         <span class="n">table_data</span> <span class="o">=</span> <span class="n">apply_column_transforms</span><span class="p">(</span>
             <span class="n">table_data</span><span class="o">=</span><span class="n">table_data</span><span class="p">,</span>
             <span class="n">columns</span><span class="o">=</span><span class="p">[</span>
-                <span class="s2">&quot;transaction_begin_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;transaction_end_date&quot;</span><span class="p">,</span>
+                <span class="s2">"transaction_begin_date"</span><span class="p">,</span>
+                <span class="s2">"transaction_end_date"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="n">transform</span><span class="o">=</span><span class="k">lambda</span> <span class="n">col</span><span class="p">:</span> <span class="n">_parse_datetimes</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="s2">&quot;%Y%m</span><span class="si">%d</span><span class="s2">%H%M&quot;</span><span class="p">),</span>
+            <span class="n">transform</span><span class="o">=</span><span class="k">lambda</span> <span class="n">col</span><span class="p">:</span> <span class="n">_parse_datetimes</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="s2">"%Y%m</span><span class="si">%d</span><span class="s2">%H%M"</span><span class="p">),</span>
         <span class="p">)</span>
         <span class="n">table_data</span> <span class="o">=</span> <span class="n">apply_column_transforms</span><span class="p">(</span>
             <span class="n">table_data</span><span class="o">=</span><span class="n">table_data</span><span class="p">,</span>
-            <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;trade_date&quot;</span><span class="p">],</span>
-            <span class="n">transform</span><span class="o">=</span><span class="k">lambda</span> <span class="n">col</span><span class="p">:</span> <span class="n">_parse_datetimes</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="s2">&quot;%Y%m</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">),</span>
+            <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">"trade_date"</span><span class="p">],</span>
+            <span class="n">transform</span><span class="o">=</span><span class="k">lambda</span> <span class="n">col</span><span class="p">:</span> <span class="n">_parse_datetimes</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="s2">"%Y%m</span><span class="si">%d</span><span class="s2">"</span><span class="p">),</span>
         <span class="p">)</span>
         <span class="n">table_data</span> <span class="o">=</span> <span class="n">apply_column_transforms</span><span class="p">(</span>
             <span class="n">table_data</span><span class="o">=</span><span class="n">table_data</span><span class="p">,</span>
-            <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;time_zone&quot;</span><span class="p">],</span>
+            <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">"time_zone"</span><span class="p">],</span>
             <span class="n">transform</span><span class="o">=</span><span class="k">lambda</span> <span class="n">col</span><span class="p">:</span> <span class="n">_recode_categoricals</span><span class="p">(</span>
                 <span class="n">col</span><span class="p">,</span>
                 <span class="p">{</span>
-                    <span class="s2">&quot;CDT&quot;</span><span class="p">:</span> <span class="s2">&quot;CD&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;CST&quot;</span><span class="p">:</span> <span class="s2">&quot;CS&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;CPT&quot;</span><span class="p">:</span> <span class="s2">&quot;CP&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;EDT&quot;</span><span class="p">:</span> <span class="s2">&quot;ED&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;EPT&quot;</span><span class="p">:</span> <span class="s2">&quot;EP&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;EST&quot;</span><span class="p">:</span> <span class="s2">&quot;ES&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;MDT&quot;</span><span class="p">:</span> <span class="s2">&quot;MD&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;MPT&quot;</span><span class="p">:</span> <span class="s2">&quot;MP&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;MST&quot;</span><span class="p">:</span> <span class="s2">&quot;MS&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;PDT&quot;</span><span class="p">:</span> <span class="s2">&quot;PD&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;PPT&quot;</span><span class="p">:</span> <span class="s2">&quot;PP&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;PST&quot;</span><span class="p">:</span> <span class="s2">&quot;PS&quot;</span><span class="p">,</span>
+                    <span class="s2">"CDT"</span><span class="p">:</span> <span class="s2">"CD"</span><span class="p">,</span>
+                    <span class="s2">"CST"</span><span class="p">:</span> <span class="s2">"CS"</span><span class="p">,</span>
+                    <span class="s2">"CPT"</span><span class="p">:</span> <span class="s2">"CP"</span><span class="p">,</span>
+                    <span class="s2">"EDT"</span><span class="p">:</span> <span class="s2">"ED"</span><span class="p">,</span>
+                    <span class="s2">"EPT"</span><span class="p">:</span> <span class="s2">"EP"</span><span class="p">,</span>
+                    <span class="s2">"EST"</span><span class="p">:</span> <span class="s2">"ES"</span><span class="p">,</span>
+                    <span class="s2">"MDT"</span><span class="p">:</span> <span class="s2">"MD"</span><span class="p">,</span>
+                    <span class="s2">"MPT"</span><span class="p">:</span> <span class="s2">"MP"</span><span class="p">,</span>
+                    <span class="s2">"MST"</span><span class="p">:</span> <span class="s2">"MS"</span><span class="p">,</span>
+                    <span class="s2">"PDT"</span><span class="p">:</span> <span class="s2">"PD"</span><span class="p">,</span>
+                    <span class="s2">"PPT"</span><span class="p">:</span> <span class="s2">"PP"</span><span class="p">,</span>
+                    <span class="s2">"PST"</span><span class="p">:</span> <span class="s2">"PS"</span><span class="p">,</span>
                 <span class="p">},</span>
             <span class="p">),</span>
         <span class="p">)</span>
         <span class="n">table_data</span> <span class="o">=</span> <span class="n">rename_duckdb_columns</span><span class="p">(</span>
             <span class="n">table_data</span><span class="p">,</span>
             <span class="p">{</span>
-                <span class="s2">&quot;company_identifier&quot;</span><span class="p">:</span> <span class="s2">&quot;seller_company_id_ferc&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;contract_service_agreement&quot;</span><span class="p">:</span> <span class="s2">&quot;contract_service_agreement_id&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;transaction_unique_identifier&quot;</span><span class="p">:</span> <span class="s2">&quot;seller_transaction_id&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;time_zone&quot;</span><span class="p">:</span> <span class="s2">&quot;timezone&quot;</span><span class="p">,</span>
+                <span class="s2">"company_identifier"</span><span class="p">:</span> <span class="s2">"seller_company_id_ferc"</span><span class="p">,</span>
+                <span class="s2">"contract_service_agreement"</span><span class="p">:</span> <span class="s2">"contract_service_agreement_id"</span><span class="p">,</span>
+                <span class="s2">"transaction_unique_identifier"</span><span class="p">:</span> <span class="s2">"seller_transaction_id"</span><span class="p">,</span>
+                <span class="s2">"time_zone"</span><span class="p">:</span> <span class="s2">"timezone"</span><span class="p">,</span>
             <span class="p">},</span>
         <span class="p">)</span>
         <span class="n">table_data</span> <span class="o">=</span> <span class="n">apply_duckdb_dtypes</span><span class="p">(</span><span class="n">table_data</span><span class="p">,</span> <span class="n">table_name</span><span class="p">,</span> <span class="n">conn</span><span class="p">)</span>
@@ -1178,7 +1178,7 @@ window.runMermaid = runMermaid;</script>
         <span class="k">return</span> <span class="n">persist_table_as_parquet</span><span class="p">(</span>
             <span class="n">table_name</span><span class="o">=</span><span class="n">table_name</span><span class="p">,</span>
             <span class="n">table_data</span><span class="o">=</span><span class="n">table_data</span><span class="p">,</span>
-            <span class="n">partitions</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;year_quarter&quot;</span><span class="p">:</span> <span class="n">year_quarter</span><span class="p">},</span>
+            <span class="n">partitions</span><span class="o">=</span><span class="p">{</span><span class="s2">"year_quarter"</span><span class="p">:</span> <span class="n">year_quarter</span><span class="p">},</span>
         <span class="p">)</span></div>
 
 
@@ -1187,10 +1187,10 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="core_ferceqr__contracts">
 <a class="viewcode-back" href="../../../autoapi/pudl/transform/ferceqr/index.html#pudl.transform.ferceqr.core_ferceqr__contracts">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">core_ferceqr__contracts</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">raw_ferceqr__contracts</span><span class="p">:</span> <span class="n">ParquetData</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Transform the raw FERC EQR electricity contracts table.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Transform the raw FERC EQR electricity contracts table."""</span>
     <span class="n">year_quarter</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">partition_key</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Transforming ferceqr contracts table for </span><span class="si">{</span><span class="n">year_quarter</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="n">table_name</span> <span class="o">=</span> <span class="s2">&quot;core_ferceqr__contracts&quot;</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Transforming ferceqr contracts table for </span><span class="si">{</span><span class="n">year_quarter</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="n">table_name</span> <span class="o">=</span> <span class="s2">"core_ferceqr__contracts"</span>
 
     <span class="k">with</span> <span class="n">duckdb_relation_from_parquet</span><span class="p">(</span>
         <span class="n">raw_ferceqr__contracts</span><span class="p">,</span> <span class="n">use_all_partitions</span><span class="o">=</span><span class="kc">True</span>
@@ -1198,59 +1198,59 @@ window.runMermaid = runMermaid;</script>
         <span class="n">table_data</span> <span class="o">=</span> <span class="n">apply_column_transforms</span><span class="p">(</span>
             <span class="n">table_data</span><span class="o">=</span><span class="n">table</span><span class="p">,</span>
             <span class="n">columns</span><span class="o">=</span><span class="p">[</span>
-                <span class="s2">&quot;class_name&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;term_name&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;increment_name&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;increment_peaking_name&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;product_type_name&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;product_name&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;units&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;rate_units&quot;</span><span class="p">,</span>
+                <span class="s2">"class_name"</span><span class="p">,</span>
+                <span class="s2">"term_name"</span><span class="p">,</span>
+                <span class="s2">"increment_name"</span><span class="p">,</span>
+                <span class="s2">"increment_peaking_name"</span><span class="p">,</span>
+                <span class="s2">"product_type_name"</span><span class="p">,</span>
+                <span class="s2">"product_name"</span><span class="p">,</span>
+                <span class="s2">"units"</span><span class="p">,</span>
+                <span class="s2">"rate_units"</span><span class="p">,</span>
             <span class="p">],</span>
             <span class="n">transform</span><span class="o">=</span><span class="n">_na_to_null</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">table_data</span> <span class="o">=</span> <span class="n">apply_column_transforms</span><span class="p">(</span>
             <span class="n">table_data</span><span class="o">=</span><span class="n">table_data</span><span class="p">,</span>
-            <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;contract_affiliate&quot;</span><span class="p">],</span>
+            <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">"contract_affiliate"</span><span class="p">],</span>
             <span class="n">transform</span><span class="o">=</span><span class="n">_yn_to_bool</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="c1"># Drop seller_history_name</span>
-        <span class="k">if</span> <span class="s2">&quot;seller_history_name&quot;</span> <span class="ow">in</span> <span class="n">table_data</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s2">"seller_history_name"</span> <span class="ow">in</span> <span class="n">table_data</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
             <span class="n">table_data</span> <span class="o">=</span> <span class="n">table_data</span><span class="o">.</span><span class="n">select</span><span class="p">(</span>
-                <span class="n">duckdb</span><span class="o">.</span><span class="n">StarExpression</span><span class="p">(</span><span class="n">exclude</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;seller_history_name&quot;</span><span class="p">]),</span>
+                <span class="n">duckdb</span><span class="o">.</span><span class="n">StarExpression</span><span class="p">(</span><span class="n">exclude</span><span class="o">=</span><span class="p">[</span><span class="s2">"seller_history_name"</span><span class="p">]),</span>
             <span class="p">)</span>
 
         <span class="c1"># Normalize categorical string</span>
         <span class="n">table_data</span> <span class="o">=</span> <span class="n">apply_column_transforms</span><span class="p">(</span>
             <span class="n">table_data</span><span class="o">=</span><span class="n">table_data</span><span class="p">,</span>
-            <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;product_name&quot;</span><span class="p">],</span>
+            <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">"product_name"</span><span class="p">],</span>
             <span class="n">transform</span><span class="o">=</span><span class="k">lambda</span> <span class="n">_</span><span class="p">:</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">SQLExpression</span><span class="p">(</span>
-                <span class="s2">&quot;replace(product_name, &#39;NEGOTIATED RATE TRANSMISSION&#39;, &#39;NEGOTIATED-RATE TRANSMISSION&#39;)&quot;</span>
+                <span class="s2">"replace(product_name, 'NEGOTIATED RATE TRANSMISSION', 'NEGOTIATED-RATE TRANSMISSION')"</span>
             <span class="p">),</span>
         <span class="p">)</span>
         <span class="n">table_data</span> <span class="o">=</span> <span class="n">apply_column_transforms</span><span class="p">(</span>
             <span class="n">table_data</span><span class="o">=</span><span class="n">table_data</span><span class="p">,</span>
             <span class="n">columns</span><span class="o">=</span><span class="p">[</span>
-                <span class="s2">&quot;contract_execution_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;commencement_date_of_contract_term&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;contract_termination_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;actual_termination_date&quot;</span><span class="p">,</span>
+                <span class="s2">"contract_execution_date"</span><span class="p">,</span>
+                <span class="s2">"commencement_date_of_contract_term"</span><span class="p">,</span>
+                <span class="s2">"contract_termination_date"</span><span class="p">,</span>
+                <span class="s2">"actual_termination_date"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="n">transform</span><span class="o">=</span><span class="k">lambda</span> <span class="n">col</span><span class="p">:</span> <span class="n">_parse_datetimes</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="s2">&quot;%Y%m</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">),</span>
+            <span class="n">transform</span><span class="o">=</span><span class="k">lambda</span> <span class="n">col</span><span class="p">:</span> <span class="n">_parse_datetimes</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="s2">"%Y%m</span><span class="si">%d</span><span class="s2">"</span><span class="p">),</span>
         <span class="p">)</span>
         <span class="n">table_data</span> <span class="o">=</span> <span class="n">apply_column_transforms</span><span class="p">(</span>
             <span class="n">table_data</span><span class="o">=</span><span class="n">table_data</span><span class="p">,</span>
             <span class="n">columns</span><span class="o">=</span><span class="p">[</span>
-                <span class="s2">&quot;begin_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;end_date&quot;</span><span class="p">,</span>
+                <span class="s2">"begin_date"</span><span class="p">,</span>
+                <span class="s2">"end_date"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="n">transform</span><span class="o">=</span><span class="k">lambda</span> <span class="n">col</span><span class="p">:</span> <span class="n">_parse_datetimes</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="s2">&quot;%Y%m</span><span class="si">%d</span><span class="s2">%H%M&quot;</span><span class="p">),</span>
+            <span class="n">transform</span><span class="o">=</span><span class="k">lambda</span> <span class="n">col</span><span class="p">:</span> <span class="n">_parse_datetimes</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="s2">"%Y%m</span><span class="si">%d</span><span class="s2">%H%M"</span><span class="p">),</span>
         <span class="p">)</span>
         <span class="n">table_data</span> <span class="o">=</span> <span class="n">rename_duckdb_columns</span><span class="p">(</span>
             <span class="n">table_data</span><span class="p">,</span>
             <span class="p">{</span>
-                <span class="s2">&quot;company_identifier&quot;</span><span class="p">:</span> <span class="s2">&quot;seller_company_id_ferc&quot;</span><span class="p">,</span>
+                <span class="s2">"company_identifier"</span><span class="p">:</span> <span class="s2">"seller_company_id_ferc"</span><span class="p">,</span>
             <span class="p">},</span>
         <span class="p">)</span>
         <span class="n">table_data</span> <span class="o">=</span> <span class="n">apply_duckdb_dtypes</span><span class="p">(</span><span class="n">table_data</span><span class="p">,</span> <span class="n">table_name</span><span class="p">,</span> <span class="n">conn</span><span class="p">)</span>
@@ -1258,7 +1258,7 @@ window.runMermaid = runMermaid;</script>
         <span class="k">return</span> <span class="n">persist_table_as_parquet</span><span class="p">(</span>
             <span class="n">table_name</span><span class="o">=</span><span class="n">table_name</span><span class="p">,</span>
             <span class="n">table_data</span><span class="o">=</span><span class="n">table_data</span><span class="p">,</span>
-            <span class="n">partitions</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;year_quarter&quot;</span><span class="p">:</span> <span class="n">year_quarter</span><span class="p">},</span>
+            <span class="n">partitions</span><span class="o">=</span><span class="p">{</span><span class="s2">"year_quarter"</span><span class="p">:</span> <span class="n">year_quarter</span><span class="p">},</span>
         <span class="p">)</span></div>
 
 
@@ -1267,10 +1267,10 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="core_ferceqr__quarterly_index_pub">
 <a class="viewcode-back" href="../../../autoapi/pudl/transform/ferceqr/index.html#pudl.transform.ferceqr.core_ferceqr__quarterly_index_pub">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">core_ferceqr__quarterly_index_pub</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">raw_ferceqr__index_pub</span><span class="p">:</span> <span class="n">ParquetData</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Transform the raw FERC EQR index price publisher table.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Transform the raw FERC EQR index price publisher table."""</span>
     <span class="n">year_quarter</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">partition_key</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Transforming ferceqr indexPub table for </span><span class="si">{</span><span class="n">year_quarter</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="n">table_name</span> <span class="o">=</span> <span class="s2">&quot;core_ferceqr__quarterly_index_pub&quot;</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Transforming ferceqr indexPub table for </span><span class="si">{</span><span class="n">year_quarter</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="n">table_name</span> <span class="o">=</span> <span class="s2">"core_ferceqr__quarterly_index_pub"</span>
 
     <span class="k">with</span> <span class="n">duckdb_relation_from_parquet</span><span class="p">(</span>
         <span class="n">raw_ferceqr__index_pub</span><span class="p">,</span> <span class="n">use_all_partitions</span><span class="o">=</span><span class="kc">True</span>
@@ -1278,24 +1278,24 @@ window.runMermaid = runMermaid;</script>
         <span class="n">table_data</span> <span class="o">=</span> <span class="n">apply_column_transforms</span><span class="p">(</span>
             <span class="n">table_data</span><span class="o">=</span><span class="n">table</span><span class="p">,</span>
             <span class="n">columns</span><span class="o">=</span><span class="p">[</span>
-                <span class="s2">&quot;Index_Price_Publishers_To_Which_Sales_Transactions_Have_Been_Reported&quot;</span>
+                <span class="s2">"Index_Price_Publishers_To_Which_Sales_Transactions_Have_Been_Reported"</span>
             <span class="p">],</span>
             <span class="n">transform</span><span class="o">=</span><span class="n">_na_to_null</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">table_data</span> <span class="o">=</span> <span class="n">rename_duckdb_columns</span><span class="p">(</span>
             <span class="n">table_data</span><span class="p">,</span>
             <span class="n">mapping</span><span class="o">=</span><span class="p">{</span>
-                <span class="s2">&quot;company_identifier&quot;</span><span class="p">:</span> <span class="s2">&quot;company_id_ferc&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;Seller_Company_Name&quot;</span><span class="p">:</span> <span class="s2">&quot;seller_company_name&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;Index_Price_Publishers_To_Which_Sales_Transactions_Have_Been_Reported&quot;</span><span class="p">:</span> <span class="s2">&quot;index_price_publisher_name&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;Transactions_Reported&quot;</span><span class="p">:</span> <span class="s2">&quot;transactions_reported&quot;</span><span class="p">,</span>
+                <span class="s2">"company_identifier"</span><span class="p">:</span> <span class="s2">"company_id_ferc"</span><span class="p">,</span>
+                <span class="s2">"Seller_Company_Name"</span><span class="p">:</span> <span class="s2">"seller_company_name"</span><span class="p">,</span>
+                <span class="s2">"Index_Price_Publishers_To_Which_Sales_Transactions_Have_Been_Reported"</span><span class="p">:</span> <span class="s2">"index_price_publisher_name"</span><span class="p">,</span>
+                <span class="s2">"Transactions_Reported"</span><span class="p">:</span> <span class="s2">"transactions_reported"</span><span class="p">,</span>
             <span class="p">},</span>
         <span class="p">)</span>
         <span class="n">table_data</span> <span class="o">=</span> <span class="n">apply_duckdb_dtypes</span><span class="p">(</span><span class="n">table_data</span><span class="p">,</span> <span class="n">table_name</span><span class="p">,</span> <span class="n">conn</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">persist_table_as_parquet</span><span class="p">(</span>
             <span class="n">table_name</span><span class="o">=</span><span class="n">table_name</span><span class="p">,</span>
             <span class="n">table_data</span><span class="o">=</span><span class="n">table_data</span><span class="p">,</span>
-            <span class="n">partitions</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;year_quarter&quot;</span><span class="p">:</span> <span class="n">year_quarter</span><span class="p">},</span>
+            <span class="n">partitions</span><span class="o">=</span><span class="p">{</span><span class="s2">"year_quarter"</span><span class="p">:</span> <span class="n">year_quarter</span><span class="p">},</span>
         <span class="p">)</span></div>
 
 </pre></div>

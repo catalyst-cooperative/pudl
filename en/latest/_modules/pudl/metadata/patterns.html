@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.metadata.patterns &#8212; PUDL 2026.8.1.dev18 documentation</title>
+    <title>pudl.metadata.patterns &#8212; PUDL 2026.8.1.dev19 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=f2b63aa7"></script>
+    <script src="../../../_static/documentation_options.js?v=5bf64ec1"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev18 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev18 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev19 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev19 documentation - Home"/>
   
   
 </a></div>
@@ -868,73 +868,73 @@ window.runMermaid = runMermaid;</script>
                 <article class="bd-article">
                   
   <h1>Source code for pudl.metadata.patterns</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Reusable regex pattern constraints for fields in the PUDL metadata.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Reusable regex pattern constraints for fields in the PUDL metadata."""</span>
 
 <div class="viewcode-block" id="BORROWER_ID_RUS">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/patterns/index.html#pudl.metadata.patterns.BORROWER_ID_RUS">[docs]</a>
-<span class="n">BORROWER_ID_RUS</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;^[A-Z]</span><span class="si">{2}</span><span class="s2">\d</span><span class="si">{4}</span><span class="s2">$&quot;</span></div>
+<span class="n">BORROWER_ID_RUS</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">"^[A-Z]</span><span class="si">{2}</span><span class="s2">\d</span><span class="si">{4}</span><span class="s2">$"</span></div>
 
-<span class="sd">&quot;&quot;&quot;Regex pattern for borrower IDs in the RUS dataset, state code followed by a 4-digit number.&quot;&quot;&quot;</span>
+<span class="sd">"""Regex pattern for borrower IDs in the RUS dataset, state code followed by a 4-digit number."""</span>
 
 <div class="viewcode-block" id="EXHIBIT21_VERSION_SEC10K">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/patterns/index.html#pudl.metadata.patterns.EXHIBIT21_VERSION_SEC10K">[docs]</a>
-<span class="n">EXHIBIT21_VERSION_SEC10K</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;^21\.*\d*$&quot;</span></div>
+<span class="n">EXHIBIT21_VERSION_SEC10K</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">"^21\.*\d*$"</span></div>
 
-<span class="sd">&quot;&quot;&quot;Regex pattern for Exhibit 21 version numbers in SEC 10-K filings.&quot;&quot;&quot;</span>
+<span class="sd">"""Regex pattern for Exhibit 21 version numbers in SEC 10-K filings."""</span>
 
 <div class="viewcode-block" id="FISCAL_YEAR_END_MMDD_SEC10K">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/patterns/index.html#pudl.metadata.patterns.FISCAL_YEAR_END_MMDD_SEC10K">[docs]</a>
-<span class="n">FISCAL_YEAR_END_MMDD_SEC10K</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;^(?:(?:0[1-9]|1[0-2])(?:0[1-9]|1\d|2\d|3[01])|(?:0[13-9]|1[0-2])(?:29|30)|(?:0[13578]|1[02])31)$&quot;</span></div>
+<span class="n">FISCAL_YEAR_END_MMDD_SEC10K</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">"^(?:(?:0[1-9]|1[0-2])(?:0[1-9]|1\d|2\d|3[01])|(?:0[13-9]|1[0-2])(?:29|30)|(?:0[13578]|1[02])31)$"</span></div>
 
-<span class="sd">&quot;&quot;&quot;Regex pattern for fiscal year end dates in MMDD format for SEC 10-K filings.&quot;&quot;&quot;</span>
+<span class="sd">"""Regex pattern for fiscal year end dates in MMDD format for SEC 10-K filings."""</span>
 
 <div class="viewcode-block" id="HTTP_URL">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/patterns/index.html#pudl.metadata.patterns.HTTP_URL">[docs]</a>
-<span class="n">HTTP_URL</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;^https?://.+&quot;</span></div>
+<span class="n">HTTP_URL</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">"^https?://.+"</span></div>
 
-<span class="sd">&quot;&quot;&quot;Regex pattern for HTTP and HTTPS URLs.&quot;&quot;&quot;</span>
+<span class="sd">"""Regex pattern for HTTP and HTTPS URLs."""</span>
 
 <div class="viewcode-block" id="INDUSTRY_ID_SIC">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/patterns/index.html#pudl.metadata.patterns.INDUSTRY_ID_SIC">[docs]</a>
-<span class="n">INDUSTRY_ID_SIC</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;^\d</span><span class="si">{4}</span><span class="s2">$&quot;</span></div>
+<span class="n">INDUSTRY_ID_SIC</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">"^\d</span><span class="si">{4}</span><span class="s2">$"</span></div>
 
-<span class="sd">&quot;&quot;&quot;Regex pattern for 4-digit Standard Industrial Classification (SIC) codes.&quot;&quot;&quot;</span>
+<span class="sd">"""Regex pattern for 4-digit Standard Industrial Classification (SIC) codes."""</span>
 
 <div class="viewcode-block" id="INSTALL_DECADE_PHMSAGAS">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/patterns/index.html#pudl.metadata.patterns.INSTALL_DECADE_PHMSAGAS">[docs]</a>
-<span class="n">INSTALL_DECADE_PHMSAGAS</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;(\d</span><span class="si">{4}</span><span class="s2">s|unknown_decade|pre_1940|total_decades)&quot;</span></div>
+<span class="n">INSTALL_DECADE_PHMSAGAS</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">"(\d</span><span class="si">{4}</span><span class="s2">s|unknown_decade|pre_1940|total_decades)"</span></div>
 
-<span class="sd">&quot;&quot;&quot;Regex pattern for installation decades in the PHMSA GAS dataset.&quot;&quot;&quot;</span>
+<span class="sd">"""Regex pattern for installation decades in the PHMSA GAS dataset."""</span>
 
 <div class="viewcode-block" id="STATE_ID_FIPS">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/patterns/index.html#pudl.metadata.patterns.STATE_ID_FIPS">[docs]</a>
-<span class="n">STATE_ID_FIPS</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;^\d</span><span class="si">{2}</span><span class="s2">$&quot;</span></div>
+<span class="n">STATE_ID_FIPS</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">"^\d</span><span class="si">{2}</span><span class="s2">$"</span></div>
 
-<span class="sd">&quot;&quot;&quot;Regex pattern for 2-digit FIPS state codes.&quot;&quot;&quot;</span>
+<span class="sd">"""Regex pattern for 2-digit FIPS state codes."""</span>
 
 <div class="viewcode-block" id="TAXPAYER_ID">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/patterns/index.html#pudl.metadata.patterns.TAXPAYER_ID">[docs]</a>
-<span class="n">TAXPAYER_ID</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;\d</span><span class="si">{2}</span><span class="s2">-\d</span><span class="si">{7}</span><span class="s2">&quot;</span></div>
+<span class="n">TAXPAYER_ID</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">"\d</span><span class="si">{2}</span><span class="s2">-\d</span><span class="si">{7}</span><span class="s2">"</span></div>
 
-<span class="sd">&quot;&quot;&quot;Regex pattern for 9-digit company taxpayer ID numbers (TINs).&quot;&quot;&quot;</span>
+<span class="sd">"""Regex pattern for 9-digit company taxpayer ID numbers (TINs)."""</span>
 
 <div class="viewcode-block" id="YEAR_QUARTER">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/patterns/index.html#pudl.metadata.patterns.YEAR_QUARTER">[docs]</a>
-<span class="n">YEAR_QUARTER</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;\d</span><span class="si">{4}</span><span class="s2">q[1-4]&quot;</span></div>
+<span class="n">YEAR_QUARTER</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">"\d</span><span class="si">{4}</span><span class="s2">q[1-4]"</span></div>
 
-<span class="sd">&quot;&quot;&quot;Regex pattern for year and quarter in the format YYYYqX.&quot;&quot;&quot;</span>
+<span class="sd">"""Regex pattern for year and quarter in the format YYYYqX."""</span>
 
 <div class="viewcode-block" id="ZIP4">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/patterns/index.html#pudl.metadata.patterns.ZIP4">[docs]</a>
-<span class="n">ZIP4</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;\d</span><span class="si">{4}</span><span class="s2">&quot;</span></div>
+<span class="n">ZIP4</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">"\d</span><span class="si">{4}</span><span class="s2">"</span></div>
 
-<span class="sd">&quot;&quot;&quot;Regex pattern for 4-digit ZIP+4 codes.&quot;&quot;&quot;</span>
+<span class="sd">"""Regex pattern for 4-digit ZIP+4 codes."""</span>
 
 <div class="viewcode-block" id="ZIP5">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/patterns/index.html#pudl.metadata.patterns.ZIP5">[docs]</a>
-<span class="n">ZIP5</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;\d</span><span class="si">{5}</span><span class="s2">&quot;</span></div>
+<span class="n">ZIP5</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">"\d</span><span class="si">{5}</span><span class="s2">"</span></div>
 
-<span class="sd">&quot;&quot;&quot;Regex pattern for 5-digit ZIP codes.&quot;&quot;&quot;</span>
+<span class="sd">"""Regex pattern for 5-digit ZIP codes."""</span>
 </pre></div>
 
                 </article>

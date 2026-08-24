@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.analysis.ml_tools.models &#8212; PUDL 2026.8.1.dev18 documentation</title>
+    <title>pudl.analysis.ml_tools.models &#8212; PUDL 2026.8.1.dev19 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../../_static/documentation_options.js?v=f2b63aa7"></script>
+    <script src="../../../../_static/documentation_options.js?v=5bf64ec1"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev18 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev18 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev19 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev19 documentation - Home"/>
   
   
 </a></div>
@@ -871,9 +871,9 @@ window.runMermaid = runMermaid;</script>
                 <article class="bd-article">
                   
   <h1>Source code for pudl.analysis.ml_tools.models</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Provides tooling for developing/tracking ML models within PUDL.</span>
+<span></span><span class="sd">"""Provides tooling for developing/tracking ML models within PUDL.</span>
 
-<span class="sd">The ML pipelines here use Dagster&#39;s ``@op`` and ``@graph`` primitives rather than</span>
+<span class="sd">The ML pipelines here use Dagster's ``@op`` and ``@graph`` primitives rather than</span>
 <span class="sd">``@asset``. Each pipeline (e.g. ``ferc_to_ferc``, ``ferc_to_eia``) is a multi-step</span>
 <span class="sd">computation — embedding, clustering, matching — where the intermediate outputs (distance</span>
 <span class="sd">matrices, cluster assignments, etc.) are not meaningful PUDL data products. They are</span>
@@ -890,8 +890,8 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">converts it into a ``graph_asset``. Applying it to a ``@graph`` function does</span>
 <span class="sd">three things:</span>
 
-<span class="sd">1. **Collects configuration.** It walks the graph&#39;s op tree, harvesting default</span>
-<span class="sd">   config values from each op&#39;s :class:`~dagster.Config` subclass. If</span>
+<span class="sd">1. **Collects configuration.** It walks the graph's op tree, harvesting default</span>
+<span class="sd">   config values from each op's :class:`~dagster.Config` subclass. If</span>
 <span class="sd">   ``config_from_yaml=True``, it also merges overrides from</span>
 <span class="sd">   ``pudl.package_data.settings.pudl_models.yml``. The merged config is stored</span>
 <span class="sd">   in the module-level ``MODEL_CONFIGURATION`` dict, which</span>
@@ -902,19 +902,19 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">   op is synthesized and called first inside the ``graph_asset``, then passed as</span>
 <span class="sd">   the first argument to the wrapped graph. Ops that want to log metrics receive</span>
 <span class="sd">   it as an input parameter named ``experiment_tracker``. The tracker input is</span>
-<span class="sd">   excluded from the asset&#39;s ``ins`` mapping so Dagster does not treat it as a</span>
+<span class="sd">   excluded from the asset's ``ins`` mapping so Dagster does not treat it as a</span>
 <span class="sd">   dependency on an upstream asset.</span>
 
 <span class="sd">3. **Returns a graph_asset.** The decorated function is replaced by a</span>
 <span class="sd">   ``graph_asset`` whose name is ``asset_name`` and whose upstream asset</span>
-<span class="sd">   dependencies are inferred from the graph&#39;s remaining inputs.</span>
+<span class="sd">   dependencies are inferred from the graph's remaining inputs.</span>
 
 <span class="sd">Configuration precedence (lowest → highest):</span>
 
-<span class="sd">* Default values on each op&#39;s ``Config`` subclass (code)</span>
+<span class="sd">* Default values on each op's ``Config`` subclass (code)</span>
 <span class="sd">* Entries in ``pudl_models.yml`` (repo-level YAML, only when ``config_from_yaml=True``)</span>
 <span class="sd">* Values entered in the Dagster UI Launchpad (single-run override)</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">importlib</span>
 
@@ -944,14 +944,14 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="get_yml_config">
 <a class="viewcode-back" href="../../../../autoapi/pudl/analysis/ml_tools/models/index.html#pudl.analysis.ml_tools.models.get_yml_config">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_yml_config</span><span class="p">(</span><span class="n">experiment_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load model configuration from yaml file.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Load model configuration from yaml file."""</span>
     <span class="n">config_file</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">importlib</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="s2">&quot;pudl.package_data.settings&quot;</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;pudl_models.yml&quot;</span>
+        <span class="n">importlib</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="s2">"pudl.package_data.settings"</span><span class="p">)</span> <span class="o">/</span> <span class="s2">"pudl_models.yml"</span>
     <span class="p">)</span>
-    <span class="n">config</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">config_file</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;r&quot;</span><span class="p">))</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">config_file</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">"r"</span><span class="p">))</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">model_config</span> <span class="o">:=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">experiment_name</span><span class="p">)):</span>
-        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No </span><span class="si">{</span><span class="n">experiment_name</span><span class="si">}</span><span class="s2"> entry in </span><span class="si">{</span><span class="n">config_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"No </span><span class="si">{</span><span class="n">experiment_name</span><span class="si">}</span><span class="s2"> entry in </span><span class="si">{</span><span class="n">config_file</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="p">{</span><span class="n">experiment_name</span><span class="p">:</span> <span class="n">model_config</span><span class="p">}</span></div>
 
@@ -960,28 +960,28 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="get_default_config">
 <a class="viewcode-back" href="../../../../autoapi/pudl/analysis/ml_tools/models/index.html#pudl.analysis.ml_tools.models.get_default_config">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_default_config</span><span class="p">(</span><span class="n">model_graph</span><span class="p">:</span> <span class="n">GraphDefinition</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get default config values for model.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Get default config values for model."""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_default_from_ops</span><span class="p">(</span><span class="n">node</span><span class="p">:</span> <span class="n">OpDefinition</span> <span class="o">|</span> <span class="n">GraphDefinition</span><span class="p">):</span>
         <span class="n">config</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">GraphDefinition</span><span class="p">):</span>
             <span class="n">config</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="s2">&quot;ops&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">"ops"</span><span class="p">:</span> <span class="p">{</span>
                     <span class="n">child_node</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">_get_default_from_ops</span><span class="p">(</span><span class="n">child_node</span><span class="p">)</span>
                     <span class="k">for</span> <span class="n">child_node</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">node_defs</span>
                 <span class="p">}</span>
             <span class="p">}</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">config_schema</span><span class="o">.</span><span class="n">default_provided</span><span class="p">:</span>
-                <span class="n">config</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;config&quot;</span><span class="p">:</span> <span class="n">node</span><span class="o">.</span><span class="n">config_schema</span><span class="o">.</span><span class="n">default_value</span><span class="p">}</span>
+                <span class="n">config</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"config"</span><span class="p">:</span> <span class="n">node</span><span class="o">.</span><span class="n">config_schema</span><span class="o">.</span><span class="n">default_value</span><span class="p">}</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">config</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;config&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">}</span>
+                <span class="n">config</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"config"</span><span class="p">:</span> <span class="kc">None</span><span class="p">}</span>
 
         <span class="k">return</span> <span class="n">config</span>
 
     <span class="n">config</span> <span class="o">=</span> <span class="p">{</span><span class="n">model_graph</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">_get_default_from_ops</span><span class="p">(</span><span class="n">model_graph</span><span class="p">)}</span>
-    <span class="n">config</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">model_graph</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">_tracker&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;config&quot;</span><span class="p">:</span> <span class="n">experiment_tracking</span><span class="o">.</span><span class="n">ExperimentTrackerConfig</span><span class="p">()</span><span class="o">.</span><span class="n">model_dump</span><span class="p">()</span>
+    <span class="n">config</span><span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">model_graph</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">_tracker"</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">"config"</span><span class="p">:</span> <span class="n">experiment_tracking</span><span class="o">.</span><span class="n">ExperimentTrackerConfig</span><span class="p">()</span><span class="o">.</span><span class="n">model_dump</span><span class="p">()</span>
     <span class="p">}</span>
     <span class="k">return</span> <span class="n">config</span></div>
 
@@ -990,20 +990,20 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="pudl_model">
 <a class="viewcode-back" href="../../../../autoapi/pudl/analysis/ml_tools/models/index.html#pudl.analysis.ml_tools.models.pudl_model">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">pudl_model</span><span class="p">(</span><span class="n">asset_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">config_from_yaml</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AssetsDefinition</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Decorator for an ML model that will handle providing configuration to dagster.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Decorator for an ML model that will handle providing configuration to dagster."""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_decorator</span><span class="p">(</span><span class="n">model_graph</span><span class="p">:</span> <span class="n">GraphDefinition</span><span class="p">):</span>
         <span class="n">model_config</span> <span class="o">=</span> <span class="n">get_default_config</span><span class="p">(</span><span class="n">model_graph</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">config_from_yaml</span><span class="p">:</span>
             <span class="n">model_config</span> <span class="o">|=</span> <span class="n">get_yml_config</span><span class="p">(</span><span class="n">model_graph</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
 
-        <span class="n">MODEL_CONFIGURATION</span><span class="p">[</span><span class="n">asset_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;ops&quot;</span><span class="p">:</span> <span class="n">model_config</span><span class="p">}</span>
+        <span class="n">MODEL_CONFIGURATION</span><span class="p">[</span><span class="n">asset_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"ops"</span><span class="p">:</span> <span class="n">model_config</span><span class="p">}</span>
 
         <span class="c1"># Inputs should come from assets except experiment tracker</span>
         <span class="n">ins</span> <span class="o">=</span> <span class="p">{</span>
             <span class="n">key</span><span class="p">:</span> <span class="n">AssetIn</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">model_graph</span><span class="o">.</span><span class="n">input_dict</span>
-            <span class="k">if</span> <span class="n">key</span> <span class="o">!=</span> <span class="s2">&quot;experiment_tracker&quot;</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="o">!=</span> <span class="s2">"experiment_tracker"</span>
         <span class="p">}</span>
 
         <span class="nd">@graph_asset</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">asset_name</span><span class="p">,</span> <span class="n">ins</span><span class="o">=</span><span class="n">ins</span><span class="p">)</span>

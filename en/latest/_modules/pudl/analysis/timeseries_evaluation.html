@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.analysis.timeseries_evaluation &#8212; PUDL 2026.8.1.dev18 documentation</title>
+    <title>pudl.analysis.timeseries_evaluation &#8212; PUDL 2026.8.1.dev19 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=f2b63aa7"></script>
+    <script src="../../../_static/documentation_options.js?v=5bf64ec1"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev18 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev18 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev19 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev19 documentation - Home"/>
   
   
 </a></div>
@@ -868,9 +868,9 @@ window.runMermaid = runMermaid;</script>
                 <article class="bd-article">
                   
   <h1>Source code for pudl.analysis.timeseries_evaluation</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Routines for evaluating and visualizing timeseries data.</span>
+<span></span><span class="sd">"""Routines for evaluating and visualizing timeseries data.</span>
 
-<span class="sd">Some types of evaluations we&#39;d like to enable:</span>
+<span class="sd">Some types of evaluations we'd like to enable:</span>
 
 <span class="sd">Scatter plot colored and/or down-selected by an ID or categorical column, comparing two</span>
 <span class="sd">highly correlated time series. Allow user to select time range or ID/categorical to</span>
@@ -885,7 +885,7 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">Static reported vs. imputed values with color coded points for the imputations</span>
 
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">zipfile</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span>
@@ -910,9 +910,9 @@ window.runMermaid = runMermaid;</script>
     <span class="n">idx_vals</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">],</span>
     <span class="n">start_date</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">end_date</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">time_col</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;datetime_utc&quot;</span><span class="p">,</span>
+    <span class="n">time_col</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"datetime_utc"</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Filter a dataframe based on index columns and date range.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Filter a dataframe based on index columns and date range."""</span>
     <span class="k">if</span> <span class="n">start_date</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">start_date</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">time_col</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">end_date</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -929,50 +929,50 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="extract_baseline_eia930_imputation">
 <a class="viewcode-back" href="../../../autoapi/pudl/analysis/timeseries_evaluation/index.html#pudl.analysis.timeseries_evaluation.extract_baseline_eia930_imputation">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">extract_baseline_eia930_imputation</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Download and extract an existing imputation of the EIA-930 demand data.</span>
+<span class="w">    </span><span class="sd">"""Download and extract an existing imputation of the EIA-930 demand data.</span>
 
 <span class="sd">    Useful as a baseline for evaluating our imputation results in development.</span>
 <span class="sd">    Originally by Tyler Ruggles, Alicia Wongel, and David Farnham (2025). See:</span>
 <span class="sd">    https://doi.org/10.5281/zenodo.14768167 (data)</span>
 <span class="sd">    and https://doi.org/10.5281/zenodo.14768152 (code).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-        <span class="s2">&quot;https://zenodo.org/records/14768167/files/truggles/EIA_Cleaned_Hourly_Electricity_Demand_Data-v1.4.zip?download=1&quot;</span><span class="p">,</span>
+        <span class="s2">"https://zenodo.org/records/14768167/files/truggles/EIA_Cleaned_Hourly_Electricity_Demand_Data-v1.4.zip?download=1"</span><span class="p">,</span>
         <span class="n">timeout</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">f</span> <span class="o">=</span> <span class="n">BytesIO</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
     <span class="n">subregions</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">base_path</span> <span class="o">=</span> <span class="s2">&quot;truggles-EIA_Cleaned_Hourly_Electricity_Demand_Data-5c959df/data/&quot;</span>
+    <span class="n">base_path</span> <span class="o">=</span> <span class="s2">"truggles-EIA_Cleaned_Hourly_Electricity_Demand_Data-5c959df/data/"</span>
     <span class="n">archive</span> <span class="o">=</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">at</span><span class="o">=</span><span class="n">base_path</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">release</span> <span class="ow">in</span> <span class="p">[</span>
-        <span class="s2">&quot;release_2020_Oct_include_subregions&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;release_2025_Jan_include_subregions&quot;</span><span class="p">,</span>
+        <span class="s2">"release_2020_Oct_include_subregions"</span><span class="p">,</span>
+        <span class="s2">"release_2025_Jan_include_subregions"</span><span class="p">,</span>
     <span class="p">]:</span>
         <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="p">(</span>
-            <span class="n">archive</span> <span class="o">/</span> <span class="n">release</span> <span class="o">/</span> <span class="s2">&quot;subregions_and_balancing_authorities&quot;</span>
+            <span class="n">archive</span> <span class="o">/</span> <span class="n">release</span> <span class="o">/</span> <span class="s2">"subregions_and_balancing_authorities"</span>
         <span class="p">)</span><span class="o">.</span><span class="n">iterdir</span><span class="p">():</span>
-            <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">suffix</span> <span class="o">!=</span> <span class="s2">&quot;.csv&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">suffix</span> <span class="o">!=</span> <span class="s2">".csv"</span><span class="p">:</span>
                 <span class="k">continue</span>
             <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">open</span><span class="p">())</span>
 
             <span class="c1"># Get subregion/ba</span>
-            <span class="n">name</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">stem</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">)</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">stem</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"-"</span><span class="p">)</span>
             <span class="n">ba</span> <span class="o">=</span> <span class="n">name</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
             <span class="n">subregion</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="n">name</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;balancing_authority_code_eia&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ba</span>
-            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;balancing_authority_subregion_code_eia&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">subregion</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">"balancing_authority_code_eia"</span><span class="p">]</span> <span class="o">=</span> <span class="n">ba</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">"balancing_authority_subregion_code_eia"</span><span class="p">]</span> <span class="o">=</span> <span class="n">subregion</span>
 
             <span class="n">subregions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">subregions</span><span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
-        <span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;cleaned demand (MW)&quot;</span><span class="p">:</span> <span class="s2">&quot;baseline_demand_mwh&quot;</span><span class="p">}</span>
+        <span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">"cleaned demand (MW)"</span><span class="p">:</span> <span class="s2">"baseline_demand_mwh"</span><span class="p">}</span>
     <span class="p">)</span>
-    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;datetime_utc&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;date_time&quot;</span><span class="p">])</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">"datetime_utc"</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">"date_time"</span><span class="p">])</span>
     <span class="k">return</span> <span class="n">df</span><span class="p">[</span>
         <span class="p">[</span>
-            <span class="s2">&quot;datetime_utc&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;baseline_demand_mwh&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;balancing_authority_code_eia&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;balancing_authority_subregion_code_eia&quot;</span><span class="p">,</span>
+            <span class="s2">"datetime_utc"</span><span class="p">,</span>
+            <span class="s2">"baseline_demand_mwh"</span><span class="p">,</span>
+            <span class="s2">"balancing_authority_code_eia"</span><span class="p">,</span>
+            <span class="s2">"balancing_authority_subregion_code_eia"</span><span class="p">,</span>
         <span class="p">]</span>
     <span class="p">]</span></div>
 
@@ -987,22 +987,22 @@ window.runMermaid = runMermaid;</script>
     <span class="n">idx_cols</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
     <span class="n">idx_vals</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">xylim</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">xlabel</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-    <span class="n">ylabel</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-    <span class="n">title</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-    <span class="n">time_col</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;datetime_utc&quot;</span><span class="p">,</span>
+    <span class="n">xlabel</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span><span class="p">,</span>
+    <span class="n">ylabel</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span><span class="p">,</span>
+    <span class="n">title</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span><span class="p">,</span>
+    <span class="n">time_col</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"datetime_utc"</span><span class="p">,</span>
     <span class="n">start_date</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">end_date</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">log</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">legend</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Plot the correlation between two analogous time series.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Plot the correlation between two analogous time series."""</span>
     <span class="k">if</span> <span class="n">idx_vals</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">idx_vals</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">12</span><span class="p">))</span>
 
-    <span class="n">cmap</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">colormaps</span><span class="p">[</span><span class="s2">&quot;tab10&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">resampled</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">idx_vals</span><span class="p">))</span>
+    <span class="n">cmap</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">colormaps</span><span class="p">[</span><span class="s2">"tab10"</span><span class="p">]</span><span class="o">.</span><span class="n">resampled</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">idx_vals</span><span class="p">))</span>
     <span class="c1"># Convert colors to hex format</span>
     <span class="n">palette</span> <span class="o">=</span> <span class="p">[</span><span class="n">mcolors</span><span class="o">.</span><span class="n">to_hex</span><span class="p">(</span><span class="n">cmap</span><span class="p">(</span><span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">idx_vals</span><span class="p">))]</span>
     <span class="n">color_map</span> <span class="o">=</span> <span class="p">{</span><span class="n">group</span><span class="p">:</span> <span class="n">palette</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">group</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">idx_vals</span><span class="p">)}</span>
@@ -1016,7 +1016,7 @@ window.runMermaid = runMermaid;</script>
             <span class="n">end_date</span><span class="o">=</span><span class="n">end_date</span><span class="p">,</span>
             <span class="n">time_col</span><span class="o">=</span><span class="n">time_col</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;-&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">idx</span><span class="p">))</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span> <span class="k">else</span> <span class="nb">str</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
+        <span class="n">label</span> <span class="o">=</span> <span class="s2">"-"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">idx</span><span class="p">))</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span> <span class="k">else</span> <span class="nb">str</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
             <span class="n">filtered</span><span class="p">[</span><span class="n">timeseries_x</span><span class="p">],</span>
             <span class="n">filtered</span><span class="p">[</span><span class="n">timeseries_y</span><span class="p">],</span>
@@ -1030,11 +1030,11 @@ window.runMermaid = runMermaid;</script>
         <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="n">xylim</span><span class="p">)</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="n">xylim</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">log</span><span class="p">:</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">xscale</span><span class="p">(</span><span class="s2">&quot;log&quot;</span><span class="p">)</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">yscale</span><span class="p">(</span><span class="s2">&quot;log&quot;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xscale</span><span class="p">(</span><span class="s2">"log"</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">yscale</span><span class="p">(</span><span class="s2">"log"</span><span class="p">)</span>
 
     <span class="c1"># Add some gridlines</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s2">"both"</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">"--"</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
     <span class="c1"># Show line for perfect correlation where x == y</span>
     <span class="n">xlim</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span><span class="o">.</span><span class="n">get_xlim</span><span class="p">()</span>
     <span class="n">ylim</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span><span class="o">.</span><span class="n">get_ylim</span><span class="p">()</span>
@@ -1043,14 +1043,14 @@ window.runMermaid = runMermaid;</script>
     <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
         <span class="p">[</span><span class="n">min_val</span><span class="p">,</span> <span class="n">max_val</span><span class="p">],</span>
         <span class="p">[</span><span class="n">min_val</span><span class="p">,</span> <span class="n">max_val</span><span class="p">],</span>
-        <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span>
-        <span class="n">color</span><span class="o">=</span><span class="s2">&quot;gray&quot;</span><span class="p">,</span>
+        <span class="n">linestyle</span><span class="o">=</span><span class="s2">"--"</span><span class="p">,</span>
+        <span class="n">color</span><span class="o">=</span><span class="s2">"gray"</span><span class="p">,</span>
         <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="k">if</span> <span class="n">legend</span><span class="p">:</span>
         <span class="n">leg</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span>
-            <span class="n">loc</span><span class="o">=</span><span class="s2">&quot;upper left&quot;</span><span class="p">,</span>
+            <span class="n">loc</span><span class="o">=</span><span class="s2">"upper left"</span><span class="p">,</span>
             <span class="n">scatterpoints</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
             <span class="n">markerscale</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
             <span class="n">labelspacing</span><span class="o">=</span><span class="mf">1.2</span><span class="p">,</span>
@@ -1078,16 +1078,16 @@ window.runMermaid = runMermaid;</script>
     <span class="n">end_date</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">reported_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">imputed_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">time_col</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;datetime_utc&quot;</span><span class="p">,</span>
-    <span class="n">ylabel</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Demand [MWh]&quot;</span><span class="p">,</span>
+    <span class="n">time_col</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"datetime_utc"</span><span class="p">,</span>
+    <span class="n">ylabel</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"Demand [MWh]"</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compare reported values with imputed values visually.</span>
+<span class="w">    </span><span class="sd">"""Compare reported values with imputed values visually.</span>
 
 <span class="sd">    Select a particular time series based on the ID columns and limit the data displayed</span>
 <span class="sd">    based on the provided start and end dates. Plot both the reported and imputed</span>
 <span class="sd">    values, color coding imputed values based on the reason for imputation.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># Set the dataframe index to the ID columns and the time column</span>
     <span class="c1"># Select specified index values that fall within the specified date range:</span>
     <span class="n">filtered</span> <span class="o">=</span> <span class="n">_filter_df</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">idx_cols</span><span class="p">,</span> <span class="n">idx_vals</span><span class="p">,</span> <span class="n">start_date</span><span class="p">,</span> <span class="n">end_date</span><span class="p">,</span> <span class="n">time_col</span><span class="p">)</span>
@@ -1096,13 +1096,13 @@ window.runMermaid = runMermaid;</script>
         <span class="n">filtered</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
         <span class="n">filtered</span><span class="p">[</span><span class="n">reported_col</span><span class="p">],</span>
         <span class="n">lw</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-        <span class="n">color</span><span class="o">=</span><span class="s2">&quot;gray&quot;</span><span class="p">,</span>
-        <span class="n">label</span><span class="o">=</span><span class="s2">&quot;reported&quot;</span><span class="p">,</span>
+        <span class="n">color</span><span class="o">=</span><span class="s2">"gray"</span><span class="p">,</span>
+        <span class="n">label</span><span class="o">=</span><span class="s2">"reported"</span><span class="p">,</span>
         <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">filtered</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">filtered</span><span class="p">[</span><span class="n">imputed_col</span><span class="p">],</span> <span class="n">lw</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;imputed&quot;</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">code</span> <span class="ow">in</span> <span class="n">IMPUTATION_CODES</span> <span class="o">|</span> <span class="p">{</span><span class="s2">&quot;simulated&quot;</span><span class="p">}:</span>
-        <span class="n">mask</span> <span class="o">=</span> <span class="n">filtered</span><span class="p">[</span><span class="n">imputed_col</span> <span class="o">+</span> <span class="s2">&quot;_imputation_code&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">code</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">filtered</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">filtered</span><span class="p">[</span><span class="n">imputed_col</span><span class="p">],</span> <span class="n">lw</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"imputed"</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">code</span> <span class="ow">in</span> <span class="n">IMPUTATION_CODES</span> <span class="o">|</span> <span class="p">{</span><span class="s2">"simulated"</span><span class="p">}:</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">filtered</span><span class="p">[</span><span class="n">imputed_col</span> <span class="o">+</span> <span class="s2">"_imputation_code"</span><span class="p">]</span> <span class="o">==</span> <span class="n">code</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
             <span class="n">filtered</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="n">mask</span><span class="p">],</span>
             <span class="n">filtered</span><span class="p">[</span><span class="n">imputed_col</span><span class="p">][</span><span class="n">mask</span><span class="p">],</span>
@@ -1110,11 +1110,11 @@ window.runMermaid = runMermaid;</script>
             <span class="n">s</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
             <span class="n">alpha</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span>
         <span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Reported vs Imputed Values for </span><span class="si">{</span><span class="n">idx_vals</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Reported vs Imputed Values for </span><span class="si">{</span><span class="n">idx_vals</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="n">ylabel</span><span class="p">)</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span>
         <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mf">1.05</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
-        <span class="n">loc</span><span class="o">=</span><span class="s2">&quot;upper left&quot;</span><span class="p">,</span>
+        <span class="n">loc</span><span class="o">=</span><span class="s2">"upper left"</span><span class="p">,</span>
         <span class="n">borderaxespad</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
         <span class="n">markerscale</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>  <span class="c1"># Scale up the marker size in the legend</span>
     <span class="p">)</span>
@@ -1134,10 +1134,10 @@ window.runMermaid = runMermaid;</script>
     <span class="n">reported_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">timeseries_a</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">timeseries_b</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">time_col</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;datetime_utc&quot;</span><span class="p">,</span>
-    <span class="n">ylabel</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Demand [MWh]&quot;</span><span class="p">,</span>
+    <span class="n">time_col</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"datetime_utc"</span><span class="p">,</span>
+    <span class="n">ylabel</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"Demand [MWh]"</span><span class="p">,</span>
 <span class="p">):</span>  <span class="c1"># pragma: no cover</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Plot two timeseries of the same information like demand for comparison.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Plot two timeseries of the same information like demand for comparison."""</span>
     <span class="n">filtered</span> <span class="o">=</span> <span class="n">_filter_df</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">idx_cols</span><span class="p">,</span> <span class="n">idx_vals</span><span class="p">,</span> <span class="n">start_date</span><span class="p">,</span> <span class="n">end_date</span><span class="p">,</span> <span class="n">time_col</span><span class="p">)</span>
 
     <span class="c1"># Plot reported</span>
@@ -1146,18 +1146,18 @@ window.runMermaid = runMermaid;</script>
         <span class="n">filtered</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
         <span class="n">filtered</span><span class="p">[</span><span class="n">reported_col</span><span class="p">],</span>
         <span class="n">lw</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-        <span class="n">color</span><span class="o">=</span><span class="s2">&quot;gray&quot;</span><span class="p">,</span>
-        <span class="n">label</span><span class="o">=</span><span class="s2">&quot;reported&quot;</span><span class="p">,</span>
+        <span class="n">color</span><span class="o">=</span><span class="s2">"gray"</span><span class="p">,</span>
+        <span class="n">label</span><span class="o">=</span><span class="s2">"reported"</span><span class="p">,</span>
         <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">filtered</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">filtered</span><span class="p">[</span><span class="n">timeseries_a</span><span class="p">],</span> <span class="n">lw</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">timeseries_a</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">filtered</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">filtered</span><span class="p">[</span><span class="n">timeseries_b</span><span class="p">],</span> <span class="n">lw</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">timeseries_b</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">timeseries_a</span><span class="si">}</span><span class="s2"> vs </span><span class="si">{</span><span class="n">timeseries_b</span><span class="si">}</span><span class="s2"> for </span><span class="si">{</span><span class="n">idx_vals</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">filtered</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">filtered</span><span class="p">[</span><span class="n">timeseries_b</span><span class="p">],</span> <span class="n">lw</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">timeseries_b</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">"--"</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">timeseries_a</span><span class="si">}</span><span class="s2"> vs </span><span class="si">{</span><span class="n">timeseries_b</span><span class="si">}</span><span class="s2"> for </span><span class="si">{</span><span class="n">idx_vals</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="n">ylabel</span><span class="p">)</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span>
         <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mf">1.05</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
-        <span class="n">loc</span><span class="o">=</span><span class="s2">&quot;upper left&quot;</span><span class="p">,</span>
+        <span class="n">loc</span><span class="o">=</span><span class="s2">"upper left"</span><span class="p">,</span>
         <span class="n">borderaxespad</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>  <span class="c1"># Adjust layout to make room for the legend</span>
@@ -1175,7 +1175,7 @@ window.runMermaid = runMermaid;</script>
 <span class="k">def</span><span class="w"> </span><span class="nf">encode_run_length</span><span class="p">(</span>
     <span class="n">x</span><span class="p">:</span> <span class="n">Sequence</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>  <span class="c1"># pragma: no cover</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Encode vector with run-length encoding.</span>
+<span class="w">    </span><span class="sd">"""Encode vector with run-length encoding.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        x: Vector to encode.</span>
@@ -1187,13 +1187,13 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        &gt;&gt;&gt; x = np.array([0, 1, 1, 0, 1])</span>
 <span class="sd">        &gt;&gt;&gt; encode_run_length(x)</span>
 <span class="sd">        (array([0, 1, 0, 1]), array([1, 2, 1, 1]))</span>
-<span class="sd">        &gt;&gt;&gt; encode_run_length(x.astype(&#39;bool&#39;))</span>
+<span class="sd">        &gt;&gt;&gt; encode_run_length(x.astype('bool'))</span>
 <span class="sd">        (array([False,  True, False,  True]), array([1, 2, 1, 1]))</span>
-<span class="sd">        &gt;&gt;&gt; encode_run_length(x.astype(&#39;&lt;U1&#39;))</span>
-<span class="sd">        (array([&#39;0&#39;, &#39;1&#39;, &#39;0&#39;, &#39;1&#39;], dtype=&#39;&lt;U1&#39;), array([1, 2, 1, 1]))</span>
+<span class="sd">        &gt;&gt;&gt; encode_run_length(x.astype('&lt;U1'))</span>
+<span class="sd">        (array(['0', '1', '0', '1'], dtype='&lt;U1'), array([1, 2, 1, 1]))</span>
 <span class="sd">        &gt;&gt;&gt; encode_run_length(np.where(x == 0, np.nan, x))</span>
 <span class="sd">        (array([nan,  1., nan,  1.]), array([1, 2, 1, 1]))</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># Inspired by https://stackoverflow.com/a/32681075</span>
     <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
     <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
@@ -1219,7 +1219,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">padding</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="n">intersect</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Insert run-length encoded values into a vector.</span>
+<span class="w">    </span><span class="sd">"""Insert run-length encoded values into a vector.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        x: Vector to insert values into.</span>
@@ -1283,9 +1283,9 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        ...     padding=1</span>
 <span class="sd">        ... )</span>
 <span class="sd">        array([nan,  2., nan, nan,  5., nan, nan,  8., nan])</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">padding</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Padding must zero or greater&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Padding must zero or greater"</span><span class="p">)</span>
     <span class="c1"># Make a new array to modify in place</span>
     <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
     <span class="c1"># Compute runs available for insertions</span>
@@ -1324,11 +1324,11 @@ window.runMermaid = runMermaid;</script>
     <span class="n">lengths</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">lengths</span><span class="p">)[</span><span class="n">order</span><span class="p">]</span>
     <span class="k">for</span> <span class="n">value</span><span class="p">,</span> <span class="n">length</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">lengths</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">length</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Run length must be greater than zero&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Run length must be greater than zero"</span><span class="p">)</span>
         <span class="c1"># Choose runs of adequate length</span>
         <span class="n">choices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">run_lengths</span><span class="p">[:</span><span class="n">n_runs</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">length</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">choices</span><span class="o">.</span><span class="n">size</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Could not find space for run of length </span><span class="si">{</span><span class="n">length</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Could not find space for run of length </span><span class="si">{</span><span class="n">length</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="n">idx</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">choices</span><span class="p">)</span>
         <span class="c1"># Choose adequate start position in run</span>
         <span class="n">offset</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">integers</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">run_lengths</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">-</span> <span class="n">length</span><span class="p">,</span> <span class="n">endpoint</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -1359,43 +1359,43 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="summarize_flags">
 <a class="viewcode-back" href="../../../autoapi/pudl/analysis/timeseries_evaluation/index.html#pudl.analysis.timeseries_evaluation.summarize_flags">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">summarize_flags</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Summarize flagged values by flag, count and median.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Summarize flagged values by flag, count and median."""</span>
     <span class="n">stats</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xi</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
         <span class="n">stats</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="n">col</span><span class="p">]]</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xi</span><span class="p">[:,</span> <span class="n">col</span><span class="p">])</span>
             <span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">flags</span><span class="p">[:,</span> <span class="n">col</span><span class="p">])</span>
-            <span class="o">.</span><span class="n">agg</span><span class="p">([</span><span class="s2">&quot;count&quot;</span><span class="p">,</span> <span class="s2">&quot;median&quot;</span><span class="p">])</span>
+            <span class="o">.</span><span class="n">agg</span><span class="p">([</span><span class="s2">"count"</span><span class="p">,</span> <span class="s2">"median"</span><span class="p">])</span>
         <span class="p">)</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">stats</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;column&quot;</span><span class="p">,</span> <span class="s2">&quot;flag&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">stats</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s2">"column"</span><span class="p">,</span> <span class="s2">"flag"</span><span class="p">])</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
     <span class="c1"># Sort flags by flagged order</span>
-    <span class="n">ordered</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;flag&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">CategoricalDtype</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">flagged</span><span class="p">)))</span>
-    <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">flag</span><span class="o">=</span><span class="n">ordered</span><span class="p">)</span><span class="o">.</span><span class="n">sort_values</span><span class="p">([</span><span class="s2">&quot;column&quot;</span><span class="p">,</span> <span class="s2">&quot;flag&quot;</span><span class="p">])</span></div>
+    <span class="n">ordered</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">"flag"</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">CategoricalDtype</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">flagged</span><span class="p">)))</span>
+    <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">flag</span><span class="o">=</span><span class="n">ordered</span><span class="p">)</span><span class="o">.</span><span class="n">sort_values</span><span class="p">([</span><span class="s2">"column"</span><span class="p">,</span> <span class="s2">"flag"</span><span class="p">])</span></div>
 
 
 
 <div class="viewcode-block" id="plot_flags">
 <a class="viewcode-back" href="../../../autoapi/pudl/analysis/timeseries_evaluation/index.html#pudl.analysis.timeseries_evaluation.plot_flags">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">plot_flags</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Plot cleaned series and anomalous values colored by flag.</span>
+<span class="w">    </span><span class="sd">"""Plot cleaned series and anomalous values colored by flag.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        name: Series to plot, as either an integer index or name in :attr:`columns`.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
         <span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
     <span class="n">col</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">[:,</span> <span class="n">col</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;lightgrey&quot;</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">[:,</span> <span class="n">col</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s2">"lightgrey"</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s2">"."</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
     <span class="n">colors</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;NEGATIVE_OR_ZERO&quot;</span><span class="p">:</span> <span class="s2">&quot;pink&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;IDENTICAL_RUN&quot;</span><span class="p">:</span> <span class="s2">&quot;blue&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;GLOBAL_OUTLIER&quot;</span><span class="p">:</span> <span class="s2">&quot;brown&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;GLOBAL_OUTLIER_NEIGHBOR&quot;</span><span class="p">:</span> <span class="s2">&quot;brown&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;LOCAL_OUTLIER_HIGH&quot;</span><span class="p">:</span> <span class="s2">&quot;purple&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;LOCAL_OUTLIER_LOW&quot;</span><span class="p">:</span> <span class="s2">&quot;purple&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;DOUBLE_DELTA&quot;</span><span class="p">:</span> <span class="s2">&quot;green&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;SINGLE_DELTA&quot;</span><span class="p">:</span> <span class="s2">&quot;red&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;ANOMALOUS_REGION&quot;</span><span class="p">:</span> <span class="s2">&quot;orange&quot;</span><span class="p">,</span>
+        <span class="s2">"NEGATIVE_OR_ZERO"</span><span class="p">:</span> <span class="s2">"pink"</span><span class="p">,</span>
+        <span class="s2">"IDENTICAL_RUN"</span><span class="p">:</span> <span class="s2">"blue"</span><span class="p">,</span>
+        <span class="s2">"GLOBAL_OUTLIER"</span><span class="p">:</span> <span class="s2">"brown"</span><span class="p">,</span>
+        <span class="s2">"GLOBAL_OUTLIER_NEIGHBOR"</span><span class="p">:</span> <span class="s2">"brown"</span><span class="p">,</span>
+        <span class="s2">"LOCAL_OUTLIER_HIGH"</span><span class="p">:</span> <span class="s2">"purple"</span><span class="p">,</span>
+        <span class="s2">"LOCAL_OUTLIER_LOW"</span><span class="p">:</span> <span class="s2">"purple"</span><span class="p">,</span>
+        <span class="s2">"DOUBLE_DELTA"</span><span class="p">:</span> <span class="s2">"green"</span><span class="p">,</span>
+        <span class="s2">"SINGLE_DELTA"</span><span class="p">:</span> <span class="s2">"red"</span><span class="p">,</span>
+        <span class="s2">"ANOMALOUS_REGION"</span><span class="p">:</span> <span class="s2">"orange"</span><span class="p">,</span>
     <span class="p">}</span>
     <span class="k">for</span> <span class="n">flag</span> <span class="ow">in</span> <span class="n">colors</span><span class="p">:</span>
         <span class="n">mask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">flags</span><span class="p">[:,</span> <span class="n">col</span><span class="p">]</span> <span class="o">==</span> <span class="n">flag</span>
@@ -1415,7 +1415,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">intersect</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">overlap</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Find non-null values to null to match a run-length distribution.</span>
+<span class="w">    </span><span class="sd">"""Find non-null values to null to match a run-length distribution.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        length: Length of null runs to simulate for each series.</span>
@@ -1431,7 +1431,7 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">    Raises:</span>
 <span class="sd">        ValueError: Could not find space for run of length {length}.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">new_nulls</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
         <span class="n">is_null</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">[:,</span> <span class="n">col</span><span class="p">])</span>

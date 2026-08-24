@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.scripts.dbt_helper &#8212; PUDL 2026.8.1.dev18 documentation</title>
+    <title>pudl.scripts.dbt_helper &#8212; PUDL 2026.8.1.dev19 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=f2b63aa7"></script>
+    <script src="../../../_static/documentation_options.js?v=5bf64ec1"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev18 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev18 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev19 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev19 documentation - Home"/>
   
   
 </a></div>
@@ -868,7 +868,7 @@ window.runMermaid = runMermaid;</script>
                 <article class="bd-article">
                   
   <h1>Source code for pudl.scripts.dbt_helper</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;A basic CLI to autogenerate dbt data test configurations.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""A basic CLI to autogenerate dbt data test configurations."""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
@@ -904,14 +904,14 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="insert_data_source">
 <a class="viewcode-back" href="../../../autoapi/pudl/scripts/dbt_helper/index.html#pudl.scripts.dbt_helper.insert_data_source">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">insert_data_source</span><span class="p">(</span><span class="n">parent_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">table_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert parent_dir and table_name to parent_dir/data_source/table_name.</span>
+<span class="w">    </span><span class="sd">"""Convert parent_dir and table_name to parent_dir/data_source/table_name.</span>
 
 <span class="sd">    Table name must have &lt;layer&gt;_&lt;source&gt;__&lt;...&gt; format.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># 2026-05 TODO: consider using pudl.metadata.description machinery here instead of a regex</span>
-    <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;_?([a-zA-Z0-9]+)_([a-zA-Z0-9]+)__&quot;</span><span class="p">,</span> <span class="n">table_name</span><span class="p">)</span>
+    <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">"_?([a-zA-Z0-9]+)_([a-zA-Z0-9]+)__"</span><span class="p">,</span> <span class="n">table_name</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">match</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2"> has no data source segment.&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2"> has no data source segment."</span><span class="p">)</span>
     <span class="n">data_source</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">parent_dir</span> <span class="o">/</span> <span class="n">data_source</span> <span class="o">/</span> <span class="n">table_name</span></div>
 
@@ -923,7 +923,7 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../../autoapi/pudl/scripts/dbt_helper/index.html#pudl.scripts.dbt_helper.UpdateResult.success">[docs]</a>
 <div class="viewcode-block" id="UpdateResult">
 <a class="viewcode-back" href="../../../autoapi/pudl/scripts/dbt_helper/index.html#pudl.scripts.dbt_helper.UpdateResult">[docs]</a>
-<span class="n">UpdateResult</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;UpdateResult&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;success&quot;</span><span class="p">,</span> <span class="s2">&quot;message&quot;</span><span class="p">])</span></div>
+<span class="n">UpdateResult</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s2">"UpdateResult"</span><span class="p">,</span> <span class="p">[</span><span class="s2">"success"</span><span class="p">,</span> <span class="s2">"message"</span><span class="p">])</span></div>
 </div>
 </div>
 
@@ -932,7 +932,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="_get_row_count_csv_path">
 <a class="viewcode-back" href="../../../autoapi/pudl/scripts/dbt_helper/index.html#pudl.scripts.dbt_helper._get_row_count_csv_path">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_get_row_count_csv_path</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
-    <span class="k">return</span> <span class="n">PUDL_DBT_PATH</span> <span class="o">/</span> <span class="s2">&quot;seeds&quot;</span> <span class="o">/</span> <span class="s2">&quot;etl_full_row_counts.csv&quot;</span></div>
+    <span class="k">return</span> <span class="n">PUDL_DBT_PATH</span> <span class="o">/</span> <span class="s2">"seeds"</span> <span class="o">/</span> <span class="s2">"etl_full_row_counts.csv"</span></div>
 
 
 
@@ -941,8 +941,8 @@ window.runMermaid = runMermaid;</script>
 <span class="k">def</span><span class="w"> </span><span class="nf">_get_existing_row_counts</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
     <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
         <span class="n">_get_row_count_csv_path</span><span class="p">(),</span>
-        <span class="n">dtype</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;partition&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span> <span class="s2">&quot;table_name&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">},</span>
-    <span class="p">)</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span></div>
+        <span class="n">dtype</span><span class="o">=</span><span class="p">{</span><span class="s2">"partition"</span><span class="p">:</span> <span class="s2">"string"</span><span class="p">,</span> <span class="s2">"table_name"</span><span class="p">:</span> <span class="s2">"string"</span><span class="p">},</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="s2">""</span><span class="p">)</span></div>
 
 
 
@@ -955,25 +955,25 @@ window.runMermaid = runMermaid;</script>
     <span class="n">table_path</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">PudlPaths</span><span class="p">()</span><span class="o">.</span><span class="n">parquet_path</span><span class="p">(</span><span class="n">table_name</span><span class="p">))</span>
 
     <span class="k">if</span> <span class="n">partition_expr</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">partition_expr_sql</span> <span class="o">=</span> <span class="s2">&quot;&#39;&#39;&quot;</span>
-        <span class="n">group_by_clause</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">partition_expr_sql</span> <span class="o">=</span> <span class="s2">"''"</span>
+        <span class="n">group_by_clause</span> <span class="o">=</span> <span class="s2">""</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">partition_expr_sql</span> <span class="o">=</span> <span class="n">partition_expr</span>
-        <span class="n">group_by_clause</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;GROUP BY </span><span class="si">{</span><span class="n">partition_expr_sql</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">group_by_clause</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"GROUP BY </span><span class="si">{</span><span class="n">partition_expr_sql</span><span class="si">}</span><span class="s2">"</span>
 
-    <span class="n">row_count_query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+    <span class="n">row_count_query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"""</span>
 <span class="s2">SELECT</span>
-<span class="s2">    CAST(COALESCE(CAST(</span><span class="si">{</span><span class="n">partition_expr_sql</span><span class="si">}</span><span class="s2"> AS VARCHAR), &#39;&#39;) AS VARCHAR) AS partition,</span>
+<span class="s2">    CAST(COALESCE(CAST(</span><span class="si">{</span><span class="n">partition_expr_sql</span><span class="si">}</span><span class="s2"> AS VARCHAR), '') AS VARCHAR) AS partition,</span>
 <span class="s2">    COUNT(*) AS row_count</span>
-<span class="s2">FROM &#39;</span><span class="si">{</span><span class="n">table_path</span><span class="si">}</span><span class="s2">&#39; </span><span class="si">{</span><span class="n">group_by_clause</span><span class="si">}</span>
-<span class="s2">    &quot;&quot;&quot;</span>  <span class="c1"># noqa: S608</span>
+<span class="s2">FROM '</span><span class="si">{</span><span class="n">table_path</span><span class="si">}</span><span class="s2">' </span><span class="si">{</span><span class="n">group_by_clause</span><span class="si">}</span>
+<span class="s2">    """</span>  <span class="c1"># noqa: S608</span>
 
     <span class="n">new_row_counts</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">duckdb</span><span class="o">.</span><span class="n">sql</span><span class="p">(</span><span class="n">row_count_query</span><span class="p">)</span>
         <span class="o">.</span><span class="n">df</span><span class="p">()</span>
         <span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">table_name</span><span class="o">=</span><span class="n">table_name</span><span class="p">)</span>
-        <span class="o">.</span><span class="n">astype</span><span class="p">({</span><span class="s2">&quot;partition&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span> <span class="s2">&quot;table_name&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">})</span>
-        <span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="p">[</span><span class="s2">&quot;table_name&quot;</span><span class="p">,</span> <span class="s2">&quot;partition&quot;</span><span class="p">,</span> <span class="s2">&quot;row_count&quot;</span><span class="p">]]</span>
+        <span class="o">.</span><span class="n">astype</span><span class="p">({</span><span class="s2">"partition"</span><span class="p">:</span> <span class="s2">"string"</span><span class="p">,</span> <span class="s2">"table_name"</span><span class="p">:</span> <span class="s2">"string"</span><span class="p">})</span>
+        <span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="p">[</span><span class="s2">"table_name"</span><span class="p">,</span> <span class="s2">"partition"</span><span class="p">,</span> <span class="s2">"row_count"</span><span class="p">]]</span>
     <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">new_row_counts</span></div>
@@ -985,8 +985,8 @@ window.runMermaid = runMermaid;</script>
 <span class="k">def</span><span class="w"> </span><span class="nf">_combine_row_counts</span><span class="p">(</span><span class="n">existing</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">new</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
     <span class="k">return</span> <span class="p">(</span>
         <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">existing</span><span class="p">,</span> <span class="n">new</span><span class="p">])</span>
-        <span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;partition&quot;</span><span class="p">,</span> <span class="s2">&quot;table_name&quot;</span><span class="p">],</span> <span class="n">keep</span><span class="o">=</span><span class="s2">&quot;last&quot;</span><span class="p">)</span>
-        <span class="o">.</span><span class="n">sort_values</span><span class="p">([</span><span class="s2">&quot;table_name&quot;</span><span class="p">,</span> <span class="s2">&quot;partition&quot;</span><span class="p">])</span>
+        <span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">"partition"</span><span class="p">,</span> <span class="s2">"table_name"</span><span class="p">],</span> <span class="n">keep</span><span class="o">=</span><span class="s2">"last"</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">sort_values</span><span class="p">([</span><span class="s2">"table_name"</span><span class="p">,</span> <span class="s2">"partition"</span><span class="p">])</span>
     <span class="p">)</span></div>
 
 
@@ -1006,46 +1006,46 @@ window.runMermaid = runMermaid;</script>
     <span class="n">dbt_root</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
     <span class="n">clobber</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UpdateResult</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate updated row counts per partition and write to csv file within dbt project.&quot;&quot;&quot;</span>
-    <span class="n">schema_path</span> <span class="o">=</span> <span class="n">insert_data_source</span><span class="p">(</span><span class="n">dbt_root</span> <span class="o">/</span> <span class="s2">&quot;models&quot;</span><span class="p">,</span> <span class="n">table_name</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;schema.yml&quot;</span>
+<span class="w">    </span><span class="sd">"""Generate updated row counts per partition and write to csv file within dbt project."""</span>
+    <span class="n">schema_path</span> <span class="o">=</span> <span class="n">insert_data_source</span><span class="p">(</span><span class="n">dbt_root</span> <span class="o">/</span> <span class="s2">"models"</span><span class="p">,</span> <span class="n">table_name</span><span class="p">)</span> <span class="o">/</span> <span class="s2">"schema.yml"</span>
     <span class="n">schema</span> <span class="o">=</span> <span class="n">DbtSchema</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span><span class="n">schema_path</span><span class="p">)</span>
     <span class="n">table</span> <span class="o">=</span> <span class="n">schema</span><span class="o">.</span><span class="n">sources</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">tables</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
     <span class="n">partition_expressions</span> <span class="o">=</span> <span class="n">_extract_row_count_partitions</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">partition_expressions</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Only a single row counts test per table is supported, &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;but found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">partition_expressions</span><span class="p">)</span><span class="si">}</span><span class="s2"> in </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="sa">f</span><span class="s2">"Only a single row counts test per table is supported, "</span>
+            <span class="sa">f</span><span class="s2">"but found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">partition_expressions</span><span class="p">)</span><span class="si">}</span><span class="s2"> in </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2">."</span>
         <span class="p">)</span>
 
     <span class="n">has_test</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">partition_expressions</span><span class="p">)</span>
     <span class="n">existing</span> <span class="o">=</span> <span class="n">_get_existing_row_counts</span><span class="p">()</span>
-    <span class="n">has_existing_row_counts</span> <span class="o">=</span> <span class="n">table_name</span> <span class="ow">in</span> <span class="n">existing</span><span class="p">[</span><span class="s2">&quot;table_name&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+    <span class="n">has_existing_row_counts</span> <span class="o">=</span> <span class="n">table_name</span> <span class="ow">in</span> <span class="n">existing</span><span class="p">[</span><span class="s2">"table_name"</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">has_test</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">has_existing_row_counts</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">UpdateResult</span><span class="p">(</span>
             <span class="n">success</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-            <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;No row count test defined for </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2">, and no row counts found, nothing to update.&quot;</span><span class="p">,</span>
+            <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">"No row count test defined for </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2">, and no row counts found, nothing to update."</span><span class="p">,</span>
         <span class="p">)</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">has_test</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">clobber</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">UpdateResult</span><span class="p">(</span>
             <span class="n">success</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-            <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Row counts exist for </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2">, but no row count test is defined. Use clobber to remove.&quot;</span><span class="p">,</span>
+            <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">"Row counts exist for </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2">, but no row count test is defined. Use clobber to remove."</span><span class="p">,</span>
         <span class="p">)</span>
 
     <span class="k">if</span> <span class="n">has_existing_row_counts</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">clobber</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">UpdateResult</span><span class="p">(</span>
             <span class="n">success</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-            <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Row counts for </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2"> already exist. Use clobber to overwrite.&quot;</span><span class="p">,</span>
+            <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">"Row counts for </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2"> already exist. Use clobber to overwrite."</span><span class="p">,</span>
         <span class="p">)</span>
 
     <span class="c1"># At this point, we know row counts can be written: either because no row counts</span>
     <span class="c1"># exist yet, or because clobber is set.</span>
 
     <span class="c1"># In any case, we remove the old row counts for the table we are refreshing</span>
-    <span class="n">filtered</span> <span class="o">=</span> <span class="n">existing</span><span class="p">[</span><span class="n">existing</span><span class="p">[</span><span class="s2">&quot;table_name&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">table_name</span><span class="p">]</span>
-    <span class="n">old</span> <span class="o">=</span> <span class="n">existing</span><span class="p">[</span><span class="n">existing</span><span class="p">[</span><span class="s2">&quot;table_name&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">table_name</span><span class="p">]</span>
+    <span class="n">filtered</span> <span class="o">=</span> <span class="n">existing</span><span class="p">[</span><span class="n">existing</span><span class="p">[</span><span class="s2">"table_name"</span><span class="p">]</span> <span class="o">!=</span> <span class="n">table_name</span><span class="p">]</span>
+    <span class="n">old</span> <span class="o">=</span> <span class="n">existing</span><span class="p">[</span><span class="n">existing</span><span class="p">[</span><span class="s2">"table_name"</span><span class="p">]</span> <span class="o">==</span> <span class="n">table_name</span><span class="p">]</span>
 
     <span class="c1"># At this point, there is no test defined but there are row counts, and overwrite is allowed, so</span>
     <span class="c1"># we want to remove the row counts for this table</span>
@@ -1054,14 +1054,14 @@ window.runMermaid = runMermaid;</script>
         <span class="n">_write_row_counts</span><span class="p">(</span><span class="n">filtered</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">UpdateResult</span><span class="p">(</span>
             <span class="n">success</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-            <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Removed </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">existing</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="n">filtered</span><span class="p">)</span><span class="si">}</span><span class="s2"> outdated row counts for </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2"> (no test defined).&quot;</span><span class="p">,</span>
+            <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">"Removed </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">existing</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="n">filtered</span><span class="p">)</span><span class="si">}</span><span class="s2"> outdated row counts for </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2"> (no test defined)."</span><span class="p">,</span>
         <span class="p">)</span>
 
     <span class="n">partition_expr</span> <span class="o">=</span> <span class="n">partition_expressions</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># TODO: support multiple partitions</span>
     <span class="n">new</span> <span class="o">=</span> <span class="n">_calculate_row_counts</span><span class="p">(</span><span class="n">table_name</span><span class="p">,</span> <span class="n">partition_expr</span><span class="p">)</span>
 
     <span class="c1"># Make old and new row counts comparable so we can detect changes</span>
-    <span class="n">row_count_idx</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;table_name&quot;</span><span class="p">,</span> <span class="s2">&quot;partition&quot;</span><span class="p">]</span>
+    <span class="n">row_count_idx</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"table_name"</span><span class="p">,</span> <span class="s2">"partition"</span><span class="p">]</span>
     <span class="k">if</span> <span class="p">(</span>
         <span class="n">old</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="n">row_count_idx</span><span class="p">)</span>
         <span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -1069,7 +1069,7 @@ window.runMermaid = runMermaid;</script>
     <span class="p">):</span>
         <span class="k">return</span> <span class="n">UpdateResult</span><span class="p">(</span>
             <span class="n">success</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-            <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Row counts for </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2"> are unchanged.&quot;</span><span class="p">,</span>
+            <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">"Row counts for </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2"> are unchanged."</span><span class="p">,</span>
         <span class="p">)</span>
 
     <span class="c1"># Finally, we reach the case where there are actual row counts to update:</span>
@@ -1078,7 +1078,7 @@ window.runMermaid = runMermaid;</script>
 
     <span class="k">return</span> <span class="n">UpdateResult</span><span class="p">(</span>
         <span class="n">success</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Successfully updated row counts for </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2">, partitioned by </span><span class="si">{</span><span class="n">partition_expr</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">,</span>
+        <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">"Successfully updated row counts for </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2">, partitioned by </span><span class="si">{</span><span class="n">partition_expr</span><span class="si">}</span><span class="s2">."</span><span class="p">,</span>
     <span class="p">)</span></div>
 
 
@@ -1086,14 +1086,14 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="maybe_schema_from_path">
 <a class="viewcode-back" href="../../../autoapi/pudl/scripts/dbt_helper/index.html#pudl.scripts.dbt_helper.maybe_schema_from_path">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">maybe_schema_from_path</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DbtSchema</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load DbtSchema that may or may not be located at specified path.</span>
+<span class="w">    </span><span class="sd">"""Load DbtSchema that may or may not be located at specified path.</span>
 
 <span class="sd">    If file is empty or does not exist, returns blank schema.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
         <span class="k">return</span> <span class="n">DbtSchema</span><span class="p">()</span>
-    <span class="k">with</span> <span class="n">path</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+    <span class="k">with</span> <span class="n">path</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s2">""</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">DbtSchema</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">DbtSchema</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span><span class="n">path</span><span class="p">)</span></div>
 
@@ -1105,27 +1105,27 @@ window.runMermaid = runMermaid;</script>
     <span class="n">table_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">dbt_root</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UpdateResult</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate and write out a schema.yaml file defining a new or updated table for dbt.</span>
+<span class="w">    </span><span class="sd">"""Generate and write out a schema.yaml file defining a new or updated table for dbt.</span>
 
 <span class="sd">    Incorporates handwritten models and data tests in corresponding schema.human.yml files,</span>
 <span class="sd">    if present.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">schema_inputs</span> <span class="o">=</span> <span class="n">insert_data_source</span><span class="p">(</span><span class="n">dbt_root</span> <span class="o">/</span> <span class="s2">&quot;schema_inputs&quot;</span><span class="p">,</span> <span class="n">table_name</span><span class="p">)</span>
+<span class="sd">    """</span>
+    <span class="n">schema_inputs</span> <span class="o">=</span> <span class="n">insert_data_source</span><span class="p">(</span><span class="n">dbt_root</span> <span class="o">/</span> <span class="s2">"schema_inputs"</span><span class="p">,</span> <span class="n">table_name</span><span class="p">)</span>
     <span class="n">schema_inputs</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">human_path</span> <span class="o">=</span> <span class="n">schema_inputs</span> <span class="o">/</span> <span class="s2">&quot;schema.human.yml&quot;</span>
+    <span class="n">human_path</span> <span class="o">=</span> <span class="n">schema_inputs</span> <span class="o">/</span> <span class="s2">"schema.human.yml"</span>
     <span class="n">human_schema</span> <span class="o">=</span> <span class="n">maybe_schema_from_path</span><span class="p">(</span><span class="n">human_path</span><span class="p">)</span>
 
     <span class="n">machine_schema</span> <span class="o">=</span> <span class="n">DbtSchema</span><span class="o">.</span><span class="n">from_table_name</span><span class="p">(</span><span class="n">table_name</span><span class="p">)</span>
 
     <span class="n">merged_schema</span> <span class="o">=</span> <span class="n">merge_schema</span><span class="p">(</span><span class="n">machine_schema</span><span class="p">,</span> <span class="n">human_schema</span><span class="p">)</span>
-    <span class="n">model_outputs</span> <span class="o">=</span> <span class="n">insert_data_source</span><span class="p">(</span><span class="n">dbt_root</span> <span class="o">/</span> <span class="s2">&quot;models&quot;</span><span class="p">,</span> <span class="n">table_name</span><span class="p">)</span>
+    <span class="n">model_outputs</span> <span class="o">=</span> <span class="n">insert_data_source</span><span class="p">(</span><span class="n">dbt_root</span> <span class="o">/</span> <span class="s2">"models"</span><span class="p">,</span> <span class="n">table_name</span><span class="p">)</span>
     <span class="n">model_outputs</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">merged_path</span> <span class="o">=</span> <span class="n">model_outputs</span> <span class="o">/</span> <span class="s2">&quot;schema.yml&quot;</span>
+    <span class="n">merged_path</span> <span class="o">=</span> <span class="n">model_outputs</span> <span class="o">/</span> <span class="s2">"schema.yml"</span>
     <span class="n">merged_schema</span><span class="o">.</span><span class="n">to_yaml</span><span class="p">(</span><span class="n">merged_path</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">UpdateResult</span><span class="p">(</span>
         <span class="n">success</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Successfully generated schema </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">,</span>
+        <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">"Successfully generated schema </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2">."</span><span class="p">,</span>
     <span class="p">)</span></div>
 
 
@@ -1143,18 +1143,18 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="_extract_row_count_partitions">
 <a class="viewcode-back" href="../../../autoapi/pudl/scripts/dbt_helper/index.html#pudl.scripts.dbt_helper._extract_row_count_partitions">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_extract_row_count_partitions</span><span class="p">(</span><span class="n">table</span><span class="p">:</span> <span class="n">DbtTable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract partition columns from check_row_counts_per_partition tests in a DbtTable.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Extract partition columns from check_row_counts_per_partition tests in a DbtTable."""</span>
     <span class="n">partitions</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
 
     <span class="k">if</span> <span class="n">table</span><span class="o">.</span><span class="n">data_tests</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">test</span> <span class="ow">in</span> <span class="n">table</span><span class="o">.</span><span class="n">data_tests</span><span class="p">:</span>
-            <span class="k">if</span> <span class="s2">&quot;check_row_counts_per_partition&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">test</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">"check_row_counts_per_partition"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">test</span><span class="p">:</span>
                 <span class="k">continue</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">test</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Row counts test expected to be a dictionary: </span><span class="si">{</span><span class="n">test</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="n">test_def</span> <span class="o">=</span> <span class="n">test</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;check_row_counts_per_partition&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Row counts test expected to be a dictionary: </span><span class="si">{</span><span class="n">test</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="n">test_def</span> <span class="o">=</span> <span class="n">test</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"check_row_counts_per_partition"</span><span class="p">)</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">test_def</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
-                <span class="n">partitions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">test_def</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;arguments&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;partition_expr&quot;</span><span class="p">))</span>
+                <span class="n">partitions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">test_def</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"arguments"</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"partition_expr"</span><span class="p">))</span>
 
     <span class="k">return</span> <span class="n">partitions</span></div>
 
@@ -1164,7 +1164,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="TableUpdateArgs">
 <a class="viewcode-back" href="../../../autoapi/pudl/scripts/dbt_helper/index.html#pudl.scripts.dbt_helper.TableUpdateArgs">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TableUpdateArgs</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Define a single class to collect the args for all table update commands.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Define a single class to collect the args for all table update commands."""</span>
 
 <div class="viewcode-block" id="TableUpdateArgs.tables">
 <a class="viewcode-back" href="../../../autoapi/pudl/scripts/dbt_helper/index.html#pudl.scripts.dbt_helper.TableUpdateArgs.tables">[docs]</a>
@@ -1187,23 +1187,23 @@ window.runMermaid = runMermaid;</script>
 
 <span class="nd">@click</span><span class="o">.</span><span class="n">command</span>
 <span class="nd">@click</span><span class="o">.</span><span class="n">argument</span><span class="p">(</span>
-    <span class="s2">&quot;tables&quot;</span><span class="p">,</span>
+    <span class="s2">"tables"</span><span class="p">,</span>
     <span class="n">nargs</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
-    <span class="s2">&quot;--schema/--no-schema&quot;</span><span class="p">,</span>
+    <span class="s2">"--schema/--no-schema"</span><span class="p">,</span>
     <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Update source table schema.yml configs.&quot;</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">"Update source table schema.yml configs."</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
-    <span class="s2">&quot;--row-counts/--no-row-counts&quot;</span><span class="p">,</span>
+    <span class="s2">"--row-counts/--no-row-counts"</span><span class="p">,</span>
     <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Update source table row count expectations.&quot;</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">"Update source table row count expectations."</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
-    <span class="s2">&quot;--clobber/--no-clobber&quot;</span><span class="p">,</span>
+    <span class="s2">"--clobber/--no-clobber"</span><span class="p">,</span>
     <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Overwrite existing table schema config and row counts. Otherwise, the script will fail if destructive changes are made.&quot;</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">"Overwrite existing table schema config and row counts. Otherwise, the script will fail if destructive changes are made."</span><span class="p">,</span>
 <span class="p">)</span>
 <div class="viewcode-block" id="update_tables">
 <a class="viewcode-back" href="../../../autoapi/pudl/scripts/dbt_helper/index.html#pudl.scripts.dbt_helper.update_tables">[docs]</a>
@@ -1213,14 +1213,14 @@ window.runMermaid = runMermaid;</script>
     <span class="n">schema</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
     <span class="n">row_counts</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Add or update dbt schema configs and row count expectations for PUDL tables.</span>
+<span class="w">    </span><span class="sd">"""Add or update dbt schema configs and row count expectations for PUDL tables.</span>
 
 <span class="sd">    The ``tables`` argument can be a single table name, a list of table names, or</span>
-<span class="sd">    &#39;all&#39;. If &#39;all&#39; the script will update configurations for for all PUDL tables.</span>
+<span class="sd">    'all'. If 'all' the script will update configurations for for all PUDL tables.</span>
 
 <span class="sd">    If ``--clobber`` is set, existing configurations for tables will be overwritten.</span>
 <span class="sd">    if this does not result in deletions.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">args</span> <span class="o">=</span> <span class="n">TableUpdateArgs</span><span class="p">(</span>
         <span class="n">tables</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">tables</span><span class="p">),</span>
         <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">,</span>
@@ -1229,11 +1229,11 @@ window.runMermaid = runMermaid;</script>
     <span class="p">)</span>
 
     <span class="n">tables</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">tables</span>
-    <span class="k">if</span> <span class="s2">&quot;all&quot;</span> <span class="ow">in</span> <span class="n">tables</span><span class="p">:</span>
+    <span class="k">if</span> <span class="s2">"all"</span> <span class="ow">in</span> <span class="n">tables</span><span class="p">:</span>
         <span class="n">tables</span> <span class="o">=</span> <span class="n">ALL_TABLES</span>
     <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">bad_tables</span> <span class="o">:=</span> <span class="p">[</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">tables</span> <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ALL_TABLES</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;The following table(s) could not be found in PUDL metadata: </span><span class="si">{</span><span class="n">bad_tables</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">"The following table(s) could not be found in PUDL metadata: </span><span class="si">{</span><span class="n">bad_tables</span><span class="si">}</span><span class="s2">"</span>
         <span class="p">)</span>
 
     <span class="k">for</span> <span class="n">table_name</span> <span class="ow">in</span> <span class="n">tables</span><span class="p">:</span>
@@ -1257,38 +1257,38 @@ window.runMermaid = runMermaid;</script>
 
 <span class="nd">@click</span><span class="o">.</span><span class="n">command</span><span class="p">()</span>
 <span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
-    <span class="s2">&quot;--select&quot;</span><span class="p">,</span>
-    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;dbt selector for the asset(s) you want to validate. Syntax &quot;</span>
-    <span class="s2">&quot;documentation at https://docs.getdbt.com/reference/node-selection/syntax&quot;</span><span class="p">,</span>
+    <span class="s2">"--select"</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">"dbt selector for the asset(s) you want to validate. Syntax "</span>
+    <span class="s2">"documentation at https://docs.getdbt.com/reference/node-selection/syntax"</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
-    <span class="s2">&quot;--asset-select&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;-a&quot;</span><span class="p">,</span>
+    <span class="s2">"--asset-select"</span><span class="p">,</span>
+    <span class="s2">"-a"</span><span class="p">,</span>
     <span class="n">help</span><span class="o">=</span><span class="p">(</span>
-        <span class="s2">&quot;*DAGSTER* selector for the asset(s) you want to validate. &quot;</span>
-        <span class="s2">&quot;This gets translated into a dbt selection. For example, you can &quot;</span>
-        <span class="s2">&quot;use &#39;+key:</span><span class="se">\&quot;</span><span class="s2">out_eia__yearly_generators</span><span class="se">\&quot;</span><span class="s2">&#39; to validate &quot;</span>
-        <span class="s2">&quot;out_eia_yearly_generators and its upstream assets. Syntax &quot;</span>
-        <span class="s2">&quot;documentation at https://docs.dagster.io/guides/build/assets/asset-selection-syntax/reference &quot;</span>
+        <span class="s2">"*DAGSTER* selector for the asset(s) you want to validate. "</span>
+        <span class="s2">"This gets translated into a dbt selection. For example, you can "</span>
+        <span class="s2">"use '+key:</span><span class="se">\"</span><span class="s2">out_eia__yearly_generators</span><span class="se">\"</span><span class="s2">' to validate "</span>
+        <span class="s2">"out_eia_yearly_generators and its upstream assets. Syntax "</span>
+        <span class="s2">"documentation at https://docs.dagster.io/guides/build/assets/asset-selection-syntax/reference "</span>
     <span class="p">),</span>
 <span class="p">)</span>
 <span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
-    <span class="s2">&quot;--exclude&quot;</span><span class="p">,</span>
-    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;dbt selector for the asset(s) you want to exclude from validation. Syntax &quot;</span>
-    <span class="s2">&quot;documentation at https://docs.getdbt.com/reference/node-selection/syntax&quot;</span><span class="p">,</span>
+    <span class="s2">"--exclude"</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">"dbt selector for the asset(s) you want to exclude from validation. Syntax "</span>
+    <span class="s2">"documentation at https://docs.getdbt.com/reference/node-selection/syntax"</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
-    <span class="s2">&quot;--dry-run/--no-dry-run&quot;</span><span class="p">,</span>
+    <span class="s2">"--dry-run/--no-dry-run"</span><span class="p">,</span>
     <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;If dry, will print out the parameters we would pass to dbt, but not &quot;</span>
-    <span class="s2">&quot;actually run the validation tests. Defaults to not-dry.&quot;</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">"If dry, will print out the parameters we would pass to dbt, but not "</span>
+    <span class="s2">"actually run the validation tests. Defaults to not-dry."</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
-    <span class="s2">&quot;--override-target&quot;</span><span class="p">,</span>
+    <span class="s2">"--override-target"</span><span class="p">,</span>
     <span class="n">help</span><span class="o">=</span><span class="p">(</span>
-        <span class="s2">&quot;Name of the target to use instead of etl-full. &quot;</span>
-        <span class="s2">&quot;Not used for normal development and updates; generally only needed &quot;</span>
-        <span class="s2">&quot;for local debugging of remote CI failures.&quot;</span>
+        <span class="s2">"Name of the target to use instead of etl-full. "</span>
+        <span class="s2">"Not used for normal development and updates; generally only needed "</span>
+        <span class="s2">"for local debugging of remote CI failures."</span>
     <span class="p">),</span>
 <span class="p">)</span>
 <div class="viewcode-block" id="validate">
@@ -1300,7 +1300,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">dry_run</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">override_target</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Validate a selection of dbt nodes.</span>
+<span class="w">    </span><span class="sd">"""Validate a selection of dbt nodes.</span>
 
 <span class="sd">    Wraps the ``dbt build`` command line so we can annotate the result with the</span>
 <span class="sd">    actual data that was returned from the test query.</span>
@@ -1315,62 +1315,62 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">    Run all the checks for one asset:</span>
 
-<span class="sd">        $ dbt_helper validate --asset-select &quot;key:out_eia__yearly_generators&quot;</span>
+<span class="sd">        $ dbt_helper validate --asset-select "key:out_eia__yearly_generators"</span>
 
 <span class="sd">    Run the checks for one specific dbt node:</span>
 
-<span class="sd">        $ dbt_helper validate --select &quot;source:pudl_dbt.pudl.out_eia__yearly_generators&quot;</span>
+<span class="sd">        $ dbt_helper validate --select "source:pudl_dbt.pudl.out_eia__yearly_generators"</span>
 
 <span class="sd">    Run checks for an asset and all its upstream dependencies:</span>
 
-<span class="sd">        $ dbt_helper validate --asset-select &quot;+key:out_eia__yearly_generators&quot;</span>
+<span class="sd">        $ dbt_helper validate --asset-select "+key:out_eia__yearly_generators"</span>
 
 <span class="sd">    Exclude the row count tests:</span>
 
-<span class="sd">        $ dbt_helper validate --asset-select &quot;+key:out_eia__yearly_generators&quot; --exclude &quot;*check_row_counts*&quot;</span>
+<span class="sd">        $ dbt_helper validate --asset-select "+key:out_eia__yearly_generators" --exclude "*check_row_counts*"</span>
 
 
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">select</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">asset_select</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">click</span><span class="o">.</span><span class="n">UsageError</span><span class="p">(</span>
-                <span class="s2">&quot;You can&#39;t pass --select and --asset-select at the same time.&quot;</span>
+                <span class="s2">"You can't pass --select and --asset-select at the same time."</span>
             <span class="p">)</span>
         <span class="n">node_selection</span> <span class="o">=</span> <span class="n">select</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">asset_select</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">node_selection</span> <span class="o">=</span> <span class="n">dagster_to_dbt_selection</span><span class="p">(</span><span class="n">asset_select</span><span class="p">,</span> <span class="n">build_defs</span><span class="p">())</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">node_selection</span> <span class="o">=</span> <span class="s2">&quot;*&quot;</span>
+            <span class="n">node_selection</span> <span class="o">=</span> <span class="s2">"*"</span>
 
     <span class="n">build_params</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;node_selection&quot;</span><span class="p">:</span> <span class="n">node_selection</span><span class="p">,</span>
-        <span class="s2">&quot;node_exclusion&quot;</span><span class="p">:</span> <span class="n">exclude</span><span class="p">,</span>
-        <span class="s2">&quot;dbt_target&quot;</span><span class="p">:</span> <span class="n">override_target</span> <span class="k">if</span> <span class="n">override_target</span> <span class="k">else</span> <span class="s2">&quot;etl-full&quot;</span><span class="p">,</span>
+        <span class="s2">"node_selection"</span><span class="p">:</span> <span class="n">node_selection</span><span class="p">,</span>
+        <span class="s2">"node_exclusion"</span><span class="p">:</span> <span class="n">exclude</span><span class="p">,</span>
+        <span class="s2">"dbt_target"</span><span class="p">:</span> <span class="n">override_target</span> <span class="k">if</span> <span class="n">override_target</span> <span class="k">else</span> <span class="s2">"etl-full"</span><span class="p">,</span>
     <span class="p">}</span>
 
     <span class="k">if</span> <span class="n">dry_run</span><span class="p">:</span>
         <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Dry run - would build with these params: </span><span class="si">{</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">build_params</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">"Dry run - would build with these params: </span><span class="si">{</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">build_params</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
         <span class="p">)</span>
         <span class="k">return</span>
 
     <span class="n">test_result</span> <span class="o">=</span> <span class="n">build_with_context</span><span class="p">(</span><span class="o">**</span><span class="n">build_params</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">test_result</span><span class="o">.</span><span class="n">success</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;failure contexts:</span><span class="se">\n</span><span class="si">{</span><span class="n">test_result</span><span class="o">.</span><span class="n">format_failure_contexts</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">"failure contexts:</span><span class="se">\n</span><span class="si">{</span><span class="n">test_result</span><span class="o">.</span><span class="n">format_failure_contexts</span><span class="p">()</span><span class="si">}</span><span class="s2">"</span>
         <span class="p">)</span></div>
 
 
 
 <span class="nd">@click</span><span class="o">.</span><span class="n">group</span><span class="p">(</span>
-    <span class="n">context_settings</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;help_option_names&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;-h&quot;</span><span class="p">,</span> <span class="s2">&quot;--help&quot;</span><span class="p">]},</span>
+    <span class="n">context_settings</span><span class="o">=</span><span class="p">{</span><span class="s2">"help_option_names"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"-h"</span><span class="p">,</span> <span class="s2">"--help"</span><span class="p">]},</span>
 <span class="p">)</span>
 <div class="viewcode-block" id="main">
 <a class="viewcode-back" href="../../../autoapi/pudl/scripts/dbt_helper/index.html#pudl.scripts.dbt_helper.main">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Script for auto-generating dbt configuration and migrating existing tests.</span>
+<span class="w">    </span><span class="sd">"""Script for auto-generating dbt configuration and migrating existing tests.</span>
 
 <span class="sd">    This CLI currently provides the following sub-commands:</span>
 
@@ -1383,7 +1383,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    validate: run validation tests for a selection of dbt nodes.</span>
 
 <span class="sd">    Run ``dbt_helper {command} --help`` for detailed usage on each command.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="mi">0</span></div>
 
 
@@ -1398,7 +1398,7 @@ window.runMermaid = runMermaid;</script>
 
 
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
     <span class="n">configure_root_logger</span><span class="p">()</span>
     <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
 </pre></div>

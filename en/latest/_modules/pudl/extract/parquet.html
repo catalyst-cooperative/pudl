@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.extract.parquet &#8212; PUDL 2026.8.1.dev18 documentation</title>
+    <title>pudl.extract.parquet &#8212; PUDL 2026.8.1.dev19 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=f2b63aa7"></script>
+    <script src="../../../_static/documentation_options.js?v=5bf64ec1"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev18 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev18 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev19 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev19 documentation - Home"/>
   
   
 </a></div>
@@ -868,7 +868,7 @@ window.runMermaid = runMermaid;</script>
                 <article class="bd-article">
                   
   <h1>Source code for pudl.extract.parquet</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Extractor for Parquet data.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Extractor for Parquet data."""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">io</span>
 
@@ -886,46 +886,46 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="ParquetExtractor">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/parquet/index.html#pudl.extract.parquet.ParquetExtractor">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ParquetExtractor</span><span class="p">(</span><span class="n">GenericExtractor</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Class for extracting dataframes from parquet files.</span>
+<span class="w">    </span><span class="sd">"""Class for extracting dataframes from parquet files.</span>
 
 <span class="sd">    The extraction logic is invoked by calling extract() method of this class.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="ParquetExtractor.source_filename">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/parquet/index.html#pudl.extract.parquet.ParquetExtractor.source_filename">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">source_filename</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">page</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">partition</span><span class="p">:</span> <span class="n">PartitionSelection</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Produce the source Parquet file name as it will appear in the archive.</span>
+<span class="w">        </span><span class="sd">"""Produce the source Parquet file name as it will appear in the archive.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            page: pudl name for the dataset contents, eg &quot;boiler_generator_assn&quot; or</span>
-<span class="sd">                &quot;data&quot;</span>
+<span class="sd">            page: pudl name for the dataset contents, eg "boiler_generator_assn" or</span>
+<span class="sd">                "data"</span>
 <span class="sd">            partition: partition to load. Examples:</span>
-<span class="sd">                {&#39;year&#39;: 2009}</span>
+<span class="sd">                {'year': 2009}</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            string name of the parquet file</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">partition_selection</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="o">.</span><span class="n">_get_partition_selection</span><span class="p">(</span><span class="n">partition</span><span class="p">)</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataset_name</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">partition_selection</span><span class="si">}</span><span class="s2">.parquet&quot;</span></div>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataset_name</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">partition_selection</span><span class="si">}</span><span class="s2">.parquet"</span></div>
 
 
 <div class="viewcode-block" id="ParquetExtractor.load_source">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/parquet/index.html#pudl.extract.parquet.ParquetExtractor.load_source">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">load_source</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">page</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">partition</span><span class="p">:</span> <span class="n">PartitionSelection</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Produce the dataframe object for the given partition.</span>
+<span class="w">        </span><span class="sd">"""Produce the dataframe object for the given partition.</span>
 
 <span class="sd">        This method assumes that the archive includes one unzipped file per partition.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            page: pudl name for the dataset contents, eg &quot;boiler_generator_assn&quot; or</span>
-<span class="sd">                &quot;data&quot;</span>
+<span class="sd">            page: pudl name for the dataset contents, eg "boiler_generator_assn" or</span>
+<span class="sd">                "data"</span>
 <span class="sd">            partition: partition to load. Examples:</span>
-<span class="sd">                {&#39;year&#39;: 2009}</span>
-<span class="sd">                {&#39;year_month&#39;: &#39;2020-08&#39;}</span>
+<span class="sd">                {'year': 2009}</span>
+<span class="sd">                {'year_month': '2020-08'}</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            pd.DataFrame instance containing CSV data</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">get_unique_resource</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataset_name</span><span class="p">,</span> <span class="o">**</span><span class="n">partition</span><span class="p">)</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">res</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">df</span></div>

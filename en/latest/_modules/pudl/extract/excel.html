@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.extract.excel &#8212; PUDL 2026.8.1.dev18 documentation</title>
+    <title>pudl.extract.excel &#8212; PUDL 2026.8.1.dev19 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=f2b63aa7"></script>
+    <script src="../../../_static/documentation_options.js?v=5bf64ec1"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev18 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev18 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev19 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev19 documentation - Home"/>
   
   
 </a></div>
@@ -868,7 +868,7 @@ window.runMermaid = runMermaid;</script>
                 <article class="bd-article">
                   
   <h1>Source code for pudl.extract.excel</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Load excel metadata CSV files form a python data package.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Load excel metadata CSV files form a python data package."""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">pathlib</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">io</span><span class="w"> </span><span class="kn">import</span> <span class="n">BytesIO</span>
@@ -890,7 +890,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="ExcelMetadata">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/excel/index.html#pudl.extract.excel.ExcelMetadata">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ExcelMetadata</span><span class="p">(</span><span class="n">GenericMetadata</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load Excel metadata from Python package data.</span>
+<span class="w">    </span><span class="sd">"""Load Excel metadata from Python package data.</span>
 
 <span class="sd">    Excel sheet files may contain many different tables. When we load those</span>
 <span class="sd">    into dataframes, metadata tells us how to do this. Metadata generally informs</span>
@@ -915,81 +915,81 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">    Optional file:</span>
 
-<span class="sd">    * page_part_map.csv tells us what secondary partition (e.g. &quot;form&quot;) needs to be</span>
+<span class="sd">    * page_part_map.csv tells us what secondary partition (e.g. "form") needs to be</span>
 <span class="sd">      specified to correctly identify the file housing the desired page. This is only</span>
 <span class="sd">      required when a file can only be uniquely located using a combination of</span>
 <span class="sd">      partitions (e.g. form and year).</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="c1"># TODO: we could validate whether metadata is valid for all year. We should have</span>
     <span class="c1"># existing records for each (year, page) -&gt; sheet_name, (year, page) -&gt; skiprows</span>
     <span class="c1"># and for all (year, page) -&gt; column map</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create Metadata object and load metadata from python package.</span>
+<span class="w">        </span><span class="sd">"""Create Metadata object and load metadata from python package.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            dataset_name: Name of the package/dataset to load the metadata from.</span>
 <span class="sd">            Files will be loaded from pudl.package_data.${dataset_name}</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">dataset_name</span><span class="p">)</span>
 <div class="viewcode-block" id="ExcelMetadata._skiprows">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/excel/index.html#pudl.extract.excel.ExcelMetadata._skiprows">[docs]</a>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_skiprows</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_csv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pkg</span><span class="p">,</span> <span class="s2">&quot;skiprows.csv&quot;</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_skiprows</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_csv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pkg</span><span class="p">,</span> <span class="s2">"skiprows.csv"</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ExcelMetadata._skipfooter">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/excel/index.html#pudl.extract.excel.ExcelMetadata._skipfooter">[docs]</a>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_skipfooter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_csv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pkg</span><span class="p">,</span> <span class="s2">&quot;skipfooter.csv&quot;</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_skipfooter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_csv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pkg</span><span class="p">,</span> <span class="s2">"skipfooter.csv"</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ExcelMetadata._sheet_name">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/excel/index.html#pudl.extract.excel.ExcelMetadata._sheet_name">[docs]</a>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_sheet_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_csv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pkg</span><span class="p">,</span> <span class="s2">&quot;page_map.csv&quot;</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sheet_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_csv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pkg</span><span class="p">,</span> <span class="s2">"page_map.csv"</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ExcelMetadata._file_name">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/excel/index.html#pudl.extract.excel.ExcelMetadata._file_name">[docs]</a>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_file_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_csv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pkg</span><span class="p">,</span> <span class="s2">&quot;file_map.csv&quot;</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_file_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_csv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pkg</span><span class="p">,</span> <span class="s2">"file_map.csv"</span><span class="p">)</span></div>
 
         <span class="c1"># Most excel extracted datasets do not have a page to part map. If they</span>
-        <span class="c1"># don&#39;t, assign null.</span>
+        <span class="c1"># don't, assign null.</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_page_part_map</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_csv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pkg</span><span class="p">,</span> <span class="s2">&quot;page_part_map.csv&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_page_part_map</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_csv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pkg</span><span class="p">,</span> <span class="s2">"page_part_map.csv"</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_page_part_map</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
 
 <div class="viewcode-block" id="ExcelMetadata.get_sheet_name">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/excel/index.html#pudl.extract.excel.ExcelMetadata.get_sheet_name">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_sheet_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">page</span><span class="p">,</span> <span class="o">**</span><span class="n">partition</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return name of Excel sheet containing data for given partition and page.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return name of Excel sheet containing data for given partition and page."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sheet_name</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_partition_selection</span><span class="p">(</span><span class="n">partition</span><span class="p">)),</span> <span class="n">page</span><span class="p">]</span></div>
 
 
 <div class="viewcode-block" id="ExcelMetadata.get_skiprows">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/excel/index.html#pudl.extract.excel.ExcelMetadata.get_skiprows">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_skiprows</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">page</span><span class="p">,</span> <span class="o">**</span><span class="n">partition</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return number of header rows to skip when loading a partition and page.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return number of header rows to skip when loading a partition and page."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_skiprows</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_partition_selection</span><span class="p">(</span><span class="n">partition</span><span class="p">)),</span> <span class="n">page</span><span class="p">]</span></div>
 
 
 <div class="viewcode-block" id="ExcelMetadata.get_skipfooter">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/excel/index.html#pudl.extract.excel.ExcelMetadata.get_skipfooter">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_skipfooter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">page</span><span class="p">,</span> <span class="o">**</span><span class="n">partition</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return number of footer rows to skip when loading a partition and page.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return number of footer rows to skip when loading a partition and page."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_skipfooter</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_partition_selection</span><span class="p">(</span><span class="n">partition</span><span class="p">)),</span> <span class="n">page</span><span class="p">]</span></div>
 
 
 <div class="viewcode-block" id="ExcelMetadata.get_file_name">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/excel/index.html#pudl.extract.excel.ExcelMetadata.get_file_name">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_file_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">page</span><span class="p">,</span> <span class="o">**</span><span class="n">partition</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns file name of given partition and page.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Returns file name of given partition and page."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_file_name</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_partition_selection</span><span class="p">(</span><span class="n">partition</span><span class="p">)),</span> <span class="n">page</span><span class="p">]</span></div>
 
 
 <div class="viewcode-block" id="ExcelMetadata.get_form">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/excel/index.html#pudl.extract.excel.ExcelMetadata.get_form">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_form</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">page</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the form name for a given page.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_page_part_map</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">page</span><span class="p">,</span> <span class="s2">&quot;form&quot;</span><span class="p">]</span></div>
+<span class="w">        </span><span class="sd">"""Returns the form name for a given page."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_page_part_map</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">page</span><span class="p">,</span> <span class="s2">"form"</span><span class="p">]</span></div>
 </div>
 
 
@@ -997,7 +997,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="ExcelExtractor">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/excel/index.html#pudl.extract.excel.ExcelExtractor">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ExcelExtractor</span><span class="p">(</span><span class="n">GenericExtractor</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Logic for extracting :class:`pd.DataFrame` from Excel spreadsheets.</span>
+<span class="w">    </span><span class="sd">"""Logic for extracting :class:`pd.DataFrame` from Excel spreadsheets.</span>
 
 <span class="sd">    This class implements the generic dataset agnostic logic to load data</span>
 <span class="sd">    from excel spreadsheet simply by using excel Metadata for given dataset.</span>
@@ -1029,7 +1029,7 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">    5. get_datapackage_resources() if partition is anything other than a year,</span>
 <span class="sd">    this method should be overwritten in the dataset-specific extractor.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="ExcelExtractor.METADATA">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/excel/index.html#pudl.extract.excel.ExcelExtractor.METADATA">[docs]</a>
@@ -1037,11 +1037,11 @@ window.runMermaid = runMermaid;</script>
 
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ds</span><span class="p">:</span> <span class="n">Datastore</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create new extractor object and load metadata.</span>
+<span class="w">        </span><span class="sd">"""Create new extractor object and load metadata.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            ds: An initialized PUDL datastore, or subclass thereof.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
 <div class="viewcode-block" id="ExcelExtractor._metadata">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/excel/index.html#pudl.extract.excel.ExcelExtractor._metadata">[docs]</a>
@@ -1057,7 +1057,7 @@ window.runMermaid = runMermaid;</script>
     <span class="k">def</span><span class="w"> </span><span class="nf">process_raw</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">page</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">partition</span><span class="p">:</span> <span class="n">PartitionSelection</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Transforms raw dataframe and rename columns.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Transforms raw dataframe and rename columns."""</span>
         <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_data_maturity</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">page</span><span class="p">,</span> <span class="o">**</span><span class="n">partition</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="o">.</span><span class="n">get_column_map</span><span class="p">(</span><span class="n">page</span><span class="p">,</span> <span class="o">**</span><span class="n">partition</span><span class="p">))</span></div>
 
@@ -1067,7 +1067,7 @@ window.runMermaid = runMermaid;</script>
     <span class="k">def</span><span class="w"> </span><span class="nf">add_data_maturity</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">page</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">partition</span><span class="p">:</span> <span class="n">PartitionSelection</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add data_maturity column to indicate the maturity of partition data.</span>
+<span class="w">        </span><span class="sd">"""Add data_maturity column to indicate the maturity of partition data.</span>
 
 <span class="sd">        The three options enumerated here are ``final``, ``provisional`` or</span>
 <span class="sd">        ``monthly_update`` (``incremental_ytd`` is not currently implemented). We</span>
@@ -1078,25 +1078,25 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">        This method adds a column and thus adds ``data_maturity`` to</span>
 <span class="sd">        ``self.cols_added``.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">maturity</span> <span class="o">=</span> <span class="s2">&quot;final&quot;</span>
+<span class="sd">        """</span>
+        <span class="n">maturity</span> <span class="o">=</span> <span class="s2">"final"</span>
         <span class="n">file_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">source_filename</span><span class="p">(</span><span class="n">page</span><span class="p">,</span> <span class="o">**</span><span class="n">partition</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset_name</span> <span class="o">==</span> <span class="s2">&quot;eia860m&quot;</span><span class="p">:</span>
-            <span class="n">maturity</span> <span class="o">=</span> <span class="s2">&quot;monthly_update&quot;</span>
-        <span class="c1"># The core EIA923 table we&#39;ve been pulling from has EIA923_Schedules_2_3_4_5_M_</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset_name</span> <span class="o">==</span> <span class="s2">"eia860m"</span><span class="p">:</span>
+            <span class="n">maturity</span> <span class="o">=</span> <span class="s2">"monthly_update"</span>
+        <span class="c1"># The core EIA923 table we've been pulling from has EIA923_Schedules_2_3_4_5_M_</span>
         <span class="c1"># in the beginning, and the environmental info file usually starts with</span>
         <span class="c1"># EIA923_Schedule_8_Annual_Envir_Info (but w/ an r)... So we use EIA923_Schedule</span>
         <span class="c1"># w/o the s and it seems consistent that the file names either end with</span>
-        <span class="c1"># &quot;Early_Release&quot; or &quot;Final&quot; or &quot;Final_Revision&quot;. The ytd files seem to just</span>
+        <span class="c1"># "Early_Release" or "Final" or "Final_Revision". The ytd files seem to just</span>
         <span class="c1"># have early release (w/ or w/o the space)</span>
-        <span class="c1"># We could use r&quot;EIA923_Schedule(.*)(\d{4})(.*)(.xlsx|.xls)&quot; as a pattern for</span>
+        <span class="c1"># We could use r"EIA923_Schedule(.*)(\d{4})(.*)(.xlsx|.xls)" as a pattern for</span>
         <span class="c1"># all recent 923 files, but that seems more brittle.</span>
-        <span class="k">elif</span> <span class="s2">&quot;early&quot;</span> <span class="ow">in</span> <span class="n">file_name</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
-            <span class="n">maturity</span> <span class="o">=</span> <span class="s2">&quot;provisional&quot;</span>
-        <span class="k">elif</span> <span class="p">(</span><span class="s2">&quot;EIA923_Schedule&quot;</span> <span class="ow">in</span> <span class="n">file_name</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="s2">&quot;final&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">file_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()):</span>
-            <span class="n">maturity</span> <span class="o">=</span> <span class="s2">&quot;incremental_ytd&quot;</span>
+        <span class="k">elif</span> <span class="s2">"early"</span> <span class="ow">in</span> <span class="n">file_name</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+            <span class="n">maturity</span> <span class="o">=</span> <span class="s2">"provisional"</span>
+        <span class="k">elif</span> <span class="p">(</span><span class="s2">"EIA923_Schedule"</span> <span class="ow">in</span> <span class="n">file_name</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="s2">"final"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">file_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()):</span>
+            <span class="n">maturity</span> <span class="o">=</span> <span class="s2">"incremental_ytd"</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">data_maturity</span><span class="o">=</span><span class="n">maturity</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">cols_added</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;data_maturity&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cols_added</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"data_maturity"</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">df</span></div>
 
 
@@ -1104,7 +1104,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="ExcelExtractor.get_dtypes">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/excel/index.html#pudl.extract.excel.ExcelExtractor.get_dtypes">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_dtypes</span><span class="p">(</span><span class="n">page</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">partition</span><span class="p">:</span> <span class="n">PartitionSelection</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Provide custom dtypes for given page and partition.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Provide custom dtypes for given page and partition."""</span>
         <span class="k">return</span> <span class="p">{}</span></div>
 
 
@@ -1113,14 +1113,14 @@ window.runMermaid = runMermaid;</script>
     <span class="k">def</span><span class="w"> </span><span class="nf">zipfile_resource_partitions</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">page</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">partition</span><span class="p">:</span> <span class="n">PartitionSelection</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Specify the partitions used for returning a zipfile from the datastore.</span>
+<span class="w">        </span><span class="sd">"""Specify the partitions used for returning a zipfile from the datastore.</span>
 
 <span class="sd">        By default, this method appends any page to partition mapping in</span>
 <span class="sd">        :attr:`METADATA._page_part_map`. Most datasets do not have page to part</span>
 <span class="sd">        maps and just return the same partition that is passed in. If you have</span>
 <span class="sd">        dataset-specific partition mappings that are needed to return a zipfile from the</span>
 <span class="sd">        datastore, override this method to return the desired partitions.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="o">.</span><span class="n">_page_part_map</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
             <span class="n">partition</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="o">.</span><span class="n">_page_part_map</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">page</span><span class="p">])</span>
         <span class="k">return</span> <span class="n">partition</span></div>
@@ -1129,18 +1129,18 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="ExcelExtractor.load_source">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/excel/index.html#pudl.extract.excel.ExcelExtractor.load_source">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">load_source</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">page</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">partition</span><span class="p">:</span> <span class="n">PartitionSelection</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Produce the ExcelFile object for the given (partition, page).</span>
+<span class="w">        </span><span class="sd">"""Produce the ExcelFile object for the given (partition, page).</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            page: pudl name for the dataset contents, eg &quot;boiler_generator_assn&quot; or</span>
-<span class="sd">                &quot;coal_stocks&quot;,</span>
+<span class="sd">            page: pudl name for the dataset contents, eg "boiler_generator_assn" or</span>
+<span class="sd">                "coal_stocks",</span>
 <span class="sd">            partition: partition to load. Examples:</span>
-<span class="sd">                {&#39;year&#39;: 2009}</span>
-<span class="sd">                {&#39;year_month&#39;: &#39;2020-08&#39;}</span>
+<span class="sd">                {'year': 2009}</span>
+<span class="sd">                {'year_month': '2020-08'}</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            pd.DataFrame instance with the parsed Excel spreadsheet frame</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">xlsx_filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">source_filename</span><span class="p">(</span><span class="n">page</span><span class="p">,</span> <span class="o">**</span><span class="n">partition</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">xlsx_filename</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_file_cache</span><span class="p">:</span>
@@ -1151,7 +1151,7 @@ window.runMermaid = runMermaid;</script>
             <span class="p">)</span> <span class="k">as</span> <span class="n">zf</span><span class="p">:</span>
                 <span class="c1"># If loading the excel file from the zip fails then try to open a dbf file.</span>
                 <span class="n">extension</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">xlsx_filename</span><span class="p">)</span><span class="o">.</span><span class="n">suffix</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
-                <span class="k">if</span> <span class="n">extension</span> <span class="o">==</span> <span class="s2">&quot;.dbf&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">extension</span> <span class="o">==</span> <span class="s2">".dbf"</span><span class="p">:</span>
                     <span class="k">with</span> <span class="n">zf</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">xlsx_filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">dbf_filepath</span><span class="p">:</span>
                         <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
                             <span class="nb">iter</span><span class="p">(</span><span class="n">dbfread</span><span class="o">.</span><span class="n">DBF</span><span class="p">(</span><span class="n">xlsx_filename</span><span class="p">,</span> <span class="n">filedata</span><span class="o">=</span><span class="n">dbf_filepath</span><span class="p">))</span>
@@ -1162,11 +1162,11 @@ window.runMermaid = runMermaid;</script>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">try</span><span class="p">:</span>
                         <span class="n">excel_file</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">ExcelFile</span><span class="p">(</span>
-                            <span class="n">BytesIO</span><span class="p">(</span><span class="n">zf</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">xlsx_filename</span><span class="p">)),</span> <span class="n">engine</span><span class="o">=</span><span class="s2">&quot;calamine&quot;</span>
+                            <span class="n">BytesIO</span><span class="p">(</span><span class="n">zf</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">xlsx_filename</span><span class="p">)),</span> <span class="n">engine</span><span class="o">=</span><span class="s2">"calamine"</span>
                         <span class="p">)</span>
                     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
                         <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                            <span class="sa">f</span><span class="s2">&quot;Error while loading page </span><span class="si">{</span><span class="n">page</span><span class="si">}</span><span class="s2">, partition </span><span class="si">{</span><span class="n">partition</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">=}</span><span class="s2">, </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">=}</span><span class="s2">&quot;</span>
+                            <span class="sa">f</span><span class="s2">"Error while loading page </span><span class="si">{</span><span class="n">page</span><span class="si">}</span><span class="s2">, partition </span><span class="si">{</span><span class="n">partition</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">=}</span><span class="s2">, </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">=}</span><span class="s2">"</span>
                         <span class="p">)</span>
                         <span class="k">raise</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_file_cache</span><span class="p">[</span><span class="n">xlsx_filename</span><span class="p">]</span> <span class="o">=</span> <span class="n">excel_file</span>
@@ -1185,18 +1185,18 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="ExcelExtractor.source_filename">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/excel/index.html#pudl.extract.excel.ExcelExtractor.source_filename">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">source_filename</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">page</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">partition</span><span class="p">:</span> <span class="n">PartitionSelection</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Produce the xlsx document file name as it will appear in the archive.</span>
+<span class="w">        </span><span class="sd">"""Produce the xlsx document file name as it will appear in the archive.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            page: pudl name for the dataset contents, eg &quot;boiler_generator_assn&quot; or</span>
-<span class="sd">                &quot;coal_stocks&quot;</span>
+<span class="sd">            page: pudl name for the dataset contents, eg "boiler_generator_assn" or</span>
+<span class="sd">                "coal_stocks"</span>
 <span class="sd">            partition: partition to load. Examples:</span>
-<span class="sd">                {&#39;year&#39;: 2009}</span>
-<span class="sd">                {&#39;year_month&#39;: &#39;2020-08&#39;}</span>
+<span class="sd">                {'year': 2009}</span>
+<span class="sd">                {'year_month': '2020-08'}</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            string name of the xlsx file</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="o">.</span><span class="n">get_file_name</span><span class="p">(</span><span class="n">page</span><span class="p">,</span> <span class="o">**</span><span class="n">partition</span><span class="p">)</span></div>
 </div>
 

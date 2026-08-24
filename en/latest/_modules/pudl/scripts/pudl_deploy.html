@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.scripts.pudl_deploy &#8212; PUDL 2026.8.1.dev18 documentation</title>
+    <title>pudl.scripts.pudl_deploy &#8212; PUDL 2026.8.1.dev19 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=f2b63aa7"></script>
+    <script src="../../../_static/documentation_options.js?v=5bf64ec1"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev18 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev18 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev19 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev19 documentation - Home"/>
   
   
 </a></div>
@@ -868,19 +868,19 @@ window.runMermaid = runMermaid;</script>
                 <article class="bd-article">
                   
   <h1>Source code for pudl.scripts.pudl_deploy</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Deploy PUDL ETL outputs to cloud storage and update git branches.</span>
+<span></span><span class="sd">"""Deploy PUDL ETL outputs to cloud storage and update git branches.</span>
 
 <span class="sd">This CLI orchestrates deployment of completed PUDL ETL builds to public cloud</span>
 <span class="sd">storage (GCS and S3), git branch updates, Zenodo releases, and Cloud Run deployments.</span>
 
-<span class="sd">The script takes a git tag, and an environment option to switch between &#39;staging&#39; and</span>
-<span class="sd">&#39;production&#39; deployments. It will use the git tag to identify builds associated with</span>
+<span class="sd">The script takes a git tag, and an environment option to switch between 'staging' and</span>
+<span class="sd">'production' deployments. It will use the git tag to identify builds associated with</span>
 <span class="sd">the tag, and determine whether the deployment is intended to be a nightly, stable, or</span>
 <span class="sd">branch deployment. It expects nightly deployments to have tags conforming to the pattern</span>
-<span class="sd">&#39;nightly-YYYY-MM-DD&#39;, &#39;branch-YYYY-MM-DD-HHMM-{GIT_HASH}-{MY_BRANCH_NAME}&#39;, or</span>
-<span class="sd">&#39;vYYYY.M.D&#39;. If doing a staging deployment, outputs will be deployed to the same</span>
-<span class="sd">distribution paths as a production deployment, but with a &#39;staging&#39; prefix added to</span>
-<span class="sd">the path (i.e. &#39;s3://pudl.catalyst.coop/staging/nightly&#39;).</span>
+<span class="sd">'nightly-YYYY-MM-DD', 'branch-YYYY-MM-DD-HHMM-{GIT_HASH}-{MY_BRANCH_NAME}', or</span>
+<span class="sd">'vYYYY.M.D'. If doing a staging deployment, outputs will be deployed to the same</span>
+<span class="sd">distribution paths as a production deployment, but with a 'staging' prefix added to</span>
+<span class="sd">the path (i.e. 's3://pudl.catalyst.coop/staging/nightly').</span>
 
 <span class="sd">Examples:</span>
 <span class="sd">    Deploy nightly build to production:</span>
@@ -898,7 +898,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">Staging mode uploads to staging/ prefixed paths and skips git operations, Zenodo</span>
 <span class="sd">triggers, and Cloud Run deployments. This allows safe validation of deployment</span>
 <span class="sd">changes before production use.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
@@ -941,17 +941,17 @@ window.runMermaid = runMermaid;</script>
     <span class="n">github_token</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">stage_results</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">DeployStage</span><span class="p">,</span> <span class="n">StageResult</span><span class="p">],</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Execute stable or nightly deployment workflow.</span>
+<span class="w">    </span><span class="sd">"""Execute stable or nightly deployment workflow.</span>
 
 <span class="sd">    Every decision about what to do -- which paths to upload to, whether to</span>
 <span class="sd">    redeploy Eel Hole, update git branches, trigger a Zenodo release, or set a GCS</span>
 <span class="sd">    temporary hold -- comes from ``plan`` rather than being re-derived here.</span>
 
 <span class="sd">    ``stage_results`` records the status and duration of each stage for Zulip</span>
-<span class="sd">    reporting; &quot;Upload outputs&quot; is a hard prerequisite for the rest (a failure</span>
+<span class="sd">    reporting; "Upload outputs" is a hard prerequisite for the rest (a failure</span>
 <span class="sd">    there raises and aborts the remaining stages, leaving them recorded as</span>
 <span class="sd">    skipped), while the remaining stages are independent of one another.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">run_stage</span><span class="p">(</span>
         <span class="n">stage_fn</span><span class="o">=</span><span class="n">upload_outputs</span><span class="p">,</span>
         <span class="n">stage_name</span><span class="o">=</span><span class="n">DeployStage</span><span class="o">.</span><span class="n">UPLOAD_OUTPUTS</span><span class="p">,</span>
@@ -996,33 +996,33 @@ window.runMermaid = runMermaid;</script>
         <span class="p">)</span>
 
     <span class="k">if</span> <span class="n">plan</span><span class="o">.</span><span class="n">gcs_temporary_hold</span><span class="p">:</span>
-        <span class="n">gcs_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;gs://pudl.catalyst.coop/</span><span class="si">{</span><span class="n">plan</span><span class="o">.</span><span class="n">git_tag</span><span class="si">}</span><span class="s2">/&quot;</span>
+        <span class="n">gcs_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"gs://pudl.catalyst.coop/</span><span class="si">{</span><span class="n">plan</span><span class="o">.</span><span class="n">git_tag</span><span class="si">}</span><span class="s2">/"</span>
         <span class="n">run_stage</span><span class="p">(</span>
             <span class="n">stage_fn</span><span class="o">=</span><span class="n">set_gcs_temporary_hold</span><span class="p">,</span>
             <span class="n">stage_name</span><span class="o">=</span><span class="n">DeployStage</span><span class="o">.</span><span class="n">GCS_TEMPORARY_HOLD</span><span class="p">,</span>
             <span class="n">stage_results</span><span class="o">=</span><span class="n">stage_results</span><span class="p">,</span>
             <span class="n">fail_hard</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
             <span class="n">gcs_path</span><span class="o">=</span><span class="n">gcs_path</span><span class="p">,</span>
-            <span class="n">billing_project</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;GCP_BILLING_PROJECT&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+            <span class="n">billing_project</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"GCP_BILLING_PROJECT"</span><span class="p">,</span> <span class="s2">""</span><span class="p">),</span>
         <span class="p">)</span></div>
 
 
 
 <span class="nd">@click</span><span class="o">.</span><span class="n">command</span><span class="p">(</span>
     <span class="n">help</span><span class="o">=</span><span class="vm">__doc__</span><span class="p">,</span>
-    <span class="n">context_settings</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;help_option_names&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;-h&quot;</span><span class="p">,</span> <span class="s2">&quot;--help&quot;</span><span class="p">]},</span>
+    <span class="n">context_settings</span><span class="o">=</span><span class="p">{</span><span class="s2">"help_option_names"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"-h"</span><span class="p">,</span> <span class="s2">"--help"</span><span class="p">]},</span>
 <span class="p">)</span>
 <span class="nd">@click</span><span class="o">.</span><span class="n">argument</span><span class="p">(</span>
-    <span class="s2">&quot;git-tag&quot;</span><span class="p">,</span>
+    <span class="s2">"git-tag"</span><span class="p">,</span>
     <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
-    <span class="s2">&quot;--environment&quot;</span><span class="p">,</span>
-    <span class="nb">type</span><span class="o">=</span><span class="n">click</span><span class="o">.</span><span class="n">Choice</span><span class="p">([</span><span class="s2">&quot;staging&quot;</span><span class="p">,</span> <span class="s2">&quot;production&quot;</span><span class="p">]),</span>
-    <span class="n">default</span><span class="o">=</span><span class="s2">&quot;staging&quot;</span><span class="p">,</span>
+    <span class="s2">"--environment"</span><span class="p">,</span>
+    <span class="nb">type</span><span class="o">=</span><span class="n">click</span><span class="o">.</span><span class="n">Choice</span><span class="p">([</span><span class="s2">"staging"</span><span class="p">,</span> <span class="s2">"production"</span><span class="p">]),</span>
+    <span class="n">default</span><span class="o">=</span><span class="s2">"staging"</span><span class="p">,</span>
     <span class="n">help</span><span class="o">=</span><span class="p">(</span>
-        <span class="s2">&quot;Switch between a staging and production deployment. If staging this will&quot;</span>
-        <span class="s2">&quot; skip the zenodo cloud run deployments.&quot;</span>
+        <span class="s2">"Switch between a staging and production deployment. If staging this will"</span>
+        <span class="s2">" skip the zenodo cloud run deployments."</span>
     <span class="p">),</span>
     <span class="n">show_default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span>
@@ -1032,9 +1032,9 @@ window.runMermaid = runMermaid;</script>
 <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span>
     <span class="n">ctx</span><span class="p">:</span> <span class="n">click</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span>
     <span class="n">git_tag</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">environment</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;staging&quot;</span><span class="p">,</span> <span class="s2">&quot;production&quot;</span><span class="p">],</span>
+    <span class="n">environment</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"staging"</span><span class="p">,</span> <span class="s2">"production"</span><span class="p">],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Deploy PUDL ETL outputs to cloud storage and external services.</span>
+<span class="w">    </span><span class="sd">"""Deploy PUDL ETL outputs to cloud storage and external services.</span>
 
 <span class="sd">    Orchestrates the full deployment workflow:</span>
 
@@ -1048,12 +1048,12 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    7. Set GCS temporary hold for versioned releases (stable + production only)</span>
 
 <span class="sd">    Saves a log of the deployment and a Zulip stage-status notification, mirroring</span>
-<span class="sd">    the nightly build&#39;s own reporting -- including if step 0 itself fails, e.g. due</span>
+<span class="sd">    the nightly build's own reporting -- including if step 0 itself fails, e.g. due</span>
 <span class="sd">    to an invalid tag or a missing/failed build.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">stage_results</span> <span class="o">=</span> <span class="n">new_deploy_stage_results</span><span class="p">()</span>
     <span class="n">total_start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">monotonic</span><span class="p">()</span>
-    <span class="n">zulip_api_key</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ZULIP_API_KEY&quot;</span><span class="p">)</span>
+    <span class="n">zulip_api_key</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"ZULIP_API_KEY"</span><span class="p">)</span>
     <span class="c1"># Best-effort identifiers for the Zulip notification/log-upload in `finally`,</span>
     <span class="c1"># in case we fail to resolve a real build below -- e.g. an invalid tag, or (far</span>
     <span class="c1"># more likely in practice) a manually-dispatched tag with no matching</span>
@@ -1067,7 +1067,7 @@ window.runMermaid = runMermaid;</script>
         <span class="c1"># Resolving the plan and build runs before any other tracked deploy stage,</span>
         <span class="c1"># so running it through run_stage (rather than as plain, untracked code)</span>
         <span class="c1"># ensures a failure here is recorded as an actual failure -- without that,</span>
-        <span class="c1"># every stage would be left at its default &quot;skipped&quot; status, which</span>
+        <span class="c1"># every stage would be left at its default "skipped" status, which</span>
         <span class="c1"># build_deploy_zulip_message reads as an overall success.</span>
         <span class="n">resolved</span> <span class="o">=</span> <span class="n">run_stage</span><span class="p">(</span>
             <span class="n">stage_fn</span><span class="o">=</span><span class="n">resolve_build</span><span class="p">,</span>
@@ -1076,7 +1076,7 @@ window.runMermaid = runMermaid;</script>
             <span class="n">git_tag</span><span class="o">=</span><span class="n">git_tag</span><span class="p">,</span>
             <span class="n">environment</span><span class="o">=</span><span class="n">environment</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="c1"># run_stage&#39;s default fail_hard=True re-raises on failure instead of</span>
+        <span class="c1"># run_stage's default fail_hard=True re-raises on failure instead of</span>
         <span class="c1"># returning, so reaching this line means resolve_build succeeded.</span>
         <span class="k">assert</span> <span class="n">resolved</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>  <span class="c1"># noqa: S101</span>
         <span class="n">plan</span> <span class="o">=</span> <span class="n">resolved</span><span class="o">.</span><span class="n">plan</span>
@@ -1086,9 +1086,9 @@ window.runMermaid = runMermaid;</script>
         <span class="n">local_logfile</span> <span class="o">=</span> <span class="n">resolved</span><span class="o">.</span><span class="n">local_logfile</span>
 
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Starting deployment for tag: </span><span class="si">{</span><span class="n">git_tag</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;Build path: </span><span class="si">{</span><span class="n">build_path</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;Deployment type: </span><span class="si">{</span><span class="n">plan</span><span class="o">.</span><span class="n">deploy_type</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">"Starting deployment for tag: </span><span class="si">{</span><span class="n">git_tag</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span>
+            <span class="sa">f</span><span class="s2">"Build path: </span><span class="si">{</span><span class="n">build_path</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span>
+            <span class="sa">f</span><span class="s2">"Deployment type: </span><span class="si">{</span><span class="n">plan</span><span class="o">.</span><span class="n">deploy_type</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span>
         <span class="p">)</span>
 
         <span class="n">run_stage</span><span class="p">(</span>
@@ -1110,7 +1110,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">_deploy_outputs</span><span class="p">(</span>
             <span class="n">source_dir</span><span class="o">=</span><span class="n">local_copy_path</span><span class="p">,</span>
             <span class="n">plan</span><span class="o">=</span><span class="n">plan</span><span class="p">,</span>
-            <span class="n">github_token</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;GITHUB_TOKEN&quot;</span><span class="p">],</span>
+            <span class="n">github_token</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">"GITHUB_TOKEN"</span><span class="p">],</span>
             <span class="n">stage_results</span><span class="o">=</span><span class="n">stage_results</span><span class="p">,</span>
         <span class="p">)</span>
     <span class="k">finally</span><span class="p">:</span>
@@ -1122,13 +1122,13 @@ window.runMermaid = runMermaid;</script>
                 <span class="n">stage_results</span><span class="o">=</span><span class="n">stage_results</span><span class="p">,</span>
                 <span class="n">total_duration_seconds</span><span class="o">=</span><span class="n">total_duration</span><span class="p">,</span>
                 <span class="n">deploy_logfile_name</span><span class="o">=</span><span class="p">(</span>
-                    <span class="n">local_logfile</span><span class="o">.</span><span class="n">name</span> <span class="k">if</span> <span class="n">local_logfile</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">&quot;n/a&quot;</span>
+                    <span class="n">local_logfile</span><span class="o">.</span><span class="n">name</span> <span class="k">if</span> <span class="n">local_logfile</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">"n/a"</span>
                 <span class="p">),</span>
-                <span class="n">batch_job_name</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;BATCH_JOB_NAME&quot;</span><span class="p">),</span>
+                <span class="n">batch_job_name</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"BATCH_JOB_NAME"</span><span class="p">),</span>
             <span class="p">)</span>
             <span class="n">send_zulip_message</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">api_key</span><span class="o">=</span><span class="n">zulip_api_key</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Skipping Zulip notification: ZULIP_API_KEY is unset.&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">"Skipping Zulip notification: ZULIP_API_KEY is unset."</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="p">(</span>
             <span class="n">build_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
@@ -1136,17 +1136,17 @@ window.runMermaid = runMermaid;</script>
             <span class="ow">and</span> <span class="n">local_logfile</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
         <span class="p">):</span>
             <span class="n">build_path</span><span class="o">.</span><span class="n">fs</span><span class="o">.</span><span class="n">put_file</span><span class="p">(</span>
-                <span class="nb">str</span><span class="p">(</span><span class="n">local_logfile</span><span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">build_path</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">local_logfile</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="nb">str</span><span class="p">(</span><span class="n">local_logfile</span><span class="p">),</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">build_path</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">local_logfile</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">"</span>
             <span class="p">)</span>
 
     <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="n">StageStatus</span><span class="o">.</span><span class="n">FAILURE</span> <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">stage_results</span><span class="o">.</span><span class="n">values</span><span class="p">()):</span>
         <span class="n">ctx</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Deployment completed successfully&quot;</span><span class="p">)</span></div>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Deployment completed successfully"</span><span class="p">)</span></div>
 
 
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
     <span class="n">main</span><span class="p">()</span>
 </pre></div>
 

@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.metadata.resources.rus12 &#8212; PUDL 2026.8.1.dev18 documentation</title>
+    <title>pudl.metadata.resources.rus12 &#8212; PUDL 2026.8.1.dev19 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../../_static/documentation_options.js?v=f2b63aa7"></script>
+    <script src="../../../../_static/documentation_options.js?v=5bf64ec1"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev18 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev18 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev19 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev19 documentation - Home"/>
   
   
 </a></div>
@@ -871,7 +871,7 @@ window.runMermaid = runMermaid;</script>
                 <article class="bd-article">
                   
   <h1>Source code for pudl.metadata.resources.rus12</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Table definitions for the RUS12 tables.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Table definitions for the RUS12 tables."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.resource_helpers</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">HARVESTED_CORE_TABLES_RUS7</span><span class="p">,</span>
@@ -884,842 +884,842 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="PLANT_OPERATIONS_DETAIL">
 <a class="viewcode-back" href="../../../../autoapi/pudl/metadata/resources/rus12/index.html#pudl.metadata.resources.rus12.PLANT_OPERATIONS_DETAIL">[docs]</a>
 <span class="n">PLANT_OPERATIONS_DETAIL</span> <span class="o">=</span> <span class="p">(</span>
-    <span class="s2">&quot;The data in this table comes from five different portions of RUS 12 &quot;</span>
-    <span class="s2">&quot;corresponding to different plant types (steam, hydroelectric, &quot;</span>
-    <span class="s2">&quot;combined_cycle, internal_combustion and nuclear).</span><span class="se">\n</span><span class="s2">&quot;</span>
-    <span class="s2">&quot;The original form &quot;</span>
-    <span class="s2">&quot;includes plant operations data for each plant type reported in multiple ways: with &quot;</span>
-    <span class="s2">&quot;records corresponding to the portion of plants that borrowers own as well as the &quot;</span>
-    <span class="s2">&quot;whole plant. We split these records into two tables, &quot;</span>
-    <span class="s2">&quot;:ref:`core_rus12__yearly_plant_operations_by_borrower`, which contains records &quot;</span>
-    <span class="s2">&quot;reported at the borrower level, and  &quot;</span>
-    <span class="s2">&quot;:ref:`core_rus12__yearly_plant_operations_by_plant`, which contains records reported &quot;</span>
-    <span class="s2">&quot;at the plant level.&quot;</span>
-    <span class="s2">&quot;Records that are wholly owned by one borrower show up in both &quot;</span>
-    <span class="s2">&quot;:ref:`core_rus12__yearly_plant_operations_by_borrower` and &quot;</span>
-    <span class="s2">&quot;:ref:`core_rus12__yearly_plant_operations_by_plant`.</span><span class="se">\n\n</span><span class="s2">&quot;</span>
-    <span class="s2">&quot;There are two boolean columns used to delineate which records are associated &quot;</span>
-    <span class="s2">&quot;with the borrowers&#39; share vs the whole plant - which is documented in &quot;</span>
-    <span class="s2">&quot;``_OR_PowerSupply Plant File Documentation.rtf`` in the newer years in the &quot;</span>
-    <span class="s2">&quot;RUS 12 archive. One of these two fields - ``is_partly_owned_by_borrower`` - &quot;</span>
-    <span class="s2">&quot;was not reported before 2009. For the pre-2009 years, we assume that all records &quot;</span>
-    <span class="s2">&quot;that report TRUE for is_full_ownership_portion should end up in the by-plant table &quot;</span>
-    <span class="s2">&quot;while all records should end up in the by-borrower portion of the table.&quot;</span>
-    <span class="s2">&quot;Like the post-2009 records, this involves records from the original tables ending &quot;</span>
-    <span class="s2">&quot;up in both of these PUDL tables.</span><span class="se">\n\n</span><span class="s2">&quot;</span>
-    <span class="s2">&quot;Also there are two cleaning steps that we performed that alter the original data &quot;</span>
-    <span class="s2">&quot;slightly:</span><span class="se">\n\n</span><span class="s2">&quot;</span>
-    <span class="s2">&quot;* **One dropped with unexpected ownership label and duplicate data**: There is a &quot;</span>
-    <span class="s2">&quot;  Wisdom steam plant record that is labeled to be both fully owned by borrower &quot;</span>
-    <span class="s2">&quot;  and partly owned for one year, which is an unexpected combo based on the &quot;</span>
-    <span class="s2">&quot;  `_OR_PowerSupply Plant File Documentation.rst` documentation file in the rus12 &quot;</span>
-    <span class="s2">&quot;  archive. Luckily this plant has exactly the same records as the other Wisdom steam&quot;</span>
-    <span class="s2">&quot;  plant that year with more expected ownership labels.&quot;</span>
-    <span class="s2">&quot;* **Replaced two string values for unit_id_rus**: There are two instances from 2018 &quot;</span>
-    <span class="s2">&quot;  of unit_id_rus&#39;s that have string values in them - ``WSL GT 12`` and ``WSL ST 10``. &quot;</span>
-    <span class="s2">&quot;  Based on pre-cleaned data, we were able to clearly identify that we can use just &quot;</span>
-    <span class="s2">&quot;  the numeric values in these bad strings - 12 and 10 respectively. This enables us &quot;</span>
-    <span class="s2">&quot;  to have an integer type for this unit_id_rus column.&quot;</span>
+    <span class="s2">"The data in this table comes from five different portions of RUS 12 "</span>
+    <span class="s2">"corresponding to different plant types (steam, hydroelectric, "</span>
+    <span class="s2">"combined_cycle, internal_combustion and nuclear).</span><span class="se">\n</span><span class="s2">"</span>
+    <span class="s2">"The original form "</span>
+    <span class="s2">"includes plant operations data for each plant type reported in multiple ways: with "</span>
+    <span class="s2">"records corresponding to the portion of plants that borrowers own as well as the "</span>
+    <span class="s2">"whole plant. We split these records into two tables, "</span>
+    <span class="s2">":ref:`core_rus12__yearly_plant_operations_by_borrower`, which contains records "</span>
+    <span class="s2">"reported at the borrower level, and  "</span>
+    <span class="s2">":ref:`core_rus12__yearly_plant_operations_by_plant`, which contains records reported "</span>
+    <span class="s2">"at the plant level."</span>
+    <span class="s2">"Records that are wholly owned by one borrower show up in both "</span>
+    <span class="s2">":ref:`core_rus12__yearly_plant_operations_by_borrower` and "</span>
+    <span class="s2">":ref:`core_rus12__yearly_plant_operations_by_plant`.</span><span class="se">\n\n</span><span class="s2">"</span>
+    <span class="s2">"There are two boolean columns used to delineate which records are associated "</span>
+    <span class="s2">"with the borrowers' share vs the whole plant - which is documented in "</span>
+    <span class="s2">"``_OR_PowerSupply Plant File Documentation.rtf`` in the newer years in the "</span>
+    <span class="s2">"RUS 12 archive. One of these two fields - ``is_partly_owned_by_borrower`` - "</span>
+    <span class="s2">"was not reported before 2009. For the pre-2009 years, we assume that all records "</span>
+    <span class="s2">"that report TRUE for is_full_ownership_portion should end up in the by-plant table "</span>
+    <span class="s2">"while all records should end up in the by-borrower portion of the table."</span>
+    <span class="s2">"Like the post-2009 records, this involves records from the original tables ending "</span>
+    <span class="s2">"up in both of these PUDL tables.</span><span class="se">\n\n</span><span class="s2">"</span>
+    <span class="s2">"Also there are two cleaning steps that we performed that alter the original data "</span>
+    <span class="s2">"slightly:</span><span class="se">\n\n</span><span class="s2">"</span>
+    <span class="s2">"* **One dropped with unexpected ownership label and duplicate data**: There is a "</span>
+    <span class="s2">"  Wisdom steam plant record that is labeled to be both fully owned by borrower "</span>
+    <span class="s2">"  and partly owned for one year, which is an unexpected combo based on the "</span>
+    <span class="s2">"  `_OR_PowerSupply Plant File Documentation.rst` documentation file in the rus12 "</span>
+    <span class="s2">"  archive. Luckily this plant has exactly the same records as the other Wisdom steam"</span>
+    <span class="s2">"  plant that year with more expected ownership labels."</span>
+    <span class="s2">"* **Replaced two string values for unit_id_rus**: There are two instances from 2018 "</span>
+    <span class="s2">"  of unit_id_rus's that have string values in them - ``WSL GT 12`` and ``WSL ST 10``. "</span>
+    <span class="s2">"  Based on pre-cleaned data, we were able to clearly identify that we can use just "</span>
+    <span class="s2">"  the numeric values in these bad strings - 12 and 10 respectively. This enables us "</span>
+    <span class="s2">"  to have an integer type for this unit_id_rus column."</span>
 <span class="p">)</span></div>
 
-<span class="c1"># This is the base resource metadata. We&#39;ll add all of the output versions of the harvested</span>
+<span class="c1"># This is the base resource metadata. We'll add all of the output versions of the harvested</span>
 <span class="c1"># core tables below using core_to_out_resources</span>
 <div class="viewcode-block" id="RESOURCE_METADATA_BASE">
 <a class="viewcode-back" href="../../../../autoapi/pudl/metadata/resources/rus12/index.html#pudl.metadata.resources.rus12.RESOURCE_METADATA_BASE">[docs]</a>
 <span class="n">RESOURCE_METADATA_BASE</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;core_rus12__yearly_meeting_and_board&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;annual meeting and board information for RUS borrowers.&quot;</span>
+    <span class="s2">"core_rus12__yearly_meeting_and_board"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"annual meeting and board information for RUS borrowers."</span>
             <span class="p">),</span>
-            <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Part H - Section I)&quot;</span><span class="p">,</span>
+            <span class="s2">"additional_source_text"</span><span class="p">:</span> <span class="s2">"(Part H - Section I)"</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;last_annual_meeting_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;members_num&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;members_present_at_meeting_num&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;was_quorum_present&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;members_voting_by_proxy_or_mail_num&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;board_members_num&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;fees_and_expenses_for_board_members&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;does_manager_have_written_contract&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"borrower_id_rus"</span><span class="p">,</span>
+                <span class="s2">"last_annual_meeting_date"</span><span class="p">,</span>
+                <span class="s2">"members_num"</span><span class="p">,</span>
+                <span class="s2">"members_present_at_meeting_num"</span><span class="p">,</span>
+                <span class="s2">"was_quorum_present"</span><span class="p">,</span>
+                <span class="s2">"members_voting_by_proxy_or_mail_num"</span><span class="p">,</span>
+                <span class="s2">"board_members_num"</span><span class="p">,</span>
+                <span class="s2">"fees_and_expenses_for_board_members"</span><span class="p">,</span>
+                <span class="s2">"does_manager_have_written_contract"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">,</span> <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">],</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"report_date"</span><span class="p">,</span> <span class="s2">"borrower_id_rus"</span><span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;rus12&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;rus12&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;rus&quot;</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"rus12"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"rus12"</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"rus"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_rus12__yearly_balance_sheet_assets&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;assets and other debts from the balance sheet.&quot;</span>
+    <span class="s2">"core_rus12__yearly_balance_sheet_assets"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"assets and other debts from the balance sheet."</span>
             <span class="p">),</span>
-            <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;aggregation_hazard&quot;</span><span class="p">],</span>
-            <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Part A - Section B)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="s2">"usage_warnings"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"aggregation_hazard"</span><span class="p">],</span>
+            <span class="s2">"additional_source_text"</span><span class="p">:</span> <span class="s2">"(Part A - Section B)"</span><span class="p">,</span>
+            <span class="s2">"additional_details_text"</span><span class="p">:</span> <span class="s2">""</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;asset_type&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;ending_balance&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;is_total&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"borrower_id_rus"</span><span class="p">,</span>
+                <span class="s2">"asset_type"</span><span class="p">,</span>
+                <span class="s2">"ending_balance"</span><span class="p">,</span>
+                <span class="s2">"is_total"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;asset_type&quot;</span><span class="p">,</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"borrower_id_rus"</span><span class="p">,</span>
+                <span class="s2">"asset_type"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;rus12&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;rus12&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;rus&quot;</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"rus12"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"rus12"</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"rus"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_rus12__yearly_balance_sheet_liabilities&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;liabilities and other credits from the balance sheet.&quot;</span>
+    <span class="s2">"core_rus12__yearly_balance_sheet_liabilities"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"liabilities and other credits from the balance sheet."</span>
             <span class="p">),</span>
-            <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;aggregation_hazard&quot;</span><span class="p">],</span>
-            <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Part A - Section B)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="s2">"usage_warnings"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"aggregation_hazard"</span><span class="p">],</span>
+            <span class="s2">"additional_source_text"</span><span class="p">:</span> <span class="s2">"(Part A - Section B)"</span><span class="p">,</span>
+            <span class="s2">"additional_details_text"</span><span class="p">:</span> <span class="s2">""</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;liability_type&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;ending_balance&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;is_total&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"borrower_id_rus"</span><span class="p">,</span>
+                <span class="s2">"liability_type"</span><span class="p">,</span>
+                <span class="s2">"ending_balance"</span><span class="p">,</span>
+                <span class="s2">"is_total"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;liability_type&quot;</span><span class="p">,</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"borrower_id_rus"</span><span class="p">,</span>
+                <span class="s2">"liability_type"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;rus12&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;rus12&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;rus&quot;</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"rus12"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"rus12"</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"rus"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_rus12__yearly_long_term_debt&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;long-term debt and debt service requirements for RUS borrowers.&quot;</span>
+    <span class="s2">"core_rus12__yearly_long_term_debt"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"long-term debt and debt service requirements for RUS borrowers."</span>
             <span class="p">),</span>
-            <span class="s2">&quot;additional_primary_key_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;This table has no primary key because some borrowers report multiple debt values from &quot;</span>
-                <span class="s2">&quot;the same entity in a given year.&quot;</span>
+            <span class="s2">"additional_primary_key_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"This table has no primary key because some borrowers report multiple debt values from "</span>
+                <span class="s2">"the same entity in a given year."</span>
             <span class="p">),</span>
-            <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Part H - Section H)&quot;</span><span class="p">,</span>
+            <span class="s2">"additional_source_text"</span><span class="p">:</span> <span class="s2">"(Part H - Section H)"</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;debt_description&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;debt_ending_balance&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;debt_interest&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;debt_principal&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;debt_total&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"borrower_id_rus"</span><span class="p">,</span>
+                <span class="s2">"debt_description"</span><span class="p">,</span>
+                <span class="s2">"debt_ending_balance"</span><span class="p">,</span>
+                <span class="s2">"debt_interest"</span><span class="p">,</span>
+                <span class="s2">"debt_principal"</span><span class="p">,</span>
+                <span class="s2">"debt_total"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;rus12&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;rus12&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;rus&quot;</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"rus12"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"rus12"</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"rus"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_rus12__entity_borrowers&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;active RUS borrowers.&quot;</span><span class="p">),</span>
-            <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;harvested_rus&quot;</span><span class="p">],</span>
-            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;This table contains canonical values for borrowers are set. It contains &quot;</span>
-                <span class="s2">&quot;values which are expected to remain fixed over time.&quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">HARVESTING_DETAIL_TEXT_RUS</span><span class="si">}</span><span class="s2">.</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+    <span class="s2">"core_rus12__entity_borrowers"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"active RUS borrowers."</span><span class="p">),</span>
+            <span class="s2">"usage_warnings"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"harvested_rus"</span><span class="p">],</span>
+            <span class="s2">"additional_details_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"This table contains canonical values for borrowers are set. It contains "</span>
+                <span class="s2">"values which are expected to remain fixed over time."</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">HARVESTING_DETAIL_TEXT_RUS</span><span class="si">}</span><span class="s2">.</span><span class="se">\n\n</span><span class="s2">"</span>
                 <span class="c1"># note from readme about this table</span>
-                <span class="s2">&quot;This table contains all of the Active Distribution Borrowers as of each report year &quot;</span>
-                <span class="s2">&quot;who were eligible to report to RUS Form 12.  If these Borrowers have reported to RUS &quot;</span>
-                <span class="s2">&quot;they will have records in the enclosed data tables, however a small number of these &quot;</span>
-                <span class="s2">&quot;Borrowers did not report for various reasons and these Borrowers will not be represented &quot;</span>
-                <span class="s2">&quot;in any of the other tables.&quot;</span>
+                <span class="s2">"This table contains all of the Active Distribution Borrowers as of each report year "</span>
+                <span class="s2">"who were eligible to report to RUS Form 12.  If these Borrowers have reported to RUS "</span>
+                <span class="s2">"they will have records in the enclosed data tables, however a small number of these "</span>
+                <span class="s2">"Borrowers did not report for various reasons and these Borrowers will not be represented "</span>
+                <span class="s2">"in any of the other tables."</span>
             <span class="p">),</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;borrower_name_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;state&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"borrower_id_rus"</span><span class="p">,</span>
+                <span class="s2">"borrower_name_rus"</span><span class="p">,</span>
+                <span class="s2">"state"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">],</span>
-            <span class="s2">&quot;foreign_key_rules&quot;</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[[</span><span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">]],</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"borrower_id_rus"</span><span class="p">],</span>
+            <span class="s2">"foreign_key_rules"</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[[</span><span class="s2">"borrower_id_rus"</span><span class="p">]],</span>
                 <span class="c1"># We must remove all of the rus12 tables - otherwise</span>
                 <span class="c1"># these would get a FK relationship from this rus7 table</span>
-                <span class="s2">&quot;exclude&quot;</span><span class="p">:</span> <span class="p">[</span>
-                    <span class="s2">&quot;core_rus7__entity_borrowers&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;_core_rus7__forensics_entity_resolution_borrowers&quot;</span><span class="p">,</span>
+                <span class="s2">"exclude"</span><span class="p">:</span> <span class="p">[</span>
+                    <span class="s2">"core_rus7__entity_borrowers"</span><span class="p">,</span>
+                    <span class="s2">"_core_rus7__forensics_entity_resolution_borrowers"</span><span class="p">,</span>
                 <span class="p">]</span>
                 <span class="o">+</span> <span class="n">HARVESTED_CORE_TABLES_RUS7</span>
                 <span class="o">+</span> <span class="p">[</span>
-                    <span class="sa">f</span><span class="s2">&quot;out_</span><span class="si">{</span><span class="n">tbl</span><span class="o">.</span><span class="n">removeprefix</span><span class="p">(</span><span class="s1">&#39;core_&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="sa">f</span><span class="s2">"out_</span><span class="si">{</span><span class="n">tbl</span><span class="o">.</span><span class="n">removeprefix</span><span class="p">(</span><span class="s1">'core_'</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
                     <span class="k">for</span> <span class="n">tbl</span> <span class="ow">in</span> <span class="n">HARVESTED_CORE_TABLES_RUS7</span>
                 <span class="p">],</span>
             <span class="p">},</span>
         <span class="p">},</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;rus12&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;rus12&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;rus&quot;</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"rus12"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"rus12"</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"rus"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_rus12__yearly_renewable_plants&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;renewable energy plant generation information for RUS borrowers.&quot;</span>
+    <span class="s2">"core_rus12__yearly_renewable_plants"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"renewable energy plant generation information for RUS borrowers."</span>
             <span class="p">),</span>
-            <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Part C RE)&quot;</span><span class="p">,</span>
+            <span class="s2">"additional_source_text"</span><span class="p">:</span> <span class="s2">"(Part C RE)"</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;plant_name_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;prime_mover_id&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;prime_mover_type&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;primary_renewable_fuel_type_id&quot;</span><span class="p">,</span>  <span class="c1"># could maybe get rid of this?</span>
-                <span class="s2">&quot;primary_renewable_fuel_type&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;renewable_fuel_pct&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;capacity_mw&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;net_generation_mwh&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;capacity_factor&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;employees_num&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;opex_per_mwh&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;power_cost_per_mwh&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;invested&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;ownership_pct&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;rus_funding&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;comments&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"borrower_id_rus"</span><span class="p">,</span>
+                <span class="s2">"plant_name_rus"</span><span class="p">,</span>
+                <span class="s2">"prime_mover_id"</span><span class="p">,</span>
+                <span class="s2">"prime_mover_type"</span><span class="p">,</span>
+                <span class="s2">"primary_renewable_fuel_type_id"</span><span class="p">,</span>  <span class="c1"># could maybe get rid of this?</span>
+                <span class="s2">"primary_renewable_fuel_type"</span><span class="p">,</span>
+                <span class="s2">"renewable_fuel_pct"</span><span class="p">,</span>
+                <span class="s2">"capacity_mw"</span><span class="p">,</span>
+                <span class="s2">"net_generation_mwh"</span><span class="p">,</span>
+                <span class="s2">"capacity_factor"</span><span class="p">,</span>
+                <span class="s2">"employees_num"</span><span class="p">,</span>
+                <span class="s2">"opex_per_mwh"</span><span class="p">,</span>
+                <span class="s2">"power_cost_per_mwh"</span><span class="p">,</span>
+                <span class="s2">"invested"</span><span class="p">,</span>
+                <span class="s2">"ownership_pct"</span><span class="p">,</span>
+                <span class="s2">"rus_funding"</span><span class="p">,</span>
+                <span class="s2">"comments"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;plant_name_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;prime_mover_id&quot;</span><span class="p">,</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"borrower_id_rus"</span><span class="p">,</span>
+                <span class="s2">"plant_name_rus"</span><span class="p">,</span>
+                <span class="s2">"prime_mover_id"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;rus12&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;rus12&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;rus&quot;</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"rus12"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"rus12"</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"rus"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_rus12__yearly_lines_stations_labor_materials_cost&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;labor and material cost for lines and stations operated by RUS borrowers.&quot;</span>
+    <span class="s2">"core_rus12__yearly_lines_stations_labor_materials_cost"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"labor and material cost for lines and stations operated by RUS borrowers."</span>
             <span class="p">),</span>
-            <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Part I - Section C)&quot;</span><span class="p">,</span>
+            <span class="s2">"additional_source_text"</span><span class="p">:</span> <span class="s2">"(Part I - Section C)"</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;labor_or_material&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;operation_or_maintenance&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;lines_or_stations&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;cost&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"borrower_id_rus"</span><span class="p">,</span>
+                <span class="s2">"labor_or_material"</span><span class="p">,</span>
+                <span class="s2">"operation_or_maintenance"</span><span class="p">,</span>
+                <span class="s2">"lines_or_stations"</span><span class="p">,</span>
+                <span class="s2">"cost"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;labor_or_material&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;operation_or_maintenance&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;lines_or_stations&quot;</span><span class="p">,</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"borrower_id_rus"</span><span class="p">,</span>
+                <span class="s2">"labor_or_material"</span><span class="p">,</span>
+                <span class="s2">"operation_or_maintenance"</span><span class="p">,</span>
+                <span class="s2">"lines_or_stations"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;rus12&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;rus12&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;rus&quot;</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"rus12"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"rus12"</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"rus"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_rus12__yearly_sources_and_distribution_by_plant_type&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;capacity, plant num, MWh, and cost of energy by plant type for RUS borrowers.&quot;</span>
+    <span class="s2">"core_rus12__yearly_sources_and_distribution_by_plant_type"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"capacity, plant num, MWh, and cost of energy by plant type for RUS borrowers."</span>
             <span class="p">),</span>
-            <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Part C)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="s2">"additional_source_text"</span><span class="p">:</span> <span class="s2">"(Part C)"</span><span class="p">,</span>
+            <span class="s2">"additional_details_text"</span><span class="p">:</span> <span class="s2">""</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;plant_type&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;capacity_mw&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;plant_num&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;cost&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;net_energy_received_mwh&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"borrower_id_rus"</span><span class="p">,</span>
+                <span class="s2">"plant_type"</span><span class="p">,</span>
+                <span class="s2">"capacity_mw"</span><span class="p">,</span>
+                <span class="s2">"plant_num"</span><span class="p">,</span>
+                <span class="s2">"cost"</span><span class="p">,</span>
+                <span class="s2">"net_energy_received_mwh"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;plant_type&quot;</span><span class="p">,</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"borrower_id_rus"</span><span class="p">,</span>
+                <span class="s2">"plant_type"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;rus12&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;rus12&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;rus&quot;</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"rus12"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"rus12"</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"rus"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_rus12__yearly_sources_and_distribution&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;MWh and cost of energy sources and distribution by RUS borrowers.&quot;</span>
+    <span class="s2">"core_rus12__yearly_sources_and_distribution"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"MWh and cost of energy sources and distribution by RUS borrowers."</span>
             <span class="p">),</span>
-            <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Part C)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;See the ``sources_and_distribution_by_plant_type`` table for &quot;</span>
-                <span class="s2">&quot;a breakdown of plant-type-specific cost, capacity, plant_num, &quot;</span>
-                <span class="s2">&quot;and net_energy_received values. &quot;</span>
-                <span class="s2">&quot;Also note that there are several ``source_of_energy`` values &quot;</span>
-                <span class="s2">&quot;that don&#39;t have a corresponding cost value.&quot;</span>
+            <span class="s2">"additional_source_text"</span><span class="p">:</span> <span class="s2">"(Part C)"</span><span class="p">,</span>
+            <span class="s2">"additional_details_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"See the ``sources_and_distribution_by_plant_type`` table for "</span>
+                <span class="s2">"a breakdown of plant-type-specific cost, capacity, plant_num, "</span>
+                <span class="s2">"and net_energy_received values. "</span>
+                <span class="s2">"Also note that there are several ``source_of_energy`` values "</span>
+                <span class="s2">"that don't have a corresponding cost value."</span>
             <span class="p">),</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;source_of_energy&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;net_energy_received_mwh&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;cost&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"borrower_id_rus"</span><span class="p">,</span>
+                <span class="s2">"source_of_energy"</span><span class="p">,</span>
+                <span class="s2">"net_energy_received_mwh"</span><span class="p">,</span>
+                <span class="s2">"cost"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;source_of_energy&quot;</span><span class="p">,</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"borrower_id_rus"</span><span class="p">,</span>
+                <span class="s2">"source_of_energy"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;rus12&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;rus12&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;rus&quot;</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"rus12"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"rus12"</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"rus"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_rus12__yearly_loans&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;loans provided by RUS borrowers.&quot;</span><span class="p">),</span>
-            <span class="s2">&quot;additional_primary_key_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;This table has no primary key because some borrowers report multiple loan values from &quot;</span>
-                <span class="s2">&quot;the same entity in a given year.&quot;</span>
+    <span class="s2">"core_rus12__yearly_loans"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"loans provided by RUS borrowers."</span><span class="p">),</span>
+            <span class="s2">"additional_primary_key_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"This table has no primary key because some borrowers report multiple loan values from "</span>
+                <span class="s2">"the same entity in a given year."</span>
             <span class="p">),</span>
-            <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Part H - Section F - Subsections II &amp; IV)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;This table also includes loan guarantees where the RUS borrower backs a loan &quot;</span>
-                <span class="s2">&quot;from another entity and is therefore liable to pay any remaining &quot;</span>
-                <span class="s2">&quot;balance should the original borrower default.&quot;</span>
+            <span class="s2">"additional_source_text"</span><span class="p">:</span> <span class="s2">"(Part H - Section F - Subsections II &amp; IV)"</span><span class="p">,</span>
+            <span class="s2">"additional_details_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"This table also includes loan guarantees where the RUS borrower backs a loan "</span>
+                <span class="s2">"from another entity and is therefore liable to pay any remaining "</span>
+                <span class="s2">"balance should the original borrower default."</span>
             <span class="p">),</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;loan_recipient&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;loan_maturity_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;loan_original_amount&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;loan_balance&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;for_rural_development&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;is_loan_guarantee&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"borrower_id_rus"</span><span class="p">,</span>
+                <span class="s2">"loan_recipient"</span><span class="p">,</span>
+                <span class="s2">"loan_maturity_date"</span><span class="p">,</span>
+                <span class="s2">"loan_original_amount"</span><span class="p">,</span>
+                <span class="s2">"loan_balance"</span><span class="p">,</span>
+                <span class="s2">"for_rural_development"</span><span class="p">,</span>
+                <span class="s2">"is_loan_guarantee"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;rus12&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;rus12&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;rus&quot;</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"rus12"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"rus12"</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"rus"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_rus12__yearly_plant_labor&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;labor and payroll information for plants owned by RUS borrowers.&quot;</span>
+    <span class="s2">"core_rus12__yearly_plant_labor"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"labor and payroll information for plants owned by RUS borrowers."</span>
             <span class="p">),</span>
-            <span class="s2">&quot;additional_primary_key_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;The primary key should be report_date, borrower_id_rus, plant_name_rus, &quot;</span>
-                <span class="s2">&quot;and plant_type, but this table did not report plant_type before 2009 and &quot;</span>
-                <span class="s2">&quot;there are respondents who report multiple rows per plant pre-2009. &quot;</span>
-                <span class="s2">&quot;The data cannot be backfilled because there is no way to distinguish between &quot;</span>
-                <span class="s2">&quot;duplicate rows pre-2009.&quot;</span>
+            <span class="s2">"additional_primary_key_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"The primary key should be report_date, borrower_id_rus, plant_name_rus, "</span>
+                <span class="s2">"and plant_type, but this table did not report plant_type before 2009 and "</span>
+                <span class="s2">"there are respondents who report multiple rows per plant pre-2009. "</span>
+                <span class="s2">"The data cannot be backfilled because there is no way to distinguish between "</span>
+                <span class="s2">"duplicate rows pre-2009."</span>
             <span class="p">),</span>
-            <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;aggregation_hazard&quot;</span><span class="p">],</span>
-            <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Parts D, E, F, G - Section B)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;Note the lack of plant_type pre-2009 leading to a lack of &quot;</span>
-                <span class="s2">&quot;reliable primary keys.</span><span class="se">\n\n</span><span class="s2">&quot;</span>
-                <span class="s2">&quot;Plant-level data from :ref:`core_rus12__yearly_plant_operations_by_plant` &quot;</span>
-                <span class="s2">&quot;can be matched to data from this table, but you must also join this data using&quot;</span>
-                <span class="s2">&quot;the ``borrower_id_rus`` column as well as the ``report_date`` and ``plant_name``. &quot;</span>
-                <span class="s2">&quot;This is because the :ref:`core_rus12__yearly_plant_operations_by_plant` table &quot;</span>
-                <span class="s2">&quot;includes records from each plant owner. &quot;</span>
-                <span class="s2">&quot;The RUS instructions note that:</span><span class="se">\n\n</span><span class="s2">&quot;</span>
-                <span class="s2">&quot;you should use caution when using total plant data since there are cases where more than one &quot;</span>
-                <span class="s2">&quot;Borrower shares units at the same plant which means that you will be getting duplicate plant &quot;</span>
-                <span class="s2">&quot;total records (and there is no guarantee that the total plant records entered by two borrowers &quot;</span>
-                <span class="s2">&quot;for the same plant will be identical).&quot;</span>
+            <span class="s2">"usage_warnings"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"aggregation_hazard"</span><span class="p">],</span>
+            <span class="s2">"additional_source_text"</span><span class="p">:</span> <span class="s2">"(Parts D, E, F, G - Section B)"</span><span class="p">,</span>
+            <span class="s2">"additional_details_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"Note the lack of plant_type pre-2009 leading to a lack of "</span>
+                <span class="s2">"reliable primary keys.</span><span class="se">\n\n</span><span class="s2">"</span>
+                <span class="s2">"Plant-level data from :ref:`core_rus12__yearly_plant_operations_by_plant` "</span>
+                <span class="s2">"can be matched to data from this table, but you must also join this data using"</span>
+                <span class="s2">"the ``borrower_id_rus`` column as well as the ``report_date`` and ``plant_name``. "</span>
+                <span class="s2">"This is because the :ref:`core_rus12__yearly_plant_operations_by_plant` table "</span>
+                <span class="s2">"includes records from each plant owner. "</span>
+                <span class="s2">"The RUS instructions note that:</span><span class="se">\n\n</span><span class="s2">"</span>
+                <span class="s2">"you should use caution when using total plant data since there are cases where more than one "</span>
+                <span class="s2">"Borrower shares units at the same plant which means that you will be getting duplicate plant "</span>
+                <span class="s2">"total records (and there is no guarantee that the total plant records entered by two borrowers "</span>
+                <span class="s2">"for the same plant will be identical)."</span>
             <span class="p">),</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;plant_name_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;plant_type&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;employees_full_time_num&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;employees_part_time_num&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;employee_hours_worked_total&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;payroll_maintenance&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;payroll_operations&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;payroll_other_accounts&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"borrower_id_rus"</span><span class="p">,</span>
+                <span class="s2">"plant_name_rus"</span><span class="p">,</span>
+                <span class="s2">"plant_type"</span><span class="p">,</span>
+                <span class="s2">"employees_full_time_num"</span><span class="p">,</span>
+                <span class="s2">"employees_part_time_num"</span><span class="p">,</span>
+                <span class="s2">"employee_hours_worked_total"</span><span class="p">,</span>
+                <span class="s2">"payroll_maintenance"</span><span class="p">,</span>
+                <span class="s2">"payroll_operations"</span><span class="p">,</span>
+                <span class="s2">"payroll_other_accounts"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;rus12&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;rus12&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;rus&quot;</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"rus12"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"rus12"</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"rus"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_rus12__yearly_statement_of_operations&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;opex and cost of electric service for RUS borrowers by time period.&quot;</span>
+    <span class="s2">"core_rus12__yearly_statement_of_operations"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"opex and cost of electric service for RUS borrowers by time period."</span>
             <span class="p">),</span>
-            <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;aggregation_hazard&quot;</span><span class="p">],</span>
-            <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Part A - Section A)&quot;</span><span class="p">,</span>
+            <span class="s2">"usage_warnings"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"aggregation_hazard"</span><span class="p">],</span>
+            <span class="s2">"additional_source_text"</span><span class="p">:</span> <span class="s2">"(Part A - Section A)"</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;opex_group&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;opex_type&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;opex_report_month&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;opex_ytd&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;opex_ytd_budget&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;is_total&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"borrower_id_rus"</span><span class="p">,</span>
+                <span class="s2">"opex_group"</span><span class="p">,</span>
+                <span class="s2">"opex_type"</span><span class="p">,</span>
+                <span class="s2">"opex_report_month"</span><span class="p">,</span>
+                <span class="s2">"opex_ytd"</span><span class="p">,</span>
+                <span class="s2">"opex_ytd_budget"</span><span class="p">,</span>
+                <span class="s2">"is_total"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;opex_group&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;opex_type&quot;</span><span class="p">,</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"borrower_id_rus"</span><span class="p">,</span>
+                <span class="s2">"opex_group"</span><span class="p">,</span>
+                <span class="s2">"opex_type"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;rus12&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;rus12&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;rus&quot;</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"rus12"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"rus12"</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"rus"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_rus12__yearly_investments&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;investments, loan guarantees and loans.&quot;</span><span class="p">),</span>
-            <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Part H - Section F, Sub-section I)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;additional_primary_key_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;This is a list of all investments or loans in each year and borrowers can have &quot;</span>
-                <span class="s2">&quot;multiple records with the same ``investment_description``.&quot;</span>
+    <span class="s2">"core_rus12__yearly_investments"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"investments, loan guarantees and loans."</span><span class="p">),</span>
+            <span class="s2">"additional_source_text"</span><span class="p">:</span> <span class="s2">"(Part H - Section F, Sub-section I)"</span><span class="p">,</span>
+            <span class="s2">"additional_primary_key_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"This is a list of all investments or loans in each year and borrowers can have "</span>
+                <span class="s2">"multiple records with the same ``investment_description``."</span>
             <span class="p">),</span>
-            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;Reporting of investments is required by 7 CFR 1717, Subpart N. Investment &quot;</span>
-                <span class="s2">&quot;categories reported on this Part correspond to Balance Sheet items in Part &quot;</span>
-                <span class="s2">&quot;A Section B in table :ref:`core_rus12__yearly_balance_sheet_assets`.&quot;</span>
+            <span class="s2">"additional_details_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"Reporting of investments is required by 7 CFR 1717, Subpart N. Investment "</span>
+                <span class="s2">"categories reported on this Part correspond to Balance Sheet items in Part "</span>
+                <span class="s2">"A Section B in table :ref:`core_rus12__yearly_balance_sheet_assets`."</span>
             <span class="p">),</span>
-            <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;aggregation_hazard&quot;</span><span class="p">],</span>
+            <span class="s2">"usage_warnings"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"aggregation_hazard"</span><span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;investment_description&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;investment_type_code&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;included_investments&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;excluded_investments&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;income_or_loss&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;for_rural_development&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"borrower_id_rus"</span><span class="p">,</span>
+                <span class="s2">"investment_description"</span><span class="p">,</span>
+                <span class="s2">"investment_type_code"</span><span class="p">,</span>
+                <span class="s2">"included_investments"</span><span class="p">,</span>
+                <span class="s2">"excluded_investments"</span><span class="p">,</span>
+                <span class="s2">"income_or_loss"</span><span class="p">,</span>
+                <span class="s2">"for_rural_development"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;rus12&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;rus12&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;rus&quot;</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"rus12"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"rus12"</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"rus"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_rus12__yearly_plant_costs&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;costs of net energy generated by plant.&quot;</span><span class="p">),</span>
-            <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;aggregation_hazard&quot;</span><span class="p">],</span>
-            <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Part F - Section D)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;additional_primary_key_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;This table has no primary key because there is one plant (Walter &quot;</span>
-                <span class="s2">&quot;Scott) that has duplicate records every year. Based on other RUS-12 tables, &quot;</span>
-                <span class="s2">&quot;it is likely that these duplicate records are the borrowers&#39; ownership &quot;</span>
-                <span class="s2">&quot;portion of the plant as well as the total plant but there is no clear &quot;</span>
-                <span class="s2">&quot;indication in this table.</span><span class="se">\n\n</span><span class="s2">&quot;</span>
-                <span class="s2">&quot;The primary key of this table otherwise would be: &quot;</span>
-                <span class="s2">&quot;[&#39;report_date&#39;, &#39;borrower_id_rus&#39;, &#39;plant_name_rus&#39;, &#39;cost_group&#39;, &#39;cost_type&#39;].&quot;</span>
+    <span class="s2">"core_rus12__yearly_plant_costs"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"costs of net energy generated by plant."</span><span class="p">),</span>
+            <span class="s2">"usage_warnings"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"aggregation_hazard"</span><span class="p">],</span>
+            <span class="s2">"additional_source_text"</span><span class="p">:</span> <span class="s2">"(Part F - Section D)"</span><span class="p">,</span>
+            <span class="s2">"additional_primary_key_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"This table has no primary key because there is one plant (Walter "</span>
+                <span class="s2">"Scott) that has duplicate records every year. Based on other RUS-12 tables, "</span>
+                <span class="s2">"it is likely that these duplicate records are the borrowers' ownership "</span>
+                <span class="s2">"portion of the plant as well as the total plant but there is no clear "</span>
+                <span class="s2">"indication in this table.</span><span class="se">\n\n</span><span class="s2">"</span>
+                <span class="s2">"The primary key of this table otherwise would be: "</span>
+                <span class="s2">"['report_date', 'borrower_id_rus', 'plant_name_rus', 'cost_group', 'cost_type']."</span>
             <span class="p">),</span>
-            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;The cost column in this table is expected to be largely non-null, the &quot;</span>
-                <span class="s2">&quot;cost_per_mwh and cost_per_mmbtu columns only apply to some cost_type&#39;s &quot;</span>
-                <span class="s2">&quot;and even plant_type&#39;s and thus are expected to contain many nulls.&quot;</span>
+            <span class="s2">"additional_details_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"The cost column in this table is expected to be largely non-null, the "</span>
+                <span class="s2">"cost_per_mwh and cost_per_mmbtu columns only apply to some cost_type's "</span>
+                <span class="s2">"and even plant_type's and thus are expected to contain many nulls."</span>
             <span class="p">),</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;plant_name_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;plant_type&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;cost_group&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;cost_type&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;cost&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;cost_per_mwh&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;cost_per_mmbtu&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;is_total&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"borrower_id_rus"</span><span class="p">,</span>
+                <span class="s2">"plant_name_rus"</span><span class="p">,</span>
+                <span class="s2">"plant_type"</span><span class="p">,</span>
+                <span class="s2">"cost_group"</span><span class="p">,</span>
+                <span class="s2">"cost_type"</span><span class="p">,</span>
+                <span class="s2">"cost"</span><span class="p">,</span>
+                <span class="s2">"cost_per_mwh"</span><span class="p">,</span>
+                <span class="s2">"cost_per_mmbtu"</span><span class="p">,</span>
+                <span class="s2">"is_total"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;rus12&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;rus12&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;rus&quot;</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"rus12"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"rus12"</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"rus"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_rus12__yearly_external_financial_risk_ratio&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;ratio of investments and loan guarantee balances to total utility plant assets.&quot;</span>
+    <span class="s2">"core_rus12__yearly_external_financial_risk_ratio"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"ratio of investments and loan guarantee balances to total utility plant assets."</span>
             <span class="p">),</span>
-            <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Part H - Section F - Subsection III)&quot;</span><span class="p">,</span>
+            <span class="s2">"additional_source_text"</span><span class="p">:</span> <span class="s2">"(Part H - Section F - Subsection III)"</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;external_financial_risk_ratio&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"borrower_id_rus"</span><span class="p">,</span>
+                <span class="s2">"external_financial_risk_ratio"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"borrower_id_rus"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;rus12&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;rus12&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;rus&quot;</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"rus12"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"rus12"</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"rus"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_rus12__yearly_plant_operations_by_borrower&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;borrower portion of plant operational data including fuel consumption and operational hours.&quot;</span>
+    <span class="s2">"core_rus12__yearly_plant_operations_by_borrower"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"borrower portion of plant operational data including fuel consumption and operational hours."</span>
             <span class="p">),</span>
-            <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Part D, E, F (CC), F (IC) &amp; G - Section A)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;additional_primary_key_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;This table has no primary key because there are a handful of plants that &quot;</span>
-                <span class="s2">&quot;have duplicate records. The primary key of this table &quot;</span>
-                <span class="s2">&quot;otherwise would be: [`report_date`, `borrower_id_rus`, `plant_name_rus`, `plant_name_rus`, `unit_id_rus`, `plant_type`, `is_full_ownership_portion`, `is_partly_owned_by_borrower`].&quot;</span>
+            <span class="s2">"additional_source_text"</span><span class="p">:</span> <span class="s2">"(Part D, E, F (CC), F (IC) &amp; G - Section A)"</span><span class="p">,</span>
+            <span class="s2">"additional_primary_key_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"This table has no primary key because there are a handful of plants that "</span>
+                <span class="s2">"have duplicate records. The primary key of this table "</span>
+                <span class="s2">"otherwise would be: [`report_date`, `borrower_id_rus`, `plant_name_rus`, `plant_name_rus`, `unit_id_rus`, `plant_type`, `is_full_ownership_portion`, `is_partly_owned_by_borrower`]."</span>
             <span class="p">),</span>
-            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="n">PLANT_OPERATIONS_DETAIL</span><span class="p">,</span>
+            <span class="s2">"additional_details_text"</span><span class="p">:</span> <span class="n">PLANT_OPERATIONS_DETAIL</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;plant_name_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;unit_id_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;plant_type&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;capacity_mw&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;gross_generation_mwh&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;ownership_pct&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;is_full_ownership_portion&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;is_partly_owned_by_borrower&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;fuel_consumption_coal_lbs&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;fuel_consumption_gas_cubic_feet&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;fuel_consumption_oil_gallons&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;fuel_consumption_other&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;operating_hours_in_service&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;operating_hours_on_standby&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;operating_hours_out_of_service_scheduled&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;operating_hours_out_of_service_unscheduled&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;times_started&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"borrower_id_rus"</span><span class="p">,</span>
+                <span class="s2">"plant_name_rus"</span><span class="p">,</span>
+                <span class="s2">"unit_id_rus"</span><span class="p">,</span>
+                <span class="s2">"plant_type"</span><span class="p">,</span>
+                <span class="s2">"capacity_mw"</span><span class="p">,</span>
+                <span class="s2">"gross_generation_mwh"</span><span class="p">,</span>
+                <span class="s2">"ownership_pct"</span><span class="p">,</span>
+                <span class="s2">"is_full_ownership_portion"</span><span class="p">,</span>
+                <span class="s2">"is_partly_owned_by_borrower"</span><span class="p">,</span>
+                <span class="s2">"fuel_consumption_coal_lbs"</span><span class="p">,</span>
+                <span class="s2">"fuel_consumption_gas_cubic_feet"</span><span class="p">,</span>
+                <span class="s2">"fuel_consumption_oil_gallons"</span><span class="p">,</span>
+                <span class="s2">"fuel_consumption_other"</span><span class="p">,</span>
+                <span class="s2">"operating_hours_in_service"</span><span class="p">,</span>
+                <span class="s2">"operating_hours_on_standby"</span><span class="p">,</span>
+                <span class="s2">"operating_hours_out_of_service_scheduled"</span><span class="p">,</span>
+                <span class="s2">"operating_hours_out_of_service_unscheduled"</span><span class="p">,</span>
+                <span class="s2">"times_started"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;rus12&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;rus12&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;rus&quot;</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"rus12"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"rus12"</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"rus"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_rus12__yearly_plant_operations_by_plant&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;whole plant operational data including fuel consumption and operational hours.&quot;</span>
+    <span class="s2">"core_rus12__yearly_plant_operations_by_plant"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"whole plant operational data including fuel consumption and operational hours."</span>
             <span class="p">),</span>
-            <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Part D, E, F (CC), F (IC) &amp; G - Section A)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;additional_primary_key_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;This table has no primary key because there are a handful of plants that &quot;</span>
-                <span class="s2">&quot;have duplicate records. The primary key of this table &quot;</span>
-                <span class="s2">&quot;otherwise would be: [`report_date`, `borrower_id_rus`, `plant_name_rus`, `plant_name_rus`, `unit_id_rus`, `plant_type`, `is_full_ownership_portion`, `is_partly_owned_by_borrower`].&quot;</span>
+            <span class="s2">"additional_source_text"</span><span class="p">:</span> <span class="s2">"(Part D, E, F (CC), F (IC) &amp; G - Section A)"</span><span class="p">,</span>
+            <span class="s2">"additional_primary_key_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"This table has no primary key because there are a handful of plants that "</span>
+                <span class="s2">"have duplicate records. The primary key of this table "</span>
+                <span class="s2">"otherwise would be: [`report_date`, `borrower_id_rus`, `plant_name_rus`, `plant_name_rus`, `unit_id_rus`, `plant_type`, `is_full_ownership_portion`, `is_partly_owned_by_borrower`]."</span>
             <span class="p">),</span>
-            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">PLANT_OPERATIONS_DETAIL</span><span class="si">}</span><span class="s2">.</span><span class="se">\n\n</span><span class="s2">&quot;</span>
-                <span class="s2">&quot;Plant-level data can be matched to the :ref:core_rus12__yearly_plant_labor` and forthcoming &quot;</span>
-                <span class="s2">&quot;core_rus12__yearly_plant_factors_and_maximum_demand, which report Section B and C data for &quot;</span>
-                <span class="s2">&quot;all plants. The RUS instructions note that:</span><span class="se">\n\n</span><span class="s2">&quot;</span>
-                <span class="s2">&quot;you should use caution when using total plant data since there are cases where more than one &quot;</span>
-                <span class="s2">&quot;Borrower shares units at the same plant which means that you will be getting duplicate plant &quot;</span>
-                <span class="s2">&quot;total records (and there is no guarantee that the total plant records entered by two borrowers &quot;</span>
-                <span class="s2">&quot;for the same plant will be identical).&quot;</span>
+            <span class="s2">"additional_details_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">PLANT_OPERATIONS_DETAIL</span><span class="si">}</span><span class="s2">.</span><span class="se">\n\n</span><span class="s2">"</span>
+                <span class="s2">"Plant-level data can be matched to the :ref:core_rus12__yearly_plant_labor` and forthcoming "</span>
+                <span class="s2">"core_rus12__yearly_plant_factors_and_maximum_demand, which report Section B and C data for "</span>
+                <span class="s2">"all plants. The RUS instructions note that:</span><span class="se">\n\n</span><span class="s2">"</span>
+                <span class="s2">"you should use caution when using total plant data since there are cases where more than one "</span>
+                <span class="s2">"Borrower shares units at the same plant which means that you will be getting duplicate plant "</span>
+                <span class="s2">"total records (and there is no guarantee that the total plant records entered by two borrowers "</span>
+                <span class="s2">"for the same plant will be identical)."</span>
             <span class="p">),</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;plant_name_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;unit_id_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;plant_type&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;capacity_mw&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;gross_generation_mwh&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;ownership_pct&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;is_partly_owned_by_borrower&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;fuel_consumption_coal_lbs&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;fuel_consumption_gas_cubic_feet&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;fuel_consumption_oil_gallons&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;fuel_consumption_other&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;operating_hours_in_service&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;operating_hours_on_standby&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;operating_hours_out_of_service_scheduled&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;operating_hours_out_of_service_unscheduled&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;times_started&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"borrower_id_rus"</span><span class="p">,</span>
+                <span class="s2">"plant_name_rus"</span><span class="p">,</span>
+                <span class="s2">"unit_id_rus"</span><span class="p">,</span>
+                <span class="s2">"plant_type"</span><span class="p">,</span>
+                <span class="s2">"capacity_mw"</span><span class="p">,</span>
+                <span class="s2">"gross_generation_mwh"</span><span class="p">,</span>
+                <span class="s2">"ownership_pct"</span><span class="p">,</span>
+                <span class="s2">"is_partly_owned_by_borrower"</span><span class="p">,</span>
+                <span class="s2">"fuel_consumption_coal_lbs"</span><span class="p">,</span>
+                <span class="s2">"fuel_consumption_gas_cubic_feet"</span><span class="p">,</span>
+                <span class="s2">"fuel_consumption_oil_gallons"</span><span class="p">,</span>
+                <span class="s2">"fuel_consumption_other"</span><span class="p">,</span>
+                <span class="s2">"operating_hours_in_service"</span><span class="p">,</span>
+                <span class="s2">"operating_hours_on_standby"</span><span class="p">,</span>
+                <span class="s2">"operating_hours_out_of_service_scheduled"</span><span class="p">,</span>
+                <span class="s2">"operating_hours_out_of_service_unscheduled"</span><span class="p">,</span>
+                <span class="s2">"times_started"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;rus12&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;rus12&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;rus&quot;</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"rus12"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"rus12"</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"rus"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_rus12__monthly_demand_and_energy_at_delivery_points&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;demand and energy delivered to distribution utilities.&quot;</span>
+    <span class="s2">"core_rus12__monthly_demand_and_energy_at_delivery_points"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"demand and energy delivered to distribution utilities."</span>
             <span class="p">),</span>
-            <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Part H - Section E)&quot;</span><span class="p">,</span>
+            <span class="s2">"additional_source_text"</span><span class="p">:</span> <span class="s2">"(Part H - Section E)"</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;delivery_recipient&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;delivered_demand_mw&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;delivered_energy_mwh&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"borrower_id_rus"</span><span class="p">,</span>
+                <span class="s2">"delivery_recipient"</span><span class="p">,</span>
+                <span class="s2">"delivered_demand_mw"</span><span class="p">,</span>
+                <span class="s2">"delivered_energy_mwh"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;delivery_recipient&quot;</span><span class="p">,</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"borrower_id_rus"</span><span class="p">,</span>
+                <span class="s2">"delivery_recipient"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;rus12&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;rus12&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;rus&quot;</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"rus12"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"rus12"</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"rus"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_rus12__monthly_demand_and_energy_at_power_sources&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;demand and energy at point of generation.&quot;</span><span class="p">),</span>
-            <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Part H - Section D)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;There are some peak demand dates that have an hour component and others that don&#39;t. &quot;</span>
-                <span class="s2">&quot;This is because there is inconsistent reporting of peak_demand_hour in the raw data. &quot;</span>
-                <span class="s2">&quot;If there is no hour reported, we record the hour as 0 and only the date will show in &quot;</span>
-                <span class="s2">&quot;the data.&quot;</span>
+    <span class="s2">"core_rus12__monthly_demand_and_energy_at_power_sources"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"demand and energy at point of generation."</span><span class="p">),</span>
+            <span class="s2">"additional_source_text"</span><span class="p">:</span> <span class="s2">"(Part H - Section D)"</span><span class="p">,</span>
+            <span class="s2">"additional_details_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"There are some peak demand dates that have an hour component and others that don't. "</span>
+                <span class="s2">"This is because there is inconsistent reporting of peak_demand_hour in the raw data. "</span>
+                <span class="s2">"If there is no hour reported, we record the hour as 0 and only the date will show in "</span>
+                <span class="s2">"the data."</span>
             <span class="p">),</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;energy_output_mwh&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;peak_demand_mw&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;peak_demand_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;is_peak_coincident&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"borrower_id_rus"</span><span class="p">,</span>
+                <span class="s2">"energy_output_mwh"</span><span class="p">,</span>
+                <span class="s2">"peak_demand_mw"</span><span class="p">,</span>
+                <span class="s2">"peak_demand_date"</span><span class="p">,</span>
+                <span class="s2">"is_peak_coincident"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"borrower_id_rus"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;rus12&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;rus12&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;rus&quot;</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"rus12"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"rus12"</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"rus"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_rus12__yearly_plant_factors_and_maximum_demand&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;plant factors and maximum demand for plants owned by RUS borrowers.&quot;</span>
+    <span class="s2">"core_rus12__yearly_plant_factors_and_maximum_demand"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"plant factors and maximum demand for plants owned by RUS borrowers."</span>
             <span class="p">),</span>
-            <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Parts D, E, F IC, F CC, G - Section C)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;additional_primary_key_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;The primary key for this table would be report_date, borrower_id_rus, plant_name_rus, and plant_type &quot;</span>
-                <span class="s2">&quot;but the plant_type column is not reported before 2009 causing lots of duplicate records. &quot;</span>
-                <span class="s2">&quot;Because none of the other fields are static year-over-year, there is no reliable way to backfill &quot;</span>
-                <span class="s2">&quot;the plant_type column in instances where there are different plant_types reported for the same plant &quot;</span>
-                <span class="s2">&quot;in later years.&quot;</span>
+            <span class="s2">"additional_source_text"</span><span class="p">:</span> <span class="s2">"(Parts D, E, F IC, F CC, G - Section C)"</span><span class="p">,</span>
+            <span class="s2">"additional_primary_key_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"The primary key for this table would be report_date, borrower_id_rus, plant_name_rus, and plant_type "</span>
+                <span class="s2">"but the plant_type column is not reported before 2009 causing lots of duplicate records. "</span>
+                <span class="s2">"Because none of the other fields are static year-over-year, there is no reliable way to backfill "</span>
+                <span class="s2">"the plant_type column in instances where there are different plant_types reported for the same plant "</span>
+                <span class="s2">"in later years."</span>
             <span class="p">),</span>
-            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;The plant_type field was only included in the data starting in 2009. We backfill records with only &quot;</span>
-                <span class="s2">&quot;one reported plant_type per borrower/plant name/year. Records with multiple plant_types per &quot;</span>
-                <span class="s2">&quot;borrower/plant name/year are left with null plant_type because there is no reliable way to &quot;</span>
-                <span class="s2">&quot;determine which plant_type is associated with which record back in time. Plants who&#39;s names are &quot;</span>
-                <span class="s2">&quot;reported differently pre and post 2009 will also miss being backfilled.&quot;</span>
+            <span class="s2">"additional_details_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"The plant_type field was only included in the data starting in 2009. We backfill records with only "</span>
+                <span class="s2">"one reported plant_type per borrower/plant name/year. Records with multiple plant_types per "</span>
+                <span class="s2">"borrower/plant name/year are left with null plant_type because there is no reliable way to "</span>
+                <span class="s2">"determine which plant_type is associated with which record back in time. Plants who's names are "</span>
+                <span class="s2">"reported differently pre and post 2009 will also miss being backfilled."</span>
             <span class="p">),</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;plant_name_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;plant_type&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;capacity_factor&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;capacity_factor_running&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;load_factor&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;peak_gross_demand_mw&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;peak_gross_demand_nameplate_mw&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"borrower_id_rus"</span><span class="p">,</span>
+                <span class="s2">"plant_name_rus"</span><span class="p">,</span>
+                <span class="s2">"plant_type"</span><span class="p">,</span>
+                <span class="s2">"capacity_factor"</span><span class="p">,</span>
+                <span class="s2">"capacity_factor_running"</span><span class="p">,</span>
+                <span class="s2">"load_factor"</span><span class="p">,</span>
+                <span class="s2">"peak_gross_demand_mw"</span><span class="p">,</span>
+                <span class="s2">"peak_gross_demand_nameplate_mw"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;rus12&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;rus12&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;rus&quot;</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"rus12"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"rus12"</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"rus"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_rus12__yearly_utility_plant_changes&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;changes in utility plant&quot;</span><span class="p">),</span>
-            <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Part H - Section A)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;aggregation_hazard&quot;</span><span class="p">],</span>
-            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;There are a few layers of nesting in this table, which can be distinguished by &quot;</span>
-                <span class="s2">&quot;the categories in the `utility_plant_group` column:</span><span class="se">\n\n</span><span class="s2">&quot;</span>
-                <span class="s2">&quot; * intangible_plant: only has one total utility_plant_item</span><span class="se">\n</span><span class="s2">&quot;</span>
-                <span class="s2">&quot; * production_plant: has several sub-component utility_plant_item and a standard total</span><span class="se">\n</span><span class="s2">&quot;</span>
-                <span class="s2">&quot; * transmission_plant: has several sub-component utility_plant_item and a standard total</span><span class="se">\n</span><span class="s2">&quot;</span>
-                <span class="s2">&quot; * distribution_plant: has several sub-component utility_plant_item and a standard total</span><span class="se">\n</span><span class="s2">&quot;</span>
-                <span class="s2">&quot; * electric_plant_in_service: has two sub-components and a total which includes those sub-components and the totals of the above categories</span><span class="se">\n</span><span class="s2">&quot;</span>
-                <span class="s2">&quot; * utility_plant_in_service: has several sub-components and the total is the sum of those sub-components as well as the total of electric_plant_in_service</span><span class="se">\n</span><span class="s2">&quot;</span>
-                <span class="s2">&quot; * total_utility_plant: has one sub-component and the total is the sum of the sub-component and utility_plant_in_service</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+    <span class="s2">"core_rus12__yearly_utility_plant_changes"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"changes in utility plant"</span><span class="p">),</span>
+            <span class="s2">"additional_source_text"</span><span class="p">:</span> <span class="s2">"(Part H - Section A)"</span><span class="p">,</span>
+            <span class="s2">"usage_warnings"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"aggregation_hazard"</span><span class="p">],</span>
+            <span class="s2">"additional_details_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"There are a few layers of nesting in this table, which can be distinguished by "</span>
+                <span class="s2">"the categories in the `utility_plant_group` column:</span><span class="se">\n\n</span><span class="s2">"</span>
+                <span class="s2">" * intangible_plant: only has one total utility_plant_item</span><span class="se">\n</span><span class="s2">"</span>
+                <span class="s2">" * production_plant: has several sub-component utility_plant_item and a standard total</span><span class="se">\n</span><span class="s2">"</span>
+                <span class="s2">" * transmission_plant: has several sub-component utility_plant_item and a standard total</span><span class="se">\n</span><span class="s2">"</span>
+                <span class="s2">" * distribution_plant: has several sub-component utility_plant_item and a standard total</span><span class="se">\n</span><span class="s2">"</span>
+                <span class="s2">" * electric_plant_in_service: has two sub-components and a total which includes those sub-components and the totals of the above categories</span><span class="se">\n</span><span class="s2">"</span>
+                <span class="s2">" * utility_plant_in_service: has several sub-components and the total is the sum of those sub-components as well as the total of electric_plant_in_service</span><span class="se">\n</span><span class="s2">"</span>
+                <span class="s2">" * total_utility_plant: has one sub-component and the total is the sum of the sub-component and utility_plant_in_service</span><span class="se">\n\n</span><span class="s2">"</span>
             <span class="p">),</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;utility_plant_group&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;utility_plant_item&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;retirements&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;additions&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;adjustments_and_transfers&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;ending_balance&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;is_total&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"borrower_id_rus"</span><span class="p">,</span>
+                <span class="s2">"utility_plant_group"</span><span class="p">,</span>
+                <span class="s2">"utility_plant_item"</span><span class="p">,</span>
+                <span class="s2">"retirements"</span><span class="p">,</span>
+                <span class="s2">"additions"</span><span class="p">,</span>
+                <span class="s2">"adjustments_and_transfers"</span><span class="p">,</span>
+                <span class="s2">"ending_balance"</span><span class="p">,</span>
+                <span class="s2">"is_total"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;utility_plant_group&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;utility_plant_item&quot;</span><span class="p">,</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"borrower_id_rus"</span><span class="p">,</span>
+                <span class="s2">"utility_plant_group"</span><span class="p">,</span>
+                <span class="s2">"utility_plant_item"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;rus12&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;rus12&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;rus&quot;</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"rus12"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"rus12"</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"rus"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_rus12__yearly_depreciation_changes&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;changes in accumulated depreciation.&quot;</span><span class="p">),</span>
-            <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Part H - Section B)&quot;</span><span class="p">,</span>
+    <span class="s2">"core_rus12__yearly_depreciation_changes"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"changes in accumulated depreciation."</span><span class="p">),</span>
+            <span class="s2">"additional_source_text"</span><span class="p">:</span> <span class="s2">"(Part H - Section B)"</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;depreciation_and_amortization_group&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;depreciation_and_amortization_item&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;composite_depreciation_rate&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;accruals&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;retirements_less_net_salvage&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;adjustments_and_transfers&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;ending_balance&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;is_total&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"borrower_id_rus"</span><span class="p">,</span>
+                <span class="s2">"depreciation_and_amortization_group"</span><span class="p">,</span>
+                <span class="s2">"depreciation_and_amortization_item"</span><span class="p">,</span>
+                <span class="s2">"composite_depreciation_rate"</span><span class="p">,</span>
+                <span class="s2">"accruals"</span><span class="p">,</span>
+                <span class="s2">"retirements_less_net_salvage"</span><span class="p">,</span>
+                <span class="s2">"adjustments_and_transfers"</span><span class="p">,</span>
+                <span class="s2">"ending_balance"</span><span class="p">,</span>
+                <span class="s2">"is_total"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;depreciation_and_amortization_group&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;depreciation_and_amortization_item&quot;</span><span class="p">,</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"borrower_id_rus"</span><span class="p">,</span>
+                <span class="s2">"depreciation_and_amortization_group"</span><span class="p">,</span>
+                <span class="s2">"depreciation_and_amortization_item"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;rus12&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;rus12&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;rus&quot;</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"rus12"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"rus12"</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"rus"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_rus12__yearly_depreciation_misc&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;accumulated depreciation.&quot;</span><span class="p">),</span>
-            <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Part H - 2nd part of Section B)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;This is the second half of the depreciation table. &quot;</span>
-                <span class="s2">&quot;It includes ending balances of six depreciation and amortization values.&quot;</span>
+    <span class="s2">"core_rus12__yearly_depreciation_misc"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"accumulated depreciation."</span><span class="p">),</span>
+            <span class="s2">"additional_source_text"</span><span class="p">:</span> <span class="s2">"(Part H - 2nd part of Section B)"</span><span class="p">,</span>
+            <span class="s2">"additional_details_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"This is the second half of the depreciation table. "</span>
+                <span class="s2">"It includes ending balances of six depreciation and amortization values."</span>
             <span class="p">),</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;depreciation_and_amortization_item&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;ending_balance&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"borrower_id_rus"</span><span class="p">,</span>
+                <span class="s2">"depreciation_and_amortization_item"</span><span class="p">,</span>
+                <span class="s2">"ending_balance"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;depreciation_and_amortization_item&quot;</span><span class="p">,</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"borrower_id_rus"</span><span class="p">,</span>
+                <span class="s2">"depreciation_and_amortization_item"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;rus12&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;rus12&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;rus&quot;</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"rus12"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"rus12"</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"rus"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_rus12__yearly_non_utility_plant_changes&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;changes in non-utility plant.&quot;</span><span class="p">),</span>
-            <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Part H - Section C)&quot;</span><span class="p">,</span>
+    <span class="s2">"core_rus12__yearly_non_utility_plant_changes"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"changes in non-utility plant."</span><span class="p">),</span>
+            <span class="s2">"additional_source_text"</span><span class="p">:</span> <span class="s2">"(Part H - Section C)"</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;non_utility_plant_item&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;additions&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;retirements&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;adjustments_and_transfers&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;ending_balance&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"borrower_id_rus"</span><span class="p">,</span>
+                <span class="s2">"non_utility_plant_item"</span><span class="p">,</span>
+                <span class="s2">"additions"</span><span class="p">,</span>
+                <span class="s2">"retirements"</span><span class="p">,</span>
+                <span class="s2">"adjustments_and_transfers"</span><span class="p">,</span>
+                <span class="s2">"ending_balance"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">,</span> <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span> <span class="s2">&quot;non_utility_plant_item&quot;</span><span class="p">],</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"report_date"</span><span class="p">,</span> <span class="s2">"borrower_id_rus"</span><span class="p">,</span> <span class="s2">"non_utility_plant_item"</span><span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;rus12&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;rus12&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;rus&quot;</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"rus12"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"rus12"</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"rus"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;_core_rus12__forensics_entity_resolution_borrowers&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;the statistics determining how we choose a single consistent value during entity resolution.&quot;</span>
+    <span class="s2">"_core_rus12__forensics_entity_resolution_borrowers"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"the statistics determining how we choose a single consistent value during entity resolution."</span>
             <span class="p">),</span>
-            <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;harvesting_ingredients&quot;</span><span class="p">],</span>
-            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="n">HARVESTING_FORENSIC_DETAIL_TEXT</span><span class="p">,</span>
+            <span class="s2">"usage_warnings"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"harvesting_ingredients"</span><span class="p">],</span>
+            <span class="s2">"additional_details_text"</span><span class="p">:</span> <span class="n">HARVESTING_FORENSIC_DETAIL_TEXT</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;valid_until_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;column_name&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;record_value&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;entity_occurrences&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;record_occurrences&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;consistent_rate&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;is_candidate&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"borrower_id_rus"</span><span class="p">,</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"valid_until_date"</span><span class="p">,</span>
+                <span class="s2">"column_name"</span><span class="p">,</span>
+                <span class="s2">"record_value"</span><span class="p">,</span>
+                <span class="s2">"entity_occurrences"</span><span class="p">,</span>
+                <span class="s2">"record_occurrences"</span><span class="p">,</span>
+                <span class="s2">"consistent_rate"</span><span class="p">,</span>
+                <span class="s2">"is_candidate"</span><span class="p">,</span>
             <span class="p">]</span>
         <span class="p">},</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;rus12&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;rus12&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;rus&quot;</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"rus12"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"rus12"</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"rus"</span><span class="p">,</span>
     <span class="p">},</span>
 <span class="p">}</span></div>
 
@@ -1730,7 +1730,7 @@ window.runMermaid = runMermaid;</script>
 <span class="n">RESOURCE_METADATA</span> <span class="o">=</span> <span class="n">RESOURCE_METADATA_BASE</span> <span class="o">|</span> <span class="n">core_to_out_harvested_resources</span><span class="p">(</span>
     <span class="n">HARVESTED_CORE_TABLES_RUS12</span><span class="p">,</span>
     <span class="n">RESOURCE_METADATA_BASE</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span>
-    <span class="p">[</span><span class="s2">&quot;borrower_name_rus&quot;</span><span class="p">,</span> <span class="s2">&quot;state&quot;</span><span class="p">],</span>
+    <span class="p">[</span><span class="s2">"borrower_name_rus"</span><span class="p">,</span> <span class="s2">"state"</span><span class="p">],</span>
 <span class="p">)</span></div>
 
 </pre></div>

@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.metadata.resources.eia176 &#8212; PUDL 2026.8.1.dev18 documentation</title>
+    <title>pudl.metadata.resources.eia176 &#8212; PUDL 2026.8.1.dev19 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../../_static/documentation_options.js?v=f2b63aa7"></script>
+    <script src="../../../../_static/documentation_options.js?v=5bf64ec1"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev18 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev18 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev19 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev19 documentation - Home"/>
   
   
 </a></div>
@@ -871,345 +871,345 @@ window.runMermaid = runMermaid;</script>
                 <article class="bd-article">
                   
   <h1>Source code for pudl.metadata.resources.eia176</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Definitions of data tables primarily coming from EIA-176.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Definitions of data tables primarily coming from EIA-176."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
 
 <div class="viewcode-block" id="RESOURCE_METADATA">
 <a class="viewcode-back" href="../../../../autoapi/pudl/metadata/resources/eia176/index.html#pudl.metadata.resources.eia176.RESOURCE_METADATA">[docs]</a>
 <span class="n">RESOURCE_METADATA</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;core_eia176__yearly_company_characteristics&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;a company&#39;s operational and ownership characteristics. &quot;</span>
+    <span class="s2">"core_eia176__yearly_company_characteristics"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"a company's operational and ownership characteristics. "</span>
             <span class="p">),</span>
-            <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Part 3, Lines A–D)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;The natural_gas_pump_price_dollars_per_mcf field is reported only &quot;</span>
-                <span class="s2">&quot;for 2014-2016. National-level adjustment records identified by the EIA (operating_state in FX, MX, BL, OO) are &quot;</span>
-                <span class="s2">&quot;removed during transformation.&quot;</span>
+            <span class="s2">"additional_source_text"</span><span class="p">:</span> <span class="s2">"(Part 3, Lines A–D)"</span><span class="p">,</span>
+            <span class="s2">"additional_details_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"The natural_gas_pump_price_dollars_per_mcf field is reported only "</span>
+                <span class="s2">"for 2014-2016. National-level adjustment records identified by the EIA (operating_state in FX, MX, BL, OO) are "</span>
+                <span class="s2">"removed during transformation."</span>
             <span class="p">),</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_year&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;operator_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;operating_state&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;is_distribution_company_cooperative&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;is_distribution_company_investor_owned&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;is_distribution_company_municipally_owned&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;is_distribution_company_privately_owned&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;is_gatherer&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;is_interstate_pipeline&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;is_intrastate_pipeline&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;is_liquid_natural_gas_marine_terminal&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;is_liquid_natural_gas_peak_facility_operator&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;is_producer&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;is_storage_operator&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;is_synthetic_natural_gas_plant_operator&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;is_other_ownership&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;is_public_compressed_natural_gas_fueling_station&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;is_public_lng_fueling_station&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;other_ownership_description&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;has_alternative_fuel_fleet&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;alternative_fleet_size&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;customer_choice_residential_eligible&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;customer_choice_residential_participating&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;has_sales_or_acquisitions&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;natural_gas_pump_price_dollars_per_mcf&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_year"</span><span class="p">,</span>
+                <span class="s2">"operator_id_eia"</span><span class="p">,</span>
+                <span class="s2">"operating_state"</span><span class="p">,</span>
+                <span class="s2">"is_distribution_company_cooperative"</span><span class="p">,</span>
+                <span class="s2">"is_distribution_company_investor_owned"</span><span class="p">,</span>
+                <span class="s2">"is_distribution_company_municipally_owned"</span><span class="p">,</span>
+                <span class="s2">"is_distribution_company_privately_owned"</span><span class="p">,</span>
+                <span class="s2">"is_gatherer"</span><span class="p">,</span>
+                <span class="s2">"is_interstate_pipeline"</span><span class="p">,</span>
+                <span class="s2">"is_intrastate_pipeline"</span><span class="p">,</span>
+                <span class="s2">"is_liquid_natural_gas_marine_terminal"</span><span class="p">,</span>
+                <span class="s2">"is_liquid_natural_gas_peak_facility_operator"</span><span class="p">,</span>
+                <span class="s2">"is_producer"</span><span class="p">,</span>
+                <span class="s2">"is_storage_operator"</span><span class="p">,</span>
+                <span class="s2">"is_synthetic_natural_gas_plant_operator"</span><span class="p">,</span>
+                <span class="s2">"is_other_ownership"</span><span class="p">,</span>
+                <span class="s2">"is_public_compressed_natural_gas_fueling_station"</span><span class="p">,</span>
+                <span class="s2">"is_public_lng_fueling_station"</span><span class="p">,</span>
+                <span class="s2">"other_ownership_description"</span><span class="p">,</span>
+                <span class="s2">"has_alternative_fuel_fleet"</span><span class="p">,</span>
+                <span class="s2">"alternative_fleet_size"</span><span class="p">,</span>
+                <span class="s2">"customer_choice_residential_eligible"</span><span class="p">,</span>
+                <span class="s2">"customer_choice_residential_participating"</span><span class="p">,</span>
+                <span class="s2">"has_sales_or_acquisitions"</span><span class="p">,</span>
+                <span class="s2">"natural_gas_pump_price_dollars_per_mcf"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_year&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;operator_id_eia&quot;</span><span class="p">,</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_year"</span><span class="p">,</span>
+                <span class="s2">"operator_id_eia"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;eia&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;eia176&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;eia176&quot;</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"eia"</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"eia176"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"eia176"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_eia176__yearly_gas_imports&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;a company&#39;s detailed natural gas receipts from another state or a &quot;</span>
-                <span class="s2">&quot;U.S. border.&quot;</span>
+    <span class="s2">"core_eia176__yearly_gas_imports"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"a company's detailed natural gas receipts from another state or a "</span>
+                <span class="s2">"U.S. border."</span>
             <span class="p">),</span>
-            <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Part 4, Line 3.0)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">"additional_source_text"</span><span class="p">:</span> <span class="s2">"(Part 4, Line 3.0)"</span><span class="p">,</span>
+            <span class="s2">"usage_warnings"</span><span class="p">:</span> <span class="p">[</span>
                 <span class="p">{</span>
-                    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;ambiguous_supplier_names&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
-                        <span class="s2">&quot;The supplier_name field is a free-text field with observed inconsistency in reporting &quot;</span>
-                        <span class="s2">&quot;standards. It may contain a company or country name,&quot;</span>
-                        <span class="s2">&quot;non-standard locations such as &#39;outside usa&#39;, or not be reported at all. Truncation of text has &quot;</span>
-                        <span class="s2">&quot;also been observed in earlier years of data.&quot;</span>
+                    <span class="s2">"type"</span><span class="p">:</span> <span class="s2">"ambiguous_supplier_names"</span><span class="p">,</span>
+                    <span class="s2">"description"</span><span class="p">:</span> <span class="p">(</span>
+                        <span class="s2">"The supplier_name field is a free-text field with observed inconsistency in reporting "</span>
+                        <span class="s2">"standards. It may contain a company or country name,"</span>
+                        <span class="s2">"non-standard locations such as 'outside usa', or not be reported at all. Truncation of text has "</span>
+                        <span class="s2">"also been observed in earlier years of data."</span>
                     <span class="p">),</span>
                 <span class="p">},</span>
                 <span class="p">{</span>
-                    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;inconsistent_supplier_locations&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
-                        <span class="s2">&quot;The supplier_location field is a free-text field that contains &quot;</span>
-                        <span class="s2">&quot;U.S. state codes, country codes that don&#39;t conform to the ISO 3166-1 alpha-2 &quot;</span>
-                        <span class="s2">&quot;standards (e.g., C2, JA), and codes that do not appear to correspond to other &quot;</span>
-                        <span class="s2">&quot;geographies (e.g., FX for Gulf of Mexico). Notably, there are a few instances &quot;</span>
-                        <span class="s2">&quot;where supplier names and supplier locations do not appear to correspond. &quot;</span>
-                        <span class="s2">&quot;Exercise caution when using this field, which requires further normalization.&quot;</span>
-                        <span class="s2">&quot;To focus on imports within the U.S. vs. outside of it, filter on the supplier_location_type&quot;</span>
-                        <span class="s2">&quot;column.&quot;</span>
+                    <span class="s2">"type"</span><span class="p">:</span> <span class="s2">"inconsistent_supplier_locations"</span><span class="p">,</span>
+                    <span class="s2">"description"</span><span class="p">:</span> <span class="p">(</span>
+                        <span class="s2">"The supplier_location field is a free-text field that contains "</span>
+                        <span class="s2">"U.S. state codes, country codes that don't conform to the ISO 3166-1 alpha-2 "</span>
+                        <span class="s2">"standards (e.g., C2, JA), and codes that do not appear to correspond to other "</span>
+                        <span class="s2">"geographies (e.g., FX for Gulf of Mexico). Notably, there are a few instances "</span>
+                        <span class="s2">"where supplier names and supplier locations do not appear to correspond. "</span>
+                        <span class="s2">"Exercise caution when using this field, which requires further normalization."</span>
+                        <span class="s2">"To focus on imports within the U.S. vs. outside of it, filter on the supplier_location_type"</span>
+                        <span class="s2">"column."</span>
                     <span class="p">),</span>
                 <span class="p">},</span>
             <span class="p">],</span>
-            <span class="s2">&quot;additional_primary_key_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;This table has no enforced primary key because some operators do not &quot;</span>
-                <span class="s2">&quot;report a supplier name, a few operators report more than one shipment from a supplier within a given year, &quot;</span>
-                <span class="s2">&quot;and transportation mode was not reported prior to 2014. &quot;</span>
-                <span class="s2">&quot;The natural primary key would be one record per report_year, operating_state, supplier_location, &quot;</span>
-                <span class="s2">&quot;supplier_name, and mode of transportation.&quot;</span>
+            <span class="s2">"additional_primary_key_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"This table has no enforced primary key because some operators do not "</span>
+                <span class="s2">"report a supplier name, a few operators report more than one shipment from a supplier within a given year, "</span>
+                <span class="s2">"and transportation mode was not reported prior to 2014. "</span>
+                <span class="s2">"The natural primary key would be one record per report_year, operating_state, supplier_location, "</span>
+                <span class="s2">"supplier_name, and mode of transportation."</span>
             <span class="p">),</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;operator_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;report_year&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;operating_state&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;supplier_location&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;supplier_location_type&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;supplier_name&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;mode_of_transportation&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;volume_mcf&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"operator_id_eia"</span><span class="p">,</span>
+                <span class="s2">"report_year"</span><span class="p">,</span>
+                <span class="s2">"operating_state"</span><span class="p">,</span>
+                <span class="s2">"supplier_location"</span><span class="p">,</span>
+                <span class="s2">"supplier_location_type"</span><span class="p">,</span>
+                <span class="s2">"supplier_name"</span><span class="p">,</span>
+                <span class="s2">"mode_of_transportation"</span><span class="p">,</span>
+                <span class="s2">"volume_mcf"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;eia&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;eia176&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;eia176&quot;</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"eia"</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"eia176"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"eia176"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_eia176__yearly_gas_supply&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;a company&#39;s natural and supplemental gas supply for the report state.&quot;</span>
+    <span class="s2">"core_eia176__yearly_gas_supply"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"a company's natural and supplemental gas supply for the report state."</span>
             <span class="p">),</span>
-            <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Part 4, Lines 1.0-7.0)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">"additional_source_text"</span><span class="p">:</span> <span class="s2">"(Part 4, Lines 1.0-7.0)"</span><span class="p">,</span>
+            <span class="s2">"usage_warnings"</span><span class="p">:</span> <span class="p">[</span>
                 <span class="p">{</span>
-                    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;split-field&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
-                        <span class="s2">&quot;Note that citygate receipts were split into sales customer and transportation customer &quot;</span>
-                        <span class="s2">&quot;sub-components in 2011. The ``citygate_receipts_total`` field has not been forward-filled to avoid &quot;</span>
-                        <span class="s2">&quot;data duplication, and is accordingly null after 2010.&quot;</span>
+                    <span class="s2">"type"</span><span class="p">:</span> <span class="s2">"split-field"</span><span class="p">,</span>
+                    <span class="s2">"description"</span><span class="p">:</span> <span class="p">(</span>
+                        <span class="s2">"Note that citygate receipts were split into sales customer and transportation customer "</span>
+                        <span class="s2">"sub-components in 2011. The ``citygate_receipts_total`` field has not been forward-filled to avoid "</span>
+                        <span class="s2">"data duplication, and is accordingly null after 2010."</span>
                     <span class="p">),</span>
                 <span class="p">},</span>
             <span class="p">],</span>
-            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;&quot;Line 3.0 receipts from the state or U.S. border and Line 6.0</span>
+            <span class="s2">"additional_details_text"</span><span class="p">:</span> <span class="s2">"""Line 3.0 receipts from the state or U.S. border and Line 6.0</span>
 <span class="s2">supplemental gaseous fuels are reported as aggregated totals, with one value per operator ID and year in this table.</span>
 <span class="s2">The disaggregated records are reported in core_eia176__yearly_gas_imports and core_eia176__yearly_supplemental_gaseous_fuel_supplies.</span>
 <span class="s2">During transformation, the reported totals and the sum of the disaggregated data are compared to ensure consistency in</span>
 <span class="s2">reporting from the original EIA data.</span>
-<span class="s2">            &quot;&quot;&quot;</span><span class="p">,</span>
+<span class="s2">            """</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;operator_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;report_year&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;operating_state&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;supply_type&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;volume_mcf&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"operator_id_eia"</span><span class="p">,</span>
+                <span class="s2">"report_year"</span><span class="p">,</span>
+                <span class="s2">"operating_state"</span><span class="p">,</span>
+                <span class="s2">"supply_type"</span><span class="p">,</span>
+                <span class="s2">"volume_mcf"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;operator_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;report_year&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;supply_type&quot;</span><span class="p">,</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"operator_id_eia"</span><span class="p">,</span>
+                <span class="s2">"report_year"</span><span class="p">,</span>
+                <span class="s2">"supply_type"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;eia&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;eia176&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;eia176&quot;</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"eia"</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"eia176"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"eia176"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_eia176__yearly_gas_exports&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;a company&#39;s detailed natural gas deliveries out of the report state.&quot;</span>
+    <span class="s2">"core_eia176__yearly_gas_exports"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"a company's detailed natural gas deliveries out of the report state."</span>
             <span class="p">),</span>
-            <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Part 6, Line 14.0)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">"additional_source_text"</span><span class="p">:</span> <span class="s2">"(Part 6, Line 14.0)"</span><span class="p">,</span>
+            <span class="s2">"usage_warnings"</span><span class="p">:</span> <span class="p">[</span>
                 <span class="p">{</span>
-                    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;ambiguous_recipient_names&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
-                        <span class="s2">&quot;The recipient_name field is a free-text field with observed inconsistency in reporting &quot;</span>
-                        <span class="s2">&quot;standards. It may contain a company or country name,&quot;</span>
-                        <span class="s2">&quot;non-standard locations such as &#39;outside usa&#39;, or not be reported at all. Truncation of text has &quot;</span>
-                        <span class="s2">&quot;also been observed in earlier years of data.&quot;</span>
+                    <span class="s2">"type"</span><span class="p">:</span> <span class="s2">"ambiguous_recipient_names"</span><span class="p">,</span>
+                    <span class="s2">"description"</span><span class="p">:</span> <span class="p">(</span>
+                        <span class="s2">"The recipient_name field is a free-text field with observed inconsistency in reporting "</span>
+                        <span class="s2">"standards. It may contain a company or country name,"</span>
+                        <span class="s2">"non-standard locations such as 'outside usa', or not be reported at all. Truncation of text has "</span>
+                        <span class="s2">"also been observed in earlier years of data."</span>
                     <span class="p">),</span>
                 <span class="p">},</span>
                 <span class="p">{</span>
-                    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;inconsistent_destination_codes&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
-                        <span class="s2">&quot;The recipient_location field is a free-text field that contains &quot;</span>
-                        <span class="s2">&quot;U.S. state codes, country codes that don&#39;t conform to the ISO 3166-1 alpha-2 &quot;</span>
-                        <span class="s2">&quot;standards (e.g., C2, JA), and codes that do not appear to correspond to other &quot;</span>
-                        <span class="s2">&quot;geographies (e.g., FX for Gulf of Mexico). Notably, there are a few instances &quot;</span>
-                        <span class="s2">&quot;where recipient names and locations do not appear to correspond. &quot;</span>
-                        <span class="s2">&quot;Exercise caution when using this field, which requires further normalization.&quot;</span>
-                        <span class="s2">&quot;To focus on imports within the U.S. vs. outside of it, filter on the recipient_location_type&quot;</span>
-                        <span class="s2">&quot;column.&quot;</span>
+                    <span class="s2">"type"</span><span class="p">:</span> <span class="s2">"inconsistent_destination_codes"</span><span class="p">,</span>
+                    <span class="s2">"description"</span><span class="p">:</span> <span class="p">(</span>
+                        <span class="s2">"The recipient_location field is a free-text field that contains "</span>
+                        <span class="s2">"U.S. state codes, country codes that don't conform to the ISO 3166-1 alpha-2 "</span>
+                        <span class="s2">"standards (e.g., C2, JA), and codes that do not appear to correspond to other "</span>
+                        <span class="s2">"geographies (e.g., FX for Gulf of Mexico). Notably, there are a few instances "</span>
+                        <span class="s2">"where recipient names and locations do not appear to correspond. "</span>
+                        <span class="s2">"Exercise caution when using this field, which requires further normalization."</span>
+                        <span class="s2">"To focus on imports within the U.S. vs. outside of it, filter on the recipient_location_type"</span>
+                        <span class="s2">"column."</span>
                     <span class="p">),</span>
                 <span class="p">},</span>
             <span class="p">],</span>
-            <span class="s2">&quot;additional_primary_key_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;This table has no enforced primary key because some records do not &quot;</span>
-                <span class="s2">&quot;report a recipient name, location or mode of transportation details. &quot;</span>
-                <span class="s2">&quot;Additionally, over a hundred operators report more than one delivery to a recipient within a given year. &quot;</span>
-                <span class="s2">&quot;The natural primary key would be one record per report_year, operating_state, supplier_location, &quot;</span>
-                <span class="s2">&quot;supplier_name, and mode of transportation.&quot;</span>
+            <span class="s2">"additional_primary_key_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"This table has no enforced primary key because some records do not "</span>
+                <span class="s2">"report a recipient name, location or mode of transportation details. "</span>
+                <span class="s2">"Additionally, over a hundred operators report more than one delivery to a recipient within a given year. "</span>
+                <span class="s2">"The natural primary key would be one record per report_year, operating_state, supplier_location, "</span>
+                <span class="s2">"supplier_name, and mode of transportation."</span>
             <span class="p">),</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;operator_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;report_year&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;operating_state&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;recipient_location&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;recipient_location_type&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;recipient_name&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;mode_of_transportation&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;volume_mcf&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"operator_id_eia"</span><span class="p">,</span>
+                <span class="s2">"report_year"</span><span class="p">,</span>
+                <span class="s2">"operating_state"</span><span class="p">,</span>
+                <span class="s2">"recipient_location"</span><span class="p">,</span>
+                <span class="s2">"recipient_location_type"</span><span class="p">,</span>
+                <span class="s2">"recipient_name"</span><span class="p">,</span>
+                <span class="s2">"mode_of_transportation"</span><span class="p">,</span>
+                <span class="s2">"volume_mcf"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;eia&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;eia176&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;eia176&quot;</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"eia"</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"eia176"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"eia176"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_eia176__yearly_supplemental_gaseous_fuel_supplies&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;a company&#39;s detailed supplemental gaseous fuel supplies by fuel type.&quot;</span>
+    <span class="s2">"core_eia176__yearly_supplemental_gaseous_fuel_supplies"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"a company's detailed supplemental gaseous fuel supplies by fuel type."</span>
             <span class="p">),</span>
-            <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Part 4, Line 6.0)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;The reported supplemental gaseous fuel types are normalized into categories from &quot;</span>
-                <span class="s2">&quot;free-text descriptions.&quot;</span>
+            <span class="s2">"additional_source_text"</span><span class="p">:</span> <span class="s2">"(Part 4, Line 6.0)"</span><span class="p">,</span>
+            <span class="s2">"additional_details_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"The reported supplemental gaseous fuel types are normalized into categories from "</span>
+                <span class="s2">"free-text descriptions."</span>
             <span class="p">),</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;operator_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;report_year&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;operating_state&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;fuel_type&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;volume_mcf&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"operator_id_eia"</span><span class="p">,</span>
+                <span class="s2">"report_year"</span><span class="p">,</span>
+                <span class="s2">"operating_state"</span><span class="p">,</span>
+                <span class="s2">"fuel_type"</span><span class="p">,</span>
+                <span class="s2">"volume_mcf"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;operator_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;report_year&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;fuel_type&quot;</span><span class="p">,</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"operator_id_eia"</span><span class="p">,</span>
+                <span class="s2">"report_year"</span><span class="p">,</span>
+                <span class="s2">"fuel_type"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;eia&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;eia176&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;eia176&quot;</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"eia"</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"eia176"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"eia176"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_eia176__yearly_gas_disposition_other&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;a company&#39;s detailed other natural gas disposition within the report &quot;</span>
-                <span class="s2">&quot;state.&quot;</span>
+    <span class="s2">"core_eia176__yearly_gas_disposition_other"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"a company's detailed other natural gas disposition within the report "</span>
+                <span class="s2">"state."</span>
             <span class="p">),</span>
-            <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">"usage_warnings"</span><span class="p">:</span> <span class="p">[</span>
                 <span class="p">{</span>
-                    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;duplicate_fuel_types&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
-                        <span class="s2">&quot;Where an operator has reported multiple dispositions of the same &#39;other&#39; type &quot;</span>
-                        <span class="s2">&quot;within a year, we aggregate volumes to be able to enforce the table&#39;s natural primary key.&quot;</span>
+                    <span class="s2">"type"</span><span class="p">:</span> <span class="s2">"duplicate_fuel_types"</span><span class="p">,</span>
+                    <span class="s2">"description"</span><span class="p">:</span> <span class="p">(</span>
+                        <span class="s2">"Where an operator has reported multiple dispositions of the same 'other' type "</span>
+                        <span class="s2">"within a year, we aggregate volumes to be able to enforce the table's natural primary key."</span>
                     <span class="p">),</span>
                 <span class="p">}</span>
             <span class="p">],</span>
-            <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Part 6, Line 18.4)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;The EIA-176 instructions describe Line 18.4 as other disposition &quot;</span>
-                <span class="s2">&quot;within the report state and ask respondents to specify the type. &quot;</span>
-                <span class="s2">&quot;Reporting instructions also note that vented/flared volumes and &quot;</span>
-                <span class="s2">&quot;extraction loss volumes should be reported on this line. &quot;</span>
-                <span class="s2">&quot;A number of records originally reported as &#39;no label&#39; are &quot;</span>
-                <span class="s2">&quot;reported as &#39;unknown&#39; in this table, otherwise reported values are lightly cleaned.&quot;</span>
+            <span class="s2">"additional_source_text"</span><span class="p">:</span> <span class="s2">"(Part 6, Line 18.4)"</span><span class="p">,</span>
+            <span class="s2">"additional_details_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"The EIA-176 instructions describe Line 18.4 as other disposition "</span>
+                <span class="s2">"within the report state and ask respondents to specify the type. "</span>
+                <span class="s2">"Reporting instructions also note that vented/flared volumes and "</span>
+                <span class="s2">"extraction loss volumes should be reported on this line. "</span>
+                <span class="s2">"A number of records originally reported as 'no label' are "</span>
+                <span class="s2">"reported as 'unknown' in this table, otherwise reported values are lightly cleaned."</span>
             <span class="p">),</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;operator_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;report_year&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;operating_state&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;disposition_type&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;volume_mcf&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"operator_id_eia"</span><span class="p">,</span>
+                <span class="s2">"report_year"</span><span class="p">,</span>
+                <span class="s2">"operating_state"</span><span class="p">,</span>
+                <span class="s2">"disposition_type"</span><span class="p">,</span>
+                <span class="s2">"volume_mcf"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;operator_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;report_year&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;operating_state&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;disposition_type&quot;</span><span class="p">,</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"operator_id_eia"</span><span class="p">,</span>
+                <span class="s2">"report_year"</span><span class="p">,</span>
+                <span class="s2">"operating_state"</span><span class="p">,</span>
+                <span class="s2">"disposition_type"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;eia&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;eia176&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;eia176&quot;</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"eia"</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"eia176"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"eia176"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_eia176__yearly_gas_disposition_by_consumer&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;a company&#39;s natural gas deliveries to end-use consumers within the report state.&quot;</span>
+    <span class="s2">"core_eia176__yearly_gas_disposition_by_consumer"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"a company's natural gas deliveries to end-use consumers within the report state."</span>
             <span class="p">),</span>
-            <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Part 6, Lines 10.0-11.6)&quot;</span><span class="p">,</span>
+            <span class="s2">"additional_source_text"</span><span class="p">:</span> <span class="s2">"(Part 6, Lines 10.0-11.6)"</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_year&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;operator_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;operating_state&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;customer_class&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;revenue_class&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;consumers&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;revenue&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;volume_mcf&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_year"</span><span class="p">,</span>
+                <span class="s2">"operator_id_eia"</span><span class="p">,</span>
+                <span class="s2">"operating_state"</span><span class="p">,</span>
+                <span class="s2">"customer_class"</span><span class="p">,</span>
+                <span class="s2">"revenue_class"</span><span class="p">,</span>
+                <span class="s2">"consumers"</span><span class="p">,</span>
+                <span class="s2">"revenue"</span><span class="p">,</span>
+                <span class="s2">"volume_mcf"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_year&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;operator_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;customer_class&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;revenue_class&quot;</span><span class="p">,</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_year"</span><span class="p">,</span>
+                <span class="s2">"operator_id_eia"</span><span class="p">,</span>
+                <span class="s2">"customer_class"</span><span class="p">,</span>
+                <span class="s2">"revenue_class"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;eia&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;eia176&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;eia176&quot;</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"eia"</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"eia176"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"eia176"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_eia176__yearly_liquefied_natural_gas_inventory&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;an operator&#39;s LNG storage volume and capacity.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Part 5, Lines 8.0-8.2)&quot;</span><span class="p">,</span>
+    <span class="s2">"core_eia176__yearly_liquefied_natural_gas_inventory"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="s2">"an operator's LNG storage volume and capacity."</span><span class="p">,</span>
+            <span class="s2">"additional_source_text"</span><span class="p">:</span> <span class="s2">"(Part 5, Lines 8.0-8.2)"</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;operator_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;report_year&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;operating_state&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;facility_type&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;volume_mcf&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;capacity_mmcfd&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"operator_id_eia"</span><span class="p">,</span>
+                <span class="s2">"report_year"</span><span class="p">,</span>
+                <span class="s2">"operating_state"</span><span class="p">,</span>
+                <span class="s2">"facility_type"</span><span class="p">,</span>
+                <span class="s2">"volume_mcf"</span><span class="p">,</span>
+                <span class="s2">"capacity_mmcfd"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;operator_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;report_year&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;facility_type&quot;</span><span class="p">,</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"operator_id_eia"</span><span class="p">,</span>
+                <span class="s2">"report_year"</span><span class="p">,</span>
+                <span class="s2">"facility_type"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;eia&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;eia176&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;eia176&quot;</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"eia"</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"eia176"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"eia176"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_eia176__yearly_gas_disposition&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;a company&#39;s natural and supplemental gas disposition for the report state.&quot;</span>
+    <span class="s2">"core_eia176__yearly_gas_disposition"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"a company's natural and supplemental gas disposition for the report state."</span>
             <span class="p">),</span>
-            <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Part 6, Lines 9, 12-20)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;&quot;The ``deliveries_out_of_state_volume_mcf`` (Line 14.0) are reported as one aggregated volume,</span>
+            <span class="s2">"additional_source_text"</span><span class="p">:</span> <span class="s2">"(Part 6, Lines 9, 12-20)"</span><span class="p">,</span>
+            <span class="s2">"additional_details_text"</span><span class="p">:</span> <span class="s2">"""The ``deliveries_out_of_state_volume_mcf`` (Line 14.0) are reported as one aggregated volume,</span>
 <span class="s2">calculated by summing the original granular data. Similarly, ``other_disposition_all_other_mcf``</span>
 <span class="s2">(Line 18.4) is summed from the original granular data and reported as one aggregate field. Use</span>
 <span class="s2">``core_eia176__yearly_gas_exports`` and ``core_eia176__yearly_gas_disposition_other`` to inspect</span>
@@ -1219,44 +1219,44 @@ window.runMermaid = runMermaid;</script>
 <span class="s2">by the EIA. We find that less than 0.5 percent of data falls outside of these expected bounds.</span>
 
 <span class="s2">The ``total_disposition_mcf`` field includes disposition to consumers which is reported in core_eia176__yearly_gas_disposition_by_consumer.</span>
-<span class="s2">Note that the reported total disposition and the sum of values in this table and core_eia176__yearly_gas_disposition_by_consumer often don&#39;t match as would be expected.</span>
+<span class="s2">Note that the reported total disposition and the sum of values in this table and core_eia176__yearly_gas_disposition_by_consumer often don't match as would be expected.</span>
 <span class="s2">Thus, we have preserved both the total field and the sub-components in these two tables.</span>
-<span class="s2">            &quot;&quot;&quot;</span><span class="p">,</span>
+<span class="s2">            """</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;operator_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;report_year&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;operating_state&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;delivered_gas_heat_content_mmbtu_per_mcf&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;operational_consumption_facility_space_heat_mcf&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;operational_consumption_new_pipeline_fill_mcf&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;operational_consumption_compressors_mcf&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;operational_consumption_lng_vaporization_liquefaction_mcf&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;operational_consumption_vehicle_fuel_mcf&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;operational_consumption_other_mcf&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;operational_consumption_other_detail&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;operational_storage_underground_mcf&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;operational_lng_storage_injections_mcf&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;producer_lease_use_mcf&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;producer_returned_for_repressuring_reinjection_mcf&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;disposition_distribution_companies_mcf&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;disposition_storage_operators_mcf&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;disposition_other_pipelines_mcf&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;disposition_out_of_state_mcf&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;other_disposition_all_other_mcf&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;total_disposition_mcf&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;losses_mcf&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;unaccounted_for_mcf&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"operator_id_eia"</span><span class="p">,</span>
+                <span class="s2">"report_year"</span><span class="p">,</span>
+                <span class="s2">"operating_state"</span><span class="p">,</span>
+                <span class="s2">"delivered_gas_heat_content_mmbtu_per_mcf"</span><span class="p">,</span>
+                <span class="s2">"operational_consumption_facility_space_heat_mcf"</span><span class="p">,</span>
+                <span class="s2">"operational_consumption_new_pipeline_fill_mcf"</span><span class="p">,</span>
+                <span class="s2">"operational_consumption_compressors_mcf"</span><span class="p">,</span>
+                <span class="s2">"operational_consumption_lng_vaporization_liquefaction_mcf"</span><span class="p">,</span>
+                <span class="s2">"operational_consumption_vehicle_fuel_mcf"</span><span class="p">,</span>
+                <span class="s2">"operational_consumption_other_mcf"</span><span class="p">,</span>
+                <span class="s2">"operational_consumption_other_detail"</span><span class="p">,</span>
+                <span class="s2">"operational_storage_underground_mcf"</span><span class="p">,</span>
+                <span class="s2">"operational_lng_storage_injections_mcf"</span><span class="p">,</span>
+                <span class="s2">"producer_lease_use_mcf"</span><span class="p">,</span>
+                <span class="s2">"producer_returned_for_repressuring_reinjection_mcf"</span><span class="p">,</span>
+                <span class="s2">"disposition_distribution_companies_mcf"</span><span class="p">,</span>
+                <span class="s2">"disposition_storage_operators_mcf"</span><span class="p">,</span>
+                <span class="s2">"disposition_other_pipelines_mcf"</span><span class="p">,</span>
+                <span class="s2">"disposition_out_of_state_mcf"</span><span class="p">,</span>
+                <span class="s2">"other_disposition_all_other_mcf"</span><span class="p">,</span>
+                <span class="s2">"total_disposition_mcf"</span><span class="p">,</span>
+                <span class="s2">"losses_mcf"</span><span class="p">,</span>
+                <span class="s2">"unaccounted_for_mcf"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;operator_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;report_year&quot;</span><span class="p">,</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"operator_id_eia"</span><span class="p">,</span>
+                <span class="s2">"report_year"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;eia&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;eia176&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;eia176&quot;</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"eia"</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"eia176"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"eia176"</span><span class="p">,</span>
     <span class="p">},</span>
 <span class="p">}</span></div>
 

@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.analysis.service_territory &#8212; PUDL 2026.8.1.dev18 documentation</title>
+    <title>pudl.analysis.service_territory &#8212; PUDL 2026.8.1.dev19 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=f2b63aa7"></script>
+    <script src="../../../_static/documentation_options.js?v=5bf64ec1"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev18 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev18 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev19 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev19 documentation - Home"/>
   
   
 </a></div>
@@ -868,13 +868,13 @@ window.runMermaid = runMermaid;</script>
                 <article class="bd-article">
                   
   <h1>Source code for pudl.analysis.service_territory</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Compile historical utility and balancing area territories.</span>
+<span></span><span class="sd">"""Compile historical utility and balancing area territories.</span>
 
 <span class="sd">Use the mapping of utilities to counties, and balancing areas to utilities, available</span>
 <span class="sd">within the EIA 861, in conjunction with the US Census geometries for counties, to infer</span>
 <span class="sd">the historical spatial extent of utility and balancing area territories. Output the</span>
 <span class="sd">resulting geometries for use in other applications.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pathlib</span>
@@ -898,11 +898,11 @@ window.runMermaid = runMermaid;</script>
 <span class="c1">################################################################################</span>
 <div class="viewcode-block" id="MAP_CRS">
 <a class="viewcode-back" href="../../../autoapi/pudl/analysis/service_territory/index.html#pudl.analysis.service_territory.MAP_CRS">[docs]</a>
-<span class="n">MAP_CRS</span> <span class="o">=</span> <span class="s2">&quot;EPSG:3857&quot;</span>  <span class="c1"># For mapping w/ OSM baselayer tiles</span></div>
+<span class="n">MAP_CRS</span> <span class="o">=</span> <span class="s2">"EPSG:3857"</span>  <span class="c1"># For mapping w/ OSM baselayer tiles</span></div>
 
 <div class="viewcode-block" id="CALC_CRS">
 <a class="viewcode-back" href="../../../autoapi/pudl/analysis/service_territory/index.html#pudl.analysis.service_territory.CALC_CRS">[docs]</a>
-<span class="n">CALC_CRS</span> <span class="o">=</span> <span class="s2">&quot;ESRI:102003&quot;</span>  <span class="c1"># For accurate area calculations</span></div>
+<span class="n">CALC_CRS</span> <span class="o">=</span> <span class="s2">"ESRI:102003"</span>  <span class="c1"># For accurate area calculations</span></div>
 
 
 
@@ -912,11 +912,11 @@ window.runMermaid = runMermaid;</script>
     <span class="n">out_eia__yearly_utilities</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
     <span class="n">core_eia861__yearly_service_territory</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compile IDs and Names of all known EIA Utilities.</span>
+<span class="w">    </span><span class="sd">"""Compile IDs and Names of all known EIA Utilities.</span>
 
 <span class="sd">    Grab all EIA utility names and IDs from both the EIA 861 Service Territory table and</span>
-<span class="sd">    the EIA 860 Utility entity table. This is a temporary function that&#39;s only needed</span>
-<span class="sd">    because we haven&#39;t integrated the EIA 861 information into the entity harvesting</span>
+<span class="sd">    the EIA 860 Utility entity table. This is a temporary function that's only needed</span>
+<span class="sd">    because we haven't integrated the EIA 861 information into the entity harvesting</span>
 <span class="sd">    process and PUDL database yet.</span>
 
 <span class="sd">    Args:</span>
@@ -925,18 +925,18 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A DataFrame having 2 columns ``utility_id_eia`` and ``utility_name_eia``.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="p">(</span>
         <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
             <span class="p">[</span>
-                <span class="n">out_eia__yearly_utilities</span><span class="p">[[</span><span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;utility_name_eia&quot;</span><span class="p">]],</span>
+                <span class="n">out_eia__yearly_utilities</span><span class="p">[[</span><span class="s2">"utility_id_eia"</span><span class="p">,</span> <span class="s2">"utility_name_eia"</span><span class="p">]],</span>
                 <span class="n">core_eia861__yearly_service_territory</span><span class="p">[</span>
-                    <span class="p">[</span><span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;utility_name_eia&quot;</span><span class="p">]</span>
+                    <span class="p">[</span><span class="s2">"utility_id_eia"</span><span class="p">,</span> <span class="s2">"utility_name_eia"</span><span class="p">]</span>
                 <span class="p">],</span>
             <span class="p">]</span>
         <span class="p">)</span>
-        <span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;utility_id_eia&quot;</span><span class="p">])</span>
-        <span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;utility_id_eia&quot;</span><span class="p">])</span>
+        <span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">"utility_id_eia"</span><span class="p">])</span>
+        <span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">"utility_id_eia"</span><span class="p">])</span>
     <span class="p">)</span></div>
 
 
@@ -953,7 +953,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">core_eia861__yearly_service_territory</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
     <span class="n">limit_by_state</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compile county FIPS codes associated with an entity&#39;s service territory.</span>
+<span class="w">    </span><span class="sd">"""Compile county FIPS codes associated with an entity's service territory.</span>
 
 <span class="sd">    For each entity identified by ids, look up the set of counties associated</span>
 <span class="sd">    with that entity on an annual basis. Optionally limit the set of counties</span>
@@ -964,7 +964,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        ids: A collection of EIA utility or balancing authority IDs.</span>
 <span class="sd">        assn: Association table, relating ``report_date``,</span>
 <span class="sd">        ``state``, and ``utility_id_eia`` to each other, as well as the</span>
-<span class="sd">            column indicated by ``assn_col`` -- if it&#39;s not ``utility_id_eia``.</span>
+<span class="sd">            column indicated by ``assn_col`` -- if it's not ``utility_id_eia``.</span>
 <span class="sd">        assn_col: Label of the dataframe column in ``assn`` that contains</span>
 <span class="sd">            the ID of the entities of interest. Should probably be either</span>
 <span class="sd">            ``balancing_authority_id_eia`` or ``utility_id_eia``.</span>
@@ -978,24 +978,24 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        A table associating the entity IDs with a collection of</span>
 <span class="sd">        counties annually, identifying counties both by name and county_id_fips</span>
 <span class="sd">        (both state and state_id_fips are included for clarity).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># Limit the association table to only the relevant values:</span>
     <span class="n">assn</span> <span class="o">=</span> <span class="n">assn</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">assn</span><span class="p">[</span><span class="n">assn_col</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">ids</span><span class="p">)]</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">limit_by_state</span><span class="p">:</span>
-        <span class="n">assn</span> <span class="o">=</span> <span class="n">assn</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s2">&quot;state&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="s2">&quot;columns&quot;</span><span class="p">)</span>
+        <span class="n">assn</span> <span class="o">=</span> <span class="n">assn</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s2">"state"</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="s2">"columns"</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="p">(</span>
-        <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">assn</span><span class="p">,</span> <span class="n">core_eia861__yearly_service_territory</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;inner&quot;</span><span class="p">)</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">assn</span><span class="p">,</span> <span class="n">core_eia861__yearly_service_territory</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">"inner"</span><span class="p">)</span>
         <span class="o">.</span><span class="n">loc</span><span class="p">[</span>
             <span class="p">:,</span>
             <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
                 <span class="n">assn_col</span><span class="p">,</span>
-                <span class="s2">&quot;state&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;county&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;state_id_fips&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;county_id_fips&quot;</span><span class="p">,</span>
+                <span class="s2">"state"</span><span class="p">,</span>
+                <span class="s2">"county"</span><span class="p">,</span>
+                <span class="s2">"state_id_fips"</span><span class="p">,</span>
+                <span class="s2">"county_id_fips"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">]</span>
         <span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span>
@@ -1011,7 +1011,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">dissolve</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">dissolve_by</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Merge census geometries into dataframe on county_id_fips, optionally dissolving.</span>
+<span class="w">    </span><span class="sd">"""Merge census geometries into dataframe on county_id_fips, optionally dissolving.</span>
 
 <span class="sd">    Merge the US Census county-level geospatial information into the DataFrame df</span>
 <span class="sd">    based on the the column county_id_fips (in df), which corresponds to the column</span>
@@ -1026,43 +1026,43 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        dissolve: If True, dissolve individual county geometries into larger</span>
 <span class="sd">            service territories.</span>
 <span class="sd">        dissolve_by: The columns to group by in the dissolve. For example,</span>
-<span class="sd">            dissolve_by=[&quot;report_date&quot;, &quot;utility_id_eia&quot;] might provide annual utility</span>
-<span class="sd">            service territories, while [&quot;report_date&quot;, &quot;balancing_authority_id_eia&quot;]</span>
+<span class="sd">            dissolve_by=["report_date", "utility_id_eia"] might provide annual utility</span>
+<span class="sd">            service territories, while ["report_date", "balancing_authority_id_eia"]</span>
 <span class="sd">            would provide annual balancing authority territories.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A GeoDataFrame with the merged census geometries.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">out_gdf</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">census_gdf</span><span class="p">[[</span><span class="s2">&quot;county_id_fips&quot;</span><span class="p">,</span> <span class="s2">&quot;county&quot;</span><span class="p">,</span> <span class="s2">&quot;dp0010001&quot;</span><span class="p">,</span> <span class="s2">&quot;geometry&quot;</span><span class="p">]]</span>
+        <span class="n">census_gdf</span><span class="p">[[</span><span class="s2">"county_id_fips"</span><span class="p">,</span> <span class="s2">"county"</span><span class="p">,</span> <span class="s2">"dp0010001"</span><span class="p">,</span> <span class="s2">"geometry"</span><span class="p">]]</span>
         <span class="o">.</span><span class="n">rename</span><span class="p">(</span>
             <span class="n">columns</span><span class="o">=</span><span class="p">{</span>
-                <span class="s2">&quot;county&quot;</span><span class="p">:</span> <span class="s2">&quot;county_name_census&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;dp0010001&quot;</span><span class="p">:</span> <span class="s2">&quot;population&quot;</span><span class="p">,</span>
+                <span class="s2">"county"</span><span class="p">:</span> <span class="s2">"county_name_census"</span><span class="p">,</span>
+                <span class="s2">"dp0010001"</span><span class="p">:</span> <span class="s2">"population"</span><span class="p">,</span>
             <span class="p">}</span>
         <span class="p">)</span>
         <span class="c1"># Calculate county areas using cylindrical equal area projection:</span>
         <span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">area_km2</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="n">epsg</span><span class="o">=</span><span class="mi">6933</span><span class="p">)</span><span class="o">.</span><span class="n">area</span> <span class="o">/</span> <span class="mf">1e6</span><span class="p">)</span>
-        <span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">"right"</span><span class="p">)</span>
     <span class="p">)</span>
     <span class="k">if</span> <span class="n">dissolve</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
-        <span class="c1"># Don&#39;t double-count duplicated counties, if any.</span>
-        <span class="n">out_gdf</span> <span class="o">=</span> <span class="n">out_gdf</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="n">dissolve_by</span> <span class="ow">or</span> <span class="p">[]</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;county_id_fips&quot;</span><span class="p">])</span>
+        <span class="c1"># Don't double-count duplicated counties, if any.</span>
+        <span class="n">out_gdf</span> <span class="o">=</span> <span class="n">out_gdf</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="n">dissolve_by</span> <span class="ow">or</span> <span class="p">[]</span> <span class="o">+</span> <span class="p">[</span><span class="s2">"county_id_fips"</span><span class="p">])</span>
         <span class="c1"># Sum these numerical columns so we can merge with dissolved geometries</span>
         <span class="n">summed</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">out_gdf</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">dissolve_by</span><span class="p">)[[</span><span class="s2">&quot;population&quot;</span><span class="p">,</span> <span class="s2">&quot;area_km2&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+            <span class="n">out_gdf</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">dissolve_by</span><span class="p">)[[</span><span class="s2">"population"</span><span class="p">,</span> <span class="s2">"area_km2"</span><span class="p">]]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
         <span class="p">)</span>
         <span class="n">out_gdf</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">out_gdf</span><span class="o">.</span><span class="n">dissolve</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="n">dissolve_by</span><span class="p">)</span>
             <span class="o">.</span><span class="n">drop</span><span class="p">(</span>
                 <span class="n">columns</span><span class="o">=</span><span class="p">[</span>
-                    <span class="s2">&quot;county_id_fips&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;county&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;county_name_census&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;state&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;state_id_fips&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;population&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;area_km2&quot;</span><span class="p">,</span>
+                    <span class="s2">"county_id_fips"</span><span class="p">,</span>
+                    <span class="s2">"county"</span><span class="p">,</span>
+                    <span class="s2">"county_name_census"</span><span class="p">,</span>
+                    <span class="s2">"state"</span><span class="p">,</span>
+                    <span class="s2">"state_id_fips"</span><span class="p">,</span>
+                    <span class="s2">"population"</span><span class="p">,</span>
+                    <span class="s2">"area_km2"</span><span class="p">,</span>
                 <span class="p">],</span>
             <span class="p">)</span>
             <span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
@@ -1083,7 +1083,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">limit_by_state</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">dissolve</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compile service territory geometries based on county_id_fips.</span>
+<span class="w">    </span><span class="sd">"""Compile service territory geometries based on county_id_fips.</span>
 
 <span class="sd">    Calls ``get_territory_fips`` to generate the list of counties associated with</span>
 <span class="sd">    each entity identified by ``ids``, and then merges in the corresponding county</span>
@@ -1102,7 +1102,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        ids: A collection of EIA balancing authority IDs.</span>
 <span class="sd">        assn: Association table, relating ``report_date``,</span>
 <span class="sd">        ``state``, and ``utility_id_eia`` to each other, as well as the</span>
-<span class="sd">            column indicated by ``assn_col`` -- if it&#39;s not ``utility_id_eia``.</span>
+<span class="sd">            column indicated by ``assn_col`` -- if it's not ``utility_id_eia``.</span>
 <span class="sd">        assn_col: Label of the dataframe column in ``assn`` that contains</span>
 <span class="sd">            the ID of the entities of interest. Should probably be either</span>
 <span class="sd">            ``balancing_authority_id_eia`` or ``utility_id_eia``.</span>
@@ -1117,12 +1117,12 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">            records enumerating all the counties associated with a given</span>
 <span class="sd">            balancing_authority_id_eia in each year. If dissolve=True, all of the</span>
 <span class="sd">            county-level geometries for each utility in each year will be merged</span>
-<span class="sd">            together (&quot;dissolved&quot;) resulting in a single geometry and record for each</span>
+<span class="sd">            together ("dissolved") resulting in a single geometry and record for each</span>
 <span class="sd">            balancing_authority-year.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A GeoDataFrame with service territory geometries for each entity.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="n">get_territory_fips</span><span class="p">(</span>
         <span class="n">ids</span><span class="o">=</span><span class="n">ids</span><span class="p">,</span>
         <span class="n">assn</span><span class="o">=</span><span class="n">assn</span><span class="p">,</span>
@@ -1133,7 +1133,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">add_geometries</span><span class="p">,</span>
         <span class="n">census_gdf</span><span class="p">,</span>
         <span class="n">dissolve</span><span class="o">=</span><span class="n">dissolve</span><span class="p">,</span>
-        <span class="n">dissolve_by</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">,</span> <span class="n">assn_col</span><span class="p">],</span>
+        <span class="n">dissolve_by</span><span class="o">=</span><span class="p">[</span><span class="s2">"report_date"</span><span class="p">,</span> <span class="n">assn_col</span><span class="p">],</span>
     <span class="p">)</span></div>
 
 
@@ -1142,12 +1142,12 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../../autoapi/pudl/analysis/service_territory/index.html#pudl.analysis.service_territory._save_geoparquet">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_save_geoparquet</span><span class="p">(</span>
     <span class="n">gdf</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span>
-    <span class="n">entity_type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;utility&quot;</span><span class="p">,</span> <span class="s2">&quot;balancing_authority&quot;</span><span class="p">],</span>
+    <span class="n">entity_type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"utility"</span><span class="p">,</span> <span class="s2">"balancing_authority"</span><span class="p">],</span>
     <span class="n">dissolve</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
     <span class="n">limit_by_state</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
     <span class="n">output_dir</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Save utility or balancing authority service territory geometries to GeoParquet.</span>
+<span class="w">    </span><span class="sd">"""Save utility or balancing authority service territory geometries to GeoParquet.</span>
 
 <span class="sd">    In order to prevent the geometry data from exceeding the 2GB maximum size of an</span>
 <span class="sd">    Arrow object, we need to keep the row groups small. Sort the dataframe by the</span>
@@ -1156,7 +1156,7 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">    Args:</span>
 <span class="sd">        gdf: GeoDataframe containing utility or balancing authority geometries.</span>
-<span class="sd">        entity_type: string indicating whether we&#39;re outputting utility or balancing</span>
+<span class="sd">        entity_type: string indicating whether we're outputting utility or balancing</span>
 <span class="sd">            authority geometries.</span>
 <span class="sd">        dissolve: Whether the individual county geometries making up the service</span>
 <span class="sd">            territories have been merged together. Used to construct filename.</span>
@@ -1165,14 +1165,14 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">            filename.</span>
 <span class="sd">        output_dir: Path to the directory where the GeoParquet file will be written.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">dissolved</span> <span class="o">=</span> <span class="s2">&quot;_dissolved&quot;</span> <span class="k">if</span> <span class="n">dissolve</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
-    <span class="n">limited</span> <span class="o">=</span> <span class="s2">&quot;_limited&quot;</span> <span class="k">if</span> <span class="n">limit_by_state</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+<span class="sd">    """</span>
+    <span class="n">dissolved</span> <span class="o">=</span> <span class="s2">"_dissolved"</span> <span class="k">if</span> <span class="n">dissolve</span> <span class="k">else</span> <span class="s2">""</span>
+    <span class="n">limited</span> <span class="o">=</span> <span class="s2">"_limited"</span> <span class="k">if</span> <span class="n">limit_by_state</span> <span class="k">else</span> <span class="s2">""</span>
     <span class="k">if</span> <span class="n">output_dir</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">output_dir</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">()</span>
-    <span class="n">file_path</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">entity_type</span><span class="si">}</span><span class="s2">_geometry</span><span class="si">{</span><span class="n">limited</span><span class="si">}{</span><span class="n">dissolved</span><span class="si">}</span><span class="s2">.parquet&quot;</span>
-    <span class="n">gdf</span><span class="o">.</span><span class="n">sort_values</span><span class="p">([</span><span class="s2">&quot;report_date&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">entity_type</span><span class="si">}</span><span class="s2">_id_eia&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">to_parquet</span><span class="p">(</span>
-        <span class="n">file_path</span><span class="p">,</span> <span class="n">row_group_size</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span> <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;snappy&quot;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span>
+    <span class="n">file_path</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">entity_type</span><span class="si">}</span><span class="s2">_geometry</span><span class="si">{</span><span class="n">limited</span><span class="si">}{</span><span class="n">dissolved</span><span class="si">}</span><span class="s2">.parquet"</span>
+    <span class="n">gdf</span><span class="o">.</span><span class="n">sort_values</span><span class="p">([</span><span class="s2">"report_date"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">entity_type</span><span class="si">}</span><span class="s2">_id_eia"</span><span class="p">])</span><span class="o">.</span><span class="n">to_parquet</span><span class="p">(</span>
+        <span class="n">file_path</span><span class="p">,</span> <span class="n">row_group_size</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span> <span class="n">compression</span><span class="o">=</span><span class="s2">"snappy"</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span>
     <span class="p">)</span></div>
 
 
@@ -1186,26 +1186,26 @@ window.runMermaid = runMermaid;</script>
     <span class="n">core_eia861__yearly_service_territory</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
     <span class="n">core_eia861__assn_utility</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
     <span class="n">census_counties</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
-    <span class="n">entity_type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;balancing_authority&quot;</span><span class="p">,</span> <span class="s2">&quot;utility&quot;</span><span class="p">],</span>
-    <span class="n">save_format</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;geoparquet&quot;</span><span class="p">,</span> <span class="s2">&quot;geodataframe&quot;</span><span class="p">,</span> <span class="s2">&quot;dataframe&quot;</span><span class="p">],</span>
+    <span class="n">entity_type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"balancing_authority"</span><span class="p">,</span> <span class="s2">"utility"</span><span class="p">],</span>
+    <span class="n">save_format</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"geoparquet"</span><span class="p">,</span> <span class="s2">"geodataframe"</span><span class="p">,</span> <span class="s2">"dataframe"</span><span class="p">],</span>
     <span class="n">output_dir</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">dissolve</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">limit_by_state</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">years</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">[],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compile all available utility or balancing authority geometries.</span>
+<span class="w">    </span><span class="sd">"""Compile all available utility or balancing authority geometries.</span>
 
 <span class="sd">    Returns a geoparquet file, geopandas GeoDataFrame or a pandas DataFrame with the</span>
 <span class="sd">    geometry column removed depending on the value of the save_format parameter. By</span>
 <span class="sd">    default, this returns only counties with observed EIA 861 data for a utility or</span>
 <span class="sd">    balancing authority, with geometries available at the county level.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;Compiling </span><span class="si">{</span><span class="n">entity_type</span><span class="si">}</span><span class="s2"> geometries with </span><span class="si">{</span><span class="n">dissolve</span><span class="si">=}</span><span class="s2">, </span><span class="si">{</span><span class="n">limit_by_state</span><span class="si">=}</span><span class="s2">, &quot;</span>
-        <span class="sa">f</span><span class="s2">&quot;and </span><span class="si">{</span><span class="n">years</span><span class="si">=}</span><span class="s2">.&quot;</span>
+        <span class="sa">f</span><span class="s2">"Compiling </span><span class="si">{</span><span class="n">entity_type</span><span class="si">}</span><span class="s2"> geometries with </span><span class="si">{</span><span class="n">dissolve</span><span class="si">=}</span><span class="s2">, </span><span class="si">{</span><span class="n">limit_by_state</span><span class="si">=}</span><span class="s2">, "</span>
+        <span class="sa">f</span><span class="s2">"and </span><span class="si">{</span><span class="n">years</span><span class="si">=}</span><span class="s2">."</span>
     <span class="p">)</span>
-    <span class="k">if</span> <span class="n">save_format</span> <span class="o">==</span> <span class="s2">&quot;geoparquet&quot;</span> <span class="ow">and</span> <span class="n">output_dir</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No output_dir provided while writing geoparquet.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">save_format</span> <span class="o">==</span> <span class="s2">"geoparquet"</span> <span class="ow">and</span> <span class="n">output_dir</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"No output_dir provided while writing geoparquet."</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">years</span><span class="p">:</span>
 
@@ -1228,19 +1228,19 @@ window.runMermaid = runMermaid;</script>
         <span class="n">out_eia__yearly_utilities</span><span class="p">,</span> <span class="n">core_eia861__yearly_service_territory</span>
     <span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">entity_type</span> <span class="o">==</span> <span class="s2">&quot;balancing_authority&quot;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">entity_type</span> <span class="o">==</span> <span class="s2">"balancing_authority"</span><span class="p">:</span>
         <span class="n">ids</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">core_eia861__yearly_balancing_authority</span><span class="o">.</span><span class="n">balancing_authority_id_eia</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
         <span class="p">)</span>
         <span class="n">assn</span> <span class="o">=</span> <span class="n">core_eia861__assn_balancing_authority</span>
-        <span class="n">assn_col</span> <span class="o">=</span> <span class="s2">&quot;balancing_authority_id_eia&quot;</span>
-    <span class="k">elif</span> <span class="n">entity_type</span> <span class="o">==</span> <span class="s2">&quot;utility&quot;</span><span class="p">:</span>
+        <span class="n">assn_col</span> <span class="o">=</span> <span class="s2">"balancing_authority_id_eia"</span>
+    <span class="k">elif</span> <span class="n">entity_type</span> <span class="o">==</span> <span class="s2">"utility"</span><span class="p">:</span>
         <span class="n">ids</span> <span class="o">=</span> <span class="n">utilids_all_eia</span><span class="o">.</span><span class="n">utility_id_eia</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
         <span class="n">assn</span> <span class="o">=</span> <span class="n">core_eia861__assn_utility</span>
-        <span class="n">assn_col</span> <span class="o">=</span> <span class="s2">&quot;utility_id_eia&quot;</span>
+        <span class="n">assn_col</span> <span class="o">=</span> <span class="s2">"utility_id_eia"</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Got </span><span class="si">{</span><span class="n">entity_type</span><span class="si">=}</span><span class="s2">, but need either &#39;balancing_authority&#39; or &#39;utility&#39;&quot;</span>
+            <span class="sa">f</span><span class="s2">"Got </span><span class="si">{</span><span class="n">entity_type</span><span class="si">=}</span><span class="s2">, but need either 'balancing_authority' or 'utility'"</span>
         <span class="p">)</span>
 
     <span class="c1"># Identify all Utility IDs with service territory information</span>
@@ -1253,7 +1253,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">limit_by_state</span><span class="o">=</span><span class="n">limit_by_state</span><span class="p">,</span>
         <span class="n">dissolve</span><span class="o">=</span><span class="n">dissolve</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="k">if</span> <span class="n">save_format</span> <span class="o">==</span> <span class="s2">&quot;geoparquet&quot;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">save_format</span> <span class="o">==</span> <span class="s2">"geoparquet"</span><span class="p">:</span>
         <span class="c1"># TODO[dagster]: update to use IO Manager.</span>
         <span class="n">_save_geoparquet</span><span class="p">(</span>
             <span class="n">geom</span><span class="p">,</span>
@@ -1262,8 +1262,8 @@ window.runMermaid = runMermaid;</script>
             <span class="n">limit_by_state</span><span class="o">=</span><span class="n">limit_by_state</span><span class="p">,</span>
             <span class="n">output_dir</span><span class="o">=</span><span class="n">output_dir</span><span class="p">,</span>
         <span class="p">)</span>
-    <span class="k">elif</span> <span class="n">save_format</span> <span class="o">==</span> <span class="s2">&quot;dataframe&quot;</span><span class="p">:</span>
-        <span class="n">geom</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">geom</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="s2">&quot;geometry&quot;</span><span class="p">))</span>
+    <span class="k">elif</span> <span class="n">save_format</span> <span class="o">==</span> <span class="s2">"dataframe"</span><span class="p">:</span>
+        <span class="n">geom</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">geom</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="s2">"geometry"</span><span class="p">))</span>
 
     <span class="k">return</span> <span class="n">geom</span></div>
 
@@ -1272,38 +1272,38 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="service_territory_asset_factory">
 <a class="viewcode-back" href="../../../autoapi/pudl/analysis/service_territory/index.html#pudl.analysis.service_territory.service_territory_asset_factory">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">service_territory_asset_factory</span><span class="p">(</span>
-    <span class="n">entity_type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;balancing_authority&quot;</span><span class="p">,</span> <span class="s2">&quot;utility&quot;</span><span class="p">],</span>
+    <span class="n">entity_type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"balancing_authority"</span><span class="p">,</span> <span class="s2">"utility"</span><span class="p">],</span>
     <span class="n">io_manager_key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">AssetsDefinition</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Build asset definitions for balancing authority and utility territories.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Build asset definitions for balancing authority and utility territories."""</span>
 
     <span class="nd">@asset</span><span class="p">(</span>
-        <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;out_eia861__yearly_</span><span class="si">{</span><span class="n">entity_type</span><span class="si">}</span><span class="s2">_service_territory&quot;</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">"out_eia861__yearly_</span><span class="si">{</span><span class="n">entity_type</span><span class="si">}</span><span class="s2">_service_territory"</span><span class="p">,</span>
         <span class="n">io_manager_key</span><span class="o">=</span><span class="n">io_manager_key</span><span class="p">,</span>
         <span class="n">config_schema</span><span class="o">=</span><span class="p">{</span>
-            <span class="s2">&quot;dissolve&quot;</span><span class="p">:</span> <span class="n">Field</span><span class="p">(</span>
+            <span class="s2">"dissolve"</span><span class="p">:</span> <span class="n">Field</span><span class="p">(</span>
                 <span class="nb">bool</span><span class="p">,</span>
                 <span class="n">default_value</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                 <span class="n">description</span><span class="o">=</span><span class="p">(</span>
-                    <span class="s2">&quot;If True, dissolve the compiled geometries to the entity level. If False, leave them as counties.&quot;</span>
+                    <span class="s2">"If True, dissolve the compiled geometries to the entity level. If False, leave them as counties."</span>
                 <span class="p">),</span>
             <span class="p">),</span>
-            <span class="s2">&quot;limit_by_state&quot;</span><span class="p">:</span> <span class="n">Field</span><span class="p">(</span>
+            <span class="s2">"limit_by_state"</span><span class="p">:</span> <span class="n">Field</span><span class="p">(</span>
                 <span class="nb">bool</span><span class="p">,</span>
                 <span class="n">default_value</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                 <span class="n">description</span><span class="o">=</span><span class="p">(</span>
-                    <span class="s2">&quot;If True, only include counties with observed EIA 861 data in association with the state and utility/balancing authority.&quot;</span>
+                    <span class="s2">"If True, only include counties with observed EIA 861 data in association with the state and utility/balancing authority."</span>
                 <span class="p">),</span>
             <span class="p">),</span>
-            <span class="s2">&quot;save_format&quot;</span><span class="p">:</span> <span class="n">Field</span><span class="p">(</span>
+            <span class="s2">"save_format"</span><span class="p">:</span> <span class="n">Field</span><span class="p">(</span>
                 <span class="nb">str</span><span class="p">,</span>
-                <span class="n">default_value</span><span class="o">=</span><span class="s2">&quot;dataframe&quot;</span><span class="p">,</span>
+                <span class="n">default_value</span><span class="o">=</span><span class="s2">"dataframe"</span><span class="p">,</span>
                 <span class="n">description</span><span class="o">=</span><span class="p">(</span>
-                    <span class="s2">&quot;Format of output in PUDL. One of: geoparquet, geodataframe, dataframe.&quot;</span>
+                    <span class="s2">"Format of output in PUDL. One of: geoparquet, geodataframe, dataframe."</span>
                 <span class="p">),</span>
             <span class="p">),</span>
         <span class="p">},</span>
-        <span class="n">compute_kind</span><span class="o">=</span><span class="s2">&quot;Python&quot;</span><span class="p">,</span>
+        <span class="n">compute_kind</span><span class="o">=</span><span class="s2">"Python"</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_service_territory</span><span class="p">(</span>
         <span class="n">context</span><span class="p">,</span>
@@ -1314,15 +1314,15 @@ window.runMermaid = runMermaid;</script>
         <span class="n">core_eia861__assn_utility</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
         <span class="n">out_censusdp1tract__counties</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compile all available utility or balancing authority geometries.</span>
+<span class="w">        </span><span class="sd">"""Compile all available utility or balancing authority geometries.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A dataframe compiling all available utility or balancing authority geometries.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># Get options from dagster</span>
-        <span class="n">dissolve</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">op_config</span><span class="p">[</span><span class="s2">&quot;dissolve&quot;</span><span class="p">]</span>
-        <span class="n">limit_by_state</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">op_config</span><span class="p">[</span><span class="s2">&quot;limit_by_state&quot;</span><span class="p">]</span>
-        <span class="n">save_format</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">op_config</span><span class="p">[</span><span class="s2">&quot;save_format&quot;</span><span class="p">]</span>
+        <span class="n">dissolve</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">op_config</span><span class="p">[</span><span class="s2">"dissolve"</span><span class="p">]</span>
+        <span class="n">limit_by_state</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">op_config</span><span class="p">[</span><span class="s2">"limit_by_state"</span><span class="p">]</span>
+        <span class="n">save_format</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">op_config</span><span class="p">[</span><span class="s2">"save_format"</span><span class="p">]</span>
 
         <span class="k">return</span> <span class="n">compile_geoms</span><span class="p">(</span>
             <span class="n">core_eia861__yearly_balancing_authority</span><span class="o">=</span><span class="n">core_eia861__yearly_balancing_authority</span><span class="p">,</span>
@@ -1345,9 +1345,9 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../../autoapi/pudl/analysis/service_territory/index.html#pudl.analysis.service_territory.service_territory_eia861_assets">[docs]</a>
 <span class="n">service_territory_eia861_assets</span> <span class="o">=</span> <span class="p">[</span>
     <span class="n">service_territory_asset_factory</span><span class="p">(</span>
-        <span class="n">entity_type</span><span class="o">=</span><span class="n">entity</span><span class="p">,</span> <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">&quot;pudl_io_manager&quot;</span>
+        <span class="n">entity_type</span><span class="o">=</span><span class="n">entity</span><span class="p">,</span> <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"pudl_io_manager"</span>
     <span class="p">)</span>
-    <span class="k">for</span> <span class="n">entity</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;balancing_authority&quot;</span><span class="p">,</span> <span class="s2">&quot;utility&quot;</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">entity</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"balancing_authority"</span><span class="p">,</span> <span class="s2">"utility"</span><span class="p">]</span>
 <span class="p">]</span></div>
 
 
@@ -1362,9 +1362,9 @@ window.runMermaid = runMermaid;</script>
     <span class="n">id_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">id_val</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Plot all the historical geometries defined for the specified entity.</span>
+<span class="w">    </span><span class="sd">"""Plot all the historical geometries defined for the specified entity.</span>
 
-<span class="sd">    This is useful for exploring how a particular entity&#39;s service territory has evolved</span>
+<span class="sd">    This is useful for exploring how a particular entity's service territory has evolved</span>
 <span class="sd">    over time, or for identifying individual missing or inaccurate territories.</span>
 
 <span class="sd">    Args:</span>
@@ -1376,20 +1376,20 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">            visualized, like ``utility_id_eia``, ``balancing_authority_id_eia``, or</span>
 <span class="sd">            ``balancing_authority_code_eia``.</span>
 <span class="sd">        id_val: The ID of the entity whose territory should be plotted.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">id_col</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">gdf</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The input id_col </span><span class="si">{</span><span class="n">id_col</span><span class="si">}</span><span class="s2"> doesn&#39;t exist in this GDF.&quot;</span><span class="p">)</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Plotting historical territories for </span><span class="si">%s</span><span class="s2">==</span><span class="si">%s</span><span class="s2">.&quot;</span><span class="p">,</span> <span class="n">id_col</span><span class="p">,</span> <span class="n">id_val</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"The input id_col </span><span class="si">{</span><span class="n">id_col</span><span class="si">}</span><span class="s2"> doesn't exist in this GDF."</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Plotting historical territories for </span><span class="si">%s</span><span class="s2">==</span><span class="si">%s</span><span class="s2">."</span><span class="p">,</span> <span class="n">id_col</span><span class="p">,</span> <span class="n">id_val</span><span class="p">)</span>
 
     <span class="c1"># Pare down the GDF so this all goes faster</span>
     <span class="n">entity_gdf</span> <span class="o">=</span> <span class="n">gdf</span><span class="p">[</span><span class="n">gdf</span><span class="p">[</span><span class="n">id_col</span><span class="p">]</span> <span class="o">==</span> <span class="n">id_val</span><span class="p">]</span>
-    <span class="k">if</span> <span class="s2">&quot;county_id_fips&quot;</span> <span class="ow">in</span> <span class="n">entity_gdf</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+    <span class="k">if</span> <span class="s2">"county_id_fips"</span> <span class="ow">in</span> <span class="n">entity_gdf</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
         <span class="n">entity_gdf</span> <span class="o">=</span> <span class="n">entity_gdf</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span>
-            <span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">,</span> <span class="s2">&quot;county_id_fips&quot;</span><span class="p">]</span>
+            <span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">"report_date"</span><span class="p">,</span> <span class="s2">"county_id_fips"</span><span class="p">]</span>
         <span class="p">)</span>
-    <span class="n">entity_gdf</span><span class="p">[</span><span class="s2">&quot;report_year&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">entity_gdf</span><span class="o">.</span><span class="n">report_date</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span>
+    <span class="n">entity_gdf</span><span class="p">[</span><span class="s2">"report_year"</span><span class="p">]</span> <span class="o">=</span> <span class="n">entity_gdf</span><span class="o">.</span><span class="n">report_date</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-        <span class="s2">&quot;Plotting service territories of </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> records.&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">entity_gdf</span><span class="p">),</span> <span class="n">id_col</span>
+        <span class="s2">"Plotting service territories of </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> records."</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">entity_gdf</span><span class="p">),</span> <span class="n">id_col</span>
     <span class="p">)</span>
 
     <span class="c1"># Create a grid of subplots sufficient to hold all the years:</span>
@@ -1402,12 +1402,12 @@ window.runMermaid = runMermaid;</script>
         <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">nrows</span><span class="p">),</span>
         <span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">sharey</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">facecolor</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">,</span>
+        <span class="n">facecolor</span><span class="o">=</span><span class="s2">"white"</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">id_col</span><span class="si">}</span><span class="s2"> == </span><span class="si">{</span><span class="n">id_val</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">id_col</span><span class="si">}</span><span class="s2"> == </span><span class="si">{</span><span class="n">id_val</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
     <span class="k">for</span> <span class="n">year</span><span class="p">,</span> <span class="n">ax</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">years</span><span class="p">,</span> <span class="n">axes</span><span class="o">.</span><span class="n">flat</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">year</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">year</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">([])</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">([])</span>
         <span class="n">year_gdf</span> <span class="o">=</span> <span class="n">entity_gdf</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">entity_gdf</span><span class="o">.</span><span class="n">report_year</span> <span class="o">==</span> <span class="n">year</span><span class="p">]</span>
@@ -1421,11 +1421,11 @@ window.runMermaid = runMermaid;</script>
 <span class="k">def</span><span class="w"> </span><span class="nf">plot_all_territories</span><span class="p">(</span>
     <span class="n">gdf</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span>
     <span class="n">report_date</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">respondent_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;balancing_authority&quot;</span><span class="p">,</span> <span class="s2">&quot;utility&quot;</span><span class="p">),</span>
-    <span class="n">color</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;black&quot;</span><span class="p">,</span>
+    <span class="n">respondent_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"balancing_authority"</span><span class="p">,</span> <span class="s2">"utility"</span><span class="p">),</span>
+    <span class="n">color</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"black"</span><span class="p">,</span>
     <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.25</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Plot all of the planning areas of a given type for a given report date.</span>
+<span class="w">    </span><span class="sd">"""Plot all of the planning areas of a given type for a given report date.</span>
 
 <span class="sd">    Todo:</span>
 <span class="sd">        This function needs to be made more general purpose, and less</span>
@@ -1434,17 +1434,17 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    Args:</span>
 <span class="sd">        gdf: GeoDataFrame containing planning area geometries, organized by</span>
 <span class="sd">            ``respondent_id_ferc714`` and ``report_date``.</span>
-<span class="sd">        report_date: A string representing a datetime that indicates what year&#39;s</span>
+<span class="sd">        report_date: A string representing a datetime that indicates what year's</span>
 <span class="sd">            planning areas should be displayed.</span>
 <span class="sd">        respondent_type: Type of respondent whose planning</span>
-<span class="sd">            areas should be displayed. Either &quot;utility&quot; or</span>
-<span class="sd">            &quot;balancing_authority&quot; or an iterable collection containing both.</span>
+<span class="sd">            areas should be displayed. Either "utility" or</span>
+<span class="sd">            "balancing_authority" or an iterable collection containing both.</span>
 <span class="sd">        color: Color to use for the planning areas.</span>
 <span class="sd">        alpha: Transparency to use for the planning areas.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        matplotlib.axes.Axes</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">unwanted_respondent_ids</span> <span class="o">=</span> <span class="p">(</span>  <span class="c1"># noqa: F841 variable is used, in df.query() below</span>
         <span class="mi">112</span><span class="p">,</span>  <span class="c1"># Alaska</span>
         <span class="mi">133</span><span class="p">,</span>  <span class="c1"># Alaska</span>
@@ -1460,12 +1460,12 @@ window.runMermaid = runMermaid;</script>
         <span class="n">respondent_type</span> <span class="o">=</span> <span class="p">(</span><span class="n">respondent_type</span><span class="p">,)</span>
 
     <span class="n">plot_gdf</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">gdf</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s2">&quot;report_date==@report_date&quot;</span><span class="p">)</span>
-        <span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s2">&quot;respondent_id_ferc714 not in @unwanted_respondent_ids&quot;</span><span class="p">)</span>
-        <span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s2">&quot;respondent_type in @respondent_type&quot;</span><span class="p">)</span>
+        <span class="n">gdf</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s2">"report_date==@report_date"</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s2">"respondent_id_ferc714 not in @unwanted_respondent_ids"</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s2">"respondent_type in @respondent_type"</span><span class="p">)</span>
     <span class="p">)</span>
     <span class="n">ax</span> <span class="o">=</span> <span class="n">plot_gdf</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;FERC 714 </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">respondent_type</span><span class="p">)</span><span class="si">}</span><span class="s2"> planning areas for </span><span class="si">{</span><span class="n">report_date</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="sa">f</span><span class="s2">"FERC 714 </span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">respondent_type</span><span class="p">)</span><span class="si">}</span><span class="s2"> planning areas for </span><span class="si">{</span><span class="n">report_date</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">ax</span></div>
 

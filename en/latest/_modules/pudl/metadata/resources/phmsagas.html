@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.metadata.resources.phmsagas &#8212; PUDL 2026.8.1.dev18 documentation</title>
+    <title>pudl.metadata.resources.phmsagas &#8212; PUDL 2026.8.1.dev19 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../../_static/documentation_options.js?v=f2b63aa7"></script>
+    <script src="../../../../_static/documentation_options.js?v=5bf64ec1"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev18 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev18 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev19 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev19 documentation - Home"/>
   
   
 </a></div>
@@ -871,383 +871,383 @@ window.runMermaid = runMermaid;</script>
                 <article class="bd-article">
                   
   <h1>Source code for pudl.metadata.resources.phmsagas</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Tables definitions for data coming from PHMSA natural gas data.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Tables definitions for data coming from PHMSA natural gas data."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
 
 <div class="viewcode-block" id="GENERIC_CLEANING_STATE_WARNING">
 <a class="viewcode-back" href="../../../../autoapi/pudl/metadata/resources/phmsagas/index.html#pudl.metadata.resources.phmsagas.GENERIC_CLEANING_STATE_WARNING">[docs]</a>
 <span class="n">GENERIC_CLEANING_STATE_WARNING</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;custom&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;This table has been concatenated across all years and re-organized into a logical structure, but the data has not been fully cleaned. Except some inconsistent units, data types and values over the years of reported data. Once fully cleaned, this table will be deprecated and replaced with a core table.&quot;</span><span class="p">,</span>
+    <span class="s2">"type"</span><span class="p">:</span> <span class="s2">"custom"</span><span class="p">,</span>
+    <span class="s2">"description"</span><span class="p">:</span> <span class="s2">"This table has been concatenated across all years and re-organized into a logical structure, but the data has not been fully cleaned. Except some inconsistent units, data types and values over the years of reported data. Once fully cleaned, this table will be deprecated and replaced with a core table."</span><span class="p">,</span>
 <span class="p">}</span></div>
 
 
 <div class="viewcode-block" id="RESOURCE_METADATA">
 <a class="viewcode-back" href="../../../../autoapi/pudl/metadata/resources/phmsagas/index.html#pudl.metadata.resources.phmsagas.RESOURCE_METADATA">[docs]</a>
 <span class="n">RESOURCE_METADATA</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;core_phmsagas__yearly_distribution_by_install_decade&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;miles of mains and the number of services in operation at &quot;</span>
-                <span class="s2">&quot;the end of the year by install decade.&quot;</span>
+    <span class="s2">"core_phmsagas__yearly_distribution_by_install_decade"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"miles of mains and the number of services in operation at "</span>
+                <span class="s2">"the end of the year by install decade."</span>
             <span class="p">),</span>
-            <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Part B - System Description / Section 4)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;PHMSA indicated that some operators may have reported negative &quot;</span>
-                <span class="s2">&quot;``mains_miles`` or ``services`` values to reconcile totals across &quot;</span>
-                <span class="s2">&quot;Parts B1 and B4, but that negative values are not valid. These &quot;</span>
-                <span class="s2">&quot;negative values have been replaced with zero.&quot;</span>
+            <span class="s2">"additional_source_text"</span><span class="p">:</span> <span class="s2">"(Part B - System Description / Section 4)"</span><span class="p">,</span>
+            <span class="s2">"additional_details_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"PHMSA indicated that some operators may have reported negative "</span>
+                <span class="s2">"``mains_miles`` or ``services`` values to reconcile totals across "</span>
+                <span class="s2">"Parts B1 and B4, but that negative values are not valid. These "</span>
+                <span class="s2">"negative values have been replaced with zero."</span>
             <span class="p">),</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_id&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;operator_id_phmsa&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;commodity&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;operating_state&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;install_decade&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;mains_miles&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;services&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_id"</span><span class="p">,</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"operator_id_phmsa"</span><span class="p">,</span>
+                <span class="s2">"commodity"</span><span class="p">,</span>
+                <span class="s2">"operating_state"</span><span class="p">,</span>
+                <span class="s2">"install_decade"</span><span class="p">,</span>
+                <span class="s2">"mains_miles"</span><span class="p">,</span>
+                <span class="s2">"services"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_id&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;operator_id_phmsa&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;commodity&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;install_decade&quot;</span><span class="p">,</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_id"</span><span class="p">,</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"operator_id_phmsa"</span><span class="p">,</span>
+                <span class="s2">"commodity"</span><span class="p">,</span>
+                <span class="s2">"install_decade"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;phmsagas&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;phmsagas&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;phmsagas&quot;</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"phmsagas"</span><span class="p">],</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"phmsagas"</span><span class="p">,</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"phmsagas"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;_core_phmsagas__yearly_distribution_filings&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;filings (aka submissions) from gas distribution system operators.&quot;</span>
+    <span class="s2">"_core_phmsagas__yearly_distribution_filings"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"filings (aka submissions) from gas distribution system operators."</span>
             <span class="p">),</span>
-            <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">GENERIC_CLEANING_STATE_WARNING</span><span class="p">],</span>
-            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;This table contains information about the filer and filing type. &quot;</span>
-                <span class="s2">&quot;This includes information about who filed but also whether this was &quot;</span>
-                <span class="s2">&quot;an original filing or a correction.&quot;</span>
+            <span class="s2">"usage_warnings"</span><span class="p">:</span> <span class="p">[</span><span class="n">GENERIC_CLEANING_STATE_WARNING</span><span class="p">],</span>
+            <span class="s2">"additional_details_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"This table contains information about the filer and filing type. "</span>
+                <span class="s2">"This includes information about who filed but also whether this was "</span>
+                <span class="s2">"an original filing or a correction."</span>
             <span class="p">),</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_id&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;operator_id_phmsa&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;filing_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;initial_filing_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;filing_correction_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;report_filing_type&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;data_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;form_revision_id&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;preparer_name&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;preparer_title&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;preparer_phone&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;preparer_fax&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;preparer_email&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_id"</span><span class="p">,</span>
+                <span class="s2">"operator_id_phmsa"</span><span class="p">,</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"filing_date"</span><span class="p">,</span>
+                <span class="s2">"initial_filing_date"</span><span class="p">,</span>
+                <span class="s2">"filing_correction_date"</span><span class="p">,</span>
+                <span class="s2">"report_filing_type"</span><span class="p">,</span>
+                <span class="s2">"data_date"</span><span class="p">,</span>
+                <span class="s2">"form_revision_id"</span><span class="p">,</span>
+                <span class="s2">"preparer_name"</span><span class="p">,</span>
+                <span class="s2">"preparer_title"</span><span class="p">,</span>
+                <span class="s2">"preparer_phone"</span><span class="p">,</span>
+                <span class="s2">"preparer_fax"</span><span class="p">,</span>
+                <span class="s2">"preparer_email"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;report_id&quot;</span><span class="p">,</span> <span class="s2">&quot;report_date&quot;</span><span class="p">,</span> <span class="s2">&quot;operator_id_phmsa&quot;</span><span class="p">],</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"report_id"</span><span class="p">,</span> <span class="s2">"report_date"</span><span class="p">,</span> <span class="s2">"operator_id_phmsa"</span><span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;phmsagas&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;phmsagas&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;phmsagas&quot;</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"phmsagas"</span><span class="p">],</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"phmsagas"</span><span class="p">,</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"phmsagas"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_phmsagas__yearly_distribution_operators&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;distribution operator information.&quot;</span><span class="p">),</span>
-            <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Part A)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;This table contains operator-level information including &quot;</span>
-                <span class="s2">&quot;office and headquarter location.&quot;</span>
+    <span class="s2">"core_phmsagas__yearly_distribution_operators"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"distribution operator information."</span><span class="p">),</span>
+            <span class="s2">"additional_source_text"</span><span class="p">:</span> <span class="s2">"(Part A)"</span><span class="p">,</span>
+            <span class="s2">"additional_details_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"This table contains operator-level information including "</span>
+                <span class="s2">"office and headquarter location."</span>
             <span class="p">),</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_id&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;operator_id_phmsa&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;operator_name_phmsa&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;office_street_address&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;office_city&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;office_county&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;office_zip&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;office_state&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;headquarters_street_address&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;headquarters_city&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;headquarters_county&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;headquarters_state&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;headquarters_zip&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;additional_information&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_id"</span><span class="p">,</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"operator_id_phmsa"</span><span class="p">,</span>
+                <span class="s2">"operator_name_phmsa"</span><span class="p">,</span>
+                <span class="s2">"office_street_address"</span><span class="p">,</span>
+                <span class="s2">"office_city"</span><span class="p">,</span>
+                <span class="s2">"office_county"</span><span class="p">,</span>
+                <span class="s2">"office_zip"</span><span class="p">,</span>
+                <span class="s2">"office_state"</span><span class="p">,</span>
+                <span class="s2">"headquarters_street_address"</span><span class="p">,</span>
+                <span class="s2">"headquarters_city"</span><span class="p">,</span>
+                <span class="s2">"headquarters_county"</span><span class="p">,</span>
+                <span class="s2">"headquarters_state"</span><span class="p">,</span>
+                <span class="s2">"headquarters_zip"</span><span class="p">,</span>
+                <span class="s2">"additional_information"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;report_id&quot;</span><span class="p">,</span> <span class="s2">&quot;report_date&quot;</span><span class="p">,</span> <span class="s2">&quot;operator_id_phmsa&quot;</span><span class="p">],</span>
-            <span class="s2">&quot;foreign_key_rules&quot;</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                    <span class="p">[</span><span class="s2">&quot;report_id&quot;</span><span class="p">,</span> <span class="s2">&quot;report_date&quot;</span><span class="p">,</span> <span class="s2">&quot;operator_id_phmsa&quot;</span><span class="p">],</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"report_id"</span><span class="p">,</span> <span class="s2">"report_date"</span><span class="p">,</span> <span class="s2">"operator_id_phmsa"</span><span class="p">],</span>
+            <span class="s2">"foreign_key_rules"</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                    <span class="p">[</span><span class="s2">"report_id"</span><span class="p">,</span> <span class="s2">"report_date"</span><span class="p">,</span> <span class="s2">"operator_id_phmsa"</span><span class="p">],</span>
                 <span class="p">],</span>
             <span class="p">},</span>
         <span class="p">},</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;phmsagas&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;phmsagas&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;phmsagas&quot;</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"phmsagas"</span><span class="p">],</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"phmsagas"</span><span class="p">,</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"phmsagas"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;_core_phmsagas__yearly_distribution_by_material&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;miles of mains and the number of services in operation at &quot;</span>
-                <span class="s2">&quot;the end of the year by material for each gas distribution &quot;</span>
-                <span class="s2">&quot;operator.&quot;</span>
+    <span class="s2">"_core_phmsagas__yearly_distribution_by_material"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"miles of mains and the number of services in operation at "</span>
+                <span class="s2">"the end of the year by material for each gas distribution "</span>
+                <span class="s2">"operator."</span>
             <span class="p">),</span>
-            <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Part B - System Description / Section 1 - General)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">"additional_source_text"</span><span class="p">:</span> <span class="s2">"(Part B - System Description / Section 1 - General)"</span><span class="p">,</span>
+            <span class="s2">"usage_warnings"</span><span class="p">:</span> <span class="p">[</span>
                 <span class="n">GENERIC_CLEANING_STATE_WARNING</span><span class="p">,</span>
-                <span class="s2">&quot;aggregation_hazard&quot;</span><span class="p">,</span>
+                <span class="s2">"aggregation_hazard"</span><span class="p">,</span>
                 <span class="p">{</span>
-                    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;custom&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;The categories of material types have changed slightly over the years (ex: cast and wrought iron were broken up in two categories before 1984).&quot;</span><span class="p">,</span>
+                    <span class="s2">"type"</span><span class="p">:</span> <span class="s2">"custom"</span><span class="p">,</span>
+                    <span class="s2">"description"</span><span class="p">:</span> <span class="s2">"The categories of material types have changed slightly over the years (ex: cast and wrought iron were broken up in two categories before 1984)."</span><span class="p">,</span>
                 <span class="p">},</span>
                 <span class="p">{</span>
-                    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;custom&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Beginning in 2004, companies file one report per state. The operating_state column has not been normalized and may contain more than one state in earlier years of data.&quot;</span><span class="p">,</span>
+                    <span class="s2">"type"</span><span class="p">:</span> <span class="s2">"custom"</span><span class="p">,</span>
+                    <span class="s2">"description"</span><span class="p">:</span> <span class="s2">"Beginning in 2004, companies file one report per state. The operating_state column has not been normalized and may contain more than one state in earlier years of data."</span><span class="p">,</span>
                 <span class="p">},</span>
             <span class="p">],</span>
-            <span class="s2">&quot;additional_primary_key_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;We expect the primary key for this table should be report_id, &quot;</span>
-                <span class="s2">&quot;operator_id_phmsa, operating_state and material. However, there are nulls in &quot;</span>
-                <span class="s2">&quot;the operating_state across several years of reporting.&quot;</span>
+            <span class="s2">"additional_primary_key_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"We expect the primary key for this table should be report_id, "</span>
+                <span class="s2">"operator_id_phmsa, operating_state and material. However, there are nulls in "</span>
+                <span class="s2">"the operating_state across several years of reporting."</span>
             <span class="p">),</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_id&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;operator_id_phmsa&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;commodity&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;operating_state&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;material&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;mains_miles&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;services&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_id"</span><span class="p">,</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"operator_id_phmsa"</span><span class="p">,</span>
+                <span class="s2">"commodity"</span><span class="p">,</span>
+                <span class="s2">"operating_state"</span><span class="p">,</span>
+                <span class="s2">"material"</span><span class="p">,</span>
+                <span class="s2">"mains_miles"</span><span class="p">,</span>
+                <span class="s2">"services"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="c1"># &quot;primary_key&quot;: [</span>
-            <span class="c1">#     &quot;report_id&quot;,</span>
-            <span class="c1">#     &quot;operator_id_phmsa&quot;,</span>
-            <span class="c1">#     &quot;operating_state&quot;,</span>
-            <span class="c1">#     &quot;material&quot;,</span>
+            <span class="c1"># "primary_key": [</span>
+            <span class="c1">#     "report_id",</span>
+            <span class="c1">#     "operator_id_phmsa",</span>
+            <span class="c1">#     "operating_state",</span>
+            <span class="c1">#     "material",</span>
             <span class="c1"># ],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;phmsagas&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;phmsagas&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;phmsagas&quot;</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"phmsagas"</span><span class="p">],</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"phmsagas"</span><span class="p">,</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"phmsagas"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;_core_phmsagas__yearly_distribution_by_install_decade&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;miles of mains and the number of services in operation at &quot;</span>
-                <span class="s2">&quot;the end of the year by install decade.&quot;</span>
+    <span class="s2">"_core_phmsagas__yearly_distribution_by_install_decade"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"miles of mains and the number of services in operation at "</span>
+                <span class="s2">"the end of the year by install decade."</span>
             <span class="p">),</span>
-            <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Part B - System Description / Section 4)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">GENERIC_CLEANING_STATE_WARNING</span><span class="p">,</span> <span class="s2">&quot;aggregation_hazard&quot;</span><span class="p">],</span>
-            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;The records with an install decade of total_decade are a total - &quot;</span>
-                <span class="s2">&quot;beware of aggregating these values.&quot;</span>
+            <span class="s2">"additional_source_text"</span><span class="p">:</span> <span class="s2">"(Part B - System Description / Section 4)"</span><span class="p">,</span>
+            <span class="s2">"usage_warnings"</span><span class="p">:</span> <span class="p">[</span><span class="n">GENERIC_CLEANING_STATE_WARNING</span><span class="p">,</span> <span class="s2">"aggregation_hazard"</span><span class="p">],</span>
+            <span class="s2">"additional_details_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"The records with an install decade of total_decade are a total - "</span>
+                <span class="s2">"beware of aggregating these values."</span>
             <span class="p">),</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_id&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;operator_id_phmsa&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;commodity&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;operating_state&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;install_decade&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;mains_miles&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;services&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_id"</span><span class="p">,</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"operator_id_phmsa"</span><span class="p">,</span>
+                <span class="s2">"commodity"</span><span class="p">,</span>
+                <span class="s2">"operating_state"</span><span class="p">,</span>
+                <span class="s2">"install_decade"</span><span class="p">,</span>
+                <span class="s2">"mains_miles"</span><span class="p">,</span>
+                <span class="s2">"services"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_id&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;operator_id_phmsa&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;operating_state&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;install_decade&quot;</span><span class="p">,</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_id"</span><span class="p">,</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"operator_id_phmsa"</span><span class="p">,</span>
+                <span class="s2">"operating_state"</span><span class="p">,</span>
+                <span class="s2">"install_decade"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;phmsagas&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;phmsagas&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;phmsagas&quot;</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"phmsagas"</span><span class="p">],</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"phmsagas"</span><span class="p">,</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"phmsagas"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;_core_phmsagas__yearly_distribution_leaks&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;total and hazardous leaks eliminated or repaired during the report year.&quot;</span>
+    <span class="s2">"_core_phmsagas__yearly_distribution_leaks"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"total and hazardous leaks eliminated or repaired during the report year."</span>
             <span class="p">),</span>
-            <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Part C)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">"additional_source_text"</span><span class="p">:</span> <span class="s2">"(Part C)"</span><span class="p">,</span>
+            <span class="s2">"usage_warnings"</span><span class="p">:</span> <span class="p">[</span>
                 <span class="n">GENERIC_CLEANING_STATE_WARNING</span><span class="p">,</span>
-                <span class="s2">&quot;aggregation_hazard&quot;</span><span class="p">,</span>
+                <span class="s2">"aggregation_hazard"</span><span class="p">,</span>
                 <span class="p">{</span>
-                    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;custom&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Beginning in 2004, companies file one report per state. The operating_state column has not been normalized and may contain more than one state in earlier years of data.&quot;</span><span class="p">,</span>
+                    <span class="s2">"type"</span><span class="p">:</span> <span class="s2">"custom"</span><span class="p">,</span>
+                    <span class="s2">"description"</span><span class="p">:</span> <span class="s2">"Beginning in 2004, companies file one report per state. The operating_state column has not been normalized and may contain more than one state in earlier years of data."</span><span class="p">,</span>
                 <span class="p">},</span>
             <span class="p">],</span>
-            <span class="s2">&quot;additional_primary_key_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;We expect the primary key for this table should be report_id, &quot;</span>
-                <span class="s2">&quot;operator_id_phmsa, operating_state, leak_severity and leak_source. &quot;</span>
-                <span class="s2">&quot;There are nulls in the operating_state across several years of &quot;</span>
-                <span class="s2">&quot;reporting.&quot;</span>
+            <span class="s2">"additional_primary_key_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"We expect the primary key for this table should be report_id, "</span>
+                <span class="s2">"operator_id_phmsa, operating_state, leak_severity and leak_source. "</span>
+                <span class="s2">"There are nulls in the operating_state across several years of "</span>
+                <span class="s2">"reporting."</span>
             <span class="p">),</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_id&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;operator_id_phmsa&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;commodity&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;operating_state&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;leak_severity&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;leak_source&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;mains&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;services&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_id"</span><span class="p">,</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"operator_id_phmsa"</span><span class="p">,</span>
+                <span class="s2">"commodity"</span><span class="p">,</span>
+                <span class="s2">"operating_state"</span><span class="p">,</span>
+                <span class="s2">"leak_severity"</span><span class="p">,</span>
+                <span class="s2">"leak_source"</span><span class="p">,</span>
+                <span class="s2">"mains"</span><span class="p">,</span>
+                <span class="s2">"services"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="c1"># &quot;primary_key&quot;: [</span>
-            <span class="c1">#     &quot;report_id&quot;,</span>
-            <span class="c1">#     &quot;operator_id_phmsa&quot;,</span>
-            <span class="c1">#     &quot;operating_state&quot;,</span>
-            <span class="c1">#     &quot;leak_severity&quot;,</span>
-            <span class="c1">#     &quot;leak_source&quot;,</span>
+            <span class="c1"># "primary_key": [</span>
+            <span class="c1">#     "report_id",</span>
+            <span class="c1">#     "operator_id_phmsa",</span>
+            <span class="c1">#     "operating_state",</span>
+            <span class="c1">#     "leak_severity",</span>
+            <span class="c1">#     "leak_source",</span>
             <span class="c1"># ],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;phmsagas&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;phmsagas&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;phmsagas&quot;</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"phmsagas"</span><span class="p">],</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"phmsagas"</span><span class="p">,</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"phmsagas"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;_core_phmsagas__yearly_distribution_by_material_and_size&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;miles of mains and the number of services in operation at &quot;</span>
-                <span class="s2">&quot;the end of the year by material and size of pipe.&quot;</span>
+    <span class="s2">"_core_phmsagas__yearly_distribution_by_material_and_size"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"miles of mains and the number of services in operation at "</span>
+                <span class="s2">"the end of the year by material and size of pipe."</span>
             <span class="p">),</span>
-            <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Part B - System Description / Section 3)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">"additional_source_text"</span><span class="p">:</span> <span class="s2">"(Part B - System Description / Section 3)"</span><span class="p">,</span>
+            <span class="s2">"usage_warnings"</span><span class="p">:</span> <span class="p">[</span>
                 <span class="n">GENERIC_CLEANING_STATE_WARNING</span><span class="p">,</span>
-                <span class="s2">&quot;aggregation_hazard&quot;</span><span class="p">,</span>
+                <span class="s2">"aggregation_hazard"</span><span class="p">,</span>
                 <span class="p">{</span>
-                    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;custom&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;The size ranges in main_size have changed slightly over the years (ex: before 1984 they reported 0.5_in_or_less whereas after they reported 1_in_or_less)&quot;</span><span class="p">,</span>
+                    <span class="s2">"type"</span><span class="p">:</span> <span class="s2">"custom"</span><span class="p">,</span>
+                    <span class="s2">"description"</span><span class="p">:</span> <span class="s2">"The size ranges in main_size have changed slightly over the years (ex: before 1984 they reported 0.5_in_or_less whereas after they reported 1_in_or_less)"</span><span class="p">,</span>
                 <span class="p">},</span>
                 <span class="p">{</span>
-                    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;custom&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;The categories of material types have changed slightly over the years (ex: cast and wrought iron were broken up in two categories before 1984).&quot;</span><span class="p">,</span>
+                    <span class="s2">"type"</span><span class="p">:</span> <span class="s2">"custom"</span><span class="p">,</span>
+                    <span class="s2">"description"</span><span class="p">:</span> <span class="s2">"The categories of material types have changed slightly over the years (ex: cast and wrought iron were broken up in two categories before 1984)."</span><span class="p">,</span>
                 <span class="p">},</span>
                 <span class="p">{</span>
-                    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;custom&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Beginning in 2004, companies file one report per state. The operating_state column has not been normalized and may contain more than one state in earlier years of data.&quot;</span><span class="p">,</span>
+                    <span class="s2">"type"</span><span class="p">:</span> <span class="s2">"custom"</span><span class="p">,</span>
+                    <span class="s2">"description"</span><span class="p">:</span> <span class="s2">"Beginning in 2004, companies file one report per state. The operating_state column has not been normalized and may contain more than one state in earlier years of data."</span><span class="p">,</span>
                 <span class="p">},</span>
             <span class="p">],</span>
-            <span class="s2">&quot;additional_primary_key_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;We expect the primary key for this table should be report_id, &quot;</span>
-                <span class="s2">&quot;operator_id_phmsa, operating_state, main_size and material. &quot;</span>
-                <span class="s2">&quot;There are nulls in the operating_state across several years of &quot;</span>
-                <span class="s2">&quot;reporting.&quot;</span>
+            <span class="s2">"additional_primary_key_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"We expect the primary key for this table should be report_id, "</span>
+                <span class="s2">"operator_id_phmsa, operating_state, main_size and material. "</span>
+                <span class="s2">"There are nulls in the operating_state across several years of "</span>
+                <span class="s2">"reporting."</span>
             <span class="p">),</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;report_id&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;operator_id_phmsa&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;commodity&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;operating_state&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;main_size&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;material&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;mains_miles&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;services&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;main_other_material_detail&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"report_id"</span><span class="p">,</span>
+                <span class="s2">"operator_id_phmsa"</span><span class="p">,</span>
+                <span class="s2">"commodity"</span><span class="p">,</span>
+                <span class="s2">"operating_state"</span><span class="p">,</span>
+                <span class="s2">"main_size"</span><span class="p">,</span>
+                <span class="s2">"material"</span><span class="p">,</span>
+                <span class="s2">"mains_miles"</span><span class="p">,</span>
+                <span class="s2">"services"</span><span class="p">,</span>
+                <span class="s2">"main_other_material_detail"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="c1"># &quot;primary_key&quot;: [</span>
-            <span class="c1">#     &quot;report_id&quot;,</span>
-            <span class="c1">#     &quot;operator_id_phmsa&quot;,</span>
-            <span class="c1">#     &quot;operating_state&quot;,</span>
-            <span class="c1">#     &quot;main_size&quot;,</span>
-            <span class="c1">#     &quot;material&quot;,</span>
+            <span class="c1"># "primary_key": [</span>
+            <span class="c1">#     "report_id",</span>
+            <span class="c1">#     "operator_id_phmsa",</span>
+            <span class="c1">#     "operating_state",</span>
+            <span class="c1">#     "main_size",</span>
+            <span class="c1">#     "material",</span>
             <span class="c1"># ],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;phmsagas&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;phmsagas&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;phmsagas&quot;</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"phmsagas"</span><span class="p">],</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"phmsagas"</span><span class="p">,</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"phmsagas"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;_core_phmsagas__yearly_distribution_excavation_damages&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;excavation damages from various sources.&quot;</span><span class="p">),</span>
-            <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Part D - Excavation Damage)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">GENERIC_CLEANING_STATE_WARNING</span><span class="p">,</span> <span class="s2">&quot;aggregation_hazard&quot;</span><span class="p">],</span>
+    <span class="s2">"_core_phmsagas__yearly_distribution_excavation_damages"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"excavation damages from various sources."</span><span class="p">),</span>
+            <span class="s2">"additional_source_text"</span><span class="p">:</span> <span class="s2">"(Part D - Excavation Damage)"</span><span class="p">,</span>
+            <span class="s2">"usage_warnings"</span><span class="p">:</span> <span class="p">[</span><span class="n">GENERIC_CLEANING_STATE_WARNING</span><span class="p">,</span> <span class="s2">"aggregation_hazard"</span><span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_id&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;operator_id_phmsa&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;commodity&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;operating_state&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;damage_type&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;damage_sub_type&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;damages&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_id"</span><span class="p">,</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"operator_id_phmsa"</span><span class="p">,</span>
+                <span class="s2">"commodity"</span><span class="p">,</span>
+                <span class="s2">"operating_state"</span><span class="p">,</span>
+                <span class="s2">"damage_type"</span><span class="p">,</span>
+                <span class="s2">"damage_sub_type"</span><span class="p">,</span>
+                <span class="s2">"damages"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_id&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;damage_type&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;damage_sub_type&quot;</span><span class="p">,</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_id"</span><span class="p">,</span>
+                <span class="s2">"damage_type"</span><span class="p">,</span>
+                <span class="s2">"damage_sub_type"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;phmsagas&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;phmsagas&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;phmsagas&quot;</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"phmsagas"</span><span class="p">],</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"phmsagas"</span><span class="p">,</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"phmsagas"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;_core_phmsagas__yearly_distribution_misc&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;miscellaneous distribution information.&quot;</span><span class="p">),</span>
-            <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Part B &amp; C)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="s2">"_core_phmsagas__yearly_distribution_misc"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"miscellaneous distribution information."</span><span class="p">),</span>
+            <span class="s2">"additional_source_text"</span><span class="p">:</span> <span class="s2">"(Part B &amp; C)"</span><span class="p">,</span>
+            <span class="s2">"usage_warnings"</span><span class="p">:</span> <span class="p">[</span>
                 <span class="n">GENERIC_CLEANING_STATE_WARNING</span><span class="p">,</span>
                 <span class="p">{</span>
-                    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;custom&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Beginning in 2004, companies file one report per state. The operating_state column has not been normalized and may contain more than one state in earlier years of data.&quot;</span><span class="p">,</span>
+                    <span class="s2">"type"</span><span class="p">:</span> <span class="s2">"custom"</span><span class="p">,</span>
+                    <span class="s2">"description"</span><span class="p">:</span> <span class="s2">"Beginning in 2004, companies file one report per state. The operating_state column has not been normalized and may contain more than one state in earlier years of data."</span><span class="p">,</span>
                 <span class="p">},</span>
             <span class="p">],</span>
-            <span class="s2">&quot;additional_primary_key_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;We expect the primary key for this table should be report_id, &quot;</span>
-                <span class="s2">&quot;operator_id_phmsa, and operating_state. &quot;</span>
-                <span class="s2">&quot;There are nulls in the operating_state across several years of &quot;</span>
-                <span class="s2">&quot;reporting.&quot;</span>
+            <span class="s2">"additional_primary_key_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"We expect the primary key for this table should be report_id, "</span>
+                <span class="s2">"operator_id_phmsa, and operating_state. "</span>
+                <span class="s2">"There are nulls in the operating_state across several years of "</span>
+                <span class="s2">"reporting."</span>
             <span class="p">),</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;report_id&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;operator_id_phmsa&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;operating_state&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;all_known_leaks_scheduled_for_repair&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;all_known_leaks_scheduled_for_repair_main&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;hazardous_leaks_mechanical_joint_failure&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;federal_land_leaks_repaired_or_scheduled&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;average_service_length_feet&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;services_efv_in_system&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;services_efv_installed&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;services_shutoff_valve_in_system&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;services_shutoff_valve_installed&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;unaccounted_for_gas_fraction&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;excavation_tickets&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"report_id"</span><span class="p">,</span>
+                <span class="s2">"operator_id_phmsa"</span><span class="p">,</span>
+                <span class="s2">"operating_state"</span><span class="p">,</span>
+                <span class="s2">"all_known_leaks_scheduled_for_repair"</span><span class="p">,</span>
+                <span class="s2">"all_known_leaks_scheduled_for_repair_main"</span><span class="p">,</span>
+                <span class="s2">"hazardous_leaks_mechanical_joint_failure"</span><span class="p">,</span>
+                <span class="s2">"federal_land_leaks_repaired_or_scheduled"</span><span class="p">,</span>
+                <span class="s2">"average_service_length_feet"</span><span class="p">,</span>
+                <span class="s2">"services_efv_in_system"</span><span class="p">,</span>
+                <span class="s2">"services_efv_installed"</span><span class="p">,</span>
+                <span class="s2">"services_shutoff_valve_in_system"</span><span class="p">,</span>
+                <span class="s2">"services_shutoff_valve_installed"</span><span class="p">,</span>
+                <span class="s2">"unaccounted_for_gas_fraction"</span><span class="p">,</span>
+                <span class="s2">"excavation_tickets"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="c1"># &quot;primary_key&quot;: [&quot;report_id&quot;, &quot;operating_state&quot;, &quot;operator_id_phmsa&quot;],</span>
+            <span class="c1"># "primary_key": ["report_id", "operating_state", "operator_id_phmsa"],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;phmsagas&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;phmsagas&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;phmsagas&quot;</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"phmsagas"</span><span class="p">],</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"phmsagas"</span><span class="p">,</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"phmsagas"</span><span class="p">,</span>
     <span class="p">},</span>
 <span class="p">}</span></div>
 

@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.transform.rus12 &#8212; PUDL 2026.8.1.dev18 documentation</title>
+    <title>pudl.transform.rus12 &#8212; PUDL 2026.8.1.dev19 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=f2b63aa7"></script>
+    <script src="../../../_static/documentation_options.js?v=5bf64ec1"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev18 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev18 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev19 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev19 documentation - Home"/>
   
   
 </a></div>
@@ -868,7 +868,7 @@ window.runMermaid = runMermaid;</script>
                 <article class="bd-article">
                   
   <h1>Source code for pudl.transform.rus12</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Transform the RUS12 tables.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Transform the RUS12 tables."""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dagster</span><span class="w"> </span><span class="kn">import</span> <span class="n">AssetIn</span><span class="p">,</span> <span class="n">AssetOut</span><span class="p">,</span> <span class="n">Output</span><span class="p">,</span> <span class="n">asset</span><span class="p">,</span> <span class="n">multi_asset</span>
@@ -896,18 +896,18 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="_core_rus12__yearly_meeting_and_board">
 <a class="viewcode-back" href="../../../autoapi/pudl/transform/rus12/index.html#pudl.transform.rus12._core_rus12__yearly_meeting_and_board">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_core_rus12__yearly_meeting_and_board</span><span class="p">(</span><span class="n">raw_rus12__meeting_and_board</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Transform the core_rus12__yearly_meeting_and_board table.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Transform the core_rus12__yearly_meeting_and_board table."""</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">rus</span><span class="o">.</span><span class="n">early_transform</span><span class="p">(</span>
         <span class="n">raw_df</span><span class="o">=</span><span class="n">raw_rus12__meeting_and_board</span><span class="p">,</span>
         <span class="n">boolean_columns_to_fix</span><span class="o">=</span><span class="p">[</span>
-            <span class="s2">&quot;does_manager_have_written_contract&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;was_quorum_present&quot;</span><span class="p">,</span>
+            <span class="s2">"does_manager_have_written_contract"</span><span class="p">,</span>
+            <span class="s2">"was_quorum_present"</span><span class="p">,</span>
         <span class="p">],</span>
     <span class="p">)</span>
     <span class="n">rus</span><span class="o">.</span><span class="n">early_check_pk</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
 
     <span class="n">df</span><span class="o">.</span><span class="n">last_annual_meeting_date</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span>
-        <span class="n">df</span><span class="o">.</span><span class="n">last_annual_meeting_date</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;mixed&quot;</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">last_annual_meeting_date</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">"mixed"</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">df</span></div>
 
@@ -917,21 +917,21 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="_core_rus12__yearly_balance_sheet_assets">
 <a class="viewcode-back" href="../../../autoapi/pudl/transform/rus12/index.html#pudl.transform.rus12._core_rus12__yearly_balance_sheet_assets">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_core_rus12__yearly_balance_sheet_assets</span><span class="p">(</span><span class="n">raw_rus12__balance_sheet</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Transform the core_rus12__yearly_balance_sheet_assets table.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Transform the core_rus12__yearly_balance_sheet_assets table."""</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">rus</span><span class="o">.</span><span class="n">early_transform</span><span class="p">(</span><span class="n">raw_df</span><span class="o">=</span><span class="n">raw_rus12__balance_sheet</span><span class="p">)</span>
     <span class="n">rus</span><span class="o">.</span><span class="n">early_check_pk</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
     <span class="c1"># MELT</span>
-    <span class="n">idx_ish</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">,</span> <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span> <span class="s2">&quot;borrower_name_rus&quot;</span><span class="p">]</span>
-    <span class="n">value_vars</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">regex</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;_assets$&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+    <span class="n">idx_ish</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"report_date"</span><span class="p">,</span> <span class="s2">"borrower_id_rus"</span><span class="p">,</span> <span class="s2">"borrower_name_rus"</span><span class="p">]</span>
+    <span class="n">value_vars</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">regex</span><span class="o">=</span><span class="sa">r</span><span class="s2">"_assets$"</span><span class="p">)</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">melt</span><span class="p">(</span>
         <span class="n">id_vars</span><span class="o">=</span><span class="n">idx_ish</span><span class="p">,</span>
         <span class="n">value_vars</span><span class="o">=</span><span class="n">value_vars</span><span class="p">,</span>
-        <span class="n">var_name</span><span class="o">=</span><span class="s2">&quot;asset_type&quot;</span><span class="p">,</span>
-        <span class="n">value_name</span><span class="o">=</span><span class="s2">&quot;ending_balance&quot;</span><span class="p">,</span>
+        <span class="n">var_name</span><span class="o">=</span><span class="s2">"asset_type"</span><span class="p">,</span>
+        <span class="n">value_name</span><span class="o">=</span><span class="s2">"ending_balance"</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">df</span><span class="o">.</span><span class="n">asset_type</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">asset_type</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">removesuffix</span><span class="p">(</span><span class="s2">&quot;_assets&quot;</span><span class="p">)</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">asset_type</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">asset_type</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">removesuffix</span><span class="p">(</span><span class="s2">"_assets"</span><span class="p">)</span>
     <span class="c1"># POST-MELT</span>
-    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;is_total&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">asset_type</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;total_&quot;</span><span class="p">)</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">"is_total"</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">asset_type</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"total_"</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">df</span></div>
 
 
@@ -940,21 +940,21 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="_core_rus12__yearly_balance_sheet_liabilities">
 <a class="viewcode-back" href="../../../autoapi/pudl/transform/rus12/index.html#pudl.transform.rus12._core_rus12__yearly_balance_sheet_liabilities">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_core_rus12__yearly_balance_sheet_liabilities</span><span class="p">(</span><span class="n">raw_rus12__balance_sheet</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Transform the core_rus12__yearly_balance_sheet_liabilities table.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Transform the core_rus12__yearly_balance_sheet_liabilities table."""</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">rus</span><span class="o">.</span><span class="n">early_transform</span><span class="p">(</span><span class="n">raw_df</span><span class="o">=</span><span class="n">raw_rus12__balance_sheet</span><span class="p">)</span>
     <span class="n">rus</span><span class="o">.</span><span class="n">early_check_pk</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
     <span class="c1"># MELT</span>
-    <span class="n">idx_ish</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">,</span> <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span> <span class="s2">&quot;borrower_name_rus&quot;</span><span class="p">]</span>
-    <span class="n">value_vars</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">regex</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;_liabilities$&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+    <span class="n">idx_ish</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"report_date"</span><span class="p">,</span> <span class="s2">"borrower_id_rus"</span><span class="p">,</span> <span class="s2">"borrower_name_rus"</span><span class="p">]</span>
+    <span class="n">value_vars</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">regex</span><span class="o">=</span><span class="sa">r</span><span class="s2">"_liabilities$"</span><span class="p">)</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">melt</span><span class="p">(</span>
         <span class="n">id_vars</span><span class="o">=</span><span class="n">idx_ish</span><span class="p">,</span>
         <span class="n">value_vars</span><span class="o">=</span><span class="n">value_vars</span><span class="p">,</span>
-        <span class="n">var_name</span><span class="o">=</span><span class="s2">&quot;liability_type&quot;</span><span class="p">,</span>
-        <span class="n">value_name</span><span class="o">=</span><span class="s2">&quot;ending_balance&quot;</span><span class="p">,</span>
+        <span class="n">var_name</span><span class="o">=</span><span class="s2">"liability_type"</span><span class="p">,</span>
+        <span class="n">value_name</span><span class="o">=</span><span class="s2">"ending_balance"</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">df</span><span class="o">.</span><span class="n">liability_type</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">liability_type</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">removesuffix</span><span class="p">(</span><span class="s2">&quot;_liabilities&quot;</span><span class="p">)</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">liability_type</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">liability_type</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">removesuffix</span><span class="p">(</span><span class="s2">"_liabilities"</span><span class="p">)</span>
     <span class="c1"># POST-MELT</span>
-    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;is_total&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">liability_type</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;total_&quot;</span><span class="p">)</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">"is_total"</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">liability_type</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"total_"</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">df</span></div>
 
 
@@ -963,12 +963,12 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="_core_rus12__scd_borrowers">
 <a class="viewcode-back" href="../../../autoapi/pudl/transform/rus12/index.html#pudl.transform.rus12._core_rus12__scd_borrowers">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_core_rus12__scd_borrowers</span><span class="p">(</span><span class="n">raw_rus12__borrowers</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Transform the core_rus12__scd_borrowers table.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Transform the core_rus12__scd_borrowers table."""</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">rus</span><span class="o">.</span><span class="n">early_transform</span><span class="p">(</span><span class="n">raw_df</span><span class="o">=</span><span class="n">raw_rus12__borrowers</span><span class="p">)</span>
     <span class="n">rus</span><span class="o">.</span><span class="n">early_check_pk</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
     <span class="c1"># TODO: encode region_code?</span>
     <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
-        <span class="n">state</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">borrower_id_rus</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^([A-Z]</span><span class="si">{2}</span><span class="s2">)\d</span><span class="si">{4}</span><span class="s2">$&quot;</span><span class="p">)</span>
+        <span class="n">state</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">borrower_id_rus</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span><span class="sa">r</span><span class="s2">"^([A-Z]</span><span class="si">{2}</span><span class="s2">)\d</span><span class="si">{4}</span><span class="s2">$"</span><span class="p">)</span>
     <span class="p">)</span></div>
 
 
@@ -979,9 +979,9 @@ window.runMermaid = runMermaid;</script>
 <span class="k">def</span><span class="w"> </span><span class="nf">_core_rus12__yearly_external_financial_risk_ratio</span><span class="p">(</span>
     <span class="n">raw_rus12__external_financial_risk_ratio</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Transform the raw_rus12__external_financial_risk_ratio table.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Transform the raw_rus12__external_financial_risk_ratio table."""</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">rus</span><span class="o">.</span><span class="n">early_transform</span><span class="p">(</span><span class="n">raw_df</span><span class="o">=</span><span class="n">raw_rus12__external_financial_risk_ratio</span><span class="p">)</span>
-    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;external_financial_risk_ratio&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;external_financial_risk_ratio&quot;</span><span class="p">]</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">"external_financial_risk_ratio"</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">"external_financial_risk_ratio"</span><span class="p">]</span>
     <span class="k">return</span> <span class="n">df</span></div>
 
 
@@ -992,10 +992,10 @@ window.runMermaid = runMermaid;</script>
 <span class="k">def</span><span class="w"> </span><span class="nf">_core_rus12__yearly_investments</span><span class="p">(</span>
     <span class="n">raw_rus12__investments</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Transform the investments table.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Transform the investments table."""</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">rus</span><span class="o">.</span><span class="n">early_transform</span><span class="p">(</span>
         <span class="n">raw_df</span><span class="o">=</span><span class="n">raw_rus12__investments</span><span class="p">,</span>
-        <span class="n">boolean_columns_to_fix</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;for_rural_development&quot;</span><span class="p">],</span>
+        <span class="n">boolean_columns_to_fix</span><span class="o">=</span><span class="p">[</span><span class="s2">"for_rural_development"</span><span class="p">],</span>
     <span class="p">)</span>
     <span class="c1"># Spot fix bad investment type code values that is 0 and should be 1.</span>
     <span class="c1"># 0 is not a valid code and the same description was later listed as 1.</span>
@@ -1003,17 +1003,17 @@ window.runMermaid = runMermaid;</script>
     <span class="c1"># only the most recent year of data.</span>
     <span class="k">if</span> <span class="mi">2006</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">report_date</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">():</span>
         <span class="n">mask</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">borrower_id_rus</span> <span class="o">==</span> <span class="s2">&quot;KY0059&quot;</span><span class="p">)</span>
-            <span class="o">&amp;</span> <span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">report_date</span> <span class="o">==</span> <span class="s2">&quot;2006-12-01&quot;</span><span class="p">)</span>
+            <span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">borrower_id_rus</span> <span class="o">==</span> <span class="s2">"KY0059"</span><span class="p">)</span>
+            <span class="o">&amp;</span> <span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">report_date</span> <span class="o">==</span> <span class="s2">"2006-12-01"</span><span class="p">)</span>
             <span class="o">&amp;</span> <span class="p">(</span>
                 <span class="n">df</span><span class="o">.</span><span class="n">investment_description</span>
-                <span class="o">==</span> <span class="s2">&quot;Temporary Investments - Cooperative Finance Corp&quot;</span>
+                <span class="o">==</span> <span class="s2">"Temporary Investments - Cooperative Finance Corp"</span>
             <span class="p">)</span>
         <span class="p">)</span>
         <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">mask</span><span class="p">])</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="p">(</span>
-            <span class="s2">&quot;Expected exactly one record to be affected by this spot fix.&quot;</span>
+            <span class="s2">"Expected exactly one record to be affected by this spot fix."</span>
         <span class="p">)</span>
-        <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">mask</span><span class="p">,</span> <span class="s2">&quot;investment_type_code&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">mask</span><span class="p">,</span> <span class="s2">"investment_type_code"</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
 
     <span class="c1"># TO-DO: clean up property_type field</span>
     <span class="k">return</span> <span class="n">df</span></div>
@@ -1024,26 +1024,26 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="_core_rus12__yearly_renewable_plants">
 <a class="viewcode-back" href="../../../autoapi/pudl/transform/rus12/index.html#pudl.transform.rus12._core_rus12__yearly_renewable_plants">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_core_rus12__yearly_renewable_plants</span><span class="p">(</span><span class="n">raw_rus12__renewable_plants</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Transform the core_rus12__yearly_renewable_plants table.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Transform the core_rus12__yearly_renewable_plants table."""</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">rus</span><span class="o">.</span><span class="n">early_transform</span><span class="p">(</span><span class="n">raw_df</span><span class="o">=</span><span class="n">raw_rus12__renewable_plants</span><span class="p">)</span>
 
     <span class="c1"># Convert date_created to datetime</span>
-    <span class="n">df</span><span class="o">.</span><span class="n">date_created</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">date_created</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;mixed&quot;</span><span class="p">)</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">date_created</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">date_created</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">"mixed"</span><span class="p">)</span>
 
     <span class="c1"># Convert units</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">rus</span><span class="o">.</span><span class="n">convert_units</span><span class="p">(</span>
         <span class="n">df</span><span class="p">,</span>
-        <span class="n">old_unit</span><span class="o">=</span><span class="s2">&quot;kw&quot;</span><span class="p">,</span>
-        <span class="n">new_unit</span><span class="o">=</span><span class="s2">&quot;mw&quot;</span><span class="p">,</span>
+        <span class="n">old_unit</span><span class="o">=</span><span class="s2">"kw"</span><span class="p">,</span>
+        <span class="n">new_unit</span><span class="o">=</span><span class="s2">"mw"</span><span class="p">,</span>
         <span class="n">converter</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">rus</span><span class="o">.</span><span class="n">convert_units</span><span class="p">(</span>
-        <span class="n">df</span><span class="p">,</span> <span class="n">old_unit</span><span class="o">=</span><span class="s2">&quot;thousand_dollars&quot;</span><span class="p">,</span> <span class="n">new_unit</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">converter</span><span class="o">=</span><span class="mi">1000</span>
+        <span class="n">df</span><span class="p">,</span> <span class="n">old_unit</span><span class="o">=</span><span class="s2">"thousand_dollars"</span><span class="p">,</span> <span class="n">new_unit</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">converter</span><span class="o">=</span><span class="mi">1000</span>
     <span class="p">)</span>
 
     <span class="c1"># Fix typo in primary_renewable_fuel_type values</span>
     <span class="n">df</span><span class="o">.</span><span class="n">primary_renewable_fuel_type</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">primary_renewable_fuel_type</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
-        <span class="p">{</span><span class="s2">&quot;Solar - photvoltaic&quot;</span><span class="p">:</span> <span class="s2">&quot;Solar - photovoltaic&quot;</span><span class="p">}</span>
+        <span class="p">{</span><span class="s2">"Solar - photvoltaic"</span><span class="p">:</span> <span class="s2">"Solar - photovoltaic"</span><span class="p">}</span>
     <span class="p">)</span>
 
     <span class="c1"># TODO: Make primary_renewable_fuel_type look like renewable fuels from other sources.</span>
@@ -1056,7 +1056,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="_core_rus12__yearly_long_term_debt">
 <a class="viewcode-back" href="../../../autoapi/pudl/transform/rus12/index.html#pudl.transform.rus12._core_rus12__yearly_long_term_debt">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_core_rus12__yearly_long_term_debt</span><span class="p">(</span><span class="n">raw_rus12__long_term_debt</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Transform the core_rus12__yearly_long_term_debt table.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Transform the core_rus12__yearly_long_term_debt table."""</span>
     <span class="c1"># TODO: the debt_description column could potentially get some cleaning.</span>
     <span class="k">return</span> <span class="n">rus</span><span class="o">.</span><span class="n">early_transform</span><span class="p">(</span><span class="n">raw_df</span><span class="o">=</span><span class="n">raw_rus12__long_term_debt</span><span class="p">)</span></div>
 
@@ -1068,29 +1068,29 @@ window.runMermaid = runMermaid;</script>
 <span class="k">def</span><span class="w"> </span><span class="nf">_core_rus12__yearly_lines_stations_labor_materials_cost</span><span class="p">(</span>
     <span class="n">raw_rus12__lines_and_stations_labor_materials</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Transform the raw_rus12__lines_and_stations_labor_materials table.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Transform the raw_rus12__lines_and_stations_labor_materials table."""</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">rus</span><span class="o">.</span><span class="n">early_transform</span><span class="p">(</span><span class="n">raw_df</span><span class="o">=</span><span class="n">raw_rus12__lines_and_stations_labor_materials</span><span class="p">)</span>
 
-    <span class="n">data_cols</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;cost&quot;</span><span class="p">]</span>
+    <span class="n">data_cols</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"cost"</span><span class="p">]</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">multi_index_stack</span><span class="p">(</span>
         <span class="n">df</span><span class="p">,</span>
-        <span class="n">idx_ish</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">,</span> <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span> <span class="s2">&quot;borrower_name_rus&quot;</span><span class="p">],</span>
+        <span class="n">idx_ish</span><span class="o">=</span><span class="p">[</span><span class="s2">"report_date"</span><span class="p">,</span> <span class="s2">"borrower_id_rus"</span><span class="p">,</span> <span class="s2">"borrower_name_rus"</span><span class="p">],</span>
         <span class="n">data_cols</span><span class="o">=</span><span class="n">data_cols</span><span class="p">,</span>
-        <span class="n">pattern</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;^(labor|material)_(maintenance|operation)_(lines|stations)_(cost)$&quot;</span><span class="p">,</span>
+        <span class="n">pattern</span><span class="o">=</span><span class="sa">r</span><span class="s2">"^(labor|material)_(maintenance|operation)_(lines|stations)_(cost)$"</span><span class="p">,</span>
         <span class="n">match_names</span><span class="o">=</span><span class="p">[</span>
-            <span class="s2">&quot;labor_or_material&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;operation_or_maintenance&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;lines_or_stations&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;data_cols&quot;</span><span class="p">,</span>
+            <span class="s2">"labor_or_material"</span><span class="p">,</span>
+            <span class="s2">"operation_or_maintenance"</span><span class="p">,</span>
+            <span class="s2">"lines_or_stations"</span><span class="p">,</span>
+            <span class="s2">"data_cols"</span><span class="p">,</span>
         <span class="p">],</span>
         <span class="n">unstack_level</span><span class="o">=</span><span class="p">[</span>
-            <span class="s2">&quot;labor_or_material&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;operation_or_maintenance&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;lines_or_stations&quot;</span><span class="p">,</span>
+            <span class="s2">"labor_or_material"</span><span class="p">,</span>
+            <span class="s2">"operation_or_maintenance"</span><span class="p">,</span>
+            <span class="s2">"lines_or_stations"</span><span class="p">,</span>
         <span class="p">],</span>
         <span class="n">expected_dropped_cols</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="c1"># NOTE: this multi_index_stack function is dropping the employees_num column for now. I&#39;m assuming we can get this data from another table, else I can circle back.</span>
+    <span class="c1"># NOTE: this multi_index_stack function is dropping the employees_num column for now. I'm assuming we can get this data from another table, else I can circle back.</span>
     <span class="k">return</span> <span class="n">df</span></div>
 
 
@@ -1099,20 +1099,20 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="_core_rus12__yearly_loans">
 <a class="viewcode-back" href="../../../autoapi/pudl/transform/rus12/index.html#pudl.transform.rus12._core_rus12__yearly_loans">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_core_rus12__yearly_loans</span><span class="p">(</span><span class="n">raw_rus12__loans</span><span class="p">,</span> <span class="n">raw_rus12__loan_guarantees</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Transform the raw_rus12__loans and raw_rus12__loan_guarantees tables.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Transform the raw_rus12__loans and raw_rus12__loan_guarantees tables."""</span>
     <span class="n">df_loans</span> <span class="o">=</span> <span class="n">rus</span><span class="o">.</span><span class="n">early_transform</span><span class="p">(</span>
         <span class="n">raw_df</span><span class="o">=</span><span class="n">raw_rus12__loans</span><span class="p">,</span>
-        <span class="n">boolean_columns_to_fix</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;for_rural_development&quot;</span><span class="p">],</span>
-        <span class="n">string_cols_to_simplify</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;loan_recipient&quot;</span><span class="p">],</span>
+        <span class="n">boolean_columns_to_fix</span><span class="o">=</span><span class="p">[</span><span class="s2">"for_rural_development"</span><span class="p">],</span>
+        <span class="n">string_cols_to_simplify</span><span class="o">=</span><span class="p">[</span><span class="s2">"loan_recipient"</span><span class="p">],</span>
     <span class="p">)</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">is_loan_guarantee</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="n">df_loan_guarantees</span> <span class="o">=</span> <span class="n">rus</span><span class="o">.</span><span class="n">early_transform</span><span class="p">(</span>
         <span class="n">raw_df</span><span class="o">=</span><span class="n">raw_rus12__loan_guarantees</span><span class="p">,</span>
-        <span class="n">boolean_columns_to_fix</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;for_rural_development&quot;</span><span class="p">],</span>
-        <span class="n">string_cols_to_simplify</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;loan_recipient&quot;</span><span class="p">],</span>
+        <span class="n">boolean_columns_to_fix</span><span class="o">=</span><span class="p">[</span><span class="s2">"for_rural_development"</span><span class="p">],</span>
+        <span class="n">string_cols_to_simplify</span><span class="o">=</span><span class="p">[</span><span class="s2">"loan_recipient"</span><span class="p">],</span>
     <span class="p">)</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">is_loan_guarantee</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df_loans</span><span class="p">,</span> <span class="n">df_loan_guarantees</span><span class="p">],</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="c1"># Convert all loan_maturity_dates to datetime</span>
-    <span class="n">df</span><span class="o">.</span><span class="n">loan_maturity_date</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">loan_maturity_date</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;mixed&quot;</span><span class="p">)</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">loan_maturity_date</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">loan_maturity_date</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">"mixed"</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">df</span></div>
 
 
@@ -1121,20 +1121,20 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="_core_rus12__yearly_plant_labor">
 <a class="viewcode-back" href="../../../autoapi/pudl/transform/rus12/index.html#pudl.transform.rus12._core_rus12__yearly_plant_labor">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_core_rus12__yearly_plant_labor</span><span class="p">(</span><span class="n">raw_rus12__plant_labor</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Transform the raw_rus12__plant_labor table.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Transform the raw_rus12__plant_labor table."""</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">rus</span><span class="o">.</span><span class="n">early_transform</span><span class="p">(</span><span class="n">raw_df</span><span class="o">=</span><span class="n">raw_rus12__plant_labor</span><span class="p">)</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">cleanstrings_snake</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;plant_type&quot;</span><span class="p">])</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">cleanstrings_snake</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="p">[</span><span class="s2">"plant_type"</span><span class="p">])</span>
 
     <span class="c1"># Test payroll_total column so can remove it in the schema</span>
     <span class="n">payroll_cols</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="s2">&quot;payroll_maintenance&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;payroll_operations&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;payroll_other_accounts&quot;</span><span class="p">,</span>
+        <span class="s2">"payroll_maintenance"</span><span class="p">,</span>
+        <span class="s2">"payroll_operations"</span><span class="p">,</span>
+        <span class="s2">"payroll_other_accounts"</span><span class="p">,</span>
     <span class="p">]</span>
     <span class="k">assert</span> <span class="n">df</span><span class="p">[</span>
-        <span class="n">df</span><span class="p">[</span><span class="n">payroll_cols</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">!=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;payroll_total&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">df</span><span class="p">[</span><span class="n">payroll_cols</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">!=</span> <span class="n">df</span><span class="p">[</span><span class="s2">"payroll_total"</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
     <span class="p">]</span><span class="o">.</span><span class="n">empty</span><span class="p">,</span> <span class="p">(</span>
-        <span class="s2">&quot;payroll_total column does not equal sum of payroll component columns for some rows.&quot;</span>
+        <span class="s2">"payroll_total column does not equal sum of payroll component columns for some rows."</span>
     <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">df</span></div>
@@ -1147,24 +1147,24 @@ window.runMermaid = runMermaid;</script>
 <span class="k">def</span><span class="w"> </span><span class="nf">_core_rus12__yearly_sources_and_distribution_by_plant_type</span><span class="p">(</span>
     <span class="n">raw_rus12__sources_and_distribution</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Transform the raw_rus12__sources_and_distribution table.</span>
+<span class="w">    </span><span class="sd">"""Transform the raw_rus12__sources_and_distribution table.</span>
 
 <span class="sd">    This function pivots the cost, capacity, net-energy, and plant num data by plant type</span>
 <span class="sd">    from the Sources and Distribution table. The rest of the table contents are in</span>
 <span class="sd">    core_rus12__yearly_sources_and_distribution.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">rus</span><span class="o">.</span><span class="n">early_transform</span><span class="p">(</span><span class="n">raw_df</span><span class="o">=</span><span class="n">raw_rus12__sources_and_distribution</span><span class="p">)</span>
-    <span class="n">data_cols</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;capacity_kw&quot;</span><span class="p">,</span> <span class="s2">&quot;cost&quot;</span><span class="p">,</span> <span class="s2">&quot;plant_num&quot;</span><span class="p">,</span> <span class="s2">&quot;net_energy_received_mwh&quot;</span><span class="p">]</span>
+    <span class="n">data_cols</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"capacity_kw"</span><span class="p">,</span> <span class="s2">"cost"</span><span class="p">,</span> <span class="s2">"plant_num"</span><span class="p">,</span> <span class="s2">"net_energy_received_mwh"</span><span class="p">]</span>
 
     <span class="c1"># Stack by plant type</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">multi_index_stack</span><span class="p">(</span>
         <span class="n">df</span><span class="p">,</span>
-        <span class="n">idx_ish</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">,</span> <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span> <span class="s2">&quot;borrower_name_rus&quot;</span><span class="p">],</span>
+        <span class="n">idx_ish</span><span class="o">=</span><span class="p">[</span><span class="s2">"report_date"</span><span class="p">,</span> <span class="s2">"borrower_id_rus"</span><span class="p">,</span> <span class="s2">"borrower_name_rus"</span><span class="p">],</span>
         <span class="n">data_cols</span><span class="o">=</span><span class="n">data_cols</span><span class="p">,</span>
-        <span class="n">pattern</span><span class="o">=</span><span class="sa">rf</span><span class="s2">&quot;^(</span><span class="si">{</span><span class="s1">&#39;|&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">PLANT_TYPE_RUS12</span><span class="p">)</span><span class="si">}</span><span class="s2">)_(</span><span class="si">{</span><span class="s1">&#39;|&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_cols</span><span class="p">)</span><span class="si">}</span><span class="s2">)$&quot;</span><span class="p">,</span>
-        <span class="n">match_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;plant_type&quot;</span><span class="p">,</span> <span class="s2">&quot;data_cols&quot;</span><span class="p">],</span>
+        <span class="n">pattern</span><span class="o">=</span><span class="sa">rf</span><span class="s2">"^(</span><span class="si">{</span><span class="s1">'|'</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">PLANT_TYPE_RUS12</span><span class="p">)</span><span class="si">}</span><span class="s2">)_(</span><span class="si">{</span><span class="s1">'|'</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_cols</span><span class="p">)</span><span class="si">}</span><span class="s2">)$"</span><span class="p">,</span>
+        <span class="n">match_names</span><span class="o">=</span><span class="p">[</span><span class="s2">"plant_type"</span><span class="p">,</span> <span class="s2">"data_cols"</span><span class="p">],</span>
         <span class="n">unstack_level</span><span class="o">=</span><span class="p">[</span>
-            <span class="s2">&quot;plant_type&quot;</span><span class="p">,</span>
+            <span class="s2">"plant_type"</span><span class="p">,</span>
         <span class="p">],</span>
         <span class="n">drop_zero_rows</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">expected_dropped_cols</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span>
@@ -1172,8 +1172,8 @@ window.runMermaid = runMermaid;</script>
     <span class="c1"># Convert units</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">rus</span><span class="o">.</span><span class="n">convert_units</span><span class="p">(</span>
         <span class="n">df</span><span class="p">,</span>
-        <span class="n">old_unit</span><span class="o">=</span><span class="s2">&quot;kw&quot;</span><span class="p">,</span>
-        <span class="n">new_unit</span><span class="o">=</span><span class="s2">&quot;mw&quot;</span><span class="p">,</span>
+        <span class="n">old_unit</span><span class="o">=</span><span class="s2">"kw"</span><span class="p">,</span>
+        <span class="n">new_unit</span><span class="o">=</span><span class="s2">"mw"</span><span class="p">,</span>
         <span class="n">converter</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span>
     <span class="p">)</span>
 
@@ -1188,13 +1188,13 @@ window.runMermaid = runMermaid;</script>
 <span class="k">def</span><span class="w"> </span><span class="nf">_core_rus12__yearly_sources_and_distribution</span><span class="p">(</span>
     <span class="n">raw_rus12__sources_and_distribution</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Transform the raw_rus12__sources_and_distribution table.</span>
+<span class="w">    </span><span class="sd">"""Transform the raw_rus12__sources_and_distribution table.</span>
 
 <span class="sd">    This function process all columns from the Sources and Distribution table</span>
 <span class="sd">    that are not plant type specific. The plant type specific columns are processed</span>
 <span class="sd">    in core_rus12__yearly_sources_and_distribution_by_plant_type.</span>
 
-<span class="sd">    The multi_index_stack function intentionally drops a few columns that don&#39;t</span>
+<span class="sd">    The multi_index_stack function intentionally drops a few columns that don't</span>
 <span class="sd">    show up in other tables. This include:</span>
 <span class="sd">    - ``total_energy_losses_pct`` (calculable with other cols, dropped because pct value</span>
 <span class="sd">    was an outlier column and not easily stacked with other columns).</span>
@@ -1204,24 +1204,24 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    This function keeps the ``total_plant_cost`` and ``total_plant_mwh`` columns even though</span>
 <span class="sd">    they are also calculable with the other table, because they are components of other</span>
 <span class="sd">    totals included in this table.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">rus</span><span class="o">.</span><span class="n">early_transform</span><span class="p">(</span><span class="n">raw_df</span><span class="o">=</span><span class="n">raw_rus12__sources_and_distribution</span><span class="p">)</span>
     <span class="c1"># Remove plant type columns handled in sources_and_distribution_by_plant_type function</span>
     <span class="n">plant_type_mask</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span>
-        <span class="nb">tuple</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">p</span><span class="si">}</span><span class="s2">_&quot;</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">PLANT_TYPE_RUS12</span><span class="p">)</span>
+        <span class="nb">tuple</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">p</span><span class="si">}</span><span class="s2">_"</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">PLANT_TYPE_RUS12</span><span class="p">)</span>
     <span class="p">)</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="o">~</span><span class="n">plant_type_mask</span><span class="p">]</span>
 
     <span class="c1"># Stack by cost and mwh</span>
-    <span class="n">data_cols</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;cost&quot;</span><span class="p">,</span> <span class="s2">&quot;net_energy_received_mwh&quot;</span><span class="p">]</span>
+    <span class="n">data_cols</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"cost"</span><span class="p">,</span> <span class="s2">"net_energy_received_mwh"</span><span class="p">]</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">multi_index_stack</span><span class="p">(</span>
         <span class="n">df</span><span class="p">,</span>
-        <span class="n">idx_ish</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">,</span> <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span> <span class="s2">&quot;borrower_name_rus&quot;</span><span class="p">],</span>
+        <span class="n">idx_ish</span><span class="o">=</span><span class="p">[</span><span class="s2">"report_date"</span><span class="p">,</span> <span class="s2">"borrower_id_rus"</span><span class="p">,</span> <span class="s2">"borrower_name_rus"</span><span class="p">],</span>
         <span class="n">data_cols</span><span class="o">=</span><span class="n">data_cols</span><span class="p">,</span>
-        <span class="n">pattern</span><span class="o">=</span><span class="sa">rf</span><span class="s2">&quot;^(.+)_(</span><span class="si">{</span><span class="s1">&#39;|&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_cols</span><span class="p">)</span><span class="si">}</span><span class="s2">)$&quot;</span><span class="p">,</span>
-        <span class="n">match_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;source_of_energy&quot;</span><span class="p">,</span> <span class="s2">&quot;data_cols&quot;</span><span class="p">],</span>
+        <span class="n">pattern</span><span class="o">=</span><span class="sa">rf</span><span class="s2">"^(.+)_(</span><span class="si">{</span><span class="s1">'|'</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_cols</span><span class="p">)</span><span class="si">}</span><span class="s2">)$"</span><span class="p">,</span>
+        <span class="n">match_names</span><span class="o">=</span><span class="p">[</span><span class="s2">"source_of_energy"</span><span class="p">,</span> <span class="s2">"data_cols"</span><span class="p">],</span>
         <span class="n">unstack_level</span><span class="o">=</span><span class="p">[</span>
-            <span class="s2">&quot;source_of_energy&quot;</span><span class="p">,</span>
+            <span class="s2">"source_of_energy"</span><span class="p">,</span>
         <span class="p">],</span>
         <span class="n">drop_zero_rows</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">expected_dropped_cols</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
@@ -1234,50 +1234,50 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="_core_rus12__yearly_statement_of_operations">
 <a class="viewcode-back" href="../../../autoapi/pudl/transform/rus12/index.html#pudl.transform.rus12._core_rus12__yearly_statement_of_operations">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_core_rus12__yearly_statement_of_operations</span><span class="p">(</span><span class="n">raw_rus12__statement_of_operations</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Transform the raw_rus12__statement_of_operations table.</span>
+<span class="w">    </span><span class="sd">"""Transform the raw_rus12__statement_of_operations table.</span>
 
 <span class="sd">    This function drops a number of columns that contain per_kwh values that are</span>
 <span class="sd">    entirely NA through all years. It then reshapes the table by stacking expense</span>
 <span class="sd">    types by the name of the total column for which they are calculation components.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">rus</span><span class="o">.</span><span class="n">early_transform</span><span class="p">(</span><span class="n">raw_df</span><span class="o">=</span><span class="n">raw_rus12__statement_of_operations</span><span class="p">)</span>
 
     <span class="c1"># Setting this assertion before stacking the table to make sure the PK holds</span>
     <span class="n">rus</span><span class="o">.</span><span class="n">early_check_pk</span><span class="p">(</span>
-        <span class="n">df</span><span class="p">,</span> <span class="n">pk_early</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span> <span class="s2">&quot;borrower_name_rus&quot;</span><span class="p">,</span> <span class="s2">&quot;report_date&quot;</span><span class="p">]</span>
+        <span class="n">df</span><span class="p">,</span> <span class="n">pk_early</span><span class="o">=</span><span class="p">[</span><span class="s2">"borrower_id_rus"</span><span class="p">,</span> <span class="s2">"borrower_name_rus"</span><span class="p">,</span> <span class="s2">"report_date"</span><span class="p">]</span>
     <span class="p">)</span>
 
     <span class="c1"># There are a bunch of cols ending in per_kwh that seem to have no information in them.</span>
     <span class="c1"># Verify this so we feel good dropping them. (They get dropped in multi_index_stack).</span>
-    <span class="n">per_kwh_cols</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s2">&quot;per_kwh&quot;</span><span class="p">)]</span>
+    <span class="n">per_kwh_cols</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s2">"per_kwh"</span><span class="p">)]</span>
     <span class="k">assert</span> <span class="n">df</span><span class="p">[</span><span class="n">per_kwh_cols</span><span class="p">]</span><span class="o">.</span><span class="n">notna</span><span class="p">()</span><span class="o">.</span><span class="n">any</span><span class="p">()</span><span class="o">.</span><span class="n">any</span><span class="p">()</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">True</span><span class="p">,</span> <span class="p">(</span>
-        <span class="s2">&quot;Expected per_kwh columns to be entirely NA.&quot;</span>
+        <span class="s2">"Expected per_kwh columns to be entirely NA."</span>
     <span class="p">)</span>
 
     <span class="c1"># Stack by operating revenue group and expense type</span>
     <span class="n">data_cols</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="s2">&quot;opex_ytd&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;opex_ytd_budget&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;opex_report_month&quot;</span><span class="p">,</span>
+        <span class="s2">"opex_ytd"</span><span class="p">,</span>
+        <span class="s2">"opex_ytd_budget"</span><span class="p">,</span>
+        <span class="s2">"opex_report_month"</span><span class="p">,</span>
     <span class="p">]</span>
     <span class="n">opex_group</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="s2">&quot;operation_revenue_and_patronage_capital&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;operation_expense&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;maintenance_expense&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;cost_of_electric_service&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;net_patronage_capital_or_margins&quot;</span><span class="p">,</span>
+        <span class="s2">"operation_revenue_and_patronage_capital"</span><span class="p">,</span>
+        <span class="s2">"operation_expense"</span><span class="p">,</span>
+        <span class="s2">"maintenance_expense"</span><span class="p">,</span>
+        <span class="s2">"cost_of_electric_service"</span><span class="p">,</span>
+        <span class="s2">"net_patronage_capital_or_margins"</span><span class="p">,</span>
     <span class="p">]</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">multi_index_stack</span><span class="p">(</span>
         <span class="n">df</span><span class="p">,</span>
-        <span class="n">idx_ish</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">,</span> <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span> <span class="s2">&quot;borrower_name_rus&quot;</span><span class="p">],</span>
+        <span class="n">idx_ish</span><span class="o">=</span><span class="p">[</span><span class="s2">"report_date"</span><span class="p">,</span> <span class="s2">"borrower_id_rus"</span><span class="p">,</span> <span class="s2">"borrower_name_rus"</span><span class="p">],</span>
         <span class="n">data_cols</span><span class="o">=</span><span class="n">data_cols</span><span class="p">,</span>
-        <span class="n">pattern</span><span class="o">=</span><span class="sa">rf</span><span class="s2">&quot;^(</span><span class="si">{</span><span class="s1">&#39;|&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">opex_group</span><span class="p">)</span><span class="si">}</span><span class="s2">)_(.+)_(</span><span class="si">{</span><span class="s1">&#39;|&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_cols</span><span class="p">)</span><span class="si">}</span><span class="s2">)$&quot;</span><span class="p">,</span>
-        <span class="n">match_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;opex_group&quot;</span><span class="p">,</span> <span class="s2">&quot;opex_type&quot;</span><span class="p">,</span> <span class="s2">&quot;data_cols&quot;</span><span class="p">],</span>
-        <span class="n">unstack_level</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;opex_group&quot;</span><span class="p">,</span> <span class="s2">&quot;opex_type&quot;</span><span class="p">],</span>
+        <span class="n">pattern</span><span class="o">=</span><span class="sa">rf</span><span class="s2">"^(</span><span class="si">{</span><span class="s1">'|'</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">opex_group</span><span class="p">)</span><span class="si">}</span><span class="s2">)_(.+)_(</span><span class="si">{</span><span class="s1">'|'</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_cols</span><span class="p">)</span><span class="si">}</span><span class="s2">)$"</span><span class="p">,</span>
+        <span class="n">match_names</span><span class="o">=</span><span class="p">[</span><span class="s2">"opex_group"</span><span class="p">,</span> <span class="s2">"opex_type"</span><span class="p">,</span> <span class="s2">"data_cols"</span><span class="p">],</span>
+        <span class="n">unstack_level</span><span class="o">=</span><span class="p">[</span><span class="s2">"opex_group"</span><span class="p">,</span> <span class="s2">"opex_type"</span><span class="p">],</span>
         <span class="n">expected_dropped_cols</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span>  <span class="c1"># per_kwh columns we checked above and opex_report_month</span>
     <span class="p">)</span>
-    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;is_total&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">opex_type</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;total_&quot;</span><span class="p">)</span>
-    <span class="c1"># TODO: could remove total columns that aren&#39;t used as part of the calculation for others.</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">"is_total"</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">opex_type</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"total_"</span><span class="p">)</span>
+    <span class="c1"># TODO: could remove total columns that aren't used as part of the calculation for others.</span>
     <span class="k">return</span> <span class="n">df</span></div>
 
 
@@ -1292,53 +1292,53 @@ window.runMermaid = runMermaid;</script>
     <span class="n">raw_rus12__nuclear_plant_costs</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
     <span class="n">raw_rus12__steam_plant_costs</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Transform the plant cost tables.</span>
+<span class="w">    </span><span class="sd">"""Transform the plant cost tables.</span>
 
 <span class="sd">    This transform takes all of the plant production cost tables, processes</span>
 <span class="sd">    them similarly and combines them into one plant cost table.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">plant_cost_tables</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;combined_cycle&quot;</span><span class="p">:</span> <span class="n">raw_rus12__combined_cycle_plant_costs</span><span class="p">,</span>
-        <span class="s2">&quot;hydro&quot;</span><span class="p">:</span> <span class="n">raw_rus12__hydro_plant_costs</span><span class="p">,</span>
-        <span class="s2">&quot;internal_combustion&quot;</span><span class="p">:</span> <span class="n">raw_rus12__internal_combustion_plant_costs</span><span class="p">,</span>
-        <span class="s2">&quot;nuclear&quot;</span><span class="p">:</span> <span class="n">raw_rus12__nuclear_plant_costs</span><span class="p">,</span>
-        <span class="s2">&quot;steam&quot;</span><span class="p">:</span> <span class="n">raw_rus12__steam_plant_costs</span><span class="p">,</span>
+        <span class="s2">"combined_cycle"</span><span class="p">:</span> <span class="n">raw_rus12__combined_cycle_plant_costs</span><span class="p">,</span>
+        <span class="s2">"hydro"</span><span class="p">:</span> <span class="n">raw_rus12__hydro_plant_costs</span><span class="p">,</span>
+        <span class="s2">"internal_combustion"</span><span class="p">:</span> <span class="n">raw_rus12__internal_combustion_plant_costs</span><span class="p">,</span>
+        <span class="s2">"nuclear"</span><span class="p">:</span> <span class="n">raw_rus12__nuclear_plant_costs</span><span class="p">,</span>
+        <span class="s2">"steam"</span><span class="p">:</span> <span class="n">raw_rus12__steam_plant_costs</span><span class="p">,</span>
     <span class="p">}</span>
     <span class="n">df_outs</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">plant_type</span><span class="p">,</span> <span class="n">raw_table</span> <span class="ow">in</span> <span class="n">plant_cost_tables</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">rus</span><span class="o">.</span><span class="n">early_transform</span><span class="p">(</span><span class="n">raw_df</span><span class="o">=</span><span class="n">raw_table</span><span class="p">)</span>
-        <span class="c1"># there are duplicates for the &quot;Walter Scott&quot; steam plant</span>
-        <span class="k">if</span> <span class="n">plant_type</span> <span class="o">!=</span> <span class="s2">&quot;steam&quot;</span><span class="p">:</span>
+        <span class="c1"># there are duplicates for the "Walter Scott" steam plant</span>
+        <span class="k">if</span> <span class="n">plant_type</span> <span class="o">!=</span> <span class="s2">"steam"</span><span class="p">:</span>
             <span class="n">rus</span><span class="o">.</span><span class="n">early_check_pk</span><span class="p">(</span>
-                <span class="n">df</span><span class="p">,</span> <span class="n">pk_early</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">,</span> <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span> <span class="s2">&quot;plant_name_rus&quot;</span><span class="p">]</span>
+                <span class="n">df</span><span class="p">,</span> <span class="n">pk_early</span><span class="o">=</span><span class="p">[</span><span class="s2">"report_date"</span><span class="p">,</span> <span class="s2">"borrower_id_rus"</span><span class="p">,</span> <span class="s2">"plant_name_rus"</span><span class="p">]</span>
             <span class="p">)</span>
         <span class="n">data_cols</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="p">[</span><span class="s2">&quot;cost&quot;</span><span class="p">,</span> <span class="s2">&quot;cost_per_mmbtu&quot;</span><span class="p">,</span> <span class="s2">&quot;cost_per_mwh&quot;</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">plant_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;hydro&quot;</span><span class="p">,</span> <span class="s2">&quot;nuclear&quot;</span><span class="p">]</span>
-            <span class="k">else</span> <span class="p">[</span><span class="s2">&quot;cost&quot;</span><span class="p">,</span> <span class="s2">&quot;cost_per_mwh&quot;</span><span class="p">]</span>
+            <span class="p">[</span><span class="s2">"cost"</span><span class="p">,</span> <span class="s2">"cost_per_mmbtu"</span><span class="p">,</span> <span class="s2">"cost_per_mwh"</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">plant_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"hydro"</span><span class="p">,</span> <span class="s2">"nuclear"</span><span class="p">]</span>
+            <span class="k">else</span> <span class="p">[</span><span class="s2">"cost"</span><span class="p">,</span> <span class="s2">"cost_per_mwh"</span><span class="p">]</span>
         <span class="p">)</span>
-        <span class="n">pattern</span> <span class="o">=</span> <span class="sa">rf</span><span class="s2">&quot;^(capex|opex|total)_(.+)_(</span><span class="si">{</span><span class="s1">&#39;|&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_cols</span><span class="p">)</span><span class="si">}</span><span class="s2">)$&quot;</span>
+        <span class="n">pattern</span> <span class="o">=</span> <span class="sa">rf</span><span class="s2">"^(capex|opex|total)_(.+)_(</span><span class="si">{</span><span class="s1">'|'</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_cols</span><span class="p">)</span><span class="si">}</span><span class="s2">)$"</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">multi_index_stack</span><span class="p">(</span>
             <span class="n">df</span><span class="p">,</span>
             <span class="n">idx_ish</span><span class="o">=</span><span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;borrower_name_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;plant_name_rus&quot;</span><span class="p">,</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"borrower_id_rus"</span><span class="p">,</span>
+                <span class="s2">"borrower_name_rus"</span><span class="p">,</span>
+                <span class="s2">"plant_name_rus"</span><span class="p">,</span>
             <span class="p">],</span>
             <span class="n">data_cols</span><span class="o">=</span><span class="n">data_cols</span><span class="p">,</span>
             <span class="n">pattern</span><span class="o">=</span><span class="n">pattern</span><span class="p">,</span>
-            <span class="n">match_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;cost_group&quot;</span><span class="p">,</span> <span class="s2">&quot;cost_type&quot;</span><span class="p">,</span> <span class="s2">&quot;data_cols&quot;</span><span class="p">],</span>
-            <span class="n">unstack_level</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;cost_group&quot;</span><span class="p">,</span> <span class="s2">&quot;cost_type&quot;</span><span class="p">],</span>
+            <span class="n">match_names</span><span class="o">=</span><span class="p">[</span><span class="s2">"cost_group"</span><span class="p">,</span> <span class="s2">"cost_type"</span><span class="p">,</span> <span class="s2">"data_cols"</span><span class="p">],</span>
+            <span class="n">unstack_level</span><span class="o">=</span><span class="p">[</span><span class="s2">"cost_group"</span><span class="p">,</span> <span class="s2">"cost_type"</span><span class="p">],</span>
         <span class="p">)</span>
-        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;plant_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">plant_type</span>
+        <span class="n">df</span><span class="p">[</span><span class="s2">"plant_type"</span><span class="p">]</span> <span class="o">=</span> <span class="n">plant_type</span>
         <span class="n">df_outs</span><span class="p">[</span><span class="n">plant_type</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span>
     <span class="n">df_all</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">df_outs</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
     <span class="c1"># this total flag is a little different than the others. it grabs the high-level</span>
-    <span class="c1"># cost group totals and it flags the cost_type&#39;s of net and less. Because these</span>
+    <span class="c1"># cost group totals and it flags the cost_type's of net and less. Because these</span>
     <span class="c1"># are clearly calculated fields from looking at the form.</span>
-    <span class="n">df_all</span><span class="p">[</span><span class="s2">&quot;is_total&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_all</span><span class="o">.</span><span class="n">cost_type</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s2">&quot;total|net|less&quot;</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span>
-        <span class="n">df_all</span><span class="o">.</span><span class="n">cost_group</span> <span class="o">==</span> <span class="s2">&quot;total&quot;</span>
+    <span class="n">df_all</span><span class="p">[</span><span class="s2">"is_total"</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_all</span><span class="o">.</span><span class="n">cost_type</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s2">"total|net|less"</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span>
+        <span class="n">df_all</span><span class="o">.</span><span class="n">cost_group</span> <span class="o">==</span> <span class="s2">"total"</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">df_all</span></div>
 
@@ -1347,7 +1347,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="drop_bad_ownership_plant">
 <a class="viewcode-back" href="../../../autoapi/pudl/transform/rus12/index.html#pudl.transform.rus12.drop_bad_ownership_plant">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">drop_bad_ownership_plant</span><span class="p">(</span><span class="n">df</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Drop 1 plant record with unexpected ownership label and duplicate data.</span>
+<span class="w">    </span><span class="sd">"""Drop 1 plant record with unexpected ownership label and duplicate data.</span>
 
 <span class="sd">    There is a Wisdom steam plant record that is labeled to be both fully owned by</span>
 <span class="sd">    borrower and partly owned for one year. Which is an unexpected combo based on the</span>
@@ -1357,24 +1357,24 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">    So we check if the two plant records for that year have the same data, then</span>
 <span class="sd">    drop the one badly labeled ownership record.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">bad_ownership_label_mask</span> <span class="o">=</span> <span class="p">(</span>
         <span class="o">~</span><span class="n">df</span><span class="o">.</span><span class="n">is_full_ownership_portion</span> <span class="o">&amp;</span> <span class="o">~</span><span class="n">df</span><span class="o">.</span><span class="n">is_partly_owned_by_borrower</span>
     <span class="p">)</span>
     <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">bad_ownership_label_mask</span><span class="p">])</span> <span class="o">==</span> <span class="mi">1</span>
 
     <span class="n">wisdom_steam_2019_mask</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">plant_name_rus</span> <span class="o">==</span> <span class="s2">&quot;Wisdom&quot;</span><span class="p">)</span>
+        <span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">plant_name_rus</span> <span class="o">==</span> <span class="s2">"Wisdom"</span><span class="p">)</span>
         <span class="o">&amp;</span> <span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">report_date</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span> <span class="o">==</span> <span class="mi">2019</span><span class="p">)</span>
-        <span class="o">&amp;</span> <span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">plant_type</span> <span class="o">==</span> <span class="s2">&quot;steam&quot;</span><span class="p">)</span>
+        <span class="o">&amp;</span> <span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">plant_type</span> <span class="o">==</span> <span class="s2">"steam"</span><span class="p">)</span>
     <span class="p">)</span>
 
     <span class="n">idx</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;borrower_name_rus&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;plant_name_rus&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;is_full_ownership_portion&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;is_partly_owned_by_borrower&quot;</span><span class="p">,</span>
+        <span class="s2">"borrower_id_rus"</span><span class="p">,</span>
+        <span class="s2">"borrower_name_rus"</span><span class="p">,</span>
+        <span class="s2">"plant_name_rus"</span><span class="p">,</span>
+        <span class="s2">"is_full_ownership_portion"</span><span class="p">,</span>
+        <span class="s2">"is_partly_owned_by_borrower"</span><span class="p">,</span>
     <span class="p">]</span>
     <span class="k">assert</span> <span class="n">df</span><span class="p">[</span>
         <span class="n">wisdom_steam_2019_mask</span>
@@ -1388,21 +1388,21 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="fix_string_unit_id_rus">
 <a class="viewcode-back" href="../../../autoapi/pudl/transform/rus12/index.html#pudl.transform.rus12.fix_string_unit_id_rus">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">fix_string_unit_id_rus</span><span class="p">(</span><span class="n">df</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fix unit_id_rus&#39;s bad string IDs.</span>
+<span class="w">    </span><span class="sd">"""Fix unit_id_rus's bad string IDs.</span>
 
-<span class="sd">    There are two instances of unit_id_rus&#39;s that have string values in them.</span>
+<span class="sd">    There are two instances of unit_id_rus's that have string values in them.</span>
 <span class="sd">    Based on pre-cleaned data, we were able to clearly identify that we can use</span>
 <span class="sd">    just the numeric values in these bad strings. This enables us to have an integer</span>
 <span class="sd">    type for this unit_id_rus column.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">df</span><span class="o">.</span><span class="n">unit_id_rus</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">unit_id_rus</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">StringDtype</span><span class="p">())</span>
-    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="o">.</span><span class="n">unit_id_rus</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s2">&quot;WSL&quot;</span><span class="p">)])</span> <span class="o">&lt;=</span> <span class="mi">4</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="o">.</span><span class="n">unit_id_rus</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s2">"WSL"</span><span class="p">)])</span> <span class="o">&lt;=</span> <span class="mi">4</span>
     <span class="n">df</span><span class="o">.</span><span class="n">unit_id_rus</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">df</span><span class="o">.</span><span class="n">unit_id_rus</span><span class="o">.</span><span class="n">replace</span><span class="p">({</span><span class="s2">&quot;WSL GT 12&quot;</span><span class="p">:</span> <span class="s2">&quot;12&quot;</span><span class="p">,</span> <span class="s2">&quot;WSL ST 10&quot;</span><span class="p">:</span> <span class="s2">&quot;10&quot;</span><span class="p">})</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">unit_id_rus</span><span class="o">.</span><span class="n">replace</span><span class="p">({</span><span class="s2">"WSL GT 12"</span><span class="p">:</span> <span class="s2">"12"</span><span class="p">,</span> <span class="s2">"WSL ST 10"</span><span class="p">:</span> <span class="s2">"10"</span><span class="p">})</span>
         <span class="c1"># then actually convert the dtype to make sure</span>
         <span class="c1"># it can be an int. convert to a float first because</span>
         <span class="c1"># this column could have been converted into an object with</span>
-        <span class="c1"># floaty string with things like &quot;2.0&quot; that don&#39;t love being</span>
+        <span class="c1"># floaty string with things like "2.0" that don't love being</span>
         <span class="c1"># directly converted into an int</span>
         <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
         <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Int64Dtype</span><span class="p">())</span>
@@ -1413,8 +1413,8 @@ window.runMermaid = runMermaid;</script>
 
 <span class="nd">@multi_asset</span><span class="p">(</span>
     <span class="n">outs</span><span class="o">=</span><span class="p">{</span>
-        <span class="s2">&quot;_core_rus12__yearly_plant_operations_by_plant&quot;</span><span class="p">:</span> <span class="n">AssetOut</span><span class="p">(),</span>
-        <span class="s2">&quot;_core_rus12__yearly_plant_operations_by_borrower&quot;</span><span class="p">:</span> <span class="n">AssetOut</span><span class="p">(),</span>
+        <span class="s2">"_core_rus12__yearly_plant_operations_by_plant"</span><span class="p">:</span> <span class="n">AssetOut</span><span class="p">(),</span>
+        <span class="s2">"_core_rus12__yearly_plant_operations_by_borrower"</span><span class="p">:</span> <span class="n">AssetOut</span><span class="p">(),</span>
     <span class="p">}</span>
 <span class="p">)</span>
 <div class="viewcode-block" id="_core_rus12__yearly_plant_operations">
@@ -1426,20 +1426,20 @@ window.runMermaid = runMermaid;</script>
     <span class="n">raw_rus12__nuclear_plant_operations</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
     <span class="n">raw_rus12__steam_plant_operations</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Transform the plant operations tables.</span>
+<span class="w">    </span><span class="sd">"""Transform the plant operations tables.</span>
 
 <span class="sd">    This transform takes all of the plant operations tables, processes</span>
 <span class="sd">    them similarly and combines them into one plant table. Which is then</span>
 <span class="sd">    split out into two tables: by borrower and by plant. The details of</span>
 <span class="sd">    which record should end up in which output table are documented in</span>
-<span class="sd">    these tables&#39; resource metadata.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    these tables' resource metadata.</span>
+<span class="sd">    """</span>
     <span class="n">raw_plant_operations_tables</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;combined_cycle&quot;</span><span class="p">:</span> <span class="n">raw_rus12__combined_cycle_plant_operations</span><span class="p">,</span>
-        <span class="s2">&quot;hydro&quot;</span><span class="p">:</span> <span class="n">raw_rus12__hydro_plant_operations</span><span class="p">,</span>
-        <span class="s2">&quot;internal_combustion&quot;</span><span class="p">:</span> <span class="n">raw_rus12__internal_combustion_plant_operations</span><span class="p">,</span>
-        <span class="s2">&quot;nuclear&quot;</span><span class="p">:</span> <span class="n">raw_rus12__nuclear_plant_operations</span><span class="p">,</span>
-        <span class="s2">&quot;steam&quot;</span><span class="p">:</span> <span class="n">raw_rus12__steam_plant_operations</span><span class="p">,</span>
+        <span class="s2">"combined_cycle"</span><span class="p">:</span> <span class="n">raw_rus12__combined_cycle_plant_operations</span><span class="p">,</span>
+        <span class="s2">"hydro"</span><span class="p">:</span> <span class="n">raw_rus12__hydro_plant_operations</span><span class="p">,</span>
+        <span class="s2">"internal_combustion"</span><span class="p">:</span> <span class="n">raw_rus12__internal_combustion_plant_operations</span><span class="p">,</span>
+        <span class="s2">"nuclear"</span><span class="p">:</span> <span class="n">raw_rus12__nuclear_plant_operations</span><span class="p">,</span>
+        <span class="s2">"steam"</span><span class="p">:</span> <span class="n">raw_rus12__steam_plant_operations</span><span class="p">,</span>
     <span class="p">}</span>
 
     <span class="n">df_outs</span> <span class="o">=</span> <span class="p">{}</span>
@@ -1447,32 +1447,32 @@ window.runMermaid = runMermaid;</script>
         <span class="n">df_plant_type</span> <span class="o">=</span> <span class="n">rus</span><span class="o">.</span><span class="n">early_transform</span><span class="p">(</span>
             <span class="n">raw_df</span><span class="o">=</span><span class="n">raw_table</span><span class="p">,</span>
             <span class="n">boolean_columns_to_fix</span><span class="o">=</span><span class="p">[</span>
-                <span class="s2">&quot;is_full_ownership_portion&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;is_partly_owned_by_borrower&quot;</span><span class="p">,</span>
+                <span class="s2">"is_full_ownership_portion"</span><span class="p">,</span>
+                <span class="s2">"is_partly_owned_by_borrower"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">)</span>
-        <span class="n">df_plant_type</span><span class="p">[</span><span class="s2">&quot;plant_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">plant_type</span>
+        <span class="n">df_plant_type</span><span class="p">[</span><span class="s2">"plant_type"</span><span class="p">]</span> <span class="o">=</span> <span class="n">plant_type</span>
         <span class="n">df_outs</span><span class="p">[</span><span class="n">plant_type</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_plant_type</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">df_outs</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
-    <span class="k">for</span> <span class="n">old_unit</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;1000_lbs&quot;</span><span class="p">,</span> <span class="s2">&quot;1000_cubic_feet&quot;</span><span class="p">,</span> <span class="s2">&quot;1000_gallons&quot;</span><span class="p">]:</span>
+    <span class="k">for</span> <span class="n">old_unit</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"1000_lbs"</span><span class="p">,</span> <span class="s2">"1000_cubic_feet"</span><span class="p">,</span> <span class="s2">"1000_gallons"</span><span class="p">]:</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">rus</span><span class="o">.</span><span class="n">convert_units</span><span class="p">(</span>
             <span class="n">df</span><span class="p">,</span>
             <span class="n">old_unit</span><span class="o">=</span><span class="n">old_unit</span><span class="p">,</span>
-            <span class="n">new_unit</span><span class="o">=</span><span class="n">old_unit</span><span class="o">.</span><span class="n">removeprefix</span><span class="p">(</span><span class="s2">&quot;1000_&quot;</span><span class="p">),</span>
+            <span class="n">new_unit</span><span class="o">=</span><span class="n">old_unit</span><span class="o">.</span><span class="n">removeprefix</span><span class="p">(</span><span class="s2">"1000_"</span><span class="p">),</span>
             <span class="n">converter</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span>
         <span class="p">)</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">rus</span><span class="o">.</span><span class="n">convert_units</span><span class="p">(</span>
         <span class="n">df</span><span class="p">,</span>
-        <span class="n">old_unit</span><span class="o">=</span><span class="s2">&quot;kw&quot;</span><span class="p">,</span>
-        <span class="n">new_unit</span><span class="o">=</span><span class="s2">&quot;mw&quot;</span><span class="p">,</span>
+        <span class="n">old_unit</span><span class="o">=</span><span class="s2">"kw"</span><span class="p">,</span>
+        <span class="n">new_unit</span><span class="o">=</span><span class="s2">"mw"</span><span class="p">,</span>
         <span class="n">converter</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="n">df</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">df</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span>
             <span class="p">{</span>
-                <span class="s2">&quot;is_full_ownership_portion&quot;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">BooleanDtype</span><span class="p">(),</span>
-                <span class="s2">&quot;is_partly_owned_by_borrower&quot;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">BooleanDtype</span><span class="p">(),</span>
+                <span class="s2">"is_full_ownership_portion"</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">BooleanDtype</span><span class="p">(),</span>
+                <span class="s2">"is_partly_owned_by_borrower"</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">BooleanDtype</span><span class="p">(),</span>
             <span class="p">}</span>
         <span class="p">)</span>
         <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">drop_bad_ownership_plant</span><span class="p">)</span>
@@ -1509,20 +1509,20 @@ window.runMermaid = runMermaid;</script>
     <span class="p">]</span>
     <span class="c1"># Some validation checks...</span>
     <span class="n">idx_check</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;borrower_name_rus&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;plant_name_rus&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;is_full_ownership_portion&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;is_partly_owned_by_borrower&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;unit_id_rus&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;plant_type&quot;</span><span class="p">,</span>
+        <span class="s2">"report_date"</span><span class="p">,</span>
+        <span class="s2">"borrower_id_rus"</span><span class="p">,</span>
+        <span class="s2">"borrower_name_rus"</span><span class="p">,</span>
+        <span class="s2">"plant_name_rus"</span><span class="p">,</span>
+        <span class="s2">"is_full_ownership_portion"</span><span class="p">,</span>
+        <span class="s2">"is_partly_owned_by_borrower"</span><span class="p">,</span>
+        <span class="s2">"unit_id_rus"</span><span class="p">,</span>
+        <span class="s2">"plant_type"</span><span class="p">,</span>
     <span class="p">]</span>
     <span class="c1"># we want to check whether or not we are loosing any records:</span>
     <span class="n">both</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
         <span class="p">[</span><span class="n">df_by_borrower</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">idx_check</span><span class="p">),</span> <span class="n">df_by_plant</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">idx_check</span><span class="p">)],</span>
-        <span class="n">axis</span><span class="o">=</span><span class="s2">&quot;index&quot;</span><span class="p">,</span>
-        <span class="n">join</span><span class="o">=</span><span class="s2">&quot;outer&quot;</span><span class="p">,</span>
+        <span class="n">axis</span><span class="o">=</span><span class="s2">"index"</span><span class="p">,</span>
+        <span class="n">join</span><span class="o">=</span><span class="s2">"outer"</span><span class="p">,</span>
         <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="c1"># There is some overlap between the by_borrower and by_plant records but we</span>
@@ -1535,11 +1535,11 @@ window.runMermaid = runMermaid;</script>
 
     <span class="k">return</span> <span class="p">(</span>
         <span class="n">Output</span><span class="p">(</span>
-            <span class="n">output_name</span><span class="o">=</span><span class="s2">&quot;_core_rus12__yearly_plant_operations_by_plant&quot;</span><span class="p">,</span>
+            <span class="n">output_name</span><span class="o">=</span><span class="s2">"_core_rus12__yearly_plant_operations_by_plant"</span><span class="p">,</span>
             <span class="n">value</span><span class="o">=</span><span class="n">df_by_plant</span><span class="p">,</span>
         <span class="p">),</span>
         <span class="n">Output</span><span class="p">(</span>
-            <span class="n">output_name</span><span class="o">=</span><span class="s2">&quot;_core_rus12__yearly_plant_operations_by_borrower&quot;</span><span class="p">,</span>
+            <span class="n">output_name</span><span class="o">=</span><span class="s2">"_core_rus12__yearly_plant_operations_by_borrower"</span><span class="p">,</span>
             <span class="n">value</span><span class="o">=</span><span class="n">df_by_borrower</span><span class="p">,</span>
         <span class="p">),</span>
     <span class="p">)</span></div>
@@ -1552,55 +1552,55 @@ window.runMermaid = runMermaid;</script>
 <span class="k">def</span><span class="w"> </span><span class="nf">_core_rus12__monthly_demand_and_energy_at_delivery_points</span><span class="p">(</span>
     <span class="n">raw_rus12__demand_and_energy_at_delivery_points</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Transform the raw_rus12__demand_and_energy_at_delivery_points table.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Transform the raw_rus12__demand_and_energy_at_delivery_points table."""</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">rus</span><span class="o">.</span><span class="n">early_transform</span><span class="p">(</span><span class="n">raw_df</span><span class="o">=</span><span class="n">raw_rus12__demand_and_energy_at_delivery_points</span><span class="p">)</span>
     <span class="n">data_cols</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="s2">&quot;energy_mwh&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;demand_mw&quot;</span><span class="p">,</span>
+        <span class="s2">"energy_mwh"</span><span class="p">,</span>
+        <span class="s2">"demand_mw"</span><span class="p">,</span>
     <span class="p">]</span>
     <span class="n">delivery_recipient</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="s2">&quot;others&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;rus_borrowers&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;total&quot;</span><span class="p">,</span>
+        <span class="s2">"others"</span><span class="p">,</span>
+        <span class="s2">"rus_borrowers"</span><span class="p">,</span>
+        <span class="s2">"total"</span><span class="p">,</span>
     <span class="p">]</span>
     <span class="n">timeframe</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="s2">&quot;jan&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;feb&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;mar&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;apr&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;may&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;jun&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;jul&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;aug&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;sep&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;oct&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;nov&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;dec&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;peak&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;total&quot;</span><span class="p">,</span>
+        <span class="s2">"jan"</span><span class="p">,</span>
+        <span class="s2">"feb"</span><span class="p">,</span>
+        <span class="s2">"mar"</span><span class="p">,</span>
+        <span class="s2">"apr"</span><span class="p">,</span>
+        <span class="s2">"may"</span><span class="p">,</span>
+        <span class="s2">"jun"</span><span class="p">,</span>
+        <span class="s2">"jul"</span><span class="p">,</span>
+        <span class="s2">"aug"</span><span class="p">,</span>
+        <span class="s2">"sep"</span><span class="p">,</span>
+        <span class="s2">"oct"</span><span class="p">,</span>
+        <span class="s2">"nov"</span><span class="p">,</span>
+        <span class="s2">"dec"</span><span class="p">,</span>
+        <span class="s2">"peak"</span><span class="p">,</span>
+        <span class="s2">"total"</span><span class="p">,</span>
     <span class="p">]</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">multi_index_stack</span><span class="p">(</span>
         <span class="n">df</span><span class="p">,</span>
-        <span class="n">idx_ish</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">,</span> <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span> <span class="s2">&quot;borrower_name_rus&quot;</span><span class="p">],</span>
+        <span class="n">idx_ish</span><span class="o">=</span><span class="p">[</span><span class="s2">"report_date"</span><span class="p">,</span> <span class="s2">"borrower_id_rus"</span><span class="p">,</span> <span class="s2">"borrower_name_rus"</span><span class="p">],</span>
         <span class="n">data_cols</span><span class="o">=</span><span class="n">data_cols</span><span class="p">,</span>
-        <span class="n">pattern</span><span class="o">=</span><span class="sa">rf</span><span class="s2">&quot;^delivered_(?:to_)?(</span><span class="si">{</span><span class="s1">&#39;|&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">delivery_recipient</span><span class="p">)</span><span class="si">}</span><span class="s2">)_(</span><span class="si">{</span><span class="s1">&#39;|&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_cols</span><span class="p">)</span><span class="si">}</span><span class="s2">)_(</span><span class="si">{</span><span class="s1">&#39;|&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">timeframe</span><span class="p">)</span><span class="si">}</span><span class="s2">)$&quot;</span><span class="p">,</span>
-        <span class="n">match_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;delivery_recipient&quot;</span><span class="p">,</span> <span class="s2">&quot;data_cols&quot;</span><span class="p">,</span> <span class="s2">&quot;timeframe&quot;</span><span class="p">],</span>
-        <span class="n">unstack_level</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;delivery_recipient&quot;</span><span class="p">,</span> <span class="s2">&quot;timeframe&quot;</span><span class="p">],</span>
+        <span class="n">pattern</span><span class="o">=</span><span class="sa">rf</span><span class="s2">"^delivered_(?:to_)?(</span><span class="si">{</span><span class="s1">'|'</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">delivery_recipient</span><span class="p">)</span><span class="si">}</span><span class="s2">)_(</span><span class="si">{</span><span class="s1">'|'</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_cols</span><span class="p">)</span><span class="si">}</span><span class="s2">)_(</span><span class="si">{</span><span class="s1">'|'</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">timeframe</span><span class="p">)</span><span class="si">}</span><span class="s2">)$"</span><span class="p">,</span>
+        <span class="n">match_names</span><span class="o">=</span><span class="p">[</span><span class="s2">"delivery_recipient"</span><span class="p">,</span> <span class="s2">"data_cols"</span><span class="p">,</span> <span class="s2">"timeframe"</span><span class="p">],</span>
+        <span class="n">unstack_level</span><span class="o">=</span><span class="p">[</span><span class="s2">"delivery_recipient"</span><span class="p">,</span> <span class="s2">"timeframe"</span><span class="p">],</span>
     <span class="p">)</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
         <span class="n">columns</span><span class="o">=</span><span class="p">{</span>
-            <span class="s2">&quot;demand_mw&quot;</span><span class="p">:</span> <span class="s2">&quot;delivered_demand_mw&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;energy_mwh&quot;</span><span class="p">:</span> <span class="s2">&quot;delivered_energy_mwh&quot;</span><span class="p">,</span>
+            <span class="s2">"demand_mw"</span><span class="p">:</span> <span class="s2">"delivered_demand_mw"</span><span class="p">,</span>
+            <span class="s2">"energy_mwh"</span><span class="p">:</span> <span class="s2">"delivered_energy_mwh"</span><span class="p">,</span>
         <span class="p">}</span>
     <span class="p">)</span>
     <span class="c1"># Remove total/peak values. We are dropping the annual values</span>
     <span class="c1"># so we can convert this into a monthly time series. We could make</span>
     <span class="c1"># monthly and yearly tables w/ a multi-asset if desired but choose not</span>
     <span class="c1"># to because this info is duplicative.</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="o">~</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;timeframe&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="s2">&quot;total&quot;</span><span class="p">,</span> <span class="s2">&quot;peak&quot;</span><span class="p">])]</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="o">~</span><span class="n">df</span><span class="p">[</span><span class="s2">"timeframe"</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="s2">"total"</span><span class="p">,</span> <span class="s2">"peak"</span><span class="p">])]</span>
     <span class="c1"># Convert month cols to date:</span>
-    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span>
-        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;timeframe&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span> <span class="o">+</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">),</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;%b %Y&quot;</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">"report_date"</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span>
+        <span class="n">df</span><span class="p">[</span><span class="s2">"timeframe"</span><span class="p">]</span> <span class="o">+</span> <span class="s2">" "</span> <span class="o">+</span> <span class="n">df</span><span class="p">[</span><span class="s2">"report_date"</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">),</span> <span class="nb">format</span><span class="o">=</span><span class="s2">"%b %Y"</span>
     <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">df</span></div>
@@ -1613,60 +1613,60 @@ window.runMermaid = runMermaid;</script>
 <span class="k">def</span><span class="w"> </span><span class="nf">_core_rus12__monthly_demand_and_energy_at_power_sources</span><span class="p">(</span>
     <span class="n">raw_rus12__demand_and_energy_at_power_sources</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Transform the raw_rus12__demand_and_energy_at_power_sources table.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Transform the raw_rus12__demand_and_energy_at_power_sources table."""</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">rus</span><span class="o">.</span><span class="n">early_transform</span><span class="p">(</span><span class="n">raw_df</span><span class="o">=</span><span class="n">raw_rus12__demand_and_energy_at_power_sources</span><span class="p">)</span>
     <span class="n">data_cols</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="s2">&quot;energy_output_mwh&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;peak_demand_mw&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;peak_demand_reading_type&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;peak_demand_date&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;peak_demand_hour&quot;</span><span class="p">,</span>
+        <span class="s2">"energy_output_mwh"</span><span class="p">,</span>
+        <span class="s2">"peak_demand_mw"</span><span class="p">,</span>
+        <span class="s2">"peak_demand_reading_type"</span><span class="p">,</span>
+        <span class="s2">"peak_demand_date"</span><span class="p">,</span>
+        <span class="s2">"peak_demand_hour"</span><span class="p">,</span>
     <span class="p">]</span>
     <span class="n">timeframe</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="s2">&quot;jan&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;feb&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;mar&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;apr&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;may&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;jun&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;jul&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;aug&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;sep&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;oct&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;nov&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;dec&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;annual&quot;</span><span class="p">,</span>
+        <span class="s2">"jan"</span><span class="p">,</span>
+        <span class="s2">"feb"</span><span class="p">,</span>
+        <span class="s2">"mar"</span><span class="p">,</span>
+        <span class="s2">"apr"</span><span class="p">,</span>
+        <span class="s2">"may"</span><span class="p">,</span>
+        <span class="s2">"jun"</span><span class="p">,</span>
+        <span class="s2">"jul"</span><span class="p">,</span>
+        <span class="s2">"aug"</span><span class="p">,</span>
+        <span class="s2">"sep"</span><span class="p">,</span>
+        <span class="s2">"oct"</span><span class="p">,</span>
+        <span class="s2">"nov"</span><span class="p">,</span>
+        <span class="s2">"dec"</span><span class="p">,</span>
+        <span class="s2">"annual"</span><span class="p">,</span>
     <span class="p">]</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">multi_index_stack</span><span class="p">(</span>
         <span class="n">df</span><span class="p">,</span>
-        <span class="n">idx_ish</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">,</span> <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span> <span class="s2">&quot;borrower_name_rus&quot;</span><span class="p">],</span>
+        <span class="n">idx_ish</span><span class="o">=</span><span class="p">[</span><span class="s2">"report_date"</span><span class="p">,</span> <span class="s2">"borrower_id_rus"</span><span class="p">,</span> <span class="s2">"borrower_name_rus"</span><span class="p">],</span>
         <span class="n">data_cols</span><span class="o">=</span><span class="n">data_cols</span><span class="p">,</span>
-        <span class="n">pattern</span><span class="o">=</span><span class="sa">rf</span><span class="s2">&quot;^(</span><span class="si">{</span><span class="s1">&#39;|&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_cols</span><span class="p">)</span><span class="si">}</span><span class="s2">)_(</span><span class="si">{</span><span class="s1">&#39;|&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">timeframe</span><span class="p">)</span><span class="si">}</span><span class="s2">)$&quot;</span><span class="p">,</span>
-        <span class="n">match_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;data_cols&quot;</span><span class="p">,</span> <span class="s2">&quot;timeframe&quot;</span><span class="p">],</span>
-        <span class="n">unstack_level</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;timeframe&quot;</span><span class="p">],</span>
+        <span class="n">pattern</span><span class="o">=</span><span class="sa">rf</span><span class="s2">"^(</span><span class="si">{</span><span class="s1">'|'</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_cols</span><span class="p">)</span><span class="si">}</span><span class="s2">)_(</span><span class="si">{</span><span class="s1">'|'</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">timeframe</span><span class="p">)</span><span class="si">}</span><span class="s2">)$"</span><span class="p">,</span>
+        <span class="n">match_names</span><span class="o">=</span><span class="p">[</span><span class="s2">"data_cols"</span><span class="p">,</span> <span class="s2">"timeframe"</span><span class="p">],</span>
+        <span class="n">unstack_level</span><span class="o">=</span><span class="p">[</span><span class="s2">"timeframe"</span><span class="p">],</span>
     <span class="p">)</span>
     <span class="c1"># Add hour to peak demand date</span>
     <span class="c1"># First check that the hours are valid:</span>
-    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;peak_demand_hour&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;peak_demand_hour&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-    <span class="n">peak_hours</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;peak_demand_hour&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;Int64&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">"peak_demand_hour"</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">"peak_demand_hour"</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">peak_hours</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">"peak_demand_hour"</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">"Int64"</span><span class="p">)</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
     <span class="n">bad_hours</span> <span class="o">=</span> <span class="p">[</span><span class="n">h</span> <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">peak_hours</span> <span class="k">if</span> <span class="n">h</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">25</span><span class="p">)]</span>
-    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">bad_hours</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Found invalid peak demand hours: </span><span class="si">{</span><span class="n">bad_hours</span><span class="si">}</span><span class="s2">&quot;</span>
-    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;peak_demand_date&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span>
-        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;peak_demand_date&quot;</span><span class="p">],</span>
-        <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;mixed&quot;</span><span class="p">,</span>
-    <span class="p">)</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">normalize</span><span class="p">()</span> <span class="o">+</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_timedelta</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;peak_demand_hour&quot;</span><span class="p">],</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;h&quot;</span><span class="p">)</span>
-    <span class="c1"># Change cols so it&#39;s consistent with cols in other tables</span>
-    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;is_peak_coincident&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;peak_demand_reading_type&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span>
-        <span class="p">{</span><span class="s2">&quot;Coincident&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;Non-coincident&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">bad_hours</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"Found invalid peak demand hours: </span><span class="si">{</span><span class="n">bad_hours</span><span class="si">}</span><span class="s2">"</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">"peak_demand_date"</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span>
+        <span class="n">df</span><span class="p">[</span><span class="s2">"peak_demand_date"</span><span class="p">],</span>
+        <span class="nb">format</span><span class="o">=</span><span class="s2">"mixed"</span><span class="p">,</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">normalize</span><span class="p">()</span> <span class="o">+</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_timedelta</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">"peak_demand_hour"</span><span class="p">],</span> <span class="n">unit</span><span class="o">=</span><span class="s2">"h"</span><span class="p">)</span>
+    <span class="c1"># Change cols so it's consistent with cols in other tables</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">"is_peak_coincident"</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">"peak_demand_reading_type"</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span>
+        <span class="p">{</span><span class="s2">"Coincident"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">"Non-coincident"</span><span class="p">:</span> <span class="kc">False</span><span class="p">}</span>
     <span class="p">)</span>
     <span class="c1"># Remove total/peak values. We are dropping the annual values</span>
     <span class="c1"># so we can convert this into a monthly time series. We could make</span>
     <span class="c1"># monthly and yearly tables w/ a multi-asset if desired but choose not</span>
     <span class="c1"># to because this info is duplicative.</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;timeframe&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;annual&quot;</span><span class="p">]</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">"timeframe"</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">"annual"</span><span class="p">]</span>
     <span class="c1"># Reformat report date</span>
-    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span>
-        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;timeframe&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span> <span class="o">+</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">),</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;%b %Y&quot;</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">"report_date"</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span>
+        <span class="n">df</span><span class="p">[</span><span class="s2">"timeframe"</span><span class="p">]</span> <span class="o">+</span> <span class="s2">" "</span> <span class="o">+</span> <span class="n">df</span><span class="p">[</span><span class="s2">"report_date"</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">),</span> <span class="nb">format</span><span class="o">=</span><span class="s2">"%b %Y"</span>
     <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">df</span></div>
@@ -1679,27 +1679,27 @@ window.runMermaid = runMermaid;</script>
 <span class="k">def</span><span class="w"> </span><span class="nf">_core_rus12__yearly_plant_factors_and_maximum_demand</span><span class="p">(</span>
     <span class="n">raw_rus12__plant_factors_and_maximum_demand</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Transform the raw_rus12__plant_factors_and_maximum_demand table.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Transform the raw_rus12__plant_factors_and_maximum_demand table."""</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">rus</span><span class="o">.</span><span class="n">early_transform</span><span class="p">(</span>
         <span class="n">raw_df</span><span class="o">=</span><span class="n">raw_rus12__plant_factors_and_maximum_demand</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="c1"># Convert units</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">rus</span><span class="o">.</span><span class="n">convert_units</span><span class="p">(</span>
         <span class="n">df</span><span class="p">,</span>
-        <span class="n">old_unit</span><span class="o">=</span><span class="s2">&quot;kw&quot;</span><span class="p">,</span>
-        <span class="n">new_unit</span><span class="o">=</span><span class="s2">&quot;mw&quot;</span><span class="p">,</span>
+        <span class="n">old_unit</span><span class="o">=</span><span class="s2">"kw"</span><span class="p">,</span>
+        <span class="n">new_unit</span><span class="o">=</span><span class="s2">"mw"</span><span class="p">,</span>
         <span class="n">converter</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="c1"># Convert plant_type to snake case</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">cleanstrings_snake</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;plant_type&quot;</span><span class="p">])</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">cleanstrings_snake</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="p">[</span><span class="s2">"plant_type"</span><span class="p">])</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">backfill_plant_type</span><span class="p">(</span><span class="n">df</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Backfill plant_type for pre-2009 records based on post-2008 consistency.&quot;&quot;&quot;</span>
-        <span class="n">post_2008</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span> <span class="o">&gt;</span> <span class="mi">2008</span><span class="p">]</span>
+<span class="w">        </span><span class="sd">"""Backfill plant_type for pre-2009 records based on post-2008 consistency."""</span>
+        <span class="n">post_2008</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">"report_date"</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span> <span class="o">&gt;</span> <span class="mi">2008</span><span class="p">]</span>
 
         <span class="c1"># Plants that consistently have only one plant_type across all post-2008 years</span>
         <span class="n">single_plant_type</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">post_2008</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span> <span class="s2">&quot;plant_name_rus&quot;</span><span class="p">])[</span><span class="s2">&quot;plant_type&quot;</span><span class="p">]</span>
+            <span class="n">post_2008</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s2">"borrower_id_rus"</span><span class="p">,</span> <span class="s2">"plant_name_rus"</span><span class="p">])[</span><span class="s2">"plant_type"</span><span class="p">]</span>
             <span class="o">.</span><span class="n">nunique</span><span class="p">()</span>
             <span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
         <span class="p">)</span>
@@ -1709,25 +1709,25 @@ window.runMermaid = runMermaid;</script>
 
         <span class="c1"># Get the plant_type mapping for those plants</span>
         <span class="n">plant_type_map</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">post_2008</span><span class="o">.</span><span class="n">set_index</span><span class="p">([</span><span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span> <span class="s2">&quot;plant_name_rus&quot;</span><span class="p">])</span>
+            <span class="n">post_2008</span><span class="o">.</span><span class="n">set_index</span><span class="p">([</span><span class="s2">"borrower_id_rus"</span><span class="p">,</span> <span class="s2">"plant_name_rus"</span><span class="p">])</span>
             <span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">eligible_plants</span><span class="p">]</span>
             <span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
-            <span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span> <span class="s2">&quot;plant_name_rus&quot;</span><span class="p">])</span>
-            <span class="o">.</span><span class="n">set_index</span><span class="p">([</span><span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span> <span class="s2">&quot;plant_name_rus&quot;</span><span class="p">])</span>
-        <span class="p">)[</span><span class="s2">&quot;plant_type&quot;</span><span class="p">]</span>
+            <span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">"borrower_id_rus"</span><span class="p">,</span> <span class="s2">"plant_name_rus"</span><span class="p">])</span>
+            <span class="o">.</span><span class="n">set_index</span><span class="p">([</span><span class="s2">"borrower_id_rus"</span><span class="p">,</span> <span class="s2">"plant_name_rus"</span><span class="p">])</span>
+        <span class="p">)[</span><span class="s2">"plant_type"</span><span class="p">]</span>
 
         <span class="c1"># Backfill into pre-2008 rows</span>
-        <span class="n">pre_2008</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span> <span class="o">&lt;=</span> <span class="mi">2008</span><span class="p">]</span>
+        <span class="n">pre_2008</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">"report_date"</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span> <span class="o">&lt;=</span> <span class="mi">2008</span><span class="p">]</span>
         <span class="n">pre_2008</span> <span class="o">=</span> <span class="n">pre_2008</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-            <span class="n">plant_type_map</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s2">&quot;plant_type_filled&quot;</span><span class="p">),</span>
-            <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span> <span class="s2">&quot;plant_name_rus&quot;</span><span class="p">],</span>
+            <span class="n">plant_type_map</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s2">"plant_type_filled"</span><span class="p">),</span>
+            <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">"borrower_id_rus"</span><span class="p">,</span> <span class="s2">"plant_name_rus"</span><span class="p">],</span>
         <span class="p">)</span>
 
         <span class="c1"># Use filled value where plant_type is missing</span>
-        <span class="n">pre_2008</span><span class="p">[</span><span class="s2">&quot;plant_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pre_2008</span><span class="p">[</span><span class="s2">&quot;plant_type&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span>
-            <span class="n">pre_2008</span><span class="p">[</span><span class="s2">&quot;plant_type_filled&quot;</span><span class="p">]</span>
+        <span class="n">pre_2008</span><span class="p">[</span><span class="s2">"plant_type"</span><span class="p">]</span> <span class="o">=</span> <span class="n">pre_2008</span><span class="p">[</span><span class="s2">"plant_type"</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span>
+            <span class="n">pre_2008</span><span class="p">[</span><span class="s2">"plant_type_filled"</span><span class="p">]</span>
         <span class="p">)</span>
-        <span class="c1"># pre_2008 = pre_2008.drop(columns=&quot;plant_type_filled&quot;)</span>
+        <span class="c1"># pre_2008 = pre_2008.drop(columns="plant_type_filled")</span>
 
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">pre_2008</span><span class="p">,</span> <span class="n">post_2008</span><span class="p">])</span>
 
@@ -1741,23 +1741,23 @@ window.runMermaid = runMermaid;</script>
 <span class="k">def</span><span class="w"> </span><span class="nf">_core_rus12__yearly_utility_plant_changes</span><span class="p">(</span>
     <span class="n">raw_rus12__utility_plant_changes</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Transform the utility plant changes table.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Transform the utility plant changes table."""</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">rus</span><span class="o">.</span><span class="n">early_transform</span><span class="p">(</span><span class="n">raw_df</span><span class="o">=</span><span class="n">raw_rus12__utility_plant_changes</span><span class="p">)</span>
     <span class="n">data_cols</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="s2">&quot;retirements&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;additions&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;adjustments_and_transfers&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;ending_balance&quot;</span><span class="p">,</span>
+        <span class="s2">"retirements"</span><span class="p">,</span>
+        <span class="s2">"additions"</span><span class="p">,</span>
+        <span class="s2">"adjustments_and_transfers"</span><span class="p">,</span>
+        <span class="s2">"ending_balance"</span><span class="p">,</span>
     <span class="p">]</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">multi_index_stack</span><span class="p">(</span>
         <span class="n">df</span><span class="p">,</span>
-        <span class="n">idx_ish</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">,</span> <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span> <span class="s2">&quot;borrower_name_rus&quot;</span><span class="p">],</span>
+        <span class="n">idx_ish</span><span class="o">=</span><span class="p">[</span><span class="s2">"report_date"</span><span class="p">,</span> <span class="s2">"borrower_id_rus"</span><span class="p">,</span> <span class="s2">"borrower_name_rus"</span><span class="p">],</span>
         <span class="n">data_cols</span><span class="o">=</span><span class="n">data_cols</span><span class="p">,</span>
-        <span class="n">pattern</span><span class="o">=</span><span class="sa">rf</span><span class="s2">&quot;^(</span><span class="si">{</span><span class="s1">&#39;|&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">UTILITY_PLANT_GROUP_RUS12</span><span class="p">)</span><span class="si">}</span><span class="s2">)_(.+)_(</span><span class="si">{</span><span class="s1">&#39;|&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_cols</span><span class="p">)</span><span class="si">}</span><span class="s2">)$&quot;</span><span class="p">,</span>
-        <span class="n">match_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;utility_plant_group&quot;</span><span class="p">,</span> <span class="s2">&quot;utility_plant_item&quot;</span><span class="p">,</span> <span class="s2">&quot;data_cols&quot;</span><span class="p">],</span>
-        <span class="n">unstack_level</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;utility_plant_group&quot;</span><span class="p">,</span> <span class="s2">&quot;utility_plant_item&quot;</span><span class="p">],</span>
+        <span class="n">pattern</span><span class="o">=</span><span class="sa">rf</span><span class="s2">"^(</span><span class="si">{</span><span class="s1">'|'</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">UTILITY_PLANT_GROUP_RUS12</span><span class="p">)</span><span class="si">}</span><span class="s2">)_(.+)_(</span><span class="si">{</span><span class="s1">'|'</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_cols</span><span class="p">)</span><span class="si">}</span><span class="s2">)$"</span><span class="p">,</span>
+        <span class="n">match_names</span><span class="o">=</span><span class="p">[</span><span class="s2">"utility_plant_group"</span><span class="p">,</span> <span class="s2">"utility_plant_item"</span><span class="p">,</span> <span class="s2">"data_cols"</span><span class="p">],</span>
+        <span class="n">unstack_level</span><span class="o">=</span><span class="p">[</span><span class="s2">"utility_plant_group"</span><span class="p">,</span> <span class="s2">"utility_plant_item"</span><span class="p">],</span>
     <span class="p">)</span>
-    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;is_total&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">utility_plant_item</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;total&quot;</span><span class="p">)</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">"is_total"</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">utility_plant_item</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"total"</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">df</span></div>
 
 
@@ -1766,25 +1766,25 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="_core_rus12__yearly_non_utility_plant_changes">
 <a class="viewcode-back" href="../../../autoapi/pudl/transform/rus12/index.html#pudl.transform.rus12._core_rus12__yearly_non_utility_plant_changes">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_core_rus12__yearly_non_utility_plant_changes</span><span class="p">(</span><span class="n">raw_rus12__non_utility_plant</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Transform the non-utility plant changes table.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Transform the non-utility plant changes table."""</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">rus</span><span class="o">.</span><span class="n">early_transform</span><span class="p">(</span><span class="n">raw_df</span><span class="o">=</span><span class="n">raw_rus12__non_utility_plant</span><span class="p">)</span>
     <span class="n">non_utility_plant_item</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="s2">&quot;property&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;provision_for_depreciation_and_amortization&quot;</span><span class="p">,</span>
+        <span class="s2">"property"</span><span class="p">,</span>
+        <span class="s2">"provision_for_depreciation_and_amortization"</span><span class="p">,</span>
     <span class="p">]</span>
     <span class="n">data_cols</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="s2">&quot;retirements&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;additions&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;adjustments_and_transfers&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;ending_balance&quot;</span><span class="p">,</span>
+        <span class="s2">"retirements"</span><span class="p">,</span>
+        <span class="s2">"additions"</span><span class="p">,</span>
+        <span class="s2">"adjustments_and_transfers"</span><span class="p">,</span>
+        <span class="s2">"ending_balance"</span><span class="p">,</span>
     <span class="p">]</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">multi_index_stack</span><span class="p">(</span>
         <span class="n">df</span><span class="p">,</span>
-        <span class="n">idx_ish</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">,</span> <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span> <span class="s2">&quot;borrower_name_rus&quot;</span><span class="p">],</span>
+        <span class="n">idx_ish</span><span class="o">=</span><span class="p">[</span><span class="s2">"report_date"</span><span class="p">,</span> <span class="s2">"borrower_id_rus"</span><span class="p">,</span> <span class="s2">"borrower_name_rus"</span><span class="p">],</span>
         <span class="n">data_cols</span><span class="o">=</span><span class="n">data_cols</span><span class="p">,</span>
-        <span class="n">pattern</span><span class="o">=</span><span class="sa">rf</span><span class="s2">&quot;^(</span><span class="si">{</span><span class="s1">&#39;|&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">non_utility_plant_item</span><span class="p">)</span><span class="si">}</span><span class="s2">)_(</span><span class="si">{</span><span class="s1">&#39;|&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_cols</span><span class="p">)</span><span class="si">}</span><span class="s2">)$&quot;</span><span class="p">,</span>
-        <span class="n">match_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;non_utility_plant_item&quot;</span><span class="p">,</span> <span class="s2">&quot;data_cols&quot;</span><span class="p">],</span>
-        <span class="n">unstack_level</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;non_utility_plant_item&quot;</span><span class="p">],</span>
+        <span class="n">pattern</span><span class="o">=</span><span class="sa">rf</span><span class="s2">"^(</span><span class="si">{</span><span class="s1">'|'</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">non_utility_plant_item</span><span class="p">)</span><span class="si">}</span><span class="s2">)_(</span><span class="si">{</span><span class="s1">'|'</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_cols</span><span class="p">)</span><span class="si">}</span><span class="s2">)$"</span><span class="p">,</span>
+        <span class="n">match_names</span><span class="o">=</span><span class="p">[</span><span class="s2">"non_utility_plant_item"</span><span class="p">,</span> <span class="s2">"data_cols"</span><span class="p">],</span>
+        <span class="n">unstack_level</span><span class="o">=</span><span class="p">[</span><span class="s2">"non_utility_plant_item"</span><span class="p">],</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">df</span></div>
 
@@ -1796,33 +1796,33 @@ window.runMermaid = runMermaid;</script>
 <span class="k">def</span><span class="w"> </span><span class="nf">_core_rus12__yearly_depreciation_changes</span><span class="p">(</span>
     <span class="n">raw_rus12__depreciation</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Transform the accumulated depreciation changes table.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Transform the accumulated depreciation changes table."""</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">rus</span><span class="o">.</span><span class="n">early_transform</span><span class="p">(</span><span class="n">raw_df</span><span class="o">=</span><span class="n">raw_rus12__depreciation</span><span class="p">)</span>
 
     <span class="n">data_cols</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="s2">&quot;composite_depreciation_rate&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;accruals&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;retirements_less_net_salvage&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;adjustments_and_transfers&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;ending_balance&quot;</span><span class="p">,</span>
+        <span class="s2">"composite_depreciation_rate"</span><span class="p">,</span>
+        <span class="s2">"accruals"</span><span class="p">,</span>
+        <span class="s2">"retirements_less_net_salvage"</span><span class="p">,</span>
+        <span class="s2">"adjustments_and_transfers"</span><span class="p">,</span>
+        <span class="s2">"ending_balance"</span><span class="p">,</span>
     <span class="p">]</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">multi_index_stack</span><span class="p">(</span>
         <span class="n">df</span><span class="p">,</span>
-        <span class="n">idx_ish</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">,</span> <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span> <span class="s2">&quot;borrower_name_rus&quot;</span><span class="p">],</span>
+        <span class="n">idx_ish</span><span class="o">=</span><span class="p">[</span><span class="s2">"report_date"</span><span class="p">,</span> <span class="s2">"borrower_id_rus"</span><span class="p">,</span> <span class="s2">"borrower_name_rus"</span><span class="p">],</span>
         <span class="n">data_cols</span><span class="o">=</span><span class="n">data_cols</span><span class="p">,</span>
-        <span class="n">pattern</span><span class="o">=</span><span class="sa">rf</span><span class="s2">&quot;^(</span><span class="si">{</span><span class="s1">&#39;|&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DEPRECIATION_CHANGES_GROUP_RUS12</span><span class="p">)</span><span class="si">}</span><span class="s2">)_(</span><span class="si">{</span><span class="s1">&#39;|&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DEPRECIATION_CHANGES_ITEMS_RUS12</span><span class="p">)</span><span class="si">}</span><span class="s2">)_(</span><span class="si">{</span><span class="s1">&#39;|&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_cols</span><span class="p">)</span><span class="si">}</span><span class="s2">)$&quot;</span><span class="p">,</span>
+        <span class="n">pattern</span><span class="o">=</span><span class="sa">rf</span><span class="s2">"^(</span><span class="si">{</span><span class="s1">'|'</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DEPRECIATION_CHANGES_GROUP_RUS12</span><span class="p">)</span><span class="si">}</span><span class="s2">)_(</span><span class="si">{</span><span class="s1">'|'</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DEPRECIATION_CHANGES_ITEMS_RUS12</span><span class="p">)</span><span class="si">}</span><span class="s2">)_(</span><span class="si">{</span><span class="s1">'|'</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_cols</span><span class="p">)</span><span class="si">}</span><span class="s2">)$"</span><span class="p">,</span>
         <span class="n">match_names</span><span class="o">=</span><span class="p">[</span>
-            <span class="s2">&quot;depreciation_and_amortization_group&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;depreciation_and_amortization_item&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;data_cols&quot;</span><span class="p">,</span>
+            <span class="s2">"depreciation_and_amortization_group"</span><span class="p">,</span>
+            <span class="s2">"depreciation_and_amortization_item"</span><span class="p">,</span>
+            <span class="s2">"data_cols"</span><span class="p">,</span>
         <span class="p">],</span>
         <span class="n">unstack_level</span><span class="o">=</span><span class="p">[</span>
-            <span class="s2">&quot;depreciation_and_amortization_group&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;depreciation_and_amortization_item&quot;</span><span class="p">,</span>
+            <span class="s2">"depreciation_and_amortization_group"</span><span class="p">,</span>
+            <span class="s2">"depreciation_and_amortization_item"</span><span class="p">,</span>
         <span class="p">],</span>
         <span class="n">expected_dropped_cols</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;is_total&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">depreciation_and_amortization_item</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;total&quot;</span><span class="p">)</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">"is_total"</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">depreciation_and_amortization_item</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"total"</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">df</span></div>
 
 
@@ -1833,16 +1833,16 @@ window.runMermaid = runMermaid;</script>
 <span class="k">def</span><span class="w"> </span><span class="nf">_core_rus12__yearly_depreciation_misc</span><span class="p">(</span>
     <span class="n">raw_rus12__depreciation</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Transform the miscellaneous depreciation ending balance table.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Transform the miscellaneous depreciation ending balance table."""</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">rus</span><span class="o">.</span><span class="n">early_transform</span><span class="p">(</span><span class="n">raw_df</span><span class="o">=</span><span class="n">raw_rus12__depreciation</span><span class="p">)</span>
-    <span class="n">data_cols</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;ending_balance&quot;</span><span class="p">]</span>
+    <span class="n">data_cols</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"ending_balance"</span><span class="p">]</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">multi_index_stack</span><span class="p">(</span>
         <span class="n">df</span><span class="p">,</span>
-        <span class="n">idx_ish</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">,</span> <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span> <span class="s2">&quot;borrower_name_rus&quot;</span><span class="p">],</span>
+        <span class="n">idx_ish</span><span class="o">=</span><span class="p">[</span><span class="s2">"report_date"</span><span class="p">,</span> <span class="s2">"borrower_id_rus"</span><span class="p">,</span> <span class="s2">"borrower_name_rus"</span><span class="p">],</span>
         <span class="n">data_cols</span><span class="o">=</span><span class="n">data_cols</span><span class="p">,</span>
-        <span class="n">pattern</span><span class="o">=</span><span class="sa">rf</span><span class="s2">&quot;^(</span><span class="si">{</span><span class="s1">&#39;|&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DEPRECIATION_ITEMS_MISC_RUS12</span><span class="p">)</span><span class="si">}</span><span class="s2">)_(</span><span class="si">{</span><span class="s1">&#39;|&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_cols</span><span class="p">)</span><span class="si">}</span><span class="s2">)$&quot;</span><span class="p">,</span>
-        <span class="n">match_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;depreciation_and_amortization_item&quot;</span><span class="p">,</span> <span class="s2">&quot;data_cols&quot;</span><span class="p">],</span>
-        <span class="n">unstack_level</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;depreciation_and_amortization_item&quot;</span><span class="p">],</span>
+        <span class="n">pattern</span><span class="o">=</span><span class="sa">rf</span><span class="s2">"^(</span><span class="si">{</span><span class="s1">'|'</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DEPRECIATION_ITEMS_MISC_RUS12</span><span class="p">)</span><span class="si">}</span><span class="s2">)_(</span><span class="si">{</span><span class="s1">'|'</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_cols</span><span class="p">)</span><span class="si">}</span><span class="s2">)$"</span><span class="p">,</span>
+        <span class="n">match_names</span><span class="o">=</span><span class="p">[</span><span class="s2">"depreciation_and_amortization_item"</span><span class="p">,</span> <span class="s2">"data_cols"</span><span class="p">],</span>
+        <span class="n">unstack_level</span><span class="o">=</span><span class="p">[</span><span class="s2">"depreciation_and_amortization_item"</span><span class="p">],</span>
         <span class="n">expected_dropped_cols</span><span class="o">=</span><span class="mi">84</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">df</span></div>
@@ -1857,35 +1857,35 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="_CORE_RUS12_TABLES">
 <a class="viewcode-back" href="../../../autoapi/pudl/transform/rus12/index.html#pudl.transform.rus12._CORE_RUS12_TABLES">[docs]</a>
-<span class="n">_CORE_RUS12_TABLES</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;_</span><span class="si">{</span><span class="n">t</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">HARVESTED_CORE_TABLES_RUS12</span><span class="p">]</span></div>
+<span class="n">_CORE_RUS12_TABLES</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">"_</span><span class="si">{</span><span class="n">t</span><span class="si">}</span><span class="s2">"</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">HARVESTED_CORE_TABLES_RUS12</span><span class="p">]</span></div>
 
 
 
 <span class="nd">@multi_asset</span><span class="p">(</span>
     <span class="n">ins</span><span class="o">=</span><span class="p">{</span>
         <span class="n">table_name</span><span class="p">:</span> <span class="n">AssetIn</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">table_name</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;_core_rus12__scd_borrowers&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">_CORE_RUS12_TABLES</span>
+        <span class="k">for</span> <span class="n">table_name</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"_core_rus12__scd_borrowers"</span><span class="p">]</span> <span class="o">+</span> <span class="n">_CORE_RUS12_TABLES</span>
     <span class="p">},</span>
     <span class="n">outs</span><span class="o">=</span><span class="p">{</span>
-        <span class="s2">&quot;core_rus12__entity_borrowers&quot;</span><span class="p">:</span> <span class="n">AssetOut</span><span class="p">(</span><span class="n">io_manager_key</span><span class="o">=</span><span class="s2">&quot;pudl_io_manager&quot;</span><span class="p">),</span>
-        <span class="s2">&quot;_core_rus12__forensics_entity_resolution_borrowers&quot;</span><span class="p">:</span> <span class="n">AssetOut</span><span class="p">(</span>
-            <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">&quot;pudl_io_manager&quot;</span>
+        <span class="s2">"core_rus12__entity_borrowers"</span><span class="p">:</span> <span class="n">AssetOut</span><span class="p">(</span><span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"pudl_io_manager"</span><span class="p">),</span>
+        <span class="s2">"_core_rus12__forensics_entity_resolution_borrowers"</span><span class="p">:</span> <span class="n">AssetOut</span><span class="p">(</span>
+            <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"pudl_io_manager"</span>
         <span class="p">),</span>
     <span class="p">},</span>
 <span class="p">)</span>
 <div class="viewcode-block" id="core_rus12__entity_borrowers">
 <a class="viewcode-back" href="../../../autoapi/pudl/transform/rus12/index.html#pudl.transform.rus12.core_rus12__entity_borrowers">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">core_rus12__entity_borrowers</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="o">**</span><span class="n">clean_dfs</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Harvesting IDs &amp; consistent static attributes for RUS12 entity.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Harvesting IDs &amp; consistent static attributes for RUS12 entity."""</span>
     <span class="n">entity</span> <span class="o">=</span> <span class="n">rus</span><span class="o">.</span><span class="n">RusEntity</span><span class="o">.</span><span class="n">BORROWERS</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Harvesting IDs &amp; consistent static attributes for RUS Borrowers&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Harvesting IDs &amp; consistent static attributes for RUS Borrowers"</span><span class="p">)</span>
     <span class="c1"># We want **all** borrowers to have non-null names in this entity</span>
-    <span class="c1"># table. They aren&#39;t always super consistent over time, but we have</span>
+    <span class="c1"># table. They aren't always super consistent over time, but we have</span>
     <span class="c1"># vetted them (see https://github.com/catalyst-cooperative/pudl/pull/5056#issuecomment-4008247047)</span>
     <span class="c1"># and thus decided to set the threshold for consistency strictness</span>
     <span class="c1"># at 0% (instead of the default 70%) so we the most consistent value</span>
     <span class="c1"># no matter what.</span>
-    <span class="n">special_case_strictness</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;borrower_name_rus&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
+    <span class="n">special_case_strictness</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"borrower_name_rus"</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
     <span class="c1"># We only need the entity table, but the harvesting process</span>
     <span class="c1"># always produces entity (aka static) as annual (aka scd) tables.</span>
     <span class="c1"># as well as a helpful-for-debugging dictionary of dfs for all</span>
@@ -1898,9 +1898,9 @@ window.runMermaid = runMermaid;</script>
     <span class="p">)</span>
 
     <span class="n">out_all</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
-        <span class="p">[</span><span class="n">df</span> <span class="k">for</span> <span class="n">harvested_col_name</span><span class="p">,</span> <span class="n">df</span> <span class="ow">in</span> <span class="n">_col_dfs</span><span class="o">.</span><span class="n">items</span><span class="p">()],</span> <span class="n">axis</span><span class="o">=</span><span class="s2">&quot;index&quot;</span>
+        <span class="p">[</span><span class="n">df</span> <span class="k">for</span> <span class="n">harvested_col_name</span><span class="p">,</span> <span class="n">df</span> <span class="ow">in</span> <span class="n">_col_dfs</span><span class="o">.</span><span class="n">items</span><span class="p">()],</span> <span class="n">axis</span><span class="o">=</span><span class="s2">"index"</span>
     <span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">forensics</span> <span class="o">=</span> <span class="n">make_changelog</span><span class="p">(</span><span class="n">out_all</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">])</span>
+    <span class="n">forensics</span> <span class="o">=</span> <span class="n">make_changelog</span><span class="p">(</span><span class="n">out_all</span><span class="p">,</span> <span class="p">[</span><span class="s2">"borrower_id_rus"</span><span class="p">])</span>
     <span class="k">return</span> <span class="n">entity_df</span><span class="p">,</span> <span class="n">forensics</span></div>
 
 
@@ -1909,13 +1909,13 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../../autoapi/pudl/transform/rus12/index.html#pudl.transform.rus12.finished_rus_assets">[docs]</a>
 <span class="n">finished_rus_assets</span> <span class="o">=</span> <span class="p">[</span>
     <span class="n">rus</span><span class="o">.</span><span class="n">finished_rus_asset_factory</span><span class="p">(</span>
-        <span class="n">table_name</span><span class="o">=</span><span class="n">_core_table_name</span><span class="o">.</span><span class="n">removeprefix</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">),</span>
+        <span class="n">table_name</span><span class="o">=</span><span class="n">_core_table_name</span><span class="o">.</span><span class="n">removeprefix</span><span class="p">(</span><span class="s2">"_"</span><span class="p">),</span>
         <span class="n">_core_table_name</span><span class="o">=</span><span class="n">_core_table_name</span><span class="p">,</span>
-        <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">&quot;pudl_io_manager&quot;</span><span class="p">,</span>
+        <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"pudl_io_manager"</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">for</span> <span class="n">_core_table_name</span> <span class="ow">in</span> <span class="n">_CORE_RUS12_TABLES</span>
-    <span class="c1"># Don&#39;t attempt to core-ify this table</span>
-    <span class="k">if</span> <span class="n">_core_table_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;_core_rus12__scd_borrowers&quot;</span><span class="p">]</span>
+    <span class="c1"># Don't attempt to core-ify this table</span>
+    <span class="k">if</span> <span class="n">_core_table_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"_core_rus12__scd_borrowers"</span><span class="p">]</span>
 <span class="p">]</span></div>
 
 </pre></div>

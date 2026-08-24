@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.metadata.resources.ferc1_eia_record_linkage &#8212; PUDL 2026.8.1.dev18 documentation</title>
+    <title>pudl.metadata.resources.ferc1_eia_record_linkage &#8212; PUDL 2026.8.1.dev19 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../../_static/documentation_options.js?v=f2b63aa7"></script>
+    <script src="../../../../_static/documentation_options.js?v=5bf64ec1"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev18 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev18 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev19 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev19 documentation - Home"/>
   
   
 </a></div>
@@ -871,7 +871,7 @@ window.runMermaid = runMermaid;</script>
                 <article class="bd-article">
                   
   <h1>Source code for pudl.metadata.resources.ferc1_eia_record_linkage</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Definitions for the connection between FERC1 and EIA.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Definitions for the connection between FERC1 and EIA."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
 
@@ -880,15 +880,15 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="RESOURCE_METADATA">
 <a class="viewcode-back" href="../../../../autoapi/pudl/metadata/resources/ferc1_eia_record_linkage/index.html#pudl.metadata.resources.ferc1_eia_record_linkage.RESOURCE_METADATA">[docs]</a>
 <span class="n">RESOURCE_METADATA</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;out_eia__yearly_plant_parts&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;all EIA plant parts, for use in matching to FERC 1.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;aggregation_hazard&quot;</span><span class="p">,</span> <span class="s2">&quot;harvested&quot;</span><span class="p">],</span>
-            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;&quot;&quot;Practically speaking, a plant is a collection of generator(s). There</span>
+    <span class="s2">"out_eia__yearly_plant_parts"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="s2">"all EIA plant parts, for use in matching to FERC 1."</span><span class="p">,</span>
+            <span class="s2">"usage_warnings"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"aggregation_hazard"</span><span class="p">,</span> <span class="s2">"harvested"</span><span class="p">],</span>
+            <span class="s2">"additional_details_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"""Practically speaking, a plant is a collection of generator(s). There</span>
 <span class="s2">are many attributes of generators (i.e. prime mover, primary fuel source, technology</span>
 <span class="s2">type). We can use these generator attributes to group generator records into larger</span>
-<span class="s2">aggregate records which we call &quot;plant parts&quot;. A plant part is a record which</span>
+<span class="s2">aggregate records which we call "plant parts". A plant part is a record which</span>
 <span class="s2">corresponds to a particular collection of generators that all share an identical</span>
 <span class="s2">attribute and utility owner. E.g. all of the generators with unit_id=2, or all of the</span>
 <span class="s2">generators with coal as their primary fuel source.</span>
@@ -909,182 +909,182 @@ window.runMermaid = runMermaid;</script>
 <span class="s2">This table includes A LOT of duplicative information about EIA plants. It is primarily</span>
 <span class="s2">meant for use as an input into the record linkage between FERC1 plants and EIA.</span>
 
-<span class="si">{</span><span class="n">inherits_harvested_values_details</span><span class="p">(</span><span class="s2">&quot;generators, plants, and utilities&quot;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="si">{</span><span class="n">inherits_harvested_values_details</span><span class="p">(</span><span class="s2">"generators, plants, and utilities"</span><span class="p">)</span><span class="si">}</span><span class="s2">"""</span>
             <span class="p">),</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;record_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;plant_part&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;generator_id&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;unit_id_pudl&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;prime_mover_code&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;energy_source_code_1&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;technology_description&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;ferc_acct_name&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;true_gran&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;appro_part_label&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;appro_record_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;ferc1_generator_agg_id&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;capacity_eoy_mw&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;capacity_factor&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;capacity_mw&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;construction_year&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;fraction_owned&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;fuel_cost_per_mmbtu&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;fuel_cost_per_mwh&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;fuel_type_code_pudl&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;generator_retirement_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;unit_heat_rate_mmbtu_per_mwh&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;installation_year&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;net_generation_mwh&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;generator_operating_year&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;operational_status&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;operational_status_pudl&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;ownership_record_type&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;ownership_dupe&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;planned_generator_retirement_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;plant_id_pudl&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;plant_name_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;plant_name_ppe&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;plant_part_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;record_count&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;total_fuel_cost&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;total_mmbtu&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;utility_id_pudl&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;utility_name_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;report_year&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;plant_id_report_year&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"record_id_eia"</span><span class="p">,</span>
+                <span class="s2">"plant_id_eia"</span><span class="p">,</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"plant_part"</span><span class="p">,</span>
+                <span class="s2">"generator_id"</span><span class="p">,</span>
+                <span class="s2">"unit_id_pudl"</span><span class="p">,</span>
+                <span class="s2">"prime_mover_code"</span><span class="p">,</span>
+                <span class="s2">"energy_source_code_1"</span><span class="p">,</span>
+                <span class="s2">"technology_description"</span><span class="p">,</span>
+                <span class="s2">"ferc_acct_name"</span><span class="p">,</span>
+                <span class="s2">"utility_id_eia"</span><span class="p">,</span>
+                <span class="s2">"true_gran"</span><span class="p">,</span>
+                <span class="s2">"appro_part_label"</span><span class="p">,</span>
+                <span class="s2">"appro_record_id_eia"</span><span class="p">,</span>
+                <span class="s2">"ferc1_generator_agg_id"</span><span class="p">,</span>
+                <span class="s2">"capacity_eoy_mw"</span><span class="p">,</span>
+                <span class="s2">"capacity_factor"</span><span class="p">,</span>
+                <span class="s2">"capacity_mw"</span><span class="p">,</span>
+                <span class="s2">"construction_year"</span><span class="p">,</span>
+                <span class="s2">"fraction_owned"</span><span class="p">,</span>
+                <span class="s2">"fuel_cost_per_mmbtu"</span><span class="p">,</span>
+                <span class="s2">"fuel_cost_per_mwh"</span><span class="p">,</span>
+                <span class="s2">"fuel_type_code_pudl"</span><span class="p">,</span>
+                <span class="s2">"generator_retirement_date"</span><span class="p">,</span>
+                <span class="s2">"unit_heat_rate_mmbtu_per_mwh"</span><span class="p">,</span>
+                <span class="s2">"installation_year"</span><span class="p">,</span>
+                <span class="s2">"net_generation_mwh"</span><span class="p">,</span>
+                <span class="s2">"generator_operating_year"</span><span class="p">,</span>
+                <span class="s2">"operational_status"</span><span class="p">,</span>
+                <span class="s2">"operational_status_pudl"</span><span class="p">,</span>
+                <span class="s2">"ownership_record_type"</span><span class="p">,</span>
+                <span class="s2">"ownership_dupe"</span><span class="p">,</span>
+                <span class="s2">"planned_generator_retirement_date"</span><span class="p">,</span>
+                <span class="s2">"plant_id_pudl"</span><span class="p">,</span>
+                <span class="s2">"plant_name_eia"</span><span class="p">,</span>
+                <span class="s2">"plant_name_ppe"</span><span class="p">,</span>
+                <span class="s2">"plant_part_id_eia"</span><span class="p">,</span>
+                <span class="s2">"record_count"</span><span class="p">,</span>
+                <span class="s2">"total_fuel_cost"</span><span class="p">,</span>
+                <span class="s2">"total_mmbtu"</span><span class="p">,</span>
+                <span class="s2">"utility_id_pudl"</span><span class="p">,</span>
+                <span class="s2">"utility_name_eia"</span><span class="p">,</span>
+                <span class="s2">"report_year"</span><span class="p">,</span>
+                <span class="s2">"plant_id_report_year"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;record_id_eia&quot;</span><span class="p">],</span>
-            <span class="s2">&quot;foreign_key_rules&quot;</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[[</span><span class="s2">&quot;record_id_eia&quot;</span><span class="p">],</span> <span class="p">[</span><span class="s2">&quot;record_id_eia_plant_gen&quot;</span><span class="p">]],</span>
-                <span class="c1"># TODO: track down 10 missing record_id_eia&#39;s in this table #3818</span>
-                <span class="s2">&quot;exclude&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;out_pudl__yearly_assn_eia_ferc1_plant_parts&quot;</span><span class="p">],</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"record_id_eia"</span><span class="p">],</span>
+            <span class="s2">"foreign_key_rules"</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[[</span><span class="s2">"record_id_eia"</span><span class="p">],</span> <span class="p">[</span><span class="s2">"record_id_eia_plant_gen"</span><span class="p">]],</span>
+                <span class="c1"># TODO: track down 10 missing record_id_eia's in this table #3818</span>
+                <span class="s2">"exclude"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"out_pudl__yearly_assn_eia_ferc1_plant_parts"</span><span class="p">],</span>
             <span class="p">},</span>
         <span class="p">},</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;eia860&quot;</span><span class="p">,</span> <span class="s2">&quot;eia923&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;outputs&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;eia&quot;</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"eia860"</span><span class="p">,</span> <span class="s2">"eia923"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"outputs"</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"eia"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;out_eia__yearly_generators_by_ownership&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;all EIA generators with ownership integrated.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;Generators that report to EIA can have</span>
+    <span class="s2">"out_eia__yearly_generators_by_ownership"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="s2">"all EIA generators with ownership integrated."</span><span class="p">,</span>
+            <span class="s2">"additional_details_text"</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"""Generators that report to EIA can have</span>
 <span class="s2">multiple utility owners. EIA reports the ownership fraction for each of the owners</span>
 <span class="s2">of generators (see :ref:`core_eia860__scd_ownership`). This table includes two records</span>
-<span class="s2">for each generator&#39;s owner: one record represents a total ownership stake and the</span>
+<span class="s2">for each generator's owner: one record represents a total ownership stake and the</span>
 <span class="s2">other record represents a proportional ownership stake (the ``ownership_record_type``</span>
-<span class="s2">column labeled as &quot;total&quot; and &quot;owned&quot; respectively). All of the values reported for</span>
+<span class="s2">column labeled as "total" and "owned" respectively). All of the values reported for</span>
 <span class="s2">these generator-owner records are scaled to the ownership stake (represented by</span>
 <span class="s2">``fraction_owned``).</span>
 
 <span class="s2">This table was created to represent every possible version of ownership slices of the</span>
 <span class="s2">EIA generators. It is primarily used as an input to :ref:`out_eia__yearly_plant_parts`.</span>
 
-<span class="si">{</span><span class="n">inherits_harvested_values_details</span><span class="p">(</span><span class="s2">&quot;generators, plants, and utilities&quot;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;&quot;&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;aggregation_hazard&quot;</span><span class="p">,</span> <span class="s2">&quot;harvested&quot;</span><span class="p">],</span>
-            <span class="s2">&quot;additional_primary_key_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;This table would have a primary key of the &quot;</span>
-                <span class="s2">&quot;following columns, except there are ~200 records without utility IDs: &quot;</span>
-                <span class="s2">&quot;[&#39;plant_id_eia&#39;, &#39;generator_id&#39;, &#39;report_date&#39;, &#39;utility_id_eia&#39;, &quot;</span>
-                <span class="s2">&quot;&#39;ownership_record_type&#39;].&quot;</span>
+<span class="si">{</span><span class="n">inherits_harvested_values_details</span><span class="p">(</span><span class="s2">"generators, plants, and utilities"</span><span class="p">)</span><span class="si">}</span><span class="s2">"""</span><span class="p">,</span>
+            <span class="s2">"usage_warnings"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"aggregation_hazard"</span><span class="p">,</span> <span class="s2">"harvested"</span><span class="p">],</span>
+            <span class="s2">"additional_primary_key_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"This table would have a primary key of the "</span>
+                <span class="s2">"following columns, except there are ~200 records without utility IDs: "</span>
+                <span class="s2">"['plant_id_eia', 'generator_id', 'report_date', 'utility_id_eia', "</span>
+                <span class="s2">"'ownership_record_type']."</span>
             <span class="p">),</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;generator_id&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;unit_id_pudl&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;plant_id_pudl&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;plant_name_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;utility_id_pudl&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;utility_name_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;technology_description&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;energy_source_code_1&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;prime_mover_code&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;generator_operating_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;generator_retirement_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;operational_status&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;capacity_mw&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;fuel_type_code_pudl&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;planned_generator_retirement_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;capacity_factor&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;fuel_cost_per_mmbtu_source&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;fuel_cost_per_mmbtu&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;fuel_cost_per_mwh&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;unit_heat_rate_mmbtu_per_mwh&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;net_generation_mwh&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;total_fuel_cost&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;total_mmbtu&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;ferc_acct_name&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;generator_operating_year&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;operational_status_pudl&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;capacity_eoy_mw&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;fraction_owned&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;ownership_record_type&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"plant_id_eia"</span><span class="p">,</span>
+                <span class="s2">"generator_id"</span><span class="p">,</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"unit_id_pudl"</span><span class="p">,</span>
+                <span class="s2">"plant_id_pudl"</span><span class="p">,</span>
+                <span class="s2">"plant_name_eia"</span><span class="p">,</span>
+                <span class="s2">"utility_id_eia"</span><span class="p">,</span>
+                <span class="s2">"utility_id_pudl"</span><span class="p">,</span>
+                <span class="s2">"utility_name_eia"</span><span class="p">,</span>
+                <span class="s2">"technology_description"</span><span class="p">,</span>
+                <span class="s2">"energy_source_code_1"</span><span class="p">,</span>
+                <span class="s2">"prime_mover_code"</span><span class="p">,</span>
+                <span class="s2">"generator_operating_date"</span><span class="p">,</span>
+                <span class="s2">"generator_retirement_date"</span><span class="p">,</span>
+                <span class="s2">"operational_status"</span><span class="p">,</span>
+                <span class="s2">"capacity_mw"</span><span class="p">,</span>
+                <span class="s2">"fuel_type_code_pudl"</span><span class="p">,</span>
+                <span class="s2">"planned_generator_retirement_date"</span><span class="p">,</span>
+                <span class="s2">"capacity_factor"</span><span class="p">,</span>
+                <span class="s2">"fuel_cost_per_mmbtu_source"</span><span class="p">,</span>
+                <span class="s2">"fuel_cost_per_mmbtu"</span><span class="p">,</span>
+                <span class="s2">"fuel_cost_per_mwh"</span><span class="p">,</span>
+                <span class="s2">"unit_heat_rate_mmbtu_per_mwh"</span><span class="p">,</span>
+                <span class="s2">"net_generation_mwh"</span><span class="p">,</span>
+                <span class="s2">"total_fuel_cost"</span><span class="p">,</span>
+                <span class="s2">"total_mmbtu"</span><span class="p">,</span>
+                <span class="s2">"ferc_acct_name"</span><span class="p">,</span>
+                <span class="s2">"generator_operating_year"</span><span class="p">,</span>
+                <span class="s2">"operational_status_pudl"</span><span class="p">,</span>
+                <span class="s2">"capacity_eoy_mw"</span><span class="p">,</span>
+                <span class="s2">"fraction_owned"</span><span class="p">,</span>
+                <span class="s2">"ownership_record_type"</span><span class="p">,</span>
             <span class="p">]</span>
         <span class="p">},</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;eia860&quot;</span><span class="p">,</span> <span class="s2">&quot;eia923&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;outputs&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;eia&quot;</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"eia860"</span><span class="p">,</span> <span class="s2">"eia923"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"outputs"</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"eia"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;out_eia__yearly_assn_plant_parts_plant_gen&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;plant parts (identified as ``record_id_eia``) and  &#39;plant_gen&#39; records (identified as ``record_id_eia_plant_gen``) from the :ref:`out_eia__yearly_plant_parts` table.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;layer_code&quot;</span><span class="p">:</span> <span class="s2">&quot;out_narrow&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;aggregation_hazard&quot;</span><span class="p">],</span>
-            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;&quot;</span>
+    <span class="s2">"out_eia__yearly_assn_plant_parts_plant_gen"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="s2">"plant parts (identified as ``record_id_eia``) and  'plant_gen' records (identified as ``record_id_eia_plant_gen``) from the :ref:`out_eia__yearly_plant_parts` table."</span><span class="p">,</span>
+            <span class="s2">"layer_code"</span><span class="p">:</span> <span class="s2">"out_narrow"</span><span class="p">,</span>
+            <span class="s2">"usage_warnings"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"aggregation_hazard"</span><span class="p">],</span>
+            <span class="s2">"additional_details_text"</span><span class="p">:</span> <span class="s2">"""</span>
 <span class="s2">The purpose of this table is to help determine what generator records are associated</span>
 <span class="s2">with every plant part record. The plant part records have a one to many relationship</span>
-<span class="s2">to the associated &#39;plant_gen&#39; records. The &#39;plant_gen&#39; records are also included in</span>
+<span class="s2">to the associated 'plant_gen' records. The 'plant_gen' records are also included in</span>
 <span class="s2">the plant part records, so for these records there is a one to one relationship and</span>
 <span class="s2">the ``record_id_eia`` and the ``record_id_eia_plant_gen`` are the same.</span>
 
-<span class="s2">All of the columns in this table that have a suffix of &#39;_plant_gen&#39; are attributes of</span>
-<span class="s2">the ``record_id_eia_plant_gen`` record.&quot;&quot;&quot;</span><span class="p">,</span>
+<span class="s2">All of the columns in this table that have a suffix of '_plant_gen' are attributes of</span>
+<span class="s2">the ``record_id_eia_plant_gen`` record."""</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;record_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;record_id_eia_plant_gen&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;ownership_record_type&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;generator_id_plant_gen&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;energy_source_code_1_plant_gen&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;prime_mover_code_plant_gen&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;unit_id_pudl_plant_gen&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;technology_description_plant_gen&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;ferc_acct_name_plant_gen&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;ferc1_generator_agg_id_plant_gen&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;generator_operating_year_plant_gen&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;operational_status_pudl_plant_gen&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;generators_number&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"record_id_eia"</span><span class="p">,</span>
+                <span class="s2">"record_id_eia_plant_gen"</span><span class="p">,</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"plant_id_eia"</span><span class="p">,</span>
+                <span class="s2">"utility_id_eia"</span><span class="p">,</span>
+                <span class="s2">"ownership_record_type"</span><span class="p">,</span>
+                <span class="s2">"generator_id_plant_gen"</span><span class="p">,</span>
+                <span class="s2">"energy_source_code_1_plant_gen"</span><span class="p">,</span>
+                <span class="s2">"prime_mover_code_plant_gen"</span><span class="p">,</span>
+                <span class="s2">"unit_id_pudl_plant_gen"</span><span class="p">,</span>
+                <span class="s2">"technology_description_plant_gen"</span><span class="p">,</span>
+                <span class="s2">"ferc_acct_name_plant_gen"</span><span class="p">,</span>
+                <span class="s2">"ferc1_generator_agg_id_plant_gen"</span><span class="p">,</span>
+                <span class="s2">"generator_operating_year_plant_gen"</span><span class="p">,</span>
+                <span class="s2">"operational_status_pudl_plant_gen"</span><span class="p">,</span>
+                <span class="s2">"generators_number"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;record_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;record_id_eia_plant_gen&quot;</span><span class="p">],</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"record_id_eia"</span><span class="p">,</span> <span class="s2">"record_id_eia_plant_gen"</span><span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;eia860&quot;</span><span class="p">,</span> <span class="s2">&quot;eia923&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;outputs&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;eia&quot;</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"eia860"</span><span class="p">,</span> <span class="s2">"eia923"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"outputs"</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"eia"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;out_pudl__yearly_assn_eia_ferc1_plant_parts&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;power plant data reported in FERC Form 1 and any available EIA data related to the plant parts covered by each FERC Form 1 record.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;This table</span>
-<span class="s2">answers the question &quot;What EIA data reported about plants or generators should be</span>
-<span class="s2">associated with a given plant record found in the FERC Form 1?&quot;</span>
+    <span class="s2">"out_pudl__yearly_assn_eia_ferc1_plant_parts"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="s2">"power plant data reported in FERC Form 1 and any available EIA data related to the plant parts covered by each FERC Form 1 record."</span><span class="p">,</span>
+            <span class="s2">"additional_details_text"</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"""This table</span>
+<span class="s2">answers the question "What EIA data reported about plants or generators should be</span>
+<span class="s2">associated with a given plant record found in the FERC Form 1?"</span>
 
 <span class="s2">Each record in this table corresponds to a single FERC Form 1 record reported in one of</span>
 <span class="s2">several tables describing power plants (large steam, hydro, small, etc.). These FERC</span>
 <span class="s2">records can correspond to an entire plant, individual generators within a plant, all</span>
-<span class="s2">generators in a plant with the same prime mover type, or just the respondent&#39;s ownership</span>
+<span class="s2">generators in a plant with the same prime mover type, or just the respondent's ownership</span>
 <span class="s2">share of any of those categories (or other categories). Furthermore, the same utility</span>
 <span class="s2">may report the same plant in different ways in different years.</span>
 
@@ -1093,139 +1093,139 @@ window.runMermaid = runMermaid;</script>
 <span class="s2">The EIA data in each record represents an aggregation of several slices of an EIA</span>
 <span class="s2">plant, across both physical characteristics and utility ownership.</span>
 
-<span class="si">{</span><span class="n">inherits_harvested_values_details</span><span class="p">(</span><span class="s2">&quot;generators and plants&quot;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;&quot;&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;harvested&quot;</span><span class="p">],</span>
+<span class="si">{</span><span class="n">inherits_harvested_values_details</span><span class="p">(</span><span class="s2">"generators and plants"</span><span class="p">)</span><span class="si">}</span><span class="s2">"""</span><span class="p">,</span>
+            <span class="s2">"usage_warnings"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"harvested"</span><span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;record_id_ferc1&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;record_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;match_type&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;plant_name_ppe&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;plant_part&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;report_year&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;ownership_record_type&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;plant_name_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;generator_id&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;unit_id_pudl&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;prime_mover_code&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;energy_source_code_1&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;technology_description&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;ferc_acct_name&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;generator_operating_year&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;utility_id_pudl&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;true_gran&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;appro_part_label&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;appro_record_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;record_count&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;fraction_owned&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;ownership_dupe&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;operational_status&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;operational_status_pudl&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;plant_id_pudl&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;total_fuel_cost_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;fuel_cost_per_mmbtu_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;net_generation_mwh_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;capacity_mw_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;capacity_factor_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;total_mmbtu_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;unit_heat_rate_mmbtu_per_mwh_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;fuel_type_code_pudl_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;installation_year_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;plant_part_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;utility_id_ferc1&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;utility_name_ferc1&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;plant_id_ferc1&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;plant_name_ferc1&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;asset_retirement_cost&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;avg_num_employees&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;capacity_factor_ferc1&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;capacity_mw_ferc1&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;capex_annual_addition&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;capex_annual_addition_rolling&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;capex_annual_per_kw&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;capex_annual_per_mw&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;capex_annual_per_mw_rolling&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;capex_annual_per_mwh&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;capex_annual_per_mwh_rolling&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;capex_equipment&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;capex_land&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;capex_per_mw&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;capex_structures&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;capex_total&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;capex_wo_retirement_total&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;construction_type&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;construction_year_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;construction_year_ferc1&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;installation_year_ferc1&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;net_generation_mwh_ferc1&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;not_water_limited_capacity_mw&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;opex_allowances&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;opex_boiler&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;opex_coolants&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;opex_electric&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;opex_engineering&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;opex_fuel&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;fuel_cost_per_mwh_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;fuel_cost_per_mwh_ferc1&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;opex_misc_power&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;opex_misc_steam&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;opex_nonfuel_per_mwh&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;opex_operations&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;opex_per_mwh&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;opex_plant&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;opex_production_total&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;opex_rents&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;opex_steam&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;opex_steam_other&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;opex_structures&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;opex_total_nonfuel&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;opex_transfer&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;peak_demand_mw&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;plant_capability_mw&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;plant_hours_connected_while_generating&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;plant_type&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;water_limited_capacity_mw&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;fuel_cost_per_mmbtu_ferc1&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;fuel_type&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;license_id_ferc1&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;opex_maintenance&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;opex_total&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;capex_facilities&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;capex_roads&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;net_capacity_adverse_conditions_mw&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;net_capacity_favorable_conditions_mw&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;opex_dams&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;opex_generation_misc&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;opex_hydraulic&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;opex_misc_plant&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;opex_water_for_power&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;ferc_license_id&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;capex_equipment_electric&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;capex_equipment_misc&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;capex_wheels_turbines_generators&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;energy_used_for_pumping_mwh&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;net_load_mwh&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;opex_production_before_pumping&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;opex_pumped_storage&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;opex_pumping&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;total_fuel_cost_ferc1&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;total_mmbtu_ferc1&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;fuel_type_code_pudl_ferc1&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;unit_heat_rate_mmbtu_per_mwh_ferc1&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"record_id_ferc1"</span><span class="p">,</span>
+                <span class="s2">"record_id_eia"</span><span class="p">,</span>
+                <span class="s2">"match_type"</span><span class="p">,</span>
+                <span class="s2">"plant_name_ppe"</span><span class="p">,</span>
+                <span class="s2">"plant_part"</span><span class="p">,</span>
+                <span class="s2">"report_year"</span><span class="p">,</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"ownership_record_type"</span><span class="p">,</span>
+                <span class="s2">"plant_name_eia"</span><span class="p">,</span>
+                <span class="s2">"plant_id_eia"</span><span class="p">,</span>
+                <span class="s2">"generator_id"</span><span class="p">,</span>
+                <span class="s2">"unit_id_pudl"</span><span class="p">,</span>
+                <span class="s2">"prime_mover_code"</span><span class="p">,</span>
+                <span class="s2">"energy_source_code_1"</span><span class="p">,</span>
+                <span class="s2">"technology_description"</span><span class="p">,</span>
+                <span class="s2">"ferc_acct_name"</span><span class="p">,</span>
+                <span class="s2">"generator_operating_year"</span><span class="p">,</span>
+                <span class="s2">"utility_id_eia"</span><span class="p">,</span>
+                <span class="s2">"utility_id_pudl"</span><span class="p">,</span>
+                <span class="s2">"true_gran"</span><span class="p">,</span>
+                <span class="s2">"appro_part_label"</span><span class="p">,</span>
+                <span class="s2">"appro_record_id_eia"</span><span class="p">,</span>
+                <span class="s2">"record_count"</span><span class="p">,</span>
+                <span class="s2">"fraction_owned"</span><span class="p">,</span>
+                <span class="s2">"ownership_dupe"</span><span class="p">,</span>
+                <span class="s2">"operational_status"</span><span class="p">,</span>
+                <span class="s2">"operational_status_pudl"</span><span class="p">,</span>
+                <span class="s2">"plant_id_pudl"</span><span class="p">,</span>
+                <span class="s2">"total_fuel_cost_eia"</span><span class="p">,</span>
+                <span class="s2">"fuel_cost_per_mmbtu_eia"</span><span class="p">,</span>
+                <span class="s2">"net_generation_mwh_eia"</span><span class="p">,</span>
+                <span class="s2">"capacity_mw_eia"</span><span class="p">,</span>
+                <span class="s2">"capacity_factor_eia"</span><span class="p">,</span>
+                <span class="s2">"total_mmbtu_eia"</span><span class="p">,</span>
+                <span class="s2">"unit_heat_rate_mmbtu_per_mwh_eia"</span><span class="p">,</span>
+                <span class="s2">"fuel_type_code_pudl_eia"</span><span class="p">,</span>
+                <span class="s2">"installation_year_eia"</span><span class="p">,</span>
+                <span class="s2">"plant_part_id_eia"</span><span class="p">,</span>
+                <span class="s2">"utility_id_ferc1"</span><span class="p">,</span>
+                <span class="s2">"utility_name_ferc1"</span><span class="p">,</span>
+                <span class="s2">"plant_id_ferc1"</span><span class="p">,</span>
+                <span class="s2">"plant_name_ferc1"</span><span class="p">,</span>
+                <span class="s2">"asset_retirement_cost"</span><span class="p">,</span>
+                <span class="s2">"avg_num_employees"</span><span class="p">,</span>
+                <span class="s2">"capacity_factor_ferc1"</span><span class="p">,</span>
+                <span class="s2">"capacity_mw_ferc1"</span><span class="p">,</span>
+                <span class="s2">"capex_annual_addition"</span><span class="p">,</span>
+                <span class="s2">"capex_annual_addition_rolling"</span><span class="p">,</span>
+                <span class="s2">"capex_annual_per_kw"</span><span class="p">,</span>
+                <span class="s2">"capex_annual_per_mw"</span><span class="p">,</span>
+                <span class="s2">"capex_annual_per_mw_rolling"</span><span class="p">,</span>
+                <span class="s2">"capex_annual_per_mwh"</span><span class="p">,</span>
+                <span class="s2">"capex_annual_per_mwh_rolling"</span><span class="p">,</span>
+                <span class="s2">"capex_equipment"</span><span class="p">,</span>
+                <span class="s2">"capex_land"</span><span class="p">,</span>
+                <span class="s2">"capex_per_mw"</span><span class="p">,</span>
+                <span class="s2">"capex_structures"</span><span class="p">,</span>
+                <span class="s2">"capex_total"</span><span class="p">,</span>
+                <span class="s2">"capex_wo_retirement_total"</span><span class="p">,</span>
+                <span class="s2">"construction_type"</span><span class="p">,</span>
+                <span class="s2">"construction_year_eia"</span><span class="p">,</span>
+                <span class="s2">"construction_year_ferc1"</span><span class="p">,</span>
+                <span class="s2">"installation_year_ferc1"</span><span class="p">,</span>
+                <span class="s2">"net_generation_mwh_ferc1"</span><span class="p">,</span>
+                <span class="s2">"not_water_limited_capacity_mw"</span><span class="p">,</span>
+                <span class="s2">"opex_allowances"</span><span class="p">,</span>
+                <span class="s2">"opex_boiler"</span><span class="p">,</span>
+                <span class="s2">"opex_coolants"</span><span class="p">,</span>
+                <span class="s2">"opex_electric"</span><span class="p">,</span>
+                <span class="s2">"opex_engineering"</span><span class="p">,</span>
+                <span class="s2">"opex_fuel"</span><span class="p">,</span>
+                <span class="s2">"fuel_cost_per_mwh_eia"</span><span class="p">,</span>
+                <span class="s2">"fuel_cost_per_mwh_ferc1"</span><span class="p">,</span>
+                <span class="s2">"opex_misc_power"</span><span class="p">,</span>
+                <span class="s2">"opex_misc_steam"</span><span class="p">,</span>
+                <span class="s2">"opex_nonfuel_per_mwh"</span><span class="p">,</span>
+                <span class="s2">"opex_operations"</span><span class="p">,</span>
+                <span class="s2">"opex_per_mwh"</span><span class="p">,</span>
+                <span class="s2">"opex_plant"</span><span class="p">,</span>
+                <span class="s2">"opex_production_total"</span><span class="p">,</span>
+                <span class="s2">"opex_rents"</span><span class="p">,</span>
+                <span class="s2">"opex_steam"</span><span class="p">,</span>
+                <span class="s2">"opex_steam_other"</span><span class="p">,</span>
+                <span class="s2">"opex_structures"</span><span class="p">,</span>
+                <span class="s2">"opex_total_nonfuel"</span><span class="p">,</span>
+                <span class="s2">"opex_transfer"</span><span class="p">,</span>
+                <span class="s2">"peak_demand_mw"</span><span class="p">,</span>
+                <span class="s2">"plant_capability_mw"</span><span class="p">,</span>
+                <span class="s2">"plant_hours_connected_while_generating"</span><span class="p">,</span>
+                <span class="s2">"plant_type"</span><span class="p">,</span>
+                <span class="s2">"water_limited_capacity_mw"</span><span class="p">,</span>
+                <span class="s2">"fuel_cost_per_mmbtu_ferc1"</span><span class="p">,</span>
+                <span class="s2">"fuel_type"</span><span class="p">,</span>
+                <span class="s2">"license_id_ferc1"</span><span class="p">,</span>
+                <span class="s2">"opex_maintenance"</span><span class="p">,</span>
+                <span class="s2">"opex_total"</span><span class="p">,</span>
+                <span class="s2">"capex_facilities"</span><span class="p">,</span>
+                <span class="s2">"capex_roads"</span><span class="p">,</span>
+                <span class="s2">"net_capacity_adverse_conditions_mw"</span><span class="p">,</span>
+                <span class="s2">"net_capacity_favorable_conditions_mw"</span><span class="p">,</span>
+                <span class="s2">"opex_dams"</span><span class="p">,</span>
+                <span class="s2">"opex_generation_misc"</span><span class="p">,</span>
+                <span class="s2">"opex_hydraulic"</span><span class="p">,</span>
+                <span class="s2">"opex_misc_plant"</span><span class="p">,</span>
+                <span class="s2">"opex_water_for_power"</span><span class="p">,</span>
+                <span class="s2">"ferc_license_id"</span><span class="p">,</span>
+                <span class="s2">"capex_equipment_electric"</span><span class="p">,</span>
+                <span class="s2">"capex_equipment_misc"</span><span class="p">,</span>
+                <span class="s2">"capex_wheels_turbines_generators"</span><span class="p">,</span>
+                <span class="s2">"energy_used_for_pumping_mwh"</span><span class="p">,</span>
+                <span class="s2">"net_load_mwh"</span><span class="p">,</span>
+                <span class="s2">"opex_production_before_pumping"</span><span class="p">,</span>
+                <span class="s2">"opex_pumped_storage"</span><span class="p">,</span>
+                <span class="s2">"opex_pumping"</span><span class="p">,</span>
+                <span class="s2">"total_fuel_cost_ferc1"</span><span class="p">,</span>
+                <span class="s2">"total_mmbtu_ferc1"</span><span class="p">,</span>
+                <span class="s2">"fuel_type_code_pudl_ferc1"</span><span class="p">,</span>
+                <span class="s2">"unit_heat_rate_mmbtu_per_mwh_ferc1"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;record_id_ferc1&quot;</span><span class="p">],</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"record_id_ferc1"</span><span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;pudl&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;outputs&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;eia860&quot;</span><span class="p">,</span> <span class="s2">&quot;eia923&quot;</span><span class="p">,</span> <span class="s2">&quot;ferc1&quot;</span><span class="p">],</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"pudl"</span><span class="p">,</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"outputs"</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"eia860"</span><span class="p">,</span> <span class="s2">"eia923"</span><span class="p">,</span> <span class="s2">"ferc1"</span><span class="p">],</span>
     <span class="p">},</span>
 <span class="p">}</span></div>
 
-<span class="sd">&quot;&quot;&quot;Resources definition for granular connection between FERC1 and EIA.&quot;&quot;&quot;</span>
+<span class="sd">"""Resources definition for granular connection between FERC1 and EIA."""</span>
 </pre></div>
 
                 </article>

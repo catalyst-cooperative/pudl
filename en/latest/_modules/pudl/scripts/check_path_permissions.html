@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.scripts.check_path_permissions &#8212; PUDL 2026.8.1.dev18 documentation</title>
+    <title>pudl.scripts.check_path_permissions &#8212; PUDL 2026.8.1.dev19 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=f2b63aa7"></script>
+    <script src="../../../_static/documentation_options.js?v=5bf64ec1"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev18 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev18 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev19 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev19 documentation - Home"/>
   
   
 </a></div>
@@ -868,7 +868,7 @@ window.runMermaid = runMermaid;</script>
                 <article class="bd-article">
                   
   <h1>Source code for pudl.scripts.check_path_permissions</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Check read, write, and delete permissions for local or remote paths.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Check read, write, and delete permissions for local or remote paths."""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
@@ -887,10 +887,10 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="NOISY_BACKEND_LOGGERS">
 <a class="viewcode-back" href="../../../autoapi/pudl/scripts/check_path_permissions/index.html#pudl.scripts.check_path_permissions.NOISY_BACKEND_LOGGERS">[docs]</a>
 <span class="n">NOISY_BACKEND_LOGGERS</span> <span class="o">=</span> <span class="p">(</span>
-    <span class="s2">&quot;fsspec&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;gcsfs&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;gcsfs.retry&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;s3fs&quot;</span><span class="p">,</span>
+    <span class="s2">"fsspec"</span><span class="p">,</span>
+    <span class="s2">"gcsfs"</span><span class="p">,</span>
+    <span class="s2">"gcsfs.retry"</span><span class="p">,</span>
+    <span class="s2">"s3fs"</span><span class="p">,</span>
 <span class="p">)</span></div>
 
 
@@ -898,19 +898,19 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="PermissionCheck">
 <a class="viewcode-back" href="../../../autoapi/pudl/scripts/check_path_permissions/index.html#pudl.scripts.check_path_permissions.PermissionCheck">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">PermissionCheck</span><span class="p">(</span><span class="n">StrEnum</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Named permission-check stages used by the CLI and its reports.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Named permission-check stages used by the CLI and its reports."""</span>
 
 <div class="viewcode-block" id="PermissionCheck.READ">
 <a class="viewcode-back" href="../../../autoapi/pudl/scripts/check_path_permissions/index.html#pudl.scripts.check_path_permissions.PermissionCheck.READ">[docs]</a>
-    <span class="n">READ</span> <span class="o">=</span> <span class="s2">&quot;read&quot;</span></div>
+    <span class="n">READ</span> <span class="o">=</span> <span class="s2">"read"</span></div>
 
 <div class="viewcode-block" id="PermissionCheck.WRITE">
 <a class="viewcode-back" href="../../../autoapi/pudl/scripts/check_path_permissions/index.html#pudl.scripts.check_path_permissions.PermissionCheck.WRITE">[docs]</a>
-    <span class="n">WRITE</span> <span class="o">=</span> <span class="s2">&quot;write&quot;</span></div>
+    <span class="n">WRITE</span> <span class="o">=</span> <span class="s2">"write"</span></div>
 
 <div class="viewcode-block" id="PermissionCheck.DELETE">
 <a class="viewcode-back" href="../../../autoapi/pudl/scripts/check_path_permissions/index.html#pudl.scripts.check_path_permissions.PermissionCheck.DELETE">[docs]</a>
-    <span class="n">DELETE</span> <span class="o">=</span> <span class="s2">&quot;delete&quot;</span></div>
+    <span class="n">DELETE</span> <span class="o">=</span> <span class="s2">"delete"</span></div>
 </div>
 
 
@@ -919,7 +919,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="PathPermissionError">
 <a class="viewcode-back" href="../../../autoapi/pudl/scripts/check_path_permissions/index.html#pudl.scripts.check_path_permissions.PathPermissionError">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">PathPermissionError</span><span class="p">(</span><span class="n">click</span><span class="o">.</span><span class="n">ClickException</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Permission check failure annotated with the stage that failed.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Permission check failure annotated with the stage that failed."""</span>
 
 <div class="viewcode-block" id="PathPermissionError.check">
 <a class="viewcode-back" href="../../../autoapi/pudl/scripts/check_path_permissions/index.html#pudl.scripts.check_path_permissions.PathPermissionError.check">[docs]</a>
@@ -933,7 +933,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="PathPermissionError.__post_init__">
 <a class="viewcode-back" href="../../../autoapi/pudl/scripts/check_path_permissions/index.html#pudl.scripts.check_path_permissions.PathPermissionError.__post_init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the underlying Click exception message.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Initialize the underlying Click exception message."""</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="p">)</span></div>
 </div>
 
@@ -943,7 +943,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="CheckReport">
 <a class="viewcode-back" href="../../../autoapi/pudl/scripts/check_path_permissions/index.html#pudl.scripts.check_path_permissions.CheckReport">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">CheckReport</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Structured result for a single permission check.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Structured result for a single permission check."""</span>
 
 <div class="viewcode-block" id="CheckReport.requested">
 <a class="viewcode-back" href="../../../autoapi/pudl/scripts/check_path_permissions/index.html#pudl.scripts.check_path_permissions.CheckReport.requested">[docs]</a>
@@ -968,7 +968,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="PathReport">
 <a class="viewcode-back" href="../../../autoapi/pudl/scripts/check_path_permissions/index.html#pudl.scripts.check_path_permissions.PathReport">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">PathReport</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Structured result for all permission checks against one path.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Structured result for all permission checks against one path."""</span>
 
 <div class="viewcode-block" id="PathReport.path">
 <a class="viewcode-back" href="../../../autoapi/pudl/scripts/check_path_permissions/index.html#pudl.scripts.check_path_permissions.PathReport.path">[docs]</a>
@@ -997,7 +997,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="PathCheckReport">
 <a class="viewcode-back" href="../../../autoapi/pudl/scripts/check_path_permissions/index.html#pudl.scripts.check_path_permissions.PathCheckReport">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">PathCheckReport</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Top-level report for a CLI invocation across one or more paths.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Top-level report for a CLI invocation across one or more paths."""</span>
 
 <div class="viewcode-block" id="PathCheckReport.paths">
 <a class="viewcode-back" href="../../../autoapi/pudl/scripts/check_path_permissions/index.html#pudl.scripts.check_path_permissions.PathCheckReport.paths">[docs]</a>
@@ -1021,7 +1021,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="_get_ferceqr_deployment_paths">
 <a class="viewcode-back" href="../../../autoapi/pudl/scripts/check_path_permissions/index.html#pudl.scripts.check_path_permissions._get_ferceqr_deployment_paths">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_get_ferceqr_deployment_paths</span><span class="p">(</span><span class="n">anon</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">UPath</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return resolved FERC EQR deployment targets as fully configured UPath objects.</span>
+<span class="w">    </span><span class="sd">"""Return resolved FERC EQR deployment targets as fully configured UPath objects.</span>
 
 <span class="sd">    Each target is constructed with its YAML-defined ``storage_options``, then the</span>
 <span class="sd">    global ``--anon`` flag is applied on top (so it can override per-target settings</span>
@@ -1029,8 +1029,8 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">    Args:</span>
 <span class="sd">        anon: Whether to force anonymous access for ``gs://`` or ``s3://`` targets.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">deployment_config_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;PUDL_FERCEQR_DEPLOYMENT_CONFIG_PATH&quot;</span><span class="p">)</span>
+<span class="sd">    """</span>
+    <span class="n">deployment_config_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"PUDL_FERCEQR_DEPLOYMENT_CONFIG_PATH"</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">deployment_config_path</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">[]</span>
 
@@ -1049,13 +1049,13 @@ window.runMermaid = runMermaid;</script>
 <span class="k">def</span><span class="w"> </span><span class="nf">_build_upath</span><span class="p">(</span>
     <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">anon</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">storage_options</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UPath</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a :class:`~upath.UPath` with anon and any per-target options baked in.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return a :class:`~upath.UPath` with anon and any per-target options baked in."""</span>
     <span class="n">merged</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">storage_options</span> <span class="ow">or</span> <span class="p">{})</span>
     <span class="n">scheme</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">scheme</span>
-    <span class="k">if</span> <span class="n">anon</span> <span class="ow">and</span> <span class="n">scheme</span> <span class="o">==</span> <span class="s2">&quot;gs&quot;</span><span class="p">:</span>
-        <span class="n">merged</span><span class="p">[</span><span class="s2">&quot;token&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;anon&quot;</span>  <span class="c1"># noqa: S105</span>
-    <span class="k">elif</span> <span class="n">anon</span> <span class="ow">and</span> <span class="n">scheme</span> <span class="o">==</span> <span class="s2">&quot;s3&quot;</span><span class="p">:</span>
-        <span class="n">merged</span><span class="p">[</span><span class="s2">&quot;anon&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">if</span> <span class="n">anon</span> <span class="ow">and</span> <span class="n">scheme</span> <span class="o">==</span> <span class="s2">"gs"</span><span class="p">:</span>
+        <span class="n">merged</span><span class="p">[</span><span class="s2">"token"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"anon"</span>  <span class="c1"># noqa: S105</span>
+    <span class="k">elif</span> <span class="n">anon</span> <span class="ow">and</span> <span class="n">scheme</span> <span class="o">==</span> <span class="s2">"s3"</span><span class="p">:</span>
+        <span class="n">merged</span><span class="p">[</span><span class="s2">"anon"</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="k">return</span> <span class="n">UPath</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="o">**</span><span class="n">merged</span><span class="p">)</span></div>
 
 
@@ -1064,7 +1064,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="_suppress_backend_tracebacks">
 <a class="viewcode-back" href="../../../autoapi/pudl/scripts/check_path_permissions/index.html#pudl.scripts.check_path_permissions._suppress_backend_tracebacks">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_suppress_backend_tracebacks</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Temporarily silence noisy storage-backend exception logging.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Temporarily silence noisy storage-backend exception logging."""</span>
     <span class="n">original_levels</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">logger_name</span> <span class="ow">in</span> <span class="n">NOISY_BACKEND_LOGGERS</span><span class="p">:</span>
         <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">logger_name</span><span class="p">)</span>
@@ -1082,19 +1082,19 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="_ensure_directory_like_path">
 <a class="viewcode-back" href="../../../autoapi/pudl/scripts/check_path_permissions/index.html#pudl.scripts.check_path_permissions._ensure_directory_like_path">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_ensure_directory_like_path</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">UPath</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Raise if the provided path points at an existing file/object.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Raise if the provided path points at an existing file/object."""</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">and</span> <span class="n">path</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
             <span class="k">raise</span> <span class="n">PathPermissionError</span><span class="p">(</span>
                 <span class="n">check</span><span class="o">=</span><span class="n">PermissionCheck</span><span class="o">.</span><span class="n">WRITE</span><span class="p">,</span>
                 <span class="n">message</span><span class="o">=</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Path must be a directory-like location, not an existing file: </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="sa">f</span><span class="s2">"Path must be a directory-like location, not an existing file: </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">"</span>
                 <span class="p">),</span>
             <span class="p">)</span>
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">PathPermissionError</span><span class="p">(</span>
             <span class="n">check</span><span class="o">=</span><span class="n">PermissionCheck</span><span class="o">.</span><span class="n">WRITE</span><span class="p">,</span>
-            <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Unable to inspect path type for </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">"Unable to inspect path type for </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
         <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span></div>
 
 
@@ -1102,14 +1102,14 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="check_read_access">
 <a class="viewcode-back" href="../../../autoapi/pudl/scripts/check_path_permissions/index.html#pudl.scripts.check_path_permissions.check_read_access">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">check_read_access</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">UPath</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Raise if the given path cannot be read as a directory-like location.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Raise if the given path cannot be read as a directory-like location."""</span>
     <span class="n">_ensure_directory_like_path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
 
     <span class="k">try</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
             <span class="k">raise</span> <span class="n">PathPermissionError</span><span class="p">(</span>
                 <span class="n">check</span><span class="o">=</span><span class="n">PermissionCheck</span><span class="o">.</span><span class="n">READ</span><span class="p">,</span>
-                <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Path does not exist or is not readable: </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">"Path does not exist or is not readable: </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
             <span class="p">)</span>
 
         <span class="k">with</span> <span class="n">suppress</span><span class="p">(</span><span class="ne">StopIteration</span><span class="p">):</span>
@@ -1117,7 +1117,7 @@ window.runMermaid = runMermaid;</script>
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">PathPermissionError</span><span class="p">(</span>
             <span class="n">check</span><span class="o">=</span><span class="n">PermissionCheck</span><span class="o">.</span><span class="n">READ</span><span class="p">,</span>
-            <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Path is not readable: </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">,</span>
+            <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">"Path is not readable: </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">)"</span><span class="p">,</span>
         <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span></div>
 
 
@@ -1125,19 +1125,19 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="check_write_access">
 <a class="viewcode-back" href="../../../autoapi/pudl/scripts/check_path_permissions/index.html#pudl.scripts.check_path_permissions.check_write_access">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">check_write_access</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">UPath</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Raise if a canary file cannot be written, read back, and deleted.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Raise if a canary file cannot be written, read back, and deleted."""</span>
     <span class="n">_ensure_directory_like_path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
 
-    <span class="n">canary_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;.check-path-permissions-</span><span class="si">{</span><span class="n">uuid4</span><span class="p">()</span><span class="o">.</span><span class="n">hex</span><span class="si">}</span><span class="s2">.txt&quot;</span>
+    <span class="n">canary_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">".check-path-permissions-</span><span class="si">{</span><span class="n">uuid4</span><span class="p">()</span><span class="o">.</span><span class="n">hex</span><span class="si">}</span><span class="s2">.txt"</span>
     <span class="n">canary_path</span> <span class="o">=</span> <span class="n">path</span> <span class="o">/</span> <span class="n">canary_name</span>
-    <span class="n">canary_bytes</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;check_path_permissions:</span><span class="si">{</span><span class="n">canary_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span>
+    <span class="n">canary_bytes</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"check_path_permissions:</span><span class="si">{</span><span class="n">canary_name</span><span class="si">}</span><span class="s2">"</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span>
 
     <span class="k">try</span><span class="p">:</span>
         <span class="n">canary_path</span><span class="o">.</span><span class="n">write_bytes</span><span class="p">(</span><span class="n">canary_bytes</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">PathPermissionError</span><span class="p">(</span>
             <span class="n">check</span><span class="o">=</span><span class="n">PermissionCheck</span><span class="o">.</span><span class="n">WRITE</span><span class="p">,</span>
-            <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Path is not writable: </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">,</span>
+            <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">"Path is not writable: </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">)"</span><span class="p">,</span>
         <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
 
     <span class="k">try</span><span class="p">:</span>
@@ -1146,13 +1146,13 @@ window.runMermaid = runMermaid;</script>
             <span class="k">raise</span> <span class="n">PathPermissionError</span><span class="p">(</span>
                 <span class="n">check</span><span class="o">=</span><span class="n">PermissionCheck</span><span class="o">.</span><span class="n">WRITE</span><span class="p">,</span>
                 <span class="n">message</span><span class="o">=</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Canary verification failed for </span><span class="si">{</span><span class="n">canary_path</span><span class="si">}</span><span class="s2">: content mismatch&quot;</span>
+                    <span class="sa">f</span><span class="s2">"Canary verification failed for </span><span class="si">{</span><span class="n">canary_path</span><span class="si">}</span><span class="s2">: content mismatch"</span>
                 <span class="p">),</span>
             <span class="p">)</span>
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">PathPermissionError</span><span class="p">(</span>
             <span class="n">check</span><span class="o">=</span><span class="n">PermissionCheck</span><span class="o">.</span><span class="n">WRITE</span><span class="p">,</span>
-            <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Unable to read back written canary at </span><span class="si">{</span><span class="n">canary_path</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">"Unable to read back written canary at </span><span class="si">{</span><span class="n">canary_path</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
         <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
 
     <span class="k">try</span><span class="p">:</span>
@@ -1160,7 +1160,7 @@ window.runMermaid = runMermaid;</script>
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">PathPermissionError</span><span class="p">(</span>
             <span class="n">check</span><span class="o">=</span><span class="n">PermissionCheck</span><span class="o">.</span><span class="n">DELETE</span><span class="p">,</span>
-            <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Unable to delete written canary at </span><span class="si">{</span><span class="n">canary_path</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">"Unable to delete written canary at </span><span class="si">{</span><span class="n">canary_path</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
         <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span></div>
 
 
@@ -1175,7 +1175,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">summary</span><span class="p">:</span> <span class="n">PathReport</span><span class="p">,</span>
     <span class="n">is_error</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Record a result message in the summary and optionally print it.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Record a result message in the summary and optionally print it."""</span>
     <span class="n">target_list</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">summary</span><span class="o">.</span><span class="n">checks</span><span class="p">[</span><span class="n">check_name</span><span class="p">]</span><span class="o">.</span><span class="n">errors</span>
         <span class="k">if</span> <span class="n">is_error</span>
@@ -1197,7 +1197,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">json_output</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
     <span class="n">summary</span><span class="p">:</span> <span class="n">PathReport</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Set the check outcome and record the message in one step.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Set the check outcome and record the message in one step."""</span>
     <span class="n">summary</span><span class="o">.</span><span class="n">checks</span><span class="p">[</span><span class="n">check_name</span><span class="p">]</span><span class="o">.</span><span class="n">success</span> <span class="o">=</span> <span class="n">success</span>
     <span class="n">_record_check_output</span><span class="p">(</span>
         <span class="n">check_name</span><span class="o">=</span><span class="n">check_name</span><span class="p">,</span>
@@ -1218,11 +1218,11 @@ window.runMermaid = runMermaid;</script>
     <span class="n">json_output</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
     <span class="n">summary</span><span class="p">:</span> <span class="n">PathReport</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Run a single permission check and update the structured summary.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Run a single permission check and update the structured summary."""</span>
     <span class="k">if</span> <span class="n">action</span> <span class="ow">is</span> <span class="n">PermissionCheck</span><span class="o">.</span><span class="n">READ</span><span class="p">:</span>
         <span class="n">_record_check_output</span><span class="p">(</span>
             <span class="n">check_name</span><span class="o">=</span><span class="n">PermissionCheck</span><span class="o">.</span><span class="n">READ</span><span class="p">,</span>
-            <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Checking read access for: </span><span class="si">{</span><span class="n">resolved_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">"Checking read access for: </span><span class="si">{</span><span class="n">resolved_path</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
             <span class="n">json_output</span><span class="o">=</span><span class="n">json_output</span><span class="p">,</span>
             <span class="n">summary</span><span class="o">=</span><span class="n">summary</span><span class="p">,</span>
         <span class="p">)</span>
@@ -1240,7 +1240,7 @@ window.runMermaid = runMermaid;</script>
             <span class="n">_record_check_outcome</span><span class="p">(</span>
                 <span class="n">check_name</span><span class="o">=</span><span class="n">PermissionCheck</span><span class="o">.</span><span class="n">READ</span><span class="p">,</span>
                 <span class="n">success</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Read check passed for: </span><span class="si">{</span><span class="n">resolved_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">"Read check passed for: </span><span class="si">{</span><span class="n">resolved_path</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
                 <span class="n">json_output</span><span class="o">=</span><span class="n">json_output</span><span class="p">,</span>
                 <span class="n">summary</span><span class="o">=</span><span class="n">summary</span><span class="p">,</span>
             <span class="p">)</span>
@@ -1248,7 +1248,7 @@ window.runMermaid = runMermaid;</script>
 
     <span class="n">_record_check_output</span><span class="p">(</span>
         <span class="n">check_name</span><span class="o">=</span><span class="n">PermissionCheck</span><span class="o">.</span><span class="n">WRITE</span><span class="p">,</span>
-        <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Checking write/delete access for: </span><span class="si">{</span><span class="n">resolved_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">"Checking write/delete access for: </span><span class="si">{</span><span class="n">resolved_path</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
         <span class="n">json_output</span><span class="o">=</span><span class="n">json_output</span><span class="p">,</span>
         <span class="n">summary</span><span class="o">=</span><span class="n">summary</span><span class="p">,</span>
     <span class="p">)</span>
@@ -1276,14 +1276,14 @@ window.runMermaid = runMermaid;</script>
         <span class="n">_record_check_outcome</span><span class="p">(</span>
             <span class="n">check_name</span><span class="o">=</span><span class="n">PermissionCheck</span><span class="o">.</span><span class="n">WRITE</span><span class="p">,</span>
             <span class="n">success</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-            <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Write/delete check passed for: </span><span class="si">{</span><span class="n">resolved_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">"Write/delete check passed for: </span><span class="si">{</span><span class="n">resolved_path</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
             <span class="n">json_output</span><span class="o">=</span><span class="n">json_output</span><span class="p">,</span>
             <span class="n">summary</span><span class="o">=</span><span class="n">summary</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">_record_check_outcome</span><span class="p">(</span>
             <span class="n">check_name</span><span class="o">=</span><span class="n">PermissionCheck</span><span class="o">.</span><span class="n">DELETE</span><span class="p">,</span>
             <span class="n">success</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-            <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Delete check passed for: </span><span class="si">{</span><span class="n">resolved_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">"Delete check passed for: </span><span class="si">{</span><span class="n">resolved_path</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
             <span class="n">json_output</span><span class="o">=</span><span class="n">json_output</span><span class="p">,</span>
             <span class="n">summary</span><span class="o">=</span><span class="n">summary</span><span class="p">,</span>
         <span class="p">)</span></div>
@@ -1300,7 +1300,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">json_output</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
     <span class="n">anon</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PathReport</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Run the requested checks for one path and return a structured summary.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Run the requested checks for one path and return a structured summary."""</span>
     <span class="n">summary</span> <span class="o">=</span> <span class="n">PathReport</span><span class="p">(</span>
         <span class="n">path</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">),</span>
         <span class="n">resolved_path</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">),</span>
@@ -1344,7 +1344,7 @@ window.runMermaid = runMermaid;</script>
             <span class="n">check_name</span><span class="o">=</span><span class="p">(</span>
                 <span class="n">PermissionCheck</span><span class="o">.</span><span class="n">READ</span> <span class="k">if</span> <span class="n">read_requested</span> <span class="k">else</span> <span class="n">PermissionCheck</span><span class="o">.</span><span class="n">WRITE</span>
             <span class="p">),</span>
-            <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Unexpected error while checking path permissions for </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">"Unexpected error while checking path permissions for </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
             <span class="n">json_output</span><span class="o">=</span><span class="n">json_output</span><span class="p">,</span>
             <span class="n">summary</span><span class="o">=</span><span class="n">summary</span><span class="p">,</span>
             <span class="n">is_error</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -1358,37 +1358,37 @@ window.runMermaid = runMermaid;</script>
 
 
 
-<span class="nd">@click</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="n">context_settings</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;help_option_names&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;-h&quot;</span><span class="p">,</span> <span class="s2">&quot;--help&quot;</span><span class="p">]})</span>
-<span class="nd">@click</span><span class="o">.</span><span class="n">argument</span><span class="p">(</span><span class="s2">&quot;paths&quot;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="n">context_settings</span><span class="o">=</span><span class="p">{</span><span class="s2">"help_option_names"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"-h"</span><span class="p">,</span> <span class="s2">"--help"</span><span class="p">]})</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">argument</span><span class="p">(</span><span class="s2">"paths"</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
-    <span class="s2">&quot;--read&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;read_requested&quot;</span><span class="p">,</span>
+    <span class="s2">"--read"</span><span class="p">,</span>
+    <span class="s2">"read_requested"</span><span class="p">,</span>
     <span class="n">is_flag</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Check only that the path is readable.&quot;</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">"Check only that the path is readable."</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
-    <span class="s2">&quot;--write&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;write_requested&quot;</span><span class="p">,</span>
+    <span class="s2">"--write"</span><span class="p">,</span>
+    <span class="s2">"write_requested"</span><span class="p">,</span>
     <span class="n">is_flag</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Check that the path can be written to and deleted from.&quot;</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">"Check that the path can be written to and deleted from."</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
-    <span class="s2">&quot;--json&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;json_output&quot;</span><span class="p">,</span>
+    <span class="s2">"--json"</span><span class="p">,</span>
+    <span class="s2">"json_output"</span><span class="p">,</span>
     <span class="n">is_flag</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Emit a structured JSON summary of the permission checks.&quot;</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">"Emit a structured JSON summary of the permission checks."</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
-    <span class="s2">&quot;--anon&quot;</span><span class="p">,</span>
+    <span class="s2">"--anon"</span><span class="p">,</span>
     <span class="n">is_flag</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Force anonymous access for s3:// and gs:// paths.&quot;</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">"Force anonymous access for s3:// and gs:// paths."</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
-    <span class="s2">&quot;--check-ferceqr-deployment-paths&quot;</span><span class="p">,</span>
+    <span class="s2">"--check-ferceqr-deployment-paths"</span><span class="p">,</span>
     <span class="n">is_flag</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="n">help</span><span class="o">=</span><span class="p">(</span>
-        <span class="s2">&quot;Append FERC EQR deployment targets resolved from &quot;</span>
-        <span class="s2">&quot;PUDL_FERCEQR_DEPLOYMENT_CONFIG_PATH.&quot;</span>
+        <span class="s2">"Append FERC EQR deployment targets resolved from "</span>
+        <span class="s2">"PUDL_FERCEQR_DEPLOYMENT_CONFIG_PATH."</span>
     <span class="p">),</span>
 <span class="p">)</span>
 <span class="nd">@click</span><span class="o">.</span><span class="n">pass_context</span>
@@ -1403,7 +1403,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">anon</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
     <span class="n">check_ferceqr_deployment_paths</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check path permissions using UPath for local filesystems and cloud buckets.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Check path permissions using UPath for local filesystems and cloud buckets."""</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">read_requested</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">write_requested</span><span class="p">:</span>
         <span class="n">read_requested</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="n">write_requested</span> <span class="o">=</span> <span class="kc">True</span>
@@ -1416,9 +1416,9 @@ window.runMermaid = runMermaid;</script>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">configured_paths</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">click</span><span class="o">.</span><span class="n">BadParameter</span><span class="p">(</span>
-            <span class="s2">&quot;At least one path is required when --check-ferceqr-deployment-paths &quot;</span>
-            <span class="s2">&quot;is not set.&quot;</span><span class="p">,</span>
-            <span class="n">param_hint</span><span class="o">=</span><span class="s2">&quot;PATHS&quot;</span><span class="p">,</span>
+            <span class="s2">"At least one path is required when --check-ferceqr-deployment-paths "</span>
+            <span class="s2">"is not set."</span><span class="p">,</span>
+            <span class="n">param_hint</span><span class="o">=</span><span class="s2">"PATHS"</span><span class="p">,</span>
         <span class="p">)</span>
 
     <span class="n">path_summaries</span> <span class="o">=</span> <span class="p">[</span>
@@ -1448,7 +1448,7 @@ window.runMermaid = runMermaid;</script>
 
 
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
     <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
 </pre></div>
 

@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.extract.epamats &#8212; PUDL 2026.8.1.dev18 documentation</title>
+    <title>pudl.extract.epamats &#8212; PUDL 2026.8.1.dev19 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=f2b63aa7"></script>
+    <script src="../../../_static/documentation_options.js?v=5bf64ec1"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev18 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev18 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev19 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev19 documentation - Home"/>
   
   
 </a></div>
@@ -868,10 +868,10 @@ window.runMermaid = runMermaid;</script>
                 <article class="bd-article">
                   
   <h1>Source code for pudl.extract.epamats</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Retrieve data from EPA MATS hourly zipped CSVs.</span>
+<span></span><span class="sd">"""Retrieve data from EPA MATS hourly zipped CSVs.</span>
 
 <span class="sd">The MATS data structure is similar to EPA CEMS but with different pollutants.</span>
-<span class="sd">Each year&#39;s data is stored in a zip file (e.g., epamats-2015.zip) containing</span>
+<span class="sd">Each year's data is stored in a zip file (e.g., epamats-2015.zip) containing</span>
 <span class="sd">quarterly CSV files (e.g., epamats-2015q1.csv). The data tracks hourly</span>
 <span class="sd">Hg (mercury), HCl (hydrochloric acid), and HF (hydrogen fluoride) emissions</span>
 <span class="sd">from coal-fired power plants.</span>
@@ -879,7 +879,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">Similar to CEMS, the `plant_id_epa` field (Facility ID in raw data) needs to be</span>
 <span class="sd">mapped to `plant_id_eia` during transformation using the core_epa__assn_eia_epacamd</span>
 <span class="sd">crosswalk.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Annotated</span>
@@ -903,91 +903,91 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="RENAME_DICT">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/epamats/index.html#pudl.extract.epamats.RENAME_DICT">[docs]</a>
 <span class="n">RENAME_DICT</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;State&quot;</span><span class="p">:</span> <span class="s2">&quot;state&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;Facility Name&quot;</span><span class="p">:</span> <span class="s2">&quot;plant_name_epa&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;Facility ID&quot;</span><span class="p">:</span> <span class="s2">&quot;plant_id_epa&quot;</span><span class="p">,</span>  <span class="c1"># EPA facility identifier (ORIS code)</span>
-    <span class="s2">&quot;Unit ID&quot;</span><span class="p">:</span> <span class="s2">&quot;emissions_unit_id_epa&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;Date&quot;</span><span class="p">:</span> <span class="s2">&quot;op_date&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;Hour&quot;</span><span class="p">:</span> <span class="s2">&quot;op_hour&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;Operating Time&quot;</span><span class="p">:</span> <span class="s2">&quot;operating_time_hours&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;MATS Gross Load (MW)&quot;</span><span class="p">:</span> <span class="s2">&quot;gross_load_mw&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;MATS Heat Input (mmBtu)&quot;</span><span class="p">:</span> <span class="s2">&quot;heat_content_mmbtu&quot;</span><span class="p">,</span>
+    <span class="s2">"State"</span><span class="p">:</span> <span class="s2">"state"</span><span class="p">,</span>
+    <span class="s2">"Facility Name"</span><span class="p">:</span> <span class="s2">"plant_name_epa"</span><span class="p">,</span>
+    <span class="s2">"Facility ID"</span><span class="p">:</span> <span class="s2">"plant_id_epa"</span><span class="p">,</span>  <span class="c1"># EPA facility identifier (ORIS code)</span>
+    <span class="s2">"Unit ID"</span><span class="p">:</span> <span class="s2">"emissions_unit_id_epa"</span><span class="p">,</span>
+    <span class="s2">"Date"</span><span class="p">:</span> <span class="s2">"op_date"</span><span class="p">,</span>
+    <span class="s2">"Hour"</span><span class="p">:</span> <span class="s2">"op_hour"</span><span class="p">,</span>
+    <span class="s2">"Operating Time"</span><span class="p">:</span> <span class="s2">"operating_time_hours"</span><span class="p">,</span>
+    <span class="s2">"MATS Gross Load (MW)"</span><span class="p">:</span> <span class="s2">"gross_load_mw"</span><span class="p">,</span>
+    <span class="s2">"MATS Heat Input (mmBtu)"</span><span class="p">:</span> <span class="s2">"heat_content_mmbtu"</span><span class="p">,</span>
     <span class="c1"># Mercury (Hg)</span>
-    <span class="s2">&quot;Hg Output Rate (lb/GWh)&quot;</span><span class="p">:</span> <span class="s2">&quot;hg_output_rate_lb_per_gwh&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;Hg Input Rate (lb/TBtu)&quot;</span><span class="p">:</span> <span class="s2">&quot;hg_input_rate_lb_per_tbtu&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;Hg Mass (lbs)&quot;</span><span class="p">:</span> <span class="s2">&quot;hg_mass_lbs&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;Hg Mass Measure Indicator&quot;</span><span class="p">:</span> <span class="s2">&quot;hg_mass_measurement_code&quot;</span><span class="p">,</span>
+    <span class="s2">"Hg Output Rate (lb/GWh)"</span><span class="p">:</span> <span class="s2">"hg_output_rate_lb_per_gwh"</span><span class="p">,</span>
+    <span class="s2">"Hg Input Rate (lb/TBtu)"</span><span class="p">:</span> <span class="s2">"hg_input_rate_lb_per_tbtu"</span><span class="p">,</span>
+    <span class="s2">"Hg Mass (lbs)"</span><span class="p">:</span> <span class="s2">"hg_mass_lbs"</span><span class="p">,</span>
+    <span class="s2">"Hg Mass Measure Indicator"</span><span class="p">:</span> <span class="s2">"hg_mass_measurement_code"</span><span class="p">,</span>
     <span class="c1"># Hydrogen Chloride (HCl)</span>
-    <span class="s2">&quot;HCl Output Rate (lb/MWh)&quot;</span><span class="p">:</span> <span class="s2">&quot;hcl_output_rate_lb_per_mwh&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;HCL Input Rate (lb/mmBtu)&quot;</span><span class="p">:</span> <span class="s2">&quot;hcl_input_rate_lb_per_mmbtu&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;HCl Mass (lbs)&quot;</span><span class="p">:</span> <span class="s2">&quot;hcl_mass_lbs&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;HCl Mass Measure Indicator&quot;</span><span class="p">:</span> <span class="s2">&quot;hcl_mass_measurement_code&quot;</span><span class="p">,</span>
+    <span class="s2">"HCl Output Rate (lb/MWh)"</span><span class="p">:</span> <span class="s2">"hcl_output_rate_lb_per_mwh"</span><span class="p">,</span>
+    <span class="s2">"HCL Input Rate (lb/mmBtu)"</span><span class="p">:</span> <span class="s2">"hcl_input_rate_lb_per_mmbtu"</span><span class="p">,</span>
+    <span class="s2">"HCl Mass (lbs)"</span><span class="p">:</span> <span class="s2">"hcl_mass_lbs"</span><span class="p">,</span>
+    <span class="s2">"HCl Mass Measure Indicator"</span><span class="p">:</span> <span class="s2">"hcl_mass_measurement_code"</span><span class="p">,</span>
     <span class="c1"># Hydrogen Fluoride (HF)</span>
-    <span class="s2">&quot;HF Output Rate (lb/MWh)&quot;</span><span class="p">:</span> <span class="s2">&quot;hf_output_rate_lb_per_mwh&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;HF Input Rate (lb/mmBtu)&quot;</span><span class="p">:</span> <span class="s2">&quot;hf_input_rate_lb_per_mmbtu&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;HF Mass (lbs)&quot;</span><span class="p">:</span> <span class="s2">&quot;hf_mass_lbs&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;HF Mass Measure Indicator&quot;</span><span class="p">:</span> <span class="s2">&quot;hf_mass_measurement_code&quot;</span><span class="p">,</span>
+    <span class="s2">"HF Output Rate (lb/MWh)"</span><span class="p">:</span> <span class="s2">"hf_output_rate_lb_per_mwh"</span><span class="p">,</span>
+    <span class="s2">"HF Input Rate (lb/mmBtu)"</span><span class="p">:</span> <span class="s2">"hf_input_rate_lb_per_mmbtu"</span><span class="p">,</span>
+    <span class="s2">"HF Mass (lbs)"</span><span class="p">:</span> <span class="s2">"hf_mass_lbs"</span><span class="p">,</span>
+    <span class="s2">"HF Mass Measure Indicator"</span><span class="p">:</span> <span class="s2">"hf_mass_measurement_code"</span><span class="p">,</span>
     <span class="c1"># Additional metadata</span>
-    <span class="s2">&quot;Associated Stacks&quot;</span><span class="p">:</span> <span class="s2">&quot;associated_stacks&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;Steam Load (1000 lb/hr)&quot;</span><span class="p">:</span> <span class="s2">&quot;steam_load_1000_lbs&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;Primary Fuel Type&quot;</span><span class="p">:</span> <span class="s2">&quot;primary_fuel_type&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;Secondary Fuel Type&quot;</span><span class="p">:</span> <span class="s2">&quot;secondary_fuel_type&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;Unit Type&quot;</span><span class="p">:</span> <span class="s2">&quot;unit_type&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;SO2 Controls&quot;</span><span class="p">:</span> <span class="s2">&quot;so2_controls&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;NOx Controls&quot;</span><span class="p">:</span> <span class="s2">&quot;nox_controls&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;PM Controls&quot;</span><span class="p">:</span> <span class="s2">&quot;pm_controls&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;Hg Controls&quot;</span><span class="p">:</span> <span class="s2">&quot;hg_controls&quot;</span><span class="p">,</span>
+    <span class="s2">"Associated Stacks"</span><span class="p">:</span> <span class="s2">"associated_stacks"</span><span class="p">,</span>
+    <span class="s2">"Steam Load (1000 lb/hr)"</span><span class="p">:</span> <span class="s2">"steam_load_1000_lbs"</span><span class="p">,</span>
+    <span class="s2">"Primary Fuel Type"</span><span class="p">:</span> <span class="s2">"primary_fuel_type"</span><span class="p">,</span>
+    <span class="s2">"Secondary Fuel Type"</span><span class="p">:</span> <span class="s2">"secondary_fuel_type"</span><span class="p">,</span>
+    <span class="s2">"Unit Type"</span><span class="p">:</span> <span class="s2">"unit_type"</span><span class="p">,</span>
+    <span class="s2">"SO2 Controls"</span><span class="p">:</span> <span class="s2">"so2_controls"</span><span class="p">,</span>
+    <span class="s2">"NOx Controls"</span><span class="p">:</span> <span class="s2">"nox_controls"</span><span class="p">,</span>
+    <span class="s2">"PM Controls"</span><span class="p">:</span> <span class="s2">"pm_controls"</span><span class="p">,</span>
+    <span class="s2">"Hg Controls"</span><span class="p">:</span> <span class="s2">"hg_controls"</span><span class="p">,</span>
 <span class="p">}</span></div>
 
-<span class="sd">&quot;&quot;&quot;Dict: Mapping from raw EPA MATS column names to PUDL column names.&quot;&quot;&quot;</span>
+<span class="sd">"""Dict: Mapping from raw EPA MATS column names to PUDL column names."""</span>
 
 <div class="viewcode-block" id="DTYPE_DICT">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/epamats/index.html#pudl.extract.epamats.DTYPE_DICT">[docs]</a>
 <span class="n">DTYPE_DICT</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;State&quot;</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Categorical</span><span class="p">,</span>
-    <span class="s2">&quot;Facility Name&quot;</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">String</span><span class="p">,</span>
-    <span class="s2">&quot;Facility ID&quot;</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Int64</span><span class="p">,</span>
-    <span class="s2">&quot;Unit ID&quot;</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">String</span><span class="p">,</span>
-    <span class="s2">&quot;Date&quot;</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Date</span><span class="p">,</span>
-    <span class="s2">&quot;Hour&quot;</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Int16</span><span class="p">,</span>
-    <span class="s2">&quot;Operating Time&quot;</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Float64</span><span class="p">,</span>
-    <span class="s2">&quot;MATS Gross Load (MW)&quot;</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Float64</span><span class="p">,</span>
-    <span class="s2">&quot;MATS Heat Input (mmBtu)&quot;</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Float64</span><span class="p">,</span>
-    <span class="s2">&quot;Hg Output Rate (lb/GWh)&quot;</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Float64</span><span class="p">,</span>
-    <span class="s2">&quot;Hg Input Rate (lb/TBtu)&quot;</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Float64</span><span class="p">,</span>
-    <span class="s2">&quot;Hg Mass (lbs)&quot;</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Float64</span><span class="p">,</span>
-    <span class="s2">&quot;Hg Mass Measure Indicator&quot;</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Categorical</span><span class="p">,</span>
-    <span class="s2">&quot;HCl Output Rate (lb/MWh)&quot;</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Float64</span><span class="p">,</span>
-    <span class="s2">&quot;HCL Input Rate (lb/mmBtu)&quot;</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Float64</span><span class="p">,</span>
-    <span class="s2">&quot;HCl Mass (lbs)&quot;</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Float64</span><span class="p">,</span>
-    <span class="s2">&quot;HCl Mass Measure Indicator&quot;</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Categorical</span><span class="p">,</span>
-    <span class="s2">&quot;HF Output Rate (lb/MWh)&quot;</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Float64</span><span class="p">,</span>
-    <span class="s2">&quot;HF Input Rate (lb/mmBtu)&quot;</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Float64</span><span class="p">,</span>
-    <span class="s2">&quot;HF Mass (lbs)&quot;</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Float64</span><span class="p">,</span>
-    <span class="s2">&quot;HF Mass Measure Indicator&quot;</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Categorical</span><span class="p">,</span>
-    <span class="s2">&quot;Associated Stacks&quot;</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">String</span><span class="p">,</span>
-    <span class="s2">&quot;Steam Load (1000 lb/hr)&quot;</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Float64</span><span class="p">,</span>
-    <span class="s2">&quot;Primary Fuel Type&quot;</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Categorical</span><span class="p">,</span>
-    <span class="s2">&quot;Secondary Fuel Type&quot;</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Categorical</span><span class="p">,</span>
-    <span class="s2">&quot;Unit Type&quot;</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Categorical</span><span class="p">,</span>
-    <span class="s2">&quot;SO2 Controls&quot;</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Categorical</span><span class="p">,</span>
-    <span class="s2">&quot;NOx Controls&quot;</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Categorical</span><span class="p">,</span>
-    <span class="s2">&quot;PM Controls&quot;</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Categorical</span><span class="p">,</span>
-    <span class="s2">&quot;Hg Controls&quot;</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Categorical</span><span class="p">,</span>
+    <span class="s2">"State"</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Categorical</span><span class="p">,</span>
+    <span class="s2">"Facility Name"</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">String</span><span class="p">,</span>
+    <span class="s2">"Facility ID"</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Int64</span><span class="p">,</span>
+    <span class="s2">"Unit ID"</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">String</span><span class="p">,</span>
+    <span class="s2">"Date"</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Date</span><span class="p">,</span>
+    <span class="s2">"Hour"</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Int16</span><span class="p">,</span>
+    <span class="s2">"Operating Time"</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Float64</span><span class="p">,</span>
+    <span class="s2">"MATS Gross Load (MW)"</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Float64</span><span class="p">,</span>
+    <span class="s2">"MATS Heat Input (mmBtu)"</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Float64</span><span class="p">,</span>
+    <span class="s2">"Hg Output Rate (lb/GWh)"</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Float64</span><span class="p">,</span>
+    <span class="s2">"Hg Input Rate (lb/TBtu)"</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Float64</span><span class="p">,</span>
+    <span class="s2">"Hg Mass (lbs)"</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Float64</span><span class="p">,</span>
+    <span class="s2">"Hg Mass Measure Indicator"</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Categorical</span><span class="p">,</span>
+    <span class="s2">"HCl Output Rate (lb/MWh)"</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Float64</span><span class="p">,</span>
+    <span class="s2">"HCL Input Rate (lb/mmBtu)"</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Float64</span><span class="p">,</span>
+    <span class="s2">"HCl Mass (lbs)"</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Float64</span><span class="p">,</span>
+    <span class="s2">"HCl Mass Measure Indicator"</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Categorical</span><span class="p">,</span>
+    <span class="s2">"HF Output Rate (lb/MWh)"</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Float64</span><span class="p">,</span>
+    <span class="s2">"HF Input Rate (lb/mmBtu)"</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Float64</span><span class="p">,</span>
+    <span class="s2">"HF Mass (lbs)"</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Float64</span><span class="p">,</span>
+    <span class="s2">"HF Mass Measure Indicator"</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Categorical</span><span class="p">,</span>
+    <span class="s2">"Associated Stacks"</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">String</span><span class="p">,</span>
+    <span class="s2">"Steam Load (1000 lb/hr)"</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Float64</span><span class="p">,</span>
+    <span class="s2">"Primary Fuel Type"</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Categorical</span><span class="p">,</span>
+    <span class="s2">"Secondary Fuel Type"</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Categorical</span><span class="p">,</span>
+    <span class="s2">"Unit Type"</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Categorical</span><span class="p">,</span>
+    <span class="s2">"SO2 Controls"</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Categorical</span><span class="p">,</span>
+    <span class="s2">"NOx Controls"</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Categorical</span><span class="p">,</span>
+    <span class="s2">"PM Controls"</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Categorical</span><span class="p">,</span>
+    <span class="s2">"Hg Controls"</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Categorical</span><span class="p">,</span>
 <span class="p">}</span></div>
 
-<span class="sd">&quot;&quot;&quot;Dict: Data types for EPA MATS columns.&quot;&quot;&quot;</span>
+<span class="sd">"""Dict: Data types for EPA MATS columns."""</span>
 
 
 <div class="viewcode-block" id="EpaMatsPartition">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/epamats/index.html#pudl.extract.epamats.EpaMatsPartition">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">EpaMatsPartition</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Represents a MATS partition identifying a unique quarterly resource file.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Represents a MATS partition identifying a unique quarterly resource file."""</span>
 
 <div class="viewcode-block" id="EpaMatsPartition.year_quarter">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/epamats/index.html#pudl.extract.epamats.EpaMatsPartition.year_quarter">[docs]</a>
     <span class="n">year_quarter</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span>
-        <span class="nb">str</span><span class="p">,</span> <span class="n">StringConstraints</span><span class="p">(</span><span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">pattern</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;^(19|20)\d</span><span class="si">{2}</span><span class="s2">[q][1-4]$&quot;</span><span class="p">)</span>
+        <span class="nb">str</span><span class="p">,</span> <span class="n">StringConstraints</span><span class="p">(</span><span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">pattern</span><span class="o">=</span><span class="sa">r</span><span class="s2">"^(19|20)\d</span><span class="si">{2}</span><span class="s2">[q][1-4]$"</span><span class="p">)</span>
     <span class="p">]</span></div>
 
 
@@ -995,7 +995,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="EpaMatsPartition.year">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/epamats/index.html#pudl.extract.epamats.EpaMatsPartition.year">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">year</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the year associated with the year_quarter.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the year associated with the year_quarter."""</span>
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">year_quarter</span><span class="p">)</span><span class="o">.</span><span class="n">year</span></div>
 
 
@@ -1003,22 +1003,22 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="EpaMatsPartition.quarter">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/epamats/index.html#pudl.extract.epamats.EpaMatsPartition.quarter">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">quarter</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the quarter associated with the year_quarter.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the quarter associated with the year_quarter."""</span>
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">year_quarter</span><span class="p">)</span><span class="o">.</span><span class="n">quarter</span></div>
 
 
 <div class="viewcode-block" id="EpaMatsPartition.get_filters">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/epamats/index.html#pudl.extract.epamats.EpaMatsPartition.get_filters">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_filters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns filters for retrieving given partition resource from Datastore.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;year_quarter&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">year_quarter</span><span class="p">}</span></div>
+<span class="w">        </span><span class="sd">"""Returns filters for retrieving given partition resource from Datastore."""</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">"year_quarter"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">year_quarter</span><span class="p">}</span></div>
 
 
 <div class="viewcode-block" id="EpaMatsPartition.get_quarterly_file">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/epamats/index.html#pudl.extract.epamats.EpaMatsPartition.get_quarterly_file">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_quarterly_file</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the name of the CSV file within the zip that holds quarterly data.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;epamats-</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">year</span><span class="si">}</span><span class="s2">q</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">quarter</span><span class="si">}</span><span class="s2">.csv&quot;</span><span class="p">)</span></div>
+<span class="w">        </span><span class="sd">"""Return the name of the CSV file within the zip that holds quarterly data."""</span>
+        <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="sa">f</span><span class="s2">"epamats-</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">year</span><span class="si">}</span><span class="s2">q</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">quarter</span><span class="si">}</span><span class="s2">.csv"</span><span class="p">)</span></div>
 </div>
 
 
@@ -1026,15 +1026,15 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="EpaMatsDatastore">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/epamats/index.html#pudl.extract.epamats.EpaMatsDatastore">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">EpaMatsDatastore</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Helper class to extract MATS resources from datastore.</span>
+<span class="w">    </span><span class="sd">"""Helper class to extract MATS resources from datastore.</span>
 
-<span class="sd">    MATS resources are identified by a year and a quarter. Each year&#39;s data is in</span>
+<span class="sd">    MATS resources are identified by a year and a quarter. Each year's data is in</span>
 <span class="sd">    a zip file containing 4 quarterly CSV files. This class implements get_data_frame</span>
 <span class="sd">    method that will rename columns for a quarterly CSV file.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">datastore</span><span class="p">:</span> <span class="n">Datastore</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Construct datastore wrapper for loading raw EPA MATS data into dataframes.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Construct datastore wrapper for loading raw EPA MATS data into dataframes."""</span>
 <div class="viewcode-block" id="EpaMatsDatastore.datastore">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/epamats/index.html#pudl.extract.epamats.EpaMatsDatastore.datastore">[docs]</a>
         <span class="bp">self</span><span class="o">.</span><span class="n">datastore</span> <span class="o">=</span> <span class="n">datastore</span></div>
@@ -1043,17 +1043,17 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="EpaMatsDatastore.get_data_frame">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/epamats/index.html#pudl.extract.epamats.EpaMatsDatastore.get_data_frame">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_data_frame</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">partition</span><span class="p">:</span> <span class="n">EpaMatsPartition</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">LazyFrame</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Constructs dataframe from a zipfile for a given (year_quarter) partition.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Constructs dataframe from a zipfile for a given (year_quarter) partition."""</span>
         <span class="k">with</span> <span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">datastore</span><span class="o">.</span><span class="n">get_zipfile_resource</span><span class="p">(</span>
-                <span class="s2">&quot;epamats&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">partition</span><span class="o">.</span><span class="n">get_filters</span><span class="p">()</span>
+                <span class="s2">"epamats"</span><span class="p">,</span> <span class="o">**</span><span class="n">partition</span><span class="o">.</span><span class="n">get_filters</span><span class="p">()</span>
             <span class="p">)</span> <span class="k">as</span> <span class="n">zf</span><span class="p">,</span>
-            <span class="n">zf</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">partition</span><span class="o">.</span><span class="n">get_quarterly_file</span><span class="p">()),</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">csv_file</span><span class="p">,</span>
+            <span class="n">zf</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">partition</span><span class="o">.</span><span class="n">get_quarterly_file</span><span class="p">()),</span> <span class="s2">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="n">csv_file</span><span class="p">,</span>
         <span class="p">):</span>
             <span class="n">lf</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">scan_csv</span><span class="p">(</span><span class="n">csv_file</span><span class="p">,</span> <span class="n">low_memory</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">schema_overrides</span><span class="o">=</span><span class="n">DTYPE_DICT</span><span class="p">)</span>
             <span class="n">lf</span> <span class="o">=</span> <span class="p">(</span>
                 <span class="n">lf</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">RENAME_DICT</span><span class="p">))</span>
-                <span class="c1"># dict[str, ...] can&#39;t satisfy Mapping&#39;s invariant key type</span>
+                <span class="c1"># dict[str, ...] can't satisfy Mapping's invariant key type</span>
                 <span class="c1"># against the union `.cast()` declares, even though `str` is</span>
                 <span class="c1"># one of the union members -- a typeshed limitation, not a</span>
                 <span class="c1"># real type mismatch.</span>
@@ -1067,12 +1067,12 @@ window.runMermaid = runMermaid;</script>
 
 
 <span class="nd">@asset</span><span class="p">(</span>
-    <span class="n">required_resource_keys</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;datastore&quot;</span><span class="p">,</span> <span class="s2">&quot;global_data_config&quot;</span><span class="p">},</span>
+    <span class="n">required_resource_keys</span><span class="o">=</span><span class="p">{</span><span class="s2">"datastore"</span><span class="p">,</span> <span class="s2">"global_data_config"</span><span class="p">},</span>
 <span class="p">)</span>
 <div class="viewcode-block" id="raw_epamats__hourly_emissions">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/epamats/index.html#pudl.extract.epamats.raw_epamats__hourly_emissions">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">raw_epamats__hourly_emissions</span><span class="p">(</span><span class="n">context</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract raw EPA MATS hourly emissions data and return as a pandas DataFrame.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Extract raw EPA MATS hourly emissions data and return as a pandas DataFrame."""</span>
     <span class="n">mats_config</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">global_data_config</span><span class="o">.</span><span class="n">pudl</span><span class="o">.</span><span class="n">epamats</span>
     <span class="n">epamats_datastore</span> <span class="o">=</span> <span class="n">EpaMatsDatastore</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">datastore</span><span class="p">)</span>
     <span class="n">frames</span> <span class="o">=</span> <span class="p">[]</span>
@@ -1085,7 +1085,7 @@ window.runMermaid = runMermaid;</script>
                 <span class="o">.</span><span class="n">collect</span><span class="p">()</span>
             <span class="p">)</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No data found for </span><span class="si">{</span><span class="n">yq</span><span class="si">}</span><span class="s2">. Skipping.&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">"No data found for </span><span class="si">{</span><span class="n">yq</span><span class="si">}</span><span class="s2">. Skipping."</span><span class="p">)</span>
             <span class="k">continue</span>
     <span class="k">return</span> <span class="n">pl</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">frames</span><span class="p">)</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">()</span></div>
 

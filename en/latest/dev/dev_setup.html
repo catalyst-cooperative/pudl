@@ -18,7 +18,7 @@
     </script>
     
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="dev_setup.html.md" />
-    <title>Development Setup &#8212; PUDL 2026.8.1.dev18 documentation</title>
+    <title>Development Setup &#8212; PUDL 2026.8.1.dev19 documentation</title>
   
   
   
@@ -51,7 +51,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../_static/documentation_options.js?v=f2b63aa7"></script>
+    <script src="../_static/documentation_options.js?v=5bf64ec1"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -142,8 +142,8 @@
       
     
     
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev18 documentation - Home"/>
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev18 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev19 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev19 documentation - Home"/>
   
   
 </a></div>
@@ -969,10 +969,10 @@ agents and LLM services, such as <code class="docutils literal notranslate"><spa
 <code class="docutils literal notranslate"><span class="pre">.devcontainer/devcontainer.json</span></code> for the full list.</p>
 <p>The simplest way to pass environment variables in is to export the paths in the shell
 that launches VS Code, then open the repository in the container. For example:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>mkdir<span class="w"> </span>-p<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$HOME</span><span class="s2">/pudl-dev/input&quot;</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$HOME</span><span class="s2">/pudl-dev/output&quot;</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$HOME</span><span class="s2">/pudl-dev/dagster-home&quot;</span>
-<span class="gp">$ </span><span class="nb">export</span><span class="w"> </span><span class="nv">PUDL_INPUT</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$HOME</span><span class="s2">/pudl-dev/input&quot;</span>
-<span class="gp">$ </span><span class="nb">export</span><span class="w"> </span><span class="nv">PUDL_OUTPUT</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$HOME</span><span class="s2">/pudl-dev/output&quot;</span>
-<span class="gp">$ </span><span class="nb">export</span><span class="w"> </span><span class="nv">DAGSTER_HOME</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$HOME</span><span class="s2">/pudl-dev/dagster-home&quot;</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>mkdir<span class="w"> </span>-p<span class="w"> </span><span class="s2">"</span><span class="nv">$HOME</span><span class="s2">/pudl-dev/input"</span><span class="w"> </span><span class="s2">"</span><span class="nv">$HOME</span><span class="s2">/pudl-dev/output"</span><span class="w"> </span><span class="s2">"</span><span class="nv">$HOME</span><span class="s2">/pudl-dev/dagster-home"</span>
+<span class="gp">$ </span><span class="nb">export</span><span class="w"> </span><span class="nv">PUDL_INPUT</span><span class="o">=</span><span class="s2">"</span><span class="nv">$HOME</span><span class="s2">/pudl-dev/input"</span>
+<span class="gp">$ </span><span class="nb">export</span><span class="w"> </span><span class="nv">PUDL_OUTPUT</span><span class="o">=</span><span class="s2">"</span><span class="nv">$HOME</span><span class="s2">/pudl-dev/output"</span>
+<span class="gp">$ </span><span class="nb">export</span><span class="w"> </span><span class="nv">DAGSTER_HOME</span><span class="o">=</span><span class="s2">"</span><span class="nv">$HOME</span><span class="s2">/pudl-dev/dagster-home"</span>
 <span class="gp">$ </span>code<span class="w"> </span>/path/to/pudl/repo
 </pre></div>
 </div>
@@ -1009,7 +1009,7 @@ that have been made by other contributors.</p>
 file.</p>
 <p>If you are adding or updating specific dependencies in <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code>, you can
 update just that dependency:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pixi<span class="w"> </span>add<span class="w"> </span><span class="s2">&quot;package-name&gt;=version&quot;</span><span class="w">  </span><span class="c1"># For new dependencies</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pixi<span class="w"> </span>add<span class="w"> </span><span class="s2">"package-name&gt;=version"</span><span class="w">  </span><span class="c1"># For new dependencies</span>
 <span class="gp">$ </span>pixi<span class="w"> </span>update<span class="w"> </span>package-name<span class="w">          </span><span class="c1"># To update an existing dependency</span>
 </pre></div>
 </div>
@@ -1220,8 +1220,8 @@ will append a line to the end of your shell initialization file. If you need to 
 it later you’ll want to edit those files directly. Note that in the commands below you
 must replace the example path <code class="docutils literal notranslate"><span class="pre">/absolute/path/to/pudl_input</span></code> with the actual path to
 the directory you’ve created.</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;export PUDL_INPUT=/absolute/path/to/pudl_input&quot;</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>~/.zshrc<span class="w"> </span><span class="c1"># if you are using zsh</span>
-<span class="gp">$ </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;export PUDL_INPUT=/absolute/path/to/pudl_input&quot;</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>~/.bashrc<span class="w"> </span><span class="c1"># if you are using bash</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"export PUDL_INPUT=/absolute/path/to/pudl_input"</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>~/.zshrc<span class="w"> </span><span class="c1"># if you are using zsh</span>
+<span class="gp">$ </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"export PUDL_INPUT=/absolute/path/to/pudl_input"</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>~/.bashrc<span class="w"> </span><span class="c1"># if you are using bash</span>
 <span class="gp">$ </span><span class="nb">set</span><span class="w"> </span>-Ux<span class="w"> </span>PUDL_INPUT<span class="w"> </span>/absolute/path/to/pudl_input<span class="w"> </span><span class="c1"># if you are using fish shell</span>
 </pre></div>
 </div>
@@ -1254,8 +1254,8 @@ this anywhere, but typically this is <code class="docutils literal notranslate">
 create an environment variable called <code class="docutils literal notranslate"><span class="pre">PUDL_OUTPUT</span></code> to store the path to this new
 directory. In the commands below you must replace the example path
 <code class="docutils literal notranslate"><span class="pre">/absolute/path/to/pudl_output</span></code> with the actual path to the directory you want to use.</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;export PUDL_OUTPUT=/absolute/path/to/pudl_output&quot;</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>~/.zshrc<span class="w"> </span><span class="c1"># zsh</span>
-<span class="gp">$ </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;export PUDL_OUTPUT=/absolute/path/to/pudl_output&quot;</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>~/.bashrc<span class="w"> </span><span class="c1"># bash</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"export PUDL_OUTPUT=/absolute/path/to/pudl_output"</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>~/.zshrc<span class="w"> </span><span class="c1"># zsh</span>
+<span class="gp">$ </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"export PUDL_OUTPUT=/absolute/path/to/pudl_output"</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>~/.bashrc<span class="w"> </span><span class="c1"># bash</span>
 <span class="gp">$ </span><span class="nb">set</span><span class="w"> </span>-Ux<span class="w"> </span>PUDL_OUTPUT<span class="w"> </span>/absolute/path/to/pudl_output<span class="w"> </span><span class="c1"># fish</span>
 </pre></div>
 </div>

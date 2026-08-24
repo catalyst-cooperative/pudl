@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.glue.ferc714 &#8212; PUDL 2026.8.1.dev18 documentation</title>
+    <title>pudl.glue.ferc714 &#8212; PUDL 2026.8.1.dev19 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=f2b63aa7"></script>
+    <script src="../../../_static/documentation_options.js?v=5bf64ec1"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev18 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev18 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev19 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev19 documentation - Home"/>
   
   
 </a></div>
@@ -868,7 +868,7 @@ window.runMermaid = runMermaid;</script>
                 <article class="bd-article">
                   
   <h1>Source code for pudl.glue.ferc714</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Extract and transform glue tables between FERC Form 714&#39;s CSV and XBRL raw sources.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Extract and transform glue tables between FERC Form 714's CSV and XBRL raw sources."""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">importlib.resources</span>
 
@@ -884,16 +884,16 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="RESP_ID_FERC_MAP_CSV">
 <a class="viewcode-back" href="../../../autoapi/pudl/glue/ferc714/index.html#pudl.glue.ferc714.RESP_ID_FERC_MAP_CSV">[docs]</a>
 <span class="n">RESP_ID_FERC_MAP_CSV</span> <span class="o">=</span> <span class="p">(</span>
-    <span class="n">importlib</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="s2">&quot;pudl.package_data.glue&quot;</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;respondent_id_ferc714.csv&quot;</span>
+    <span class="n">importlib</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="s2">"pudl.package_data.glue"</span><span class="p">)</span> <span class="o">/</span> <span class="s2">"respondent_id_ferc714.csv"</span>
 <span class="p">)</span></div>
 
-<span class="sd">&quot;&quot;&quot;Path to the PUDL ID mapping sheet with the plant map.&quot;&quot;&quot;</span>
+<span class="sd">"""Path to the PUDL ID mapping sheet with the plant map."""</span>
 
 
 <div class="viewcode-block" id="get_respondent_map_ferc714">
 <a class="viewcode-back" href="../../../autoapi/pudl/glue/ferc714/index.html#pudl.glue.ferc714.get_respondent_map_ferc714">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_respondent_map_ferc714</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Read in the manual CSV to XBRL FERC714 respondent mapping data.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Read in the manual CSV to XBRL FERC714 respondent mapping data."""</span>
     <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">RESP_ID_FERC_MAP_CSV</span><span class="p">)</span><span class="o">.</span><span class="n">convert_dtypes</span><span class="p">()</span></div>
 
 
@@ -901,33 +901,33 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="glue">
 <a class="viewcode-back" href="../../../autoapi/pudl/glue/ferc714/index.html#pudl.glue.ferc714.glue">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">glue</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span> <span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Make the FERC 714 glue tables out of stored CSVs of association tables.</span>
+<span class="w">    </span><span class="sd">"""Make the FERC 714 glue tables out of stored CSVs of association tables.</span>
 
 <span class="sd">    This function was mirrored off of ferc1_eia.glue, but is much more</span>
 <span class="sd">    paired down.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">respondent_map</span> <span class="o">=</span> <span class="n">get_respondent_map_ferc714</span><span class="p">()</span>
 
     <span class="n">respondents_pudl_ids</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">respondent_map</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="p">[</span><span class="s2">&quot;respondent_id_ferc714&quot;</span><span class="p">]]</span>
-        <span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="s2">&quot;respondent_id_ferc714&quot;</span><span class="p">)</span>
-        <span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;respondent_id_ferc714&quot;</span><span class="p">])</span>
+        <span class="n">respondent_map</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="p">[</span><span class="s2">"respondent_id_ferc714"</span><span class="p">]]</span>
+        <span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="s2">"respondent_id_ferc714"</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">"respondent_id_ferc714"</span><span class="p">])</span>
     <span class="p">)</span>
     <span class="n">respondents_csv_ids</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">respondent_map</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="p">[</span><span class="s2">&quot;respondent_id_ferc714&quot;</span><span class="p">,</span> <span class="s2">&quot;respondent_id_ferc714_csv&quot;</span><span class="p">]]</span>
-        <span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="s2">&quot;respondent_id_ferc714_csv&quot;</span><span class="p">)</span>
-        <span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;respondent_id_ferc714_csv&quot;</span><span class="p">])</span>
+        <span class="n">respondent_map</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="p">[</span><span class="s2">"respondent_id_ferc714"</span><span class="p">,</span> <span class="s2">"respondent_id_ferc714_csv"</span><span class="p">]]</span>
+        <span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="s2">"respondent_id_ferc714_csv"</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">"respondent_id_ferc714_csv"</span><span class="p">])</span>
     <span class="p">)</span>
     <span class="n">respondents_xbrl_ids</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">respondent_map</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="p">[</span><span class="s2">&quot;respondent_id_ferc714&quot;</span><span class="p">,</span> <span class="s2">&quot;respondent_id_ferc714_xbrl&quot;</span><span class="p">]]</span>
-        <span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="s2">&quot;respondent_id_ferc714_xbrl&quot;</span><span class="p">)</span>
-        <span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;respondent_id_ferc714_xbrl&quot;</span><span class="p">])</span>
+        <span class="n">respondent_map</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="p">[</span><span class="s2">"respondent_id_ferc714"</span><span class="p">,</span> <span class="s2">"respondent_id_ferc714_xbrl"</span><span class="p">]]</span>
+        <span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="s2">"respondent_id_ferc714_xbrl"</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">"respondent_id_ferc714_xbrl"</span><span class="p">])</span>
     <span class="p">)</span>
 
     <span class="n">glue_dfs</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;core_pudl__assn_ferc714_pudl_respondents&quot;</span><span class="p">:</span> <span class="n">respondents_pudl_ids</span><span class="p">,</span>
-        <span class="s2">&quot;core_pudl__assn_ferc714_csv_pudl_respondents&quot;</span><span class="p">:</span> <span class="n">respondents_csv_ids</span><span class="p">,</span>
-        <span class="s2">&quot;core_pudl__assn_ferc714_xbrl_pudl_respondents&quot;</span><span class="p">:</span> <span class="n">respondents_xbrl_ids</span><span class="p">,</span>
+        <span class="s2">"core_pudl__assn_ferc714_pudl_respondents"</span><span class="p">:</span> <span class="n">respondents_pudl_ids</span><span class="p">,</span>
+        <span class="s2">"core_pudl__assn_ferc714_csv_pudl_respondents"</span><span class="p">:</span> <span class="n">respondents_csv_ids</span><span class="p">,</span>
+        <span class="s2">"core_pudl__assn_ferc714_xbrl_pudl_respondents"</span><span class="p">:</span> <span class="n">respondents_xbrl_ids</span><span class="p">,</span>
     <span class="p">}</span>
 
     <span class="k">return</span> <span class="n">glue_dfs</span></div>

@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.transform.ferccid &#8212; PUDL 2026.8.1.dev18 documentation</title>
+    <title>pudl.transform.ferccid &#8212; PUDL 2026.8.1.dev19 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=f2b63aa7"></script>
+    <script src="../../../_static/documentation_options.js?v=5bf64ec1"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev18 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev18 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev19 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev19 documentation - Home"/>
   
   
 </a></div>
@@ -868,7 +868,7 @@ window.runMermaid = runMermaid;</script>
                 <article class="bd-article">
                   
   <h1>Source code for pudl.transform.ferccid</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Clean the FERC Company Identifier table.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Clean the FERC Company Identifier table."""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dagster</span><span class="w"> </span><span class="kn">import</span> <span class="n">asset</span>
@@ -879,48 +879,48 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="clean_cid_string_cols">
 <a class="viewcode-back" href="../../../autoapi/pudl/transform/ferccid/index.html#pudl.transform.ferccid.clean_cid_string_cols">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">clean_cid_string_cols</span><span class="p">(</span><span class="n">col</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Clean string columns: remove unicode, strip whitespace, enforce single spaces, standardize NAs.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Clean string columns: remove unicode, strip whitespace, enforce single spaces, standardize NAs."""</span>
     <span class="n">col</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">col</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[\x00-\x1f\x7f-\x9f]&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">col</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="sa">r</span><span class="s2">"[\x00-\x1f\x7f-\x9f]"</span><span class="p">,</span> <span class="s2">""</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-        <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\s+&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">to_replace</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;^(?i:\s*|na|nan|none)$&quot;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">NA</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="sa">r</span><span class="s2">"\s+"</span><span class="p">,</span> <span class="s2">" "</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">to_replace</span><span class="o">=</span><span class="sa">r</span><span class="s2">"^(?i:\s*|na|nan|none)$"</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">NA</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">col</span></div>
 
 
 
-<span class="nd">@asset</span><span class="p">(</span><span class="n">io_manager_key</span><span class="o">=</span><span class="s2">&quot;pudl_io_manager&quot;</span><span class="p">)</span>
+<span class="nd">@asset</span><span class="p">(</span><span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"pudl_io_manager"</span><span class="p">)</span>
 <div class="viewcode-block" id="core_ferc__entity_companies">
 <a class="viewcode-back" href="../../../autoapi/pudl/transform/ferccid/index.html#pudl.transform.ferccid.core_ferc__entity_companies">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">core_ferc__entity_companies</span><span class="p">(</span>
     <span class="n">raw_ferc__entity_companies</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Clean the FERC Company Identifier table.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Clean the FERC Company Identifier table."""</span>
     <span class="n">cid_df</span> <span class="o">=</span> <span class="n">raw_ferc__entity_companies</span>
     <span class="n">cid_df</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">cid_df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
     <span class="c1"># override with field descriptions from data dictionary</span>
     <span class="n">cid_df</span> <span class="o">=</span> <span class="n">cid_df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
         <span class="n">columns</span><span class="o">=</span><span class="p">{</span>
-            <span class="s2">&quot;cid&quot;</span><span class="p">:</span> <span class="s2">&quot;company_id_ferc&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;organization_name&quot;</span><span class="p">:</span> <span class="s2">&quot;company_name&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;address&quot;</span><span class="p">:</span> <span class="s2">&quot;street_address&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;address2&quot;</span><span class="p">:</span> <span class="s2">&quot;address_2&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;zip&quot;</span><span class="p">:</span> <span class="s2">&quot;zip_code&quot;</span><span class="p">,</span>
+            <span class="s2">"cid"</span><span class="p">:</span> <span class="s2">"company_id_ferc"</span><span class="p">,</span>
+            <span class="s2">"organization_name"</span><span class="p">:</span> <span class="s2">"company_name"</span><span class="p">,</span>
+            <span class="s2">"address"</span><span class="p">:</span> <span class="s2">"street_address"</span><span class="p">,</span>
+            <span class="s2">"address2"</span><span class="p">:</span> <span class="s2">"address_2"</span><span class="p">,</span>
+            <span class="s2">"zip"</span><span class="p">:</span> <span class="s2">"zip_code"</span><span class="p">,</span>
         <span class="p">}</span>
     <span class="p">)</span>
     <span class="c1"># split out 4 digit zip code suffix from zip code</span>
-    <span class="n">reg</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;(\d</span><span class="si">{5}</span><span class="s2">)(?:-(\d</span><span class="si">{4}</span><span class="s2">))*&quot;</span>
-    <span class="n">cid_df</span><span class="p">[[</span><span class="s2">&quot;zip_code&quot;</span><span class="p">,</span> <span class="s2">&quot;zip_code_4&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">cid_df</span><span class="p">[</span><span class="s2">&quot;zip_code&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span><span class="n">reg</span><span class="p">)</span>
+    <span class="n">reg</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">"(\d</span><span class="si">{5}</span><span class="s2">)(?:-(\d</span><span class="si">{4}</span><span class="s2">))*"</span>
+    <span class="n">cid_df</span><span class="p">[[</span><span class="s2">"zip_code"</span><span class="p">,</span> <span class="s2">"zip_code_4"</span><span class="p">]]</span> <span class="o">=</span> <span class="n">cid_df</span><span class="p">[</span><span class="s2">"zip_code"</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span><span class="n">reg</span><span class="p">)</span>
     <span class="c1"># remove unicode, strip whitespace, enforce single spaces, standardize NA values</span>
-    <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;company_name&quot;</span><span class="p">,</span> <span class="s2">&quot;street_address&quot;</span><span class="p">,</span> <span class="s2">&quot;address_2&quot;</span><span class="p">]:</span>
+    <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"company_name"</span><span class="p">,</span> <span class="s2">"street_address"</span><span class="p">,</span> <span class="s2">"address_2"</span><span class="p">]:</span>
         <span class="n">cid_df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">clean_cid_string_cols</span><span class="p">(</span><span class="n">cid_df</span><span class="p">[</span><span class="n">col</span><span class="p">])</span>
     <span class="n">cid_df</span> <span class="o">=</span> <span class="n">convert_cols_dtypes</span><span class="p">(</span><span class="n">cid_df</span><span class="p">)</span>
     <span class="c1"># Make CID the primary key by dropping</span>
     <span class="c1"># the CID values we know have duplicates that should be removed.</span>
     <span class="n">known_dupe</span> <span class="o">=</span> <span class="n">cid_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
-        <span class="p">(</span><span class="n">cid_df</span><span class="p">[</span><span class="s2">&quot;company_id_ferc&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;C003521&quot;</span><span class="p">)</span>
-        <span class="o">&amp;</span> <span class="p">(</span><span class="n">cid_df</span><span class="p">[</span><span class="s2">&quot;company_name&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Chestnut Flats Wind Lessee, LLC&quot;</span><span class="p">)</span>
+        <span class="p">(</span><span class="n">cid_df</span><span class="p">[</span><span class="s2">"company_id_ferc"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"C003521"</span><span class="p">)</span>
+        <span class="o">&amp;</span> <span class="p">(</span><span class="n">cid_df</span><span class="p">[</span><span class="s2">"company_name"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"Chestnut Flats Wind Lessee, LLC"</span><span class="p">)</span>
     <span class="p">]</span>
     <span class="n">cid_df</span> <span class="o">=</span> <span class="n">cid_df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">known_dupe</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">cid_df</span></div>

@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.metadata.resources.rus7 &#8212; PUDL 2026.8.1.dev18 documentation</title>
+    <title>pudl.metadata.resources.rus7 &#8212; PUDL 2026.8.1.dev19 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../../_static/documentation_options.js?v=f2b63aa7"></script>
+    <script src="../../../../_static/documentation_options.js?v=5bf64ec1"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev18 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev18 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev19 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev19 documentation - Home"/>
   
   
 </a></div>
@@ -871,7 +871,7 @@ window.runMermaid = runMermaid;</script>
                 <article class="bd-article">
                   
   <h1>Source code for pudl.metadata.resources.rus7</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Table definitions for the RUS7 tables.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Table definitions for the RUS7 tables."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
 
@@ -886,726 +886,726 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="RESOURCE_METADATA_BASE">
 <a class="viewcode-back" href="../../../../autoapi/pudl/metadata/resources/rus7/index.html#pudl.metadata.resources.rus7.RESOURCE_METADATA_BASE">[docs]</a>
 <span class="n">RESOURCE_METADATA_BASE</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;core_rus7__yearly_meeting_and_board&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;governance information about RUS borrowers&#39; annual &quot;</span>
-                <span class="s2">&quot;member meetings as well as information about their board.&quot;</span>
+    <span class="s2">"core_rus7__yearly_meeting_and_board"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"governance information about RUS borrowers' annual "</span>
+                <span class="s2">"member meetings as well as information about their board."</span>
             <span class="p">),</span>
-            <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Part M)&quot;</span><span class="p">,</span>
+            <span class="s2">"additional_source_text"</span><span class="p">:</span> <span class="s2">"(Part M)"</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;last_annual_meeting_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;members_num&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;members_present_at_meeting_num&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;was_quorum_present&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;members_voting_by_proxy_or_mail_num&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;board_members_num&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;fees_and_expenses_for_board_members&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;does_manager_have_written_contract&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"borrower_id_rus"</span><span class="p">,</span>
+                <span class="s2">"last_annual_meeting_date"</span><span class="p">,</span>
+                <span class="s2">"members_num"</span><span class="p">,</span>
+                <span class="s2">"members_present_at_meeting_num"</span><span class="p">,</span>
+                <span class="s2">"was_quorum_present"</span><span class="p">,</span>
+                <span class="s2">"members_voting_by_proxy_or_mail_num"</span><span class="p">,</span>
+                <span class="s2">"board_members_num"</span><span class="p">,</span>
+                <span class="s2">"fees_and_expenses_for_board_members"</span><span class="p">,</span>
+                <span class="s2">"does_manager_have_written_contract"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"borrower_id_rus"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;rus7&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;rus7&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;rus&quot;</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"rus7"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"rus7"</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"rus"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_rus7__yearly_balance_sheet_assets&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;assets and other debts from the balance sheet.&quot;</span>
+    <span class="s2">"core_rus7__yearly_balance_sheet_assets"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"assets and other debts from the balance sheet."</span>
             <span class="p">),</span>
-            <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;aggregation_hazard&quot;</span><span class="p">],</span>
-            <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Part C)&quot;</span><span class="p">,</span>
+            <span class="s2">"usage_warnings"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"aggregation_hazard"</span><span class="p">],</span>
+            <span class="s2">"additional_source_text"</span><span class="p">:</span> <span class="s2">"(Part C)"</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;asset_type&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;ending_balance&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;is_total&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"borrower_id_rus"</span><span class="p">,</span>
+                <span class="s2">"asset_type"</span><span class="p">,</span>
+                <span class="s2">"ending_balance"</span><span class="p">,</span>
+                <span class="s2">"is_total"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;asset_type&quot;</span><span class="p">,</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"borrower_id_rus"</span><span class="p">,</span>
+                <span class="s2">"asset_type"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;rus7&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;rus7&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;rus&quot;</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"rus7"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"rus7"</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"rus"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_rus7__yearly_balance_sheet_liabilities&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;liabilities and other credits from the balance sheet.&quot;</span>
+    <span class="s2">"core_rus7__yearly_balance_sheet_liabilities"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"liabilities and other credits from the balance sheet."</span>
             <span class="p">),</span>
-            <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;aggregation_hazard&quot;</span><span class="p">],</span>
-            <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Part C)&quot;</span><span class="p">,</span>
+            <span class="s2">"usage_warnings"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"aggregation_hazard"</span><span class="p">],</span>
+            <span class="s2">"additional_source_text"</span><span class="p">:</span> <span class="s2">"(Part C)"</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;liability_type&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;ending_balance&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;is_total&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"borrower_id_rus"</span><span class="p">,</span>
+                <span class="s2">"liability_type"</span><span class="p">,</span>
+                <span class="s2">"ending_balance"</span><span class="p">,</span>
+                <span class="s2">"is_total"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;liability_type&quot;</span><span class="p">,</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"borrower_id_rus"</span><span class="p">,</span>
+                <span class="s2">"liability_type"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;rus7&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;rus7&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;rus&quot;</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"rus7"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"rus7"</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"rus"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_rus7__yearly_employee_statistics&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;statistics about employment and payroll.&quot;</span><span class="p">),</span>
-            <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Part H)&quot;</span><span class="p">,</span>
+    <span class="s2">"core_rus7__yearly_employee_statistics"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"statistics about employment and payroll."</span><span class="p">),</span>
+            <span class="s2">"additional_source_text"</span><span class="p">:</span> <span class="s2">"(Part H)"</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;employees_fte_num&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;employee_hours_worked_regular_time&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;employee_hours_worked_over_time&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;payroll_expensed&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;payroll_capitalized&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;payroll_other&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"borrower_id_rus"</span><span class="p">,</span>
+                <span class="s2">"employees_fte_num"</span><span class="p">,</span>
+                <span class="s2">"employee_hours_worked_regular_time"</span><span class="p">,</span>
+                <span class="s2">"employee_hours_worked_over_time"</span><span class="p">,</span>
+                <span class="s2">"payroll_expensed"</span><span class="p">,</span>
+                <span class="s2">"payroll_capitalized"</span><span class="p">,</span>
+                <span class="s2">"payroll_other"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"borrower_id_rus"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;rus7&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;rus7&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;rus&quot;</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"rus7"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"rus7"</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"rus"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_rus7__yearly_energy_efficiency&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;investments in and impacts of energy efficiency programs.&quot;</span>
+    <span class="s2">"core_rus7__yearly_energy_efficiency"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"investments in and impacts of energy efficiency programs."</span>
             <span class="p">),</span>
-            <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">"usage_warnings"</span><span class="p">:</span> <span class="p">[</span>
                 <span class="p">{</span>
-                    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;custom&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;The savings_mmbtu likely contains values with incorrect units.&quot;</span><span class="p">,</span>
+                    <span class="s2">"type"</span><span class="p">:</span> <span class="s2">"custom"</span><span class="p">,</span>
+                    <span class="s2">"description"</span><span class="p">:</span> <span class="s2">"The savings_mmbtu likely contains values with incorrect units."</span><span class="p">,</span>
                 <span class="p">},</span>
             <span class="p">],</span>
-            <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Part P)&quot;</span><span class="p">,</span>
+            <span class="s2">"additional_source_text"</span><span class="p">:</span> <span class="s2">"(Part P)"</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;customer_class&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;observation_period&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;customers_num&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;invested&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;savings_mmbtu&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"borrower_id_rus"</span><span class="p">,</span>
+                <span class="s2">"customer_class"</span><span class="p">,</span>
+                <span class="s2">"observation_period"</span><span class="p">,</span>
+                <span class="s2">"customers_num"</span><span class="p">,</span>
+                <span class="s2">"invested"</span><span class="p">,</span>
+                <span class="s2">"savings_mmbtu"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;customer_class&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;observation_period&quot;</span><span class="p">,</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"borrower_id_rus"</span><span class="p">,</span>
+                <span class="s2">"customer_class"</span><span class="p">,</span>
+                <span class="s2">"observation_period"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;rus7&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;rus7&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;rus&quot;</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"rus7"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"rus7"</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"rus"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_rus7__yearly_power_requirements_electric_customers&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;power requirements - number of customers served by customer type.&quot;</span>
+    <span class="s2">"core_rus7__yearly_power_requirements_electric_customers"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"power requirements - number of customers served by customer type."</span>
             <span class="p">),</span>
-            <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Part O)&quot;</span><span class="p">,</span>
+            <span class="s2">"additional_source_text"</span><span class="p">:</span> <span class="s2">"(Part O)"</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;customer_class&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;observation_period&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;customers_num&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"borrower_id_rus"</span><span class="p">,</span>
+                <span class="s2">"customer_class"</span><span class="p">,</span>
+                <span class="s2">"observation_period"</span><span class="p">,</span>
+                <span class="s2">"customers_num"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;customer_class&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;observation_period&quot;</span><span class="p">,</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"borrower_id_rus"</span><span class="p">,</span>
+                <span class="s2">"customer_class"</span><span class="p">,</span>
+                <span class="s2">"observation_period"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;rus7&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;rus7&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;rus&quot;</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"rus7"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"rus7"</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"rus"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_rus7__yearly_power_requirements_electric_sales&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;power requirements - revenue and energy sold by customer type.&quot;</span>
+    <span class="s2">"core_rus7__yearly_power_requirements_electric_sales"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"power requirements - revenue and energy sold by customer type."</span>
             <span class="p">),</span>
-            <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Part O)&quot;</span><span class="p">,</span>
+            <span class="s2">"additional_source_text"</span><span class="p">:</span> <span class="s2">"(Part O)"</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;customer_class&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;sales_mwh&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;revenue&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"borrower_id_rus"</span><span class="p">,</span>
+                <span class="s2">"customer_class"</span><span class="p">,</span>
+                <span class="s2">"sales_mwh"</span><span class="p">,</span>
+                <span class="s2">"revenue"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;customer_class&quot;</span><span class="p">,</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"borrower_id_rus"</span><span class="p">,</span>
+                <span class="s2">"customer_class"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;rus7&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;rus7&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;rus&quot;</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"rus7"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"rus7"</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"rus"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_rus7__yearly_power_requirements&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;power requirements - revenue and generation summary.&quot;</span>
+    <span class="s2">"core_rus7__yearly_power_requirements"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"power requirements - revenue and generation summary."</span>
             <span class="p">),</span>
-            <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Part O)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;This table includes totals of electric sales and revenue which also appear in &quot;</span>
-                <span class="s2">&quot;:ref:`core_rus7__yearly_power_requirements_electric_sales` with a &quot;</span>
-                <span class="s2">&quot;``customer_class`` of ``total``. This table includes all other power requirements - &quot;</span>
-                <span class="s2">&quot;not broken out by customer class, so we include these electric requirements in this &quot;</span>
-                <span class="s2">&quot;table as well.&quot;</span>
+            <span class="s2">"additional_source_text"</span><span class="p">:</span> <span class="s2">"(Part O)"</span><span class="p">,</span>
+            <span class="s2">"additional_details_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"This table includes totals of electric sales and revenue which also appear in "</span>
+                <span class="s2">":ref:`core_rus7__yearly_power_requirements_electric_sales` with a "</span>
+                <span class="s2">"``customer_class`` of ``total``. This table includes all other power requirements - "</span>
+                <span class="s2">"not broken out by customer class, so we include these electric requirements in this "</span>
+                <span class="s2">"table as well."</span>
             <span class="p">),</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"borrower_id_rus"</span><span class="p">,</span>
                 <span class="c1"># we could pull out the revenue/costs into one table and then the kwh into another.</span>
-                <span class="s2">&quot;electric_sales_revenue&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;transmission_revenue&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;other_electric_revenue&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;purchases_and_generation_cost&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;electric_sales_mwh&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;own_use_mwh&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;purchased_mwh&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;generated_mwh&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;interchange_mwh&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;peak_mw&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;is_peak_coincident&quot;</span><span class="p">,</span>
+                <span class="s2">"electric_sales_revenue"</span><span class="p">,</span>
+                <span class="s2">"transmission_revenue"</span><span class="p">,</span>
+                <span class="s2">"other_electric_revenue"</span><span class="p">,</span>
+                <span class="s2">"purchases_and_generation_cost"</span><span class="p">,</span>
+                <span class="s2">"electric_sales_mwh"</span><span class="p">,</span>
+                <span class="s2">"own_use_mwh"</span><span class="p">,</span>
+                <span class="s2">"purchased_mwh"</span><span class="p">,</span>
+                <span class="s2">"generated_mwh"</span><span class="p">,</span>
+                <span class="s2">"interchange_mwh"</span><span class="p">,</span>
+                <span class="s2">"peak_mw"</span><span class="p">,</span>
+                <span class="s2">"is_peak_coincident"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"borrower_id_rus"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;rus7&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;rus7&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;rus&quot;</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"rus7"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"rus7"</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"rus"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_rus7__yearly_investments&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;investments, loan guarantees and loans.&quot;</span><span class="p">),</span>
-            <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Part P - Section I)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;Reporting of investments is required by 7 CFR 1717, Subpart N. Investment &quot;</span>
-                <span class="s2">&quot;categories reported on this Part correspond to Balance Sheet items in Part C.&quot;</span>
+    <span class="s2">"core_rus7__yearly_investments"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"investments, loan guarantees and loans."</span><span class="p">),</span>
+            <span class="s2">"additional_source_text"</span><span class="p">:</span> <span class="s2">"(Part P - Section I)"</span><span class="p">,</span>
+            <span class="s2">"additional_details_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"Reporting of investments is required by 7 CFR 1717, Subpart N. Investment "</span>
+                <span class="s2">"categories reported on this Part correspond to Balance Sheet items in Part C."</span>
             <span class="p">),</span>
-            <span class="s2">&quot;additional_primary_key_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;This is a list of all investments or loans in each year and borrowers can have &quot;</span>
-                <span class="s2">&quot;multiple records with the same ``investment_description``.&quot;</span>
+            <span class="s2">"additional_primary_key_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"This is a list of all investments or loans in each year and borrowers can have "</span>
+                <span class="s2">"multiple records with the same ``investment_description``."</span>
             <span class="p">),</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;investment_description&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;investment_type_code&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;included_investments&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;excluded_investments&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;income_or_loss&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;for_rural_development&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"borrower_id_rus"</span><span class="p">,</span>
+                <span class="s2">"investment_description"</span><span class="p">,</span>
+                <span class="s2">"investment_type_code"</span><span class="p">,</span>
+                <span class="s2">"included_investments"</span><span class="p">,</span>
+                <span class="s2">"excluded_investments"</span><span class="p">,</span>
+                <span class="s2">"income_or_loss"</span><span class="p">,</span>
+                <span class="s2">"for_rural_development"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;rus7&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;rus7&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;rus&quot;</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"rus7"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"rus7"</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"rus"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_rus7__yearly_long_term_debt&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;long term debt and debt service requirements.&quot;</span>
+    <span class="s2">"core_rus7__yearly_long_term_debt"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"long term debt and debt service requirements."</span>
             <span class="p">),</span>
-            <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Part N)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;additional_primary_key_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;This table has no native primary key. It is a list of all debts &quot;</span>
-                <span class="s2">&quot;in each year and borrowers can have multiple records with the same ``investment_description``.&quot;</span>
+            <span class="s2">"additional_source_text"</span><span class="p">:</span> <span class="s2">"(Part N)"</span><span class="p">,</span>
+            <span class="s2">"additional_primary_key_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"This table has no native primary key. It is a list of all debts "</span>
+                <span class="s2">"in each year and borrowers can have multiple records with the same ``investment_description``."</span>
             <span class="p">),</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;debt_description&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;debt_ending_balance&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;debt_interest&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;debt_principal&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;debt_total&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"borrower_id_rus"</span><span class="p">,</span>
+                <span class="s2">"debt_description"</span><span class="p">,</span>
+                <span class="s2">"debt_ending_balance"</span><span class="p">,</span>
+                <span class="s2">"debt_interest"</span><span class="p">,</span>
+                <span class="s2">"debt_principal"</span><span class="p">,</span>
+                <span class="s2">"debt_total"</span><span class="p">,</span>
             <span class="p">]</span>
         <span class="p">},</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;rus7&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;rus7&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;rus&quot;</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"rus7"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"rus7"</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"rus"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_rus7__yearly_long_term_leases&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;long term leases by property type.&quot;</span><span class="p">),</span>
-            <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Part L)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;additional_primary_key_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;Borrowers may receive multiple leases from ``lending_organizations`` in a given year.&quot;</span>
+    <span class="s2">"core_rus7__yearly_long_term_leases"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"long term leases by property type."</span><span class="p">),</span>
+            <span class="s2">"additional_source_text"</span><span class="p">:</span> <span class="s2">"(Part L)"</span><span class="p">,</span>
+            <span class="s2">"additional_primary_key_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"Borrowers may receive multiple leases from ``lending_organizations`` in a given year."</span>
             <span class="p">),</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;lending_organization&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;property_type&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;rental_cost_ytd&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"borrower_id_rus"</span><span class="p">,</span>
+                <span class="s2">"lending_organization"</span><span class="p">,</span>
+                <span class="s2">"property_type"</span><span class="p">,</span>
+                <span class="s2">"rental_cost_ytd"</span><span class="p">,</span>
             <span class="p">]</span>
         <span class="p">},</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;rus7&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;rus7&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;rus&quot;</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"rus7"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"rus7"</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"rus"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_rus7__yearly_patronage_capital&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;patronage capital distributed and received.&quot;</span><span class="p">),</span>
-            <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;aggregation_hazard&quot;</span><span class="p">],</span>
-            <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Part I)&quot;</span><span class="p">,</span>
+    <span class="s2">"core_rus7__yearly_patronage_capital"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"patronage capital distributed and received."</span><span class="p">),</span>
+            <span class="s2">"usage_warnings"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"aggregation_hazard"</span><span class="p">],</span>
+            <span class="s2">"additional_source_text"</span><span class="p">:</span> <span class="s2">"(Part I)"</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;patronage_type&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;patronage_report_year&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;patronage_cumulative&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;is_total&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"borrower_id_rus"</span><span class="p">,</span>
+                <span class="s2">"patronage_type"</span><span class="p">,</span>
+                <span class="s2">"patronage_report_year"</span><span class="p">,</span>
+                <span class="s2">"patronage_cumulative"</span><span class="p">,</span>
+                <span class="s2">"is_total"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">,</span> <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span> <span class="s2">&quot;patronage_type&quot;</span><span class="p">],</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"report_date"</span><span class="p">,</span> <span class="s2">"borrower_id_rus"</span><span class="p">,</span> <span class="s2">"patronage_type"</span><span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;rus7&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;rus7&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;rus&quot;</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"rus7"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"rus7"</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"rus"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_rus7__yearly_statement_of_operations&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;opex and cost of electric service for RUS borrowers by time period.&quot;</span>
+    <span class="s2">"core_rus7__yearly_statement_of_operations"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"opex and cost of electric service for RUS borrowers by time period."</span>
             <span class="p">),</span>
-            <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;aggregation_hazard&quot;</span><span class="p">],</span>
-            <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Part A)&quot;</span><span class="p">,</span>
+            <span class="s2">"usage_warnings"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"aggregation_hazard"</span><span class="p">],</span>
+            <span class="s2">"additional_source_text"</span><span class="p">:</span> <span class="s2">"(Part A)"</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;opex_group&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;opex_type&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;opex_report_month&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;opex_ytd&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;opex_ytd_budget&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;is_total&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"borrower_id_rus"</span><span class="p">,</span>
+                <span class="s2">"opex_group"</span><span class="p">,</span>
+                <span class="s2">"opex_type"</span><span class="p">,</span>
+                <span class="s2">"opex_report_month"</span><span class="p">,</span>
+                <span class="s2">"opex_ytd"</span><span class="p">,</span>
+                <span class="s2">"opex_ytd_budget"</span><span class="p">,</span>
+                <span class="s2">"is_total"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;opex_group&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;opex_type&quot;</span><span class="p">,</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"borrower_id_rus"</span><span class="p">,</span>
+                <span class="s2">"opex_group"</span><span class="p">,</span>
+                <span class="s2">"opex_type"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;rus7&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;rus7&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;rus&quot;</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"rus7"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"rus7"</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"rus"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_rus7__entity_borrowers&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;active RUS borrowers.&quot;</span><span class="p">),</span>
-            <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;harvested_rus&quot;</span><span class="p">],</span>
-            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;This table contains canonical values for borrowers are set. It contains &quot;</span>
-                <span class="s2">&quot;values which are expected to remain fixed over time.&quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">HARVESTING_DETAIL_TEXT_RUS</span><span class="si">}</span><span class="s2">.</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+    <span class="s2">"core_rus7__entity_borrowers"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"active RUS borrowers."</span><span class="p">),</span>
+            <span class="s2">"usage_warnings"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"harvested_rus"</span><span class="p">],</span>
+            <span class="s2">"additional_details_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"This table contains canonical values for borrowers are set. It contains "</span>
+                <span class="s2">"values which are expected to remain fixed over time."</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">HARVESTING_DETAIL_TEXT_RUS</span><span class="si">}</span><span class="s2">.</span><span class="se">\n\n</span><span class="s2">"</span>
                 <span class="c1"># note from readme about this table</span>
-                <span class="s2">&quot;This table contains all of the Active Distribution Borrowers as of each report year &quot;</span>
-                <span class="s2">&quot;who were eligible to report to RUS Form 7.  If these Borrowers have reported to RUS &quot;</span>
-                <span class="s2">&quot;they will have records in the enclosed data tables, however a small number of these &quot;</span>
-                <span class="s2">&quot;Borrowers did not report for various reasons and these Borrowers will not be represented &quot;</span>
-                <span class="s2">&quot;in any of the other tables.&quot;</span>
+                <span class="s2">"This table contains all of the Active Distribution Borrowers as of each report year "</span>
+                <span class="s2">"who were eligible to report to RUS Form 7.  If these Borrowers have reported to RUS "</span>
+                <span class="s2">"they will have records in the enclosed data tables, however a small number of these "</span>
+                <span class="s2">"Borrowers did not report for various reasons and these Borrowers will not be represented "</span>
+                <span class="s2">"in any of the other tables."</span>
             <span class="p">),</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;borrower_name_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;state&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"borrower_id_rus"</span><span class="p">,</span>
+                <span class="s2">"borrower_name_rus"</span><span class="p">,</span>
+                <span class="s2">"state"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"borrower_id_rus"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="s2">&quot;foreign_key_rules&quot;</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[[</span><span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">]],</span>
+            <span class="s2">"foreign_key_rules"</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[[</span><span class="s2">"borrower_id_rus"</span><span class="p">]],</span>
                 <span class="c1"># We must remove all of the rus12 tables - otherwise</span>
                 <span class="c1"># these would get a FK relationship from this rus7 table</span>
-                <span class="s2">&quot;exclude&quot;</span><span class="p">:</span> <span class="p">[</span>
-                    <span class="s2">&quot;core_rus12__entity_borrowers&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;_core_rus12__forensics_entity_resolution_borrowers&quot;</span><span class="p">,</span>
+                <span class="s2">"exclude"</span><span class="p">:</span> <span class="p">[</span>
+                    <span class="s2">"core_rus12__entity_borrowers"</span><span class="p">,</span>
+                    <span class="s2">"_core_rus12__forensics_entity_resolution_borrowers"</span><span class="p">,</span>
                 <span class="p">]</span>
                 <span class="o">+</span> <span class="n">HARVESTED_CORE_TABLES_RUS12</span>
                 <span class="o">+</span> <span class="p">[</span>
-                    <span class="sa">f</span><span class="s2">&quot;out_</span><span class="si">{</span><span class="n">tbl</span><span class="o">.</span><span class="n">removeprefix</span><span class="p">(</span><span class="s1">&#39;core_&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="sa">f</span><span class="s2">"out_</span><span class="si">{</span><span class="n">tbl</span><span class="o">.</span><span class="n">removeprefix</span><span class="p">(</span><span class="s1">'core_'</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
                     <span class="k">for</span> <span class="n">tbl</span> <span class="ow">in</span> <span class="n">HARVESTED_CORE_TABLES_RUS12</span>
                 <span class="p">],</span>
             <span class="p">},</span>
         <span class="p">},</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;rus7&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;rus7&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;rus&quot;</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"rus7"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"rus7"</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"rus"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_rus7__yearly_owed_by_customers&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;debt owed by customers.&quot;</span><span class="p">),</span>
-            <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Part J)&quot;</span><span class="p">,</span>
+    <span class="s2">"core_rus7__yearly_owed_by_customers"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"debt owed by customers."</span><span class="p">),</span>
+            <span class="s2">"additional_source_text"</span><span class="p">:</span> <span class="s2">"(Part J)"</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;amount_due_over_60_days&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;amount_written_off_ytd&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"borrower_id_rus"</span><span class="p">,</span>
+                <span class="s2">"amount_due_over_60_days"</span><span class="p">,</span>
+                <span class="s2">"amount_written_off_ytd"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"borrower_id_rus"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;rus7&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;rus7&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;rus&quot;</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"rus7"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"rus7"</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"rus"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_rus7__yearly_customer_energy_efficiency_and_conservation_loans&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;the repayment status of loans made by a borrower to customers for investments in energy efficiency and conservation initiatives.&quot;</span>
+    <span class="s2">"core_rus7__yearly_customer_energy_efficiency_and_conservation_loans"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"the repayment status of loans made by a borrower to customers for investments in energy efficiency and conservation initiatives."</span>
             <span class="p">),</span>
-            <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Part J)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;Energy Resources Conservation (ERC) loans are defined by the RUS as loans &quot;</span>
-                <span class="s2">&quot;made by an RUS borrower to its consumers for the cost of labor and materials &quot;</span>
-                <span class="s2">&quot;for the following energy conservation measures: &quot;</span>
-                <span class="s2">&quot;caulking, weather-stripping, ceiling insulation, wall insulation, floor &quot;</span>
-                <span class="s2">&quot;insulation, duct insulation, pipe insulation, water heater insulation &quot;</span>
-                <span class="s2">&quot;storm windows, thermal windows, storm or thermal doors, clock thermostats &quot;</span>
-                <span class="s2">&quot;and attic ventilation fans.&quot;</span>
+            <span class="s2">"additional_source_text"</span><span class="p">:</span> <span class="s2">"(Part J)"</span><span class="p">,</span>
+            <span class="s2">"additional_details_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"Energy Resources Conservation (ERC) loans are defined by the RUS as loans "</span>
+                <span class="s2">"made by an RUS borrower to its consumers for the cost of labor and materials "</span>
+                <span class="s2">"for the following energy conservation measures: "</span>
+                <span class="s2">"caulking, weather-stripping, ceiling insulation, wall insulation, floor "</span>
+                <span class="s2">"insulation, duct insulation, pipe insulation, water heater insulation "</span>
+                <span class="s2">"storm windows, thermal windows, storm or thermal doors, clock thermostats "</span>
+                <span class="s2">"and attic ventilation fans."</span>
             <span class="p">),</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;loan_status&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;actual_pct&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;anticipated_pct&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;ytd_dollars&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"borrower_id_rus"</span><span class="p">,</span>
+                <span class="s2">"loan_status"</span><span class="p">,</span>
+                <span class="s2">"actual_pct"</span><span class="p">,</span>
+                <span class="s2">"anticipated_pct"</span><span class="p">,</span>
+                <span class="s2">"ytd_dollars"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;loan_status&quot;</span><span class="p">,</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"borrower_id_rus"</span><span class="p">,</span>
+                <span class="s2">"loan_status"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;rus7&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;rus7&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;rus&quot;</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"rus7"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"rus7"</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"rus"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_rus7__yearly_service_interruptions&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;service interruptions by cause.&quot;</span><span class="p">),</span>
-            <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;aggregation_hazard&quot;</span><span class="p">],</span>
-            <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Part G)&quot;</span><span class="p">,</span>
+    <span class="s2">"core_rus7__yearly_service_interruptions"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"service interruptions by cause."</span><span class="p">),</span>
+            <span class="s2">"usage_warnings"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"aggregation_hazard"</span><span class="p">],</span>
+            <span class="s2">"additional_source_text"</span><span class="p">:</span> <span class="s2">"(Part G)"</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;service_interruption_cause&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;observation_period&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;saidi_minutes&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;is_total&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"borrower_id_rus"</span><span class="p">,</span>
+                <span class="s2">"service_interruption_cause"</span><span class="p">,</span>
+                <span class="s2">"observation_period"</span><span class="p">,</span>
+                <span class="s2">"saidi_minutes"</span><span class="p">,</span>
+                <span class="s2">"is_total"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;service_interruption_cause&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;observation_period&quot;</span><span class="p">,</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"borrower_id_rus"</span><span class="p">,</span>
+                <span class="s2">"service_interruption_cause"</span><span class="p">,</span>
+                <span class="s2">"observation_period"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;rus7&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;rus7&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;rus&quot;</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"rus7"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"rus7"</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"rus"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_rus7__yearly_distribution_services&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;distribution services.&quot;</span><span class="p">),</span>
-            <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;aggregation_hazard&quot;</span><span class="p">],</span>
-            <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Part B)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;Per RUS Form 7 Part B, ``total_in_place`` (Total Services in Place) is a &quot;</span>
-                <span class="s2">&quot;cumulative stock, while ``connected_this_year`` (New Services Connected) and &quot;</span>
-                <span class="s2">&quot;``retired_this_year`` (Services Retired) are annual flows. The form defines no &quot;</span>
-                <span class="s2">&quot;sum relationship among these line items, so the subcomponents do not sum to the &quot;</span>
-                <span class="s2">&quot;total within a year; ``idle_in_place`` is a subset of the total rather than a &quot;</span>
-                <span class="s2">&quot;summand. The underlying relationship is year-over-year: &quot;</span>
-                <span class="s2">&quot;total(y) = total(y-1) + connected(y) - retired(y).&quot;</span>
+    <span class="s2">"core_rus7__yearly_distribution_services"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"distribution services."</span><span class="p">),</span>
+            <span class="s2">"usage_warnings"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"aggregation_hazard"</span><span class="p">],</span>
+            <span class="s2">"additional_source_text"</span><span class="p">:</span> <span class="s2">"(Part B)"</span><span class="p">,</span>
+            <span class="s2">"additional_details_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"Per RUS Form 7 Part B, ``total_in_place`` (Total Services in Place) is a "</span>
+                <span class="s2">"cumulative stock, while ``connected_this_year`` (New Services Connected) and "</span>
+                <span class="s2">"``retired_this_year`` (Services Retired) are annual flows. The form defines no "</span>
+                <span class="s2">"sum relationship among these line items, so the subcomponents do not sum to the "</span>
+                <span class="s2">"total within a year; ``idle_in_place`` is a subset of the total rather than a "</span>
+                <span class="s2">"summand. The underlying relationship is year-over-year: "</span>
+                <span class="s2">"total(y) = total(y-1) + connected(y) - retired(y)."</span>
             <span class="p">),</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;service_status&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;services&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"borrower_id_rus"</span><span class="p">,</span>
+                <span class="s2">"service_status"</span><span class="p">,</span>
+                <span class="s2">"services"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">,</span> <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span> <span class="s2">&quot;service_status&quot;</span><span class="p">],</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"report_date"</span><span class="p">,</span> <span class="s2">"borrower_id_rus"</span><span class="p">,</span> <span class="s2">"service_status"</span><span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;rus7&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;rus7&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;rus&quot;</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"rus7"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"rus7"</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"rus"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_rus7__yearly_transmission_and_distribution_mileage&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;miles of transmission and distribution infrastructure.&quot;</span>
+    <span class="s2">"core_rus7__yearly_transmission_and_distribution_mileage"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"miles of transmission and distribution infrastructure."</span>
             <span class="p">),</span>
-            <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;aggregation_hazard&quot;</span><span class="p">],</span>
-            <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Part B)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;Note that according to RUS, &#39;underbuild in &quot;</span>
-                <span class="s2">&quot;overhead lines or joint runs in underground installations do not &quot;</span>
-                <span class="s2">&quot;increase the number of line miles except for distribution underbuild on &quot;</span>
-                <span class="s2">&quot;transmission poles. In such cases, distribution pole line miles would be &quot;</span>
-                <span class="s2">&quot;increased by the number of underbuild miles involved.&#39;&quot;</span>
+            <span class="s2">"usage_warnings"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"aggregation_hazard"</span><span class="p">],</span>
+            <span class="s2">"additional_source_text"</span><span class="p">:</span> <span class="s2">"(Part B)"</span><span class="p">,</span>
+            <span class="s2">"additional_details_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"Note that according to RUS, 'underbuild in "</span>
+                <span class="s2">"overhead lines or joint runs in underground installations do not "</span>
+                <span class="s2">"increase the number of line miles except for distribution underbuild on "</span>
+                <span class="s2">"transmission poles. In such cases, distribution pole line miles would be "</span>
+                <span class="s2">"increased by the number of underbuild miles involved.'"</span>
             <span class="p">),</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;line_type&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;miles&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;is_total&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"borrower_id_rus"</span><span class="p">,</span>
+                <span class="s2">"line_type"</span><span class="p">,</span>
+                <span class="s2">"miles"</span><span class="p">,</span>
+                <span class="s2">"is_total"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;line_type&quot;</span><span class="p">,</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"borrower_id_rus"</span><span class="p">,</span>
+                <span class="s2">"line_type"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;rus7&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;rus7&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;rus&quot;</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"rus7"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"rus7"</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"rus"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_rus7__yearly_loans&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;loans provided by RUS borrowers.&quot;</span><span class="p">),</span>
-            <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Part Q - Sections II &amp; IV)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;additional_primary_key_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;Borrowers may receive multiple loans from ``lending_organizations`` in a given year.&quot;</span>
+    <span class="s2">"core_rus7__yearly_loans"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"loans provided by RUS borrowers."</span><span class="p">),</span>
+            <span class="s2">"additional_source_text"</span><span class="p">:</span> <span class="s2">"(Part Q - Sections II &amp; IV)"</span><span class="p">,</span>
+            <span class="s2">"additional_primary_key_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"Borrowers may receive multiple loans from ``lending_organizations`` in a given year."</span>
             <span class="p">),</span>
-            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;This table also includes loan guarantees where the RUS borrower backs a loan &quot;</span>
-                <span class="s2">&quot;from another entity and is therefore liable to pay any remaining &quot;</span>
-                <span class="s2">&quot;balance should the original borrower default. </span><span class="se">\n\n</span><span class="s2">&quot;</span>
-                <span class="s2">&quot;In 2006, the loan maturity date for borrower ND0051&#39;s loan from ERC - Paulson, David &quot;</span>
-                <span class="s2">&quot;was reported as 2/8/2820. There is no clear way to determine the correct maturity date &quot;</span>
-                <span class="s2">&quot;given that 2006 is the first year of data we have and the same loan does not appear in &quot;</span>
-                <span class="s2">&quot;future years. For this reason we&#39;ve nulled the date.&quot;</span>
+            <span class="s2">"additional_details_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"This table also includes loan guarantees where the RUS borrower backs a loan "</span>
+                <span class="s2">"from another entity and is therefore liable to pay any remaining "</span>
+                <span class="s2">"balance should the original borrower default. </span><span class="se">\n\n</span><span class="s2">"</span>
+                <span class="s2">"In 2006, the loan maturity date for borrower ND0051's loan from ERC - Paulson, David "</span>
+                <span class="s2">"was reported as 2/8/2820. There is no clear way to determine the correct maturity date "</span>
+                <span class="s2">"given that 2006 is the first year of data we have and the same loan does not appear in "</span>
+                <span class="s2">"future years. For this reason we've nulled the date."</span>
             <span class="p">),</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;loan_recipient&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;loan_balance&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;loan_maturity_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;loan_original_amount&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;for_rural_development&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;is_loan_guarantee&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"borrower_id_rus"</span><span class="p">,</span>
+                <span class="s2">"loan_recipient"</span><span class="p">,</span>
+                <span class="s2">"loan_balance"</span><span class="p">,</span>
+                <span class="s2">"loan_maturity_date"</span><span class="p">,</span>
+                <span class="s2">"loan_original_amount"</span><span class="p">,</span>
+                <span class="s2">"for_rural_development"</span><span class="p">,</span>
+                <span class="s2">"is_loan_guarantee"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;rus7&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;rus7&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;rus&quot;</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"rus7"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"rus7"</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"rus"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_rus7__yearly_external_financial_risk_ratio&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;ratio of investments and loan guarantee balances to total utility plant assets.&quot;</span>
+    <span class="s2">"core_rus7__yearly_external_financial_risk_ratio"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"ratio of investments and loan guarantee balances to total utility plant assets."</span>
             <span class="p">),</span>
-            <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Part Q - Section III)&quot;</span><span class="p">,</span>
+            <span class="s2">"additional_source_text"</span><span class="p">:</span> <span class="s2">"(Part Q - Section III)"</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;external_financial_risk_ratio&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"borrower_id_rus"</span><span class="p">,</span>
+                <span class="s2">"external_financial_risk_ratio"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"borrower_id_rus"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;rus7&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;rus7&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;rus&quot;</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"rus7"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"rus7"</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"rus"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_rus7__yearly_energy_purchased&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;energy purchased by RUS borrowers.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Part K)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;additional_primary_key_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;The primary key would probably be report_date, borrower_id_rus, fuel_type_code, &quot;</span>
-                <span class="s2">&quot;supplier_code_rus, renewable_energy_program if not for certain EIA utilities &quot;</span>
-                <span class="s2">&quot;represented as Miscellaneous (supplier code 700000).&quot;</span>
+    <span class="s2">"core_rus7__yearly_energy_purchased"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="s2">"energy purchased by RUS borrowers."</span><span class="p">,</span>
+            <span class="s2">"additional_source_text"</span><span class="p">:</span> <span class="s2">"(Part K)"</span><span class="p">,</span>
+            <span class="s2">"additional_primary_key_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"The primary key would probably be report_date, borrower_id_rus, fuel_type_code, "</span>
+                <span class="s2">"supplier_code_rus, renewable_energy_program if not for certain EIA utilities "</span>
+                <span class="s2">"represented as Miscellaneous (supplier code 700000)."</span>
             <span class="p">),</span>
-            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;A number of records report purchases from an unspecified entity. &quot;</span>
-                <span class="s2">&quot;These fields all have reported utility names beginning with an </span><span class="se">\\</span><span class="s2">*, including </span><span class="se">\\</span><span class="s2">*Miscellaneous, &quot;</span>
-                <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">*Adjustments, and </span><span class="se">\\</span><span class="s2">*Residential Renewable Supplier.&quot;</span>
+            <span class="s2">"additional_details_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"A number of records report purchases from an unspecified entity. "</span>
+                <span class="s2">"These fields all have reported utility names beginning with an </span><span class="se">\\</span><span class="s2">*, including </span><span class="se">\\</span><span class="s2">*Miscellaneous, "</span>
+                <span class="s2">"</span><span class="se">\\</span><span class="s2">*Adjustments, and </span><span class="se">\\</span><span class="s2">*Residential Renewable Supplier."</span>
             <span class="p">),</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;purchased_mwh&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;purchased_energy_cost_total&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;average_energy_cost_dollars_per_mwh&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;wheeling_and_other_charges&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;fuel_cost_adjustment&quot;</span><span class="p">,</span>
-                <span class="c1"># &quot;fuel_type&quot; --&gt; TO-DO: add in out table?</span>
-                <span class="s2">&quot;fuel_type_code_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;is_supplier_eia_respondent&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;supplier_code_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;utility_name_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;comments&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"borrower_id_rus"</span><span class="p">,</span>
+                <span class="s2">"purchased_mwh"</span><span class="p">,</span>
+                <span class="s2">"purchased_energy_cost_total"</span><span class="p">,</span>
+                <span class="s2">"average_energy_cost_dollars_per_mwh"</span><span class="p">,</span>
+                <span class="s2">"wheeling_and_other_charges"</span><span class="p">,</span>
+                <span class="s2">"fuel_cost_adjustment"</span><span class="p">,</span>
+                <span class="c1"># "fuel_type" --&gt; TO-DO: add in out table?</span>
+                <span class="s2">"fuel_type_code_rus"</span><span class="p">,</span>
+                <span class="s2">"is_supplier_eia_respondent"</span><span class="p">,</span>
+                <span class="s2">"supplier_code_rus"</span><span class="p">,</span>
+                <span class="s2">"utility_name_eia"</span><span class="p">,</span>
+                <span class="s2">"comments"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;rus7&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;rus7&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;rus&quot;</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"rus7"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"rus7"</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"rus"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_rus7__yearly_materials_and_supplies&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;cost of electric vs. other materials that were purchased, salvaged, &quot;</span>
-                <span class="s2">&quot;used, or sold.&quot;</span>
+    <span class="s2">"core_rus7__yearly_materials_and_supplies"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"cost of electric vs. other materials that were purchased, salvaged, "</span>
+                <span class="s2">"used, or sold."</span>
             <span class="p">),</span>
-            <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Part F)&quot;</span><span class="p">,</span>
+            <span class="s2">"additional_source_text"</span><span class="p">:</span> <span class="s2">"(Part F)"</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;electric_or_other_materials&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;materials_adjustment&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;materials_ending_balance&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;materials_purchased&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;materials_salvaged&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;materials_sold&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;materials_used&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"borrower_id_rus"</span><span class="p">,</span>
+                <span class="s2">"electric_or_other_materials"</span><span class="p">,</span>
+                <span class="s2">"materials_adjustment"</span><span class="p">,</span>
+                <span class="s2">"materials_ending_balance"</span><span class="p">,</span>
+                <span class="s2">"materials_purchased"</span><span class="p">,</span>
+                <span class="s2">"materials_salvaged"</span><span class="p">,</span>
+                <span class="s2">"materials_sold"</span><span class="p">,</span>
+                <span class="s2">"materials_used"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;electric_or_other_materials&quot;</span><span class="p">,</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"borrower_id_rus"</span><span class="p">,</span>
+                <span class="s2">"electric_or_other_materials"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;rus7&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;rus7&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;rus&quot;</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"rus7"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"rus7"</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"rus"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_rus7__yearly_utility_plant_changes&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;changes in utility plant&quot;</span><span class="p">),</span>
-            <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Part E)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;aggregation_hazard&quot;</span><span class="p">],</span>
+    <span class="s2">"core_rus7__yearly_utility_plant_changes"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"changes in utility plant"</span><span class="p">),</span>
+            <span class="s2">"additional_source_text"</span><span class="p">:</span> <span class="s2">"(Part E)"</span><span class="p">,</span>
+            <span class="s2">"usage_warnings"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"aggregation_hazard"</span><span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;utility_plant_group&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;utility_plant_item&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;retirements&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;additions&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;adjustments_and_transfers&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;ending_balance&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;is_total&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"borrower_id_rus"</span><span class="p">,</span>
+                <span class="s2">"utility_plant_group"</span><span class="p">,</span>
+                <span class="s2">"utility_plant_item"</span><span class="p">,</span>
+                <span class="s2">"retirements"</span><span class="p">,</span>
+                <span class="s2">"additions"</span><span class="p">,</span>
+                <span class="s2">"adjustments_and_transfers"</span><span class="p">,</span>
+                <span class="s2">"ending_balance"</span><span class="p">,</span>
+                <span class="s2">"is_total"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;utility_plant_group&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;utility_plant_item&quot;</span><span class="p">,</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"borrower_id_rus"</span><span class="p">,</span>
+                <span class="s2">"utility_plant_group"</span><span class="p">,</span>
+                <span class="s2">"utility_plant_item"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;rus7&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;rus7&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;rus&quot;</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"rus7"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"rus7"</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"rus"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;_core_rus7__forensics_entity_resolution_borrowers&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;the statistics determining how we choose a single consistent value during entity resolution.&quot;</span>
+    <span class="s2">"_core_rus7__forensics_entity_resolution_borrowers"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"the statistics determining how we choose a single consistent value during entity resolution."</span>
             <span class="p">),</span>
-            <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;harvesting_ingredients&quot;</span><span class="p">],</span>
-            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="n">HARVESTING_FORENSIC_DETAIL_TEXT</span><span class="p">,</span>
+            <span class="s2">"usage_warnings"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"harvesting_ingredients"</span><span class="p">],</span>
+            <span class="s2">"additional_details_text"</span><span class="p">:</span> <span class="n">HARVESTING_FORENSIC_DETAIL_TEXT</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;valid_until_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;column_name&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;record_value&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;entity_occurrences&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;record_occurrences&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;consistent_rate&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;is_candidate&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"borrower_id_rus"</span><span class="p">,</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"valid_until_date"</span><span class="p">,</span>
+                <span class="s2">"column_name"</span><span class="p">,</span>
+                <span class="s2">"record_value"</span><span class="p">,</span>
+                <span class="s2">"entity_occurrences"</span><span class="p">,</span>
+                <span class="s2">"record_occurrences"</span><span class="p">,</span>
+                <span class="s2">"consistent_rate"</span><span class="p">,</span>
+                <span class="s2">"is_candidate"</span><span class="p">,</span>
             <span class="p">]</span>
         <span class="p">},</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;rus7&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;rus7&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;rus&quot;</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"rus7"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"rus7"</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"rus"</span><span class="p">,</span>
     <span class="p">},</span>
 <span class="p">}</span></div>
 
@@ -1615,7 +1615,7 @@ window.runMermaid = runMermaid;</script>
 <span class="n">RESOURCE_METADATA</span> <span class="o">=</span> <span class="n">RESOURCE_METADATA_BASE</span> <span class="o">|</span> <span class="n">core_to_out_harvested_resources</span><span class="p">(</span>
     <span class="n">HARVESTED_CORE_TABLES_RUS7</span><span class="p">,</span>
     <span class="n">RESOURCE_METADATA_BASE</span><span class="p">,</span>
-    <span class="p">[</span><span class="s2">&quot;borrower_name_rus&quot;</span><span class="p">,</span> <span class="s2">&quot;state&quot;</span><span class="p">],</span>
+    <span class="p">[</span><span class="s2">"borrower_name_rus"</span><span class="p">,</span> <span class="s2">"state"</span><span class="p">],</span>
 <span class="p">)</span></div>
 
 </pre></div>

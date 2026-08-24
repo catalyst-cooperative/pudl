@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.extract.ferc714 &#8212; PUDL 2026.8.1.dev18 documentation</title>
+    <title>pudl.extract.ferc714 &#8212; PUDL 2026.8.1.dev19 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=f2b63aa7"></script>
+    <script src="../../../_static/documentation_options.js?v=5bf64ec1"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev18 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev18 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev19 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev19 documentation - Home"/>
   
   
 </a></div>
@@ -868,7 +868,7 @@ window.runMermaid = runMermaid;</script>
                 <article class="bd-article">
                   
   <h1>Source code for pudl.extract.ferc714</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Routines used for extracting the raw FERC 714 data.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Routines used for extracting the raw FERC 714 data."""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">OrderedDict</span>
@@ -888,135 +888,135 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="FERC714_XBRL_SQLITE_ASSET_KEY">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/ferc714/index.html#pudl.extract.ferc714.FERC714_XBRL_SQLITE_ASSET_KEY">[docs]</a>
-<span class="n">FERC714_XBRL_SQLITE_ASSET_KEY</span> <span class="o">=</span> <span class="n">AssetKey</span><span class="p">(</span><span class="s2">&quot;raw_ferc714_xbrl__sqlite&quot;</span><span class="p">)</span></div>
+<span class="n">FERC714_XBRL_SQLITE_ASSET_KEY</span> <span class="o">=</span> <span class="n">AssetKey</span><span class="p">(</span><span class="s2">"raw_ferc714_xbrl__sqlite"</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="FERC714_CSV_ENCODING">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/ferc714/index.html#pudl.extract.ferc714.FERC714_CSV_ENCODING">[docs]</a>
 <span class="n">FERC714_CSV_ENCODING</span><span class="p">:</span> <span class="n">OrderedDict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">(</span>
     <span class="p">{</span>
-        <span class="s2">&quot;yearly_id_certification&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Part 1 Schedule 1 - Identification Certification.csv&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;encoding&quot;</span><span class="p">:</span> <span class="s2">&quot;iso-8859-1&quot;</span><span class="p">,</span>
+        <span class="s2">"yearly_id_certification"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"name"</span><span class="p">:</span> <span class="s2">"Part 1 Schedule 1 - Identification Certification.csv"</span><span class="p">,</span>
+            <span class="s2">"encoding"</span><span class="p">:</span> <span class="s2">"iso-8859-1"</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;yearly_balancing_authority_plants&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Part 2 Schedule 1 - Balancing Authority Generating Plants.csv&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;encoding&quot;</span><span class="p">:</span> <span class="s2">&quot;iso-8859-1&quot;</span><span class="p">,</span>
+        <span class="s2">"yearly_balancing_authority_plants"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"name"</span><span class="p">:</span> <span class="s2">"Part 2 Schedule 1 - Balancing Authority Generating Plants.csv"</span><span class="p">,</span>
+            <span class="s2">"encoding"</span><span class="p">:</span> <span class="s2">"iso-8859-1"</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;monthly_balancing_authority_demand&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Part 2 Schedule 2 - Balancing Authority Monthly Demand.csv&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;encoding&quot;</span><span class="p">:</span> <span class="s2">&quot;utf-8&quot;</span><span class="p">,</span>
+        <span class="s2">"monthly_balancing_authority_demand"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"name"</span><span class="p">:</span> <span class="s2">"Part 2 Schedule 2 - Balancing Authority Monthly Demand.csv"</span><span class="p">,</span>
+            <span class="s2">"encoding"</span><span class="p">:</span> <span class="s2">"utf-8"</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;yearly_balancing_authority_net_energy_load&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Part 2 Schedule 3 - Balancing Authority Net Energy for Load.csv&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;encoding&quot;</span><span class="p">:</span> <span class="s2">&quot;utf-8&quot;</span><span class="p">,</span>
+        <span class="s2">"yearly_balancing_authority_net_energy_load"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"name"</span><span class="p">:</span> <span class="s2">"Part 2 Schedule 3 - Balancing Authority Net Energy for Load.csv"</span><span class="p">,</span>
+            <span class="s2">"encoding"</span><span class="p">:</span> <span class="s2">"utf-8"</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;yearly_balancing_authority_adjacency&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Part 2 Schedule 4 - Adjacent Balancing Authorities.csv&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;encoding&quot;</span><span class="p">:</span> <span class="s2">&quot;iso-8859-1&quot;</span><span class="p">,</span>
+        <span class="s2">"yearly_balancing_authority_adjacency"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"name"</span><span class="p">:</span> <span class="s2">"Part 2 Schedule 4 - Adjacent Balancing Authorities.csv"</span><span class="p">,</span>
+            <span class="s2">"encoding"</span><span class="p">:</span> <span class="s2">"iso-8859-1"</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;yearly_balancing_authority_interchange&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Part 2 Schedule 5 - Balancing Authority Interchange.csv&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;encoding&quot;</span><span class="p">:</span> <span class="s2">&quot;iso-8859-1&quot;</span><span class="p">,</span>
+        <span class="s2">"yearly_balancing_authority_interchange"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"name"</span><span class="p">:</span> <span class="s2">"Part 2 Schedule 5 - Balancing Authority Interchange.csv"</span><span class="p">,</span>
+            <span class="s2">"encoding"</span><span class="p">:</span> <span class="s2">"iso-8859-1"</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;hourly_balancing_authority_lambda&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Part 2 Schedule 6 - Balancing Authority Hourly System Lambda.csv&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;encoding&quot;</span><span class="p">:</span> <span class="s2">&quot;utf-8&quot;</span><span class="p">,</span>
+        <span class="s2">"hourly_balancing_authority_lambda"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"name"</span><span class="p">:</span> <span class="s2">"Part 2 Schedule 6 - Balancing Authority Hourly System Lambda.csv"</span><span class="p">,</span>
+            <span class="s2">"encoding"</span><span class="p">:</span> <span class="s2">"utf-8"</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;yearly_lambda_description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Part 2 Schedule 6 - System Lambda Description.csv&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;encoding&quot;</span><span class="p">:</span> <span class="s2">&quot;iso-8859-1&quot;</span><span class="p">,</span>
+        <span class="s2">"yearly_lambda_description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"name"</span><span class="p">:</span> <span class="s2">"Part 2 Schedule 6 - System Lambda Description.csv"</span><span class="p">,</span>
+            <span class="s2">"encoding"</span><span class="p">:</span> <span class="s2">"iso-8859-1"</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;yearly_planning_area_description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Part 3 Schedule 1 - Planning Area Description.csv&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;encoding&quot;</span><span class="p">:</span> <span class="s2">&quot;iso-8859-1&quot;</span><span class="p">,</span>
+        <span class="s2">"yearly_planning_area_description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"name"</span><span class="p">:</span> <span class="s2">"Part 3 Schedule 1 - Planning Area Description.csv"</span><span class="p">,</span>
+            <span class="s2">"encoding"</span><span class="p">:</span> <span class="s2">"iso-8859-1"</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;yearly_planning_area_demand_forecast&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Part 3 Schedule 2 - Planning Area Forecast Demand.csv&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;encoding&quot;</span><span class="p">:</span> <span class="s2">&quot;utf-8&quot;</span><span class="p">,</span>
+        <span class="s2">"yearly_planning_area_demand_forecast"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"name"</span><span class="p">:</span> <span class="s2">"Part 3 Schedule 2 - Planning Area Forecast Demand.csv"</span><span class="p">,</span>
+            <span class="s2">"encoding"</span><span class="p">:</span> <span class="s2">"utf-8"</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;hourly_planning_area_demand&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Part 3 Schedule 2 - Planning Area Hourly Demand.csv&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;encoding&quot;</span><span class="p">:</span> <span class="s2">&quot;utf-8&quot;</span><span class="p">,</span>
+        <span class="s2">"hourly_planning_area_demand"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"name"</span><span class="p">:</span> <span class="s2">"Part 3 Schedule 2 - Planning Area Hourly Demand.csv"</span><span class="p">,</span>
+            <span class="s2">"encoding"</span><span class="p">:</span> <span class="s2">"utf-8"</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;respondent_id&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Respondent IDs.csv&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;encoding&quot;</span><span class="p">:</span> <span class="s2">&quot;utf-8&quot;</span><span class="p">,</span>
+        <span class="s2">"respondent_id"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"name"</span><span class="p">:</span> <span class="s2">"Respondent IDs.csv"</span><span class="p">,</span>
+            <span class="s2">"encoding"</span><span class="p">:</span> <span class="s2">"utf-8"</span><span class="p">,</span>
         <span class="p">},</span>
     <span class="p">}</span>
 <span class="p">)</span></div>
 
-<span class="sd">&quot;&quot;&quot;Dictionary mapping PUDL tables to FERC-714 CSV filenames and character encodings.&quot;&quot;&quot;</span>
+<span class="sd">"""Dictionary mapping PUDL tables to FERC-714 CSV filenames and character encodings."""</span>
 
 <div class="viewcode-block" id="TABLE_NAME_MAP_FERC714">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/ferc714/index.html#pudl.extract.ferc714.TABLE_NAME_MAP_FERC714">[docs]</a>
 <span class="n">TABLE_NAME_MAP_FERC714</span><span class="p">:</span> <span class="n">OrderedDict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">(</span>
     <span class="p">{</span>
-        <span class="s2">&quot;core_ferc714__yearly_planning_area_demand_forecast&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;csv&quot;</span><span class="p">:</span> <span class="s2">&quot;Part 3 Schedule 2 - Planning Area Forecast Demand.csv&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;xbrl&quot;</span><span class="p">:</span> <span class="s2">&quot;planning_area_hourly_demand_and_forecast_summer_and_winter_peak_demand_and_annual_net_energy_for_load_table_03_2&quot;</span><span class="p">,</span>
+        <span class="s2">"core_ferc714__yearly_planning_area_demand_forecast"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"csv"</span><span class="p">:</span> <span class="s2">"Part 3 Schedule 2 - Planning Area Forecast Demand.csv"</span><span class="p">,</span>
+            <span class="s2">"xbrl"</span><span class="p">:</span> <span class="s2">"planning_area_hourly_demand_and_forecast_summer_and_winter_peak_demand_and_annual_net_energy_for_load_table_03_2"</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;core_ferc714__hourly_planning_area_demand&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;csv&quot;</span><span class="p">:</span> <span class="s2">&quot;Part 3 Schedule 2 - Planning Area Hourly Demand.csv&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;xbrl&quot;</span><span class="p">:</span> <span class="s2">&quot;planning_area_hourly_demand_and_forecast_summer_and_winter_peak_demand_and_annual_net_energy_for_load_03_2&quot;</span><span class="p">,</span>
+        <span class="s2">"core_ferc714__hourly_planning_area_demand"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"csv"</span><span class="p">:</span> <span class="s2">"Part 3 Schedule 2 - Planning Area Hourly Demand.csv"</span><span class="p">,</span>
+            <span class="s2">"xbrl"</span><span class="p">:</span> <span class="s2">"planning_area_hourly_demand_and_forecast_summer_and_winter_peak_demand_and_annual_net_energy_for_load_03_2"</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;core_ferc714__respondent_id&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;csv&quot;</span><span class="p">:</span> <span class="s2">&quot;Respondent IDs.csv&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;xbrl&quot;</span><span class="p">:</span> <span class="s2">&quot;identification_and_certification_01_1&quot;</span><span class="p">,</span>
+        <span class="s2">"core_ferc714__respondent_id"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"csv"</span><span class="p">:</span> <span class="s2">"Respondent IDs.csv"</span><span class="p">,</span>
+            <span class="s2">"xbrl"</span><span class="p">:</span> <span class="s2">"identification_and_certification_01_1"</span><span class="p">,</span>
         <span class="p">},</span>
     <span class="p">}</span>
 <span class="p">)</span></div>
 
-<span class="sd">&quot;&quot;&quot;A mapping of PUDL DB table names to their XBRL and CSV source table names.&quot;&quot;&quot;</span>
+<span class="sd">"""A mapping of PUDL DB table names to their XBRL and CSV source table names."""</span>
 
 
 <div class="viewcode-block" id="raw_ferc714_csv_asset_factory">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/ferc714/index.html#pudl.extract.ferc714.raw_ferc714_csv_asset_factory">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">raw_ferc714_csv_asset_factory</span><span class="p">(</span><span class="n">table_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AssetsDefinition</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generates an asset for building the raw CSV-based FERC 714 dataframe.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Generates an asset for building the raw CSV-based FERC 714 dataframe."""</span>
     <span class="k">assert</span> <span class="n">table_name</span> <span class="ow">in</span> <span class="n">FERC714_CSV_ENCODING</span>
 
     <span class="nd">@asset</span><span class="p">(</span>
-        <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;raw_ferc714_csv__</span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-        <span class="n">required_resource_keys</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;datastore&quot;</span><span class="p">,</span> <span class="s2">&quot;global_data_config&quot;</span><span class="p">},</span>
-        <span class="n">compute_kind</span><span class="o">=</span><span class="s2">&quot;pandas&quot;</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">"raw_ferc714_csv__</span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+        <span class="n">required_resource_keys</span><span class="o">=</span><span class="p">{</span><span class="s2">"datastore"</span><span class="p">,</span> <span class="s2">"global_data_config"</span><span class="p">},</span>
+        <span class="n">compute_kind</span><span class="o">=</span><span class="s2">"pandas"</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_extract_raw_ferc714_csv</span><span class="p">(</span><span class="n">context</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Extract the raw FERC Form 714 dataframes from their original CSV files.</span>
+<span class="w">        </span><span class="sd">"""Extract the raw FERC Form 714 dataframes from their original CSV files.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            context: dagster keyword that provides access to resources and config.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">ds</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">datastore</span>
         <span class="n">ferc714_data_config</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">global_data_config</span><span class="o">.</span><span class="n">pudl</span><span class="o">.</span><span class="n">ferc714</span>
-        <span class="n">years</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">ferc714_data_config</span><span class="o">.</span><span class="n">csv_years</span><span class="p">))</span>
+        <span class="n">years</span> <span class="o">=</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">ferc714_data_config</span><span class="o">.</span><span class="n">csv_years</span><span class="p">))</span>
 
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Extracting </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2"> from CSV into pandas DataFrame (years: </span><span class="si">{</span><span class="n">years</span><span class="si">}</span><span class="s2">).&quot;</span>
+            <span class="sa">f</span><span class="s2">"Extracting </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2"> from CSV into pandas DataFrame (years: </span><span class="si">{</span><span class="n">years</span><span class="si">}</span><span class="s2">)."</span>
         <span class="p">)</span>
         <span class="k">with</span> <span class="p">(</span>
-            <span class="n">ds</span><span class="o">.</span><span class="n">get_zipfile_resource</span><span class="p">(</span><span class="s2">&quot;ferc714&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;ferc714.zip&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">zf</span><span class="p">,</span>
-            <span class="n">zf</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">FERC714_CSV_ENCODING</span><span class="p">[</span><span class="n">table_name</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">])</span> <span class="k">as</span> <span class="n">csv_file</span><span class="p">,</span>
+            <span class="n">ds</span><span class="o">.</span><span class="n">get_zipfile_resource</span><span class="p">(</span><span class="s2">"ferc714"</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"ferc714.zip"</span><span class="p">)</span> <span class="k">as</span> <span class="n">zf</span><span class="p">,</span>
+            <span class="n">zf</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">FERC714_CSV_ENCODING</span><span class="p">[</span><span class="n">table_name</span><span class="p">][</span><span class="s2">"name"</span><span class="p">])</span> <span class="k">as</span> <span class="n">csv_file</span><span class="p">,</span>
         <span class="p">):</span>
             <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
                 <span class="n">csv_file</span><span class="p">,</span>
-                <span class="n">encoding</span><span class="o">=</span><span class="n">FERC714_CSV_ENCODING</span><span class="p">[</span><span class="n">table_name</span><span class="p">][</span><span class="s2">&quot;encoding&quot;</span><span class="p">],</span>
+                <span class="n">encoding</span><span class="o">=</span><span class="n">FERC714_CSV_ENCODING</span><span class="p">[</span><span class="n">table_name</span><span class="p">][</span><span class="s2">"encoding"</span><span class="p">],</span>
             <span class="p">)</span>
-        <span class="k">if</span> <span class="n">table_name</span> <span class="o">!=</span> <span class="s2">&quot;respondent_id&quot;</span><span class="p">:</span>
-            <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s2">&quot;report_yr in @ferc714_data_config.years&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">table_name</span> <span class="o">!=</span> <span class="s2">"respondent_id"</span><span class="p">:</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s2">"report_yr in @ferc714_data_config.years"</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">df</span>
 
     <span class="k">return</span> <span class="n">_extract_raw_ferc714_csv</span></div>
 
 
 
-<span class="nd">@asset</span><span class="p">(</span><span class="n">deps</span><span class="o">=</span><span class="p">[</span><span class="n">FERC714_XBRL_SQLITE_ASSET_KEY</span><span class="p">],</span> <span class="n">required_resource_keys</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;pudl_paths&quot;</span><span class="p">})</span>
+<span class="nd">@asset</span><span class="p">(</span><span class="n">deps</span><span class="o">=</span><span class="p">[</span><span class="n">FERC714_XBRL_SQLITE_ASSET_KEY</span><span class="p">],</span> <span class="n">required_resource_keys</span><span class="o">=</span><span class="p">{</span><span class="s2">"pudl_paths"</span><span class="p">})</span>
 <div class="viewcode-block" id="raw_ferc714_xbrl__metadata_json">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/ferc714/index.html#pudl.extract.ferc714.raw_ferc714_xbrl__metadata_json">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">raw_ferc714_xbrl__metadata_json</span><span class="p">(</span>
     <span class="n">context</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract the FERC 714 XBRL Taxonomy metadata we&#39;ve stored as JSON.</span>
+<span class="w">    </span><span class="sd">"""Extract the FERC 714 XBRL Taxonomy metadata we've stored as JSON.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A dictionary keyed by PUDL table name, with an instant and a duration entry</span>
@@ -1025,9 +1025,9 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        of dictionaries, each of which can be interpreted as a row in a tabular</span>
 <span class="sd">        structure, with each row annotating a separate XBRL concept from the FERC 714</span>
 <span class="sd">        filings.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">metadata_path</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">context</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">pudl_paths</span><span class="o">.</span><span class="n">pudl_output</span> <span class="o">/</span> <span class="s2">&quot;ferc714_xbrl_taxonomy_metadata.json&quot;</span>
+        <span class="n">context</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">pudl_paths</span><span class="o">.</span><span class="n">pudl_output</span> <span class="o">/</span> <span class="s2">"ferc714_xbrl_taxonomy_metadata.json"</span>
     <span class="p">)</span>
     <span class="k">with</span> <span class="n">Path</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">metadata_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="n">xbrl_meta_all</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
@@ -1035,7 +1035,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">valid_tables</span> <span class="o">=</span> <span class="p">{</span>
         <span class="n">table_name</span><span class="p">:</span> <span class="n">xbrl_table</span>
         <span class="k">for</span> <span class="n">table_name</span> <span class="ow">in</span> <span class="n">TABLE_NAME_MAP_FERC714</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">xbrl_table</span> <span class="o">:=</span> <span class="n">TABLE_NAME_MAP_FERC714</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">table_name</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;xbrl&quot;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">xbrl_table</span> <span class="o">:=</span> <span class="n">TABLE_NAME_MAP_FERC714</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">table_name</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"xbrl"</span><span class="p">))</span>
         <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
     <span class="p">}</span>
 
@@ -1045,14 +1045,14 @@ window.runMermaid = runMermaid;</script>
         <span class="k">return</span> <span class="p">[</span>
             <span class="n">metadata</span>
             <span class="k">for</span> <span class="n">table</span> <span class="ow">in</span> <span class="n">xbrl_table</span>
-            <span class="k">for</span> <span class="n">metadata</span> <span class="ow">in</span> <span class="n">xbrl_meta_all</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">table</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">period</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="p">[])</span>
+            <span class="k">for</span> <span class="n">metadata</span> <span class="ow">in</span> <span class="n">xbrl_meta_all</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">table</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">period</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="p">[])</span>
             <span class="k">if</span> <span class="n">metadata</span>
         <span class="p">]</span>
 
     <span class="n">xbrl_meta_out</span> <span class="o">=</span> <span class="p">{</span>
         <span class="n">table_name</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;instant&quot;</span><span class="p">:</span> <span class="n">squash_period</span><span class="p">(</span><span class="n">xbrl_table</span><span class="p">,</span> <span class="s2">&quot;instant&quot;</span><span class="p">,</span> <span class="n">xbrl_meta_all</span><span class="p">),</span>
-            <span class="s2">&quot;duration&quot;</span><span class="p">:</span> <span class="n">squash_period</span><span class="p">(</span><span class="n">xbrl_table</span><span class="p">,</span> <span class="s2">&quot;duration&quot;</span><span class="p">,</span> <span class="n">xbrl_meta_all</span><span class="p">),</span>
+            <span class="s2">"instant"</span><span class="p">:</span> <span class="n">squash_period</span><span class="p">(</span><span class="n">xbrl_table</span><span class="p">,</span> <span class="s2">"instant"</span><span class="p">,</span> <span class="n">xbrl_meta_all</span><span class="p">),</span>
+            <span class="s2">"duration"</span><span class="p">:</span> <span class="n">squash_period</span><span class="p">(</span><span class="n">xbrl_table</span><span class="p">,</span> <span class="s2">"duration"</span><span class="p">,</span> <span class="n">xbrl_meta_all</span><span class="p">),</span>
         <span class="p">}</span>
         <span class="k">for</span> <span class="n">table_name</span><span class="p">,</span> <span class="n">xbrl_table</span> <span class="ow">in</span> <span class="n">valid_tables</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
     <span class="p">}</span>
@@ -1064,7 +1064,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="create_raw_ferc714_xbrl_assets">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/ferc714/index.html#pudl.extract.ferc714.create_raw_ferc714_xbrl_assets">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">create_raw_ferc714_xbrl_assets</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">AssetSpec</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create AssetSpecs for raw FERC 714 XBRL tables.</span>
+<span class="w">    </span><span class="sd">"""Create AssetSpecs for raw FERC 714 XBRL tables.</span>
 
 <span class="sd">    AssetSpecs allow you to specify and access assets that are generated elsewhere.  In</span>
 <span class="sd">    our case, the XBRL database contains the raw FERC 714 assets from 2021 onward. Prior</span>
@@ -1073,21 +1073,21 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A list of FERC 714 AssetSpecs.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># Create assets for the duration and instant tables</span>
-    <span class="n">xbrls</span> <span class="o">=</span> <span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="s2">&quot;xbrl&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">TABLE_NAME_MAP_FERC714</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+    <span class="n">xbrls</span> <span class="o">=</span> <span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="s2">"xbrl"</span><span class="p">]</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">TABLE_NAME_MAP_FERC714</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
     <span class="n">flattened_xbrls</span> <span class="o">=</span> <span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span>
         <span class="n">x</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="k">else</span> <span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">xbrls</span>
     <span class="p">)</span>
     <span class="n">xbrls_with_periods</span> <span class="o">=</span> <span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span>
-        <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">tn</span><span class="si">}</span><span class="s2">_instant&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">tn</span><span class="si">}</span><span class="s2">_duration&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">tn</span> <span class="ow">in</span> <span class="n">flattened_xbrls</span>
+        <span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">tn</span><span class="si">}</span><span class="s2">_instant"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">tn</span><span class="si">}</span><span class="s2">_duration"</span><span class="p">)</span> <span class="k">for</span> <span class="n">tn</span> <span class="ow">in</span> <span class="n">flattened_xbrls</span>
     <span class="p">)</span>
     <span class="n">xbrl_table_names</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">xbrls_with_periods</span><span class="p">))</span>
     <span class="n">raw_ferc714_xbrl_assets</span> <span class="o">=</span> <span class="p">[</span>
         <span class="n">AssetSpec</span><span class="p">(</span>
-            <span class="n">key</span><span class="o">=</span><span class="n">AssetKey</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;raw_ferc714_xbrl__</span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">),</span>
+            <span class="n">key</span><span class="o">=</span><span class="n">AssetKey</span><span class="p">(</span><span class="sa">f</span><span class="s2">"raw_ferc714_xbrl__</span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2">"</span><span class="p">),</span>
             <span class="n">deps</span><span class="o">=</span><span class="p">[</span><span class="n">FERC714_XBRL_SQLITE_ASSET_KEY</span><span class="p">],</span>
-        <span class="p">)</span><span class="o">.</span><span class="n">with_io_manager_key</span><span class="p">(</span><span class="s2">&quot;ferc714_xbrl_sqlite_io_manager&quot;</span><span class="p">)</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">with_io_manager_key</span><span class="p">(</span><span class="s2">"ferc714_xbrl_sqlite_io_manager"</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">table_name</span> <span class="ow">in</span> <span class="n">xbrl_table_names</span>
     <span class="p">]</span>
     <span class="k">return</span> <span class="n">raw_ferc714_xbrl_assets</span></div>

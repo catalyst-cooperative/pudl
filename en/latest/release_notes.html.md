@@ -900,7 +900,7 @@ resilient docs checks, and new secret-scanning hooks. See below for all the deta
   descriptions and allowed values for
   [core_ferceqr_\_contracts](data_dictionaries/pudl_db.html.md#core-ferceqr-contracts) and [core_ferceqr_\_transactions](data_dictionaries/pudl_db.html.md#core-ferceqr-transactions) so their
   constraints match their distinct ENUM constraints as documented in
-  [`v3.5 of the FERC EQR data dictionary`](data_sources/ferceqr/ferceqr_data_dictionary_v35_2020-11-23.pdf).
+  [`v3.5 of the FERC EQR data dictionary`](_downloads/9aeea8d4e53377dae719d40559c31490/ferceqr_data_dictionary_v35_2020-11-23.pdf).
   See [#5085](https://github.com/catalyst-cooperative/pudl/pull/5085).
 * Fixed EIA-757A extraction so raw columns are renamed correctly into PUDL’s
   standard naming conventions. See [#4722](https://github.com/catalyst-cooperative/pudl/issues/4722) and [#5107](https://github.com/catalyst-cooperative/pudl/pull/5107).
