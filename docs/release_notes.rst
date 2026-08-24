@@ -27,6 +27,44 @@ Bug Fixes & Data Cleaning
   key instead of ``data_tests:``, meaning ``dbt_helper`` silently discarded the tests
   they contained instead of merging them into the generated ``schema.yml``. See PR
   :pr:`5458`.
+* Fixed a bug in ``allocate_gen_fuel.identify_proposed_plants()`` where a plant that
+  transitions from ``proposed`` to ``existing`` status across the years spanned by a
+  multi-year ETL run had its legitimately all-proposed years' generation and fuel data
+  silently dropped. The "entirely proposed" check compared operational status across
+  the full multi-year input rather than per year, so a plant with mixed statuses across
+  its history would never pass the check for *any* of its years. Thanks to
+  :user:`grgmiller` for this contribution. See :issue:`5440` and :pr:`5419`.
+* Fixed the same multi-year status bug in the sibling function
+  ``allocate_gen_fuel.identify_retired_plants()``, found while reviewing the
+  ``identify_proposed_plants()`` fix above. A plant that is entirely ``retired`` in
+  one year but has ``existing`` generators reported at the same ``plant_id_eia`` in
+  another year (e.g. a repowered or rebuilt site) never passed the "entirely retired"
+  check for *any* of its years, silently dropping legitimate retired-but-reporting
+  generation and fuel data. See :issue:`5440` and :pr:`5419`.
+* Unified the retiring/retired and coming-online/proposed generator and plant
+  detection logic in ``allocate_gen_fuel.py`` into two shared helper functions
+  (``_identify_transitioning_generators`` and
+  ``_identify_entirely_transitioned_plants``), so the "generator retiring" and
+  "generator coming online" cases -- previously two independently hand-maintained,
+  supposedly mirror-image implementations -- can no longer silently drift out of
+  sync with each other. Also plumbed the actual, confirmed ``generator_operating_date``
+  into the allocation pipeline (mirroring the existing use of
+  ``generator_retirement_date``), enabling ``identify_generators_coming_online()`` to
+  recognize a generator that's already operating mid-year even before it has any
+  reported generation or fuel data, and ``identify_proposed_plants()`` to detect a
+  proposed plant reporting generation anomalously before its confirmed operating
+  date, mirroring ``identify_retired_plants()``'s post-retirement anomaly check.
+  A null transition date (``generator_operating_date`` or
+  ``generator_retirement_date``) is treated as unable to disprove an anomaly, rather
+  than excluded by default. This matters mainly on the proposed side:
+  ``generator_operating_date`` is a harvested-once entity attribute (unlike
+  ``generator_retirement_date``, which is populated for ~99.96% of retired
+  generator-years), so it's null only for generators never yet observed as
+  ``existing`` -- mostly cancelled or still-pending proposed projects that never
+  report real generation or fuel to begin with, and so never enter this analysis at
+  all. Only a small minority of the rows rescued on the proposed side actually depend
+  on this null-date fallback; most come from generators that do eventually come
+  online and already have a known operating date. See :issue:`5440` and :pr:`5419`.
 * Fixed several sources of non-deterministic row counts, where identical code and data
   produced different results on different machines (e.g. local macOS vs. nightly Linux
   builds) because several functions resolved ties among candidate values using
