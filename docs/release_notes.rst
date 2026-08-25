@@ -111,6 +111,14 @@ Bug Fixes & Data Cleaning
   ``out_pudl__yearly_assn_eia_ferc1_plant_parts`` to have a NULL ``report_date``.
   See issue :issue:`4130` and PR :pr:`5503`
 
+Performance Improvements
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Fixed a performance regression resulting from the update to Numpy 2.5, which ended up
+  using complex arithmetic in calculating eigenvalues due to floating point noise in the
+  imaginary components of the matrix math we were doing in our timeseries imputations.
+  See PR :pr:`5503`.
+
 Developer Experience
 ^^^^^^^^^^^^^^^^^^^^
 
