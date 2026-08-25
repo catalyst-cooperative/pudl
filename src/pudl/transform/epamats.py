@@ -1,14 +1,23 @@
-"""Module to perform data cleaning functions on EPA MATS data tables."""
+"""Module to perform data cleaning functions on EPA MATS data tables.
 
-import datetime
+Several transformation steps are identical to those used for EPA CEMS data
+(crosswalk-based plant ID harmonization, UTC conversion, plant UTC offset
+loading, and crosswalk validation), so they are imported directly from
+``pudl.transform.epacems`` rather than duplicated here.
+"""
 
 import dagster as dg
 import pandas as pd
 import polars as pl
-import pytz
 
 import pudl.logging_helpers
 from pudl.metadata.dtypes import apply_pudl_dtypes_polars
+from pudl.transform.epacems import (
+    _load_plant_utc_offset,
+    _validate_crosswalk_uniqueness,
+    convert_to_utc,
+    harmonize_eia_epa_orispl,
+)
 
 logger = pudl.logging_helpers.get_logger(__name__)
 
@@ -92,153 +101,6 @@ def _validate_and_drop_hf_columns(lf: pl.LazyFrame) -> pl.LazyFrame:
         f"{dict(zip(HF_COLUMNS, non_null_counts, strict=True))}"
     )
     return lf.drop(HF_COLUMNS)
-
-
-def harmonize_eia_epa_orispl(
-    lf: pl.LazyFrame,
-    crosswalk_lf: pl.LazyFrame,
-) -> pl.LazyFrame:
-    """Harmonize the ORISPL code to match the EIA data.
-
-    The EIA plant IDs and EPA ORISPL codes almost match, but not quite. EPA has
-    compiled a crosswalk that maps one set of IDs to the other. The crosswalk is
-    integrated into the PUDL db.
-
-    This function merges the crosswalk with the MATS data thus adding the official
-    plant_id_eia column. In cases where there is no plant_id_eia value for a
-    given plant_id_epa (i.e., this plant isn't in the crosswalk yet), we use
-    fill_null() to add the plant_id_epa value to the plant_id_eia column. Because the
-    plant_id_epa is almost always correct this is reasonable.
-
-    EIA IDs are more correct so use the crosswalk to fix any erroneous EPA IDs and get
-    rid of that column to avoid confusion.
-
-    Note that this transformation needs to be run *before* convert_to_utc, because
-    convert_to_utc uses the plant ID to look up timezones.
-
-    Args:
-        lf: A MATS hourly LazyFrame.
-        crosswalk_lf: The core_epa__assn_eia_epacamd table as a Polars LazyFrame.
-
-    Returns:
-        The same data, with the ORISPL plant codes corrected to match the EIA plant IDs.
-    """
-    return lf.join(
-        crosswalk_lf.select(
-            [
-                "plant_id_eia",
-                "plant_id_epa",
-                "emissions_unit_id_epa",
-            ]
-        )
-        .unique()
-        .sort(["plant_id_eia", "emissions_unit_id_epa"]),
-        on=["plant_id_epa", "emissions_unit_id_epa"],
-        how="left",
-        coalesce=True,
-    ).with_columns(pl.col("plant_id_eia").fill_null(pl.col("plant_id_epa")))
-
-
-def convert_to_utc(lf: pl.LazyFrame, plant_utc_offset: pl.LazyFrame) -> pl.LazyFrame:
-    """Convert MATS datetime data to UTC timezones.
-
-    Transformations include:
-
-    * Account for timezone differences with offset from UTC.
-
-    Args:
-        lf: MATS hourly data as a Polars LazyFrame.
-        plant_utc_offset: Associated plant UTC offsets as a Polars LazyFrame.
-
-    Returns:
-        The same data, with an operating_datetime_utc column added and the op_date and
-        op_hour columns removed.
-    """
-    return (
-        lf.with_columns(
-            op_datetime_naive=pl.col("op_date").dt.combine(
-                pl.time(hour=pl.col("op_hour"))
-            )
-        )
-        .join(
-            plant_utc_offset.sort("plant_id_eia"),
-            how="left",
-            on="plant_id_eia",
-            coalesce=True,
-        )
-        .with_columns(
-            operating_datetime_utc=pl.col("op_datetime_naive") - pl.col("utc_offset")
-        )
-        .drop(["op_date", "op_hour", "op_datetime_naive", "utc_offset"])
-    )
-
-
-def _load_plant_utc_offset(core_eia__entity_plants: pl.DataFrame) -> pl.DataFrame:
-    """Load the UTC offset for each EIA plant.
-
-    MATS times don't change for DST, so we get the UTC offset by using the
-    offset for the plants' timezones in January.
-
-    Args:
-        core_eia__entity_plants: EIA plants DataFrame.
-
-    Returns:
-        Polars DataFrame of applicable timezones taken from the core_eia__entity_plants
-        table.
-    """
-    logger.debug("Creating plant UTC offset DataFrame")
-
-    jan1 = datetime.datetime(2011, 1, 1)
-
-    timezone_offset_map = {
-        tz: pytz.timezone(tz).localize(jan1).utcoffset()
-        for tz in core_eia__entity_plants.get_column("timezone")
-        .drop_nulls()
-        .unique()
-        .to_list()
-    }
-
-    return (
-        core_eia__entity_plants.select(["plant_id_eia", "timezone"])
-        .drop_nulls()
-        .unique()
-        .with_columns(
-            utc_offset=pl.col("timezone").replace(timezone_offset_map, default=None)
-        )
-        .select(["plant_id_eia", "utc_offset"])
-    )
-
-
-def _validate_crosswalk_uniqueness(crosswalk_df: pl.DataFrame) -> None:
-    """Validate that crosswalk has unique plant_id_eia values per EPA plant/unit.
-
-    This validation is done separately to avoid materializing the LazyFrame during
-    transformation.
-
-    Args:
-        crosswalk_df: A polars DataFrame of the core_epa__assn_eia_epacamd table.
-
-    Raises:
-        AssertionError: If crosswalk has multiple plant_id_eia values for a single EPA
-        identifier.
-    """
-    logger.debug("Validating crosswalk uniqueness")
-
-    num_violations = (
-        crosswalk_df.group_by(["plant_id_epa", "emissions_unit_id_epa"])
-        .agg(pl.col("plant_id_eia").n_unique().alias("unique_eia_plants"))
-        .filter(pl.col("unique_eia_plants") > 1)
-        .height
-    )
-
-    if num_violations > 0:
-        logger.error(
-            f"Found {num_violations} EPA plant/unit combinations with multiple EIA plant IDs"
-        )
-        raise AssertionError(
-            "The core_epa__assn_eia_epacamd crosswalk has more than one plant_id_eia "
-            "value per plant_id_epa and emissions_unit_id_epa group"
-        )
 
 
 def transform_epamats(
