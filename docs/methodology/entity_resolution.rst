@@ -217,7 +217,7 @@ We use different rules for columns with additional requirements:
    Because we always choose the most consistent prime mover code, even when less than
    50% of occurrences have that value, we occasionally see a tie between two equally
    consistent values. Because prime mover code is part of the primary key in some
-   tables, which value is chosen can affect whether some records appear or disappear.
+   tables, which value is chosen can affect whether some records appear or not.
    Ties are resolved deterministically (the alphabetically first tied value wins), so
    the outcome is stable across ETL runs and platforms. This scenario is rare (on the
    order of 1 in 100,000 records).

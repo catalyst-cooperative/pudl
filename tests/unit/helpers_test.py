@@ -746,7 +746,7 @@ def test_dedupe_on_category_prefers_sorter_priority_regardless_of_row_order():
 
     ``dedupe_on_category`` is documented to retain the value that comes first
     in ``sorter`` (its priority order), e.g. plant_parts_eia.py uses it to
-    prefer "existing" generators over "retired" ones. Reproduces a bug where
+    prefer "existing" generators over "retired" ones. Regression test for a bug where
     the function never actually sorts by the category before deduplicating,
     so it silently falls back to first-occurrence-in-the-input behavior,
     making the harvested value depend on upstream row order.

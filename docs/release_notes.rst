@@ -37,8 +37,9 @@ Bug Fixes & Data Cleaning
 * Fixed ``add_null_overrides()`` in the FERC1-EIA record linkage nulling out the
   condensed ``report_date``, ``report_year``, ``plant_id_pudl``, and
   ``utility_id_pudl`` columns for every known-unmatched FERC1 record, instead of only
-  the EIA match columns. This caused 788 otherwise-valid records in
-  ``out_pudl__yearly_assn_eia_ferc1_plant_parts`` to have a NULL ``report_date``.
+  the EIA match columns. With the fix, 788 records in
+  ``out_pudl__yearly_assn_eia_ferc1_plant_parts`` which used to have a NULL ``report_date``
+  now appear with correct date information.
   See issue :issue:`4130` and PR :pr:`5503`
 
 Developer Experience
