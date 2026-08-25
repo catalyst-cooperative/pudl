@@ -49,20 +49,22 @@ def _winners(col_df: pd.DataFrame, cols_to_consit: list[str], col: str) -> pd.Se
 
 
 def test_occurrence_consistency_tiebreak_is_alphabetical():
-    """Exactly-tied candidate values must resolve deterministically.
+    """Exactly-tied candidate values must resolve ties deterministically.
 
-    When a column is harvested with ``strictness=0`` (e.g. ``prime_mover_code``), every
-    distinct reported value can end up an equally-valid candidate. Real production data
-    hits this: plant_id_eia=50973/generator_id="GN27" reported ``prime_mover_code`` as
-    "CA" in one source table and "ST" in another for report_date 2011-01-01, tied 1-1.
+    Regression test: previously ``occurrence_consistency`` sorted only by
+    consistent_rate, so values exactly tied on it (e.g. a column harvested with
+    ``strictness=0``, where every distinct value is a candidate) resolved to whichever
+    value happened to come first, which isn't guaranteed to be stable across
+    pandas/numpy versions or upstream row order. Real production data hit this:
+    plant_id_eia=50973/generator_id="GN27" reported ``prime_mover_code`` as "CA" in one
+    source table and "ST" in another for report_date 2011-01-01, tied 1-1.
     :func:`occurrence_consistency` should always resolve such ties to the alphabetically
-    first value, per :ref:`entity_resolution`, rather than leaving the outcome to
-    incidental pandas/numpy sort behavior.
+    first value, per :ref:`entity_resolution`.
 
     To prove the winner tracks the *value* rather than some incidental artifact of row
     order, we run the same tied entities twice: once with the original codes, and once
-    with those codes relabeled (frequencies untouched) so the alphabetical order flips.
-    The winner must flip too.
+    with a different set of tied codes (frequencies untouched) so the alphabetically
+    first value flips. The winner must flip too.
     """
     cols_to_consit = ["plant_id_eia", "generator_id", "report_date"]
 

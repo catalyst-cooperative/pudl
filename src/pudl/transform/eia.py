@@ -194,10 +194,11 @@ def occurrence_consistency(
         col_df["record_occurrences"] / col_df["entity_occurrences"]
     )
     col_df["is_candidate"] = col_df["consistent_rate"] > strictness
-    # Sort by col as a tiebreaker so that when multiple reported values
-    # are exactly tied on consistent_rate (e.g. a column harvested
-    # with strictness=0, where every distinct value is a candidate),
-    # we still get a deterministic order.
+    # Sort by col as a tiebreaker: values exactly tied on consistent_rate
+    # (e.g. a column harvested with strictness=0, where every distinct value
+    # is a candidate) would otherwise resolve to whichever value happens to
+    # come first in compiled_df, which isn't guaranteed to be stable across
+    # pandas/numpy versions or upstream row order.
     col_df = col_df.sort_values(["consistent_rate", col], ascending=[False, True])
     return col_df
 

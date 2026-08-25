@@ -741,15 +741,15 @@ def test_dedupe_drop_na():
     assert len(deduped.index) == 3
 
 
-def test_dedupe_on_category_prefers_sorter_priority_regardless_of_row_order():
-    """The preferred category should win no matter which row appears first.
+def test_dedupe_on_category_tiebreak_is_sorter_priority():
+    """Tied categories must resolve ties deterministically by sorter priority.
 
-    ``dedupe_on_category`` is documented to retain the value that comes first
-    in ``sorter`` (its priority order), e.g. plant_parts_eia.py uses it to
-    prefer "existing" generators over "retired" ones. Regression test for a bug where
-    the function never actually sorts by the category before deduplicating,
-    so it silently falls back to first-occurrence-in-the-input behavior,
-    making the harvested value depend on upstream row order.
+    Regression test: previously ``dedupe_on_category`` never actually sorted by the
+    category before deduplicating, so it silently fell back to whichever row happened
+    to come first in the input, which isn't guaranteed to be stable across upstream
+    row order. ``dedupe_on_category`` is documented to retain the value that comes
+    first in ``sorter`` (its priority order) -- e.g. plant_parts_eia.py uses it to
+    prefer "existing" generators over "retired" ones -- regardless of row order.
     """
     sorter = ["existing", "proposed", "retired"]
 
