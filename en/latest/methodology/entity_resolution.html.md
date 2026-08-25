@@ -143,13 +143,14 @@ We use different rules for columns with additional requirements:
 * We set the consistency threshold to 0% for a few columns so that we always get a
   value. These include plant name, utility name, and prime mover code.
 
-#### CAUTION
+#### NOTE
 Because we always choose the most consistent prime mover code, even when less than
 50% of occurrences have that value, we occasionally see a tie between two equally
-consistent values. In these cases, the resolved value may not be deterministic.
-Because prime mover code is part of the primary key in some tables it is possible for
-some records to appear or disappear based on which value was chosen. However, this
-scenario is extremely rare (on the order of 1 in 100,000 records).
+consistent values. Because prime mover code is part of the primary key in some
+tables, which value is chosen can affect whether some records appear or not.
+Ties are resolved deterministically (the alphabetically first tied value wins), so
+the outcome is stable across ETL runs and platforms. This scenario is rare (on the
+order of 1 in 100,000 records).
 
 ## Interpreting Discrepancies
 

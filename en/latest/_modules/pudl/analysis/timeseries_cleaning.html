@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.analysis.timeseries_cleaning &#8212; PUDL 2026.8.1.dev19 documentation</title>
+    <title>pudl.analysis.timeseries_cleaning &#8212; PUDL 2026.8.1.dev21 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=5bf64ec1"></script>
+    <script src="../../../_static/documentation_options.js?v=265a745c"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev19 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev19 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev21 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev21 documentation - Home"/>
   
   
 </a></div>
@@ -1696,7 +1696,10 @@ window.runMermaid = runMermaid;</script>
     <span class="n">snorm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">mat</span><span class="p">,</span> <span class="s2">"fro"</span><span class="p">)</span>
     <span class="n">rho</span> <span class="o">=</span> <span class="n">rho0</span>
     <span class="n">temp1</span> <span class="o">=</span> <span class="n">_ten2mat</span><span class="p">(</span><span class="n">_mat2ten</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">dim</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span>
-    <span class="n">_</span><span class="p">,</span> <span class="n">phi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eig</span><span class="p">(</span><span class="n">temp1</span> <span class="o">@</span> <span class="n">temp1</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+    <span class="c1"># temp1 @ temp1.T is symmetric PSD by construction, so eigh is both</span>
+    <span class="c1"># correct and avoids eig's complex128 return dtype, which forces all</span>
+    <span class="c1"># downstream _tsvt() einsum/SVD calls into much slower complex arithmetic.</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">phi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eigh</span><span class="p">(</span><span class="n">temp1</span> <span class="o">@</span> <span class="n">temp1</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
     <span class="k">del</span> <span class="n">temp1</span>
     <span class="k">if</span> <span class="n">dim_time</span> <span class="o">&gt;</span> <span class="mf">5e3</span> <span class="ow">and</span> <span class="n">dim_time</span> <span class="o">&lt;=</span> <span class="mf">1e4</span><span class="p">:</span>
         <span class="n">sample_rate</span> <span class="o">=</span> <span class="mf">0.2</span>
@@ -1735,7 +1738,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">it</span> <span class="o">+=</span> <span class="mi">1</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">mod</span><span class="p">(</span><span class="n">it</span><span class="p">,</span> <span class="mi">10</span><span class="p">):</span>
             <span class="n">temp1</span> <span class="o">=</span> <span class="n">_ten2mat</span><span class="p">(</span><span class="n">_mat2ten</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">dim</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-</span> <span class="n">t</span> <span class="o">/</span> <span class="n">rho</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
-            <span class="n">_</span><span class="p">,</span> <span class="n">phi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eig</span><span class="p">(</span><span class="n">temp1</span> <span class="o">@</span> <span class="n">temp1</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+            <span class="n">_</span><span class="p">,</span> <span class="n">phi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eigh</span><span class="p">(</span><span class="n">temp1</span> <span class="o">@</span> <span class="n">temp1</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
             <span class="k">del</span> <span class="n">temp1</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Iteration: </span><span class="si">{</span><span class="n">it</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">"</span><span class="se">\r</span><span class="s2">"</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">tol</span> <span class="o">&lt;</span> <span class="n">epsilon</span> <span class="ow">or</span> <span class="n">it</span> <span class="o">&gt;=</span> <span class="n">maxiter</span><span class="p">:</span>
