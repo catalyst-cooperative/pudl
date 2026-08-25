@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.metadata.resources.sec10k &#8212; PUDL 2026.8.1.dev16 documentation</title>
+    <title>pudl.metadata.resources.sec10k &#8212; PUDL 2026.8.1.dev20 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../../_static/documentation_options.js?v=f981bf86"></script>
+    <script src="../../../../_static/documentation_options.js?v=8f1a003a"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev20 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev20 documentation - Home"/>
   
   
 </a></div>
@@ -871,183 +871,183 @@ window.runMermaid = runMermaid;</script>
                 <article class="bd-article">
                   
   <h1>Source code for pudl.metadata.resources.sec10k</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Table definitions for the SEC10k tables.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Table definitions for the SEC10k tables."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
 
 <div class="viewcode-block" id="RESOURCE_METADATA">
 <a class="viewcode-back" href="../../../../autoapi/pudl/metadata/resources/sec10k/index.html#pudl.metadata.resources.sec10k.RESOURCE_METADATA">[docs]</a>
 <span class="n">RESOURCE_METADATA</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;core_sec10k__assn_exhibit_21_subsidiaries_and_filers&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;subsidiaries listed in &quot;</span>
-                <span class="s2">&quot;Exhibit 21 and their SEC central index key, if the subsidiary also files Form 10-K.&quot;</span>
+    <span class="s2">"core_sec10k__assn_exhibit_21_subsidiaries_and_filers"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"subsidiaries listed in "</span>
+                <span class="s2">"Exhibit 21 and their SEC central index key, if the subsidiary also files Form 10-K."</span>
             <span class="p">),</span>
-            <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;discontinued_pudl&quot;</span><span class="p">],</span>
-            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="s2">&quot;Exhibit 21 subsidiaries and SEC 10-K filers are &quot;</span>
-            <span class="s2">&quot;considered matched if they have identical names and the same location of incorporation.&quot;</span><span class="p">,</span>
+            <span class="s2">"usage_warnings"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"discontinued_pudl"</span><span class="p">],</span>
+            <span class="s2">"additional_details_text"</span><span class="p">:</span> <span class="s2">"Exhibit 21 subsidiaries and SEC 10-K filers are "</span>
+            <span class="s2">"considered matched if they have identical names and the same location of incorporation."</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;subsidiary_company_id_sec10k&quot;</span><span class="p">,</span> <span class="s2">&quot;central_index_key&quot;</span><span class="p">],</span>
-            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;subsidiary_company_id_sec10k&quot;</span><span class="p">],</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"subsidiary_company_id_sec10k"</span><span class="p">,</span> <span class="s2">"central_index_key"</span><span class="p">],</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"subsidiary_company_id_sec10k"</span><span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;sec10k&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;sec10k&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;sec&quot;</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"sec10k"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"sec10k"</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"sec"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_sec10k__assn_exhibit_21_subsidiaries_and_eia_utilities&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;subsidiaries listed in Exhibit 21 and EIA utilities.&quot;</span>
+    <span class="s2">"core_sec10k__assn_exhibit_21_subsidiaries_and_eia_utilities"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"subsidiaries listed in Exhibit 21 and EIA utilities."</span>
             <span class="p">),</span>
-            <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;discontinued_pudl&quot;</span><span class="p">],</span>
-            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;An Exhibit 21 subsidiary is considered matched &quot;</span>
-                <span class="s2">&quot;to an EIA utility if their names are identical. Only subsidiaries that &quot;</span>
-                <span class="s2">&quot;don&#39;t file SEC 10-K themselves are included in this table. SEC 10-K filers &quot;</span>
-                <span class="s2">&quot;have much more information available and are matched to EIA utilities using &quot;</span>
-                <span class="s2">&quot;probabilistic record linkage in :ref:`core_sec10k__assn_sec10k_filers_and_eia_utilities`.&quot;</span>
+            <span class="s2">"usage_warnings"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"discontinued_pudl"</span><span class="p">],</span>
+            <span class="s2">"additional_details_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"An Exhibit 21 subsidiary is considered matched "</span>
+                <span class="s2">"to an EIA utility if their names are identical. Only subsidiaries that "</span>
+                <span class="s2">"don't file SEC 10-K themselves are included in this table. SEC 10-K filers "</span>
+                <span class="s2">"have much more information available and are matched to EIA utilities using "</span>
+                <span class="s2">"probabilistic record linkage in :ref:`core_sec10k__assn_sec10k_filers_and_eia_utilities`."</span>
             <span class="p">),</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;subsidiary_company_id_sec10k&quot;</span><span class="p">,</span> <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">],</span>
-            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;subsidiary_company_id_sec10k&quot;</span><span class="p">],</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"subsidiary_company_id_sec10k"</span><span class="p">,</span> <span class="s2">"utility_id_eia"</span><span class="p">],</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"subsidiary_company_id_sec10k"</span><span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;sec10k&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;sec10k&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;sec&quot;</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"sec10k"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"sec10k"</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"sec"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_sec10k__assn_sec10k_filers_and_eia_utilities&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;SEC 10-K filers and EIA utilities.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="s2">"core_sec10k__assn_sec10k_filers_and_eia_utilities"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="s2">"SEC 10-K filers and EIA utilities."</span><span class="p">,</span>
+            <span class="s2">"usage_warnings"</span><span class="p">:</span> <span class="p">[</span>
                 <span class="p">{</span>
-                    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;custom&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
-                        <span class="s2">&quot;This data has been matched probabilistically &quot;</span>
-                        <span class="s2">&quot;using a machine learning model and contains some incompletions and errors. It should not be &quot;</span>
-                        <span class="s2">&quot;treated as ground truth data.&quot;</span>
+                    <span class="s2">"type"</span><span class="p">:</span> <span class="s2">"custom"</span><span class="p">,</span>
+                    <span class="s2">"description"</span><span class="p">:</span> <span class="p">(</span>
+                        <span class="s2">"This data has been matched probabilistically "</span>
+                        <span class="s2">"using a machine learning model and contains some incompletions and errors. It should not be "</span>
+                        <span class="s2">"treated as ground truth data."</span>
                     <span class="p">),</span>
                 <span class="p">},</span>
-                <span class="s2">&quot;discontinued_pudl&quot;</span><span class="p">,</span>
+                <span class="s2">"discontinued_pudl"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;&quot;SEC central index keys are matched to EIA</span>
+            <span class="s2">"additional_details_text"</span><span class="p">:</span> <span class="s2">"""SEC central index keys are matched to EIA</span>
 <span class="s2">utility IDs using probabilistic record linkage based on associated company information</span>
 <span class="s2">like company name, business and mailing addresses, and state of incorporation.</span>
 <span class="s2">The match between ``central_index_key`` and ``utility_id_eia`` is one to one and is not</span>
 <span class="s2">allowed to change over time. In cases where there were multiple candidate matches,</span>
-<span class="s2">the match with the highest probability is selected.&quot;&quot;&quot;</span><span class="p">,</span>
+<span class="s2">the match with the highest probability is selected."""</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;central_index_key&quot;</span><span class="p">,</span> <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">],</span>
-            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;central_index_key&quot;</span><span class="p">,</span> <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">],</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"central_index_key"</span><span class="p">,</span> <span class="s2">"utility_id_eia"</span><span class="p">],</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"central_index_key"</span><span class="p">,</span> <span class="s2">"utility_id_eia"</span><span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;sec10k&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;sec10k&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;sec&quot;</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"sec10k"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"sec10k"</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"sec"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_sec10k__quarterly_filings&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;metadata describing SEC 10-K filings.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;discontinued_pudl&quot;</span><span class="p">],</span>
-            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;&quot;</span>
+    <span class="s2">"core_sec10k__quarterly_filings"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="s2">"metadata describing SEC 10-K filings."</span><span class="p">,</span>
+            <span class="s2">"usage_warnings"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"discontinued_pudl"</span><span class="p">],</span>
+            <span class="s2">"additional_details_text"</span><span class="p">:</span> <span class="s2">"""</span>
 <span class="s2">Each SEC 10-K filing is submitted by a single company, but may contain information about</span>
 <span class="s2">numerous other companies. This table indicates the company submitting the filing, as</span>
 <span class="s2">well as some information about the overall filing. Each filing is guaranteed to have a</span>
 <span class="s2">unique filename, but ~1</span><span class="si">% o</span><span class="s2">f all filings are one company submitting the same form</span>
 <span class="s2">multiple times on the same day, so the filename is the only available natural primary</span>
-<span class="s2">key.&quot;&quot;&quot;</span><span class="p">,</span>
+<span class="s2">key."""</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;filename_sec10k&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;central_index_key&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;company_name&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;sec10k_type&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;filing_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;exhibit_21_version&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"filename_sec10k"</span><span class="p">,</span>
+                <span class="s2">"central_index_key"</span><span class="p">,</span>
+                <span class="s2">"company_name"</span><span class="p">,</span>
+                <span class="s2">"sec10k_type"</span><span class="p">,</span>
+                <span class="s2">"filing_date"</span><span class="p">,</span>
+                <span class="s2">"exhibit_21_version"</span><span class="p">,</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;filename_sec10k&quot;</span><span class="p">,</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"filename_sec10k"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;sec10k&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;sec10k&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;sec&quot;</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"sec10k"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"sec10k"</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"sec"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;out_sec10k__quarterly_filings&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;metadata describing SEC 10-K filings.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;discontinued_pudl&quot;</span><span class="p">],</span>
-            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;&quot;</span>
+    <span class="s2">"out_sec10k__quarterly_filings"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="s2">"metadata describing SEC 10-K filings."</span><span class="p">,</span>
+            <span class="s2">"usage_warnings"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"discontinued_pudl"</span><span class="p">],</span>
+            <span class="s2">"additional_details_text"</span><span class="p">:</span> <span class="s2">"""</span>
 <span class="s2">Each SEC 10-K filing is submitted by a single company, but may contain information about</span>
 <span class="s2">numerous other companies. This table indicates the company submitting the filing, as</span>
 <span class="s2">well as some information about the overall filing. Each filing is guaranteed to have a</span>
 <span class="s2">unique filename, but ~1</span><span class="si">% o</span><span class="s2">f all filings are one company submitting the same form</span>
 <span class="s2">multiple times on the same day, so the filename is the only available natural primary</span>
 <span class="s2">key. This output table adds a link to the source URL for the filing, which is</span>
-<span class="s2">constructed from the filename.&quot;&quot;&quot;</span><span class="p">,</span>
+<span class="s2">constructed from the filename."""</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;filename_sec10k&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;central_index_key&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;company_name&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;sec10k_type&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;filing_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;exhibit_21_version&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;source_url&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"filename_sec10k"</span><span class="p">,</span>
+                <span class="s2">"central_index_key"</span><span class="p">,</span>
+                <span class="s2">"company_name"</span><span class="p">,</span>
+                <span class="s2">"sec10k_type"</span><span class="p">,</span>
+                <span class="s2">"filing_date"</span><span class="p">,</span>
+                <span class="s2">"exhibit_21_version"</span><span class="p">,</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"source_url"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;filename_sec10k&quot;</span><span class="p">,</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"filename_sec10k"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;sec10k&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;sec10k&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;sec&quot;</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"sec10k"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"sec10k"</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"sec"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_sec10k__quarterly_exhibit_21_company_ownership&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;subsidiary company ownership data from the SEC 10-K Exhibit 21 attachments.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="s2">"core_sec10k__quarterly_exhibit_21_company_ownership"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="s2">"subsidiary company ownership data from the SEC 10-K Exhibit 21 attachments."</span><span class="p">,</span>
+            <span class="s2">"usage_warnings"</span><span class="p">:</span> <span class="p">[</span>
                 <span class="p">{</span>
-                    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;custom&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
-                        <span class="s2">&quot;This data has been extracted probabilistically &quot;</span>
-                        <span class="s2">&quot;using a machine learning model and contains some incompletions and errors. It should not be &quot;</span>
-                        <span class="s2">&quot;treated as ground truth data.&quot;</span>
+                    <span class="s2">"type"</span><span class="p">:</span> <span class="s2">"custom"</span><span class="p">,</span>
+                    <span class="s2">"description"</span><span class="p">:</span> <span class="p">(</span>
+                        <span class="s2">"This data has been extracted probabilistically "</span>
+                        <span class="s2">"using a machine learning model and contains some incompletions and errors. It should not be "</span>
+                        <span class="s2">"treated as ground truth data."</span>
                     <span class="p">),</span>
                 <span class="p">},</span>
-                <span class="s2">&quot;discontinued_pudl&quot;</span><span class="p">,</span>
+                <span class="s2">"discontinued_pudl"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;&quot;</span>
+            <span class="s2">"additional_details_text"</span><span class="p">:</span> <span class="s2">"""</span>
 <span class="s2">Exhibit 21 is an unstructured text or PDF attachment to the main SEC 10-K filing</span>
 <span class="s2">that is used to describe the subsidiaries owned by the filing company. It may or may not</span>
 <span class="s2">provide the percentage of the subsidiary that is owned by the filing company, or the</span>
-<span class="s2">location of the subsidiary.&quot;&quot;&quot;</span><span class="p">,</span>
+<span class="s2">location of the subsidiary."""</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;filename_sec10k&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;subsidiary_company_name&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;subsidiary_company_location&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;subsidiary_company_id_sec10k&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;fraction_owned&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"filename_sec10k"</span><span class="p">,</span>
+                <span class="s2">"subsidiary_company_name"</span><span class="p">,</span>
+                <span class="s2">"subsidiary_company_location"</span><span class="p">,</span>
+                <span class="s2">"subsidiary_company_id_sec10k"</span><span class="p">,</span>
+                <span class="s2">"fraction_owned"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;filename_sec10k&quot;</span><span class="p">,</span> <span class="s2">&quot;subsidiary_company_id_sec10k&quot;</span><span class="p">],</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"filename_sec10k"</span><span class="p">,</span> <span class="s2">"subsidiary_company_id_sec10k"</span><span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;sec10k&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;sec10k&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;sec&quot;</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"sec10k"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"sec10k"</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"sec"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_sec10k__quarterly_company_information&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;company and filing information extracted from SEC 10-K filing headers.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;discontinued_pudl&quot;</span><span class="p">],</span>
-            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;&quot;</span>
+    <span class="s2">"core_sec10k__quarterly_company_information"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="s2">"company and filing information extracted from SEC 10-K filing headers."</span><span class="p">,</span>
+            <span class="s2">"usage_warnings"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"discontinued_pudl"</span><span class="p">],</span>
+            <span class="s2">"additional_details_text"</span><span class="p">:</span> <span class="s2">"""</span>
 <span class="s2">While the SEC 10-K filings are submitted by a single company, they often contain</span>
 <span class="s2">references to many other related companies. Information about these companies and the</span>
 <span class="s2">filing itself are contained in text headers at the beginning of the filing. This table</span>
@@ -1061,51 +1061,51 @@ window.runMermaid = runMermaid;</script>
 <span class="s2">associated with the filing they appeared in and their filer count. Note that all</span>
 <span class="s2">references to a particular company may not be perfectly consistent across all filings in</span>
 <span class="s2">which they appear. The various company names, addresses, and other information</span>
-<span class="s2">associated with the company&#39;s unique and permanent ``central_index_key`` are later used</span>
-<span class="s2">as inputs into the probabilistic record linkage process.&quot;&quot;&quot;</span><span class="p">,</span>
+<span class="s2">associated with the company's unique and permanent ``central_index_key`` are later used</span>
+<span class="s2">as inputs into the probabilistic record linkage process."""</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;filename_sec10k&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;central_index_key&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;filer_count&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;company_name&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;fiscal_year_end&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;taxpayer_id_irs&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;incorporation_state&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;industry_name_sic&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;industry_id_sic&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;film_number&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;sec10k_type&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;sec_act&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;filing_number_sec&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;phone_number&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;business_street_address&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;business_street_address_2&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;business_city&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;business_state&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;business_zip_code&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;business_zip_code_4&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;business_postal_code&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;mail_street_address&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;mail_street_address_2&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;mail_city&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;mail_state&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;mail_zip_code&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;mail_zip_code_4&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;mail_postal_code&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"filename_sec10k"</span><span class="p">,</span>
+                <span class="s2">"central_index_key"</span><span class="p">,</span>
+                <span class="s2">"filer_count"</span><span class="p">,</span>
+                <span class="s2">"company_name"</span><span class="p">,</span>
+                <span class="s2">"fiscal_year_end"</span><span class="p">,</span>
+                <span class="s2">"taxpayer_id_irs"</span><span class="p">,</span>
+                <span class="s2">"incorporation_state"</span><span class="p">,</span>
+                <span class="s2">"industry_name_sic"</span><span class="p">,</span>
+                <span class="s2">"industry_id_sic"</span><span class="p">,</span>
+                <span class="s2">"film_number"</span><span class="p">,</span>
+                <span class="s2">"sec10k_type"</span><span class="p">,</span>
+                <span class="s2">"sec_act"</span><span class="p">,</span>
+                <span class="s2">"filing_number_sec"</span><span class="p">,</span>
+                <span class="s2">"phone_number"</span><span class="p">,</span>
+                <span class="s2">"business_street_address"</span><span class="p">,</span>
+                <span class="s2">"business_street_address_2"</span><span class="p">,</span>
+                <span class="s2">"business_city"</span><span class="p">,</span>
+                <span class="s2">"business_state"</span><span class="p">,</span>
+                <span class="s2">"business_zip_code"</span><span class="p">,</span>
+                <span class="s2">"business_zip_code_4"</span><span class="p">,</span>
+                <span class="s2">"business_postal_code"</span><span class="p">,</span>
+                <span class="s2">"mail_street_address"</span><span class="p">,</span>
+                <span class="s2">"mail_street_address_2"</span><span class="p">,</span>
+                <span class="s2">"mail_city"</span><span class="p">,</span>
+                <span class="s2">"mail_state"</span><span class="p">,</span>
+                <span class="s2">"mail_zip_code"</span><span class="p">,</span>
+                <span class="s2">"mail_zip_code_4"</span><span class="p">,</span>
+                <span class="s2">"mail_postal_code"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;filename_sec10k&quot;</span><span class="p">,</span> <span class="s2">&quot;central_index_key&quot;</span><span class="p">],</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"filename_sec10k"</span><span class="p">,</span> <span class="s2">"central_index_key"</span><span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;sec10k&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;sec10k&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;sec&quot;</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"sec10k"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"sec10k"</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"sec"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_sec10k__changelog_company_name&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;the names each SEC 10-K filer has used.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;discontinued_pudl&quot;</span><span class="p">],</span>
-            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;&quot;</span>
+    <span class="s2">"core_sec10k__changelog_company_name"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="s2">"the names each SEC 10-K filer has used."</span><span class="p">,</span>
+            <span class="s2">"usage_warnings"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"discontinued_pudl"</span><span class="p">],</span>
+            <span class="s2">"additional_details_text"</span><span class="p">:</span> <span class="s2">"""</span>
 <span class="s2">This table is extracted from the same SEC 10-K filing header information as</span>
 <span class="s2">:ref:`core_sec10k__quarterly_company_information`. Each filing reports the full history of</span>
 <span class="s2">name change associated with a company up to the date of that filing. Because individual</span>
@@ -1117,180 +1117,180 @@ window.runMermaid = runMermaid;</script>
 <span class="s2">Roughly 2</span><span class="si">% o</span><span class="s2">f all records describe multiple name changes happening on the same date</span>
 <span class="s2">(they are duplicates on the basis of ``central_index_key`` and ``name_change_date``).</span>
 <span class="s2">This may be due to company name reporting inconsistencies or reporting errors in which</span>
-<span class="s2">the old and new company names have been swapped.&quot;&quot;&quot;</span><span class="p">,</span>
+<span class="s2">the old and new company names have been swapped."""</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;central_index_key&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;name_change_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;company_name_old&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;company_name&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"central_index_key"</span><span class="p">,</span>
+                <span class="s2">"name_change_date"</span><span class="p">,</span>
+                <span class="s2">"company_name_old"</span><span class="p">,</span>
+                <span class="s2">"company_name"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;sec10k&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;sec10k&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;sec&quot;</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"sec10k"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"sec10k"</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"sec"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;out_sec10k__changelog_company_name&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;the names each SEC 10-K filer has used.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;layer_code&quot;</span><span class="p">:</span> <span class="s2">&quot;out_narrow&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;discontinued_pudl&quot;</span><span class="p">],</span>
-            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;&quot;</span>
+    <span class="s2">"out_sec10k__changelog_company_name"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="s2">"the names each SEC 10-K filer has used."</span><span class="p">,</span>
+            <span class="s2">"layer_code"</span><span class="p">:</span> <span class="s2">"out_narrow"</span><span class="p">,</span>
+            <span class="s2">"usage_warnings"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"discontinued_pudl"</span><span class="p">],</span>
+            <span class="s2">"additional_details_text"</span><span class="p">:</span> <span class="s2">"""</span>
 <span class="s2">We use the company name reported in association with each name change block in the</span>
 <span class="s2">company information table to fill in the most recent value of ``company_name_new``.</span>
-<span class="s2">Roughly 1,000 reported &quot;name changes&quot; in which the old and new names were identical</span>
-<span class="s2">have been dropped.&quot;&quot;&quot;</span><span class="p">,</span>
+<span class="s2">Roughly 1,000 reported "name changes" in which the old and new names were identical</span>
+<span class="s2">have been dropped."""</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;central_index_key&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;name_change_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;company_name_old&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;company_name_new&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"central_index_key"</span><span class="p">,</span>
+                <span class="s2">"name_change_date"</span><span class="p">,</span>
+                <span class="s2">"company_name_old"</span><span class="p">,</span>
+                <span class="s2">"company_name_new"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;sec10k&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;sec10k&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;sec&quot;</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"sec10k"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"sec10k"</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"sec"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;out_sec10k__quarterly_company_information&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;company and filing data extracted from SEC 10-K filings.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;discontinued_pudl&quot;</span><span class="p">],</span>
-            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;In addition to the information provided by the &quot;</span>
-                <span class="s2">&quot;:ref:`core_sec10k__quarterly_company_information` table, this output table merges in the &quot;</span>
-                <span class="s2">&quot;associated ``utility_id_eia`` (and utility name) if it is available, as well as the &quot;</span>
-                <span class="s2">&quot;report and filing dates associated with the filing each record was extracted from, as &quot;</span>
-                <span class="s2">&quot;well as providing a link to the source URL for the filing.&quot;</span>
+    <span class="s2">"out_sec10k__quarterly_company_information"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="s2">"company and filing data extracted from SEC 10-K filings."</span><span class="p">,</span>
+            <span class="s2">"usage_warnings"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"discontinued_pudl"</span><span class="p">],</span>
+            <span class="s2">"additional_details_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"In addition to the information provided by the "</span>
+                <span class="s2">":ref:`core_sec10k__quarterly_company_information` table, this output table merges in the "</span>
+                <span class="s2">"associated ``utility_id_eia`` (and utility name) if it is available, as well as the "</span>
+                <span class="s2">"report and filing dates associated with the filing each record was extracted from, as "</span>
+                <span class="s2">"well as providing a link to the source URL for the filing."</span>
             <span class="p">),</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;filename_sec10k&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;central_index_key&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;filer_count&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;utility_name_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;filing_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;company_name&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;fiscal_year_end&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;taxpayer_id_irs&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;incorporation_state&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;industry_name_sic&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;industry_group_sic&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;industry_id_sic&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;film_number&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;sec10k_type&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;sec_act&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;filing_number_sec&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;phone_number&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;business_street_address&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;business_street_address_2&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;business_city&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;business_state&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;business_zip_code&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;business_zip_code_4&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;business_postal_code&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;mail_street_address&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;mail_street_address_2&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;mail_city&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;mail_state&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;mail_zip_code&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;mail_zip_code_4&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;mail_postal_code&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;source_url&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"filename_sec10k"</span><span class="p">,</span>
+                <span class="s2">"central_index_key"</span><span class="p">,</span>
+                <span class="s2">"filer_count"</span><span class="p">,</span>
+                <span class="s2">"utility_id_eia"</span><span class="p">,</span>
+                <span class="s2">"utility_name_eia"</span><span class="p">,</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"filing_date"</span><span class="p">,</span>
+                <span class="s2">"company_name"</span><span class="p">,</span>
+                <span class="s2">"fiscal_year_end"</span><span class="p">,</span>
+                <span class="s2">"taxpayer_id_irs"</span><span class="p">,</span>
+                <span class="s2">"incorporation_state"</span><span class="p">,</span>
+                <span class="s2">"industry_name_sic"</span><span class="p">,</span>
+                <span class="s2">"industry_group_sic"</span><span class="p">,</span>
+                <span class="s2">"industry_id_sic"</span><span class="p">,</span>
+                <span class="s2">"film_number"</span><span class="p">,</span>
+                <span class="s2">"sec10k_type"</span><span class="p">,</span>
+                <span class="s2">"sec_act"</span><span class="p">,</span>
+                <span class="s2">"filing_number_sec"</span><span class="p">,</span>
+                <span class="s2">"phone_number"</span><span class="p">,</span>
+                <span class="s2">"business_street_address"</span><span class="p">,</span>
+                <span class="s2">"business_street_address_2"</span><span class="p">,</span>
+                <span class="s2">"business_city"</span><span class="p">,</span>
+                <span class="s2">"business_state"</span><span class="p">,</span>
+                <span class="s2">"business_zip_code"</span><span class="p">,</span>
+                <span class="s2">"business_zip_code_4"</span><span class="p">,</span>
+                <span class="s2">"business_postal_code"</span><span class="p">,</span>
+                <span class="s2">"mail_street_address"</span><span class="p">,</span>
+                <span class="s2">"mail_street_address_2"</span><span class="p">,</span>
+                <span class="s2">"mail_city"</span><span class="p">,</span>
+                <span class="s2">"mail_state"</span><span class="p">,</span>
+                <span class="s2">"mail_zip_code"</span><span class="p">,</span>
+                <span class="s2">"mail_zip_code_4"</span><span class="p">,</span>
+                <span class="s2">"mail_postal_code"</span><span class="p">,</span>
+                <span class="s2">"source_url"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;filename_sec10k&quot;</span><span class="p">,</span> <span class="s2">&quot;central_index_key&quot;</span><span class="p">],</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"filename_sec10k"</span><span class="p">,</span> <span class="s2">"central_index_key"</span><span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;sec10k&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;sec10k&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;sec&quot;</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"sec10k"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"sec10k"</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"sec"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;out_sec10k__parents_and_subsidiaries&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="s2">&quot;A denormalized table containing information about parent companies that &quot;</span>
-                <span class="s2">&quot;file SEC Form 10-K and their subsidiaries, which may or may not file Form 10-K.&quot;</span>
+    <span class="s2">"out_sec10k__parents_and_subsidiaries"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">"A denormalized table containing information about parent companies that "</span>
+                <span class="s2">"file SEC Form 10-K and their subsidiaries, which may or may not file Form 10-K."</span>
             <span class="p">),</span>
-            <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">"usage_warnings"</span><span class="p">:</span> <span class="p">[</span>
                 <span class="p">{</span>
-                    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;custom&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">(</span>
-                        <span class="s2">&quot;This data has been extracted probabilistically &quot;</span>
-                        <span class="s2">&quot;using a machine learning model and contains some incompletions and errors. It should not be &quot;</span>
-                        <span class="s2">&quot;treated as ground truth data.&quot;</span>
+                    <span class="s2">"type"</span><span class="p">:</span> <span class="s2">"custom"</span><span class="p">,</span>
+                    <span class="s2">"description"</span><span class="p">:</span> <span class="p">(</span>
+                        <span class="s2">"This data has been extracted probabilistically "</span>
+                        <span class="s2">"using a machine learning model and contains some incompletions and errors. It should not be "</span>
+                        <span class="s2">"treated as ground truth data."</span>
                     <span class="p">),</span>
                 <span class="p">},</span>
-                <span class="s2">&quot;discontinued_pudl&quot;</span><span class="p">,</span>
+                <span class="s2">"discontinued_pudl"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;&quot;Company ownership fractions are extracted from SEC 10-K Exhibit 21. Information about</span>
+            <span class="s2">"additional_details_text"</span><span class="p">:</span> <span class="s2">"""Company ownership fractions are extracted from SEC 10-K Exhibit 21. Information about</span>
 <span class="s2">the companies is extracted primarily from the headers of the SEC 10-K filing.</span>
 <span class="s2">Subsidiaries that file Form 10-K will have much more information available than those</span>
 <span class="s2">that only appear as subsidiaries in Exhibit 21.</span>
 
 <span class="s2">SEC 10-K filers and EIA utilities are matched using probabilistic record linkage.</span>
-<span class="s2">Exhibit 21 subsidiaries that don&#39;t file a Form 10-K are matched to EIA utilities using</span>
-<span class="s2">the company name.&quot;&quot;&quot;</span><span class="p">,</span>
+<span class="s2">Exhibit 21 subsidiaries that don't file a Form 10-K are matched to EIA utilities using</span>
+<span class="s2">the company name."""</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;filename_sec10k&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;subsidiary_company_name&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;subsidiary_company_location&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;subsidiary_company_id_sec10k&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;fraction_owned&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;parent_company_central_index_key&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;parent_company_name&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;filing_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;parent_company_phone_number&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;parent_company_business_city&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;parent_company_business_state&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;parent_company_business_street_address&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;parent_company_business_street_address_2&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;parent_company_business_zip_code&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;parent_company_business_zip_code_4&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;parent_company_mail_city&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;parent_company_mail_state&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;parent_company_mail_street_address&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;parent_company_mail_street_address_2&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;parent_company_mail_zip_code&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;parent_company_mail_zip_code_4&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;parent_company_incorporation_state&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;parent_company_utility_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;parent_company_utility_name_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;parent_company_industry_name_sic&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;parent_company_industry_id_sic&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;parent_company_taxpayer_id_irs&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;subsidiary_company_central_index_key&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;subsidiary_company_phone_number&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;subsidiary_company_business_city&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;subsidiary_company_business_state&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;subsidiary_company_business_street_address&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;subsidiary_company_business_street_address_2&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;subsidiary_company_business_zip_code&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;subsidiary_company_business_zip_code_4&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;subsidiary_company_mail_city&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;subsidiary_company_mail_state&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;subsidiary_company_mail_street_address&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;subsidiary_company_mail_street_address_2&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;subsidiary_company_mail_zip_code&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;subsidiary_company_mail_zip_code_4&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;subsidiary_company_incorporation_state&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;subsidiary_company_utility_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;subsidiary_company_utility_name_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;subsidiary_company_industry_name_sic&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;subsidiary_company_industry_id_sic&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;subsidiary_company_taxpayer_id_irs&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"filename_sec10k"</span><span class="p">,</span>
+                <span class="s2">"subsidiary_company_name"</span><span class="p">,</span>
+                <span class="s2">"subsidiary_company_location"</span><span class="p">,</span>
+                <span class="s2">"subsidiary_company_id_sec10k"</span><span class="p">,</span>
+                <span class="s2">"fraction_owned"</span><span class="p">,</span>
+                <span class="s2">"parent_company_central_index_key"</span><span class="p">,</span>
+                <span class="s2">"parent_company_name"</span><span class="p">,</span>
+                <span class="s2">"filing_date"</span><span class="p">,</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"parent_company_phone_number"</span><span class="p">,</span>
+                <span class="s2">"parent_company_business_city"</span><span class="p">,</span>
+                <span class="s2">"parent_company_business_state"</span><span class="p">,</span>
+                <span class="s2">"parent_company_business_street_address"</span><span class="p">,</span>
+                <span class="s2">"parent_company_business_street_address_2"</span><span class="p">,</span>
+                <span class="s2">"parent_company_business_zip_code"</span><span class="p">,</span>
+                <span class="s2">"parent_company_business_zip_code_4"</span><span class="p">,</span>
+                <span class="s2">"parent_company_mail_city"</span><span class="p">,</span>
+                <span class="s2">"parent_company_mail_state"</span><span class="p">,</span>
+                <span class="s2">"parent_company_mail_street_address"</span><span class="p">,</span>
+                <span class="s2">"parent_company_mail_street_address_2"</span><span class="p">,</span>
+                <span class="s2">"parent_company_mail_zip_code"</span><span class="p">,</span>
+                <span class="s2">"parent_company_mail_zip_code_4"</span><span class="p">,</span>
+                <span class="s2">"parent_company_incorporation_state"</span><span class="p">,</span>
+                <span class="s2">"parent_company_utility_id_eia"</span><span class="p">,</span>
+                <span class="s2">"parent_company_utility_name_eia"</span><span class="p">,</span>
+                <span class="s2">"parent_company_industry_name_sic"</span><span class="p">,</span>
+                <span class="s2">"parent_company_industry_id_sic"</span><span class="p">,</span>
+                <span class="s2">"parent_company_taxpayer_id_irs"</span><span class="p">,</span>
+                <span class="s2">"subsidiary_company_central_index_key"</span><span class="p">,</span>
+                <span class="s2">"subsidiary_company_phone_number"</span><span class="p">,</span>
+                <span class="s2">"subsidiary_company_business_city"</span><span class="p">,</span>
+                <span class="s2">"subsidiary_company_business_state"</span><span class="p">,</span>
+                <span class="s2">"subsidiary_company_business_street_address"</span><span class="p">,</span>
+                <span class="s2">"subsidiary_company_business_street_address_2"</span><span class="p">,</span>
+                <span class="s2">"subsidiary_company_business_zip_code"</span><span class="p">,</span>
+                <span class="s2">"subsidiary_company_business_zip_code_4"</span><span class="p">,</span>
+                <span class="s2">"subsidiary_company_mail_city"</span><span class="p">,</span>
+                <span class="s2">"subsidiary_company_mail_state"</span><span class="p">,</span>
+                <span class="s2">"subsidiary_company_mail_street_address"</span><span class="p">,</span>
+                <span class="s2">"subsidiary_company_mail_street_address_2"</span><span class="p">,</span>
+                <span class="s2">"subsidiary_company_mail_zip_code"</span><span class="p">,</span>
+                <span class="s2">"subsidiary_company_mail_zip_code_4"</span><span class="p">,</span>
+                <span class="s2">"subsidiary_company_incorporation_state"</span><span class="p">,</span>
+                <span class="s2">"subsidiary_company_utility_id_eia"</span><span class="p">,</span>
+                <span class="s2">"subsidiary_company_utility_name_eia"</span><span class="p">,</span>
+                <span class="s2">"subsidiary_company_industry_name_sic"</span><span class="p">,</span>
+                <span class="s2">"subsidiary_company_industry_id_sic"</span><span class="p">,</span>
+                <span class="s2">"subsidiary_company_taxpayer_id_irs"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;filename_sec10k&quot;</span><span class="p">,</span> <span class="s2">&quot;subsidiary_company_id_sec10k&quot;</span><span class="p">],</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"filename_sec10k"</span><span class="p">,</span> <span class="s2">"subsidiary_company_id_sec10k"</span><span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;sec10k&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;sec10k&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;sec&quot;</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"sec10k"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"sec10k"</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"sec"</span><span class="p">,</span>
     <span class="p">},</span>
 <span class="p">}</span></div>
 

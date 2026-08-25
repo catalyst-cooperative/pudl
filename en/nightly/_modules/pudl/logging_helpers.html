@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.logging_helpers &#8212; PUDL 2026.8.1.dev16 documentation</title>
+    <title>pudl.logging_helpers &#8212; PUDL 2026.8.1.dev20 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../_static/documentation_options.js?v=f981bf86"></script>
+    <script src="../../_static/documentation_options.js?v=8f1a003a"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
-    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
+    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev20 documentation - Home"/>
+    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev20 documentation - Home"/>
   
   
 </a></div>
@@ -868,7 +868,7 @@ window.runMermaid = runMermaid;</script>
                 <article class="bd-article">
                   
   <h1>Source code for pudl.logging_helpers</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Configure logging for the PUDL package.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Configure logging for the PUDL package."""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span>
@@ -879,17 +879,17 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="DEFAULT_DEPENDENCY_LOGLEVELS">
 <a class="viewcode-back" href="../../autoapi/pudl/logging_helpers/index.html#pudl.DEFAULT_DEPENDENCY_LOGLEVELS">[docs]</a>
 <span class="n">DEFAULT_DEPENDENCY_LOGLEVELS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;aiobotocore&quot;</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">,</span>
-    <span class="s2">&quot;alembic&quot;</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">,</span>
-    <span class="s2">&quot;arelle&quot;</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span>
-    <span class="s2">&quot;asyncio&quot;</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span>
-    <span class="s2">&quot;boto3&quot;</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">,</span>
-    <span class="s2">&quot;botocore&quot;</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">,</span>
-    <span class="s2">&quot;fsspec&quot;</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span>
-    <span class="s2">&quot;google&quot;</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span>
-    <span class="s2">&quot;matplotlib&quot;</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">,</span>
-    <span class="s2">&quot;numba&quot;</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">,</span>
-    <span class="s2">&quot;urllib3&quot;</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span>
+    <span class="s2">"aiobotocore"</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">,</span>
+    <span class="s2">"alembic"</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">,</span>
+    <span class="s2">"arelle"</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span>
+    <span class="s2">"asyncio"</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span>
+    <span class="s2">"boto3"</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">,</span>
+    <span class="s2">"botocore"</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">,</span>
+    <span class="s2">"fsspec"</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span>
+    <span class="s2">"google"</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span>
+    <span class="s2">"matplotlib"</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">,</span>
+    <span class="s2">"numba"</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">,</span>
+    <span class="s2">"urllib3"</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span>
 <span class="p">}</span></div>
 
 
@@ -897,8 +897,8 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="get_logger">
 <a class="viewcode-back" href="../../autoapi/pudl/logging_helpers/index.html#pudl.get_logger">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_logger</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Helper function to append &#39;catalystcoop&#39; to logger name and return logger.&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">get_dagster_logger</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;catalystcoop.</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+<span class="w">    </span><span class="sd">"""Helper function to append 'catalystcoop' to logger name and return logger."""</span>
+    <span class="k">return</span> <span class="n">get_dagster_logger</span><span class="p">(</span><span class="sa">f</span><span class="s2">"catalystcoop.</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span></div>
 
 
 
@@ -906,12 +906,12 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../autoapi/pudl/logging_helpers/index.html#pudl.configure_root_logger">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">configure_root_logger</span><span class="p">(</span>
     <span class="n">logfile</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">loglevel</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;DEBUG&quot;</span><span class="p">,</span> <span class="s2">&quot;INFO&quot;</span><span class="p">,</span> <span class="s2">&quot;WARNING&quot;</span><span class="p">,</span> <span class="s2">&quot;ERROR&quot;</span><span class="p">,</span> <span class="s2">&quot;CRITICAL&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;INFO&quot;</span><span class="p">,</span>
+    <span class="n">loglevel</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"DEBUG"</span><span class="p">,</span> <span class="s2">"INFO"</span><span class="p">,</span> <span class="s2">"WARNING"</span><span class="p">,</span> <span class="s2">"ERROR"</span><span class="p">,</span> <span class="s2">"CRITICAL"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"INFO"</span><span class="p">,</span>
     <span class="n">dependency_loglevels</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">color_logs</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">propagate</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Configure the root catalystcoop logger.</span>
+<span class="w">    </span><span class="sd">"""Configure the root catalystcoop logger.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        logfile: Path to logfile or None.</span>
@@ -921,7 +921,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        color_logs: Whether to emit ANSI color codes. Defaults to ``True``.</span>
 <span class="sd">        propagate: Whether to propagate logs to ancestor loggers. Useful for ensuring</span>
 <span class="sd">            that pytest has access to PUDL logs during testing.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">dependency_loglevels</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">dependency_loglevels</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">DEFAULT_DEPENDENCY_LOGLEVELS</span><span class="p">)</span>
 
@@ -931,15 +931,15 @@ window.runMermaid = runMermaid;</script>
 
     <span class="c1"># Normalize upstream ferc_xbrl_extractor logging to flow through our configured</span>
     <span class="c1"># handlers and formatter without requiring changes in that package.</span>
-    <span class="n">ferc_xbrl_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;catalystcoop.ferc_xbrl_extractor&quot;</span><span class="p">)</span>
+    <span class="n">ferc_xbrl_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">"catalystcoop.ferc_xbrl_extractor"</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">ferc_xbrl_logger</span><span class="o">.</span><span class="n">handlers</span><span class="p">:</span>
         <span class="n">ferc_xbrl_logger</span><span class="o">.</span><span class="n">handlers</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
     <span class="n">ferc_xbrl_logger</span><span class="o">.</span><span class="n">propagate</span> <span class="o">=</span> <span class="kc">True</span>
 
-    <span class="n">log_format</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%(asctime)s</span><span class="s2"> [</span><span class="si">%(levelname)8s</span><span class="s2">] </span><span class="si">%(name)s</span><span class="s2">:</span><span class="si">%(lineno)s</span><span class="s2"> </span><span class="si">%(message)s</span><span class="s2">&quot;</span>
+    <span class="n">log_format</span> <span class="o">=</span> <span class="s2">"</span><span class="si">%(asctime)s</span><span class="s2"> [</span><span class="si">%(levelname)8s</span><span class="s2">] </span><span class="si">%(name)s</span><span class="s2">:</span><span class="si">%(lineno)s</span><span class="s2"> </span><span class="si">%(message)s</span><span class="s2">"</span>
     <span class="n">loggers_to_configure</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="n">get_dagster_logger</span><span class="p">(</span><span class="s2">&quot;catalystcoop&quot;</span><span class="p">),</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;catalystcoop&quot;</span><span class="p">),</span>
+        <span class="n">get_dagster_logger</span><span class="p">(</span><span class="s2">"catalystcoop"</span><span class="p">),</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">"catalystcoop"</span><span class="p">),</span>
     <span class="p">]</span>
     <span class="k">for</span> <span class="n">logger</span> <span class="ow">in</span> <span class="n">loggers_to_configure</span><span class="p">:</span>
         <span class="n">coloredlogs</span><span class="o">.</span><span class="n">install</span><span class="p">(</span>
@@ -959,7 +959,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">logger</span><span class="o">.</span><span class="n">propagate</span> <span class="o">=</span> <span class="n">propagate</span>
 
     <span class="k">if</span> <span class="n">propagate</span><span class="p">:</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;dagster&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">propagate</span> <span class="o">=</span> <span class="kc">True</span></div>
+        <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">"dagster"</span><span class="p">)</span><span class="o">.</span><span class="n">propagate</span> <span class="o">=</span> <span class="kc">True</span></div>
 
 </pre></div>
 

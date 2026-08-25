@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.analysis.operational_characteristics &#8212; PUDL 2026.8.1.dev16 documentation</title>
+    <title>pudl.analysis.operational_characteristics &#8212; PUDL 2026.8.1.dev20 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=f981bf86"></script>
+    <script src="../../../_static/documentation_options.js?v=8f1a003a"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev20 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev20 documentation - Home"/>
   
   
 </a></div>
@@ -868,7 +868,7 @@ window.runMermaid = runMermaid;</script>
                 <article class="bd-article">
                   
   <h1>Source code for pudl.analysis.operational_characteristics</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Use EPA CEMS and EIA data to estimate generator operational characteristics.</span>
+<span></span><span class="sd">"""Use EPA CEMS and EIA data to estimate generator operational characteristics.</span>
 
 <span class="sd">Starting from hourly EPA CEMS gross load and fuel heat content, this module estimates,</span>
 <span class="sd">for every plant-unit, a single trailing-window snapshot of: minimum stable load,</span>
@@ -878,7 +878,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">output row per unit via :func:`estimate_operational_characteristics_by_unit`.</span>
 
 <span class="sd">See :doc:`/methodology/operational_characteristics` for a longer prose explanation.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span>
 
@@ -905,11 +905,11 @@ window.runMermaid = runMermaid;</script>
 <span class="k">def</span><span class="w"> </span><span class="nf">_get_heat_rate_analysis_config</span><span class="p">(</span>
     <span class="n">context</span><span class="p">:</span> <span class="n">AssetExecutionContext</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract heat rate analysis settings from Dagster asset config.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Extract heat rate analysis settings from Dagster asset config."""</span>
     <span class="k">return</span> <span class="p">{</span>
-        <span class="s2">&quot;num_quarters&quot;</span><span class="p">:</span> <span class="n">context</span><span class="o">.</span><span class="n">op_config</span><span class="p">[</span><span class="s2">&quot;num_quarters&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;min_stable_consecutive_hours&quot;</span><span class="p">:</span> <span class="n">context</span><span class="o">.</span><span class="n">op_config</span><span class="p">[</span>
-            <span class="s2">&quot;min_stable_consecutive_hours&quot;</span>
+        <span class="s2">"num_quarters"</span><span class="p">:</span> <span class="n">context</span><span class="o">.</span><span class="n">op_config</span><span class="p">[</span><span class="s2">"num_quarters"</span><span class="p">],</span>
+        <span class="s2">"min_stable_consecutive_hours"</span><span class="p">:</span> <span class="n">context</span><span class="o">.</span><span class="n">op_config</span><span class="p">[</span>
+            <span class="s2">"min_stable_consecutive_hours"</span>
         <span class="p">],</span>
     <span class="p">}</span></div>
 
@@ -918,7 +918,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="_year_quarter_to_ordinal">
 <a class="viewcode-back" href="../../../autoapi/pudl/analysis/operational_characteristics/index.html#pudl.analysis.operational_characteristics._year_quarter_to_ordinal">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_year_quarter_to_ordinal</span><span class="p">(</span><span class="n">year_quarter</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert a ``YYYYqN`` string into a zero-based quarter ordinal.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Convert a ``YYYYqN`` string into a zero-based quarter ordinal."""</span>
     <span class="n">year</span><span class="p">,</span> <span class="n">quarter</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">year_quarter</span><span class="p">[:</span><span class="mi">4</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">year_quarter</span><span class="p">[</span><span class="mi">5</span><span class="p">])</span>
     <span class="k">return</span> <span class="n">year</span> <span class="o">*</span> <span class="mi">4</span> <span class="o">+</span> <span class="p">(</span><span class="n">quarter</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span></div>
 
@@ -927,11 +927,11 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="_ordinal_to_quarter_start">
 <a class="viewcode-back" href="../../../autoapi/pudl/analysis/operational_characteristics/index.html#pudl.analysis.operational_characteristics._ordinal_to_quarter_start">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_ordinal_to_quarter_start</span><span class="p">(</span><span class="n">ordinal</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert a zero-based quarter ordinal into its first UTC timestamp.</span>
+<span class="w">    </span><span class="sd">"""Convert a zero-based quarter ordinal into its first UTC timestamp.</span>
 
 <span class="sd">    ``operating_datetime_utc`` is stored as a timezone-naive timestamp (already in</span>
 <span class="sd">    UTC), so this deliberately returns a naive ``Timestamp`` to compare against it.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">year</span><span class="p">,</span> <span class="n">quarter</span> <span class="o">=</span> <span class="nb">divmod</span><span class="p">(</span><span class="n">ordinal</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="n">year</span><span class="o">=</span><span class="n">year</span><span class="p">,</span> <span class="n">month</span><span class="o">=</span><span class="n">quarter</span> <span class="o">*</span> <span class="mi">3</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">day</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></div>
 
@@ -940,9 +940,9 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="_ordinal_to_year_quarter">
 <a class="viewcode-back" href="../../../autoapi/pudl/analysis/operational_characteristics/index.html#pudl.analysis.operational_characteristics._ordinal_to_year_quarter">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_ordinal_to_year_quarter</span><span class="p">(</span><span class="n">ordinal</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert a zero-based quarter ordinal into its ``YYYYqN`` string.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Convert a zero-based quarter ordinal into its ``YYYYqN`` string."""</span>
     <span class="n">year</span><span class="p">,</span> <span class="n">quarter</span> <span class="o">=</span> <span class="nb">divmod</span><span class="p">(</span><span class="n">ordinal</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
-    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">year</span><span class="si">}</span><span class="s2">q</span><span class="si">{</span><span class="n">quarter</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2">&quot;</span></div>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">year</span><span class="si">}</span><span class="s2">q</span><span class="si">{</span><span class="n">quarter</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2">"</span></div>
 
 
 
@@ -951,7 +951,7 @@ window.runMermaid = runMermaid;</script>
 <span class="k">def</span><span class="w"> </span><span class="nf">_assert_required_quarters_available</span><span class="p">(</span>
     <span class="n">year_quarters</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">target_year_quarter</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">num_quarters</span><span class="p">:</span> <span class="nb">int</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Raise if the configured EPA CEMS quarters don&#39;t cover the trailing window.</span>
+<span class="w">    </span><span class="sd">"""Raise if the configured EPA CEMS quarters don't cover the trailing window.</span>
 
 <span class="sd">    ``EpaCemsDataConfig`` only validates that each configured year-quarter is a</span>
 <span class="sd">    real partition and that there are no duplicates -- it does not require the</span>
@@ -961,7 +961,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    range, with no visibility into which quarters were actually requested. This</span>
 <span class="sd">    check makes a missing or discontinuous configuration fail loudly instead of</span>
 <span class="sd">    silently producing estimates from a partial window.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">target_ordinal</span> <span class="o">=</span> <span class="n">_year_quarter_to_ordinal</span><span class="p">(</span><span class="n">target_year_quarter</span><span class="p">)</span>
     <span class="n">required_ordinals</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="n">target_ordinal</span> <span class="o">-</span> <span class="n">num_quarters</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">target_ordinal</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
     <span class="n">missing</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
@@ -971,9 +971,9 @@ window.runMermaid = runMermaid;</script>
     <span class="p">)</span>
     <span class="k">if</span> <span class="n">missing</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;EPA CEMS year_quarters is missing quarters required for this &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;analysis&#39;s trailing </span><span class="si">{</span><span class="n">num_quarters</span><span class="si">}</span><span class="s2">-quarter window ending at &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">target_year_quarter</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">missing</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="sa">f</span><span class="s2">"EPA CEMS year_quarters is missing quarters required for this "</span>
+            <span class="sa">f</span><span class="s2">"analysis's trailing </span><span class="si">{</span><span class="n">num_quarters</span><span class="si">}</span><span class="s2">-quarter window ending at "</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">target_year_quarter</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">missing</span><span class="si">}</span><span class="s2">."</span>
         <span class="p">)</span></div>
 
 
@@ -981,21 +981,21 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="_select_target_year_quarter">
 <a class="viewcode-back" href="../../../autoapi/pudl/analysis/operational_characteristics/index.html#pudl.analysis.operational_characteristics._select_target_year_quarter">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_select_target_year_quarter</span><span class="p">(</span><span class="n">year_quarters</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Pick the year-quarter to treat as the end of the analysis window.</span>
+<span class="w">    </span><span class="sd">"""Pick the year-quarter to treat as the end of the analysis window.</span>
 
 <span class="sd">    Prefers the most recent year-quarter ending in Q4 (i.e. the most recent</span>
 <span class="sd">    *complete* calendar year), which reproduces the historical whole-year</span>
 <span class="sd">    behavior of this analysis in production. Falls back to the single most</span>
 <span class="sd">    recent year-quarter of any kind when no Q4 is present -- e.g. in the fast</span>
-<span class="sd">    ETL / CI, which only has a single quarter of EPA CEMS data and can&#39;t</span>
+<span class="sd">    ETL / CI, which only has a single quarter of EPA CEMS data and can't</span>
 <span class="sd">    produce a Q4-ending window at all.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">q4_years</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="n">year_quarter</span><span class="o">.</span><span class="n">removesuffix</span><span class="p">(</span><span class="s2">&quot;q4&quot;</span><span class="p">)</span>
+        <span class="n">year_quarter</span><span class="o">.</span><span class="n">removesuffix</span><span class="p">(</span><span class="s2">"q4"</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">year_quarter</span> <span class="ow">in</span> <span class="n">year_quarters</span>
-        <span class="k">if</span> <span class="n">year_quarter</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;q4&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">year_quarter</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">"q4"</span><span class="p">)</span>
     <span class="p">]</span>
-    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">max</span><span class="p">(</span><span class="n">q4_years</span><span class="p">)</span><span class="si">}</span><span class="s2">q4&quot;</span> <span class="k">if</span> <span class="n">q4_years</span> <span class="k">else</span> <span class="nb">max</span><span class="p">(</span><span class="n">year_quarters</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">max</span><span class="p">(</span><span class="n">q4_years</span><span class="p">)</span><span class="si">}</span><span class="s2">q4"</span> <span class="k">if</span> <span class="n">q4_years</span> <span class="k">else</span> <span class="nb">max</span><span class="p">(</span><span class="n">year_quarters</span><span class="p">)</span></div>
 
 
 
@@ -1007,11 +1007,11 @@ window.runMermaid = runMermaid;</script>
     <span class="n">num_quarters</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">states</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">LazyFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Filter hourly EPA CEMS records to the configured analysis window.</span>
+<span class="w">    </span><span class="sd">"""Filter hourly EPA CEMS records to the configured analysis window.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        core_epacems__hourly_emissions: Hourly CEMS emissions and gross load data.</span>
-<span class="sd">        final_year_quarter: Final EPA CEMS year-quarter (e.g. ``&quot;2024q1&quot;``) to</span>
+<span class="sd">        final_year_quarter: Final EPA CEMS year-quarter (e.g. ``"2024q1"``) to</span>
 <span class="sd">            include in the analysis.</span>
 <span class="sd">        num_quarters: Number of historical quarters to include, counting backward</span>
 <span class="sd">            from ``final_year_quarter``.</span>
@@ -1020,29 +1020,29 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Hourly EPA CEMS records filtered to the requested quarters and states.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">final_ordinal</span> <span class="o">=</span> <span class="n">_year_quarter_to_ordinal</span><span class="p">(</span><span class="n">final_year_quarter</span><span class="p">)</span>
     <span class="n">start_ts</span> <span class="o">=</span> <span class="n">_ordinal_to_quarter_start</span><span class="p">(</span><span class="n">final_ordinal</span> <span class="o">-</span> <span class="n">num_quarters</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
     <span class="n">end_ts</span> <span class="o">=</span> <span class="n">_ordinal_to_quarter_start</span><span class="p">(</span><span class="n">final_ordinal</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
     <span class="n">cems_columns</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;plant_id_epa&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;emissions_unit_id_epa&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;operating_datetime_utc&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;state&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;operating_time_hours&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;gross_load_mw&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;heat_content_mmbtu&quot;</span><span class="p">,</span>
+        <span class="s2">"plant_id_eia"</span><span class="p">,</span>
+        <span class="s2">"plant_id_epa"</span><span class="p">,</span>
+        <span class="s2">"emissions_unit_id_epa"</span><span class="p">,</span>
+        <span class="s2">"operating_datetime_utc"</span><span class="p">,</span>
+        <span class="s2">"state"</span><span class="p">,</span>
+        <span class="s2">"operating_time_hours"</span><span class="p">,</span>
+        <span class="s2">"gross_load_mw"</span><span class="p">,</span>
+        <span class="s2">"heat_content_mmbtu"</span><span class="p">,</span>
     <span class="p">]</span>
 
     <span class="c1"># A direct range comparison on operating_datetime_utc (rather than deriving a</span>
     <span class="c1"># quarter number per row) keeps this filter eligible for parquet predicate</span>
     <span class="c1"># pushdown / row-group pruning, the same way the old year-based filter was.</span>
     <span class="n">cems_lf</span> <span class="o">=</span> <span class="n">core_epacems__hourly_emissions</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">cems_columns</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
-        <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;operating_datetime_utc&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">is_between</span><span class="p">(</span><span class="n">start_ts</span><span class="p">,</span> <span class="n">end_ts</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">)</span>
+        <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">"operating_datetime_utc"</span><span class="p">)</span><span class="o">.</span><span class="n">is_between</span><span class="p">(</span><span class="n">start_ts</span><span class="p">,</span> <span class="n">end_ts</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="s2">"left"</span><span class="p">)</span>
     <span class="p">)</span>
     <span class="k">if</span> <span class="n">states</span><span class="p">:</span>
-        <span class="n">cems_lf</span> <span class="o">=</span> <span class="n">cems_lf</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;state&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">is_in</span><span class="p">(</span><span class="n">states</span><span class="p">))</span>
+        <span class="n">cems_lf</span> <span class="o">=</span> <span class="n">cems_lf</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">"state"</span><span class="p">)</span><span class="o">.</span><span class="n">is_in</span><span class="p">(</span><span class="n">states</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">cems_lf</span></div>
 
 
@@ -1053,17 +1053,17 @@ window.runMermaid = runMermaid;</script>
     <span class="n">unit_cols</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
     <span class="n">state_col</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">Expr</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Build an expression assigning run IDs to consecutive hourly observations.</span>
+<span class="w">    </span><span class="sd">"""Build an expression assigning run IDs to consecutive hourly observations.</span>
 
 <span class="sd">    Assumes the frame is already sorted by ``unit_cols`` (and, implicitly,</span>
 <span class="sd">    ``operating_datetime_utc``), since it relies on ``.shift()`` to compare each row</span>
 <span class="sd">    to its immediate predecessor.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">same_unit_and_bin</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">all_horizontal</span><span class="p">(</span>
         <span class="p">[</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="n">c</span><span class="p">)</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="n">c</span><span class="p">)</span><span class="o">.</span><span class="n">shift</span><span class="p">())</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">unit_cols</span><span class="p">]</span>
     <span class="p">)</span>
     <span class="n">consecutive_hour</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;operating_datetime_utc&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">diff</span><span class="p">()</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span><span class="o">.</span><span class="n">truediv</span><span class="p">(</span><span class="mi">3600</span><span class="p">)</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">"operating_datetime_utc"</span><span class="p">)</span><span class="o">.</span><span class="n">diff</span><span class="p">()</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span><span class="o">.</span><span class="n">truediv</span><span class="p">(</span><span class="mi">3600</span><span class="p">)</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
     <span class="p">)</span>
     <span class="n">same_state</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">pl</span><span class="o">.</span><span class="n">lit</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
@@ -1083,7 +1083,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">unit_cols</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
     <span class="n">load_factor_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fully vectorized, per-unit equal-width load-factor binning.</span>
+<span class="w">    </span><span class="sd">"""Fully vectorized, per-unit equal-width load-factor binning.</span>
 
 <span class="sd">    This uses polars but is replicating the ``pandas.cut`` methodology. This results</span>
 <span class="sd">    in a ``load_factor_bin` `column with 10 unique values with a two dimensional</span>
@@ -1094,21 +1094,21 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">    This function uses polars but is attempting to directly reproduce</span>
 <span class="sd">    ``pandas.cut(bins=10, right=True, include_lowest=False)`` within each unit group.</span>
-<span class="sd">    The pandas methodology computes 10 equal-width bins spanning that unit&#39;s own</span>
+<span class="sd">    The pandas methodology computes 10 equal-width bins spanning that unit's own</span>
 <span class="sd">    observed min/max ``load_factor_col`` (``width = (max - min) / 10``), except that</span>
-<span class="sd">    only the *lowest* bin&#39;s left edge is padded by 0.1% of the range (or by 0.001 when</span>
-<span class="sd">    the range is zero) so that the unit&#39;s minimum observation falls inside the</span>
-<span class="sd">    first (right-closed) bin rather than outside every bin -- matching pandas&#39;</span>
+<span class="sd">    only the *lowest* bin's left edge is padded by 0.1% of the range (or by 0.001 when</span>
+<span class="sd">    the range is zero) so that the unit's minimum observation falls inside the</span>
+<span class="sd">    first (right-closed) bin rather than outside every bin -- matching pandas'</span>
 <span class="sd">    ``_bins_to_cuts`` behavior of shifting only ``bins[0]``, not redistributing</span>
 <span class="sd">    the padding across all ten bins.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># compute group load factor</span>
     <span class="n">cems_working</span> <span class="o">=</span> <span class="n">cems_working</span><span class="o">.</span><span class="n">with_columns</span><span class="p">(</span>
         <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="n">load_factor_col</span><span class="p">)</span>
         <span class="o">.</span><span class="n">drop_nulls</span><span class="p">()</span>
         <span class="o">.</span><span class="n">n_unique</span><span class="p">()</span>
         <span class="o">.</span><span class="n">over</span><span class="p">(</span><span class="n">unit_cols</span><span class="p">)</span>
-        <span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;load_factor_nunique&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">"load_factor_nunique"</span><span class="p">)</span>
     <span class="p">)</span>
 
     <span class="n">lo</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="n">load_factor_col</span><span class="p">)</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">over</span><span class="p">(</span><span class="n">unit_cols</span><span class="p">)</span>
@@ -1122,45 +1122,45 @@ window.runMermaid = runMermaid;</script>
     <span class="c1"># into the wrong bin.</span>
     <span class="n">bin_idx</span> <span class="o">=</span> <span class="p">(((</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="n">load_factor_col</span><span class="p">)</span> <span class="o">-</span> <span class="n">lo</span><span class="p">)</span> <span class="o">/</span> <span class="n">width</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">9</span><span class="p">))</span><span class="o">.</span><span class="n">ceil</span><span class="p">()</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
 
-    <span class="n">eligible</span> <span class="o">=</span> <span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;load_factor_nunique&quot;</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span>
+    <span class="n">eligible</span> <span class="o">=</span> <span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">"load_factor_nunique"</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span>
         <span class="n">load_factor_col</span>
     <span class="p">)</span><span class="o">.</span><span class="n">is_not_null</span><span class="p">()</span>
-    <span class="c1"># Only the lowest bin&#39;s left edge is padded -- the other nine bin widths are</span>
-    <span class="c1"># exactly `width`, matching pandas&#39; behavior of shifting only `bins[0]`.</span>
+    <span class="c1"># Only the lowest bin's left edge is padded -- the other nine bin widths are</span>
+    <span class="c1"># exactly `width`, matching pandas' behavior of shifting only `bins[0]`.</span>
     <span class="n">bin_lower</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">pl</span><span class="o">.</span><span class="n">when</span><span class="p">(</span><span class="n">bin_idx</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">then</span><span class="p">(</span><span class="n">lo</span> <span class="o">-</span> <span class="n">pad</span><span class="p">)</span><span class="o">.</span><span class="n">otherwise</span><span class="p">(</span><span class="n">lo</span> <span class="o">+</span> <span class="p">(</span><span class="n">bin_idx</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">width</span><span class="p">)</span>
     <span class="p">)</span>
     <span class="n">bin_upper</span> <span class="o">=</span> <span class="n">lo</span> <span class="o">+</span> <span class="n">bin_idx</span> <span class="o">*</span> <span class="n">width</span>
 
     <span class="n">result</span> <span class="o">=</span> <span class="n">cems_working</span><span class="o">.</span><span class="n">with_columns</span><span class="p">(</span>
-        <span class="n">pl</span><span class="o">.</span><span class="n">when</span><span class="p">(</span><span class="n">eligible</span><span class="p">)</span><span class="o">.</span><span class="n">then</span><span class="p">(</span><span class="n">bin_lower</span><span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;load_factor_bin_lower&quot;</span><span class="p">),</span>
-        <span class="n">pl</span><span class="o">.</span><span class="n">when</span><span class="p">(</span><span class="n">eligible</span><span class="p">)</span><span class="o">.</span><span class="n">then</span><span class="p">(</span><span class="n">bin_upper</span><span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;load_factor_bin_upper&quot;</span><span class="p">),</span>
-        <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;state&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">Categorical</span><span class="p">),</span>
+        <span class="n">pl</span><span class="o">.</span><span class="n">when</span><span class="p">(</span><span class="n">eligible</span><span class="p">)</span><span class="o">.</span><span class="n">then</span><span class="p">(</span><span class="n">bin_lower</span><span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">"load_factor_bin_lower"</span><span class="p">),</span>
+        <span class="n">pl</span><span class="o">.</span><span class="n">when</span><span class="p">(</span><span class="n">eligible</span><span class="p">)</span><span class="o">.</span><span class="n">then</span><span class="p">(</span><span class="n">bin_upper</span><span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">"load_factor_bin_upper"</span><span class="p">),</span>
+        <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">"state"</span><span class="p">)</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">Categorical</span><span class="p">),</span>
     <span class="p">)</span><span class="o">.</span><span class="n">with_columns</span><span class="p">(</span>
         <span class="n">pl</span><span class="o">.</span><span class="n">when</span><span class="p">(</span><span class="n">eligible</span><span class="p">)</span>
         <span class="o">.</span><span class="n">then</span><span class="p">(</span>
             <span class="n">pl</span><span class="o">.</span><span class="n">struct</span><span class="p">(</span>
-                <span class="n">left</span><span class="o">=</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;load_factor_bin_lower&quot;</span><span class="p">),</span>
-                <span class="n">right</span><span class="o">=</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;load_factor_bin_upper&quot;</span><span class="p">),</span>
+                <span class="n">left</span><span class="o">=</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">"load_factor_bin_lower"</span><span class="p">),</span>
+                <span class="n">right</span><span class="o">=</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">"load_factor_bin_upper"</span><span class="p">),</span>
             <span class="p">)</span>
         <span class="p">)</span>
-        <span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;load_factor_bin&quot;</span><span class="p">),</span>
+        <span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">"load_factor_bin"</span><span class="p">),</span>
         <span class="c1"># Rank bins for each set of unit_cols</span>
-        <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;load_factor_bin_lower&quot;</span><span class="p">)</span>
-        <span class="o">.</span><span class="n">rank</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s2">&quot;dense&quot;</span><span class="p">)</span>
+        <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">"load_factor_bin_lower"</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">rank</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s2">"dense"</span><span class="p">)</span>
         <span class="o">.</span><span class="n">over</span><span class="p">(</span><span class="n">unit_cols</span><span class="p">)</span>
-        <span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;load_factor_bin_rank&quot;</span><span class="p">),</span>
+        <span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">"load_factor_bin_rank"</span><span class="p">),</span>
     <span class="p">)</span>
 
     <span class="c1"># This collect() is intentional and important for performance: cems_working</span>
     <span class="c1"># feeds several independent downstream branches (prep_output_df, the</span>
     <span class="c1"># valid_cems/binned_cems chain, and cems_with_stable_bins), each of which</span>
     <span class="c1"># would otherwise re-trigger the .over(unit_cols) window computations above</span>
-    <span class="c1"># (min/max/n_unique/rank -- each a full pass over the unit&#39;s hourly data)</span>
+    <span class="c1"># (min/max/n_unique/rank -- each a full pass over the unit's hourly data)</span>
     <span class="c1"># from scratch. Materializing here forces that shared computation to happen</span>
     <span class="c1"># exactly once. Measured empirically: removing this collect() and staying</span>
     <span class="c1"># lazy through to the end of the pipeline was ~3.5x slower and used ~30% more</span>
-    <span class="c1"># peak memory on real CEMS data, because the query planner doesn&#39;t common</span>
+    <span class="c1"># peak memory on real CEMS data, because the query planner doesn't common</span>
     <span class="c1"># subexpression eliminate across those branches under the streaming engine.</span>
     <span class="k">return</span> <span class="n">result</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span></div>
 
@@ -1173,35 +1173,35 @@ window.runMermaid = runMermaid;</script>
     <span class="n">unit_cols</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
     <span class="n">generation_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Summarize per-unit ramp rates using the steepest 5% of observed ramp-up/down.</span>
+<span class="w">    </span><span class="sd">"""Summarize per-unit ramp rates using the steepest 5% of observed ramp-up/down.</span>
 
 <span class="sd">    This bins on ``ramp_rate`` (change in ``load_factor``), not ``load_factor`` itself</span>
 <span class="sd">    and uses 20 equal-count (quantile) bins. Only the bottom and top bins (the steepest</span>
 <span class="sd">    5% of downward and upward ramps, respectively) are actually used, via</span>
 <span class="sd">    ``head``/``tail`` on the sorted values rather than an explicit bin column.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">ramp_input</span> <span class="o">=</span> <span class="p">(</span>
         <span class="c1"># TODO: (Later) add in this line to remove startup time.</span>
         <span class="c1"># filter_for_min_stable_bin(cems_with_stable_bins)</span>
         <span class="n">cems_with_stable_bins</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span>
-            <span class="n">unit_cols</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;operating_datetime_utc&quot;</span><span class="p">]</span>
+            <span class="n">unit_cols</span> <span class="o">+</span> <span class="p">[</span><span class="s2">"operating_datetime_utc"</span><span class="p">]</span>
         <span class="p">)</span>  <span class="c1"># Ensure proper diff order</span>
         <span class="o">.</span><span class="n">with_columns</span><span class="p">(</span>
             <span class="p">(</span>
-                <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;operating_datetime_utc&quot;</span><span class="p">)</span>
+                <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">"operating_datetime_utc"</span><span class="p">)</span>
                 <span class="o">.</span><span class="n">diff</span><span class="p">()</span>
                 <span class="o">.</span><span class="n">over</span><span class="p">(</span><span class="n">unit_cols</span><span class="p">)</span>  <span class="c1"># Take the diff for each group of unit cols</span>
                 <span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">(</span><span class="n">fractional</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
                 <span class="o">/</span> <span class="p">(</span><span class="mi">3600</span><span class="p">)</span>
-            <span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;time_delta&quot;</span><span class="p">),</span>
-            <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="n">generation_col</span><span class="p">)</span><span class="o">.</span><span class="n">diff</span><span class="p">()</span><span class="o">.</span><span class="n">over</span><span class="p">(</span><span class="n">unit_cols</span><span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;generation_delta&quot;</span><span class="p">),</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">"time_delta"</span><span class="p">),</span>
+            <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="n">generation_col</span><span class="p">)</span><span class="o">.</span><span class="n">diff</span><span class="p">()</span><span class="o">.</span><span class="n">over</span><span class="p">(</span><span class="n">unit_cols</span><span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">"generation_delta"</span><span class="p">),</span>
         <span class="p">)</span>
         <span class="o">.</span><span class="n">with_columns</span><span class="p">(</span>
-            <span class="n">ramp_rate</span><span class="o">=</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;generation_delta&quot;</span><span class="p">)</span> <span class="o">/</span> <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;time_delta&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
-                <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;-inf&quot;</span><span class="p">)],</span> <span class="kc">None</span>
+            <span class="n">ramp_rate</span><span class="o">=</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">"generation_delta"</span><span class="p">)</span> <span class="o">/</span> <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">"time_delta"</span><span class="p">))</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+                <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="s2">"inf"</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="s2">"-inf"</span><span class="p">)],</span> <span class="kc">None</span>
             <span class="p">)</span>
         <span class="p">)</span>
-        <span class="o">.</span><span class="n">drop_nulls</span><span class="p">(</span><span class="s2">&quot;ramp_rate&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">drop_nulls</span><span class="p">(</span><span class="s2">"ramp_rate"</span><span class="p">)</span>
     <span class="p">)</span>
     <span class="n">bin_expression</span> <span class="o">=</span> <span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">len</span><span class="p">()</span> <span class="o">/</span> <span class="mi">20</span><span class="p">)</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">Int64</span><span class="p">)</span>
     <span class="k">return</span> <span class="p">(</span>
@@ -1209,19 +1209,19 @@ window.runMermaid = runMermaid;</script>
         <span class="o">.</span><span class="n">having</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">len</span><span class="p">()</span> <span class="o">&gt;=</span> <span class="mi">20</span><span class="p">)</span>
         <span class="o">.</span><span class="n">agg</span><span class="p">(</span>
             <span class="c1"># ramp_down_rate: median of the bottom 5% of ramp_rate</span>
-            <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;ramp_rate&quot;</span><span class="p">)</span>
+            <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">"ramp_rate"</span><span class="p">)</span>
             <span class="o">.</span><span class="n">sort</span><span class="p">()</span>
             <span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="n">bin_expression</span><span class="p">)</span>
             <span class="o">.</span><span class="n">median</span><span class="p">()</span>
-            <span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;ramp_down_rate&quot;</span><span class="p">),</span>
+            <span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">"ramp_down_rate"</span><span class="p">),</span>
             <span class="c1"># ramp_up_rate: median of the top 5% of ramp_rate</span>
-            <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;ramp_rate&quot;</span><span class="p">)</span>
+            <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">"ramp_rate"</span><span class="p">)</span>
             <span class="o">.</span><span class="n">sort</span><span class="p">()</span>
             <span class="o">.</span><span class="n">tail</span><span class="p">(</span><span class="n">bin_expression</span><span class="p">)</span>
             <span class="o">.</span><span class="n">median</span><span class="p">()</span>
-            <span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;ramp_up_rate&quot;</span><span class="p">),</span>
+            <span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">"ramp_up_rate"</span><span class="p">),</span>
         <span class="p">)</span>
-        <span class="o">.</span><span class="n">cast</span><span class="p">({</span><span class="s2">&quot;ramp_up_rate&quot;</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Float64</span><span class="p">,</span> <span class="s2">&quot;ramp_down_rate&quot;</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Float64</span><span class="p">})</span>
+        <span class="o">.</span><span class="n">cast</span><span class="p">({</span><span class="s2">"ramp_up_rate"</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Float64</span><span class="p">,</span> <span class="s2">"ramp_down_rate"</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Float64</span><span class="p">})</span>
     <span class="p">)</span></div>
 
 
@@ -1231,7 +1231,7 @@ window.runMermaid = runMermaid;</script>
 <span class="k">def</span><span class="w"> </span><span class="nf">handle_adjustment_in_cems</span><span class="p">(</span>
     <span class="n">cems</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">LazyFrame</span><span class="p">,</span> <span class="n">unit_cols</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">adjusted</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">pl</span><span class="o">.</span><span class="n">LazyFrame</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Filter CEMS data, computing derived columns if not adjusted.</span>
+<span class="w">    </span><span class="sd">"""Filter CEMS data, computing derived columns if not adjusted.</span>
 
 <span class="sd">    This enables us to adjust the load factor based using net generation</span>
 <span class="sd">    instead of gross generation. Adjusting the load factor is not yet</span>
@@ -1243,50 +1243,50 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    TODO: Consider simplification or use of a dataclass or other lightweight data</span>
 <span class="sd">    structure. Implement changes when we implement</span>
 <span class="sd">    add_adjusted_net_generation_to_cems below.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">cems_working</span> <span class="o">=</span> <span class="n">cems</span>
 
     <span class="k">if</span> <span class="n">adjusted</span><span class="p">:</span>
-        <span class="n">load_factor_col</span> <span class="o">=</span> <span class="s2">&quot;load_factor_adjusted_cems&quot;</span>
-        <span class="n">generation_col</span> <span class="o">=</span> <span class="s2">&quot;net_generation_mwh_cems&quot;</span>
-        <span class="n">heat_rate_col</span> <span class="o">=</span> <span class="s2">&quot;heat_rate_net_generation_cems&quot;</span>
-        <span class="n">max_load_col</span> <span class="o">=</span> <span class="s2">&quot;max_cap_mw&quot;</span>
+        <span class="n">load_factor_col</span> <span class="o">=</span> <span class="s2">"load_factor_adjusted_cems"</span>
+        <span class="n">generation_col</span> <span class="o">=</span> <span class="s2">"net_generation_mwh_cems"</span>
+        <span class="n">heat_rate_col</span> <span class="o">=</span> <span class="s2">"heat_rate_net_generation_cems"</span>
+        <span class="n">max_load_col</span> <span class="o">=</span> <span class="s2">"max_cap_mw"</span>
 
     <span class="k">else</span><span class="p">:</span>
         <span class="c1"># Calculate max gross load and derived columns</span>
         <span class="n">max_gross_load</span> <span class="o">=</span> <span class="n">cems</span><span class="o">.</span><span class="n">group_by</span><span class="p">(</span><span class="n">unit_cols</span><span class="p">)</span><span class="o">.</span><span class="n">agg</span><span class="p">(</span>
-            <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;gross_load_mw&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;max_gross_load_mw&quot;</span><span class="p">)</span>
+            <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">"gross_load_mw"</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">"max_gross_load_mw"</span><span class="p">)</span>
         <span class="p">)</span>
         <span class="n">cems_working</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">cems</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">max_gross_load</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="n">unit_cols</span><span class="p">)</span>
             <span class="o">.</span><span class="n">with_columns</span><span class="p">(</span>
                 <span class="p">[</span>
-                    <span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;gross_load_mw&quot;</span><span class="p">)</span> <span class="o">/</span> <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;max_gross_load_mw&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span>
-                        <span class="s2">&quot;load_factor&quot;</span>
+                    <span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">"gross_load_mw"</span><span class="p">)</span> <span class="o">/</span> <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">"max_gross_load_mw"</span><span class="p">))</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span>
+                        <span class="s2">"load_factor"</span>
                     <span class="p">),</span>
-                    <span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;gross_load_mw&quot;</span><span class="p">)</span> <span class="o">*</span> <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;operating_time_hours&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span>
-                        <span class="s2">&quot;gross_load_mwh&quot;</span>
+                    <span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">"gross_load_mw"</span><span class="p">)</span> <span class="o">*</span> <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">"operating_time_hours"</span><span class="p">))</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span>
+                        <span class="s2">"gross_load_mwh"</span>
                     <span class="p">),</span>
                 <span class="p">]</span>
             <span class="p">)</span>
             <span class="o">.</span><span class="n">with_columns</span><span class="p">(</span>
-                <span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;heat_content_mmbtu&quot;</span><span class="p">)</span> <span class="o">/</span> <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;gross_load_mwh&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span>
-                    <span class="s2">&quot;heat_rate_mmbtu_per_mwh&quot;</span>
+                <span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">"heat_content_mmbtu"</span><span class="p">)</span> <span class="o">/</span> <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">"gross_load_mwh"</span><span class="p">))</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span>
+                    <span class="s2">"heat_rate_mmbtu_per_mwh"</span>
                 <span class="p">),</span>
             <span class="p">)</span>
         <span class="p">)</span>
-        <span class="n">load_factor_col</span> <span class="o">=</span> <span class="s2">&quot;load_factor&quot;</span>
-        <span class="n">generation_col</span> <span class="o">=</span> <span class="s2">&quot;gross_load_mwh&quot;</span>
-        <span class="n">heat_rate_col</span> <span class="o">=</span> <span class="s2">&quot;heat_rate_mmbtu_per_mwh&quot;</span>
-        <span class="n">max_load_col</span> <span class="o">=</span> <span class="s2">&quot;max_gross_load_mw&quot;</span>
+        <span class="n">load_factor_col</span> <span class="o">=</span> <span class="s2">"load_factor"</span>
+        <span class="n">generation_col</span> <span class="o">=</span> <span class="s2">"gross_load_mwh"</span>
+        <span class="n">heat_rate_col</span> <span class="o">=</span> <span class="s2">"heat_rate_mmbtu_per_mwh"</span>
+        <span class="n">max_load_col</span> <span class="o">=</span> <span class="s2">"max_gross_load_mw"</span>
 
     <span class="k">return</span> <span class="p">(</span>
-        <span class="n">cems_working</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">unit_cols</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;operating_datetime_utc&quot;</span><span class="p">]),</span>
+        <span class="n">cems_working</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">unit_cols</span> <span class="o">+</span> <span class="p">[</span><span class="s2">"operating_datetime_utc"</span><span class="p">]),</span>
         <span class="p">{</span>
-            <span class="s2">&quot;load_factor_col&quot;</span><span class="p">:</span> <span class="n">load_factor_col</span><span class="p">,</span>
-            <span class="s2">&quot;generation_col&quot;</span><span class="p">:</span> <span class="n">generation_col</span><span class="p">,</span>
-            <span class="s2">&quot;heat_rate_col&quot;</span><span class="p">:</span> <span class="n">heat_rate_col</span><span class="p">,</span>
-            <span class="s2">&quot;max_load_col&quot;</span><span class="p">:</span> <span class="n">max_load_col</span><span class="p">,</span>
+            <span class="s2">"load_factor_col"</span><span class="p">:</span> <span class="n">load_factor_col</span><span class="p">,</span>
+            <span class="s2">"generation_col"</span><span class="p">:</span> <span class="n">generation_col</span><span class="p">,</span>
+            <span class="s2">"heat_rate_col"</span><span class="p">:</span> <span class="n">heat_rate_col</span><span class="p">,</span>
+            <span class="s2">"max_load_col"</span><span class="p">:</span> <span class="n">max_load_col</span><span class="p">,</span>
         <span class="p">},</span>
     <span class="p">)</span></div>
 
@@ -1297,32 +1297,32 @@ window.runMermaid = runMermaid;</script>
 <span class="k">def</span><span class="w"> </span><span class="nf">prep_output_df</span><span class="p">(</span>
     <span class="n">cems</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">unit_cols</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">max_load_col</span><span class="p">:</span> <span class="nb">str</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Set up aggregated output dataframe with empty calculated columns.</span>
+<span class="w">    </span><span class="sd">"""Set up aggregated output dataframe with empty calculated columns.</span>
 
-<span class="sd">    Every unit gets a row here, even ones that don&#39;t have enough distinct load</span>
+<span class="sd">    Every unit gets a row here, even ones that don't have enough distinct load</span>
 <span class="sd">    factors to bin (e.g. constant-load units) -- those come back all-null except for</span>
 <span class="sd">    identifying columns and max load. Downstream steps merge their real values on top</span>
 <span class="sd">    of this shell, so every unit is guaranteed to appear in the final output.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="p">(</span>
         <span class="n">cems</span><span class="o">.</span><span class="n">group_by</span><span class="p">(</span><span class="n">unit_cols</span><span class="p">)</span>
         <span class="o">.</span><span class="n">agg</span><span class="p">(</span>
-            <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;plant_id_eia&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">(),</span>
-            <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;state&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">(),</span>
+            <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">"plant_id_eia"</span><span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">(),</span>
+            <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">"state"</span><span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">(),</span>
             <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="n">max_load_col</span><span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">(),</span>
         <span class="p">)</span>
         <span class="o">.</span><span class="n">with_columns</span><span class="p">(</span>
-            <span class="n">pl</span><span class="o">.</span><span class="n">lit</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">Float64</span><span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;min_stable_load_factor&quot;</span><span class="p">),</span>
-            <span class="n">pl</span><span class="o">.</span><span class="n">lit</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">Float64</span><span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;min_up_time_hours&quot;</span><span class="p">),</span>
-            <span class="n">pl</span><span class="o">.</span><span class="n">lit</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">Float64</span><span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;min_down_time_hours&quot;</span><span class="p">),</span>
+            <span class="n">pl</span><span class="o">.</span><span class="n">lit</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">Float64</span><span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">"min_stable_load_factor"</span><span class="p">),</span>
+            <span class="n">pl</span><span class="o">.</span><span class="n">lit</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">Float64</span><span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">"min_up_time_hours"</span><span class="p">),</span>
+            <span class="n">pl</span><span class="o">.</span><span class="n">lit</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">Float64</span><span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">"min_down_time_hours"</span><span class="p">),</span>
             <span class="n">pl</span><span class="o">.</span><span class="n">lit</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
             <span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">Float64</span><span class="p">)</span>
-            <span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;heat_rate_at_max_load_factor_mmbtu_per_mwh&quot;</span><span class="p">),</span>
+            <span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">"heat_rate_at_max_load_factor_mmbtu_per_mwh"</span><span class="p">),</span>
             <span class="n">pl</span><span class="o">.</span><span class="n">lit</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
             <span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">Float64</span><span class="p">)</span>
-            <span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;heat_rate_at_min_stable_load_factor_mmbtu_per_mwh&quot;</span><span class="p">),</span>
-            <span class="n">pl</span><span class="o">.</span><span class="n">lit</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">Float64</span><span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;ramp_up_rate_per_min&quot;</span><span class="p">),</span>
-            <span class="n">pl</span><span class="o">.</span><span class="n">lit</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">Float64</span><span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;ramp_down_rate_per_min&quot;</span><span class="p">),</span>
+            <span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">"heat_rate_at_min_stable_load_factor_mmbtu_per_mwh"</span><span class="p">),</span>
+            <span class="n">pl</span><span class="o">.</span><span class="n">lit</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">Float64</span><span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">"ramp_up_rate_per_min"</span><span class="p">),</span>
+            <span class="n">pl</span><span class="o">.</span><span class="n">lit</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">Float64</span><span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">"ramp_down_rate_per_min"</span><span class="p">),</span>
         <span class="p">)</span>
     <span class="p">)</span></div>
 
@@ -1333,55 +1333,55 @@ window.runMermaid = runMermaid;</script>
 <span class="k">def</span><span class="w"> </span><span class="nf">compute_minimum_stable_bin</span><span class="p">(</span>
     <span class="n">binned_cems</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">unit_cols</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">min_stable_consecutive_hours</span><span class="p">:</span> <span class="nb">int</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Given a certain consecutive hour threshold, find runs with stable behavior.</span>
+<span class="w">    </span><span class="sd">"""Given a certain consecutive hour threshold, find runs with stable behavior.</span>
 
 <span class="sd">    This function determines the minimum stable load load factor bin, which means the</span>
 <span class="sd">    lowest load factor which we see instances of consecutive running.</span>
 
 <span class="sd">    For every record above the first load_factor_bin (aka when a unit is effectively</span>
-<span class="sd">    off), first calculate how long any given &quot;run&quot; is. A &quot;run&quot; here is defined as</span>
+<span class="sd">    off), first calculate how long any given "run" is. A "run" here is defined as</span>
 <span class="sd">    a set of consecutive hours that are within the same ``load_factor_bin`` within a</span>
 <span class="sd">    given unit.</span>
 
 <span class="sd">    Once we know how long all the runs are, we find all of the runs that are longer</span>
 <span class="sd">    than ``min_stable_consecutive_hours`` and we find the ``load_factor_bin`` which</span>
 <span class="sd">    corresponds to the lowest ``load_factor_bin`` to get the minimum stable bin.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">stable_runs</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">binned_cems</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;load_factor_bin_rank&quot;</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">binned_cems</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">"load_factor_bin_rank"</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">)</span>
         <span class="o">.</span><span class="n">group_by</span><span class="p">(</span>
             <span class="n">unit_cols</span>
             <span class="o">+</span> <span class="p">[</span>
                 <span class="c1"># these three load_factor_bin* columns are all derived from</span>
                 <span class="c1"># load_factor_bin (aka we want them in stable_runs but they are</span>
                 <span class="c1"># not adding to unique groups in this groupby).</span>
-                <span class="s2">&quot;load_factor_bin_rank&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;load_factor_bin_lower&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;load_factor_bin&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;bin_run_id&quot;</span><span class="p">,</span>
+                <span class="s2">"load_factor_bin_rank"</span><span class="p">,</span>
+                <span class="s2">"load_factor_bin_lower"</span><span class="p">,</span>
+                <span class="s2">"load_factor_bin"</span><span class="p">,</span>
+                <span class="s2">"bin_run_id"</span><span class="p">,</span>
             <span class="p">]</span>
         <span class="p">)</span>
         <span class="o">.</span><span class="n">len</span><span class="p">()</span>
-        <span class="o">.</span><span class="n">rename</span><span class="p">({</span><span class="s2">&quot;len&quot;</span><span class="p">:</span> <span class="s2">&quot;run_length&quot;</span><span class="p">})</span>
+        <span class="o">.</span><span class="n">rename</span><span class="p">({</span><span class="s2">"len"</span><span class="p">:</span> <span class="s2">"run_length"</span><span class="p">})</span>
     <span class="p">)</span>
 
     <span class="n">stable_bins</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">stable_runs</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;run_length&quot;</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">min_stable_consecutive_hours</span><span class="p">)</span>
-        <span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">unit_cols</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;load_factor_bin_rank&quot;</span><span class="p">])</span>
-        <span class="c1"># maintain_order=True is required for keep=&quot;first&quot; to reliably mean &quot;lowest</span>
-        <span class="c1"># load_factor_bin_rank&quot; -- without it polars doesn&#39;t guarantee that dedup</span>
+        <span class="n">stable_runs</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">"run_length"</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">min_stable_consecutive_hours</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">unit_cols</span> <span class="o">+</span> <span class="p">[</span><span class="s2">"load_factor_bin_rank"</span><span class="p">])</span>
+        <span class="c1"># maintain_order=True is required for keep="first" to reliably mean "lowest</span>
+        <span class="c1"># load_factor_bin_rank" -- without it polars doesn't guarantee that dedup</span>
         <span class="c1"># respects the preceding sort.</span>
-        <span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="n">unit_cols</span><span class="p">,</span> <span class="n">keep</span><span class="o">=</span><span class="s2">&quot;first&quot;</span><span class="p">,</span> <span class="n">maintain_order</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="n">unit_cols</span><span class="p">,</span> <span class="n">keep</span><span class="o">=</span><span class="s2">"first"</span><span class="p">,</span> <span class="n">maintain_order</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="o">.</span><span class="n">rename</span><span class="p">(</span>
             <span class="p">{</span>
-                <span class="s2">&quot;load_factor_bin_rank&quot;</span><span class="p">:</span> <span class="s2">&quot;min_stable_bin_upper&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;load_factor_bin_lower&quot;</span><span class="p">:</span> <span class="s2">&quot;min_stable_load_factor&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;load_factor_bin&quot;</span><span class="p">:</span> <span class="s2">&quot;min_stable_bin&quot;</span><span class="p">,</span>
+                <span class="s2">"load_factor_bin_rank"</span><span class="p">:</span> <span class="s2">"min_stable_bin_upper"</span><span class="p">,</span>
+                <span class="s2">"load_factor_bin_lower"</span><span class="p">:</span> <span class="s2">"min_stable_load_factor"</span><span class="p">,</span>
+                <span class="s2">"load_factor_bin"</span><span class="p">:</span> <span class="s2">"min_stable_bin"</span><span class="p">,</span>
             <span class="p">}</span>
         <span class="p">)</span>
         <span class="o">.</span><span class="n">select</span><span class="p">(</span>
             <span class="n">unit_cols</span>
-            <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;min_stable_bin_upper&quot;</span><span class="p">,</span> <span class="s2">&quot;min_stable_load_factor&quot;</span><span class="p">,</span> <span class="s2">&quot;min_stable_bin&quot;</span><span class="p">]</span>
+            <span class="o">+</span> <span class="p">[</span><span class="s2">"min_stable_bin_upper"</span><span class="p">,</span> <span class="s2">"min_stable_load_factor"</span><span class="p">,</span> <span class="s2">"min_stable_bin"</span><span class="p">]</span>
         <span class="p">)</span>
     <span class="p">)</span>
 
@@ -1396,19 +1396,19 @@ window.runMermaid = runMermaid;</script>
     <span class="n">unit_cols</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
     <span class="n">heat_rate_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute the heat rate at the maximum load (by bin).&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Compute the heat rate at the maximum load (by bin)."""</span>
     <span class="n">max_bin</span> <span class="o">=</span> <span class="n">heat_rate_input</span><span class="o">.</span><span class="n">group_by</span><span class="p">(</span><span class="n">unit_cols</span><span class="p">)</span><span class="o">.</span><span class="n">agg</span><span class="p">(</span>
-        <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;load_factor_bin_rank&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;max_load_bin_upper&quot;</span><span class="p">)</span>
+        <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">"load_factor_bin_rank"</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">"max_load_bin_upper"</span><span class="p">)</span>
     <span class="p">)</span>
 
     <span class="k">return</span> <span class="p">(</span>
         <span class="n">heat_rate_input</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">max_bin</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="n">unit_cols</span><span class="p">)</span>
-        <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;load_factor_bin_rank&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;max_load_bin_upper&quot;</span><span class="p">))</span>
+        <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">"load_factor_bin_rank"</span><span class="p">)</span> <span class="o">==</span> <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">"max_load_bin_upper"</span><span class="p">))</span>
         <span class="o">.</span><span class="n">group_by</span><span class="p">(</span><span class="n">unit_cols</span><span class="p">)</span>
         <span class="o">.</span><span class="n">agg</span><span class="p">(</span>
             <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="n">heat_rate_col</span><span class="p">)</span>
             <span class="o">.</span><span class="n">median</span><span class="p">()</span>
-            <span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;heat_rate_at_max_load_factor_mmbtu_per_mwh&quot;</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">"heat_rate_at_max_load_factor_mmbtu_per_mwh"</span><span class="p">)</span>
         <span class="p">)</span>
     <span class="p">)</span></div>
 
@@ -1422,19 +1422,19 @@ window.runMermaid = runMermaid;</script>
     <span class="n">unit_cols</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
     <span class="n">heat_rate_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute the heat rate for the minimum stable run.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Compute the heat rate for the minimum stable run."""</span>
     <span class="k">return</span> <span class="p">(</span>
         <span class="n">heat_rate_input</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-            <span class="n">min_stable_bins</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">unit_cols</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;min_stable_bin&quot;</span><span class="p">]),</span>
+            <span class="n">min_stable_bins</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">unit_cols</span> <span class="o">+</span> <span class="p">[</span><span class="s2">"min_stable_bin"</span><span class="p">]),</span>
             <span class="n">on</span><span class="o">=</span><span class="n">unit_cols</span><span class="p">,</span>
-            <span class="n">how</span><span class="o">=</span><span class="s2">&quot;inner&quot;</span><span class="p">,</span>
+            <span class="n">how</span><span class="o">=</span><span class="s2">"inner"</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;load_factor_bin&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;min_stable_bin&quot;</span><span class="p">))</span>
+        <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">"load_factor_bin"</span><span class="p">)</span> <span class="o">==</span> <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">"min_stable_bin"</span><span class="p">))</span>
         <span class="o">.</span><span class="n">group_by</span><span class="p">(</span><span class="n">unit_cols</span><span class="p">)</span>
         <span class="o">.</span><span class="n">agg</span><span class="p">(</span>
             <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="n">heat_rate_col</span><span class="p">)</span>
             <span class="o">.</span><span class="n">median</span><span class="p">()</span>
-            <span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;heat_rate_at_min_stable_load_factor_mmbtu_per_mwh&quot;</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">"heat_rate_at_min_stable_load_factor_mmbtu_per_mwh"</span><span class="p">)</span>
         <span class="p">)</span>
     <span class="p">)</span></div>
 
@@ -1443,10 +1443,10 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="filter_for_min_stable_bin">
 <a class="viewcode-back" href="../../../autoapi/pudl/analysis/operational_characteristics/index.html#pudl.analysis.operational_characteristics.filter_for_min_stable_bin">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">filter_for_min_stable_bin</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Filter out records below the minimum stable bin.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Filter out records below the minimum stable bin."""</span>
     <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
-        <span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;load_factor_bin&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">struct</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;min_stable_bin&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">struct</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-        <span class="o">&amp;</span> <span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;load_factor_bin&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">struct</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;min_stable_bin&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">struct</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">"load_factor_bin"</span><span class="p">)</span><span class="o">.</span><span class="n">struct</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">"min_stable_bin"</span><span class="p">)</span><span class="o">.</span><span class="n">struct</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="o">&amp;</span> <span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">"load_factor_bin"</span><span class="p">)</span><span class="o">.</span><span class="n">struct</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">"min_stable_bin"</span><span class="p">)</span><span class="o">.</span><span class="n">struct</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
     <span class="p">)</span></div>
 
 
@@ -1457,37 +1457,37 @@ window.runMermaid = runMermaid;</script>
     <span class="n">output</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
     <span class="n">cems_with_stable_bins</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
     <span class="n">unit_cols</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
-    <span class="n">up_or_down</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;up&quot;</span><span class="p">,</span> <span class="s2">&quot;down&quot;</span><span class="p">],</span>
+    <span class="n">up_or_down</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"up"</span><span class="p">,</span> <span class="s2">"down"</span><span class="p">],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate minimum up or down times.</span>
+<span class="w">    </span><span class="sd">"""Calculate minimum up or down times.</span>
 
-<span class="sd">    Hourly data points are considered &quot;up&quot; when the ``load_factor_bin`` is greater than</span>
+<span class="sd">    Hourly data points are considered "up" when the ``load_factor_bin`` is greater than</span>
 <span class="sd">    the ``min_stable_bin`` (calculated in :func:`compute_minimum_stable_bin`). Runs are</span>
-<span class="sd">    considered &quot;down&quot; when there is no load_factor_bin (which is equivalent to having no</span>
+<span class="sd">    considered "down" when there is no load_factor_bin (which is equivalent to having no</span>
 <span class="sd">    load during that hour).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">up_or_down</span> <span class="o">==</span> <span class="s2">&quot;up&quot;</span><span class="p">:</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">up_or_down</span> <span class="o">==</span> <span class="s2">"up"</span><span class="p">:</span>
         <span class="c1"># up times are considered up when the load_factor_bin is greater than the</span>
         <span class="c1"># min_stable_bin (calculated in compute_minimum_stable_bin)</span>
         <span class="n">runs</span> <span class="o">=</span> <span class="n">filter_for_min_stable_bin</span><span class="p">(</span><span class="n">cems_with_stable_bins</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">runs</span> <span class="o">=</span> <span class="n">cems_with_stable_bins</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;load_factor_bin&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">is_null</span><span class="p">())</span>
+        <span class="n">runs</span> <span class="o">=</span> <span class="n">cems_with_stable_bins</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">"load_factor_bin"</span><span class="p">)</span><span class="o">.</span><span class="n">is_null</span><span class="p">())</span>
 
     <span class="n">min_up_or_down_times</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">runs</span><span class="o">.</span><span class="n">with_columns</span><span class="p">(</span>
-            <span class="n">_add_run_id_expr</span><span class="p">(</span><span class="n">unit_cols</span><span class="o">=</span><span class="n">unit_cols</span><span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">up_or_down</span><span class="si">}</span><span class="s2">_run_id&quot;</span><span class="p">)</span>
+            <span class="n">_add_run_id_expr</span><span class="p">(</span><span class="n">unit_cols</span><span class="o">=</span><span class="n">unit_cols</span><span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">up_or_down</span><span class="si">}</span><span class="s2">_run_id"</span><span class="p">)</span>
         <span class="p">)</span>
-        <span class="o">.</span><span class="n">group_by</span><span class="p">(</span><span class="n">unit_cols</span> <span class="o">+</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">up_or_down</span><span class="si">}</span><span class="s2">_run_id&quot;</span><span class="p">])</span>
+        <span class="o">.</span><span class="n">group_by</span><span class="p">(</span><span class="n">unit_cols</span> <span class="o">+</span> <span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">up_or_down</span><span class="si">}</span><span class="s2">_run_id"</span><span class="p">])</span>
         <span class="o">.</span><span class="n">len</span><span class="p">()</span>
         <span class="o">.</span><span class="n">group_by</span><span class="p">(</span><span class="n">unit_cols</span><span class="p">)</span>
-        <span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;len&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;min_</span><span class="si">{</span><span class="n">up_or_down</span><span class="si">}</span><span class="s2">_time_hours&quot;</span><span class="p">))</span>
-        <span class="o">.</span><span class="n">cast</span><span class="p">({</span><span class="sa">f</span><span class="s2">&quot;min_</span><span class="si">{</span><span class="n">up_or_down</span><span class="si">}</span><span class="s2">_time_hours&quot;</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Float64</span><span class="p">})</span>
+        <span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">"len"</span><span class="p">)</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="sa">f</span><span class="s2">"min_</span><span class="si">{</span><span class="n">up_or_down</span><span class="si">}</span><span class="s2">_time_hours"</span><span class="p">))</span>
+        <span class="o">.</span><span class="n">cast</span><span class="p">({</span><span class="sa">f</span><span class="s2">"min_</span><span class="si">{</span><span class="n">up_or_down</span><span class="si">}</span><span class="s2">_time_hours"</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Float64</span><span class="p">})</span>
     <span class="p">)</span>
     <span class="c1"># the output already had all columns bc of prep_output_df including these min</span>
     <span class="c1"># up or down time hours. So we join and then take the non-null value. If `runs`</span>
     <span class="c1"># was empty, this join is a no-op and the existing null column is left as-is.</span>
-    <span class="k">return</span> <span class="n">output</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;min_</span><span class="si">{</span><span class="n">up_or_down</span><span class="si">}</span><span class="s2">_time_hours&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-        <span class="n">min_up_or_down_times</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="n">unit_cols</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span>
+    <span class="k">return</span> <span class="n">output</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="sa">f</span><span class="s2">"min_</span><span class="si">{</span><span class="n">up_or_down</span><span class="si">}</span><span class="s2">_time_hours"</span><span class="p">)</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+        <span class="n">min_up_or_down_times</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="n">unit_cols</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">"left"</span>
     <span class="p">)</span></div>
 
 
@@ -1499,112 +1499,112 @@ window.runMermaid = runMermaid;</script>
     <span class="n">min_stable_consecutive_hours</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">adjusted</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Estimate operational characteristics for every EPA CEMS plant-unit pair.</span>
+<span class="w">    </span><span class="sd">"""Estimate operational characteristics for every EPA CEMS plant-unit pair.</span>
 
 <span class="sd">    Everything through the initial load-factor binning step is lazily evaluated</span>
 <span class="sd">    (see :func:`assign_groupwise_load_factor_bins`). Everything after that operates</span>
 <span class="sd">    on the resulting eager ``DataFrame``, in a fully vectorized manner across every</span>
-<span class="sd">    unit at once -- there&#39;s no per-unit or per-batch Python looping, and no</span>
+<span class="sd">    unit at once -- there's no per-unit or per-batch Python looping, and no</span>
 <span class="sd">    ``pandas`` fallback.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># Filter and pre-process CEMS based on adjustment boolean</span>
-    <span class="n">unit_cols</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;plant_id_epa&quot;</span><span class="p">,</span> <span class="s2">&quot;emissions_unit_id_epa&quot;</span><span class="p">]</span>
+    <span class="n">unit_cols</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"plant_id_epa"</span><span class="p">,</span> <span class="s2">"emissions_unit_id_epa"</span><span class="p">]</span>
     <span class="n">cems_working</span><span class="p">,</span> <span class="n">col_dict</span> <span class="o">=</span> <span class="n">handle_adjustment_in_cems</span><span class="p">(</span><span class="n">cems</span><span class="p">,</span> <span class="n">unit_cols</span><span class="p">,</span> <span class="n">adjusted</span><span class="p">)</span>
     <span class="c1"># Assign groupwise load factor bins</span>
     <span class="n">cems_working</span> <span class="o">=</span> <span class="n">assign_groupwise_load_factor_bins</span><span class="p">(</span>
         <span class="n">cems_working</span><span class="o">=</span><span class="n">cems_working</span><span class="p">,</span>
         <span class="n">unit_cols</span><span class="o">=</span><span class="n">unit_cols</span><span class="p">,</span>
-        <span class="n">load_factor_col</span><span class="o">=</span><span class="n">col_dict</span><span class="p">[</span><span class="s2">&quot;load_factor_col&quot;</span><span class="p">],</span>
+        <span class="n">load_factor_col</span><span class="o">=</span><span class="n">col_dict</span><span class="p">[</span><span class="s2">"load_factor_col"</span><span class="p">],</span>
     <span class="p">)</span>
 
     <span class="c1"># Set up dataframe with analytical columns: every unit (i.e. every set of</span>
     <span class="c1"># primary key values) gets a row, with nulls in all of the derived value</span>
     <span class="c1"># columns. Downstream steps merge their real values on top of this shell, so</span>
-    <span class="c1"># units that don&#39;t have enough data to support the full analysis (e.g. a</span>
+    <span class="c1"># units that don't have enough data to support the full analysis (e.g. a</span>
     <span class="c1"># constant-load unit) still show up in the output, just with null values.</span>
     <span class="n">output</span> <span class="o">=</span> <span class="n">prep_output_df</span><span class="p">(</span>
         <span class="n">cems_working</span><span class="p">,</span>
         <span class="n">unit_cols</span><span class="p">,</span>
-        <span class="n">col_dict</span><span class="p">[</span><span class="s2">&quot;max_load_col&quot;</span><span class="p">],</span>
+        <span class="n">col_dict</span><span class="p">[</span><span class="s2">"max_load_col"</span><span class="p">],</span>
     <span class="p">)</span>
     <span class="c1"># The load_factor_nunique column is assigned in assign_groupwise_load_factor_bins.</span>
-    <span class="c1"># If there aren&#39;t more than one unique load factor, the rest of the calculations</span>
-    <span class="c1"># can&#39;t be performed for that unit -- it stays null via the join below.</span>
-    <span class="n">valid_cems</span> <span class="o">=</span> <span class="n">cems_working</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;load_factor_nunique&quot;</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="c1"># If there aren't more than one unique load factor, the rest of the calculations</span>
+    <span class="c1"># can't be performed for that unit -- it stays null via the join below.</span>
+    <span class="n">valid_cems</span> <span class="o">=</span> <span class="n">cems_working</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">"load_factor_nunique"</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">)</span>
     <span class="n">binned_cems</span> <span class="o">=</span> <span class="n">valid_cems</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
-        <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;load_factor_bin&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">is_not_null</span><span class="p">()</span>
+        <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">"load_factor_bin"</span><span class="p">)</span><span class="o">.</span><span class="n">is_not_null</span><span class="p">()</span>
     <span class="p">)</span><span class="o">.</span><span class="n">with_columns</span><span class="p">(</span>
-        <span class="n">bin_run_id</span><span class="o">=</span><span class="n">_add_run_id_expr</span><span class="p">(</span><span class="n">unit_cols</span><span class="o">=</span><span class="n">unit_cols</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;load_factor_bin&quot;</span><span class="p">])</span>
+        <span class="n">bin_run_id</span><span class="o">=</span><span class="n">_add_run_id_expr</span><span class="p">(</span><span class="n">unit_cols</span><span class="o">=</span><span class="n">unit_cols</span> <span class="o">+</span> <span class="p">[</span><span class="s2">"load_factor_bin"</span><span class="p">])</span>
     <span class="p">)</span>
 
     <span class="c1"># Compute heat rates</span>
     <span class="n">heat_rate_input</span> <span class="o">=</span> <span class="n">binned_cems</span><span class="o">.</span><span class="n">drop_nulls</span><span class="p">(</span>
-        <span class="p">[</span><span class="n">col_dict</span><span class="p">[</span><span class="s2">&quot;load_factor_col&quot;</span><span class="p">],</span> <span class="n">col_dict</span><span class="p">[</span><span class="s2">&quot;heat_rate_col&quot;</span><span class="p">]]</span>
+        <span class="p">[</span><span class="n">col_dict</span><span class="p">[</span><span class="s2">"load_factor_col"</span><span class="p">],</span> <span class="n">col_dict</span><span class="p">[</span><span class="s2">"heat_rate_col"</span><span class="p">]]</span>
     <span class="p">)</span>
     <span class="n">max_load_heat_rates</span> <span class="o">=</span> <span class="n">compute_heat_rate_at_max_load</span><span class="p">(</span>
-        <span class="n">heat_rate_input</span><span class="p">,</span> <span class="n">unit_cols</span><span class="p">,</span> <span class="n">col_dict</span><span class="p">[</span><span class="s2">&quot;heat_rate_col&quot;</span><span class="p">]</span>
+        <span class="n">heat_rate_input</span><span class="p">,</span> <span class="n">unit_cols</span><span class="p">,</span> <span class="n">col_dict</span><span class="p">[</span><span class="s2">"heat_rate_col"</span><span class="p">]</span>
     <span class="p">)</span>
     <span class="c1"># Compute stable runs</span>
     <span class="n">min_stable_bins</span> <span class="o">=</span> <span class="n">compute_minimum_stable_bin</span><span class="p">(</span>
         <span class="n">binned_cems</span><span class="p">,</span> <span class="n">unit_cols</span><span class="p">,</span> <span class="n">min_stable_consecutive_hours</span>
     <span class="p">)</span>
     <span class="n">min_stable_heat_rates</span> <span class="o">=</span> <span class="n">compute_min_stable_heat_rates</span><span class="p">(</span>
-        <span class="n">heat_rate_input</span><span class="p">,</span> <span class="n">min_stable_bins</span><span class="p">,</span> <span class="n">unit_cols</span><span class="p">,</span> <span class="n">col_dict</span><span class="p">[</span><span class="s2">&quot;heat_rate_col&quot;</span><span class="p">]</span>
+        <span class="n">heat_rate_input</span><span class="p">,</span> <span class="n">min_stable_bins</span><span class="p">,</span> <span class="n">unit_cols</span><span class="p">,</span> <span class="n">col_dict</span><span class="p">[</span><span class="s2">"heat_rate_col"</span><span class="p">]</span>
     <span class="p">)</span>
     <span class="n">cems_with_stable_bins</span> <span class="o">=</span> <span class="n">valid_cems</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-        <span class="n">min_stable_bins</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">unit_cols</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;min_stable_bin_upper&quot;</span><span class="p">,</span> <span class="s2">&quot;min_stable_bin&quot;</span><span class="p">]),</span>
+        <span class="n">min_stable_bins</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">unit_cols</span> <span class="o">+</span> <span class="p">[</span><span class="s2">"min_stable_bin_upper"</span><span class="p">,</span> <span class="s2">"min_stable_bin"</span><span class="p">]),</span>
         <span class="n">on</span><span class="o">=</span><span class="n">unit_cols</span><span class="p">,</span>
-        <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span>
+        <span class="n">how</span><span class="o">=</span><span class="s2">"left"</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">ramp_rates</span> <span class="o">=</span> <span class="n">summarize_ramp_rates</span><span class="p">(</span>
         <span class="n">cems_with_stable_bins</span><span class="o">=</span><span class="n">cems_with_stable_bins</span><span class="p">,</span>
         <span class="n">unit_cols</span><span class="o">=</span><span class="n">unit_cols</span><span class="p">,</span>
-        <span class="n">generation_col</span><span class="o">=</span><span class="n">col_dict</span><span class="p">[</span><span class="s2">&quot;generation_col&quot;</span><span class="p">],</span>
+        <span class="n">generation_col</span><span class="o">=</span><span class="n">col_dict</span><span class="p">[</span><span class="s2">"generation_col"</span><span class="p">],</span>
     <span class="p">)</span>
 
     <span class="n">output</span> <span class="o">=</span> <span class="p">(</span>
         <span class="c1"># Add stable bins back to the main output DF</span>
         <span class="c1"># bc we defined null version of all of the columns in output via prep_output_df</span>
         <span class="c1"># every time we merge in the derived data we drop that column first</span>
-        <span class="n">output</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">min_stable_bins</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="n">unit_cols</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">)</span>
-        <span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">max_load_heat_rates</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="n">unit_cols</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">)</span>
-        <span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">min_stable_heat_rates</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="n">unit_cols</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">)</span>
+        <span class="n">output</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">min_stable_bins</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="n">unit_cols</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">"left"</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">max_load_heat_rates</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="n">unit_cols</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">"left"</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">min_stable_heat_rates</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="n">unit_cols</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">"left"</span><span class="p">)</span>
         <span class="o">.</span><span class="n">pipe</span><span class="p">(</span>
             <span class="n">calculate_min_up_or_down_times</span><span class="p">,</span>
             <span class="n">cems_with_stable_bins</span><span class="p">,</span>
             <span class="n">unit_cols</span><span class="o">=</span><span class="n">unit_cols</span><span class="p">,</span>
-            <span class="n">up_or_down</span><span class="o">=</span><span class="s2">&quot;up&quot;</span><span class="p">,</span>
+            <span class="n">up_or_down</span><span class="o">=</span><span class="s2">"up"</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="o">.</span><span class="n">pipe</span><span class="p">(</span>
             <span class="n">calculate_min_up_or_down_times</span><span class="p">,</span>
             <span class="n">cems_with_stable_bins</span><span class="p">,</span>
             <span class="n">unit_cols</span><span class="o">=</span><span class="n">unit_cols</span><span class="p">,</span>
-            <span class="n">up_or_down</span><span class="o">=</span><span class="s2">&quot;down&quot;</span><span class="p">,</span>
+            <span class="n">up_or_down</span><span class="o">=</span><span class="s2">"down"</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ramp_rates</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="n">unit_cols</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ramp_rates</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="n">unit_cols</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">"left"</span><span class="p">)</span>
         <span class="o">.</span><span class="n">with_columns</span><span class="p">(</span>
-            <span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;ramp_up_rate&quot;</span><span class="p">)</span> <span class="o">/</span> <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="n">col_dict</span><span class="p">[</span><span class="s2">&quot;max_load_col&quot;</span><span class="p">])</span> <span class="o">/</span> <span class="mi">60</span><span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span>
-                <span class="s2">&quot;ramp_up_rate_per_min&quot;</span>
+            <span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">"ramp_up_rate"</span><span class="p">)</span> <span class="o">/</span> <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="n">col_dict</span><span class="p">[</span><span class="s2">"max_load_col"</span><span class="p">])</span> <span class="o">/</span> <span class="mi">60</span><span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span>
+                <span class="s2">"ramp_up_rate_per_min"</span>
             <span class="p">),</span>
-            <span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;ramp_down_rate&quot;</span><span class="p">)</span> <span class="o">/</span> <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="n">col_dict</span><span class="p">[</span><span class="s2">&quot;max_load_col&quot;</span><span class="p">])</span> <span class="o">/</span> <span class="mi">60</span><span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span>
-                <span class="s2">&quot;ramp_down_rate_per_min&quot;</span>
+            <span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">"ramp_down_rate"</span><span class="p">)</span> <span class="o">/</span> <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="n">col_dict</span><span class="p">[</span><span class="s2">"max_load_col"</span><span class="p">])</span> <span class="o">/</span> <span class="mi">60</span><span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span>
+                <span class="s2">"ramp_down_rate_per_min"</span>
             <span class="p">),</span>
         <span class="p">)</span>
     <span class="p">)</span>
 
     <span class="n">ordered_cols</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="s2">&quot;plant_id_epa&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;emissions_unit_id_epa&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;state&quot;</span><span class="p">,</span>
-        <span class="n">col_dict</span><span class="p">[</span><span class="s2">&quot;max_load_col&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;min_stable_load_factor&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;min_up_time_hours&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;min_down_time_hours&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;heat_rate_at_max_load_factor_mmbtu_per_mwh&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;heat_rate_at_min_stable_load_factor_mmbtu_per_mwh&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;ramp_up_rate_per_min&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;ramp_down_rate_per_min&quot;</span><span class="p">,</span>
+        <span class="s2">"plant_id_epa"</span><span class="p">,</span>
+        <span class="s2">"emissions_unit_id_epa"</span><span class="p">,</span>
+        <span class="s2">"plant_id_eia"</span><span class="p">,</span>
+        <span class="s2">"state"</span><span class="p">,</span>
+        <span class="n">col_dict</span><span class="p">[</span><span class="s2">"max_load_col"</span><span class="p">],</span>
+        <span class="s2">"min_stable_load_factor"</span><span class="p">,</span>
+        <span class="s2">"min_up_time_hours"</span><span class="p">,</span>
+        <span class="s2">"min_down_time_hours"</span><span class="p">,</span>
+        <span class="s2">"heat_rate_at_max_load_factor_mmbtu_per_mwh"</span><span class="p">,</span>
+        <span class="s2">"heat_rate_at_min_stable_load_factor_mmbtu_per_mwh"</span><span class="p">,</span>
+        <span class="s2">"ramp_up_rate_per_min"</span><span class="p">,</span>
+        <span class="s2">"ramp_down_rate_per_min"</span><span class="p">,</span>
     <span class="p">]</span>
 
     <span class="k">return</span> <span class="n">output</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">ordered_cols</span><span class="p">)</span></div>
@@ -1612,29 +1612,29 @@ window.runMermaid = runMermaid;</script>
 
 
 <span class="nd">@asset</span><span class="p">(</span>
-    <span class="n">required_resource_keys</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;global_data_config&quot;</span><span class="p">},</span>
-    <span class="n">ins</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;core_epacems__hourly_emissions&quot;</span><span class="p">:</span> <span class="n">AssetIn</span><span class="p">()},</span>
+    <span class="n">required_resource_keys</span><span class="o">=</span><span class="p">{</span><span class="s2">"global_data_config"</span><span class="p">},</span>
+    <span class="n">ins</span><span class="o">=</span><span class="p">{</span><span class="s2">"core_epacems__hourly_emissions"</span><span class="p">:</span> <span class="n">AssetIn</span><span class="p">()},</span>
     <span class="n">config_schema</span><span class="o">=</span><span class="p">{</span>
-        <span class="s2">&quot;num_quarters&quot;</span><span class="p">:</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="s2">"num_quarters"</span><span class="p">:</span> <span class="n">Field</span><span class="p">(</span>
             <span class="nb">int</span><span class="p">,</span>
             <span class="n">default_value</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span>
             <span class="n">description</span><span class="o">=</span><span class="p">(</span>
-                <span class="s2">&quot;Number of historical EPA CEMS quarters to include, counting &quot;</span>
-                <span class="s2">&quot;backward from the configured final year-quarter.&quot;</span>
+                <span class="s2">"Number of historical EPA CEMS quarters to include, counting "</span>
+                <span class="s2">"backward from the configured final year-quarter."</span>
             <span class="p">),</span>
         <span class="p">),</span>
-        <span class="s2">&quot;min_stable_consecutive_hours&quot;</span><span class="p">:</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="s2">"min_stable_consecutive_hours"</span><span class="p">:</span> <span class="n">Field</span><span class="p">(</span>
             <span class="nb">int</span><span class="p">,</span>
             <span class="n">default_value</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
             <span class="n">description</span><span class="o">=</span><span class="p">(</span>
-                <span class="s2">&quot;Minimum number of consecutive operating hours in a load-factor &quot;</span>
-                <span class="s2">&quot;bin required for that bin to be considered a stable operating &quot;</span>
-                <span class="s2">&quot;level.&quot;</span>
+                <span class="s2">"Minimum number of consecutive operating hours in a load-factor "</span>
+                <span class="s2">"bin required for that bin to be considered a stable operating "</span>
+                <span class="s2">"level."</span>
             <span class="p">),</span>
         <span class="p">),</span>
     <span class="p">},</span>
-    <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">&quot;pudl_io_manager&quot;</span><span class="p">,</span>
-    <span class="n">op_tags</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;memory-use&quot;</span><span class="p">:</span> <span class="s2">&quot;high&quot;</span><span class="p">},</span>  <span class="c1"># Peak of ~16 GB as of 2026-08-05</span>
+    <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"pudl_io_manager"</span><span class="p">,</span>
+    <span class="n">op_tags</span><span class="o">=</span><span class="p">{</span><span class="s2">"memory-use"</span><span class="p">:</span> <span class="s2">"high"</span><span class="p">},</span>  <span class="c1"># Peak of ~16 GB as of 2026-08-05</span>
 <span class="p">)</span>
 <div class="viewcode-block" id="out_epacems__yearly_operational_characteristics">
 <a class="viewcode-back" href="../../../autoapi/pudl/analysis/operational_characteristics/index.html#pudl.analysis.operational_characteristics.out_epacems__yearly_operational_characteristics">[docs]</a>
@@ -1642,27 +1642,27 @@ window.runMermaid = runMermaid;</script>
     <span class="n">context</span><span class="p">:</span> <span class="n">AssetExecutionContext</span><span class="p">,</span>
     <span class="n">core_epacems__hourly_emissions</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">LazyFrame</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Estimate EPA CEMS unit operational characteristics for every unit.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Estimate EPA CEMS unit operational characteristics for every unit."""</span>
     <span class="n">heat_rate_config</span> <span class="o">=</span> <span class="n">_get_heat_rate_analysis_config</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
     <span class="n">year_quarters</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">global_data_config</span><span class="o">.</span><span class="n">pudl</span><span class="o">.</span><span class="n">epacems</span><span class="o">.</span><span class="n">year_quarters</span>
     <span class="n">target_year_quarter</span> <span class="o">=</span> <span class="n">_select_target_year_quarter</span><span class="p">(</span><span class="n">year_quarters</span><span class="p">)</span>
     <span class="n">_assert_required_quarters_available</span><span class="p">(</span>
-        <span class="n">year_quarters</span><span class="p">,</span> <span class="n">target_year_quarter</span><span class="p">,</span> <span class="n">heat_rate_config</span><span class="p">[</span><span class="s2">&quot;num_quarters&quot;</span><span class="p">]</span>
+        <span class="n">year_quarters</span><span class="p">,</span> <span class="n">target_year_quarter</span><span class="p">,</span> <span class="n">heat_rate_config</span><span class="p">[</span><span class="s2">"num_quarters"</span><span class="p">]</span>
     <span class="p">)</span>
     <span class="n">report_year</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">target_year_quarter</span><span class="p">[:</span><span class="mi">4</span><span class="p">])</span>
 
     <span class="n">state_dfs</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">state</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">EPACEMS_STATES</span><span class="p">):</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Deriving unit-level operational characteristics from </span><span class="si">{</span><span class="n">state</span><span class="si">}</span><span class="s2"> EPA CEMS &quot;</span>
+            <span class="sa">f</span><span class="s2">"Deriving unit-level operational characteristics from </span><span class="si">{</span><span class="n">state</span><span class="si">}</span><span class="s2"> EPA CEMS "</span>
         <span class="p">)</span>
         <span class="c1"># Filtering the lazyframe first down to only one state and only the last few</span>
-        <span class="c1"># quarters (number of quarters based on the asset&#39;s num_quarters config).</span>
-        <span class="c1"># Filter first to ensure the full hourly cems data isn&#39;t loaded into memory.</span>
+        <span class="c1"># quarters (number of quarters based on the asset's num_quarters config).</span>
+        <span class="c1"># Filter first to ensure the full hourly cems data isn't loaded into memory.</span>
         <span class="n">cems</span> <span class="o">=</span> <span class="n">filter_cems_for_heat_rate_analysis</span><span class="p">(</span>
             <span class="n">core_epacems__hourly_emissions</span><span class="o">=</span><span class="n">core_epacems__hourly_emissions</span><span class="p">,</span>
             <span class="n">final_year_quarter</span><span class="o">=</span><span class="n">target_year_quarter</span><span class="p">,</span>
-            <span class="n">num_quarters</span><span class="o">=</span><span class="n">heat_rate_config</span><span class="p">[</span><span class="s2">&quot;num_quarters&quot;</span><span class="p">],</span>
+            <span class="n">num_quarters</span><span class="o">=</span><span class="n">heat_rate_config</span><span class="p">[</span><span class="s2">"num_quarters"</span><span class="p">],</span>
             <span class="n">states</span><span class="o">=</span><span class="p">[</span><span class="n">state</span><span class="p">],</span>
         <span class="p">)</span>
         <span class="c1"># This step does the bulk of the work. The output here is a table with one</span>
@@ -1670,14 +1670,14 @@ window.runMermaid = runMermaid;</script>
         <span class="n">state_df</span> <span class="o">=</span> <span class="n">estimate_operational_characteristics_by_unit</span><span class="p">(</span>
             <span class="n">cems</span><span class="o">=</span><span class="n">cems</span><span class="p">,</span>
             <span class="n">min_stable_consecutive_hours</span><span class="o">=</span><span class="n">heat_rate_config</span><span class="p">[</span>
-                <span class="s2">&quot;min_stable_consecutive_hours&quot;</span>
+                <span class="s2">"min_stable_consecutive_hours"</span>
             <span class="p">],</span>
         <span class="p">)</span>
         <span class="n">state_dfs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">state_df</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="p">(</span>
         <span class="n">pl</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">state_dfs</span><span class="p">)</span>
-        <span class="o">.</span><span class="n">with_columns</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">lit</span><span class="p">(</span><span class="n">report_year</span><span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;report_year&quot;</span><span class="p">))</span>
+        <span class="o">.</span><span class="n">with_columns</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">lit</span><span class="p">(</span><span class="n">report_year</span><span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">"report_year"</span><span class="p">))</span>
         <span class="o">.</span><span class="n">to_pandas</span><span class="p">()</span>
     <span class="p">)</span></div>
 

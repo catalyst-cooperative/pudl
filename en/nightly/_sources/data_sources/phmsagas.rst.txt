@@ -57,6 +57,9 @@ the names and descriptions of each of its fields.
    * - :ref:`i_core_phmsagas__yearly_distribution_misc`
      - https://data.catalyst.coop/preview/pudl/_core_phmsagas__yearly_distribution_misc
    
+   * - :ref:`core_phmsagas__yearly_distribution_by_install_decade`
+     - https://data.catalyst.coop/preview/pudl/core_phmsagas__yearly_distribution_by_install_decade
+   
    * - :ref:`core_phmsagas__yearly_distribution_operators`
      - https://data.catalyst.coop/preview/pudl/core_phmsagas__yearly_distribution_operators
    

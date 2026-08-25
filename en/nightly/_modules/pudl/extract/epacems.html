@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.extract.epacems &#8212; PUDL 2026.8.1.dev16 documentation</title>
+    <title>pudl.extract.epacems &#8212; PUDL 2026.8.1.dev20 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=f981bf86"></script>
+    <script src="../../../_static/documentation_options.js?v=8f1a003a"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev20 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev20 documentation - Home"/>
   
   
 </a></div>
@@ -868,7 +868,7 @@ window.runMermaid = runMermaid;</script>
                 <article class="bd-article">
                   
   <h1>Source code for pudl.extract.epacems</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Retrieve data from EPA CEMS hourly zipped CSVs.</span>
+<span></span><span class="sd">"""Retrieve data from EPA CEMS hourly zipped CSVs.</span>
 
 <span class="sd">Prior to August 2023, this data was retrieved from an FTP server. After August 2023,</span>
 <span class="sd">this data is now retrieved from the CEMS API. The format of the files has changed from</span>
@@ -880,15 +880,15 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">the IGNORE_COLS dictionary are excluded from the final output. All of these columns are</span>
 <span class="sd">calculable rates, measurement flags, or descriptors (like facility name) that can be</span>
 <span class="sd">accessed by merging this data with the EIA860 plants entity table. We also remove the</span>
-<span class="sd">`FACILITY_ID` field because it is internal to the EPA&#39;s business accounting database.</span>
+<span class="sd">`FACILITY_ID` field because it is internal to the EPA's business accounting database.</span>
 
 <span class="sd">Pre-transform, the `plant_id_epa` field is a close but not perfect indicator for</span>
-<span class="sd">`plant_id_eia`. In the raw data it&#39;s called `Facility ID` (ORISPL code) but that&#39;s not</span>
+<span class="sd">`plant_id_eia`. In the raw data it's called `Facility ID` (ORISPL code) but that's not</span>
 <span class="sd">entirely accurate. The core_epa__assn_eia_epacamd crosswalk will show that the mapping between</span>
 <span class="sd">`Facility ID` as it appears in CEMS and the `plant_id_eia` field used in EIA data.</span>
-<span class="sd">Hence, we&#39;ve called it `plant_id_epa` until it gets transformed into `plant_id_eia`</span>
+<span class="sd">Hence, we've called it `plant_id_epa` until it gets transformed into `plant_id_eia`</span>
 <span class="sd">during the transform process with help from the crosswalk.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Annotated</span>
@@ -912,53 +912,53 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="API_RENAME_DICT">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/epacems/index.html#pudl.extract.epacems.API_RENAME_DICT">[docs]</a>
 <span class="n">API_RENAME_DICT</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;State&quot;</span><span class="p">:</span> <span class="s2">&quot;state&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;Facility ID&quot;</span><span class="p">:</span> <span class="s2">&quot;plant_id_epa&quot;</span><span class="p">,</span>  <span class="c1"># unique facility id for internal EPA database management (ORIS code)</span>
-    <span class="s2">&quot;Unit ID&quot;</span><span class="p">:</span> <span class="s2">&quot;emissions_unit_id_epa&quot;</span><span class="p">,</span>
+    <span class="s2">"State"</span><span class="p">:</span> <span class="s2">"state"</span><span class="p">,</span>
+    <span class="s2">"Facility ID"</span><span class="p">:</span> <span class="s2">"plant_id_epa"</span><span class="p">,</span>  <span class="c1"># unique facility id for internal EPA database management (ORIS code)</span>
+    <span class="s2">"Unit ID"</span><span class="p">:</span> <span class="s2">"emissions_unit_id_epa"</span><span class="p">,</span>
     <span class="c1"># These op_date, op_hour, and op_time variables get converted to</span>
     <span class="c1"># operating_date, operating_datetime and operating_time_interval in</span>
     <span class="c1"># transform/epacems.py</span>
-    <span class="s2">&quot;Date&quot;</span><span class="p">:</span> <span class="s2">&quot;op_date&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;Hour&quot;</span><span class="p">:</span> <span class="s2">&quot;op_hour&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;Operating Time&quot;</span><span class="p">:</span> <span class="s2">&quot;operating_time_hours&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;Gross Load (MW)&quot;</span><span class="p">:</span> <span class="s2">&quot;gross_load_mw&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;Steam Load (1000 lb/hr)&quot;</span><span class="p">:</span> <span class="s2">&quot;steam_load_1000_lbs&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;SO2 Mass (lbs)&quot;</span><span class="p">:</span> <span class="s2">&quot;so2_mass_lbs&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;SO2 Mass Measure Indicator&quot;</span><span class="p">:</span> <span class="s2">&quot;so2_mass_measurement_code&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;NOx Mass (lbs)&quot;</span><span class="p">:</span> <span class="s2">&quot;nox_mass_lbs&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;NOx Mass Measure Indicator&quot;</span><span class="p">:</span> <span class="s2">&quot;nox_mass_measurement_code&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;CO2 Mass (short tons)&quot;</span><span class="p">:</span> <span class="s2">&quot;co2_mass_tons&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;CO2 Mass Measure Indicator&quot;</span><span class="p">:</span> <span class="s2">&quot;co2_mass_measurement_code&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;Heat Input (mmBtu)&quot;</span><span class="p">:</span> <span class="s2">&quot;heat_content_mmbtu&quot;</span><span class="p">,</span>
+    <span class="s2">"Date"</span><span class="p">:</span> <span class="s2">"op_date"</span><span class="p">,</span>
+    <span class="s2">"Hour"</span><span class="p">:</span> <span class="s2">"op_hour"</span><span class="p">,</span>
+    <span class="s2">"Operating Time"</span><span class="p">:</span> <span class="s2">"operating_time_hours"</span><span class="p">,</span>
+    <span class="s2">"Gross Load (MW)"</span><span class="p">:</span> <span class="s2">"gross_load_mw"</span><span class="p">,</span>
+    <span class="s2">"Steam Load (1000 lb/hr)"</span><span class="p">:</span> <span class="s2">"steam_load_1000_lbs"</span><span class="p">,</span>
+    <span class="s2">"SO2 Mass (lbs)"</span><span class="p">:</span> <span class="s2">"so2_mass_lbs"</span><span class="p">,</span>
+    <span class="s2">"SO2 Mass Measure Indicator"</span><span class="p">:</span> <span class="s2">"so2_mass_measurement_code"</span><span class="p">,</span>
+    <span class="s2">"NOx Mass (lbs)"</span><span class="p">:</span> <span class="s2">"nox_mass_lbs"</span><span class="p">,</span>
+    <span class="s2">"NOx Mass Measure Indicator"</span><span class="p">:</span> <span class="s2">"nox_mass_measurement_code"</span><span class="p">,</span>
+    <span class="s2">"CO2 Mass (short tons)"</span><span class="p">:</span> <span class="s2">"co2_mass_tons"</span><span class="p">,</span>
+    <span class="s2">"CO2 Mass Measure Indicator"</span><span class="p">:</span> <span class="s2">"co2_mass_measurement_code"</span><span class="p">,</span>
+    <span class="s2">"Heat Input (mmBtu)"</span><span class="p">:</span> <span class="s2">"heat_content_mmbtu"</span><span class="p">,</span>
 <span class="p">}</span></div>
 
-<span class="sd">&quot;&quot;&quot;Dict: A dictionary containing EPA CEMS column names (keys) and replacement names to</span>
+<span class="sd">"""Dict: A dictionary containing EPA CEMS column names (keys) and replacement names to</span>
 <span class="sd">use when reading those columns into PUDL (values).</span>
 
 <span class="sd">There are some duplicate rename values because the column names change year to year.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <div class="viewcode-block" id="API_DTYPE_DICT">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/epacems/index.html#pudl.extract.epacems.API_DTYPE_DICT">[docs]</a>
 <span class="n">API_DTYPE_DICT</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;State&quot;</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Categorical</span><span class="p">,</span>
-    <span class="s2">&quot;Facility ID&quot;</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Int64</span><span class="p">,</span>  <span class="c1"># unique facility id for internal EPA database management (ORIS code)</span>
-    <span class="s2">&quot;Unit ID&quot;</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">String</span><span class="p">,</span>
+    <span class="s2">"State"</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Categorical</span><span class="p">,</span>
+    <span class="s2">"Facility ID"</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Int64</span><span class="p">,</span>  <span class="c1"># unique facility id for internal EPA database management (ORIS code)</span>
+    <span class="s2">"Unit ID"</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">String</span><span class="p">,</span>
     <span class="c1"># These op_date, op_hour, and op_time variables get converted to</span>
     <span class="c1"># operating_date, operating_datetime and operating_time_interval in</span>
     <span class="c1"># transform/epacems.py</span>
-    <span class="s2">&quot;Date&quot;</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Date</span><span class="p">,</span>
-    <span class="s2">&quot;Hour&quot;</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Int16</span><span class="p">,</span>
-    <span class="s2">&quot;Operating Time&quot;</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Float64</span><span class="p">,</span>
-    <span class="s2">&quot;Gross Load (MW)&quot;</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Float64</span><span class="p">,</span>
-    <span class="s2">&quot;Steam Load (1000 lb/hr)&quot;</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Float64</span><span class="p">,</span>
-    <span class="s2">&quot;SO2 Mass (lbs)&quot;</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Float64</span><span class="p">,</span>
-    <span class="s2">&quot;SO2 Mass Measure Indicator&quot;</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Categorical</span><span class="p">,</span>
-    <span class="s2">&quot;NOx Mass (lbs)&quot;</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Float64</span><span class="p">,</span>
-    <span class="s2">&quot;NOx Mass Measure Indicator&quot;</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Categorical</span><span class="p">,</span>
-    <span class="s2">&quot;CO2 Mass (short tons)&quot;</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Float64</span><span class="p">,</span>
-    <span class="s2">&quot;CO2 Mass Measure Indicator&quot;</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Categorical</span><span class="p">,</span>
-    <span class="s2">&quot;Heat Input (mmBtu)&quot;</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Float64</span><span class="p">,</span>
+    <span class="s2">"Date"</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Date</span><span class="p">,</span>
+    <span class="s2">"Hour"</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Int16</span><span class="p">,</span>
+    <span class="s2">"Operating Time"</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Float64</span><span class="p">,</span>
+    <span class="s2">"Gross Load (MW)"</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Float64</span><span class="p">,</span>
+    <span class="s2">"Steam Load (1000 lb/hr)"</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Float64</span><span class="p">,</span>
+    <span class="s2">"SO2 Mass (lbs)"</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Float64</span><span class="p">,</span>
+    <span class="s2">"SO2 Mass Measure Indicator"</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Categorical</span><span class="p">,</span>
+    <span class="s2">"NOx Mass (lbs)"</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Float64</span><span class="p">,</span>
+    <span class="s2">"NOx Mass Measure Indicator"</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Categorical</span><span class="p">,</span>
+    <span class="s2">"CO2 Mass (short tons)"</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Float64</span><span class="p">,</span>
+    <span class="s2">"CO2 Mass Measure Indicator"</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Categorical</span><span class="p">,</span>
+    <span class="s2">"Heat Input (mmBtu)"</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">datatypes</span><span class="o">.</span><span class="n">Float64</span><span class="p">,</span>
 <span class="p">}</span></div>
 
 
@@ -966,12 +966,12 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="EpaCemsPartition">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/epacems/index.html#pudl.extract.epacems.EpaCemsPartition">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">EpaCemsPartition</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Represents EpaCems partition identifying unique resource file.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Represents EpaCems partition identifying unique resource file."""</span>
 
 <div class="viewcode-block" id="EpaCemsPartition.year_quarter">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/epacems/index.html#pudl.extract.epacems.EpaCemsPartition.year_quarter">[docs]</a>
     <span class="n">year_quarter</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span>
-        <span class="nb">str</span><span class="p">,</span> <span class="n">StringConstraints</span><span class="p">(</span><span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">pattern</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;^(19|20)\d</span><span class="si">{2}</span><span class="s2">[q][1-4]$&quot;</span><span class="p">)</span>
+        <span class="nb">str</span><span class="p">,</span> <span class="n">StringConstraints</span><span class="p">(</span><span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">pattern</span><span class="o">=</span><span class="sa">r</span><span class="s2">"^(19|20)\d</span><span class="si">{2}</span><span class="s2">[q][1-4]$"</span><span class="p">)</span>
     <span class="p">]</span></div>
 
 
@@ -979,7 +979,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="EpaCemsPartition.year">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/epacems/index.html#pudl.extract.epacems.EpaCemsPartition.year">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">year</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the year associated with the year_quarter.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the year associated with the year_quarter."""</span>
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">year_quarter</span><span class="p">)</span><span class="o">.</span><span class="n">year</span></div>
 
 
@@ -987,22 +987,22 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="EpaCemsPartition.quarter">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/epacems/index.html#pudl.extract.epacems.EpaCemsPartition.quarter">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">quarter</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the quarter associated with the year_quarter.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the quarter associated with the year_quarter."""</span>
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">year_quarter</span><span class="p">)</span><span class="o">.</span><span class="n">quarter</span></div>
 
 
 <div class="viewcode-block" id="EpaCemsPartition.get_filters">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/epacems/index.html#pudl.extract.epacems.EpaCemsPartition.get_filters">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_filters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns filters for retrieving given partition resource from Datastore.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;year_quarter&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">year_quarter</span><span class="p">}</span></div>
+<span class="w">        </span><span class="sd">"""Returns filters for retrieving given partition resource from Datastore."""</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">"year_quarter"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">year_quarter</span><span class="p">}</span></div>
 
 
 <div class="viewcode-block" id="EpaCemsPartition.get_quarterly_file">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/epacems/index.html#pudl.extract.epacems.EpaCemsPartition.get_quarterly_file">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_quarterly_file</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the name of the CSV file that holds annual hourly data.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;epacems-</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">year</span><span class="si">}</span><span class="s2">q</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">quarter</span><span class="si">}</span><span class="s2">.csv&quot;</span><span class="p">)</span></div>
+<span class="w">        </span><span class="sd">"""Return the name of the CSV file that holds annual hourly data."""</span>
+        <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="sa">f</span><span class="s2">"epacems-</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">year</span><span class="si">}</span><span class="s2">q</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">quarter</span><span class="si">}</span><span class="s2">.csv"</span><span class="p">)</span></div>
 </div>
 
 
@@ -1010,15 +1010,15 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="EpaCemsDatastore">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/epacems/index.html#pudl.extract.epacems.EpaCemsDatastore">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">EpaCemsDatastore</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Helper class to extract EpaCems resources from datastore.</span>
+<span class="w">    </span><span class="sd">"""Helper class to extract EpaCems resources from datastore.</span>
 
 <span class="sd">    EpaCems resources are identified by a year and a quarter. Each of these zip files</span>
 <span class="sd">    contains one csv file. This class implements get_data_frame method that will</span>
 <span class="sd">    rename columns for a quarterly CSV file.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">datastore</span><span class="p">:</span> <span class="n">Datastore</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Construct datastore wrapper for loading raw EPA CEMS data into dataframes.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Construct datastore wrapper for loading raw EPA CEMS data into dataframes."""</span>
 <div class="viewcode-block" id="EpaCemsDatastore.datastore">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/epacems/index.html#pudl.extract.epacems.EpaCemsDatastore.datastore">[docs]</a>
         <span class="bp">self</span><span class="o">.</span><span class="n">datastore</span> <span class="o">=</span> <span class="n">datastore</span></div>
@@ -1027,12 +1027,12 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="EpaCemsDatastore.get_data_frame">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/epacems/index.html#pudl.extract.epacems.EpaCemsDatastore.get_data_frame">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_data_frame</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">partition</span><span class="p">:</span> <span class="n">EpaCemsPartition</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">LazyFrame</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Constructs dataframe from a zipfile for a given (year_quarter) partition.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Constructs dataframe from a zipfile for a given (year_quarter) partition."""</span>
         <span class="k">with</span> <span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">datastore</span><span class="o">.</span><span class="n">get_zipfile_resource</span><span class="p">(</span>
-                <span class="s2">&quot;epacems&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">partition</span><span class="o">.</span><span class="n">get_filters</span><span class="p">()</span>
+                <span class="s2">"epacems"</span><span class="p">,</span> <span class="o">**</span><span class="n">partition</span><span class="o">.</span><span class="n">get_filters</span><span class="p">()</span>
             <span class="p">)</span> <span class="k">as</span> <span class="n">zf</span><span class="p">,</span>
-            <span class="n">zf</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">partition</span><span class="o">.</span><span class="n">get_quarterly_file</span><span class="p">()),</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">csv_file</span><span class="p">,</span>
+            <span class="n">zf</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">partition</span><span class="o">.</span><span class="n">get_quarterly_file</span><span class="p">()),</span> <span class="s2">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="n">csv_file</span><span class="p">,</span>
         <span class="p">):</span>
             <span class="n">lf</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">scan_csv</span><span class="p">(</span><span class="n">csv_file</span><span class="p">,</span> <span class="n">low_memory</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">schema_overrides</span><span class="o">=</span><span class="n">API_DTYPE_DICT</span><span class="p">)</span>
             <span class="n">lf</span> <span class="o">=</span> <span class="p">(</span>
@@ -1052,15 +1052,15 @@ window.runMermaid = runMermaid;</script>
     <span class="n">context</span><span class="p">,</span>
     <span class="n">year_quarter</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">LazyFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract a single quarter of EPA CEMS data return it as a lazy polars DataFrame.</span>
+<span class="w">    </span><span class="sd">"""Extract a single quarter of EPA CEMS data return it as a lazy polars DataFrame.</span>
 
 <span class="sd">    If the requested quarter is not found in the datastore, an empty DataFrame with the</span>
 <span class="sd">    expected columns is returned.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        context: dagster keyword that provides access to resources and config.</span>
-<span class="sd">        year_quarter: Year quarter to process, formatted like &#39;1995q1&#39;.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">        year_quarter: Year quarter to process, formatted like '1995q1'.</span>
+<span class="sd">    """</span>
     <span class="n">epacems_datastore</span> <span class="o">=</span> <span class="n">EpaCemsDatastore</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">datastore</span><span class="p">)</span>
     <span class="n">partition</span> <span class="o">=</span> <span class="n">EpaCemsPartition</span><span class="p">(</span><span class="n">year_quarter</span><span class="o">=</span><span class="n">year_quarter</span><span class="p">)</span>
 
@@ -1070,8 +1070,8 @@ window.runMermaid = runMermaid;</script>
             <span class="n">year</span><span class="o">=</span><span class="n">partition</span><span class="o">.</span><span class="n">year</span>
         <span class="p">)</span>
     <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No data found for </span><span class="si">{</span><span class="n">year_quarter</span><span class="si">}</span><span class="s2">. Returning empty dataframe.&quot;</span><span class="p">)</span>
-        <span class="n">res</span> <span class="o">=</span> <span class="n">Resource</span><span class="o">.</span><span class="n">from_id</span><span class="p">(</span><span class="s2">&quot;core_epacems__hourly_emissions&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">"No data found for </span><span class="si">{</span><span class="n">year_quarter</span><span class="si">}</span><span class="s2">. Returning empty dataframe."</span><span class="p">)</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">Resource</span><span class="o">.</span><span class="n">from_id</span><span class="p">(</span><span class="s2">"core_epacems__hourly_emissions"</span><span class="p">)</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">LazyFrame</span><span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">format_df</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()))</span>
 
     <span class="k">return</span> <span class="n">df</span></div>

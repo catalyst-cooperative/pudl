@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.analysis.mcoe &#8212; PUDL 2026.8.1.dev16 documentation</title>
+    <title>pudl.analysis.mcoe &#8212; PUDL 2026.8.1.dev20 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=f981bf86"></script>
+    <script src="../../../_static/documentation_options.js?v=8f1a003a"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev20 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev20 documentation - Home"/>
   
   
 </a></div>
@@ -868,7 +868,7 @@ window.runMermaid = runMermaid;</script>
                 <article class="bd-article">
                   
   <h1>Source code for pudl.analysis.mcoe</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;A module with functions to aid generating MCOE.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""A module with functions to aid generating MCOE."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span>
@@ -891,71 +891,71 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="DEFAULT_GENS_COLS">
 <a class="viewcode-back" href="../../../autoapi/pudl/analysis/mcoe/index.html#pudl.analysis.mcoe.DEFAULT_GENS_COLS">[docs]</a>
 <span class="n">DEFAULT_GENS_COLS</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;generator_id&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;unit_id_pudl&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;plant_id_pudl&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;plant_name_eia&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;utility_id_pudl&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;utility_name_eia&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;technology_description&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;energy_source_code_1&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;prime_mover_code&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;generator_operating_date&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;generator_retirement_date&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;operational_status&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;capacity_mw&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;fuel_type_code_pudl&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;planned_generator_retirement_date&quot;</span><span class="p">,</span>
+    <span class="s2">"plant_id_eia"</span><span class="p">,</span>
+    <span class="s2">"generator_id"</span><span class="p">,</span>
+    <span class="s2">"report_date"</span><span class="p">,</span>
+    <span class="s2">"unit_id_pudl"</span><span class="p">,</span>
+    <span class="s2">"plant_id_pudl"</span><span class="p">,</span>
+    <span class="s2">"plant_name_eia"</span><span class="p">,</span>
+    <span class="s2">"utility_id_eia"</span><span class="p">,</span>
+    <span class="s2">"utility_id_pudl"</span><span class="p">,</span>
+    <span class="s2">"utility_name_eia"</span><span class="p">,</span>
+    <span class="s2">"technology_description"</span><span class="p">,</span>
+    <span class="s2">"energy_source_code_1"</span><span class="p">,</span>
+    <span class="s2">"prime_mover_code"</span><span class="p">,</span>
+    <span class="s2">"generator_operating_date"</span><span class="p">,</span>
+    <span class="s2">"generator_retirement_date"</span><span class="p">,</span>
+    <span class="s2">"operational_status"</span><span class="p">,</span>
+    <span class="s2">"capacity_mw"</span><span class="p">,</span>
+    <span class="s2">"fuel_type_code_pudl"</span><span class="p">,</span>
+    <span class="s2">"planned_generator_retirement_date"</span><span class="p">,</span>
 <span class="p">]</span></div>
 
-<span class="sd">&quot;&quot;&quot;List: default list of columns from the EIA 860 generators table that will be included</span>
+<span class="sd">"""List: default list of columns from the EIA 860 generators table that will be included</span>
 <span class="sd">in the MCOE table. These default columns are necessary for the creation of the EIA plant</span>
 <span class="sd">parts table.</span>
 
-<span class="sd">The ID and name columns are all that&#39;s needed to create a bare-bones MCOE table.</span>
+<span class="sd">The ID and name columns are all that's needed to create a bare-bones MCOE table.</span>
 
 <span class="sd">The remaining columns are used during the creation of the plant parts list as different</span>
 <span class="sd">attributes to aggregate the plant parts by or are attributes necessary for inclusion in</span>
 <span class="sd">the final table.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 
 <div class="viewcode-block" id="mcoe_asset_factory">
 <a class="viewcode-back" href="../../../autoapi/pudl/analysis/mcoe/index.html#pudl.analysis.mcoe.mcoe_asset_factory">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">mcoe_asset_factory</span><span class="p">(</span>
-    <span class="n">freq</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;YS&quot;</span><span class="p">,</span> <span class="s2">&quot;MS&quot;</span><span class="p">],</span>
+    <span class="n">freq</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"YS"</span><span class="p">,</span> <span class="s2">"MS"</span><span class="p">],</span>
     <span class="n">op_tags</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">AssetsDefinition</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Build MCOE related assets at yearly and monthly frequencies.&quot;&quot;&quot;</span>
-    <span class="n">agg_freqs</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;YS&quot;</span><span class="p">:</span> <span class="s2">&quot;yearly&quot;</span><span class="p">,</span> <span class="s2">&quot;MS&quot;</span><span class="p">:</span> <span class="s2">&quot;monthly&quot;</span><span class="p">}</span>
+<span class="w">    </span><span class="sd">"""Build MCOE related assets at yearly and monthly frequencies."""</span>
+    <span class="n">agg_freqs</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"YS"</span><span class="p">:</span> <span class="s2">"yearly"</span><span class="p">,</span> <span class="s2">"MS"</span><span class="p">:</span> <span class="s2">"monthly"</span><span class="p">}</span>
     <span class="k">if</span> <span class="n">freq</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">agg_freqs</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;freq must be one of </span><span class="si">{</span><span class="n">agg_freqs</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span><span class="si">}</span><span class="s2">, got: </span><span class="si">{</span><span class="n">freq</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"freq must be one of </span><span class="si">{</span><span class="n">agg_freqs</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span><span class="si">}</span><span class="s2">, got: </span><span class="si">{</span><span class="n">freq</span><span class="si">}</span><span class="s2">."</span><span class="p">)</span>
 
     <span class="nd">@asset</span><span class="p">(</span>
-        <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;_out_eia__</span><span class="si">{</span><span class="n">agg_freqs</span><span class="p">[</span><span class="n">freq</span><span class="p">]</span><span class="si">}</span><span class="s2">_heat_rate_by_unit&quot;</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">"_out_eia__</span><span class="si">{</span><span class="n">agg_freqs</span><span class="p">[</span><span class="n">freq</span><span class="p">]</span><span class="si">}</span><span class="s2">_heat_rate_by_unit"</span><span class="p">,</span>
         <span class="n">ins</span><span class="o">=</span><span class="p">{</span>
-            <span class="s2">&quot;gen&quot;</span><span class="p">:</span> <span class="n">AssetIn</span><span class="p">(</span>
-                <span class="n">key</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;out_eia923__</span><span class="si">{</span><span class="n">agg_freqs</span><span class="p">[</span><span class="n">freq</span><span class="p">]</span><span class="si">}</span><span class="s2">_generation_fuel_by_generator_energy_source&quot;</span>
+            <span class="s2">"gen"</span><span class="p">:</span> <span class="n">AssetIn</span><span class="p">(</span>
+                <span class="n">key</span><span class="o">=</span><span class="sa">f</span><span class="s2">"out_eia923__</span><span class="si">{</span><span class="n">agg_freqs</span><span class="p">[</span><span class="n">freq</span><span class="p">]</span><span class="si">}</span><span class="s2">_generation_fuel_by_generator_energy_source"</span>
             <span class="p">),</span>
-            <span class="s2">&quot;bga&quot;</span><span class="p">:</span> <span class="n">AssetIn</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="s2">&quot;core_eia860__assn_boiler_generator&quot;</span><span class="p">),</span>
+            <span class="s2">"bga"</span><span class="p">:</span> <span class="n">AssetIn</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="s2">"core_eia860__assn_boiler_generator"</span><span class="p">),</span>
         <span class="p">},</span>
-        <span class="n">compute_kind</span><span class="o">=</span><span class="s2">&quot;Python&quot;</span><span class="p">,</span>
+        <span class="n">compute_kind</span><span class="o">=</span><span class="s2">"Python"</span><span class="p">,</span>
         <span class="n">op_tags</span><span class="o">=</span><span class="n">op_tags</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">hr_by_unit_asset</span><span class="p">(</span><span class="n">gen</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">bga</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">heat_rate_by_unit</span><span class="p">(</span><span class="n">gen_fuel_by_energy_source</span><span class="o">=</span><span class="n">gen</span><span class="p">,</span> <span class="n">bga</span><span class="o">=</span><span class="n">bga</span><span class="p">)</span>
 
     <span class="nd">@asset</span><span class="p">(</span>
-        <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;_out_eia__</span><span class="si">{</span><span class="n">agg_freqs</span><span class="p">[</span><span class="n">freq</span><span class="p">]</span><span class="si">}</span><span class="s2">_heat_rate_by_generator&quot;</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">"_out_eia__</span><span class="si">{</span><span class="n">agg_freqs</span><span class="p">[</span><span class="n">freq</span><span class="p">]</span><span class="si">}</span><span class="s2">_heat_rate_by_generator"</span><span class="p">,</span>
         <span class="n">ins</span><span class="o">=</span><span class="p">{</span>
-            <span class="s2">&quot;bga&quot;</span><span class="p">:</span> <span class="n">AssetIn</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="s2">&quot;core_eia860__assn_boiler_generator&quot;</span><span class="p">),</span>
-            <span class="s2">&quot;hr_by_unit&quot;</span><span class="p">:</span> <span class="n">AssetIn</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;_out_eia__</span><span class="si">{</span><span class="n">agg_freqs</span><span class="p">[</span><span class="n">freq</span><span class="p">]</span><span class="si">}</span><span class="s2">_heat_rate_by_unit&quot;</span><span class="p">),</span>
-            <span class="s2">&quot;gens&quot;</span><span class="p">:</span> <span class="n">AssetIn</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="s2">&quot;_out_eia__yearly_generators&quot;</span><span class="p">),</span>
+            <span class="s2">"bga"</span><span class="p">:</span> <span class="n">AssetIn</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="s2">"core_eia860__assn_boiler_generator"</span><span class="p">),</span>
+            <span class="s2">"hr_by_unit"</span><span class="p">:</span> <span class="n">AssetIn</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="sa">f</span><span class="s2">"_out_eia__</span><span class="si">{</span><span class="n">agg_freqs</span><span class="p">[</span><span class="n">freq</span><span class="p">]</span><span class="si">}</span><span class="s2">_heat_rate_by_unit"</span><span class="p">),</span>
+            <span class="s2">"gens"</span><span class="p">:</span> <span class="n">AssetIn</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="s2">"_out_eia__yearly_generators"</span><span class="p">),</span>
         <span class="p">},</span>
-        <span class="n">compute_kind</span><span class="o">=</span><span class="s2">&quot;Python&quot;</span><span class="p">,</span>
+        <span class="n">compute_kind</span><span class="o">=</span><span class="s2">"Python"</span><span class="p">,</span>
         <span class="n">op_tags</span><span class="o">=</span><span class="n">op_tags</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">hr_by_gen_asset</span><span class="p">(</span>
@@ -964,15 +964,15 @@ window.runMermaid = runMermaid;</script>
         <span class="k">return</span> <span class="n">heat_rate_by_gen</span><span class="p">(</span><span class="n">bga</span><span class="o">=</span><span class="n">bga</span><span class="p">,</span> <span class="n">hr_by_unit</span><span class="o">=</span><span class="n">hr_by_unit</span><span class="p">,</span> <span class="n">gens</span><span class="o">=</span><span class="n">gens</span><span class="p">)</span>
 
     <span class="nd">@asset</span><span class="p">(</span>
-        <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;_out_eia__</span><span class="si">{</span><span class="n">agg_freqs</span><span class="p">[</span><span class="n">freq</span><span class="p">]</span><span class="si">}</span><span class="s2">_fuel_cost_by_generator&quot;</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">"_out_eia__</span><span class="si">{</span><span class="n">agg_freqs</span><span class="p">[</span><span class="n">freq</span><span class="p">]</span><span class="si">}</span><span class="s2">_fuel_cost_by_generator"</span><span class="p">,</span>
         <span class="n">ins</span><span class="o">=</span><span class="p">{</span>
-            <span class="s2">&quot;hr_by_gen&quot;</span><span class="p">:</span> <span class="n">AssetIn</span><span class="p">(</span>
-                <span class="n">key</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;_out_eia__</span><span class="si">{</span><span class="n">agg_freqs</span><span class="p">[</span><span class="n">freq</span><span class="p">]</span><span class="si">}</span><span class="s2">_heat_rate_by_generator&quot;</span>
+            <span class="s2">"hr_by_gen"</span><span class="p">:</span> <span class="n">AssetIn</span><span class="p">(</span>
+                <span class="n">key</span><span class="o">=</span><span class="sa">f</span><span class="s2">"_out_eia__</span><span class="si">{</span><span class="n">agg_freqs</span><span class="p">[</span><span class="n">freq</span><span class="p">]</span><span class="si">}</span><span class="s2">_heat_rate_by_generator"</span>
             <span class="p">),</span>
-            <span class="s2">&quot;gens&quot;</span><span class="p">:</span> <span class="n">AssetIn</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="s2">&quot;_out_eia__yearly_generators&quot;</span><span class="p">),</span>
-            <span class="s2">&quot;frc&quot;</span><span class="p">:</span> <span class="n">AssetIn</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;out_eia923__</span><span class="si">{</span><span class="n">agg_freqs</span><span class="p">[</span><span class="n">freq</span><span class="p">]</span><span class="si">}</span><span class="s2">_fuel_receipts_costs&quot;</span><span class="p">),</span>
+            <span class="s2">"gens"</span><span class="p">:</span> <span class="n">AssetIn</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="s2">"_out_eia__yearly_generators"</span><span class="p">),</span>
+            <span class="s2">"frc"</span><span class="p">:</span> <span class="n">AssetIn</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="sa">f</span><span class="s2">"out_eia923__</span><span class="si">{</span><span class="n">agg_freqs</span><span class="p">[</span><span class="n">freq</span><span class="p">]</span><span class="si">}</span><span class="s2">_fuel_receipts_costs"</span><span class="p">),</span>
         <span class="p">},</span>
-        <span class="n">compute_kind</span><span class="o">=</span><span class="s2">&quot;Python&quot;</span><span class="p">,</span>
+        <span class="n">compute_kind</span><span class="o">=</span><span class="s2">"Python"</span><span class="p">,</span>
         <span class="n">op_tags</span><span class="o">=</span><span class="n">op_tags</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">fc_asset</span><span class="p">(</span>
@@ -981,67 +981,67 @@ window.runMermaid = runMermaid;</script>
         <span class="k">return</span> <span class="n">fuel_cost</span><span class="p">(</span><span class="n">hr_by_gen</span><span class="o">=</span><span class="n">hr_by_gen</span><span class="p">,</span> <span class="n">gens</span><span class="o">=</span><span class="n">gens</span><span class="p">,</span> <span class="n">frc</span><span class="o">=</span><span class="n">frc</span><span class="p">)</span>
 
     <span class="nd">@asset</span><span class="p">(</span>
-        <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;_out_eia__</span><span class="si">{</span><span class="n">agg_freqs</span><span class="p">[</span><span class="n">freq</span><span class="p">]</span><span class="si">}</span><span class="s2">_capacity_factor_by_generator&quot;</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">"_out_eia__</span><span class="si">{</span><span class="n">agg_freqs</span><span class="p">[</span><span class="n">freq</span><span class="p">]</span><span class="si">}</span><span class="s2">_capacity_factor_by_generator"</span><span class="p">,</span>
         <span class="n">ins</span><span class="o">=</span><span class="p">{</span>
-            <span class="s2">&quot;gen&quot;</span><span class="p">:</span> <span class="n">AssetIn</span><span class="p">(</span>
-                <span class="n">key</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;out_eia923__</span><span class="si">{</span><span class="n">agg_freqs</span><span class="p">[</span><span class="n">freq</span><span class="p">]</span><span class="si">}</span><span class="s2">_generation_fuel_by_generator&quot;</span>
+            <span class="s2">"gen"</span><span class="p">:</span> <span class="n">AssetIn</span><span class="p">(</span>
+                <span class="n">key</span><span class="o">=</span><span class="sa">f</span><span class="s2">"out_eia923__</span><span class="si">{</span><span class="n">agg_freqs</span><span class="p">[</span><span class="n">freq</span><span class="p">]</span><span class="si">}</span><span class="s2">_generation_fuel_by_generator"</span>
             <span class="p">),</span>
-            <span class="s2">&quot;gens&quot;</span><span class="p">:</span> <span class="n">AssetIn</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="s2">&quot;_out_eia__yearly_generators&quot;</span><span class="p">),</span>
+            <span class="s2">"gens"</span><span class="p">:</span> <span class="n">AssetIn</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="s2">"_out_eia__yearly_generators"</span><span class="p">),</span>
         <span class="p">},</span>
-        <span class="n">compute_kind</span><span class="o">=</span><span class="s2">&quot;Python&quot;</span><span class="p">,</span>
+        <span class="n">compute_kind</span><span class="o">=</span><span class="s2">"Python"</span><span class="p">,</span>
         <span class="n">op_tags</span><span class="o">=</span><span class="n">op_tags</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">cf_asset</span><span class="p">(</span><span class="n">gens</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">gen</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">capacity_factor</span><span class="p">(</span><span class="n">gens</span><span class="o">=</span><span class="n">gens</span><span class="p">,</span> <span class="n">gen</span><span class="o">=</span><span class="n">gen</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="n">freq</span><span class="p">)</span>
 
     <span class="nd">@asset</span><span class="p">(</span>
-        <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;_out_eia__</span><span class="si">{</span><span class="n">agg_freqs</span><span class="p">[</span><span class="n">freq</span><span class="p">]</span><span class="si">}</span><span class="s2">_derived_generator_attributes&quot;</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">"_out_eia__</span><span class="si">{</span><span class="n">agg_freqs</span><span class="p">[</span><span class="n">freq</span><span class="p">]</span><span class="si">}</span><span class="s2">_derived_generator_attributes"</span><span class="p">,</span>
         <span class="n">ins</span><span class="o">=</span><span class="p">{</span>
-            <span class="s2">&quot;fuel_cost&quot;</span><span class="p">:</span> <span class="n">AssetIn</span><span class="p">(</span>
-                <span class="n">key</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;_out_eia__</span><span class="si">{</span><span class="n">agg_freqs</span><span class="p">[</span><span class="n">freq</span><span class="p">]</span><span class="si">}</span><span class="s2">_fuel_cost_by_generator&quot;</span>
+            <span class="s2">"fuel_cost"</span><span class="p">:</span> <span class="n">AssetIn</span><span class="p">(</span>
+                <span class="n">key</span><span class="o">=</span><span class="sa">f</span><span class="s2">"_out_eia__</span><span class="si">{</span><span class="n">agg_freqs</span><span class="p">[</span><span class="n">freq</span><span class="p">]</span><span class="si">}</span><span class="s2">_fuel_cost_by_generator"</span>
             <span class="p">),</span>
-            <span class="s2">&quot;capacity_factor&quot;</span><span class="p">:</span> <span class="n">AssetIn</span><span class="p">(</span>
-                <span class="n">key</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;_out_eia__</span><span class="si">{</span><span class="n">agg_freqs</span><span class="p">[</span><span class="n">freq</span><span class="p">]</span><span class="si">}</span><span class="s2">_capacity_factor_by_generator&quot;</span>
+            <span class="s2">"capacity_factor"</span><span class="p">:</span> <span class="n">AssetIn</span><span class="p">(</span>
+                <span class="n">key</span><span class="o">=</span><span class="sa">f</span><span class="s2">"_out_eia__</span><span class="si">{</span><span class="n">agg_freqs</span><span class="p">[</span><span class="n">freq</span><span class="p">]</span><span class="si">}</span><span class="s2">_capacity_factor_by_generator"</span>
             <span class="p">),</span>
         <span class="p">},</span>
-        <span class="n">compute_kind</span><span class="o">=</span><span class="s2">&quot;Python&quot;</span><span class="p">,</span>
+        <span class="n">compute_kind</span><span class="o">=</span><span class="s2">"Python"</span><span class="p">,</span>
         <span class="n">op_tags</span><span class="o">=</span><span class="n">op_tags</span><span class="p">,</span>
         <span class="n">config_schema</span><span class="o">=</span><span class="p">{</span>
-            <span class="s2">&quot;min_heat_rate&quot;</span><span class="p">:</span> <span class="n">Field</span><span class="p">(</span>
+            <span class="s2">"min_heat_rate"</span><span class="p">:</span> <span class="n">Field</span><span class="p">(</span>
                 <span class="nb">float</span><span class="p">,</span>
                 <span class="n">default_value</span><span class="o">=</span><span class="mf">5.5</span><span class="p">,</span>
                 <span class="n">description</span><span class="o">=</span><span class="p">(</span>
-                    <span class="s2">&quot;The lowest plausible heat rate, in mmBTU/MWh. &quot;</span>
-                    <span class="s2">&quot;Any MCOE records with lower heat rates are presumed to be &quot;</span>
-                    <span class="s2">&quot;invalid, and are discarded before returning.&quot;</span>
+                    <span class="s2">"The lowest plausible heat rate, in mmBTU/MWh. "</span>
+                    <span class="s2">"Any MCOE records with lower heat rates are presumed to be "</span>
+                    <span class="s2">"invalid, and are discarded before returning."</span>
                 <span class="p">),</span>
             <span class="p">),</span>
-            <span class="s2">&quot;min_fuel_cost_per_mwh&quot;</span><span class="p">:</span> <span class="n">Field</span><span class="p">(</span>
+            <span class="s2">"min_fuel_cost_per_mwh"</span><span class="p">:</span> <span class="n">Field</span><span class="p">(</span>
                 <span class="nb">float</span><span class="p">,</span>
                 <span class="n">default_value</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
                 <span class="n">description</span><span class="o">=</span><span class="p">(</span>
-                    <span class="s2">&quot;The minimum fuel cost on a per MWh basis that is required &quot;</span>
-                    <span class="s2">&quot;for a generator record to be considered valid. For some &quot;</span>
-                    <span class="s2">&quot;reason there are now a large number of $0 fuel cost records, &quot;</span>
-                    <span class="s2">&quot;which previously would have been NaN.&quot;</span>
+                    <span class="s2">"The minimum fuel cost on a per MWh basis that is required "</span>
+                    <span class="s2">"for a generator record to be considered valid. For some "</span>
+                    <span class="s2">"reason there are now a large number of $0 fuel cost records, "</span>
+                    <span class="s2">"which previously would have been NaN."</span>
                 <span class="p">),</span>
             <span class="p">),</span>
-            <span class="s2">&quot;min_cap_fact&quot;</span><span class="p">:</span> <span class="n">Field</span><span class="p">(</span>
+            <span class="s2">"min_cap_fact"</span><span class="p">:</span> <span class="n">Field</span><span class="p">(</span>
                 <span class="nb">float</span><span class="p">,</span>
                 <span class="n">default_value</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
                 <span class="n">description</span><span class="o">=</span><span class="p">(</span>
-                    <span class="s2">&quot;The minimum generator capacity factor. Generator records &quot;</span>
-                    <span class="s2">&quot;with a lower capacity factor will be filtered out.&quot;</span>
-                    <span class="s2">&quot;This allows the user to exclude generators that &quot;</span>
-                    <span class="s2">&quot;aren&#39;t being used enough to be valid.&quot;</span>
+                    <span class="s2">"The minimum generator capacity factor. Generator records "</span>
+                    <span class="s2">"with a lower capacity factor will be filtered out."</span>
+                    <span class="s2">"This allows the user to exclude generators that "</span>
+                    <span class="s2">"aren't being used enough to be valid."</span>
                 <span class="p">),</span>
             <span class="p">),</span>
-            <span class="s2">&quot;max_cap_fact&quot;</span><span class="p">:</span> <span class="n">Field</span><span class="p">(</span>
+            <span class="s2">"max_cap_fact"</span><span class="p">:</span> <span class="n">Field</span><span class="p">(</span>
                 <span class="nb">float</span><span class="p">,</span>
                 <span class="n">default_value</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span>
                 <span class="n">description</span><span class="o">=</span><span class="p">(</span>
-                    <span class="s2">&quot;The maximum generator capacity factor. Generator records &quot;</span>
-                    <span class="s2">&quot;with a higher capacity factor will be filtered out.&quot;</span>
+                    <span class="s2">"The maximum generator capacity factor. Generator records "</span>
+                    <span class="s2">"with a higher capacity factor will be filtered out."</span>
                 <span class="p">),</span>
             <span class="p">),</span>
         <span class="p">},</span>
@@ -1052,40 +1052,40 @@ window.runMermaid = runMermaid;</script>
         <span class="k">return</span> <span class="n">mcoe</span><span class="p">(</span>
             <span class="n">fuel_cost</span><span class="o">=</span><span class="n">fuel_cost</span><span class="p">,</span>
             <span class="n">capacity_factor</span><span class="o">=</span><span class="n">capacity_factor</span><span class="p">,</span>
-            <span class="n">min_heat_rate</span><span class="o">=</span><span class="n">context</span><span class="o">.</span><span class="n">op_config</span><span class="p">[</span><span class="s2">&quot;min_heat_rate&quot;</span><span class="p">],</span>
-            <span class="n">min_fuel_cost_per_mwh</span><span class="o">=</span><span class="n">context</span><span class="o">.</span><span class="n">op_config</span><span class="p">[</span><span class="s2">&quot;min_fuel_cost_per_mwh&quot;</span><span class="p">],</span>
-            <span class="n">min_cap_fact</span><span class="o">=</span><span class="n">context</span><span class="o">.</span><span class="n">op_config</span><span class="p">[</span><span class="s2">&quot;min_cap_fact&quot;</span><span class="p">],</span>
-            <span class="n">max_cap_fact</span><span class="o">=</span><span class="n">context</span><span class="o">.</span><span class="n">op_config</span><span class="p">[</span><span class="s2">&quot;max_cap_fact&quot;</span><span class="p">],</span>
+            <span class="n">min_heat_rate</span><span class="o">=</span><span class="n">context</span><span class="o">.</span><span class="n">op_config</span><span class="p">[</span><span class="s2">"min_heat_rate"</span><span class="p">],</span>
+            <span class="n">min_fuel_cost_per_mwh</span><span class="o">=</span><span class="n">context</span><span class="o">.</span><span class="n">op_config</span><span class="p">[</span><span class="s2">"min_fuel_cost_per_mwh"</span><span class="p">],</span>
+            <span class="n">min_cap_fact</span><span class="o">=</span><span class="n">context</span><span class="o">.</span><span class="n">op_config</span><span class="p">[</span><span class="s2">"min_cap_fact"</span><span class="p">],</span>
+            <span class="n">max_cap_fact</span><span class="o">=</span><span class="n">context</span><span class="o">.</span><span class="n">op_config</span><span class="p">[</span><span class="s2">"max_cap_fact"</span><span class="p">],</span>
         <span class="p">)</span>
 
     <span class="nd">@asset</span><span class="p">(</span>
-        <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;out_eia__</span><span class="si">{</span><span class="n">agg_freqs</span><span class="p">[</span><span class="n">freq</span><span class="p">]</span><span class="si">}</span><span class="s2">_generators&quot;</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">"out_eia__</span><span class="si">{</span><span class="n">agg_freqs</span><span class="p">[</span><span class="n">freq</span><span class="p">]</span><span class="si">}</span><span class="s2">_generators"</span><span class="p">,</span>
         <span class="n">ins</span><span class="o">=</span><span class="p">{</span>
-            <span class="s2">&quot;mcoe&quot;</span><span class="p">:</span> <span class="n">AssetIn</span><span class="p">(</span>
-                <span class="n">key</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;_out_eia__</span><span class="si">{</span><span class="n">agg_freqs</span><span class="p">[</span><span class="n">freq</span><span class="p">]</span><span class="si">}</span><span class="s2">_derived_generator_attributes&quot;</span>
+            <span class="s2">"mcoe"</span><span class="p">:</span> <span class="n">AssetIn</span><span class="p">(</span>
+                <span class="n">key</span><span class="o">=</span><span class="sa">f</span><span class="s2">"_out_eia__</span><span class="si">{</span><span class="n">agg_freqs</span><span class="p">[</span><span class="n">freq</span><span class="p">]</span><span class="si">}</span><span class="s2">_derived_generator_attributes"</span>
             <span class="p">),</span>
-            <span class="s2">&quot;gens&quot;</span><span class="p">:</span> <span class="n">AssetIn</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="s2">&quot;_out_eia__yearly_generators&quot;</span><span class="p">),</span>
+            <span class="s2">"gens"</span><span class="p">:</span> <span class="n">AssetIn</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="s2">"_out_eia__yearly_generators"</span><span class="p">),</span>
         <span class="p">},</span>
-        <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">&quot;pudl_io_manager&quot;</span><span class="p">,</span>
-        <span class="n">compute_kind</span><span class="o">=</span><span class="s2">&quot;Python&quot;</span><span class="p">,</span>
+        <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"pudl_io_manager"</span><span class="p">,</span>
+        <span class="n">compute_kind</span><span class="o">=</span><span class="s2">"Python"</span><span class="p">,</span>
         <span class="n">op_tags</span><span class="o">=</span><span class="n">op_tags</span><span class="p">,</span>
         <span class="n">config_schema</span><span class="o">=</span><span class="p">{</span>
-            <span class="s2">&quot;all_gens&quot;</span><span class="p">:</span> <span class="n">Field</span><span class="p">(</span>
+            <span class="s2">"all_gens"</span><span class="p">:</span> <span class="n">Field</span><span class="p">(</span>
                 <span class="nb">bool</span><span class="p">,</span>
                 <span class="n">default_value</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                 <span class="n">description</span><span class="o">=</span><span class="p">(</span>
-                    <span class="s2">&quot;If True, include attributes of all generators in the &quot;</span>
-                    <span class="s2">&quot;:ref:`core_eia860__scd_generators` table, rather than just the generators &quot;</span>
-                    <span class="s2">&quot;which have records in the derived MCOE values. True by default.&quot;</span>
+                    <span class="s2">"If True, include attributes of all generators in the "</span>
+                    <span class="s2">":ref:`core_eia860__scd_generators` table, rather than just the generators "</span>
+                    <span class="s2">"which have records in the derived MCOE values. True by default."</span>
                 <span class="p">),</span>
             <span class="p">),</span>
-            <span class="s2">&quot;timeseries_fillin&quot;</span><span class="p">:</span> <span class="n">Field</span><span class="p">(</span>
+            <span class="s2">"timeseries_fillin"</span><span class="p">:</span> <span class="n">Field</span><span class="p">(</span>
                 <span class="nb">bool</span><span class="p">,</span>
                 <span class="n">default_value</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                 <span class="n">description</span><span class="o">=</span><span class="p">(</span>
-                    <span class="s2">&quot;If True, fill in the full timeseries for each generator in &quot;</span>
-                    <span class="s2">&quot;the output dataframe. The data in the timeseries will be filled &quot;</span>
-                    <span class="s2">&quot;with the data from the next previous chronological record.&quot;</span>
+                    <span class="s2">"If True, fill in the full timeseries for each generator in "</span>
+                    <span class="s2">"the output dataframe. The data in the timeseries will be filled "</span>
+                    <span class="s2">"with the data from the next previous chronological record."</span>
                 <span class="p">),</span>
             <span class="p">),</span>
         <span class="p">},</span>
@@ -1097,8 +1097,8 @@ window.runMermaid = runMermaid;</script>
             <span class="n">mcoe</span><span class="o">=</span><span class="n">mcoe</span><span class="p">,</span>
             <span class="n">gens</span><span class="o">=</span><span class="n">gens</span><span class="p">,</span>
             <span class="n">freq</span><span class="o">=</span><span class="n">freq</span><span class="p">,</span>
-            <span class="n">all_gens</span><span class="o">=</span><span class="n">context</span><span class="o">.</span><span class="n">op_config</span><span class="p">[</span><span class="s2">&quot;all_gens&quot;</span><span class="p">],</span>
-            <span class="n">timeseries_fillin</span><span class="o">=</span><span class="n">context</span><span class="o">.</span><span class="n">op_config</span><span class="p">[</span><span class="s2">&quot;timeseries_fillin&quot;</span><span class="p">],</span>
+            <span class="n">all_gens</span><span class="o">=</span><span class="n">context</span><span class="o">.</span><span class="n">op_config</span><span class="p">[</span><span class="s2">"all_gens"</span><span class="p">],</span>
+            <span class="n">timeseries_fillin</span><span class="o">=</span><span class="n">context</span><span class="o">.</span><span class="n">op_config</span><span class="p">[</span><span class="s2">"timeseries_fillin"</span><span class="p">],</span>
         <span class="p">)</span>
 
     <span class="k">return</span> <span class="p">[</span>
@@ -1117,8 +1117,8 @@ window.runMermaid = runMermaid;</script>
 <span class="n">mcoe_assets</span> <span class="o">=</span> <span class="p">[</span>
     <span class="n">mcoe_asset</span>
     <span class="k">for</span> <span class="n">freq</span><span class="p">,</span> <span class="n">op_tags</span> <span class="ow">in</span> <span class="p">[</span>
-        <span class="p">(</span><span class="s2">&quot;YS&quot;</span><span class="p">,</span> <span class="p">{}),</span>
-        <span class="p">(</span><span class="s2">&quot;MS&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;dagster/priority&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">}),</span>
+        <span class="p">(</span><span class="s2">"YS"</span><span class="p">,</span> <span class="p">{}),</span>
+        <span class="p">(</span><span class="s2">"MS"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"dagster/priority"</span><span class="p">:</span> <span class="mi">10</span><span class="p">}),</span>
     <span class="p">]</span>
     <span class="k">for</span> <span class="n">mcoe_asset</span> <span class="ow">in</span> <span class="n">mcoe_asset_factory</span><span class="p">(</span>
         <span class="n">freq</span><span class="o">=</span><span class="n">freq</span><span class="p">,</span>
@@ -1132,7 +1132,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="McoeCheckSpec">
 <a class="viewcode-back" href="../../../autoapi/pudl/analysis/mcoe/index.html#pudl.analysis.mcoe.McoeCheckSpec">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">McoeCheckSpec</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A dataclass to hold the specification for a MCOE check.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""A dataclass to hold the specification for a MCOE check."""</span>
 
 <div class="viewcode-block" id="McoeCheckSpec.asset">
 <a class="viewcode-back" href="../../../autoapi/pudl/analysis/mcoe/index.html#pudl.analysis.mcoe.McoeCheckSpec.asset">[docs]</a>
@@ -1153,19 +1153,19 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../../autoapi/pudl/analysis/mcoe/index.html#pudl.analysis.mcoe.mcoe_asset_check_specs">[docs]</a>
 <span class="n">mcoe_asset_check_specs</span> <span class="o">=</span> <span class="p">[</span>
     <span class="n">McoeCheckSpec</span><span class="p">(</span>
-        <span class="n">asset</span><span class="o">=</span><span class="s2">&quot;out_eia__yearly_generators&quot;</span><span class="p">,</span>
+        <span class="n">asset</span><span class="o">=</span><span class="s2">"out_eia__yearly_generators"</span><span class="p">,</span>
         <span class="n">max_null_fraction</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span>
     <span class="p">),</span>
     <span class="n">McoeCheckSpec</span><span class="p">(</span>
-        <span class="n">asset</span><span class="o">=</span><span class="s2">&quot;out_eia__monthly_generators&quot;</span><span class="p">,</span>
+        <span class="n">asset</span><span class="o">=</span><span class="s2">"out_eia__monthly_generators"</span><span class="p">,</span>
         <span class="n">max_null_fraction</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span>
     <span class="p">),</span>
     <span class="n">McoeCheckSpec</span><span class="p">(</span>
-        <span class="n">asset</span><span class="o">=</span><span class="s2">&quot;_out_eia__yearly_derived_generator_attributes&quot;</span><span class="p">,</span>
+        <span class="n">asset</span><span class="o">=</span><span class="s2">"_out_eia__yearly_derived_generator_attributes"</span><span class="p">,</span>
         <span class="n">max_null_fraction</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span>
     <span class="p">),</span>
     <span class="n">McoeCheckSpec</span><span class="p">(</span>
-        <span class="n">asset</span><span class="o">=</span><span class="s2">&quot;_out_eia__monthly_derived_generator_attributes&quot;</span><span class="p">,</span>
+        <span class="n">asset</span><span class="o">=</span><span class="s2">"_out_eia__monthly_derived_generator_attributes"</span><span class="p">,</span>
         <span class="n">max_null_fraction</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span>
     <span class="p">),</span>
 <span class="p">]</span></div>
@@ -1175,11 +1175,11 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="mcoe_asset_check_factory">
 <a class="viewcode-back" href="../../../autoapi/pudl/analysis/mcoe/index.html#pudl.analysis.mcoe.mcoe_asset_check_factory">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">mcoe_asset_check_factory</span><span class="p">(</span><span class="n">spec</span><span class="p">:</span> <span class="n">McoeCheckSpec</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AssetChecksDefinition</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Turn a MCOE check spec into an AssetChecksDefinition.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Turn a MCOE check spec into an AssetChecksDefinition."""</span>
 
     <span class="nd">@asset_check</span><span class="p">(</span><span class="n">asset</span><span class="o">=</span><span class="n">spec</span><span class="o">.</span><span class="n">asset</span><span class="p">,</span> <span class="n">blocking</span><span class="o">=</span><span class="n">spec</span><span class="o">.</span><span class="n">blocking</span><span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">excessively_null_rows</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AssetCheckResult</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check that the MCOE dataframe has no excessively null rows.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Check that the MCOE dataframe has no excessively null rows."""</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">_</span> <span class="o">=</span> <span class="n">pv</span><span class="o">.</span><span class="n">no_null_rows</span><span class="p">(</span>
                 <span class="n">df</span><span class="p">,</span>
@@ -1190,15 +1190,15 @@ window.runMermaid = runMermaid;</script>
             <span class="n">null_row_count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">null_rows</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">AssetCheckResult</span><span class="p">(</span>
                 <span class="n">passed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                <span class="n">metadata</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;excessively_null_row_count&quot;</span><span class="p">:</span> <span class="n">null_row_count</span><span class="p">},</span>
+                <span class="n">metadata</span><span class="o">=</span><span class="p">{</span><span class="s2">"excessively_null_row_count"</span><span class="p">:</span> <span class="n">null_row_count</span><span class="p">},</span>
                 <span class="n">description</span><span class="o">=</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">spec</span><span class="o">.</span><span class="n">asset</span><span class="si">}</span><span class="s2"> has </span><span class="si">{</span><span class="n">null_row_count</span><span class="si">}</span><span class="s2"> excessively null rows!&quot;</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">spec</span><span class="o">.</span><span class="n">asset</span><span class="si">}</span><span class="s2"> has </span><span class="si">{</span><span class="n">null_row_count</span><span class="si">}</span><span class="s2"> excessively null rows!"</span>
                 <span class="p">),</span>
             <span class="p">)</span>
         <span class="k">return</span> <span class="n">AssetCheckResult</span><span class="p">(</span>
             <span class="n">passed</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-            <span class="n">metadata</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;excessively_null_row_count&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
-            <span class="n">description</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">spec</span><span class="o">.</span><span class="n">asset</span><span class="si">}</span><span class="s2"> has no excessively null rows.&quot;</span><span class="p">,</span>
+            <span class="n">metadata</span><span class="o">=</span><span class="p">{</span><span class="s2">"excessively_null_row_count"</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
+            <span class="n">description</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">spec</span><span class="o">.</span><span class="n">asset</span><span class="si">}</span><span class="s2"> has no excessively null rows."</span><span class="p">,</span>
         <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">excessively_null_rows</span></div>
@@ -1214,9 +1214,9 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="heat_rate_by_unit">
 <a class="viewcode-back" href="../../../autoapi/pudl/analysis/mcoe/index.html#pudl.analysis.mcoe.heat_rate_by_unit">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">heat_rate_by_unit</span><span class="p">(</span><span class="n">gen_fuel_by_energy_source</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">bga</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate heat rates (mmBTU/MWh) within separable generation units.</span>
+<span class="w">    </span><span class="sd">"""Calculate heat rates (mmBTU/MWh) within separable generation units.</span>
 
-<span class="sd">    Assumes a &quot;good&quot; Boiler Generator Association (bga) i.e. one that only</span>
+<span class="sd">    Assumes a "good" Boiler Generator Association (bga) i.e. one that only</span>
 <span class="sd">    contains boilers and generators which have been completely associated at</span>
 <span class="sd">    some point in the past.</span>
 
@@ -1241,17 +1241,17 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    - net_generation_mwh</span>
 <span class="sd">    - fuel_consumed_for_electricity_mmbtu</span>
 <span class="sd">    - unit_heat_rate_mmbtu_per_mwh</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">gen_fuel_by_unit</span> <span class="o">=</span> <span class="n">pudl</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">date_merge</span><span class="p">(</span>
         <span class="n">left</span><span class="o">=</span><span class="n">gen_fuel_by_energy_source</span><span class="p">,</span>
-        <span class="n">right</span><span class="o">=</span><span class="n">bga</span><span class="p">[[</span><span class="s2">&quot;report_date&quot;</span><span class="p">,</span> <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;generator_id&quot;</span><span class="p">,</span> <span class="s2">&quot;unit_id_pudl&quot;</span><span class="p">]],</span>
-        <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;generator_id&quot;</span><span class="p">],</span>
-        <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span>
+        <span class="n">right</span><span class="o">=</span><span class="n">bga</span><span class="p">[[</span><span class="s2">"report_date"</span><span class="p">,</span> <span class="s2">"plant_id_eia"</span><span class="p">,</span> <span class="s2">"generator_id"</span><span class="p">,</span> <span class="s2">"unit_id_pudl"</span><span class="p">]],</span>
+        <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">"plant_id_eia"</span><span class="p">,</span> <span class="s2">"generator_id"</span><span class="p">],</span>
+        <span class="n">how</span><span class="o">=</span><span class="s2">"left"</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">heat_rate_by_unit</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">gen_fuel_by_unit</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="s2">&quot;unit_id_pudl&quot;</span><span class="p">)</span>
-        <span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s2">&quot;report_date&quot;</span><span class="p">,</span> <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;unit_id_pudl&quot;</span><span class="p">],</span> <span class="n">as_index</span><span class="o">=</span><span class="kc">False</span><span class="p">)[</span>
-            <span class="p">[</span><span class="s2">&quot;net_generation_mwh&quot;</span><span class="p">,</span> <span class="s2">&quot;fuel_consumed_for_electricity_mmbtu&quot;</span><span class="p">]</span>
+        <span class="n">gen_fuel_by_unit</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="s2">"unit_id_pudl"</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s2">"report_date"</span><span class="p">,</span> <span class="s2">"plant_id_eia"</span><span class="p">,</span> <span class="s2">"unit_id_pudl"</span><span class="p">],</span> <span class="n">as_index</span><span class="o">=</span><span class="kc">False</span><span class="p">)[</span>
+            <span class="p">[</span><span class="s2">"net_generation_mwh"</span><span class="p">,</span> <span class="s2">"fuel_consumed_for_electricity_mmbtu"</span><span class="p">]</span>
         <span class="p">]</span>
         <span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">min_count</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="o">.</span><span class="n">convert_dtypes</span><span class="p">()</span>
@@ -1273,7 +1273,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">hr_by_unit</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
     <span class="n">gens</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert per-unit heat rate to by-generator, adding fuel type &amp; count.</span>
+<span class="w">    </span><span class="sd">"""Convert per-unit heat rate to by-generator, adding fuel type &amp; count.</span>
 
 <span class="sd">    Heat rates really only make sense at the unit level, since input fuel and</span>
 <span class="sd">    output electricity are comingled at the unit level, but it is useful in</span>
@@ -1290,26 +1290,26 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        unit_heat_rate_mmbtu_per_mwh, fuel_type_code_pudl, fuel_type_count,</span>
 <span class="sd">        prime_mover_code.  The output will have a time frequency corresponding to that</span>
 <span class="sd">        of the input data.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">bga_gens</span> <span class="o">=</span> <span class="n">bga</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
-        <span class="p">:,</span> <span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">,</span> <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;unit_id_pudl&quot;</span><span class="p">,</span> <span class="s2">&quot;generator_id&quot;</span><span class="p">]</span>
+        <span class="p">:,</span> <span class="p">[</span><span class="s2">"report_date"</span><span class="p">,</span> <span class="s2">"plant_id_eia"</span><span class="p">,</span> <span class="s2">"unit_id_pudl"</span><span class="p">,</span> <span class="s2">"generator_id"</span><span class="p">]</span>
     <span class="p">]</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span>
     <span class="n">hr_by_unit</span> <span class="o">=</span> <span class="n">hr_by_unit</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
         <span class="p">:,</span>
         <span class="p">[</span>
-            <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;unit_id_pudl&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;unit_heat_rate_mmbtu_per_mwh&quot;</span><span class="p">,</span>
+            <span class="s2">"report_date"</span><span class="p">,</span>
+            <span class="s2">"plant_id_eia"</span><span class="p">,</span>
+            <span class="s2">"unit_id_pudl"</span><span class="p">,</span>
+            <span class="s2">"unit_heat_rate_mmbtu_per_mwh"</span><span class="p">,</span>
         <span class="p">],</span>
     <span class="p">]</span>
 
     <span class="n">hr_by_gen</span> <span class="o">=</span> <span class="n">pudl</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">date_merge</span><span class="p">(</span>
         <span class="n">left</span><span class="o">=</span><span class="n">bga_gens</span><span class="p">,</span>
         <span class="n">right</span><span class="o">=</span><span class="n">hr_by_unit</span><span class="p">,</span>
-        <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;unit_id_pudl&quot;</span><span class="p">],</span>
-        <span class="n">date_on</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;year&quot;</span><span class="p">],</span>
-        <span class="n">how</span><span class="o">=</span><span class="s2">&quot;inner&quot;</span><span class="p">,</span>
+        <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">"plant_id_eia"</span><span class="p">,</span> <span class="s2">"unit_id_pudl"</span><span class="p">],</span>
+        <span class="n">date_on</span><span class="o">=</span><span class="p">[</span><span class="s2">"year"</span><span class="p">],</span>
+        <span class="n">how</span><span class="o">=</span><span class="s2">"inner"</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="c1"># Bring in generator specific fuel type &amp; fuel count.</span>
@@ -1317,17 +1317,17 @@ window.runMermaid = runMermaid;</script>
         <span class="n">left</span><span class="o">=</span><span class="n">hr_by_gen</span><span class="p">,</span>
         <span class="n">right</span><span class="o">=</span><span class="n">gens</span><span class="p">[</span>
             <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;generator_id&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;fuel_type_code_pudl&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;fuel_type_count&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;prime_mover_code&quot;</span><span class="p">,</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"plant_id_eia"</span><span class="p">,</span>
+                <span class="s2">"generator_id"</span><span class="p">,</span>
+                <span class="s2">"fuel_type_code_pudl"</span><span class="p">,</span>
+                <span class="s2">"fuel_type_count"</span><span class="p">,</span>
+                <span class="s2">"prime_mover_code"</span><span class="p">,</span>
             <span class="p">]</span>
         <span class="p">],</span>
-        <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;generator_id&quot;</span><span class="p">],</span>
-        <span class="n">date_on</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;year&quot;</span><span class="p">],</span>
-        <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span>
+        <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">"plant_id_eia"</span><span class="p">,</span> <span class="s2">"generator_id"</span><span class="p">],</span>
+        <span class="n">date_on</span><span class="o">=</span><span class="p">[</span><span class="s2">"year"</span><span class="p">],</span>
+        <span class="n">how</span><span class="o">=</span><span class="s2">"left"</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">hr_by_gen</span></div>
@@ -1339,16 +1339,16 @@ window.runMermaid = runMermaid;</script>
 <span class="k">def</span><span class="w"> </span><span class="nf">fuel_cost</span><span class="p">(</span>
     <span class="n">hr_by_gen</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">gens</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">frc</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate fuel costs per MWh on a per generator basis for MCOE.</span>
+<span class="w">    </span><span class="sd">"""Calculate fuel costs per MWh on a per generator basis for MCOE.</span>
 
 <span class="sd">    Fuel costs are reported on a per-plant basis, but we want to estimate them at the</span>
 <span class="sd">    generator level. This is complicated by the fact that some plants have several</span>
 <span class="sd">    different types of generators, using different fuels. We have fuel costs broken out</span>
 <span class="sd">    by type of fuel (coal, oil, gas), and we know which generators use which fuel based</span>
 <span class="sd">    on their energy_source_code and reported prime_mover. Coal plants use a little bit</span>
-<span class="sd">    of natural gas or diesel to get started, but based on our analysis of the &quot;pure&quot;</span>
+<span class="sd">    of natural gas or diesel to get started, but based on our analysis of the "pure"</span>
 <span class="sd">    coal plants, this amounts to only a fraction of a percent of their overall fuel</span>
-<span class="sd">    consumption on a heat content basis, so we&#39;re ignoring it for now.</span>
+<span class="sd">    consumption on a heat content basis, so we're ignoring it for now.</span>
 
 <span class="sd">    For plants whose generators all rely on the same fuel source, we simply attribute</span>
 <span class="sd">    the fuel costs proportional to the fuel heat content consumption associated with</span>
@@ -1358,41 +1358,41 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    the fuel costs according to fuel type -- so the gas fuel costs are associated with</span>
 <span class="sd">    generators that have energy_source_code gas, and the coal fuel costs are associated</span>
 <span class="sd">    with the generators that have energy_source_code coal.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># Split up the plants on the basis of how many different primary energy</span>
     <span class="c1"># sources the component generators have:</span>
     <span class="n">hr_by_gen</span> <span class="o">=</span> <span class="n">hr_by_gen</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
         <span class="p">:,</span>
         <span class="p">[</span>
-            <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;generator_id&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;unit_id_pudl&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;unit_heat_rate_mmbtu_per_mwh&quot;</span><span class="p">,</span>
+            <span class="s2">"plant_id_eia"</span><span class="p">,</span>
+            <span class="s2">"generator_id"</span><span class="p">,</span>
+            <span class="s2">"unit_id_pudl"</span><span class="p">,</span>
+            <span class="s2">"report_date"</span><span class="p">,</span>
+            <span class="s2">"unit_heat_rate_mmbtu_per_mwh"</span><span class="p">,</span>
         <span class="p">],</span>
     <span class="p">]</span>
     <span class="n">gens</span> <span class="o">=</span> <span class="n">gens</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
         <span class="p">:,</span>
         <span class="p">[</span>
-            <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;plant_name_eia&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;plant_id_pudl&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;generator_id&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;utility_name_eia&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;utility_id_pudl&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;fuel_type_count&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;fuel_type_code_pudl&quot;</span><span class="p">,</span>
+            <span class="s2">"plant_id_eia"</span><span class="p">,</span>
+            <span class="s2">"report_date"</span><span class="p">,</span>
+            <span class="s2">"plant_name_eia"</span><span class="p">,</span>
+            <span class="s2">"plant_id_pudl"</span><span class="p">,</span>
+            <span class="s2">"generator_id"</span><span class="p">,</span>
+            <span class="s2">"utility_id_eia"</span><span class="p">,</span>
+            <span class="s2">"utility_name_eia"</span><span class="p">,</span>
+            <span class="s2">"utility_id_pudl"</span><span class="p">,</span>
+            <span class="s2">"fuel_type_count"</span><span class="p">,</span>
+            <span class="s2">"fuel_type_code_pudl"</span><span class="p">,</span>
         <span class="p">],</span>
     <span class="p">]</span>
 
     <span class="n">gen_w_ft</span> <span class="o">=</span> <span class="n">pudl</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">date_merge</span><span class="p">(</span>
         <span class="n">left</span><span class="o">=</span><span class="n">hr_by_gen</span><span class="p">,</span>
         <span class="n">right</span><span class="o">=</span><span class="n">gens</span><span class="p">,</span>
-        <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;generator_id&quot;</span><span class="p">],</span>
-        <span class="n">date_on</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;year&quot;</span><span class="p">],</span>
-        <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span>
+        <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">"plant_id_eia"</span><span class="p">,</span> <span class="s2">"generator_id"</span><span class="p">],</span>
+        <span class="n">date_on</span><span class="o">=</span><span class="p">[</span><span class="s2">"year"</span><span class="p">],</span>
+        <span class="n">how</span><span class="o">=</span><span class="s2">"left"</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="n">one_fuel</span> <span class="o">=</span> <span class="n">gen_w_ft</span><span class="p">[</span><span class="n">gen_w_ft</span><span class="o">.</span><span class="n">fuel_type_count</span> <span class="o">==</span> <span class="mi">1</span><span class="p">]</span>
@@ -1405,17 +1405,17 @@ window.runMermaid = runMermaid;</script>
         <span class="n">frc</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
             <span class="p">:,</span>
             <span class="p">[</span>
-                <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;fuel_cost_per_mmbtu&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;fuel_type_code_pudl&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;total_fuel_cost&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;fuel_received_mmbtu&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;fuel_cost_per_mmbtu_source&quot;</span><span class="p">,</span>
+                <span class="s2">"plant_id_eia"</span><span class="p">,</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"fuel_cost_per_mmbtu"</span><span class="p">,</span>
+                <span class="s2">"fuel_type_code_pudl"</span><span class="p">,</span>
+                <span class="s2">"total_fuel_cost"</span><span class="p">,</span>
+                <span class="s2">"fuel_received_mmbtu"</span><span class="p">,</span>
+                <span class="s2">"fuel_cost_per_mmbtu_source"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">],</span>
-        <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span>
-        <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;report_date&quot;</span><span class="p">],</span>
+        <span class="n">how</span><span class="o">=</span><span class="s2">"left"</span><span class="p">,</span>
+        <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">"plant_id_eia"</span><span class="p">,</span> <span class="s2">"report_date"</span><span class="p">],</span>
     <span class="p">)</span>
     <span class="c1"># We need to retain the different energy_source_code information from the</span>
     <span class="c1"># generators (primary for the generator) and the fuel receipts (which is</span>
@@ -1423,8 +1423,8 @@ window.runMermaid = runMermaid;</script>
     <span class="c1"># generator getting all of the fuels:</span>
     <span class="n">one_fuel</span> <span class="o">=</span> <span class="n">one_fuel</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
         <span class="n">columns</span><span class="o">=</span><span class="p">{</span>
-            <span class="s2">&quot;fuel_type_code_pudl_x&quot;</span><span class="p">:</span> <span class="s2">&quot;ftp_gen&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;fuel_type_code_pudl_y&quot;</span><span class="p">:</span> <span class="s2">&quot;ftp_frc&quot;</span><span class="p">,</span>
+            <span class="s2">"fuel_type_code_pudl_x"</span><span class="p">:</span> <span class="s2">"ftp_gen"</span><span class="p">,</span>
+            <span class="s2">"fuel_type_code_pudl_y"</span><span class="p">:</span> <span class="s2">"ftp_frc"</span><span class="p">,</span>
         <span class="p">},</span>
     <span class="p">)</span>
 
@@ -1436,15 +1436,15 @@ window.runMermaid = runMermaid;</script>
         <span class="n">frc</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
             <span class="p">:,</span>
             <span class="p">[</span>
-                <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;fuel_cost_per_mmbtu&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;fuel_type_code_pudl&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;fuel_cost_per_mmbtu_source&quot;</span><span class="p">,</span>
+                <span class="s2">"plant_id_eia"</span><span class="p">,</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"fuel_cost_per_mmbtu"</span><span class="p">,</span>
+                <span class="s2">"fuel_type_code_pudl"</span><span class="p">,</span>
+                <span class="s2">"fuel_cost_per_mmbtu_source"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">],</span>
-        <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span>
-        <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;report_date&quot;</span><span class="p">,</span> <span class="s2">&quot;fuel_type_code_pudl&quot;</span><span class="p">],</span>
+        <span class="n">how</span><span class="o">=</span><span class="s2">"left"</span><span class="p">,</span>
+        <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">"plant_id_eia"</span><span class="p">,</span> <span class="s2">"report_date"</span><span class="p">,</span> <span class="s2">"fuel_type_code_pudl"</span><span class="p">],</span>
     <span class="p">)</span>
 
     <span class="c1"># At this point, within each plant, we should have one record per</span>
@@ -1459,45 +1459,45 @@ window.runMermaid = runMermaid;</script>
     <span class="c1"># consumption -- whereas in the multi-fuel plants we are going to look at</span>
     <span class="c1"># fuel costs on a per-fuel basis (this is very close to being correct,</span>
     <span class="c1"># since secondary fuels are typically a fraction of a percent of the</span>
-    <span class="c1"># plant&#39;s overall costs).</span>
+    <span class="c1"># plant's overall costs).</span>
 
-    <span class="n">one_fuel_gb</span> <span class="o">=</span> <span class="n">one_fuel</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">,</span> <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">])</span>
+    <span class="n">one_fuel_gb</span> <span class="o">=</span> <span class="n">one_fuel</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s2">"report_date"</span><span class="p">,</span> <span class="s2">"plant_id_eia"</span><span class="p">])</span>
     <span class="n">one_fuel_agg</span> <span class="o">=</span> <span class="n">one_fuel_gb</span><span class="o">.</span><span class="n">agg</span><span class="p">(</span>
         <span class="p">{</span>
-            <span class="s2">&quot;total_fuel_cost&quot;</span><span class="p">:</span> <span class="n">pudl</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">sum_na</span><span class="p">,</span>
-            <span class="s2">&quot;fuel_received_mmbtu&quot;</span><span class="p">:</span> <span class="n">pudl</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">sum_na</span><span class="p">,</span>
-            <span class="s2">&quot;fuel_cost_per_mmbtu_source&quot;</span><span class="p">:</span> <span class="n">pudl</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">groupby_agg_label_unique_source_or_mixed</span><span class="p">,</span>
+            <span class="s2">"total_fuel_cost"</span><span class="p">:</span> <span class="n">pudl</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">sum_na</span><span class="p">,</span>
+            <span class="s2">"fuel_received_mmbtu"</span><span class="p">:</span> <span class="n">pudl</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">sum_na</span><span class="p">,</span>
+            <span class="s2">"fuel_cost_per_mmbtu_source"</span><span class="p">:</span> <span class="n">pudl</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">groupby_agg_label_unique_source_or_mixed</span><span class="p">,</span>
         <span class="p">}</span>
     <span class="p">)</span>
-    <span class="n">one_fuel_agg</span><span class="p">[</span><span class="s2">&quot;fuel_cost_per_mmbtu&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">one_fuel_agg</span><span class="p">[</span><span class="s2">&quot;total_fuel_cost&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="n">one_fuel_agg</span><span class="p">[</span><span class="s2">&quot;fuel_received_mmbtu&quot;</span><span class="p">]</span>
+    <span class="n">one_fuel_agg</span><span class="p">[</span><span class="s2">"fuel_cost_per_mmbtu"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">one_fuel_agg</span><span class="p">[</span><span class="s2">"total_fuel_cost"</span><span class="p">]</span> <span class="o">/</span> <span class="n">one_fuel_agg</span><span class="p">[</span><span class="s2">"fuel_received_mmbtu"</span><span class="p">]</span>
     <span class="p">)</span>
     <span class="n">one_fuel_agg</span> <span class="o">=</span> <span class="n">one_fuel_agg</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
     <span class="n">one_fuel</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
         <span class="n">one_fuel</span><span class="p">[</span>
             <span class="p">[</span>
-                <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;generator_id&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;unit_heat_rate_mmbtu_per_mwh&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;fuel_cost_per_mmbtu_source&quot;</span><span class="p">,</span>
+                <span class="s2">"plant_id_eia"</span><span class="p">,</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"generator_id"</span><span class="p">,</span>
+                <span class="s2">"unit_heat_rate_mmbtu_per_mwh"</span><span class="p">,</span>
+                <span class="s2">"fuel_cost_per_mmbtu_source"</span><span class="p">,</span>
             <span class="p">]</span>
         <span class="p">],</span>
-        <span class="n">one_fuel_agg</span><span class="p">[[</span><span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;report_date&quot;</span><span class="p">,</span> <span class="s2">&quot;fuel_cost_per_mmbtu&quot;</span><span class="p">]],</span>
-        <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;report_date&quot;</span><span class="p">],</span>
+        <span class="n">one_fuel_agg</span><span class="p">[[</span><span class="s2">"plant_id_eia"</span><span class="p">,</span> <span class="s2">"report_date"</span><span class="p">,</span> <span class="s2">"fuel_cost_per_mmbtu"</span><span class="p">]],</span>
+        <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">"plant_id_eia"</span><span class="p">,</span> <span class="s2">"report_date"</span><span class="p">],</span>
     <span class="p">)</span>
     <span class="n">one_fuel</span> <span class="o">=</span> <span class="n">one_fuel</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span>
-        <span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;report_date&quot;</span><span class="p">,</span> <span class="s2">&quot;generator_id&quot;</span><span class="p">]</span>
+        <span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">"plant_id_eia"</span><span class="p">,</span> <span class="s2">"report_date"</span><span class="p">,</span> <span class="s2">"generator_id"</span><span class="p">]</span>
     <span class="p">)</span>
 
     <span class="n">multi_fuel</span> <span class="o">=</span> <span class="n">multi_fuel</span><span class="p">[</span>
         <span class="p">[</span>
-            <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;generator_id&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;fuel_cost_per_mmbtu&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;unit_heat_rate_mmbtu_per_mwh&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;fuel_cost_per_mmbtu_source&quot;</span><span class="p">,</span>
+            <span class="s2">"plant_id_eia"</span><span class="p">,</span>
+            <span class="s2">"report_date"</span><span class="p">,</span>
+            <span class="s2">"generator_id"</span><span class="p">,</span>
+            <span class="s2">"fuel_cost_per_mmbtu"</span><span class="p">,</span>
+            <span class="s2">"unit_heat_rate_mmbtu_per_mwh"</span><span class="p">,</span>
+            <span class="s2">"fuel_cost_per_mmbtu_source"</span><span class="p">,</span>
         <span class="p">]</span>
     <span class="p">]</span>
 
@@ -1508,13 +1508,13 @@ window.runMermaid = runMermaid;</script>
                 <span class="n">x</span><span class="o">.</span><span class="n">fuel_cost_per_mmbtu</span> <span class="o">*</span> <span class="n">x</span><span class="o">.</span><span class="n">unit_heat_rate_mmbtu_per_mwh</span>
             <span class="p">)</span>
         <span class="p">)</span>
-        <span class="o">.</span><span class="n">sort_values</span><span class="p">([</span><span class="s2">&quot;report_date&quot;</span><span class="p">,</span> <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;generator_id&quot;</span><span class="p">])</span>
+        <span class="o">.</span><span class="n">sort_values</span><span class="p">([</span><span class="s2">"report_date"</span><span class="p">,</span> <span class="s2">"plant_id_eia"</span><span class="p">,</span> <span class="s2">"generator_id"</span><span class="p">])</span>
     <span class="p">)</span>
 
     <span class="n">out_df</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">gen_w_ft</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s2">&quot;unit_heat_rate_mmbtu_per_mwh&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">gen_w_ft</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s2">"unit_heat_rate_mmbtu_per_mwh"</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span>
-        <span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">fc</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">,</span> <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;generator_id&quot;</span><span class="p">])</span>
+        <span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">fc</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">"report_date"</span><span class="p">,</span> <span class="s2">"plant_id_eia"</span><span class="p">,</span> <span class="s2">"generator_id"</span><span class="p">])</span>
     <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">out_df</span></div>
@@ -1526,36 +1526,36 @@ window.runMermaid = runMermaid;</script>
 <span class="k">def</span><span class="w"> </span><span class="nf">capacity_factor</span><span class="p">(</span>
     <span class="n">gens</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
     <span class="n">gen</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
-    <span class="n">freq</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;YS&quot;</span><span class="p">,</span> <span class="s2">&quot;MS&quot;</span><span class="p">],</span>
+    <span class="n">freq</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"YS"</span><span class="p">,</span> <span class="s2">"MS"</span><span class="p">],</span>
     <span class="n">min_cap_fact</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">max_cap_fact</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate the capacity factor for each generator.</span>
+<span class="w">    </span><span class="sd">"""Calculate the capacity factor for each generator.</span>
 
 <span class="sd">    Capacity Factor is calculated by using the net generation from eia923 and the</span>
 <span class="sd">    nameplate capacity from eia860. The net gen and capacity are pulled into one</span>
 <span class="sd">    dataframe and then run through :func:`pudl.helpers.calc_capacity_factor`.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># Only include columns to be used</span>
-    <span class="n">gens</span> <span class="o">=</span> <span class="n">gens</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="p">[</span><span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;report_date&quot;</span><span class="p">,</span> <span class="s2">&quot;generator_id&quot;</span><span class="p">,</span> <span class="s2">&quot;capacity_mw&quot;</span><span class="p">]]</span>
+    <span class="n">gens</span> <span class="o">=</span> <span class="n">gens</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="p">[</span><span class="s2">"plant_id_eia"</span><span class="p">,</span> <span class="s2">"report_date"</span><span class="p">,</span> <span class="s2">"generator_id"</span><span class="p">,</span> <span class="s2">"capacity_mw"</span><span class="p">]]</span>
 
     <span class="n">gen</span> <span class="o">=</span> <span class="n">gen</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
-        <span class="p">:,</span> <span class="p">[</span><span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;report_date&quot;</span><span class="p">,</span> <span class="s2">&quot;generator_id&quot;</span><span class="p">,</span> <span class="s2">&quot;net_generation_mwh&quot;</span><span class="p">]</span>
+        <span class="p">:,</span> <span class="p">[</span><span class="s2">"plant_id_eia"</span><span class="p">,</span> <span class="s2">"report_date"</span><span class="p">,</span> <span class="s2">"generator_id"</span><span class="p">,</span> <span class="s2">"net_generation_mwh"</span><span class="p">]</span>
     <span class="p">]</span>
 
     <span class="c1"># merge the generation and capacity to calculate capacity factor</span>
     <span class="n">cf</span> <span class="o">=</span> <span class="n">pudl</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">date_merge</span><span class="p">(</span>
         <span class="n">left</span><span class="o">=</span><span class="n">gen</span><span class="p">,</span>
         <span class="n">right</span><span class="o">=</span><span class="n">gens</span><span class="p">,</span>
-        <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;generator_id&quot;</span><span class="p">],</span>
-        <span class="n">date_on</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;year&quot;</span><span class="p">],</span>
-        <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span>
+        <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">"plant_id_eia"</span><span class="p">,</span> <span class="s2">"generator_id"</span><span class="p">],</span>
+        <span class="n">date_on</span><span class="o">=</span><span class="p">[</span><span class="s2">"year"</span><span class="p">],</span>
+        <span class="n">how</span><span class="o">=</span><span class="s2">"left"</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">cf</span> <span class="o">=</span> <span class="n">pudl</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">calc_capacity_factor</span><span class="p">(</span>
         <span class="n">cf</span><span class="p">,</span> <span class="n">min_cap_fact</span><span class="o">=</span><span class="n">min_cap_fact</span><span class="p">,</span> <span class="n">max_cap_fact</span><span class="o">=</span><span class="n">max_cap_fact</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="n">freq</span>
     <span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">apply_pudl_dtypes</span><span class="p">(</span><span class="n">cf</span><span class="p">,</span> <span class="n">field_namespace</span><span class="o">=</span><span class="s2">&quot;eia&quot;</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">apply_pudl_dtypes</span><span class="p">(</span><span class="n">cf</span><span class="p">,</span> <span class="n">field_namespace</span><span class="o">=</span><span class="s2">"eia"</span><span class="p">)</span></div>
 
 
 
@@ -1569,7 +1569,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">min_cap_fact</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
     <span class="n">max_cap_fact</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.5</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compile marginal cost of electricity (MCOE) at the generator level.</span>
+<span class="w">    </span><span class="sd">"""Compile marginal cost of electricity (MCOE) at the generator level.</span>
 
 <span class="sd">    Use data from EIA 923, EIA 860, and (someday) FERC Form 1 to estimate</span>
 <span class="sd">    the MCOE of individual generating units.</span>
@@ -1585,34 +1585,34 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        min_cap_fact, max_cap_fact: minimum &amp; maximum generator capacity</span>
 <span class="sd">            factor. Generator records with a lower capacity factor will be</span>
 <span class="sd">            filtered out before returning. This allows the user to exclude</span>
-<span class="sd">            generators that aren&#39;t being used enough to have valid.</span>
+<span class="sd">            generators that aren't being used enough to have valid.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A dataframe organized by date and generator, with lots of juicy information</span>
 <span class="sd">        about the generators -- including fuel cost on a per MWh and MMBTU basis, heat</span>
 <span class="sd">        rates, and net generation.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">gens_idx</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">,</span> <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;generator_id&quot;</span><span class="p">]</span>
+<span class="sd">    """</span>
+    <span class="n">gens_idx</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"report_date"</span><span class="p">,</span> <span class="s2">"plant_id_eia"</span><span class="p">,</span> <span class="s2">"generator_id"</span><span class="p">]</span>
 
-    <span class="c1"># Bring together all derived values we&#39;ve calculated in the MCOE process:</span>
+    <span class="c1"># Bring together all derived values we've calculated in the MCOE process:</span>
     <span class="n">mcoe_out</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
             <span class="n">fuel_cost</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
                 <span class="p">:,</span>
                 <span class="n">gens_idx</span>
                 <span class="o">+</span> <span class="p">[</span>
-                    <span class="s2">&quot;unit_id_pudl&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;fuel_cost_per_mmbtu_source&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;fuel_cost_per_mmbtu&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;unit_heat_rate_mmbtu_per_mwh&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;fuel_cost_per_mwh&quot;</span><span class="p">,</span>
+                    <span class="s2">"unit_id_pudl"</span><span class="p">,</span>
+                    <span class="s2">"fuel_cost_per_mmbtu_source"</span><span class="p">,</span>
+                    <span class="s2">"fuel_cost_per_mmbtu"</span><span class="p">,</span>
+                    <span class="s2">"unit_heat_rate_mmbtu_per_mwh"</span><span class="p">,</span>
+                    <span class="s2">"fuel_cost_per_mwh"</span><span class="p">,</span>
                 <span class="p">],</span>
             <span class="p">],</span>
             <span class="n">capacity_factor</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
-                <span class="p">:,</span> <span class="n">gens_idx</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;net_generation_mwh&quot;</span><span class="p">,</span> <span class="s2">&quot;capacity_factor&quot;</span><span class="p">]</span>
+                <span class="p">:,</span> <span class="n">gens_idx</span> <span class="o">+</span> <span class="p">[</span><span class="s2">"net_generation_mwh"</span><span class="p">,</span> <span class="s2">"capacity_factor"</span><span class="p">]</span>
             <span class="p">],</span>
             <span class="n">on</span><span class="o">=</span><span class="n">gens_idx</span><span class="p">,</span>
-            <span class="n">how</span><span class="o">=</span><span class="s2">&quot;outer&quot;</span><span class="p">,</span>
+            <span class="n">how</span><span class="o">=</span><span class="s2">"outer"</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="c1"># Calculate a couple more derived values:</span>
         <span class="o">.</span><span class="n">assign</span><span class="p">(</span>
@@ -1621,32 +1621,32 @@ window.runMermaid = runMermaid;</script>
         <span class="p">)</span>
         <span class="o">.</span><span class="n">pipe</span><span class="p">(</span>
             <span class="n">pudl</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">oob_to_nan_with_dependent_cols</span><span class="p">,</span>
-            <span class="n">cols</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;unit_heat_rate_mmbtu_per_mwh&quot;</span><span class="p">],</span>
-            <span class="n">dependent_cols</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;total_mmbtu&quot;</span><span class="p">,</span> <span class="s2">&quot;fuel_cost_per_mwh&quot;</span><span class="p">],</span>
+            <span class="n">cols</span><span class="o">=</span><span class="p">[</span><span class="s2">"unit_heat_rate_mmbtu_per_mwh"</span><span class="p">],</span>
+            <span class="n">dependent_cols</span><span class="o">=</span><span class="p">[</span><span class="s2">"total_mmbtu"</span><span class="p">,</span> <span class="s2">"fuel_cost_per_mwh"</span><span class="p">],</span>
             <span class="n">lb</span><span class="o">=</span><span class="n">min_heat_rate</span><span class="p">,</span>
             <span class="n">ub</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="o">.</span><span class="n">pipe</span><span class="p">(</span>
             <span class="n">pudl</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">oob_to_nan</span><span class="p">,</span>
-            <span class="p">[</span><span class="s2">&quot;fuel_cost_per_mwh&quot;</span><span class="p">],</span>
+            <span class="p">[</span><span class="s2">"fuel_cost_per_mwh"</span><span class="p">],</span>
             <span class="n">lb</span><span class="o">=</span><span class="n">min_fuel_cost_per_mwh</span><span class="p">,</span>
             <span class="n">ub</span><span class="o">=</span><span class="mf">1e10</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="o">.</span><span class="n">pipe</span><span class="p">(</span>
             <span class="n">pudl</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">oob_to_nan</span><span class="p">,</span>
-            <span class="p">[</span><span class="s2">&quot;capacity_factor&quot;</span><span class="p">],</span>
+            <span class="p">[</span><span class="s2">"capacity_factor"</span><span class="p">],</span>
             <span class="n">lb</span><span class="o">=</span><span class="n">min_cap_fact</span><span class="p">,</span>
             <span class="n">ub</span><span class="o">=</span><span class="n">max_cap_fact</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="c1"># Make sure the merge worked!</span>
         <span class="o">.</span><span class="n">pipe</span><span class="p">(</span>
             <span class="n">pv</span><span class="o">.</span><span class="n">no_null_rows</span><span class="p">,</span>
-            <span class="n">df_name</span><span class="o">=</span><span class="s2">&quot;fuel_cost + capacity_factor&quot;</span><span class="p">,</span>
+            <span class="n">df_name</span><span class="o">=</span><span class="s2">"fuel_cost + capacity_factor"</span><span class="p">,</span>
             <span class="n">max_null_fraction</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span>
         <span class="p">)</span>
     <span class="p">)</span>
     <span class="n">mcoe_out</span> <span class="o">=</span> <span class="n">mcoe_out</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span>
-        <span class="p">[</span><span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;generator_id&quot;</span><span class="p">,</span> <span class="s2">&quot;report_date&quot;</span><span class="p">,</span> <span class="s2">&quot;unit_id_pudl&quot;</span><span class="p">]</span>
+        <span class="p">[</span><span class="s2">"plant_id_eia"</span><span class="p">,</span> <span class="s2">"generator_id"</span><span class="p">,</span> <span class="s2">"report_date"</span><span class="p">,</span> <span class="s2">"unit_id_pudl"</span><span class="p">]</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">mcoe_out</span></div>
 
@@ -1657,11 +1657,11 @@ window.runMermaid = runMermaid;</script>
 <span class="k">def</span><span class="w"> </span><span class="nf">mcoe_generators</span><span class="p">(</span>
     <span class="n">mcoe</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
     <span class="n">gens</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
-    <span class="n">freq</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;YS&quot;</span><span class="p">,</span> <span class="s2">&quot;MS&quot;</span><span class="p">],</span>
+    <span class="n">freq</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"YS"</span><span class="p">,</span> <span class="s2">"MS"</span><span class="p">],</span>
     <span class="n">all_gens</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">timeseries_fillin</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Merge generator attributes onto the marginal cost of electricity table.</span>
+<span class="w">    </span><span class="sd">"""Merge generator attributes onto the marginal cost of electricity table.</span>
 
 <span class="sd">    Merge generator attributes onto the MCOE table and optionally</span>
 <span class="sd">    fill in the timeseries for each generator.</span>
@@ -1679,26 +1679,26 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    Returns:</span>
 <span class="sd">        An MCOE dataframe organized by date and generator, with additionally generator</span>
 <span class="sd">        attributes merged on and optionally a filled in timeseries for each generator.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># Combine MCOE derived values with generator attributes</span>
-    <span class="n">mcoe</span> <span class="o">=</span> <span class="n">mcoe</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="s2">&quot;unit_id_pudl&quot;</span><span class="p">)</span>
+    <span class="n">mcoe</span> <span class="o">=</span> <span class="n">mcoe</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="s2">"unit_id_pudl"</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">timeseries_fillin</span><span class="p">:</span>
         <span class="n">mcoe_gens_out</span> <span class="o">=</span> <span class="n">pudl</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">full_timeseries_date_merge</span><span class="p">(</span>
             <span class="n">left</span><span class="o">=</span><span class="n">gens</span><span class="p">,</span>
             <span class="n">right</span><span class="o">=</span><span class="n">mcoe</span><span class="p">,</span>
-            <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;generator_id&quot;</span><span class="p">],</span>
-            <span class="n">date_on</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;year&quot;</span><span class="p">],</span>
-            <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span> <span class="k">if</span> <span class="n">all_gens</span> <span class="k">else</span> <span class="s2">&quot;right&quot;</span><span class="p">,</span>
+            <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">"plant_id_eia"</span><span class="p">,</span> <span class="s2">"generator_id"</span><span class="p">],</span>
+            <span class="n">date_on</span><span class="o">=</span><span class="p">[</span><span class="s2">"year"</span><span class="p">],</span>
+            <span class="n">how</span><span class="o">=</span><span class="s2">"left"</span> <span class="k">if</span> <span class="n">all_gens</span> <span class="k">else</span> <span class="s2">"right"</span><span class="p">,</span>
             <span class="n">freq</span><span class="o">=</span><span class="n">freq</span><span class="p">,</span>
-        <span class="p">)</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">pv</span><span class="o">.</span><span class="n">no_null_rows</span><span class="p">,</span> <span class="n">df_name</span><span class="o">=</span><span class="s2">&quot;mcoe_all_gens&quot;</span><span class="p">,</span> <span class="n">max_null_fraction</span><span class="o">=</span><span class="mf">0.9</span><span class="p">)</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">pv</span><span class="o">.</span><span class="n">no_null_rows</span><span class="p">,</span> <span class="n">df_name</span><span class="o">=</span><span class="s2">"mcoe_all_gens"</span><span class="p">,</span> <span class="n">max_null_fraction</span><span class="o">=</span><span class="mf">0.9</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">mcoe_gens_out</span> <span class="o">=</span> <span class="n">pudl</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">date_merge</span><span class="p">(</span>
             <span class="n">left</span><span class="o">=</span><span class="n">gens</span><span class="p">,</span>
             <span class="n">right</span><span class="o">=</span><span class="n">mcoe</span><span class="p">,</span>
-            <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;generator_id&quot;</span><span class="p">],</span>
-            <span class="n">date_on</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;year&quot;</span><span class="p">],</span>
-            <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span> <span class="k">if</span> <span class="n">all_gens</span> <span class="k">else</span> <span class="s2">&quot;right&quot;</span><span class="p">,</span>
-        <span class="p">)</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">pv</span><span class="o">.</span><span class="n">no_null_rows</span><span class="p">,</span> <span class="n">df_name</span><span class="o">=</span><span class="s2">&quot;mcoe_all_gens&quot;</span><span class="p">,</span> <span class="n">max_null_fraction</span><span class="o">=</span><span class="mf">0.9</span><span class="p">)</span>
+            <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">"plant_id_eia"</span><span class="p">,</span> <span class="s2">"generator_id"</span><span class="p">],</span>
+            <span class="n">date_on</span><span class="o">=</span><span class="p">[</span><span class="s2">"year"</span><span class="p">],</span>
+            <span class="n">how</span><span class="o">=</span><span class="s2">"left"</span> <span class="k">if</span> <span class="n">all_gens</span> <span class="k">else</span> <span class="s2">"right"</span><span class="p">,</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">pv</span><span class="o">.</span><span class="n">no_null_rows</span><span class="p">,</span> <span class="n">df_name</span><span class="o">=</span><span class="s2">"mcoe_all_gens"</span><span class="p">,</span> <span class="n">max_null_fraction</span><span class="o">=</span><span class="mf">0.9</span><span class="p">)</span>
 
     <span class="c1"># Organize the dataframe for easier legibility</span>
     <span class="n">mcoe_gens_out</span> <span class="o">=</span> <span class="p">(</span>
@@ -1708,13 +1708,13 @@ window.runMermaid = runMermaid;</script>
         <span class="p">)</span>
         <span class="o">.</span><span class="n">sort_values</span><span class="p">(</span>
             <span class="p">[</span>
-                <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;unit_id_pudl&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;generator_id&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
+                <span class="s2">"plant_id_eia"</span><span class="p">,</span>
+                <span class="s2">"unit_id_pudl"</span><span class="p">,</span>
+                <span class="s2">"generator_id"</span><span class="p">,</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
             <span class="p">]</span>
         <span class="p">)</span>
-        <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">apply_pudl_dtypes</span><span class="p">,</span> <span class="n">field_namespace</span><span class="o">=</span><span class="s2">&quot;eia&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">apply_pudl_dtypes</span><span class="p">,</span> <span class="n">field_namespace</span><span class="o">=</span><span class="s2">"eia"</span><span class="p">)</span>
     <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">mcoe_gens_out</span></div>

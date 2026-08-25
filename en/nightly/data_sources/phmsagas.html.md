@@ -24,6 +24,7 @@ the names and descriptions of each of its fields.
 | [\_core_phmsagas_\_yearly_distribution_filings](../data_dictionaries/pudl_db.html.md#i-core-phmsagas-yearly-distribution-filings)                           | [https://data.catalyst.coop/preview/pudl/_core_phmsagas_\_yearly_distribution_filings](https://data.catalyst.coop/preview/pudl/_core_phmsagas__yearly_distribution_filings)                           |
 | [\_core_phmsagas_\_yearly_distribution_leaks](../data_dictionaries/pudl_db.html.md#i-core-phmsagas-yearly-distribution-leaks)                               | [https://data.catalyst.coop/preview/pudl/_core_phmsagas_\_yearly_distribution_leaks](https://data.catalyst.coop/preview/pudl/_core_phmsagas__yearly_distribution_leaks)                               |
 | [\_core_phmsagas_\_yearly_distribution_misc](../data_dictionaries/pudl_db.html.md#i-core-phmsagas-yearly-distribution-misc)                                 | [https://data.catalyst.coop/preview/pudl/_core_phmsagas_\_yearly_distribution_misc](https://data.catalyst.coop/preview/pudl/_core_phmsagas__yearly_distribution_misc)                                 |
+| [core_phmsagas_\_yearly_distribution_by_install_decade](../data_dictionaries/pudl_db.html.md#core-phmsagas-yearly-distribution-by-install-decade)           | [https://data.catalyst.coop/preview/pudl/core_phmsagas_\_yearly_distribution_by_install_decade](https://data.catalyst.coop/preview/pudl/core_phmsagas__yearly_distribution_by_install_decade)         |
 | [core_phmsagas_\_yearly_distribution_operators](../data_dictionaries/pudl_db.html.md#core-phmsagas-yearly-distribution-operators)                           | [https://data.catalyst.coop/preview/pudl/core_phmsagas_\_yearly_distribution_operators](https://data.catalyst.coop/preview/pudl/core_phmsagas__yearly_distribution_operators)                         |
 
 ## Background
@@ -42,17 +43,17 @@ For more details, see the [official PHMSA data page](https://www.phmsa.dot.gov/d
 
 Documentation for the gas distribution form:
 
-* [`Gas Distribution Annual Form - Phmsa F7100.1-1 (2005) - Data Fields (PDF/TXT)`](phmsagas/Gas Distribution Annual Form - PHMSA F7100.1-1 (2005) - Data Fields.pdf)
-* [`Gas Distribution Annual Form - Phmsa F7100.1-1 (2021) - Data Fields (PDF/TXT)`](phmsagas/Gas Distribution Annual Form - PHMSA F7100.1-1 (2021) - Data fields.pdf)
-* [`Gas Distribution Annual Form - Rspa F7100.1-1 (1985) - Data Fields (PDF/TXT)`](phmsagas/Gas Distribution Annual Form - RSPA F7100.1-1 (1985) - Data fields.txt)
+* [`Gas Distribution Annual Form - Phmsa F7100.1-1 (2005) - Data Fields (PDF/TXT)`](_downloads/94c25591fbbea8a301acde659b73e400/Gas Distribution Annual Form - PHMSA F7100.1-1 (2005) - Data Fields.pdf)
+* [`Gas Distribution Annual Form - Phmsa F7100.1-1 (2021) - Data Fields (PDF/TXT)`](_downloads/1a5932abc1b8b7879f2b8f8625844048/Gas Distribution Annual Form - PHMSA F7100.1-1 (2021) - Data fields.pdf)
+* [`Gas Distribution Annual Form - Rspa F7100.1-1 (1985) - Data Fields (PDF/TXT)`](_downloads/58f6dbc649a1f6cb18bd2a7154bec4c6/Gas Distribution Annual Form - RSPA F7100.1-1 (1985) - Data fields.txt)
 
 Documentation for the gas transmission and gathering form:
 
-* [`Gas Transmission And Gathering Pipeline Annual Form - Phmsa F7100.2-1 (2005) - Data Fields (PDF/TXT)`](phmsagas/Gas Transmission and Gathering Pipeline Annual Form - PHMSA F7100.2-1 (2005) - Data Fields.pdf)
-* [`Gas Transmission And Gathering Pipeline Annual Form - Phmsa F7100.2-1 (2005) - Data Fields Not On The Form (PDF/TXT)`](phmsagas/Gas Transmission and Gathering Pipeline Annual Form - PHMSA F7100.2-1 (2005) - Data fields not on the form.txt)
-* [`Gas Transmission And Gathering Pipeline Annual Form - Phmsa F7100.2-1 (2014) - Data Fields (PDF/TXT)`](phmsagas/Gas Transmission and Gathering Pipeline Annual Form - PHMSA F7100.2-1 (2014) - Data Fields.pdf)
-* [`Gas Transmission And Gathering Pipeline Annual Form - Phmsa F7100.2-1 (2022) - Data Fields (PDF/TXT)`](phmsagas/Gas Transmission and Gathering Pipeline Annual Form - PHMSA F7100.2-1 (2022) - Data Fields.pdf)
-* [`Gas Transmission And Gathering Pipeline Annual Form - Rspa F7100.2-1 (1985) - Data Fields (PDF/TXT)`](phmsagas/Gas Transmission and Gathering Pipeline Annual Form - RSPA F7100.2-1 (1985) - Data fields.txt)
+* [`Gas Transmission And Gathering Pipeline Annual Form - Phmsa F7100.2-1 (2005) - Data Fields (PDF/TXT)`](_downloads/aa383d0e74111c1d8f7d660b15dba1a5/Gas Transmission and Gathering Pipeline Annual Form - PHMSA F7100.2-1 (2005) - Data Fields.pdf)
+* [`Gas Transmission And Gathering Pipeline Annual Form - Phmsa F7100.2-1 (2005) - Data Fields Not On The Form (PDF/TXT)`](_downloads/fdbcb9f2d45272ca70731043d46fa720/Gas Transmission and Gathering Pipeline Annual Form - PHMSA F7100.2-1 (2005) - Data fields not on the form.txt)
+* [`Gas Transmission And Gathering Pipeline Annual Form - Phmsa F7100.2-1 (2014) - Data Fields (PDF/TXT)`](_downloads/51cb377f1e81ba53efdccd9316a309a2/Gas Transmission and Gathering Pipeline Annual Form - PHMSA F7100.2-1 (2014) - Data Fields.pdf)
+* [`Gas Transmission And Gathering Pipeline Annual Form - Phmsa F7100.2-1 (2022) - Data Fields (PDF/TXT)`](_downloads/2c5c64eca6c77cc23e90bce0c5fa223d/Gas Transmission and Gathering Pipeline Annual Form - PHMSA F7100.2-1 (2022) - Data Fields.pdf)
+* [`Gas Transmission And Gathering Pipeline Annual Form - Rspa F7100.2-1 (1985) - Data Fields (PDF/TXT)`](_downloads/d707f4cc8f914c8fd75c21f0a9340d42/Gas Transmission and Gathering Pipeline Annual Form - RSPA F7100.2-1 (1985) - Data fields.txt)
 
 ### Data available through PUDL
 

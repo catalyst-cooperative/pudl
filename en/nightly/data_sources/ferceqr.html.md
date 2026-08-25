@@ -40,10 +40,10 @@ organized wholesale markets.
 
 ### Download additional documentation
 
-> * [`Ferceqr Data Dictionary V30 2014-03-10`](ferceqr/ferceqr_data_dictionary_v30_2014-03-10.pdf)
-> * [`Ferceqr Data Dictionary V34 2017-01-12`](ferceqr/ferceqr_data_dictionary_v34_2017-01-12.pdf)
-> * [`Ferceqr Data Dictionary V35 2020-11-23`](ferceqr/ferceqr_data_dictionary_v35_2020-11-23.pdf)
-> * [`Ferceqr Filing Requirements 2023-11-08`](ferceqr/ferceqr_filing_requirements_2023-11-08.pdf)
+> * [`Ferceqr Data Dictionary V30 2014-03-10`](_downloads/db13fc3953f677cac1995f2d3674014f/ferceqr_data_dictionary_v30_2014-03-10.pdf)
+> * [`Ferceqr Data Dictionary V34 2017-01-12`](_downloads/c903304c9702fbd58a807b22e8b8748f/ferceqr_data_dictionary_v34_2017-01-12.pdf)
+> * [`Ferceqr Data Dictionary V35 2020-11-23`](_downloads/9aeea8d4e53377dae719d40559c31490/ferceqr_data_dictionary_v35_2020-11-23.pdf)
+> * [`Ferceqr Filing Requirements 2023-11-08`](_downloads/23d48956b7b5ab74ad7ebeb26eb5422c/ferceqr_filing_requirements_2023-11-08.pdf)
 
 ### Data available through PUDL
 

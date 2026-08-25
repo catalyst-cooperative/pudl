@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.metadata.resources.glue &#8212; PUDL 2026.8.1.dev16 documentation</title>
+    <title>pudl.metadata.resources.glue &#8212; PUDL 2026.8.1.dev20 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../../_static/documentation_options.js?v=f981bf86"></script>
+    <script src="../../../../_static/documentation_options.js?v=8f1a003a"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev20 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev20 documentation - Home"/>
   
   
 </a></div>
@@ -871,23 +871,23 @@ window.runMermaid = runMermaid;</script>
                 <article class="bd-article">
                   
   <h1>Source code for pudl.metadata.resources.glue</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Definitions for the glue/crosswalk tables that connect data groups.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Definitions for the glue/crosswalk tables that connect data groups."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
 
 <div class="viewcode-block" id="RESOURCE_METADATA">
 <a class="viewcode-back" href="../../../../autoapi/pudl/metadata/resources/glue/index.html#pudl.metadata.resources.glue.RESOURCE_METADATA">[docs]</a>
 <span class="n">RESOURCE_METADATA</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;core_epa__assn_eia_epacamd&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;EPA units and EIA plants, boilers, and generators.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;&quot;This crosswalk table comes from the</span>
+    <span class="s2">"core_epa__assn_eia_epacamd"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="s2">"EPA units and EIA plants, boilers, and generators."</span><span class="p">,</span>
+            <span class="s2">"additional_details_text"</span><span class="p">:</span> <span class="s2">"""This crosswalk table comes from the</span>
 <span class="s2">PUDL fork of the EPA camd-eia-crosswalk Github repo:</span>
 <span class="s2">https://github.com/catalyst-cooperative/camd-eia-crosswalk-latest.</span>
 
 <span class="s2">The camd-eia-crosswalk README and our Data Source documentation page on</span>
 <span class="s2">:doc:`../data_sources/epacems` depict the complicated relationship between EIA and EPA</span>
-<span class="s2">data, specifically the nature of EPA vs. EIA &quot;units&quot; and the level of granularity that</span>
+<span class="s2">data, specifically the nature of EPA vs. EIA "units" and the level of granularity that</span>
 <span class="s2">one can connect the two sources.</span>
 
 <span class="s2">The original EPA crosswalk runs on 2018 EIA data. We adapted the crosswalk code to run on</span>
@@ -895,29 +895,29 @@ window.runMermaid = runMermaid;</script>
 
 <span class="s2">Our version of the crosswalk clarifies some of the column names and removes unmatched</span>
 <span class="s2">rows. The :func:`pudl.dagster.assets.core.glue.core_epa__assn_eia_epacamd` function doc strings explain</span>
-<span class="s2">what changes are made from the EPA&#39;s version.&quot;&quot;&quot;</span><span class="p">,</span>
+<span class="s2">what changes are made from the EPA's version."""</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_year&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;plant_id_epa&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;emissions_unit_id_epa&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;generator_id_epa&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;boiler_id&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;generator_id&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_year"</span><span class="p">,</span>
+                <span class="s2">"plant_id_epa"</span><span class="p">,</span>
+                <span class="s2">"emissions_unit_id_epa"</span><span class="p">,</span>
+                <span class="s2">"generator_id_epa"</span><span class="p">,</span>
+                <span class="s2">"plant_id_eia"</span><span class="p">,</span>
+                <span class="s2">"boiler_id"</span><span class="p">,</span>
+                <span class="s2">"generator_id"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;glue&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;glue&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;epacamd_eia&quot;</span><span class="p">],</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"glue"</span><span class="p">,</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"glue"</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"epacamd_eia"</span><span class="p">],</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_epa__assn_eia_epacamd_subplant_ids&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;EPA units and EIA units/generators, at the subplant level.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;additional_primary_key_text&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;&quot;The primary keys would have been: plant_id_eia, generator_id, subplant_id and emissions_unit_id_epa, but there are some null records in the generator_id column. ~2 percent of all EPA CAMD records are not successfully mapped to EIA generators.&quot;&quot;&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;&quot;This table is an augmented version of the core_epa__assn_eia_epacamd</span>
-<span class="s2">crosswalk table which initially comes from the EPA&#39;s Github repo camd-eia-crosswalk:</span>
+    <span class="s2">"core_epa__assn_eia_epacamd_subplant_ids"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="s2">"EPA units and EIA units/generators, at the subplant level."</span><span class="p">,</span>
+            <span class="s2">"additional_primary_key_text"</span><span class="p">:</span> <span class="s2">"""The primary keys would have been: plant_id_eia, generator_id, subplant_id and emissions_unit_id_epa, but there are some null records in the generator_id column. ~2 percent of all EPA CAMD records are not successfully mapped to EIA generators."""</span><span class="p">,</span>
+            <span class="s2">"additional_details_text"</span><span class="p">:</span> <span class="s2">"""This table is an augmented version of the core_epa__assn_eia_epacamd</span>
+<span class="s2">crosswalk table which initially comes from the EPA's Github repo camd-eia-crosswalk:</span>
 <span class="s2">https://github.com/USEPA/camd-eia-crosswalk.</span>
 
 <span class="s2">This table identifies subplants within plant_ids, which are the smallest coherent units</span>
@@ -935,7 +935,7 @@ window.runMermaid = runMermaid;</script>
 <span class="s2">allocating pollution to energy producers. Furthermore, heterogeneity within plant_ids</span>
 <span class="s2">make aggregation to the parent entity difficult or inappropriate.</span>
 
-<span class="s2">This table inherits from the EPA&#39;s crosswalk, the IDs from EPA CAMD</span>
+<span class="s2">This table inherits from the EPA's crosswalk, the IDs from EPA CAMD</span>
 <span class="s2">core_epacems__hourly_emissions table itself, the core_eia860__assn_boiler_generator table and the</span>
 <span class="s2">core_eia860__scd_generators table. While the core_epa__assn_eia_epacamd table is the core backbone of the table,</span>
 <span class="s2">EPA CAMD IDs ensure there is complete coverage of EPA CAMD reporting units. The EIA 860</span>
@@ -946,31 +946,31 @@ window.runMermaid = runMermaid;</script>
 
 <span class="s2">But by analyzing the relationships between combustors and generators,</span>
 <span class="s2">as provided in the core_epa__assn_eia_epacamd crosswalk, we can identify distinct power plants.</span>
-<span class="s2">These are the smallest coherent units of aggregation.&quot;&quot;&quot;</span><span class="p">,</span>
+<span class="s2">These are the smallest coherent units of aggregation."""</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;plant_id_epa&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;subplant_id&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;unit_id_pudl&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;emissions_unit_id_epa&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;generator_id&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"plant_id_eia"</span><span class="p">,</span>
+                <span class="s2">"plant_id_epa"</span><span class="p">,</span>
+                <span class="s2">"subplant_id"</span><span class="p">,</span>
+                <span class="s2">"unit_id_pudl"</span><span class="p">,</span>
+                <span class="s2">"emissions_unit_id_epa"</span><span class="p">,</span>
+                <span class="s2">"generator_id"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;glue&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;glue&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;epacamd_eia&quot;</span><span class="p">],</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"glue"</span><span class="p">,</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"glue"</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"epacamd_eia"</span><span class="p">],</span>
     <span class="p">},</span>
 <span class="p">}</span></div>
 
-<span class="sd">&quot;&quot;&quot;PUDL-specific resource attributes by PUDL identifier (``resource.name``).</span>
+<span class="sd">"""PUDL-specific resource attributes by PUDL identifier (``resource.name``).</span>
 
 <span class="sd">Keys are in alphabetical order.</span>
 
 <span class="sd">See :func:`pudl.metadata.helpers.build_foreign_keys` for the expected format of</span>
 <span class="sd">``foreign_key_rules``.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 </pre></div>
 
                 </article>

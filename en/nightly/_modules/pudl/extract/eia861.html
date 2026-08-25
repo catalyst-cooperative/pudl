@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.extract.eia861 &#8212; PUDL 2026.8.1.dev16 documentation</title>
+    <title>pudl.extract.eia861 &#8212; PUDL 2026.8.1.dev20 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=f981bf86"></script>
+    <script src="../../../_static/documentation_options.js?v=8f1a003a"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev20 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev20 documentation - Home"/>
   
   
 </a></div>
@@ -868,12 +868,12 @@ window.runMermaid = runMermaid;</script>
                 <article class="bd-article">
                   
   <h1>Source code for pudl.extract.eia861</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Retrieve data from EIA Form 861 spreadsheets for analysis.</span>
+<span></span><span class="sd">"""Retrieve data from EIA Form 861 spreadsheets for analysis.</span>
 
-<span class="sd">This modules pulls data from EIA&#39;s published Excel spreadsheets.</span>
+<span class="sd">This modules pulls data from EIA's published Excel spreadsheets.</span>
 
 <span class="sd">This code is for use analyzing EIA Form 861 data.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dagster</span><span class="w"> </span><span class="kn">import</span> <span class="n">AssetOut</span><span class="p">,</span> <span class="n">Output</span><span class="p">,</span> <span class="n">multi_asset</span>
@@ -892,17 +892,17 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="Extractor">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/eia861/index.html#pudl.extract.eia861.Extractor">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Extractor</span><span class="p">(</span><span class="n">excel</span><span class="o">.</span><span class="n">ExcelExtractor</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extractor for the excel dataset EIA861.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Extractor for the excel dataset EIA861."""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the module.</span>
+<span class="w">        </span><span class="sd">"""Initialize the module.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            ds (:class:datastore.Datastore): Initialized datastore.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 <div class="viewcode-block" id="Extractor.METADATA">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/eia861/index.html#pudl.extract.eia861.Extractor.METADATA">[docs]</a>
-        <span class="bp">self</span><span class="o">.</span><span class="n">METADATA</span> <span class="o">=</span> <span class="n">excel</span><span class="o">.</span><span class="n">ExcelMetadata</span><span class="p">(</span><span class="s2">&quot;eia861&quot;</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">METADATA</span> <span class="o">=</span> <span class="n">excel</span><span class="o">.</span><span class="n">ExcelMetadata</span><span class="p">(</span><span class="s2">"eia861"</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Extractor.cols_added">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/eia861/index.html#pudl.extract.eia861.Extractor.cols_added">[docs]</a>
@@ -913,7 +913,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="Extractor.process_raw">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/eia861/index.html#pudl.extract.eia861.Extractor.process_raw">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">process_raw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">page</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">partition</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Rename columns with location.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Rename columns with location."""</span>
         <span class="c1"># for 2024 we began mapping the columns using the string names instead of</span>
         <span class="c1"># the numeric location.</span>
         <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">partition</span><span class="o">.</span><span class="n">values</span><span class="p">())[</span><span class="mi">0</span><span class="p">])</span> <span class="o">&gt;=</span> <span class="mi">2024</span><span class="p">:</span>
@@ -931,7 +931,7 @@ window.runMermaid = runMermaid;</script>
             <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cols_added</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="c1"># Eventually we should probably make this a transform</span>
-        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;generator_id&quot;</span><span class="p">,</span> <span class="s2">&quot;boiler_id&quot;</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"generator_id"</span><span class="p">,</span> <span class="s2">"boiler_id"</span><span class="p">]:</span>
             <span class="k">if</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
                 <span class="n">df</span> <span class="o">=</span> <span class="n">remove_leading_zeros_from_numeric_strings</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span> <span class="n">col_name</span><span class="o">=</span><span class="n">col</span><span class="p">)</span>
         <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_data_maturity</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">page</span><span class="p">,</span> <span class="o">**</span><span class="n">partition</span><span class="p">)</span>
@@ -942,9 +942,9 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="Extractor.process_renamed">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/eia861/index.html#pudl.extract.eia861.Extractor.process_renamed">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">process_renamed</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">page</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">partition</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Adds report_year column if missing.&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="s2">&quot;report_year&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
-            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;report_year&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">partition</span><span class="o">.</span><span class="n">values</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span>
+<span class="w">        </span><span class="sd">"""Adds report_year column if missing."""</span>
+        <span class="k">if</span> <span class="s2">"report_year"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">"report_year"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">partition</span><span class="o">.</span><span class="n">values</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">df</span></div>
 
 
@@ -952,11 +952,11 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="Extractor.get_dtypes">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/eia861/index.html#pudl.extract.eia861.Extractor.get_dtypes">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_dtypes</span><span class="p">(</span><span class="n">page</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">partition</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns dtypes for plant id columns.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Returns dtypes for plant id columns."""</span>
         <span class="k">return</span> <span class="p">{</span>
-            <span class="s2">&quot;Plant ID&quot;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Int64Dtype</span><span class="p">(),</span>
-            <span class="s2">&quot;Plant Id&quot;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Int64Dtype</span><span class="p">(),</span>
-            <span class="s2">&quot;zip_code&quot;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">StringDtype</span><span class="p">(),</span>
+            <span class="s2">"Plant ID"</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Int64Dtype</span><span class="p">(),</span>
+            <span class="s2">"Plant Id"</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Int64Dtype</span><span class="p">(),</span>
+            <span class="s2">"zip_code"</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">StringDtype</span><span class="p">(),</span>
         <span class="p">}</span></div>
 </div>
 
@@ -964,7 +964,7 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="raw_eia861__all_dfs">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/eia861/index.html#pudl.extract.eia861.raw_eia861__all_dfs">[docs]</a>
-<span class="n">raw_eia861__all_dfs</span> <span class="o">=</span> <span class="n">raw_df_factory</span><span class="p">(</span><span class="n">Extractor</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;eia861&quot;</span><span class="p">)</span></div>
+<span class="n">raw_eia861__all_dfs</span> <span class="o">=</span> <span class="n">raw_df_factory</span><span class="p">(</span><span class="n">Extractor</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"eia861"</span><span class="p">)</span></div>
 
 
 
@@ -973,26 +973,26 @@ window.runMermaid = runMermaid;</script>
         <span class="n">table_name</span><span class="p">:</span> <span class="n">AssetOut</span><span class="p">(</span><span class="n">is_required</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">table_name</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span>
             <span class="p">(</span>  <span class="c1"># is there some way to programmatically generate this list?</span>
-                <span class="s2">&quot;raw_eia861__advanced_metering_infrastructure&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;raw_eia861__balancing_authority&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;raw_eia861__delivery_companies&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;raw_eia861__demand_response&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;raw_eia861__demand_side_management&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;raw_eia861__distributed_generation&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;raw_eia861__distribution_systems&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;raw_eia861__dynamic_pricing&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;raw_eia861__energy_efficiency&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;raw_eia861__frame&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;raw_eia861__green_pricing&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;raw_eia861__mergers&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;raw_eia861__net_metering&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;raw_eia861__non_net_metering&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;raw_eia861__operational_data&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;raw_eia861__reliability&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;raw_eia861__sales&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;raw_eia861__service_territory&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;raw_eia861__short_form&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;raw_eia861__utility_data&quot;</span><span class="p">,</span>
+                <span class="s2">"raw_eia861__advanced_metering_infrastructure"</span><span class="p">,</span>
+                <span class="s2">"raw_eia861__balancing_authority"</span><span class="p">,</span>
+                <span class="s2">"raw_eia861__delivery_companies"</span><span class="p">,</span>
+                <span class="s2">"raw_eia861__demand_response"</span><span class="p">,</span>
+                <span class="s2">"raw_eia861__demand_side_management"</span><span class="p">,</span>
+                <span class="s2">"raw_eia861__distributed_generation"</span><span class="p">,</span>
+                <span class="s2">"raw_eia861__distribution_systems"</span><span class="p">,</span>
+                <span class="s2">"raw_eia861__dynamic_pricing"</span><span class="p">,</span>
+                <span class="s2">"raw_eia861__energy_efficiency"</span><span class="p">,</span>
+                <span class="s2">"raw_eia861__frame"</span><span class="p">,</span>
+                <span class="s2">"raw_eia861__green_pricing"</span><span class="p">,</span>
+                <span class="s2">"raw_eia861__mergers"</span><span class="p">,</span>
+                <span class="s2">"raw_eia861__net_metering"</span><span class="p">,</span>
+                <span class="s2">"raw_eia861__non_net_metering"</span><span class="p">,</span>
+                <span class="s2">"raw_eia861__operational_data"</span><span class="p">,</span>
+                <span class="s2">"raw_eia861__reliability"</span><span class="p">,</span>
+                <span class="s2">"raw_eia861__sales"</span><span class="p">,</span>
+                <span class="s2">"raw_eia861__service_territory"</span><span class="p">,</span>
+                <span class="s2">"raw_eia861__short_form"</span><span class="p">,</span>
+                <span class="s2">"raw_eia861__utility_data"</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="p">)</span>
     <span class="p">},</span>
@@ -1001,9 +1001,9 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="extract_eia861">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/eia861/index.html#pudl.extract.eia861.extract_eia861">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">extract_eia861</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">raw_eia861__all_dfs</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract raw EIA-861 data from Excel sheets into dataframes.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Extract raw EIA-861 data from Excel sheets into dataframes."""</span>
     <span class="n">raw_eia861__all_dfs</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;raw_eia861__&quot;</span> <span class="o">+</span> <span class="n">table_name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_eia861&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">):</span> <span class="n">df</span>
+        <span class="s2">"raw_eia861__"</span> <span class="o">+</span> <span class="n">table_name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"_eia861"</span><span class="p">,</span> <span class="s2">""</span><span class="p">):</span> <span class="n">df</span>
         <span class="k">for</span> <span class="n">table_name</span><span class="p">,</span> <span class="n">df</span> <span class="ow">in</span> <span class="n">raw_eia861__all_dfs</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
     <span class="p">}</span>
     <span class="n">raw_eia861__all_dfs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">raw_eia861__all_dfs</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span>

@@ -18,7 +18,7 @@
     </script>
     
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
-    <title>pudl.metadata.resources &#8212; PUDL 2026.8.1.dev16 documentation</title>
+    <title>pudl.metadata.resources &#8212; PUDL 2026.8.1.dev20 documentation</title>
   
   
   
@@ -51,7 +51,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../../_static/documentation_options.js?v=f981bf86"></script>
+    <script src="../../../../_static/documentation_options.js?v=8f1a003a"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -142,8 +142,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev20 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev20 documentation - Home"/>
   
   
 </a></div>
@@ -957,30 +957,30 @@ These are assumed to match the order of the reference’s primary key fields.</p
 </dl>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">resources</span> <span class="o">=</span> <span class="p">{</span>
-<span class="gp">... </span>    <span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="p">{</span>
-<span class="gp">... </span>        <span class="s1">&#39;schema&#39;</span><span class="p">:</span> <span class="p">{</span>
-<span class="gp">... </span>            <span class="s1">&#39;fields&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;z&#39;</span><span class="p">],</span>
-<span class="gp">... </span>            <span class="s1">&#39;primary_key&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;z&#39;</span><span class="p">],</span>
-<span class="gp">... </span>            <span class="s1">&#39;foreign_key_rules&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fields&#39;</span><span class="p">:</span> <span class="p">[[</span><span class="s1">&#39;z&#39;</span><span class="p">]]}</span>
+<span class="gp">... </span>    <span class="s1">'x'</span><span class="p">:</span> <span class="p">{</span>
+<span class="gp">... </span>        <span class="s1">'schema'</span><span class="p">:</span> <span class="p">{</span>
+<span class="gp">... </span>            <span class="s1">'fields'</span><span class="p">:</span> <span class="p">[</span><span class="s1">'z'</span><span class="p">],</span>
+<span class="gp">... </span>            <span class="s1">'primary_key'</span><span class="p">:</span> <span class="p">[</span><span class="s1">'z'</span><span class="p">],</span>
+<span class="gp">... </span>            <span class="s1">'foreign_key_rules'</span><span class="p">:</span> <span class="p">{</span><span class="s1">'fields'</span><span class="p">:</span> <span class="p">[[</span><span class="s1">'z'</span><span class="p">]]}</span>
 <span class="gp">... </span>        <span class="p">}</span>
 <span class="gp">... </span>    <span class="p">},</span>
-<span class="gp">... </span>    <span class="s1">&#39;y&#39;</span><span class="p">:</span> <span class="p">{</span>
-<span class="gp">... </span>        <span class="s1">&#39;schema&#39;</span><span class="p">:</span> <span class="p">{</span>
-<span class="gp">... </span>            <span class="s1">&#39;fields&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;z&#39;</span><span class="p">,</span> <span class="s1">&#39;yy&#39;</span><span class="p">],</span>
-<span class="gp">... </span>            <span class="s1">&#39;primary_key&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;z&#39;</span><span class="p">,</span> <span class="s1">&#39;yy&#39;</span><span class="p">],</span>
-<span class="gp">... </span>            <span class="s1">&#39;foreign_key_rules&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fields&#39;</span><span class="p">:</span> <span class="p">[[</span><span class="s1">&#39;z&#39;</span><span class="p">,</span> <span class="s1">&#39;zz&#39;</span><span class="p">]]}</span>
+<span class="gp">... </span>    <span class="s1">'y'</span><span class="p">:</span> <span class="p">{</span>
+<span class="gp">... </span>        <span class="s1">'schema'</span><span class="p">:</span> <span class="p">{</span>
+<span class="gp">... </span>            <span class="s1">'fields'</span><span class="p">:</span> <span class="p">[</span><span class="s1">'z'</span><span class="p">,</span> <span class="s1">'yy'</span><span class="p">],</span>
+<span class="gp">... </span>            <span class="s1">'primary_key'</span><span class="p">:</span> <span class="p">[</span><span class="s1">'z'</span><span class="p">,</span> <span class="s1">'yy'</span><span class="p">],</span>
+<span class="gp">... </span>            <span class="s1">'foreign_key_rules'</span><span class="p">:</span> <span class="p">{</span><span class="s1">'fields'</span><span class="p">:</span> <span class="p">[[</span><span class="s1">'z'</span><span class="p">,</span> <span class="s1">'zz'</span><span class="p">]]}</span>
 <span class="gp">... </span>        <span class="p">}</span>
 <span class="gp">... </span>    <span class="p">},</span>
-<span class="gp">... </span>    <span class="s1">&#39;z&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;schema&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fields&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;z&#39;</span><span class="p">,</span> <span class="s1">&#39;zz&#39;</span><span class="p">]}}</span>
+<span class="gp">... </span>    <span class="s1">'z'</span><span class="p">:</span> <span class="p">{</span><span class="s1">'schema'</span><span class="p">:</span> <span class="p">{</span><span class="s1">'fields'</span><span class="p">:</span> <span class="p">[</span><span class="s1">'z'</span><span class="p">,</span> <span class="s1">'zz'</span><span class="p">]}}</span>
 <span class="gp">... </span><span class="p">}</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">keys</span> <span class="o">=</span> <span class="n">build_foreign_keys</span><span class="p">(</span><span class="n">resources</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">keys</span><span class="p">[</span><span class="s1">&#39;z&#39;</span><span class="p">]</span>
-<span class="go">[{&#39;fields&#39;: [&#39;z&#39;, &#39;zz&#39;], &#39;reference&#39;: {&#39;resource&#39;: &#39;y&#39;, &#39;fields&#39;: [&#39;z&#39;, &#39;yy&#39;]}}]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">keys</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]</span>
-<span class="go">[{&#39;fields&#39;: [&#39;z&#39;], &#39;reference&#39;: {&#39;resource&#39;: &#39;x&#39;, &#39;fields&#39;: [&#39;z&#39;]}}]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">keys</span><span class="p">[</span><span class="s1">'z'</span><span class="p">]</span>
+<span class="go">[{'fields': ['z', 'zz'], 'reference': {'resource': 'y', 'fields': ['z', 'yy']}}]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">keys</span><span class="p">[</span><span class="s1">'y'</span><span class="p">]</span>
+<span class="go">[{'fields': ['z'], 'reference': {'resource': 'x', 'fields': ['z']}}]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">keys</span> <span class="o">=</span> <span class="n">build_foreign_keys</span><span class="p">(</span><span class="n">resources</span><span class="p">,</span> <span class="n">prune</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">keys</span><span class="p">[</span><span class="s1">&#39;z&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
-<span class="go">{&#39;fields&#39;: [&#39;z&#39;], &#39;reference&#39;: {&#39;resource&#39;: &#39;x&#39;, &#39;fields&#39;: [&#39;z&#39;]}}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">keys</span><span class="p">[</span><span class="s1">'z'</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+<span class="go">{'fields': ['z'], 'reference': {'resource': 'x', 'fields': ['z']}}</span>
 </pre></div>
 </div>
 </dd></dl>

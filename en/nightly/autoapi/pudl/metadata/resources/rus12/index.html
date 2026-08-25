@@ -18,7 +18,7 @@
     </script>
     
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
-    <title>pudl.metadata.resources.rus12 &#8212; PUDL 2026.8.1.dev16 documentation</title>
+    <title>pudl.metadata.resources.rus12 &#8212; PUDL 2026.8.1.dev20 documentation</title>
   
   
   
@@ -51,7 +51,7 @@
   <link rel="preload" as="script" href="../../../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../../../_static/documentation_options.js?v=f981bf86"></script>
+    <script src="../../../../../_static/documentation_options.js?v=8f1a003a"></script>
     <script src="../../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -142,8 +142,8 @@
       
     
     
-    <img src="../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
-    <img src="../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
+    <img src="../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev20 documentation - Home"/>
+    <img src="../../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev20 documentation - Home"/>
   
   
 </a></div>
@@ -884,14 +884,14 @@
 <dl class="py data">
 <dt class="sig sig-object py" id="pudl.metadata.resources.rus12.PLANT_OPERATIONS_DETAIL">
 <span class="sig-prename descclassname"><span class="pre">pudl.metadata.resources.rus12.</span></span><span class="sig-name descname"><span class="pre">PLANT_OPERATIONS_DETAIL</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">Multiline-String</span></span><a class="reference internal" href="../../../../../_modules/pudl/metadata/resources/rus12.html#PLANT_OPERATIONS_DETAIL"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.resources.rus12.PLANT_OPERATIONS_DETAIL" title="Link to this definition">#</a></dt>
-<dd><details><summary>Show Value</summary><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;The data in this table comes from five different portions of RUS 12 corresponding to different plant types (steam, hydroelectric, combined_cycle, internal_combustion and nuclear).</span>
+<dd><details><summary>Show Value</summary><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">"""The data in this table comes from five different portions of RUS 12 corresponding to different plant types (steam, hydroelectric, combined_cycle, internal_combustion and nuclear).</span>
 <span class="sd">The original form includes plant operations data for each plant type reported in multiple ways: with records corresponding to the portion of plants that borrowers own as well as the whole plant. We split these records into two tables, :ref:`core_rus12__yearly_plant_operations_by_borrower`, which contains records reported at the borrower level, and  :ref:`core_rus12__yearly_plant_operations_by_plant`, which contains records reported at the plant level.Records that are wholly owned by one borrower show up in both :ref:`core_rus12__yearly_plant_operations_by_borrower` and :ref:`core_rus12__yearly_plant_operations_by_plant`.</span>
 
-<span class="sd">There are two boolean columns used to delineate which records are associated with the borrowers&#39; share vs the whole plant - which is documented in ``_OR_PowerSupply Plant File Documentation.rtf`` in the newer years in the RUS 12 archive. One of these two fields - ``is_partly_owned_by_borrower`` - was not reported before 2009. For the pre-2009 years, we assume that all records that report TRUE for is_full_ownership_portion should end up in the by-plant table while all records should end up in the by-borrower portion of the table.Like the post-2009 records, this involves records from the original tables ending up in both of these PUDL tables.</span>
+<span class="sd">There are two boolean columns used to delineate which records are associated with the borrowers' share vs the whole plant - which is documented in ``_OR_PowerSupply Plant File Documentation.rtf`` in the newer years in the RUS 12 archive. One of these two fields - ``is_partly_owned_by_borrower`` - was not reported before 2009. For the pre-2009 years, we assume that all records that report TRUE for is_full_ownership_portion should end up in the by-plant table while all records should end up in the by-borrower portion of the table.Like the post-2009 records, this involves records from the original tables ending up in both of these PUDL tables.</span>
 
 <span class="sd">Also there are two cleaning steps that we performed that alter the original data slightly:</span>
 
-<span class="sd">* **One dropped with unexpected ownership label and duplicate data**: There is a   Wisdom steam plant record that is labeled to be both fully owned by borrower   and partly owned for one year, which is an unexpected combo based on the   `_OR_PowerSupply Plant File Documentation.rst` documentation file in the rus12   archive. Luckily this plant has exactly the same records as the other Wisdom steam  plant that year with more expected ownership labels.* **Replaced two string values for unit_id_rus**: There are two instances from 2018   of unit_id_rus&#39;s that have string values in them - ``WSL GT 12`` and ``WSL ST 10``.   Based on pre-cleaned data, we were able to clearly identify that we can use just   the numeric values in these bad strings - 12 and 10 respectively. This enables us   to have an integer type for this unit_id_rus column.&quot;&quot;&quot;</span>
+<span class="sd">* **One dropped with unexpected ownership label and duplicate data**: There is a   Wisdom steam plant record that is labeled to be both fully owned by borrower   and partly owned for one year, which is an unexpected combo based on the   `_OR_PowerSupply Plant File Documentation.rst` documentation file in the rus12   archive. Luckily this plant has exactly the same records as the other Wisdom steam  plant that year with more expected ownership labels.* **Replaced two string values for unit_id_rus**: There are two instances from 2018   of unit_id_rus's that have string values in them - ``WSL GT 12`` and ``WSL ST 10``.   Based on pre-cleaned data, we were able to clearly identify that we can use just   the numeric values in these bad strings - 12 and 10 respectively. This enables us   to have an integer type for this unit_id_rus column."""</span>
 </pre></div>
 </div>
 </details></dd></dl>

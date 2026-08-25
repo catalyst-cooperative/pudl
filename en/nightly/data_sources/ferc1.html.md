@@ -66,20 +66,20 @@ publicly available anywhere else.
 
 ### Download additional documentation
 
-> * [`Ferc1 Blank 2005-03-31`](ferc1/ferc1_blank_2005-03-31.pdf)
-> * [`Ferc1 Blank 2007-06-30`](ferc1/ferc1_blank_2007-06-30.pdf)
-> * [`Ferc1 Blank 2008-07-31`](ferc1/ferc1_blank_2008-07-31.pdf)
-> * [`Ferc1 Blank 2011-12-31`](ferc1/ferc1_blank_2011-12-31.pdf)
-> * [`Ferc1 Blank 2014-12-31`](ferc1/ferc1_blank_2014-12-31.pdf)
-> * [`Ferc1 Blank 2016-11-30`](ferc1/ferc1_blank_2016-11-30.pdf)
-> * [`Ferc1 Blank 2019-12-31`](ferc1/ferc1_blank_2019-12-31.pdf)
-> * [`Ferc1 Blank 2022-11-30`](ferc1/ferc1_blank_2022-11-30.pdf)
-> * [`Ferc1 Blank 2025-07-31`](ferc1/ferc1_blank_2025-07-31.html)
-> * [`Ferc1 Db Diagram 2015`](ferc1/ferc1_db_diagram_2015.pdf)
-> * [`Ferc1A Blank 2025-07-31`](ferc1/ferc1a_blank_2025-07-31.html)
-> * [`Ferc1F Blank 2025-07-31`](ferc1/ferc1f_blank_2025-07-31.html)
-> * [`Ferc3Q Electric 2025-07-31`](ferc1/ferc3q_electric_2025-07-31.html)
-> * [`Ferc3Q Gas 2025-07-31`](ferc1/ferc3q_gas_2025-07-31.html)
+> * [`Ferc1 Blank 2005-03-31`](_downloads/d7290d42f21382a9bbb9d341ab6348ad/ferc1_blank_2005-03-31.pdf)
+> * [`Ferc1 Blank 2007-06-30`](_downloads/59ab45207576606fa64e9dff1d42b97c/ferc1_blank_2007-06-30.pdf)
+> * [`Ferc1 Blank 2008-07-31`](_downloads/666cdcb68255f9bdcf7e32783184b9ca/ferc1_blank_2008-07-31.pdf)
+> * [`Ferc1 Blank 2011-12-31`](_downloads/4b1a60c04ace749f2d769289d0dfc98d/ferc1_blank_2011-12-31.pdf)
+> * [`Ferc1 Blank 2014-12-31`](_downloads/52b9ede253a4ff7c792ec19fe0d169af/ferc1_blank_2014-12-31.pdf)
+> * [`Ferc1 Blank 2016-11-30`](_downloads/2e222a563a331a1a90f42c9d2eb49d46/ferc1_blank_2016-11-30.pdf)
+> * [`Ferc1 Blank 2019-12-31`](_downloads/fd9ba713087c5c0be586ac51ba237731/ferc1_blank_2019-12-31.pdf)
+> * [`Ferc1 Blank 2022-11-30`](_downloads/6a316a949a522f595e7575b6fd7034b8/ferc1_blank_2022-11-30.pdf)
+> * [`Ferc1 Blank 2025-07-31`](_downloads/85f442fbf290270270ad3dd4a42b2a1f/ferc1_blank_2025-07-31.html)
+> * [`Ferc1 Db Diagram 2015`](_downloads/c119e7680944a8c2cf3bb251d4162912/ferc1_db_diagram_2015.pdf)
+> * [`Ferc1A Blank 2025-07-31`](_downloads/ab6519d78b244d9379f482d64011f347/ferc1a_blank_2025-07-31.html)
+> * [`Ferc1F Blank 2025-07-31`](_downloads/1c778b24ecf2dfdf859dbc3b81e42f69/ferc1f_blank_2025-07-31.html)
+> * [`Ferc3Q Electric 2025-07-31`](_downloads/5fe9aad5d45a9f43e5b7a65cf0ad5e97/ferc3q_electric_2025-07-31.html)
+> * [`Ferc3Q Gas 2025-07-31`](_downloads/ef645131fd15f0efceff23fca3adcdfd/ferc3q_gas_2025-07-31.html)
 
 ### Data available through PUDL
 

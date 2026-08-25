@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.scripts.pudl_service_territories &#8212; PUDL 2026.8.1.dev16 documentation</title>
+    <title>pudl.scripts.pudl_service_territories &#8212; PUDL 2026.8.1.dev20 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=f981bf86"></script>
+    <script src="../../../_static/documentation_options.js?v=8f1a003a"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev20 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev20 documentation - Home"/>
   
   
 </a></div>
@@ -868,7 +868,7 @@ window.runMermaid = runMermaid;</script>
                 <article class="bd-article">
                   
   <h1>Source code for pudl.scripts.pudl_service_territories</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;CLI for compiling historical utility and balancing area service territory geometries.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""CLI for compiling historical utility and balancing area service territory geometries."""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">pathlib</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
@@ -878,57 +878,57 @@ window.runMermaid = runMermaid;</script>
 
 
 <span class="nd">@click</span><span class="o">.</span><span class="n">command</span><span class="p">(</span>
-    <span class="n">context_settings</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;help_option_names&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;-h&quot;</span><span class="p">,</span> <span class="s2">&quot;--help&quot;</span><span class="p">]},</span>
+    <span class="n">context_settings</span><span class="o">=</span><span class="p">{</span><span class="s2">"help_option_names"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"-h"</span><span class="p">,</span> <span class="s2">"--help"</span><span class="p">]},</span>
 <span class="p">)</span>
 <span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
-    <span class="s2">&quot;--entity-type&quot;</span><span class="p">,</span>
-    <span class="nb">type</span><span class="o">=</span><span class="n">click</span><span class="o">.</span><span class="n">Choice</span><span class="p">([</span><span class="s2">&quot;utility&quot;</span><span class="p">,</span> <span class="s2">&quot;balancing_authority&quot;</span><span class="p">]),</span>
-    <span class="n">default</span><span class="o">=</span><span class="s2">&quot;util&quot;</span><span class="p">,</span>
+    <span class="s2">"--entity-type"</span><span class="p">,</span>
+    <span class="nb">type</span><span class="o">=</span><span class="n">click</span><span class="o">.</span><span class="n">Choice</span><span class="p">([</span><span class="s2">"utility"</span><span class="p">,</span> <span class="s2">"balancing_authority"</span><span class="p">]),</span>
+    <span class="n">default</span><span class="o">=</span><span class="s2">"util"</span><span class="p">,</span>
     <span class="n">show_default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;What kind of entity&#39;s service territories should be generated?&quot;</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">"What kind of entity's service territories should be generated?"</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
-    <span class="s2">&quot;--limit-by-state/--no-limit-by-state&quot;</span><span class="p">,</span>
+    <span class="s2">"--limit-by-state/--no-limit-by-state"</span><span class="p">,</span>
     <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="n">help</span><span class="o">=</span><span class="p">(</span>
-        <span class="s2">&quot;Limit service territories to including only counties located in states where &quot;</span>
-        <span class="s2">&quot;the utility or balancing authority also reported electricity sales in EIA-861 &quot;</span>
-        <span class="s2">&quot;in the year that the geometry pertains to. In theory a utility could serve a &quot;</span>
-        <span class="s2">&quot;county, but not sell any electricity there, but that seems like an unusual &quot;</span>
-        <span class="s2">&quot;situation.&quot;</span>
+        <span class="s2">"Limit service territories to including only counties located in states where "</span>
+        <span class="s2">"the utility or balancing authority also reported electricity sales in EIA-861 "</span>
+        <span class="s2">"in the year that the geometry pertains to. In theory a utility could serve a "</span>
+        <span class="s2">"county, but not sell any electricity there, but that seems like an unusual "</span>
+        <span class="s2">"situation."</span>
     <span class="p">),</span>
     <span class="n">show_default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
-    <span class="s2">&quot;--year&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;-y&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;years&quot;</span><span class="p">,</span>
+    <span class="s2">"--year"</span><span class="p">,</span>
+    <span class="s2">"-y"</span><span class="p">,</span>
+    <span class="s2">"years"</span><span class="p">,</span>
     <span class="nb">type</span><span class="o">=</span><span class="n">click</span><span class="o">.</span><span class="n">IntRange</span><span class="p">(</span><span class="nb">min</span><span class="o">=</span><span class="mi">2001</span><span class="p">),</span>
     <span class="n">default</span><span class="o">=</span><span class="p">[],</span>
     <span class="n">multiple</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="n">help</span><span class="o">=</span><span class="p">(</span>
-        <span class="s2">&quot;Limit service territories generated to those from the given year. This can &quot;</span>
-        <span class="s2">&quot;dramatically reduce the memory and CPU intensity of the geospatial &quot;</span>
-        <span class="s2">&quot;operations. Especially useful for testing. Option can be used multiple times &quot;</span>
-        <span class="s2">&quot;toselect multiple years.&quot;</span>
+        <span class="s2">"Limit service territories generated to those from the given year. This can "</span>
+        <span class="s2">"dramatically reduce the memory and CPU intensity of the geospatial "</span>
+        <span class="s2">"operations. Especially useful for testing. Option can be used multiple times "</span>
+        <span class="s2">"toselect multiple years."</span>
     <span class="p">),</span>
 <span class="p">)</span>
 <span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
-    <span class="s2">&quot;--dissolve/--no-dissolve&quot;</span><span class="p">,</span>
+    <span class="s2">"--dissolve/--no-dissolve"</span><span class="p">,</span>
     <span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="n">help</span><span class="o">=</span><span class="p">(</span>
-        <span class="s2">&quot;Dissolve county level geometries to the utility or balancing authority &quot;</span>
-        <span class="s2">&quot;boundaries. The dissolve operation may take several minutes and is quite &quot;</span>
-        <span class="s2">&quot;memory intensive, but results in significantly smaller files, in which each &quot;</span>
-        <span class="s2">&quot;record contains the whole geometry of a utility or balancing authority. The &quot;</span>
-        <span class="s2">&quot;un-dissolved geometries use many records to describe each service territory, &quot;</span>
-        <span class="s2">&quot;with each record containing the geometry of a single constituent county.&quot;</span>
+        <span class="s2">"Dissolve county level geometries to the utility or balancing authority "</span>
+        <span class="s2">"boundaries. The dissolve operation may take several minutes and is quite "</span>
+        <span class="s2">"memory intensive, but results in significantly smaller files, in which each "</span>
+        <span class="s2">"record contains the whole geometry of a utility or balancing authority. The "</span>
+        <span class="s2">"un-dissolved geometries use many records to describe each service territory, "</span>
+        <span class="s2">"with each record containing the geometry of a single constituent county."</span>
     <span class="p">),</span>
     <span class="n">show_default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
-    <span class="s2">&quot;--output-dir&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;-o&quot;</span><span class="p">,</span>
+    <span class="s2">"--output-dir"</span><span class="p">,</span>
+    <span class="s2">"-o"</span><span class="p">,</span>
     <span class="nb">type</span><span class="o">=</span><span class="n">click</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span>
         <span class="n">exists</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">writable</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -940,14 +940,14 @@ window.runMermaid = runMermaid;</script>
     <span class="n">default</span><span class="o">=</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">(),</span>
     <span class="n">show_default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="n">help</span><span class="o">=</span><span class="p">(</span>
-        <span class="s2">&quot;Path to the directory where the service territory geometries should be saved. &quot;</span>
-        <span class="s2">&quot;Defaults to the current working directory. Filenames are constructed based on &quot;</span>
-        <span class="s2">&quot;the other flags provided.&quot;</span>
+        <span class="s2">"Path to the directory where the service territory geometries should be saved. "</span>
+        <span class="s2">"Defaults to the current working directory. Filenames are constructed based on "</span>
+        <span class="s2">"the other flags provided."</span>
     <span class="p">),</span>
 <span class="p">)</span>
 <span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
-    <span class="s2">&quot;--logfile&quot;</span><span class="p">,</span>
-    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;If specified, write logs to this file.&quot;</span><span class="p">,</span>
+    <span class="s2">"--logfile"</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">"If specified, write logs to this file."</span><span class="p">,</span>
     <span class="nb">type</span><span class="o">=</span><span class="n">click</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span>
         <span class="n">exists</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">resolve_path</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -955,17 +955,17 @@ window.runMermaid = runMermaid;</script>
     <span class="p">),</span>
 <span class="p">)</span>
 <span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
-    <span class="s2">&quot;--loglevel&quot;</span><span class="p">,</span>
-    <span class="n">default</span><span class="o">=</span><span class="s2">&quot;INFO&quot;</span><span class="p">,</span>
+    <span class="s2">"--loglevel"</span><span class="p">,</span>
+    <span class="n">default</span><span class="o">=</span><span class="s2">"INFO"</span><span class="p">,</span>
     <span class="nb">type</span><span class="o">=</span><span class="n">click</span><span class="o">.</span><span class="n">Choice</span><span class="p">(</span>
-        <span class="p">[</span><span class="s2">&quot;DEBUG&quot;</span><span class="p">,</span> <span class="s2">&quot;INFO&quot;</span><span class="p">,</span> <span class="s2">&quot;WARNING&quot;</span><span class="p">,</span> <span class="s2">&quot;ERROR&quot;</span><span class="p">,</span> <span class="s2">&quot;CRITICAL&quot;</span><span class="p">],</span> <span class="n">case_sensitive</span><span class="o">=</span><span class="kc">False</span>
+        <span class="p">[</span><span class="s2">"DEBUG"</span><span class="p">,</span> <span class="s2">"INFO"</span><span class="p">,</span> <span class="s2">"WARNING"</span><span class="p">,</span> <span class="s2">"ERROR"</span><span class="p">,</span> <span class="s2">"CRITICAL"</span><span class="p">],</span> <span class="n">case_sensitive</span><span class="o">=</span><span class="kc">False</span>
     <span class="p">),</span>
     <span class="n">show_default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span>
 <div class="viewcode-block" id="main">
 <a class="viewcode-back" href="../../../autoapi/pudl/scripts/pudl_service_territories/index.html#pudl.scripts.pudl_service_territories.main">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span>
-    <span class="n">entity_type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;utility&quot;</span><span class="p">,</span> <span class="s2">&quot;balancing_authority&quot;</span><span class="p">],</span>
+    <span class="n">entity_type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"utility"</span><span class="p">,</span> <span class="s2">"balancing_authority"</span><span class="p">],</span>
     <span class="n">dissolve</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
     <span class="n">output_dir</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span>
     <span class="n">limit_by_state</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
@@ -973,7 +973,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">logfile</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">,</span>
     <span class="n">loglevel</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compile historical utility and balancing area service territory geometries.</span>
+<span class="w">    </span><span class="sd">"""Compile historical utility and balancing area service territory geometries.</span>
 
 <span class="sd">    This script produces GeoParquet files describing the historical service territories</span>
 <span class="sd">    of utilities and balancing authorities based on data reported in the EIA Form 861</span>
@@ -985,7 +985,7 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">    pudl_service_territories --entity-type balancing_authority --dissolve --limit-by-state</span>
 <span class="sd">    pudl_service_territories --entity-type utility</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># Deferred to keep --help fast; see pudl/scripts/__init__.py for rationale.</span>
     <span class="kn">import</span><span class="w"> </span><span class="nn">pudl</span>  <span class="c1"># noqa: PLC0415</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.analysis.service_territory</span><span class="w"> </span><span class="kn">import</span> <span class="n">compile_geoms</span>  <span class="c1"># noqa: PLC0415</span>
@@ -995,22 +995,22 @@ window.runMermaid = runMermaid;</script>
 
     <span class="n">_</span> <span class="o">=</span> <span class="n">compile_geoms</span><span class="p">(</span>
         <span class="n">core_eia861__yearly_balancing_authority</span><span class="o">=</span><span class="n">get_parquet_table</span><span class="p">(</span>
-            <span class="s2">&quot;core_eia861__yearly_balancing_authority&quot;</span>
+            <span class="s2">"core_eia861__yearly_balancing_authority"</span>
         <span class="p">),</span>
         <span class="n">core_eia861__assn_balancing_authority</span><span class="o">=</span><span class="n">get_parquet_table</span><span class="p">(</span>
-            <span class="s2">&quot;core_eia861__assn_balancing_authority&quot;</span>
+            <span class="s2">"core_eia861__assn_balancing_authority"</span>
         <span class="p">),</span>
-        <span class="n">out_eia__yearly_utilities</span><span class="o">=</span><span class="n">get_parquet_table</span><span class="p">(</span><span class="s2">&quot;out_eia__yearly_utilities&quot;</span><span class="p">),</span>
+        <span class="n">out_eia__yearly_utilities</span><span class="o">=</span><span class="n">get_parquet_table</span><span class="p">(</span><span class="s2">"out_eia__yearly_utilities"</span><span class="p">),</span>
         <span class="n">core_eia861__yearly_service_territory</span><span class="o">=</span><span class="n">get_parquet_table</span><span class="p">(</span>
-            <span class="s2">&quot;core_eia861__yearly_service_territory&quot;</span>
+            <span class="s2">"core_eia861__yearly_service_territory"</span>
         <span class="p">),</span>
-        <span class="n">core_eia861__assn_utility</span><span class="o">=</span><span class="n">get_parquet_table</span><span class="p">(</span><span class="s2">&quot;core_eia861__assn_utility&quot;</span><span class="p">),</span>
+        <span class="n">core_eia861__assn_utility</span><span class="o">=</span><span class="n">get_parquet_table</span><span class="p">(</span><span class="s2">"core_eia861__assn_utility"</span><span class="p">),</span>
         <span class="n">census_counties</span><span class="o">=</span><span class="n">get_parquet_table</span><span class="p">(</span>
-            <span class="s2">&quot;out_censusdp1tract__counties&quot;</span><span class="p">,</span>
-            <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;county_id_fips&quot;</span><span class="p">,</span> <span class="s2">&quot;geometry&quot;</span><span class="p">,</span> <span class="s2">&quot;county&quot;</span><span class="p">,</span> <span class="s2">&quot;dp0010001&quot;</span><span class="p">],</span>
+            <span class="s2">"out_censusdp1tract__counties"</span><span class="p">,</span>
+            <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">"county_id_fips"</span><span class="p">,</span> <span class="s2">"geometry"</span><span class="p">,</span> <span class="s2">"county"</span><span class="p">,</span> <span class="s2">"dp0010001"</span><span class="p">],</span>
         <span class="p">),</span>
         <span class="n">dissolve</span><span class="o">=</span><span class="n">dissolve</span><span class="p">,</span>
-        <span class="n">save_format</span><span class="o">=</span><span class="s2">&quot;geoparquet&quot;</span><span class="p">,</span>
+        <span class="n">save_format</span><span class="o">=</span><span class="s2">"geoparquet"</span><span class="p">,</span>
         <span class="n">output_dir</span><span class="o">=</span><span class="n">output_dir</span><span class="p">,</span>
         <span class="n">entity_type</span><span class="o">=</span><span class="n">entity_type</span><span class="p">,</span>
         <span class="n">limit_by_state</span><span class="o">=</span><span class="n">limit_by_state</span><span class="p">,</span>
@@ -1021,7 +1021,7 @@ window.runMermaid = runMermaid;</script>
 
 
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
     <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
 </pre></div>
 

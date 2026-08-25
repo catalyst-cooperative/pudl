@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.transform.eia191 &#8212; PUDL 2026.8.1.dev16 documentation</title>
+    <title>pudl.transform.eia191 &#8212; PUDL 2026.8.1.dev20 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=f981bf86"></script>
+    <script src="../../../_static/documentation_options.js?v=8f1a003a"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev20 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev20 documentation - Home"/>
   
   
 </a></div>
@@ -868,7 +868,7 @@ window.runMermaid = runMermaid;</script>
                 <article class="bd-article">
                   
   <h1>Source code for pudl.transform.eia191</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Transform EIA Form 191 monthly underground natural gas storage data.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Transform EIA Form 191 monthly underground natural gas storage data."""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dagster</span><span class="w"> </span><span class="kn">import</span> <span class="n">asset</span>
@@ -882,13 +882,13 @@ window.runMermaid = runMermaid;</script>
 
 
 
-<span class="nd">@asset</span><span class="p">(</span><span class="n">io_manager_key</span><span class="o">=</span><span class="s2">&quot;pudl_io_manager&quot;</span><span class="p">)</span>
+<span class="nd">@asset</span><span class="p">(</span><span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"pudl_io_manager"</span><span class="p">)</span>
 <div class="viewcode-block" id="core_eia191__monthly_gas_storage">
 <a class="viewcode-back" href="../../../autoapi/pudl/transform/eia191/index.html#pudl.transform.eia191.core_eia191__monthly_gas_storage">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">core_eia191__monthly_gas_storage</span><span class="p">(</span>
     <span class="n">raw_eia191__data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Transform raw EIA-191 monthly underground natural gas storage data.</span>
+<span class="w">    </span><span class="sd">"""Transform raw EIA-191 monthly underground natural gas storage data.</span>
 
 <span class="sd">    One row per storage reservoir per month, identified by the EIA-assigned</span>
 <span class="sd">    reservoir id and report_date.</span>
@@ -911,30 +911,30 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Cleaned monthly gas storage DataFrame with a combined report_date column.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">raw_eia191__data</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
-    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;reservoir_id_eia&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;reservoir_id_eia&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="mi">999</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span><span class="p">)</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">"reservoir_id_eia"</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">"reservoir_id_eia"</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="mi">999</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span><span class="p">)</span>
 
     <span class="n">df</span> <span class="o">=</span> <span class="n">pudl</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">simplify_strings</span><span class="p">(</span>
         <span class="n">df</span><span class="p">,</span>
         <span class="n">columns</span><span class="o">=</span><span class="p">[</span>
-            <span class="s2">&quot;company_name&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;field_name&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;reservoir_name&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;field_type&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;county&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;operational_status&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;region&quot;</span><span class="p">,</span>
+            <span class="s2">"company_name"</span><span class="p">,</span>
+            <span class="s2">"field_name"</span><span class="p">,</span>
+            <span class="s2">"reservoir_name"</span><span class="p">,</span>
+            <span class="s2">"field_type"</span><span class="p">,</span>
+            <span class="s2">"county"</span><span class="p">,</span>
+            <span class="s2">"operational_status"</span><span class="p">,</span>
+            <span class="s2">"region"</span><span class="p">,</span>
         <span class="p">],</span>
     <span class="p">)</span>
 
     <span class="n">df</span> <span class="o">=</span> <span class="n">pudl</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">convert_to_date</span><span class="p">(</span>
-        <span class="n">df</span><span class="p">,</span> <span class="n">date_col</span><span class="o">=</span><span class="s2">&quot;report_date&quot;</span><span class="p">,</span> <span class="n">year_col</span><span class="o">=</span><span class="s2">&quot;year&quot;</span><span class="p">,</span> <span class="n">month_col</span><span class="o">=</span><span class="s2">&quot;month&quot;</span>
+        <span class="n">df</span><span class="p">,</span> <span class="n">date_col</span><span class="o">=</span><span class="s2">"report_date"</span><span class="p">,</span> <span class="n">year_col</span><span class="o">=</span><span class="s2">"year"</span><span class="p">,</span> <span class="n">month_col</span><span class="o">=</span><span class="s2">"month"</span>
     <span class="p">)</span>
 
-    <span class="k">assert</span> <span class="ow">not</span> <span class="n">df</span><span class="o">.</span><span class="n">duplicated</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;storage_field_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;report_date&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">any</span><span class="p">(),</span> <span class="p">(</span>
-        <span class="s2">&quot;Duplicate (storage_field_id_eia, report_date) pairs found in core_eia191__monthly_gas_storage&quot;</span>
+    <span class="k">assert</span> <span class="ow">not</span> <span class="n">df</span><span class="o">.</span><span class="n">duplicated</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">"storage_field_id_eia"</span><span class="p">,</span> <span class="s2">"report_date"</span><span class="p">])</span><span class="o">.</span><span class="n">any</span><span class="p">(),</span> <span class="p">(</span>
+        <span class="s2">"Duplicate (storage_field_id_eia, report_date) pairs found in core_eia191__monthly_gas_storage"</span>
     <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">df</span></div>

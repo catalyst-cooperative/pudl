@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.output.sec10k &#8212; PUDL 2026.8.1.dev16 documentation</title>
+    <title>pudl.output.sec10k &#8212; PUDL 2026.8.1.dev20 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=f981bf86"></script>
+    <script src="../../../_static/documentation_options.js?v=8f1a003a"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev20 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev20 documentation - Home"/>
   
   
 </a></div>
@@ -868,12 +868,12 @@ window.runMermaid = runMermaid;</script>
                 <article class="bd-article">
                   
   <h1>Source code for pudl.output.sec10k</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Denormalized output tables for the SEC 10-K assets.</span>
+<span></span><span class="sd">"""Denormalized output tables for the SEC 10-K assets.</span>
 
 <span class="sd">These tables are created by joining the raw SEC 10-K tables with other data from the</span>
 <span class="sd">PUDL database, and enriching them with additional information. The resulting tables are</span>
 <span class="sd">more user-friendly and easier to work with than the normalized core tables.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">dagster</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">dg</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
@@ -893,15 +893,15 @@ window.runMermaid = runMermaid;</script>
 <span class="k">def</span><span class="w"> </span><span class="nf">_filename_sec10k_to_source_url</span><span class="p">(</span>
     <span class="n">filename_sec10k</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Construct the source URL for SEC 10-K filings.&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="s2">&quot;https://www.sec.gov/Archives/edgar/data/&quot;</span> <span class="o">+</span> <span class="n">filename_sec10k</span> <span class="o">+</span> <span class="s2">&quot;.txt&quot;</span></div>
+<span class="w">    </span><span class="sd">"""Construct the source URL for SEC 10-K filings."""</span>
+    <span class="k">return</span> <span class="s2">"https://www.sec.gov/Archives/edgar/data/"</span> <span class="o">+</span> <span class="n">filename_sec10k</span> <span class="o">+</span> <span class="s2">".txt"</span></div>
 
 
 
 <div class="viewcode-block" id="_fill_sics">
 <a class="viewcode-back" href="../../../autoapi/pudl/output/sec10k/index.html#pudl.output.sec10k._fill_sics">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_fill_sics</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fill missing SIC IDs and names where possible.</span>
+<span class="w">    </span><span class="sd">"""Fill missing SIC IDs and names where possible.</span>
 
 <span class="sd">    Within the reporting history for each company, as identified by Central Index Key</span>
 <span class="sd">    (CIK), fill in missing values of ``industry_id_sic`` when the values reported before</span>
@@ -913,22 +913,22 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    This step is deferred until the output table because it requires the ``report_date``</span>
 <span class="sd">    column, which is not part of the ``core_sec10k__quarterly_company_information``</span>
 <span class="sd">    table</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">sorted_sics</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;central_index_key&quot;</span><span class="p">,</span> <span class="s2">&quot;report_date&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
-        <span class="c1"># 1044 is &quot;silver mines&quot; which doesn&#39;t show up in the canonical SEC list.</span>
-        <span class="c1"># Instead it should be 1040 &quot;gold and silver mines&quot; -- there&#39;s only one</span>
+<span class="sd">    """</span>
+    <span class="n">sorted_sics</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s2">"central_index_key"</span><span class="p">,</span> <span class="s2">"report_date"</span><span class="p">])</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+        <span class="c1"># 1044 is "silver mines" which doesn't show up in the canonical SEC list.</span>
+        <span class="c1"># Instead it should be 1040 "gold and silver mines" -- there's only one</span>
         <span class="c1"># company that used the overly specific SIC.</span>
-        <span class="n">industry_id_sic</span><span class="o">=</span><span class="k">lambda</span> <span class="n">_df</span><span class="p">:</span> <span class="n">_df</span><span class="p">[</span><span class="s2">&quot;industry_id_sic&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">({</span><span class="s2">&quot;1044&quot;</span><span class="p">:</span> <span class="s2">&quot;1040&quot;</span><span class="p">})</span>
+        <span class="n">industry_id_sic</span><span class="o">=</span><span class="k">lambda</span> <span class="n">_df</span><span class="p">:</span> <span class="n">_df</span><span class="p">[</span><span class="s2">"industry_id_sic"</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">({</span><span class="s2">"1044"</span><span class="p">:</span> <span class="s2">"1040"</span><span class="p">})</span>
     <span class="p">)</span>
     <span class="n">non_null_sics</span> <span class="o">=</span> <span class="n">sorted_sics</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
-        <span class="p">:,</span> <span class="p">[</span><span class="s2">&quot;industry_id_sic&quot;</span><span class="p">,</span> <span class="s2">&quot;industry_name_sic&quot;</span><span class="p">]</span>
+        <span class="p">:,</span> <span class="p">[</span><span class="s2">"industry_id_sic"</span><span class="p">,</span> <span class="s2">"industry_name_sic"</span><span class="p">]</span>
     <span class="p">]</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
-    <span class="k">assert</span> <span class="ow">not</span> <span class="n">non_null_sics</span><span class="o">.</span><span class="n">empty</span><span class="p">,</span> <span class="s2">&quot;No non-null SICs to validate!&quot;</span>
+    <span class="k">assert</span> <span class="ow">not</span> <span class="n">non_null_sics</span><span class="o">.</span><span class="n">empty</span><span class="p">,</span> <span class="s2">"No non-null SICs to validate!"</span>
 
     <span class="c1"># Check that the reported mapping between SIC IDs and names is unique -- that each</span>
     <span class="c1"># SIC ID maps to at most one SIC name.</span>
     <span class="n">sic_nunique_names</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">non_null_sics</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;industry_id_sic&quot;</span><span class="p">)[</span><span class="s2">&quot;industry_name_sic&quot;</span><span class="p">]</span>
+        <span class="n">non_null_sics</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">"industry_id_sic"</span><span class="p">)[</span><span class="s2">"industry_name_sic"</span><span class="p">]</span>
         <span class="o">.</span><span class="n">nunique</span><span class="p">()</span>
         <span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
     <span class="p">)</span>
@@ -936,100 +936,100 @@ window.runMermaid = runMermaid;</script>
     <span class="c1"># 1040 we just munged up above.</span>
     <span class="c1"># The industry names associated with them will be overwritten by the official</span>
     <span class="c1"># SEC list.</span>
-    <span class="n">known_nonunique_sics</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;1040&quot;</span><span class="p">,</span> <span class="s2">&quot;2820&quot;</span><span class="p">}</span>
-    <span class="n">non_unique_sics</span> <span class="o">=</span> <span class="n">sic_nunique_names</span><span class="p">[</span><span class="n">sic_nunique_names</span><span class="p">[</span><span class="s2">&quot;industry_name_sic&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">][</span>
-        <span class="s2">&quot;industry_id_sic&quot;</span>
+    <span class="n">known_nonunique_sics</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"1040"</span><span class="p">,</span> <span class="s2">"2820"</span><span class="p">}</span>
+    <span class="n">non_unique_sics</span> <span class="o">=</span> <span class="n">sic_nunique_names</span><span class="p">[</span><span class="n">sic_nunique_names</span><span class="p">[</span><span class="s2">"industry_name_sic"</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">][</span>
+        <span class="s2">"industry_id_sic"</span>
     <span class="p">]</span><span class="o">.</span><span class="n">to_list</span><span class="p">()</span>
     <span class="k">assert</span> <span class="nb">set</span><span class="p">(</span><span class="n">non_unique_sics</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">known_nonunique_sics</span><span class="p">,</span> <span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;Found non-unique mapping of SIC ID to industry name! </span><span class="si">{</span><span class="nb">set</span><span class="p">(</span><span class="n">non_unique_sics</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">known_nonunique_sics</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="sa">f</span><span class="s2">"Found non-unique mapping of SIC ID to industry name! </span><span class="si">{</span><span class="nb">set</span><span class="p">(</span><span class="n">non_unique_sics</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">known_nonunique_sics</span><span class="si">}</span><span class="s2">"</span>
     <span class="p">)</span>
 
     <span class="c1"># Forward and backward fill SIC codes within each company</span>
-    <span class="n">sorted_sics</span><span class="p">[</span><span class="s2">&quot;ffill_sic&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sorted_sics</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;central_index_key&quot;</span><span class="p">)[</span>
-        <span class="s2">&quot;industry_id_sic&quot;</span>
-    <span class="p">]</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="s2">&quot;ffill&quot;</span><span class="p">)</span>
-    <span class="n">sorted_sics</span><span class="p">[</span><span class="s2">&quot;bfill_sic&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sorted_sics</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;central_index_key&quot;</span><span class="p">)[</span>
-        <span class="s2">&quot;industry_id_sic&quot;</span>
-    <span class="p">]</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="s2">&quot;bfill&quot;</span><span class="p">)</span>
+    <span class="n">sorted_sics</span><span class="p">[</span><span class="s2">"ffill_sic"</span><span class="p">]</span> <span class="o">=</span> <span class="n">sorted_sics</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">"central_index_key"</span><span class="p">)[</span>
+        <span class="s2">"industry_id_sic"</span>
+    <span class="p">]</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="s2">"ffill"</span><span class="p">)</span>
+    <span class="n">sorted_sics</span><span class="p">[</span><span class="s2">"bfill_sic"</span><span class="p">]</span> <span class="o">=</span> <span class="n">sorted_sics</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">"central_index_key"</span><span class="p">)[</span>
+        <span class="s2">"industry_id_sic"</span>
+    <span class="p">]</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="s2">"bfill"</span><span class="p">)</span>
     <span class="c1"># Initially set the filled values to the original values.</span>
-    <span class="n">sorted_sics</span><span class="p">[</span><span class="s2">&quot;industry_id_sic_filled&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sorted_sics</span><span class="p">[</span><span class="s2">&quot;industry_id_sic&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">sorted_sics</span><span class="p">[</span><span class="s2">"industry_id_sic_filled"</span><span class="p">]</span> <span class="o">=</span> <span class="n">sorted_sics</span><span class="p">[</span><span class="s2">"industry_id_sic"</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
     <span class="c1"># Fill unambiguous cases, where ffill == bfill (consistent across time)</span>
-    <span class="n">missing_mask</span> <span class="o">=</span> <span class="n">sorted_sics</span><span class="p">[</span><span class="s2">&quot;industry_id_sic&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span>
-    <span class="n">consistent_mask</span> <span class="o">=</span> <span class="n">sorted_sics</span><span class="p">[</span><span class="s2">&quot;ffill_sic&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">sorted_sics</span><span class="p">[</span><span class="s2">&quot;bfill_sic&quot;</span><span class="p">]</span>
-    <span class="n">sorted_sics</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">missing_mask</span> <span class="o">&amp;</span> <span class="n">consistent_mask</span><span class="p">,</span> <span class="s2">&quot;industry_id_sic_filled&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">sorted_sics</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">missing_mask</span> <span class="o">&amp;</span> <span class="n">consistent_mask</span><span class="p">,</span> <span class="s2">&quot;ffill_sic&quot;</span><span class="p">]</span>
+    <span class="n">missing_mask</span> <span class="o">=</span> <span class="n">sorted_sics</span><span class="p">[</span><span class="s2">"industry_id_sic"</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span>
+    <span class="n">consistent_mask</span> <span class="o">=</span> <span class="n">sorted_sics</span><span class="p">[</span><span class="s2">"ffill_sic"</span><span class="p">]</span> <span class="o">==</span> <span class="n">sorted_sics</span><span class="p">[</span><span class="s2">"bfill_sic"</span><span class="p">]</span>
+    <span class="n">sorted_sics</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">missing_mask</span> <span class="o">&amp;</span> <span class="n">consistent_mask</span><span class="p">,</span> <span class="s2">"industry_id_sic_filled"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">sorted_sics</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">missing_mask</span> <span class="o">&amp;</span> <span class="n">consistent_mask</span><span class="p">,</span> <span class="s2">"ffill_sic"</span><span class="p">]</span>
     <span class="p">)</span>
 
     <span class="c1"># Forward fill if the last values are all missing</span>
-    <span class="n">still_missing</span> <span class="o">=</span> <span class="n">sorted_sics</span><span class="p">[</span><span class="s2">&quot;industry_id_sic_filled&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span>
-    <span class="n">bfill_null</span> <span class="o">=</span> <span class="n">sorted_sics</span><span class="p">[</span><span class="s2">&quot;bfill_sic&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span>
-    <span class="n">sorted_sics</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">still_missing</span> <span class="o">&amp;</span> <span class="n">bfill_null</span><span class="p">,</span> <span class="s2">&quot;industry_id_sic_filled&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">sorted_sics</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">still_missing</span> <span class="o">&amp;</span> <span class="n">bfill_null</span><span class="p">,</span> <span class="s2">&quot;ffill_sic&quot;</span><span class="p">]</span>
+    <span class="n">still_missing</span> <span class="o">=</span> <span class="n">sorted_sics</span><span class="p">[</span><span class="s2">"industry_id_sic_filled"</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span>
+    <span class="n">bfill_null</span> <span class="o">=</span> <span class="n">sorted_sics</span><span class="p">[</span><span class="s2">"bfill_sic"</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span>
+    <span class="n">sorted_sics</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">still_missing</span> <span class="o">&amp;</span> <span class="n">bfill_null</span><span class="p">,</span> <span class="s2">"industry_id_sic_filled"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">sorted_sics</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">still_missing</span> <span class="o">&amp;</span> <span class="n">bfill_null</span><span class="p">,</span> <span class="s2">"ffill_sic"</span><span class="p">]</span>
     <span class="p">)</span>
 
     <span class="c1"># Backward fill if the first values are all missing</span>
-    <span class="n">still_missing</span> <span class="o">=</span> <span class="n">sorted_sics</span><span class="p">[</span><span class="s2">&quot;industry_id_sic_filled&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span>
-    <span class="n">ffill_null</span> <span class="o">=</span> <span class="n">sorted_sics</span><span class="p">[</span><span class="s2">&quot;ffill_sic&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span>
-    <span class="n">sorted_sics</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">still_missing</span> <span class="o">&amp;</span> <span class="n">ffill_null</span><span class="p">,</span> <span class="s2">&quot;industry_id_sic_filled&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">sorted_sics</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">still_missing</span> <span class="o">&amp;</span> <span class="n">ffill_null</span><span class="p">,</span> <span class="s2">&quot;bfill_sic&quot;</span><span class="p">]</span>
+    <span class="n">still_missing</span> <span class="o">=</span> <span class="n">sorted_sics</span><span class="p">[</span><span class="s2">"industry_id_sic_filled"</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span>
+    <span class="n">ffill_null</span> <span class="o">=</span> <span class="n">sorted_sics</span><span class="p">[</span><span class="s2">"ffill_sic"</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span>
+    <span class="n">sorted_sics</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">still_missing</span> <span class="o">&amp;</span> <span class="n">ffill_null</span><span class="p">,</span> <span class="s2">"industry_id_sic_filled"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">sorted_sics</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">still_missing</span> <span class="o">&amp;</span> <span class="n">ffill_null</span><span class="p">,</span> <span class="s2">"bfill_sic"</span><span class="p">]</span>
     <span class="p">)</span>
 
     <span class="n">canonical_sics</span> <span class="o">=</span> <span class="n">STANDARD_INDUSTRIAL_CLASSIFICATION</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
-        <span class="n">industry_name_sic</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="s2">&quot;industry_name_sic&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span>
-        <span class="n">industry_group_sic</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="s2">&quot;industry_group_sic&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span>
+        <span class="n">industry_name_sic</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="s2">"industry_name_sic"</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span>
+        <span class="n">industry_group_sic</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="s2">"industry_group_sic"</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span>
     <span class="p">)</span>
     <span class="c1"># Clean up the interim columns</span>
     <span class="k">return</span> <span class="p">(</span>
         <span class="n">sorted_sics</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span>
             <span class="n">columns</span><span class="o">=</span><span class="p">[</span>
-                <span class="s2">&quot;industry_id_sic&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;industry_name_sic&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;ffill_sic&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;bfill_sic&quot;</span><span class="p">,</span>
+                <span class="s2">"industry_id_sic"</span><span class="p">,</span>
+                <span class="s2">"industry_name_sic"</span><span class="p">,</span>
+                <span class="s2">"ffill_sic"</span><span class="p">,</span>
+                <span class="s2">"bfill_sic"</span><span class="p">,</span>
             <span class="p">]</span>
         <span class="p">)</span>
         <span class="o">.</span><span class="n">rename</span><span class="p">(</span>
             <span class="n">columns</span><span class="o">=</span><span class="p">{</span>
-                <span class="s2">&quot;industry_id_sic_filled&quot;</span><span class="p">:</span> <span class="s2">&quot;industry_id_sic&quot;</span><span class="p">,</span>
+                <span class="s2">"industry_id_sic_filled"</span><span class="p">:</span> <span class="s2">"industry_id_sic"</span><span class="p">,</span>
             <span class="p">}</span>
         <span class="p">)</span>
         <span class="c1"># Use the more complete canonical list of SICs from SEC to associate names and</span>
         <span class="c1"># descriptions with the extracted IDs.</span>
         <span class="o">.</span><span class="n">merge</span><span class="p">(</span>
             <span class="n">canonical_sics</span><span class="p">,</span>
-            <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span>
-            <span class="n">on</span><span class="o">=</span><span class="s2">&quot;industry_id_sic&quot;</span><span class="p">,</span>
-            <span class="n">validate</span><span class="o">=</span><span class="s2">&quot;many_to_one&quot;</span><span class="p">,</span>
+            <span class="n">how</span><span class="o">=</span><span class="s2">"left"</span><span class="p">,</span>
+            <span class="n">on</span><span class="o">=</span><span class="s2">"industry_id_sic"</span><span class="p">,</span>
+            <span class="n">validate</span><span class="o">=</span><span class="s2">"many_to_one"</span><span class="p">,</span>
         <span class="p">)</span>
     <span class="p">)</span></div>
 
 
 
 <span class="nd">@dg</span><span class="o">.</span><span class="n">asset</span><span class="p">(</span>
-    <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">&quot;pudl_io_manager&quot;</span><span class="p">,</span>
-    <span class="n">group_name</span><span class="o">=</span><span class="s2">&quot;out_sec10k&quot;</span><span class="p">,</span>
+    <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"pudl_io_manager"</span><span class="p">,</span>
+    <span class="n">group_name</span><span class="o">=</span><span class="s2">"out_sec10k"</span><span class="p">,</span>
 <span class="p">)</span>
 <div class="viewcode-block" id="out_sec10k__quarterly_filings">
 <a class="viewcode-back" href="../../../autoapi/pudl/output/sec10k/index.html#pudl.output.sec10k.out_sec10k__quarterly_filings">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">out_sec10k__quarterly_filings</span><span class="p">(</span>
     <span class="n">core_sec10k__quarterly_filings</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Denormalized table for SEC 10-K quarterly filings.</span>
+<span class="w">    </span><span class="sd">"""Denormalized table for SEC 10-K quarterly filings.</span>
 
 <span class="sd">    This table contains the basic information about the quarterly filings, including</span>
 <span class="sd">    the filing date, report date, and the URL to the filing.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># Construct the source URL so people can see where the data came from.</span>
     <span class="k">return</span> <span class="n">core_sec10k__quarterly_filings</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
-        <span class="n">source_url</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">_filename_sec10k_to_source_url</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s2">&quot;filename_sec10k&quot;</span><span class="p">])</span>
+        <span class="n">source_url</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">_filename_sec10k_to_source_url</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s2">"filename_sec10k"</span><span class="p">])</span>
     <span class="p">)</span></div>
 
 
 
 <span class="nd">@dg</span><span class="o">.</span><span class="n">asset</span><span class="p">(</span>
-    <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">&quot;pudl_io_manager&quot;</span><span class="p">,</span>
-    <span class="n">group_name</span><span class="o">=</span><span class="s2">&quot;out_sec10k&quot;</span><span class="p">,</span>
+    <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"pudl_io_manager"</span><span class="p">,</span>
+    <span class="n">group_name</span><span class="o">=</span><span class="s2">"out_sec10k"</span><span class="p">,</span>
 <span class="p">)</span>
 <div class="viewcode-block" id="out_sec10k__quarterly_company_information">
 <a class="viewcode-back" href="../../../autoapi/pudl/output/sec10k/index.html#pudl.output.sec10k.out_sec10k__quarterly_company_information">[docs]</a>
@@ -1039,33 +1039,33 @@ window.runMermaid = runMermaid;</script>
     <span class="n">core_sec10k__assn_sec10k_filers_and_eia_utilities</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
     <span class="n">core_eia__entity_utilities</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Company information extracted from SEC10k filings and matched to EIA utilities.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Company information extracted from SEC10k filings and matched to EIA utilities."""</span>
     <span class="n">company_info</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
             <span class="n">left</span><span class="o">=</span><span class="n">core_sec10k__quarterly_company_information</span><span class="p">,</span>
             <span class="n">right</span><span class="o">=</span><span class="n">core_sec10k__assn_sec10k_filers_and_eia_utilities</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
-                <span class="p">:,</span> <span class="p">[</span><span class="s2">&quot;central_index_key&quot;</span><span class="p">,</span> <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">]</span>
+                <span class="p">:,</span> <span class="p">[</span><span class="s2">"central_index_key"</span><span class="p">,</span> <span class="s2">"utility_id_eia"</span><span class="p">]</span>
             <span class="p">],</span>
-            <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span>
-            <span class="n">on</span><span class="o">=</span><span class="s2">&quot;central_index_key&quot;</span><span class="p">,</span>
-            <span class="n">validate</span><span class="o">=</span><span class="s2">&quot;many_to_one&quot;</span><span class="p">,</span>
+            <span class="n">how</span><span class="o">=</span><span class="s2">"left"</span><span class="p">,</span>
+            <span class="n">on</span><span class="o">=</span><span class="s2">"central_index_key"</span><span class="p">,</span>
+            <span class="n">validate</span><span class="o">=</span><span class="s2">"many_to_one"</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="o">.</span><span class="n">merge</span><span class="p">(</span>
-            <span class="n">core_eia__entity_utilities</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="p">[</span><span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;utility_name_eia&quot;</span><span class="p">]],</span>
-            <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span>
-            <span class="n">on</span><span class="o">=</span><span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span>
-            <span class="n">validate</span><span class="o">=</span><span class="s2">&quot;many_to_one&quot;</span><span class="p">,</span>
+            <span class="n">core_eia__entity_utilities</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="p">[</span><span class="s2">"utility_id_eia"</span><span class="p">,</span> <span class="s2">"utility_name_eia"</span><span class="p">]],</span>
+            <span class="n">how</span><span class="o">=</span><span class="s2">"left"</span><span class="p">,</span>
+            <span class="n">on</span><span class="o">=</span><span class="s2">"utility_id_eia"</span><span class="p">,</span>
+            <span class="n">validate</span><span class="o">=</span><span class="s2">"many_to_one"</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="o">.</span><span class="n">merge</span><span class="p">(</span>
             <span class="n">core_sec10k__quarterly_filings</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
-                <span class="p">:,</span> <span class="p">[</span><span class="s2">&quot;filename_sec10k&quot;</span><span class="p">,</span> <span class="s2">&quot;report_date&quot;</span><span class="p">,</span> <span class="s2">&quot;filing_date&quot;</span><span class="p">]</span>
+                <span class="p">:,</span> <span class="p">[</span><span class="s2">"filename_sec10k"</span><span class="p">,</span> <span class="s2">"report_date"</span><span class="p">,</span> <span class="s2">"filing_date"</span><span class="p">]</span>
             <span class="p">],</span>
-            <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span>
-            <span class="n">on</span><span class="o">=</span><span class="s2">&quot;filename_sec10k&quot;</span><span class="p">,</span>
-            <span class="n">validate</span><span class="o">=</span><span class="s2">&quot;many_to_one&quot;</span><span class="p">,</span>
+            <span class="n">how</span><span class="o">=</span><span class="s2">"left"</span><span class="p">,</span>
+            <span class="n">on</span><span class="o">=</span><span class="s2">"filename_sec10k"</span><span class="p">,</span>
+            <span class="n">validate</span><span class="o">=</span><span class="s2">"many_to_one"</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="o">.</span><span class="n">assign</span><span class="p">(</span>
-            <span class="n">source_url</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">_filename_sec10k_to_source_url</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s2">&quot;filename_sec10k&quot;</span><span class="p">])</span>
+            <span class="n">source_url</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">_filename_sec10k_to_source_url</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s2">"filename_sec10k"</span><span class="p">])</span>
         <span class="p">)</span>
         <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">_fill_sics</span><span class="p">)</span>
         <span class="o">.</span><span class="n">convert_dtypes</span><span class="p">()</span>
@@ -1075,47 +1075,47 @@ window.runMermaid = runMermaid;</script>
 
 
 <span class="nd">@dg</span><span class="o">.</span><span class="n">asset</span><span class="p">(</span>
-    <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">&quot;pudl_io_manager&quot;</span><span class="p">,</span>
-    <span class="n">group_name</span><span class="o">=</span><span class="s2">&quot;out_sec10k&quot;</span><span class="p">,</span>
+    <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"pudl_io_manager"</span><span class="p">,</span>
+    <span class="n">group_name</span><span class="o">=</span><span class="s2">"out_sec10k"</span><span class="p">,</span>
 <span class="p">)</span>
 <div class="viewcode-block" id="out_sec10k__changelog_company_name">
 <a class="viewcode-back" href="../../../autoapi/pudl/output/sec10k/index.html#pudl.output.sec10k.out_sec10k__changelog_company_name">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">out_sec10k__changelog_company_name</span><span class="p">(</span>
     <span class="n">core_sec10k__changelog_company_name</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Denormalized table for company name changes from SEC 10-K filings.</span>
+<span class="w">    </span><span class="sd">"""Denormalized table for company name changes from SEC 10-K filings.</span>
 
 <span class="sd">    The original data contains only the former name and date of the name change, leaving</span>
 <span class="sd">    the current name out. This asset constructs a column with the new company name in</span>
 <span class="sd">    it, by shifting the old name column by one row within each central_index_key group,</span>
 <span class="sd">    and then fills in the last new company name value with the current company name.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">name_changelog</span> <span class="o">=</span> <span class="n">core_sec10k__changelog_company_name</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span>
-        <span class="p">[</span><span class="s2">&quot;central_index_key&quot;</span><span class="p">,</span> <span class="s2">&quot;name_change_date&quot;</span><span class="p">]</span>
+        <span class="p">[</span><span class="s2">"central_index_key"</span><span class="p">,</span> <span class="s2">"name_change_date"</span><span class="p">]</span>
     <span class="p">)</span>
     <span class="c1"># Only a handdful of empty company names. Replace with the empty string to avoid</span>
     <span class="c1"># inappropriately filling them with the current name when constructing new name</span>
     <span class="c1"># for the most recent name change.</span>
-    <span class="k">assert</span> <span class="n">name_changelog</span><span class="p">[</span><span class="s2">&quot;company_name_old&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">&lt;</span> <span class="mi">5</span>
+    <span class="k">assert</span> <span class="n">name_changelog</span><span class="p">[</span><span class="s2">"company_name_old"</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">&lt;</span> <span class="mi">5</span>
     <span class="n">name_changelog</span> <span class="o">=</span> <span class="n">name_changelog</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
-        <span class="n">company_name_old</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="s2">&quot;company_name_old&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">),</span>
+        <span class="n">company_name_old</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="s2">"company_name_old"</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="s2">""</span><span class="p">),</span>
         <span class="n">company_name_new</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span>
-            <span class="n">x</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;central_index_key&quot;</span><span class="p">)[</span><span class="s2">&quot;company_name_old&quot;</span><span class="p">]</span>
+            <span class="n">x</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">"central_index_key"</span><span class="p">)[</span><span class="s2">"company_name_old"</span><span class="p">]</span>
             <span class="o">.</span><span class="n">shift</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
-            <span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s2">&quot;company_name&quot;</span><span class="p">])</span>
+            <span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s2">"company_name"</span><span class="p">])</span>
         <span class="p">),</span>
     <span class="p">)</span>
-    <span class="c1"># Drop records where the &quot;name change&quot; is a no-op.</span>
+    <span class="c1"># Drop records where the "name change" is a no-op.</span>
     <span class="n">name_changelog</span> <span class="o">=</span> <span class="n">name_changelog</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
-        <span class="n">name_changelog</span><span class="p">[</span><span class="s2">&quot;company_name_old&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">name_changelog</span><span class="p">[</span><span class="s2">&quot;company_name_new&quot;</span><span class="p">]</span>
+        <span class="n">name_changelog</span><span class="p">[</span><span class="s2">"company_name_old"</span><span class="p">]</span> <span class="o">!=</span> <span class="n">name_changelog</span><span class="p">[</span><span class="s2">"company_name_new"</span><span class="p">]</span>
     <span class="p">]</span>
     <span class="k">return</span> <span class="n">name_changelog</span></div>
 
 
 
 <span class="nd">@dg</span><span class="o">.</span><span class="n">asset</span><span class="p">(</span>
-    <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">&quot;pudl_io_manager&quot;</span><span class="p">,</span>
-    <span class="n">group_name</span><span class="o">=</span><span class="s2">&quot;out_sec10k&quot;</span><span class="p">,</span>
+    <span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"pudl_io_manager"</span><span class="p">,</span>
+    <span class="n">group_name</span><span class="o">=</span><span class="s2">"out_sec10k"</span><span class="p">,</span>
 <span class="p">)</span>
 <div class="viewcode-block" id="out_sec10k__parents_and_subsidiaries">
 <a class="viewcode-back" href="../../../autoapi/pudl/output/sec10k/index.html#pudl.output.sec10k.out_sec10k__parents_and_subsidiaries">[docs]</a>
@@ -1126,36 +1126,36 @@ window.runMermaid = runMermaid;</script>
     <span class="n">core_sec10k__assn_exhibit_21_subsidiaries_and_eia_utilities</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
     <span class="n">core_eia__entity_utilities</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Denormalized output table linking SEC 10-K company ownership to EIA Utilities.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Denormalized output table linking SEC 10-K company ownership to EIA Utilities."""</span>
     <span class="c1"># In order to merge parent company attributes onto the ownership records we need to</span>
     <span class="c1"># assume that the Ex. 21 attachment to a given filing describes the subsidiary</span>
     <span class="c1"># companies of the entity filing the 10-K. Given this assumption we can extract</span>
-    <span class="c1"># the parent company&#39;s central index key from the first token of the filename.</span>
+    <span class="c1"># the parent company's central index key from the first token of the filename.</span>
     <span class="n">core_sec10k__quarterly_exhibit_21_company_ownership</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
-        <span class="p">:,</span> <span class="s2">&quot;parent_company_central_index_key&quot;</span>
+        <span class="p">:,</span> <span class="s2">"parent_company_central_index_key"</span>
     <span class="p">]</span> <span class="o">=</span> <span class="n">_extract_filer_cik_from_filename</span><span class="p">(</span>
-        <span class="n">core_sec10k__quarterly_exhibit_21_company_ownership</span><span class="p">[</span><span class="s2">&quot;filename_sec10k&quot;</span><span class="p">]</span>
+        <span class="n">core_sec10k__quarterly_exhibit_21_company_ownership</span><span class="p">[</span><span class="s2">"filename_sec10k"</span><span class="p">]</span>
     <span class="p">)</span>
     <span class="c1"># merge parent company attributes on</span>
     <span class="n">parents_info_df</span> <span class="o">=</span> <span class="n">out_sec10k__quarterly_company_information</span><span class="o">.</span><span class="n">add_prefix</span><span class="p">(</span>
-        <span class="s2">&quot;parent_company_&quot;</span>
-    <span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;parent_company_company_name&quot;</span><span class="p">:</span> <span class="s2">&quot;parent_company_name&quot;</span><span class="p">})</span>
+        <span class="s2">"parent_company_"</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">"parent_company_company_name"</span><span class="p">:</span> <span class="s2">"parent_company_name"</span><span class="p">})</span>
     <span class="n">df</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">core_sec10k__quarterly_exhibit_21_company_ownership</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
             <span class="n">parents_info_df</span><span class="p">,</span>
-            <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span>
-            <span class="n">left_on</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;filename_sec10k&quot;</span><span class="p">,</span> <span class="s2">&quot;parent_company_central_index_key&quot;</span><span class="p">],</span>
+            <span class="n">how</span><span class="o">=</span><span class="s2">"left"</span><span class="p">,</span>
+            <span class="n">left_on</span><span class="o">=</span><span class="p">[</span><span class="s2">"filename_sec10k"</span><span class="p">,</span> <span class="s2">"parent_company_central_index_key"</span><span class="p">],</span>
             <span class="n">right_on</span><span class="o">=</span><span class="p">[</span>
-                <span class="s2">&quot;parent_company_filename_sec10k&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;parent_company_central_index_key&quot;</span><span class="p">,</span>
+                <span class="s2">"parent_company_filename_sec10k"</span><span class="p">,</span>
+                <span class="s2">"parent_company_central_index_key"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="n">validate</span><span class="o">=</span><span class="s2">&quot;many_to_one&quot;</span><span class="p">,</span>
+            <span class="n">validate</span><span class="o">=</span><span class="s2">"many_to_one"</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;parent_company_filename_sec10k&quot;</span><span class="p">])</span>
+        <span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">"parent_company_filename_sec10k"</span><span class="p">])</span>
         <span class="o">.</span><span class="n">rename</span><span class="p">(</span>
             <span class="n">columns</span><span class="o">=</span><span class="p">{</span>
-                <span class="s2">&quot;parent_company_report_date&quot;</span><span class="p">:</span> <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;parent_company_filing_date&quot;</span><span class="p">:</span> <span class="s2">&quot;filing_date&quot;</span><span class="p">,</span>
+                <span class="s2">"parent_company_report_date"</span><span class="p">:</span> <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"parent_company_filing_date"</span><span class="p">:</span> <span class="s2">"filing_date"</span><span class="p">,</span>
             <span class="p">}</span>
         <span class="p">)</span>
     <span class="p">)</span>
@@ -1163,56 +1163,56 @@ window.runMermaid = runMermaid;</script>
     <span class="c1"># merge central index key on for subsidiaries that file a 10k</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
         <span class="n">core_sec10k__assn_exhibit_21_subsidiaries_and_filers</span><span class="p">,</span>
-        <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span>
-        <span class="n">on</span><span class="o">=</span><span class="s2">&quot;subsidiary_company_id_sec10k&quot;</span><span class="p">,</span>
-        <span class="n">validate</span><span class="o">=</span><span class="s2">&quot;many_to_one&quot;</span><span class="p">,</span>
-    <span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;central_index_key&quot;</span><span class="p">:</span> <span class="s2">&quot;subsidiary_company_central_index_key&quot;</span><span class="p">})</span>
+        <span class="n">how</span><span class="o">=</span><span class="s2">"left"</span><span class="p">,</span>
+        <span class="n">on</span><span class="o">=</span><span class="s2">"subsidiary_company_id_sec10k"</span><span class="p">,</span>
+        <span class="n">validate</span><span class="o">=</span><span class="s2">"many_to_one"</span><span class="p">,</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">"central_index_key"</span><span class="p">:</span> <span class="s2">"subsidiary_company_central_index_key"</span><span class="p">})</span>
 
     <span class="c1"># merge utility_id_eia onto subsidiaries</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
         <span class="n">core_sec10k__assn_exhibit_21_subsidiaries_and_eia_utilities</span><span class="p">,</span>
-        <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span>
-        <span class="n">on</span><span class="o">=</span><span class="s2">&quot;subsidiary_company_id_sec10k&quot;</span><span class="p">,</span>
-        <span class="n">validate</span><span class="o">=</span><span class="s2">&quot;many_to_one&quot;</span><span class="p">,</span>
+        <span class="n">how</span><span class="o">=</span><span class="s2">"left"</span><span class="p">,</span>
+        <span class="n">on</span><span class="o">=</span><span class="s2">"subsidiary_company_id_sec10k"</span><span class="p">,</span>
+        <span class="n">validate</span><span class="o">=</span><span class="s2">"many_to_one"</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="c1"># merge utility name onto subsidiaries</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
         <span class="n">core_eia__entity_utilities</span><span class="p">,</span>
-        <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span>
-        <span class="n">on</span><span class="o">=</span><span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span>
-        <span class="n">validate</span><span class="o">=</span><span class="s2">&quot;many_to_one&quot;</span><span class="p">,</span>
+        <span class="n">how</span><span class="o">=</span><span class="s2">"left"</span><span class="p">,</span>
+        <span class="n">on</span><span class="o">=</span><span class="s2">"utility_id_eia"</span><span class="p">,</span>
+        <span class="n">validate</span><span class="o">=</span><span class="s2">"many_to_one"</span><span class="p">,</span>
     <span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
         <span class="n">columns</span><span class="o">=</span><span class="p">{</span>
-            <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">:</span> <span class="s2">&quot;sub_only_utility_id_eia&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;utility_name_eia&quot;</span><span class="p">:</span> <span class="s2">&quot;sub_only_utility_name_eia&quot;</span><span class="p">,</span>
+            <span class="s2">"utility_id_eia"</span><span class="p">:</span> <span class="s2">"sub_only_utility_id_eia"</span><span class="p">,</span>
+            <span class="s2">"utility_name_eia"</span><span class="p">:</span> <span class="s2">"sub_only_utility_name_eia"</span><span class="p">,</span>
         <span class="p">}</span>
     <span class="p">)</span>
     <span class="n">subs_info_df</span> <span class="o">=</span> <span class="n">out_sec10k__quarterly_company_information</span><span class="o">.</span><span class="n">add_prefix</span><span class="p">(</span>
-        <span class="s2">&quot;subsidiary_company_&quot;</span>
-    <span class="p">)</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;subsidiary_company_company_name&quot;</span><span class="p">])</span>
+        <span class="s2">"subsidiary_company_"</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">"subsidiary_company_company_name"</span><span class="p">])</span>
     <span class="c1"># merge subsidiary company attributes on</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
         <span class="n">subs_info_df</span><span class="p">,</span>
-        <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span>
+        <span class="n">how</span><span class="o">=</span><span class="s2">"left"</span><span class="p">,</span>
         <span class="n">left_on</span><span class="o">=</span><span class="p">[</span>
-            <span class="s2">&quot;filename_sec10k&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;subsidiary_company_central_index_key&quot;</span><span class="p">,</span>
+            <span class="s2">"filename_sec10k"</span><span class="p">,</span>
+            <span class="s2">"subsidiary_company_central_index_key"</span><span class="p">,</span>
         <span class="p">],</span>
         <span class="n">right_on</span><span class="o">=</span><span class="p">[</span>
-            <span class="s2">&quot;subsidiary_company_filename_sec10k&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;subsidiary_company_central_index_key&quot;</span><span class="p">,</span>
+            <span class="s2">"subsidiary_company_filename_sec10k"</span><span class="p">,</span>
+            <span class="s2">"subsidiary_company_central_index_key"</span><span class="p">,</span>
         <span class="p">],</span>
-        <span class="n">validate</span><span class="o">=</span><span class="s2">&quot;many_to_one&quot;</span><span class="p">,</span>
+        <span class="n">validate</span><span class="o">=</span><span class="s2">"many_to_one"</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="c1"># combine the sub-only and filing-subs EIA utility columns</span>
-    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;subsidiary_company_utility_id_eia&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span>
-        <span class="s2">&quot;subsidiary_company_utility_id_eia&quot;</span>
-    <span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;sub_only_utility_id_eia&quot;</span><span class="p">])</span>
-    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;subsidiary_company_utility_name_eia&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span>
-        <span class="s2">&quot;subsidiary_company_utility_name_eia&quot;</span>
-    <span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;sub_only_utility_name_eia&quot;</span><span class="p">])</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;sub_only_utility_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;sub_only_utility_name_eia&quot;</span><span class="p">])</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">"subsidiary_company_utility_id_eia"</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span>
+        <span class="s2">"subsidiary_company_utility_id_eia"</span>
+    <span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">"sub_only_utility_id_eia"</span><span class="p">])</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">"subsidiary_company_utility_name_eia"</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span>
+        <span class="s2">"subsidiary_company_utility_name_eia"</span>
+    <span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">"sub_only_utility_name_eia"</span><span class="p">])</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">"sub_only_utility_id_eia"</span><span class="p">,</span> <span class="s2">"sub_only_utility_name_eia"</span><span class="p">])</span>
 
     <span class="k">return</span> <span class="n">df</span></div>
 

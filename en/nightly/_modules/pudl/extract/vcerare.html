@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.extract.vcerare &#8212; PUDL 2026.8.1.dev16 documentation</title>
+    <title>pudl.extract.vcerare &#8212; PUDL 2026.8.1.dev20 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=f981bf86"></script>
+    <script src="../../../_static/documentation_options.js?v=8f1a003a"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev20 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev20 documentation - Home"/>
   
   
 </a></div>
@@ -868,10 +868,10 @@ window.runMermaid = runMermaid;</script>
                 <article class="bd-article">
                   
   <h1>Source code for pudl.extract.vcerare</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Extract VCE Resource Adequacy Renewable Energy (RARE) Power Dataset.</span>
+<span></span><span class="sd">"""Extract VCE Resource Adequacy Renewable Energy (RARE) Power Dataset.</span>
 
-<span class="sd">This dataset has 1,000s of columns, so we don&#39;t want to manually specify a rename on</span>
-<span class="sd">import because we&#39;ll pivot these to a column in the transform step. We adapt the</span>
+<span class="sd">This dataset has 1,000s of columns, so we don't want to manually specify a rename on</span>
+<span class="sd">import because we'll pivot these to a column in the transform step. We adapt the</span>
 <span class="sd">standard extraction infrastructure to simply read in the data.</span>
 
 <span class="sd">Each annual zip folder contains a folder with three files:</span>
@@ -881,7 +881,7 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">The drive also contains one more CSV file: vce_county_lat_long_fips_table.csv. This gets</span>
 <span class="sd">read in when the fips partition is set to True.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">defaultdict</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">io</span><span class="w"> </span><span class="kn">import</span> <span class="n">BytesIO</span>
@@ -906,9 +906,9 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="VCERARE_PAGES">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/vcerare/index.html#pudl.extract.vcerare.VCERARE_PAGES">[docs]</a>
 <span class="n">VCERARE_PAGES</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;Wind_Power_140m_Offshore_county.csv&quot;</span><span class="p">:</span> <span class="s2">&quot;raw_vcerare__offshore_wind_power_140m&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;Wind_Power_100m_Onshore_county.csv&quot;</span><span class="p">:</span> <span class="s2">&quot;raw_vcerare__onshore_wind_power_100m&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;Fixed_SolarPV_Lat_UPV_county.csv&quot;</span><span class="p">:</span> <span class="s2">&quot;raw_vcerare__fixed_solar_pv_lat_upv&quot;</span><span class="p">,</span>
+    <span class="s2">"Wind_Power_140m_Offshore_county.csv"</span><span class="p">:</span> <span class="s2">"raw_vcerare__offshore_wind_power_140m"</span><span class="p">,</span>
+    <span class="s2">"Wind_Power_100m_Onshore_county.csv"</span><span class="p">:</span> <span class="s2">"raw_vcerare__onshore_wind_power_100m"</span><span class="p">,</span>
+    <span class="s2">"Fixed_SolarPV_Lat_UPV_county.csv"</span><span class="p">:</span> <span class="s2">"raw_vcerare__fixed_solar_pv_lat_upv"</span><span class="p">,</span>
 <span class="p">}</span></div>
 
 
@@ -918,16 +918,16 @@ window.runMermaid = runMermaid;</script>
 <span class="k">def</span><span class="w"> </span><span class="nf">_clean_column_names</span><span class="p">(</span>
     <span class="n">table_relation</span><span class="p">:</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">DuckDBPyRelation</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">DuckDBPyRelation</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Apply basic cleaning to column names.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Apply basic cleaning to column names."""</span>
     <span class="n">columns</span> <span class="o">=</span> <span class="n">table_relation</span><span class="o">.</span><span class="n">columns</span>
-    <span class="n">col_map</span> <span class="o">=</span> <span class="p">{</span><span class="n">col</span><span class="p">:</span> <span class="n">col</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">}</span>
+    <span class="n">col_map</span> <span class="o">=</span> <span class="p">{</span><span class="n">col</span><span class="p">:</span> <span class="n">col</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"."</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"-"</span><span class="p">,</span> <span class="s2">"_"</span><span class="p">)</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">}</span>
 
     <span class="c1"># The first column is never named, but is always the ``hour_of_year`` column</span>
-    <span class="n">col_map</span><span class="p">[</span><span class="n">columns</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="s2">&quot;hour_of_year&quot;</span>
+    <span class="n">col_map</span><span class="p">[</span><span class="n">columns</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="s2">"hour_of_year"</span>
 
     <span class="c1"># Rename all columns</span>
     <span class="k">return</span> <span class="n">table_relation</span><span class="o">.</span><span class="n">select</span><span class="p">(</span>
-        <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="sa">f</span><span class="s1">&#39;&quot;</span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s1">&quot; AS &quot;</span><span class="si">{</span><span class="n">clean_col</span><span class="si">}</span><span class="s1">&quot;&#39;</span> <span class="k">for</span> <span class="n">col</span><span class="p">,</span> <span class="n">clean_col</span> <span class="ow">in</span> <span class="n">col_map</span><span class="o">.</span><span class="n">items</span><span class="p">()])</span>
+        <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="sa">f</span><span class="s1">'"</span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s1">" AS "</span><span class="si">{</span><span class="n">clean_col</span><span class="si">}</span><span class="s1">"'</span> <span class="k">for</span> <span class="n">col</span><span class="p">,</span> <span class="n">clean_col</span> <span class="ow">in</span> <span class="n">col_map</span><span class="o">.</span><span class="n">items</span><span class="p">()])</span>
     <span class="p">)</span></div>
 
 
@@ -935,8 +935,8 @@ window.runMermaid = runMermaid;</script>
 <span class="nd">@multi_asset</span><span class="p">(</span>
     <span class="n">outs</span><span class="o">=</span><span class="p">{</span><span class="n">table_name</span><span class="p">:</span> <span class="n">AssetOut</span><span class="p">()</span> <span class="k">for</span> <span class="n">table_name</span> <span class="ow">in</span> <span class="n">VCERARE_PAGES</span><span class="o">.</span><span class="n">values</span><span class="p">()},</span>
     <span class="n">required_resource_keys</span><span class="o">=</span><span class="p">{</span>
-        <span class="s2">&quot;datastore&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;global_data_config&quot;</span><span class="p">,</span>
+        <span class="s2">"datastore"</span><span class="p">,</span>
+        <span class="s2">"global_data_config"</span><span class="p">,</span>
     <span class="p">},</span>
 <span class="p">)</span>
 <div class="viewcode-block" id="extract_vcerare">
@@ -944,27 +944,27 @@ window.runMermaid = runMermaid;</script>
 <span class="k">def</span><span class="w"> </span><span class="nf">extract_vcerare</span><span class="p">(</span>
     <span class="n">context</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">ParquetData</span><span class="p">],</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">ParquetData</span><span class="p">],</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">ParquetData</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract data from all vcerare pages and write to parquet files.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Extract data from all vcerare pages and write to parquet files."""</span>
     <span class="n">extracted_tables</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">dict</span><span class="p">)</span>
 
     <span class="c1"># Loop through all years in settings and extract</span>
     <span class="k">for</span> <span class="n">year</span> <span class="ow">in</span> <span class="n">context</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">global_data_config</span><span class="o">.</span><span class="n">pudl</span><span class="o">.</span><span class="n">vcerare</span><span class="o">.</span><span class="n">years</span><span class="p">:</span>
-        <span class="n">partitions</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;year&quot;</span><span class="p">:</span> <span class="n">year</span><span class="p">}</span>
+        <span class="n">partitions</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"year"</span><span class="p">:</span> <span class="n">year</span><span class="p">}</span>
 
         <span class="c1"># Extract each raw table, clean column names, then offload to parquet</span>
         <span class="k">for</span> <span class="n">page</span><span class="p">,</span> <span class="n">relation</span> <span class="ow">in</span> <span class="n">duckdb_extract_zipped_csv</span><span class="p">(</span>
-            <span class="n">dataset</span><span class="o">=</span><span class="s2">&quot;vcerare&quot;</span><span class="p">,</span>
+            <span class="n">dataset</span><span class="o">=</span><span class="s2">"vcerare"</span><span class="p">,</span>
             <span class="n">partitions</span><span class="o">=</span><span class="n">partitions</span><span class="p">,</span>
             <span class="n">pages</span><span class="o">=</span><span class="n">VCERARE_PAGES</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span>
             <span class="n">datasore</span><span class="o">=</span><span class="n">context</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">datastore</span><span class="p">,</span>
-            <span class="n">zip_path</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">year</span><span class="si">}</span><span class="s2">/&quot;</span><span class="p">),</span>
+            <span class="n">zip_path</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">year</span><span class="si">}</span><span class="s2">/"</span><span class="p">),</span>
         <span class="p">):</span>
             <span class="c1"># Collect ParquetData objects for each year/page combo</span>
             <span class="n">extracted_tables</span><span class="p">[</span><span class="n">VCERARE_PAGES</span><span class="p">[</span><span class="n">page</span><span class="p">]]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
                 <span class="p">{</span>
                     <span class="n">year</span><span class="p">:</span> <span class="n">persist_table_as_parquet</span><span class="p">(</span>
                         <span class="n">table_data</span><span class="o">=</span><span class="n">_clean_column_names</span><span class="p">(</span>
-                            <span class="n">relation</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;*, </span><span class="si">{</span><span class="n">year</span><span class="si">}</span><span class="s2"> as report_year&quot;</span><span class="p">)</span>
+                            <span class="n">relation</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="sa">f</span><span class="s2">"*, </span><span class="si">{</span><span class="n">year</span><span class="si">}</span><span class="s2"> as report_year"</span><span class="p">)</span>
                         <span class="p">),</span>
                         <span class="n">table_name</span><span class="o">=</span><span class="n">VCERARE_PAGES</span><span class="p">[</span><span class="n">page</span><span class="p">],</span>
                         <span class="n">partitions</span><span class="o">=</span><span class="n">partitions</span><span class="p">,</span>
@@ -976,20 +976,20 @@ window.runMermaid = runMermaid;</script>
 
 
 
-<span class="nd">@asset</span><span class="p">(</span><span class="n">required_resource_keys</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;datastore&quot;</span><span class="p">,</span> <span class="s2">&quot;global_data_config&quot;</span><span class="p">})</span>
+<span class="nd">@asset</span><span class="p">(</span><span class="n">required_resource_keys</span><span class="o">=</span><span class="p">{</span><span class="s2">"datastore"</span><span class="p">,</span> <span class="s2">"global_data_config"</span><span class="p">})</span>
 <div class="viewcode-block" id="raw_vcerare__lat_lon_fips">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/vcerare/index.html#pudl.extract.vcerare.raw_vcerare__lat_lon_fips">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">raw_vcerare__lat_lon_fips</span><span class="p">(</span><span class="n">context</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract lat/lon to FIPS and county mapping CSV.</span>
+<span class="w">    </span><span class="sd">"""Extract lat/lon to FIPS and county mapping CSV.</span>
 
 <span class="sd">    This dataframe is static, so it has a distinct partition from the other datasets and</span>
 <span class="sd">    its extraction is controlled by a boolean in the ETL run.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">ds</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">datastore</span>
     <span class="n">partition_data_config</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">global_data_config</span><span class="o">.</span><span class="n">pudl</span><span class="o">.</span><span class="n">vcerare</span>
     <span class="k">if</span> <span class="n">partition_data_config</span><span class="o">.</span><span class="n">fips</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
-            <span class="n">BytesIO</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">get_unique_resource</span><span class="p">(</span><span class="s2">&quot;vcerare&quot;</span><span class="p">,</span> <span class="n">fips</span><span class="o">=</span><span class="n">partition_data_config</span><span class="o">.</span><span class="n">fips</span><span class="p">))</span>
+            <span class="n">BytesIO</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">get_unique_resource</span><span class="p">(</span><span class="s2">"vcerare"</span><span class="p">,</span> <span class="n">fips</span><span class="o">=</span><span class="n">partition_data_config</span><span class="o">.</span><span class="n">fips</span><span class="p">))</span>
         <span class="p">)</span>
     <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span></div>
 

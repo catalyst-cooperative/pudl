@@ -36,8 +36,8 @@ units and EIA boilers isn’t perfect. See “Notable Irregularities” below.
 
 ### Download additional documentation
 
-* [`Camd Power Sector Emissions Guide (PDF)`](epacems/camd_power_sector_emissions_guide.pdf)
-* [`Plain English Guide To The Part 75 Rule (PDF)`](epacems/plain_english_guide_to_the_part_75_rule.pdf)
+* [`Camd Power Sector Emissions Guide (PDF)`](_downloads/7f77fdc7b4f9859c2c2f027a2dfc111c/camd_power_sector_emissions_guide.pdf)
+* [`Plain English Guide To The Part 75 Rule (PDF)`](_downloads/285eb2466521b5e2d7f0cdc5c6b6182c/plain_english_guide_to_the_part_75_rule.pdf)
 
 ### Data available through PUDL
 
@@ -64,7 +64,7 @@ backup monitoring for instances of CEMS failure (see §75.31-37).
 
 A plain English explanation of the requirements of Part 75 is available in section
 2.0 Overview of Part 75 Monitoring Requirements in the
-[`Plain English Guide to the Part 75 Rule`](epacems/plain_english_guide_to_the_part_75_rule.pdf).
+[`Plain English Guide to the Part 75 Rule`](_downloads/285eb2466521b5e2d7f0cdc5c6b6182c/plain_english_guide_to_the_part_75_rule.pdf).
 
 ### What does the original data look like?
 

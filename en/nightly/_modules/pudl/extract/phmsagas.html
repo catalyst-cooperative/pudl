@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.extract.phmsagas &#8212; PUDL 2026.8.1.dev16 documentation</title>
+    <title>pudl.extract.phmsagas &#8212; PUDL 2026.8.1.dev20 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=f981bf86"></script>
+    <script src="../../../_static/documentation_options.js?v=8f1a003a"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev20 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev20 documentation - Home"/>
   
   
 </a></div>
@@ -868,10 +868,10 @@ window.runMermaid = runMermaid;</script>
                 <article class="bd-article">
                   
   <h1>Source code for pudl.extract.phmsagas</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Retrieves data from PHMSA natural gas spreadsheets for analysis.</span>
+<span></span><span class="sd">"""Retrieves data from PHMSA natural gas spreadsheets for analysis.</span>
 
-<span class="sd">This modules pulls data from PHMSA&#39;s published Excel spreadsheets.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This modules pulls data from PHMSA's published Excel spreadsheets.</span>
+<span class="sd">"""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dagster</span><span class="w"> </span><span class="kn">import</span> <span class="n">AssetOut</span><span class="p">,</span> <span class="n">Output</span><span class="p">,</span> <span class="n">multi_asset</span>
@@ -889,17 +889,17 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="Extractor">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/phmsagas/index.html#pudl.extract.phmsagas.Extractor">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Extractor</span><span class="p">(</span><span class="n">excel</span><span class="o">.</span><span class="n">ExcelExtractor</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extractor for the excel dataset PHMSA.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Extractor for the excel dataset PHMSA."""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the module.</span>
+<span class="w">        </span><span class="sd">"""Initialize the module.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            ds (:class:datastore.Datastore): Initialized datastore.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 <div class="viewcode-block" id="Extractor.METADATA">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/phmsagas/index.html#pudl.extract.phmsagas.Extractor.METADATA">[docs]</a>
-        <span class="bp">self</span><span class="o">.</span><span class="n">METADATA</span> <span class="o">=</span> <span class="n">excel</span><span class="o">.</span><span class="n">ExcelMetadata</span><span class="p">(</span><span class="s2">&quot;phmsagas&quot;</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">METADATA</span> <span class="o">=</span> <span class="n">excel</span><span class="o">.</span><span class="n">ExcelMetadata</span><span class="p">(</span><span class="s2">"phmsagas"</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Extractor.cols_added">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/phmsagas/index.html#pudl.extract.phmsagas.Extractor.cols_added">[docs]</a>
@@ -910,7 +910,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="Extractor.load_source">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/phmsagas/index.html#pudl.extract.phmsagas.Extractor.load_source">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">load_source</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">page</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">partition</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Run same load_source and then replace all periods w/ n&#39;s.</span>
+<span class="w">        </span><span class="sd">"""Run same load_source and then replace all periods w/ n's.</span>
 
 <span class="sd">        There are a ton of identical column names in the raw dataset for 1984.</span>
 <span class="sd">        Typically these get processed in load_source via pd.read_excel which adds</span>
@@ -921,17 +921,17 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        there are 22 column names that are identical expect for trailing spaces in the</span>
 <span class="sd">        raw source. These trailing spaces effectively get removed in</span>
 <span class="sd">        :func:`pudl.helpers.simplify_columns` and then we have duplicate column names.</span>
-<span class="sd">        This method runs the parent adds _n#&#39;s to these trailing space column names.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        This method runs the parent adds _n#'s to these trailing space column names.</span>
+<span class="sd">        """</span>
         <span class="n">df</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">load_source</span><span class="p">(</span><span class="n">page</span><span class="p">,</span> <span class="o">**</span><span class="n">partition</span><span class="p">)</span>
-        <span class="k">if</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">partition</span><span class="p">[</span><span class="s2">&quot;year&quot;</span><span class="p">])</span> <span class="o">==</span> <span class="mi">1984</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">page</span> <span class="o">==</span> <span class="s2">&quot;yearly_distribution&quot;</span><span class="p">):</span>
-            <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; .&quot;</span><span class="p">,</span> <span class="s2">&quot;n&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">partition</span><span class="p">[</span><span class="s2">"year"</span><span class="p">])</span> <span class="o">==</span> <span class="mi">1984</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">page</span> <span class="o">==</span> <span class="s2">"yearly_distribution"</span><span class="p">):</span>
+            <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">" ."</span><span class="p">,</span> <span class="s2">"n"</span><span class="p">)</span>
             <span class="c1"># the first two iterations of these columns that have trailing spaces</span>
-            <span class="c1"># don&#39;t get the .# at the end and such need this special treatment</span>
-            <span class="n">ends_w_space_cols</span> <span class="o">=</span> <span class="p">[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">col</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)]</span>
+            <span class="c1"># don't get the .# at the end and such need this special treatment</span>
+            <span class="n">ends_w_space_cols</span> <span class="o">=</span> <span class="p">[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">col</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">" "</span><span class="p">)]</span>
             <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">ends_w_space_cols</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span>
             <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
-                <span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="n">raw_col</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">raw_col</span><span class="si">}</span><span class="s2">_n0&quot;</span> <span class="k">for</span> <span class="n">raw_col</span> <span class="ow">in</span> <span class="n">ends_w_space_cols</span><span class="p">}</span>
+                <span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="n">raw_col</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">raw_col</span><span class="si">}</span><span class="s2">_n0"</span> <span class="k">for</span> <span class="n">raw_col</span> <span class="ow">in</span> <span class="n">ends_w_space_cols</span><span class="p">}</span>
             <span class="p">)</span>
         <span class="k">return</span> <span class="n">df</span></div>
 
@@ -939,7 +939,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="Extractor.process_renamed">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/phmsagas/index.html#pudl.extract.phmsagas.Extractor.process_renamed">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">process_renamed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">newdata</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">page</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">partition</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Drop columns that get mapped to other assets and columns with unstructured data.</span>
+<span class="w">        </span><span class="sd">"""Drop columns that get mapped to other assets and columns with unstructured data.</span>
 
 <span class="sd">        Old-ish years (1990-2009) of PHMSA data have one Excel tab in the raw data, while</span>
 <span class="sd">        newer data has multiple tabs. To extract data into tables that follow the newer</span>
@@ -951,17 +951,17 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        The oldest years (before 1990) contain multiple years in one tab. The records</span>
 <span class="sd">        contain a report_year column but some of them are reported at a two digit year</span>
 <span class="sd">        (ex: 87 for 1987). We convert these into four digit years.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">partition</span><span class="p">[</span><span class="s2">&quot;year&quot;</span><span class="p">])</span> <span class="o">&lt;=</span> <span class="mi">1998</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">page</span> <span class="o">==</span> <span class="s2">&quot;yearly_distribution&quot;</span><span class="p">):</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">partition</span><span class="p">[</span><span class="s2">"year"</span><span class="p">])</span> <span class="o">&lt;=</span> <span class="mi">1998</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">page</span> <span class="o">==</span> <span class="s2">"yearly_distribution"</span><span class="p">):</span>
             <span class="n">newdata</span><span class="o">.</span><span class="n">report_year</span> <span class="o">=</span> <span class="n">newdata</span><span class="o">.</span><span class="n">report_year</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Int64Dtype</span><span class="p">())</span>
             <span class="n">double_digit_year_mask</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="n">newdata</span><span class="p">[</span><span class="s2">&quot;report_year&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;str&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^[0-9]</span><span class="si">{2}</span><span class="s2">$&quot;</span><span class="p">)</span>
+                <span class="n">newdata</span><span class="p">[</span><span class="s2">"report_year"</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">"str"</span><span class="p">)</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="sa">r</span><span class="s2">"^[0-9]</span><span class="si">{2}</span><span class="s2">$"</span><span class="p">)</span>
             <span class="p">)</span>
-            <span class="n">newdata</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">double_digit_year_mask</span><span class="p">,</span> <span class="s2">&quot;report_year&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="n">newdata</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">double_digit_year_mask</span><span class="p">,</span> <span class="s2">&quot;report_year&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1900</span>
+            <span class="n">newdata</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">double_digit_year_mask</span><span class="p">,</span> <span class="s2">"report_year"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">newdata</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">double_digit_year_mask</span><span class="p">,</span> <span class="s2">"report_year"</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1900</span>
             <span class="p">)</span>
-        <span class="k">if</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">partition</span><span class="p">[</span><span class="s2">&quot;year&quot;</span><span class="p">])</span> <span class="o">&lt;</span> <span class="mi">2010</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="o">.</span><span class="n">get_form</span><span class="p">(</span><span class="n">page</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;gas_transmission_gathering&quot;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">partition</span><span class="p">[</span><span class="s2">"year"</span><span class="p">])</span> <span class="o">&lt;</span> <span class="mi">2010</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="o">.</span><span class="n">get_form</span><span class="p">(</span><span class="n">page</span><span class="p">)</span> <span class="o">==</span> <span class="s2">"gas_transmission_gathering"</span>
         <span class="p">):</span>
             <span class="n">to_drop</span> <span class="o">=</span> <span class="p">[</span>
                 <span class="n">c</span>
@@ -972,10 +972,10 @@ window.runMermaid = runMermaid;</script>
             <span class="n">str_part</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">partition</span><span class="o">.</span><span class="n">values</span><span class="p">())[</span><span class="mi">0</span><span class="p">])</span>
             <span class="k">if</span> <span class="n">to_drop</span><span class="p">:</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">page</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">str_part</span><span class="si">}</span><span class="s2">: Dropping columns that are not mapped to this asset:&quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="si">{</span><span class="n">to_drop</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">page</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">str_part</span><span class="si">}</span><span class="s2">: Dropping columns that are not mapped to this asset:"</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="se">\n</span><span class="si">{</span><span class="n">to_drop</span><span class="si">}</span><span class="s2">"</span>
                 <span class="p">)</span>
-                <span class="n">newdata</span> <span class="o">=</span> <span class="n">newdata</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">to_drop</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">)</span>
+                <span class="n">newdata</span> <span class="o">=</span> <span class="n">newdata</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">to_drop</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">"ignore"</span><span class="p">)</span>
         <span class="c1"># there is an annoying middling number of columns in phmsa raw data that are unnamed</span>
         <span class="c1"># and have a smattering of random values. we want to drop these guys. but we are going</span>
         <span class="c1"># to enumerate what we expect to need to drop so if lots of new unmapped columns happen</span>
@@ -985,7 +985,7 @@ window.runMermaid = runMermaid;</script>
         <span class="c1"># them all and do a manual shift of the data. But its only 2 records so rn we are just</span>
         <span class="c1"># dropping them.</span>
         <span class="n">unnamed_page_years</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;yearly_distribution&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">"yearly_distribution"</span><span class="p">:</span> <span class="p">[</span>
                 <span class="mi">2000</span><span class="p">,</span>
                 <span class="mi">2001</span><span class="p">,</span>
                 <span class="mi">2002</span><span class="p">,</span>
@@ -997,15 +997,15 @@ window.runMermaid = runMermaid;</script>
                 <span class="mi">2009</span><span class="p">,</span>
             <span class="p">]</span>
         <span class="p">}</span>
-        <span class="n">unnamed_columns</span> <span class="o">=</span> <span class="n">newdata</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">like</span><span class="o">=</span><span class="s2">&quot;unnamed&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">columns</span>
+        <span class="n">unnamed_columns</span> <span class="o">=</span> <span class="n">newdata</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">like</span><span class="o">=</span><span class="s2">"unnamed"</span><span class="p">)</span><span class="o">.</span><span class="n">columns</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">page</span> <span class="ow">in</span> <span class="n">unnamed_page_years</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span>
-            <span class="nb">int</span><span class="p">(</span><span class="n">partition</span><span class="p">[</span><span class="s2">&quot;year&quot;</span><span class="p">])</span> <span class="ow">in</span> <span class="n">unnamed_page_years</span><span class="p">[</span><span class="n">page</span><span class="p">]</span>
+            <span class="nb">int</span><span class="p">(</span><span class="n">partition</span><span class="p">[</span><span class="s2">"year"</span><span class="p">])</span> <span class="ow">in</span> <span class="n">unnamed_page_years</span><span class="p">[</span><span class="n">page</span><span class="p">]</span>
         <span class="p">):</span>
             <span class="n">newdata</span> <span class="o">=</span> <span class="n">newdata</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">unnamed_columns</span><span class="p">)</span>
         <span class="k">elif</span> <span class="ow">not</span> <span class="n">unnamed_columns</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                <span class="s2">&quot;We found some unnamed columns that are probably not expected. &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;Consider dropping them. Columns found: </span><span class="si">{</span><span class="n">unnamed_columns</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="s2">"We found some unnamed columns that are probably not expected. "</span>
+                <span class="sa">f</span><span class="s2">"Consider dropping them. Columns found: </span><span class="si">{</span><span class="n">unnamed_columns</span><span class="si">}</span><span class="s2">"</span>
             <span class="p">)</span>
         <span class="k">return</span> <span class="n">newdata</span></div>
 </div>
@@ -1014,7 +1014,7 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="raw_phmsagas__all_dfs">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/phmsagas/index.html#pudl.extract.phmsagas.raw_phmsagas__all_dfs">[docs]</a>
-<span class="n">raw_phmsagas__all_dfs</span> <span class="o">=</span> <span class="n">raw_df_factory</span><span class="p">(</span><span class="n">Extractor</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;phmsagas&quot;</span><span class="p">)</span></div>
+<span class="n">raw_phmsagas__all_dfs</span> <span class="o">=</span> <span class="n">raw_df_factory</span><span class="p">(</span><span class="n">Extractor</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"phmsagas"</span><span class="p">)</span></div>
 
 
 
@@ -1023,21 +1023,21 @@ window.runMermaid = runMermaid;</script>
         <span class="n">table_name</span><span class="p">:</span> <span class="n">AssetOut</span><span class="p">(</span><span class="n">is_required</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">table_name</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span>
             <span class="p">(</span>
-                <span class="s2">&quot;raw_phmsagas__yearly_distribution&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;raw_phmsagas__yearly_gathering_pipe_miles_by_nps&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;raw_phmsagas__yearly_transmission_gathering_summary_by_commodity&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;raw_phmsagas__yearly_transmission_pipe_miles_by_nps&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;raw_phmsagas__yearly_transmission_gathering_inspections_assessments&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;raw_phmsagas__yearly_transmission_gathering_pipe_miles_by_class_location&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;raw_phmsagas__yearly_transmission_material_verification&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;raw_phmsagas__yearly_transmission_hca_miles_by_determination_method_and_risk_model&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;raw_phmsagas__yearly_transmission_miles_by_pressure_test_range_and_internal_inspection&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;raw_phmsagas__yearly_transmission_gathering_preparer_certification&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;raw_phmsagas__yearly_transmission_pipe_miles_by_smys&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;raw_phmsagas__yearly_transmission_gathering_failures_leaks_repairs&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;raw_phmsagas__yearly_transmission_miles_by_maop&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;raw_phmsagas__yearly_transmission_gathering_pipe_miles_by_decade_installed&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;raw_phmsagas__yearly_transmission_gathering_pipe_miles_by_material&quot;</span><span class="p">,</span>
+                <span class="s2">"raw_phmsagas__yearly_distribution"</span><span class="p">,</span>
+                <span class="s2">"raw_phmsagas__yearly_gathering_pipe_miles_by_nps"</span><span class="p">,</span>
+                <span class="s2">"raw_phmsagas__yearly_transmission_gathering_summary_by_commodity"</span><span class="p">,</span>
+                <span class="s2">"raw_phmsagas__yearly_transmission_pipe_miles_by_nps"</span><span class="p">,</span>
+                <span class="s2">"raw_phmsagas__yearly_transmission_gathering_inspections_assessments"</span><span class="p">,</span>
+                <span class="s2">"raw_phmsagas__yearly_transmission_gathering_pipe_miles_by_class_location"</span><span class="p">,</span>
+                <span class="s2">"raw_phmsagas__yearly_transmission_material_verification"</span><span class="p">,</span>
+                <span class="s2">"raw_phmsagas__yearly_transmission_hca_miles_by_determination_method_and_risk_model"</span><span class="p">,</span>
+                <span class="s2">"raw_phmsagas__yearly_transmission_miles_by_pressure_test_range_and_internal_inspection"</span><span class="p">,</span>
+                <span class="s2">"raw_phmsagas__yearly_transmission_gathering_preparer_certification"</span><span class="p">,</span>
+                <span class="s2">"raw_phmsagas__yearly_transmission_pipe_miles_by_smys"</span><span class="p">,</span>
+                <span class="s2">"raw_phmsagas__yearly_transmission_gathering_failures_leaks_repairs"</span><span class="p">,</span>
+                <span class="s2">"raw_phmsagas__yearly_transmission_miles_by_maop"</span><span class="p">,</span>
+                <span class="s2">"raw_phmsagas__yearly_transmission_gathering_pipe_miles_by_decade_installed"</span><span class="p">,</span>
+                <span class="s2">"raw_phmsagas__yearly_transmission_gathering_pipe_miles_by_material"</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="p">)</span>
     <span class="p">},</span>
@@ -1046,10 +1046,10 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="extract_phmsagas">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/phmsagas/index.html#pudl.extract.phmsagas.extract_phmsagas">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">extract_phmsagas</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">raw_phmsagas__all_dfs</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract raw PHMSA gas data from excel sheets into dataframes.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Extract raw PHMSA gas data from excel sheets into dataframes."""</span>
     <span class="c1"># create descriptive table_names</span>
     <span class="n">raw_phmsagas__all_dfs</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;raw_phmsagas__&quot;</span> <span class="o">+</span> <span class="n">table_name</span><span class="p">:</span> <span class="n">df</span>
+        <span class="s2">"raw_phmsagas__"</span> <span class="o">+</span> <span class="n">table_name</span><span class="p">:</span> <span class="n">df</span>
         <span class="k">for</span> <span class="n">table_name</span><span class="p">,</span> <span class="n">df</span> <span class="ow">in</span> <span class="n">raw_phmsagas__all_dfs</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
     <span class="p">}</span>
     <span class="n">raw_phmsagas__all_dfs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">raw_phmsagas__all_dfs</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span>

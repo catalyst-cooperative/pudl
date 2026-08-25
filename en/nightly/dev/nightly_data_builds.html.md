@@ -265,6 +265,15 @@ the project to be used for requester pays access through applications:
 gcloud auth application-default login
 ```
 
+#### TIP
+If you’ve done all this and you are still getting “ERROR: (gcloud.storage.hash)
+HTTPError 400: Bucket is a requester pays bucket but no user project provided.”
+errors below, try:
+
+```default
+gcloud config set billing/quota_project catalyst-cooperative-pudl
+```
+
 To test whether your GCP account is set up correctly and authenticated you can run the
 following command to list the contents of the cloud storage bucket containing the PUDL
 data. This doesn’t actually download any data, but will show you the versions

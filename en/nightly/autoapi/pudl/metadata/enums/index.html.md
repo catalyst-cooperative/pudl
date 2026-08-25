@@ -42,6 +42,8 @@ Enumerations of valid field values.
 | [`ASSET_TYPES_FERC1`](#pudl.metadata.enums.ASSET_TYPES_FERC1)                      | Asset types for FERC Form 1 data.                                               |
 | [`INCOME_TYPES_FERC1`](#pudl.metadata.enums.INCOME_TYPES_FERC1)                     | Income types for FERC Form 1 data.                                              |
 | [`FUNCTIONAL_STATUS_CODES_CENSUS`](#pudl.metadata.enums.FUNCTIONAL_STATUS_CODES_CENSUS)         | Functional status codes for Census geographic entities.                         |
+| [`COMMODITY_TYPES_PHMSAGAS`](#pudl.metadata.enums.COMMODITY_TYPES_PHMSAGAS)               |                                                                                 |
+| [`INSTALL_DECADES_PHMSAGAS`](#pudl.metadata.enums.INSTALL_DECADES_PHMSAGAS)               |                                                                                 |
 | [`MATERIAL_TYPES_PHMSAGAS`](#pudl.metadata.enums.MATERIAL_TYPES_PHMSAGAS)                |                                                                                 |
 | [`MAIN_PIPE_SIZES_PHMSAGAS`](#pudl.metadata.enums.MAIN_PIPE_SIZES_PHMSAGAS)               |                                                                                 |
 | [`LEAK_SOURCE_PHMSAGAS`](#pudl.metadata.enums.LEAK_SOURCE_PHMSAGAS)                   |                                                                                 |
@@ -222,6 +224,10 @@ Income types for FERC Form 1 data.
 Functional status codes for Census geographic entities.
 
 [https://www.census.gov/library/reference/code-lists/functional-status-codes.html](https://www.census.gov/library/reference/code-lists/functional-status-codes.html)
+
+### pudl.metadata.enums.COMMODITY_TYPES_PHMSAGAS *= ['all', 'natural_gas', 'propane_gas', 'landfill_gas', 'synthetic_gas', 'hydrogen_gas',...*
+
+### pudl.metadata.enums.INSTALL_DECADES_PHMSAGAS *= ['pre_1940', '1940s', '1950s', '1960s', '1970s', '1980s', '1990s', '2000s', '2010s', '2020s',...*
 
 ### pudl.metadata.enums.MATERIAL_TYPES_PHMSAGAS *= ['unprotected_steel_bare', 'unprotected_steel_coated', 'cathodically_protected_steel_bare',...*
 

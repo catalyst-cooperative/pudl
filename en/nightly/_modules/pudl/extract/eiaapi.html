@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.extract.eiaapi &#8212; PUDL 2026.8.1.dev16 documentation</title>
+    <title>pudl.extract.eiaapi &#8212; PUDL 2026.8.1.dev20 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=f981bf86"></script>
+    <script src="../../../_static/documentation_options.js?v=8f1a003a"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev20 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev20 documentation - Home"/>
   
   
 </a></div>
@@ -868,19 +868,19 @@ window.runMermaid = runMermaid;</script>
                 <article class="bd-article">
                   
   <h1>Source code for pudl.extract.eiaapi</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Module to extract aggregate data from the EIA bulk electricity download.</span>
+<span></span><span class="sd">"""Module to extract aggregate data from the EIA bulk electricity download.</span>
 
-<span class="sd">EIA&#39;s bulk electricity data contains 680,000 objects, most of which are timeseries.</span>
+<span class="sd">EIA's bulk electricity data contains 680,000 objects, most of which are timeseries.</span>
 <span class="sd">These timeseries contain a variety of measures (fuel amount and cost are just two)</span>
 <span class="sd">across multiple levels of aggregation from individual plants to national averages.</span>
 
 <span class="sd">The data is formatted as a single 1.1GB text file of line-delimited JSON with one line</span>
 <span class="sd">per object. Each JSON structure has two nested levels: the top level contains metadata</span>
-<span class="sd">describing the series and the second level (under the &quot;data&quot; heading) contains an array</span>
+<span class="sd">describing the series and the second level (under the "data" heading) contains an array</span>
 <span class="sd">of timestamp/value pairs. This structure leads to a natural normalization into two</span>
 <span class="sd">tables: one of metadata and one of timeseries. That is the format delivered by this</span>
 <span class="sd">module.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">io</span><span class="w"> </span><span class="kn">import</span> <span class="n">BytesIO</span>
@@ -894,21 +894,21 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="_filter_for_fuel_receipts_costs_series">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/eiaapi/index.html#pudl.extract.eiaapi._filter_for_fuel_receipts_costs_series">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_filter_for_fuel_receipts_costs_series</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Pick out the desired data series.</span>
+<span class="w">    </span><span class="sd">"""Pick out the desired data series.</span>
 
 <span class="sd">    Fuel receipts and costs are about 1% of the total lines. This function filters for</span>
-<span class="sd">    series that contain the name &quot;RECEIPTS_BTU&quot; or &quot;COST_BTU&quot; in their ``series_id``.</span>
+<span class="sd">    series that contain the name "RECEIPTS_BTU" or "COST_BTU" in their ``series_id``.</span>
 
 <span class="sd">    Of the approximately 680,000 objects in the dataset, about 19,000 represent things</span>
 <span class="sd">    other than data series (such as category definitions or plot axes). Those</span>
 <span class="sd">    non-series objects do not have a field called ``series_id``.</span>
 <span class="sd">    The ``except KeyError:`` clause handles that situation.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">series_to_extract</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;RECEIPTS_BTU&quot;</span><span class="p">,</span> <span class="s2">&quot;COST_BTU&quot;</span><span class="p">]</span>
-    <span class="n">series_pattern</span> <span class="o">=</span> <span class="s2">&quot;|&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">series_to_extract</span><span class="p">)</span>
-    <span class="n">pattern</span> <span class="o">=</span> <span class="sa">rf</span><span class="s2">&quot;^ELEC\.(?:</span><span class="si">{</span><span class="n">series_pattern</span><span class="si">}</span><span class="s2">)&quot;</span>
+<span class="sd">    """</span>
+    <span class="n">series_to_extract</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"RECEIPTS_BTU"</span><span class="p">,</span> <span class="s2">"COST_BTU"</span><span class="p">]</span>
+    <span class="n">series_pattern</span> <span class="o">=</span> <span class="s2">"|"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">series_to_extract</span><span class="p">)</span>
+    <span class="n">pattern</span> <span class="o">=</span> <span class="sa">rf</span><span class="s2">"^ELEC\.(?:</span><span class="si">{</span><span class="n">series_pattern</span><span class="si">}</span><span class="s2">)"</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="n">_filter</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">&quot;series_id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">na</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">_filter</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">"series_id"</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">na</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">_filter</span><span class="p">,</span> <span class="p">:]</span>
     <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>  <span class="c1"># empty</span></div>
@@ -918,16 +918,16 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="_filter_and_read_to_dataframe">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/eiaapi/index.html#pudl.extract.eiaapi._filter_and_read_to_dataframe">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_filter_and_read_to_dataframe</span><span class="p">(</span><span class="n">raw_zipfile</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Decompress and filter the 1100 MB file down to the 16 MB we actually want.</span>
+<span class="w">    </span><span class="sd">"""Decompress and filter the 1100 MB file down to the 16 MB we actually want.</span>
 
 <span class="sd">    This produces a dataframe with all text fields. The timeseries data is left as JSON</span>
-<span class="sd">    strings in the &#39;data&#39; column. The other columns are metadata.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    strings in the 'data' column. The other columns are metadata.</span>
+<span class="sd">    """</span>
     <span class="n">filtered</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="c1"># Use chunksize arg to reduce peak memory usage when reading in 1.1 GB file</span>
     <span class="c1"># For reference, the file has ~680k lines and we want around 8.5k</span>
     <span class="k">with</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_json</span><span class="p">(</span>
-        <span class="n">raw_zipfile</span><span class="p">,</span> <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;zip&quot;</span><span class="p">,</span> <span class="n">lines</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">chunksize</span><span class="o">=</span><span class="mi">10_000</span>
+        <span class="n">raw_zipfile</span><span class="p">,</span> <span class="n">compression</span><span class="o">=</span><span class="s2">"zip"</span><span class="p">,</span> <span class="n">lines</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">chunksize</span><span class="o">=</span><span class="mi">10_000</span>
     <span class="p">)</span> <span class="k">as</span> <span class="n">reader</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="n">reader</span><span class="p">:</span>
             <span class="n">filtered</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_filter_for_fuel_receipts_costs_series</span><span class="p">(</span><span class="n">chunk</span><span class="p">))</span>
@@ -941,76 +941,76 @@ window.runMermaid = runMermaid;</script>
 <span class="k">def</span><span class="w"> </span><span class="nf">_parse_data_column</span><span class="p">(</span><span class="n">elec_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
     <span class="n">out</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">elec_df</span><span class="o">.</span><span class="n">index</span><span class="p">:</span>
-        <span class="n">data_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">elec_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">idx</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">],</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;date&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">])</span>
+        <span class="n">data_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">elec_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">idx</span><span class="p">,</span> <span class="s2">"data"</span><span class="p">],</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">"date"</span><span class="p">,</span> <span class="s2">"value"</span><span class="p">])</span>
         <span class="c1"># three possible date formats, only annual/quarterly handled by pd.to_datetime() automatically</span>
-        <span class="c1">#   annual data as &quot;YYYY&quot; eg &quot;2020&quot;</span>
-        <span class="c1">#   quarterly data as &quot;YYYYQQ&quot; eg &quot;2020Q2&quot;</span>
-        <span class="c1">#   monthly data as &quot;YYYYMM&quot; eg &quot;202004&quot;</span>
+        <span class="c1">#   annual data as "YYYY" eg "2020"</span>
+        <span class="c1">#   quarterly data as "YYYYQQ" eg "2020Q2"</span>
+        <span class="c1">#   monthly data as "YYYYMM" eg "202004"</span>
         <span class="n">is_monthly</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">data_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">5</span><span class="p">,</span> <span class="n">data_df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">get_loc</span><span class="p">(</span><span class="s2">&quot;date&quot;</span><span class="p">)]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\d</span><span class="si">{6}</span><span class="s2">&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+            <span class="n">data_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">5</span><span class="p">,</span> <span class="n">data_df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">get_loc</span><span class="p">(</span><span class="s2">"date"</span><span class="p">)]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">"\d</span><span class="si">{6}</span><span class="s2">"</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
         <span class="p">)</span>
         <span class="c1"># Unfortunately, the date formats in the EIA bulk electricity data are not</span>
         <span class="c1"># uniform, and so for now we need to fall back on dateutil. Currently this</span>
         <span class="c1"># warning is emitted thousands of times, clogging up the logs.</span>
         <span class="k">with</span> <span class="n">warnings</span><span class="o">.</span><span class="n">catch_warnings</span><span class="p">():</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span>
-                <span class="n">action</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span>
-                <span class="n">message</span><span class="o">=</span><span class="s2">&quot;Could not infer format, so each element will be parsed individually&quot;</span><span class="p">,</span>
+                <span class="n">action</span><span class="o">=</span><span class="s2">"ignore"</span><span class="p">,</span>
+                <span class="n">message</span><span class="o">=</span><span class="s2">"Could not infer format, so each element will be parsed individually"</span><span class="p">,</span>
                 <span class="n">category</span><span class="o">=</span><span class="ne">UserWarning</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="k">if</span> <span class="n">is_monthly</span><span class="p">:</span>
-                <span class="n">data_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">&quot;date&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span>
-                    <span class="n">data_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">&quot;date&quot;</span><span class="p">],</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;%Y%m&quot;</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;raise&quot;</span>
+                <span class="n">data_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">"date"</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span>
+                    <span class="n">data_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">"date"</span><span class="p">],</span> <span class="nb">format</span><span class="o">=</span><span class="s2">"%Y%m"</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">"raise"</span>
                 <span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">data_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">&quot;date&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span>
-                    <span class="n">data_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">&quot;date&quot;</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;raise&quot;</span>
+                <span class="n">data_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">"date"</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span>
+                    <span class="n">data_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">"date"</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">"raise"</span>
                 <span class="p">)</span>
-        <span class="n">data_df</span><span class="p">[</span><span class="s2">&quot;series_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">elec_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">idx</span><span class="p">,</span> <span class="s2">&quot;series_id&quot;</span><span class="p">]</span>
+        <span class="n">data_df</span><span class="p">[</span><span class="s2">"series_id"</span><span class="p">]</span> <span class="o">=</span> <span class="n">elec_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">idx</span><span class="p">,</span> <span class="s2">"series_id"</span><span class="p">]</span>
         <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data_df</span><span class="p">)</span>
     <span class="n">out</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
     <span class="n">out</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">convert_dtypes</span><span class="p">()</span>
-    <span class="n">out</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">&quot;series_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">out</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">&quot;series_id&quot;</span><span class="p">]</span>
-        <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;string&quot;</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-        <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;category&quot;</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">out</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">"series_id"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">"series_id"</span><span class="p">]</span>
+        <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">"string"</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">"category"</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="p">)</span>
-    <span class="k">return</span> <span class="n">out</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="p">[</span><span class="s2">&quot;series_id&quot;</span><span class="p">,</span> <span class="s2">&quot;date&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">]]</span>  <span class="c1"># reorder cols</span></div>
+    <span class="k">return</span> <span class="n">out</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="p">[</span><span class="s2">"series_id"</span><span class="p">,</span> <span class="s2">"date"</span><span class="p">,</span> <span class="s2">"value"</span><span class="p">]]</span>  <span class="c1"># reorder cols</span></div>
 
 
 
 <div class="viewcode-block" id="_extract">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/eiaapi/index.html#pudl.extract.eiaapi._extract">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_extract</span><span class="p">(</span><span class="n">raw_zipfile</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract metadata and timeseries from raw EIA bulk electricity data.</span>
+<span class="w">    </span><span class="sd">"""Extract metadata and timeseries from raw EIA bulk electricity data.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        raw_zipfile: Path or other file-like object that can be read by pd.read_json()</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        Dictionary of dataframes with keys &#39;metadata&#39; and &#39;timeseries&#39;</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">        Dictionary of dataframes with keys 'metadata' and 'timeseries'</span>
+<span class="sd">    """</span>
     <span class="n">filtered</span> <span class="o">=</span> <span class="n">_filter_and_read_to_dataframe</span><span class="p">(</span><span class="n">raw_zipfile</span><span class="p">)</span>
     <span class="n">timeseries</span> <span class="o">=</span> <span class="n">_parse_data_column</span><span class="p">(</span><span class="n">filtered</span><span class="p">)</span>
-    <span class="n">metadata</span> <span class="o">=</span> <span class="n">filtered</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="s2">&quot;data&quot;</span><span class="p">)</span>
-    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;metadata&quot;</span><span class="p">:</span> <span class="n">metadata</span><span class="p">,</span> <span class="s2">&quot;timeseries&quot;</span><span class="p">:</span> <span class="n">timeseries</span><span class="p">}</span></div>
+    <span class="n">metadata</span> <span class="o">=</span> <span class="n">filtered</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="s2">"data"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">"metadata"</span><span class="p">:</span> <span class="n">metadata</span><span class="p">,</span> <span class="s2">"timeseries"</span><span class="p">:</span> <span class="n">timeseries</span><span class="p">}</span></div>
 
 
 
 <div class="viewcode-block" id="extract">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/eiaapi/index.html#pudl.extract.eiaapi.extract">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">extract</span><span class="p">(</span>
-    <span class="n">ds</span><span class="p">:</span> <span class="n">Datastore</span><span class="p">,</span> <span class="n">partition</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;data_set&quot;</span><span class="p">:</span> <span class="s2">&quot;electricity&quot;</span><span class="p">}</span>
+    <span class="n">ds</span><span class="p">:</span> <span class="n">Datastore</span><span class="p">,</span> <span class="n">partition</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"data_set"</span><span class="p">:</span> <span class="s2">"electricity"</span><span class="p">}</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract metadata and timeseries from raw EIA bulk electricity data.</span>
+<span class="w">    </span><span class="sd">"""Extract metadata and timeseries from raw EIA bulk electricity data.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        ds: Datastore object</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        Dictionary of dataframes with keys &#39;metadata&#39; and &#39;timeseries&#39;</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">raw_zipfile</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">get_unique_resource</span><span class="p">(</span><span class="s2">&quot;eiaapi&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">partition</span><span class="p">)</span>
+<span class="sd">        Dictionary of dataframes with keys 'metadata' and 'timeseries'</span>
+<span class="sd">    """</span>
+    <span class="n">raw_zipfile</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">get_unique_resource</span><span class="p">(</span><span class="s2">"eiaapi"</span><span class="p">,</span> <span class="o">**</span><span class="n">partition</span><span class="p">)</span>
     <span class="n">dfs</span> <span class="o">=</span> <span class="n">_extract</span><span class="p">(</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">raw_zipfile</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">dfs</span></div>
 

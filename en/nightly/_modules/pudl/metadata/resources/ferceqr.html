@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.metadata.resources.ferceqr &#8212; PUDL 2026.8.1.dev16 documentation</title>
+    <title>pudl.metadata.resources.ferceqr &#8212; PUDL 2026.8.1.dev20 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../../_static/documentation_options.js?v=f981bf86"></script>
+    <script src="../../../../_static/documentation_options.js?v=8f1a003a"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev20 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev20 documentation - Home"/>
   
   
 </a></div>
@@ -871,7 +871,7 @@ window.runMermaid = runMermaid;</script>
                 <article class="bd-article">
                   
   <h1>Source code for pudl.metadata.resources.ferceqr</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Table definitions for the FERC EQR data group.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Table definitions for the FERC EQR data group."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
 
@@ -880,201 +880,201 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="TABLE_DESCRIPTIONS">
 <a class="viewcode-back" href="../../../../autoapi/pudl/metadata/resources/ferceqr/index.html#pudl.metadata.resources.ferceqr.TABLE_DESCRIPTIONS">[docs]</a>
 <span class="n">TABLE_DESCRIPTIONS</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;identity&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-            <span class="s2">&quot;individuals who filed FERC EQR for a company in a given quarter.&quot;</span>
+    <span class="s2">"identity"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">"individuals who filed FERC EQR for a company in a given quarter."</span>
         <span class="p">),</span>
-        <span class="s2">&quot;additional_primary_key_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-            <span class="s2">&quot;The primary key ought to be [&#39;year_quarter&#39;, &#39;company_id_ferc&#39;, &quot;</span>
-            <span class="s2">&quot;&#39;filer_unique_id&#39;], where filer_unique_id is an employee-level ID. &quot;</span>
-            <span class="s2">&quot;However, a handful of companies have erroneously reported the same &quot;</span>
-            <span class="s2">&quot;filer_unique_id for multiple employees, resulting in duplicate records. &quot;</span>
-            <span class="s2">&quot;In other cases, there appear to be multiple filings in a given quarter &quot;</span>
-            <span class="s2">&quot;for the same company and filer, resulting in additional duplicates. Thus, &quot;</span>
-            <span class="s2">&quot;there is no reliable natural primary key for the identity table.&quot;</span>
+        <span class="s2">"additional_primary_key_text"</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">"The primary key ought to be ['year_quarter', 'company_id_ferc', "</span>
+            <span class="s2">"'filer_unique_id'], where filer_unique_id is an employee-level ID. "</span>
+            <span class="s2">"However, a handful of companies have erroneously reported the same "</span>
+            <span class="s2">"filer_unique_id for multiple employees, resulting in duplicate records. "</span>
+            <span class="s2">"In other cases, there appear to be multiple filings in a given quarter "</span>
+            <span class="s2">"for the same company and filer, resulting in additional duplicates. Thus, "</span>
+            <span class="s2">"there is no reliable natural primary key for the identity table."</span>
         <span class="p">),</span>
-        <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;experimental_wip&quot;</span><span class="p">],</span>
+        <span class="s2">"usage_warnings"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"experimental_wip"</span><span class="p">],</span>
     <span class="p">},</span>
-    <span class="s2">&quot;contracts&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-            <span class="s2">&quot;Contains information about contracts between companies selling&quot;</span>
-            <span class="s2">&quot; and buying electricity market products.&quot;</span>
+    <span class="s2">"contracts"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">"Contains information about contracts between companies selling"</span>
+            <span class="s2">" and buying electricity market products."</span>
         <span class="p">),</span>
-        <span class="s2">&quot;additional_primary_key_text&quot;</span><span class="p">:</span> <span class="s2">&quot;The FERC EQR contracts table has no natural primary key.&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;experimental_wip&quot;</span><span class="p">],</span>
+        <span class="s2">"additional_primary_key_text"</span><span class="p">:</span> <span class="s2">"The FERC EQR contracts table has no natural primary key."</span><span class="p">,</span>
+        <span class="s2">"usage_warnings"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"experimental_wip"</span><span class="p">],</span>
     <span class="p">},</span>
-    <span class="s2">&quot;transactions&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-            <span class="s2">&quot;Contains information about individual electricity market transactions that took place&quot;</span>
-            <span class="s2">&quot; during a given reporting quarter. Reported by the seller.&quot;</span>
+    <span class="s2">"transactions"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">"Contains information about individual electricity market transactions that took place"</span>
+            <span class="s2">" during a given reporting quarter. Reported by the seller."</span>
         <span class="p">),</span>
-        <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;experimental_wip&quot;</span><span class="p">],</span>
+        <span class="s2">"usage_warnings"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"experimental_wip"</span><span class="p">],</span>
     <span class="p">},</span>
-    <span class="s2">&quot;index_pub&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;electricity market price indices that individual EQR filers&quot;</span>
-        <span class="s2">&quot; reported transactions to.&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;experimental_wip&quot;</span><span class="p">],</span>
+    <span class="s2">"index_pub"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="s2">"electricity market price indices that individual EQR filers"</span>
+        <span class="s2">" reported transactions to."</span><span class="p">,</span>
+        <span class="s2">"usage_warnings"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"experimental_wip"</span><span class="p">],</span>
     <span class="p">},</span>
 <span class="p">}</span></div>
 
 
 <div class="viewcode-block" id="PARTITIONS">
 <a class="viewcode-back" href="../../../../autoapi/pudl/metadata/resources/ferceqr/index.html#pudl.metadata.resources.ferceqr.PARTITIONS">[docs]</a>
-<span class="n">PARTITIONS</span> <span class="o">=</span> <span class="n">SOURCES</span><span class="p">[</span><span class="s2">&quot;ferceqr&quot;</span><span class="p">][</span><span class="s2">&quot;working_partitions&quot;</span><span class="p">][</span><span class="s2">&quot;year_quarters&quot;</span><span class="p">]</span></div>
+<span class="n">PARTITIONS</span> <span class="o">=</span> <span class="n">SOURCES</span><span class="p">[</span><span class="s2">"ferceqr"</span><span class="p">][</span><span class="s2">"working_partitions"</span><span class="p">][</span><span class="s2">"year_quarters"</span><span class="p">]</span></div>
 
 
 <div class="viewcode-block" id="RESOURCE_METADATA">
 <a class="viewcode-back" href="../../../../autoapi/pudl/metadata/resources/ferceqr/index.html#pudl.metadata.resources.ferceqr.RESOURCE_METADATA">[docs]</a>
 <span class="n">RESOURCE_METADATA</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;core_ferceqr__quarterly_identity&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="n">TABLE_DESCRIPTIONS</span><span class="p">[</span><span class="s2">&quot;identity&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;year_quarter&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;company_id_ferc&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;filer_unique_id&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;company_name&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;contact_name&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;contact_title&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;contact_address&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;contact_city&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;contact_state&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;contact_zip&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;contact_country_name&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;contact_phone&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;contact_email&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;transactions_reported_to_index_price_publishers&quot;</span><span class="p">,</span>
+    <span class="s2">"core_ferceqr__quarterly_identity"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="n">TABLE_DESCRIPTIONS</span><span class="p">[</span><span class="s2">"identity"</span><span class="p">],</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"year_quarter"</span><span class="p">,</span>
+                <span class="s2">"company_id_ferc"</span><span class="p">,</span>
+                <span class="s2">"filer_unique_id"</span><span class="p">,</span>
+                <span class="s2">"company_name"</span><span class="p">,</span>
+                <span class="s2">"contact_name"</span><span class="p">,</span>
+                <span class="s2">"contact_title"</span><span class="p">,</span>
+                <span class="s2">"contact_address"</span><span class="p">,</span>
+                <span class="s2">"contact_city"</span><span class="p">,</span>
+                <span class="s2">"contact_state"</span><span class="p">,</span>
+                <span class="s2">"contact_zip"</span><span class="p">,</span>
+                <span class="s2">"contact_country_name"</span><span class="p">,</span>
+                <span class="s2">"contact_phone"</span><span class="p">,</span>
+                <span class="s2">"contact_email"</span><span class="p">,</span>
+                <span class="s2">"transactions_reported_to_index_price_publishers"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;create_database_schema&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;ferceqr&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;ferceqr&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;ferceqr&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;core_ferceqr__quarterly_identity/</span><span class="si">{</span><span class="n">PARTITIONS</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">.parquet&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;extrapaths&quot;</span><span class="p">:</span> <span class="p">[</span>
-            <span class="sa">f</span><span class="s2">&quot;core_ferceqr__quarterly_identity/</span><span class="si">{</span><span class="n">part</span><span class="si">}</span><span class="s2">.parquet&quot;</span>
+        <span class="s2">"create_database_schema"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"ferceqr"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"ferceqr"</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"ferceqr"</span><span class="p">,</span>
+        <span class="s2">"path"</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"core_ferceqr__quarterly_identity/</span><span class="si">{</span><span class="n">PARTITIONS</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">.parquet"</span><span class="p">,</span>
+        <span class="s2">"extrapaths"</span><span class="p">:</span> <span class="p">[</span>
+            <span class="sa">f</span><span class="s2">"core_ferceqr__quarterly_identity/</span><span class="si">{</span><span class="n">part</span><span class="si">}</span><span class="s2">.parquet"</span>
             <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">PARTITIONS</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
         <span class="p">],</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_ferceqr__contracts&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="n">TABLE_DESCRIPTIONS</span><span class="p">[</span><span class="s2">&quot;contracts&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;year_quarter&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;seller_company_id_ferc&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;contract_unique_id&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;seller_company_name&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;customer_company_name&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;contract_affiliate&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;ferc_tariff_reference&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;contract_service_agreement_id&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;contract_execution_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;commencement_date_of_contract_term&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;contract_termination_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;actual_termination_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;extension_provision_description&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;class_name&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;term_name&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;increment_name&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;increment_peaking_name&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;product_type_name&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;product_name&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;quantity&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;units&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;rate&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;rate_minimum&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;rate_maximum&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;rate_description&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;rate_units&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;point_of_receipt_balancing_authority&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;point_of_receipt_specific_location&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;point_of_delivery_balancing_authority&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;point_of_delivery_specific_location&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;begin_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;end_date&quot;</span><span class="p">,</span>
+    <span class="s2">"core_ferceqr__contracts"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="n">TABLE_DESCRIPTIONS</span><span class="p">[</span><span class="s2">"contracts"</span><span class="p">],</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"year_quarter"</span><span class="p">,</span>
+                <span class="s2">"seller_company_id_ferc"</span><span class="p">,</span>
+                <span class="s2">"contract_unique_id"</span><span class="p">,</span>
+                <span class="s2">"seller_company_name"</span><span class="p">,</span>
+                <span class="s2">"customer_company_name"</span><span class="p">,</span>
+                <span class="s2">"contract_affiliate"</span><span class="p">,</span>
+                <span class="s2">"ferc_tariff_reference"</span><span class="p">,</span>
+                <span class="s2">"contract_service_agreement_id"</span><span class="p">,</span>
+                <span class="s2">"contract_execution_date"</span><span class="p">,</span>
+                <span class="s2">"commencement_date_of_contract_term"</span><span class="p">,</span>
+                <span class="s2">"contract_termination_date"</span><span class="p">,</span>
+                <span class="s2">"actual_termination_date"</span><span class="p">,</span>
+                <span class="s2">"extension_provision_description"</span><span class="p">,</span>
+                <span class="s2">"class_name"</span><span class="p">,</span>
+                <span class="s2">"term_name"</span><span class="p">,</span>
+                <span class="s2">"increment_name"</span><span class="p">,</span>
+                <span class="s2">"increment_peaking_name"</span><span class="p">,</span>
+                <span class="s2">"product_type_name"</span><span class="p">,</span>
+                <span class="s2">"product_name"</span><span class="p">,</span>
+                <span class="s2">"quantity"</span><span class="p">,</span>
+                <span class="s2">"units"</span><span class="p">,</span>
+                <span class="s2">"rate"</span><span class="p">,</span>
+                <span class="s2">"rate_minimum"</span><span class="p">,</span>
+                <span class="s2">"rate_maximum"</span><span class="p">,</span>
+                <span class="s2">"rate_description"</span><span class="p">,</span>
+                <span class="s2">"rate_units"</span><span class="p">,</span>
+                <span class="s2">"point_of_receipt_balancing_authority"</span><span class="p">,</span>
+                <span class="s2">"point_of_receipt_specific_location"</span><span class="p">,</span>
+                <span class="s2">"point_of_delivery_balancing_authority"</span><span class="p">,</span>
+                <span class="s2">"point_of_delivery_specific_location"</span><span class="p">,</span>
+                <span class="s2">"begin_date"</span><span class="p">,</span>
+                <span class="s2">"end_date"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;create_database_schema&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;ferceqr&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;ferceqr&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;ferceqr&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;core_ferceqr__contracts/</span><span class="si">{</span><span class="n">PARTITIONS</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">.parquet&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;extrapaths&quot;</span><span class="p">:</span> <span class="p">[</span>
-            <span class="sa">f</span><span class="s2">&quot;core_ferceqr__contracts/</span><span class="si">{</span><span class="n">part</span><span class="si">}</span><span class="s2">.parquet&quot;</span> <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">PARTITIONS</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+        <span class="s2">"create_database_schema"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"ferceqr"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"ferceqr"</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"ferceqr"</span><span class="p">,</span>
+        <span class="s2">"path"</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"core_ferceqr__contracts/</span><span class="si">{</span><span class="n">PARTITIONS</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">.parquet"</span><span class="p">,</span>
+        <span class="s2">"extrapaths"</span><span class="p">:</span> <span class="p">[</span>
+            <span class="sa">f</span><span class="s2">"core_ferceqr__contracts/</span><span class="si">{</span><span class="n">part</span><span class="si">}</span><span class="s2">.parquet"</span> <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">PARTITIONS</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
         <span class="p">],</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_ferceqr__transactions&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="n">TABLE_DESCRIPTIONS</span><span class="p">[</span><span class="s2">&quot;transactions&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;year_quarter&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;seller_company_id_ferc&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;transaction_unique_id&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;seller_company_name&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;customer_company_name&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;ferc_tariff_reference&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;contract_service_agreement_id&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;seller_transaction_id&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;transaction_begin_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;transaction_end_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;trade_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;exchange_brokerage_service&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;type_of_rate&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;timezone&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;class_name&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;term_name&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;increment_name&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;increment_peaking_name&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;product_name&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;rate_units&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;point_of_delivery_balancing_authority&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;point_of_delivery_specific_location&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;transaction_quantity&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;price&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;standardized_quantity&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;standardized_price&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;total_transmission_charge&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;total_transaction_charge&quot;</span><span class="p">,</span>
+    <span class="s2">"core_ferceqr__transactions"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="n">TABLE_DESCRIPTIONS</span><span class="p">[</span><span class="s2">"transactions"</span><span class="p">],</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"year_quarter"</span><span class="p">,</span>
+                <span class="s2">"seller_company_id_ferc"</span><span class="p">,</span>
+                <span class="s2">"transaction_unique_id"</span><span class="p">,</span>
+                <span class="s2">"seller_company_name"</span><span class="p">,</span>
+                <span class="s2">"customer_company_name"</span><span class="p">,</span>
+                <span class="s2">"ferc_tariff_reference"</span><span class="p">,</span>
+                <span class="s2">"contract_service_agreement_id"</span><span class="p">,</span>
+                <span class="s2">"seller_transaction_id"</span><span class="p">,</span>
+                <span class="s2">"transaction_begin_date"</span><span class="p">,</span>
+                <span class="s2">"transaction_end_date"</span><span class="p">,</span>
+                <span class="s2">"trade_date"</span><span class="p">,</span>
+                <span class="s2">"exchange_brokerage_service"</span><span class="p">,</span>
+                <span class="s2">"type_of_rate"</span><span class="p">,</span>
+                <span class="s2">"timezone"</span><span class="p">,</span>
+                <span class="s2">"class_name"</span><span class="p">,</span>
+                <span class="s2">"term_name"</span><span class="p">,</span>
+                <span class="s2">"increment_name"</span><span class="p">,</span>
+                <span class="s2">"increment_peaking_name"</span><span class="p">,</span>
+                <span class="s2">"product_name"</span><span class="p">,</span>
+                <span class="s2">"rate_units"</span><span class="p">,</span>
+                <span class="s2">"point_of_delivery_balancing_authority"</span><span class="p">,</span>
+                <span class="s2">"point_of_delivery_specific_location"</span><span class="p">,</span>
+                <span class="s2">"transaction_quantity"</span><span class="p">,</span>
+                <span class="s2">"price"</span><span class="p">,</span>
+                <span class="s2">"standardized_quantity"</span><span class="p">,</span>
+                <span class="s2">"standardized_price"</span><span class="p">,</span>
+                <span class="s2">"total_transmission_charge"</span><span class="p">,</span>
+                <span class="s2">"total_transaction_charge"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;year_quarter&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;seller_company_id_ferc&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;transaction_unique_id&quot;</span><span class="p">,</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"year_quarter"</span><span class="p">,</span>
+                <span class="s2">"seller_company_id_ferc"</span><span class="p">,</span>
+                <span class="s2">"transaction_unique_id"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;create_database_schema&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;ferceqr&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;ferceqr&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;ferceqr&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;core_ferceqr__transactions/</span><span class="si">{</span><span class="n">PARTITIONS</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">.parquet&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;extrapaths&quot;</span><span class="p">:</span> <span class="p">[</span>
-            <span class="sa">f</span><span class="s2">&quot;core_ferceqr__transactions/</span><span class="si">{</span><span class="n">part</span><span class="si">}</span><span class="s2">.parquet&quot;</span> <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">PARTITIONS</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+        <span class="s2">"create_database_schema"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"ferceqr"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"ferceqr"</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"ferceqr"</span><span class="p">,</span>
+        <span class="s2">"path"</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"core_ferceqr__transactions/</span><span class="si">{</span><span class="n">PARTITIONS</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">.parquet"</span><span class="p">,</span>
+        <span class="s2">"extrapaths"</span><span class="p">:</span> <span class="p">[</span>
+            <span class="sa">f</span><span class="s2">"core_ferceqr__transactions/</span><span class="si">{</span><span class="n">part</span><span class="si">}</span><span class="s2">.parquet"</span> <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">PARTITIONS</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
         <span class="p">],</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_ferceqr__quarterly_index_pub&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="n">TABLE_DESCRIPTIONS</span><span class="p">[</span><span class="s2">&quot;index_pub&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;year_quarter&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;company_id_ferc&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;filer_unique_id&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;seller_company_name&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;index_price_publisher_name&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;transactions_reported&quot;</span><span class="p">,</span>
+    <span class="s2">"core_ferceqr__quarterly_index_pub"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="n">TABLE_DESCRIPTIONS</span><span class="p">[</span><span class="s2">"index_pub"</span><span class="p">],</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"year_quarter"</span><span class="p">,</span>
+                <span class="s2">"company_id_ferc"</span><span class="p">,</span>
+                <span class="s2">"filer_unique_id"</span><span class="p">,</span>
+                <span class="s2">"seller_company_name"</span><span class="p">,</span>
+                <span class="s2">"index_price_publisher_name"</span><span class="p">,</span>
+                <span class="s2">"transactions_reported"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;year_quarter&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;company_id_ferc&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;filer_unique_id&quot;</span><span class="p">,</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"year_quarter"</span><span class="p">,</span>
+                <span class="s2">"company_id_ferc"</span><span class="p">,</span>
+                <span class="s2">"filer_unique_id"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;create_database_schema&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;ferceqr&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;ferceqr&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;ferceqr&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;core_ferceqr__quarterly_index_pub/</span><span class="si">{</span><span class="n">PARTITIONS</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">.parquet&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;extrapaths&quot;</span><span class="p">:</span> <span class="p">[</span>
-            <span class="sa">f</span><span class="s2">&quot;core_ferceqr__quarterly_index_pub/</span><span class="si">{</span><span class="n">part</span><span class="si">}</span><span class="s2">.parquet&quot;</span>
+        <span class="s2">"create_database_schema"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"ferceqr"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"ferceqr"</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"ferceqr"</span><span class="p">,</span>
+        <span class="s2">"path"</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"core_ferceqr__quarterly_index_pub/</span><span class="si">{</span><span class="n">PARTITIONS</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">.parquet"</span><span class="p">,</span>
+        <span class="s2">"extrapaths"</span><span class="p">:</span> <span class="p">[</span>
+            <span class="sa">f</span><span class="s2">"core_ferceqr__quarterly_index_pub/</span><span class="si">{</span><span class="n">part</span><span class="si">}</span><span class="s2">.parquet"</span>
             <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">PARTITIONS</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
         <span class="p">],</span>
     <span class="p">},</span>

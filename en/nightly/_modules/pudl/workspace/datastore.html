@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.workspace.datastore &#8212; PUDL 2026.8.1.dev16 documentation</title>
+    <title>pudl.workspace.datastore &#8212; PUDL 2026.8.1.dev20 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=f981bf86"></script>
+    <script src="../../../_static/documentation_options.js?v=8f1a003a"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev20 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev20 documentation - Home"/>
   
   
 </a></div>
@@ -868,7 +868,7 @@ window.runMermaid = runMermaid;</script>
                 <article class="bd-article">
                   
   <h1>Source code for pudl.workspace.datastore</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Datastore manages file retrieval for PUDL datasets.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Datastore manages file retrieval for PUDL datasets."""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">hashlib</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">importlib.resources</span>
@@ -908,7 +908,7 @@ window.runMermaid = runMermaid;</script>
 <span class="n">ZenodoDoi</span> <span class="o">=</span> <span class="n">Annotated</span><span class="p">[</span>
     <span class="nb">str</span><span class="p">,</span>
     <span class="n">StringConstraints</span><span class="p">(</span>
-        <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">min_length</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span> <span class="n">pattern</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;(10\.5072|10\.5281)/zenodo.([\d]+)&quot;</span>
+        <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">min_length</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span> <span class="n">pattern</span><span class="o">=</span><span class="sa">r</span><span class="s2">"(10\.5072|10\.5281)/zenodo.([\d]+)"</span>
     <span class="p">),</span>
 <span class="p">]</span></div>
 
@@ -917,9 +917,9 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="get_zenodo_dois_path">
 <a class="viewcode-back" href="../../../autoapi/pudl/workspace/datastore/index.html#pudl.workspace.datastore.get_zenodo_dois_path">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_zenodo_dois_path</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Traversable</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the canonical packaged Zenodo DOI settings path.&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">importlib</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="s2">&quot;pudl.package_data.settings&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span>
-        <span class="s2">&quot;zenodo_dois.yml&quot;</span>
+<span class="w">    </span><span class="sd">"""Return the canonical packaged Zenodo DOI settings path."""</span>
+    <span class="k">return</span> <span class="n">importlib</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="s2">"pudl.package_data.settings"</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span>
+        <span class="s2">"zenodo_dois.yml"</span>
     <span class="p">)</span></div>
 
 
@@ -927,23 +927,23 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="ChecksumMismatchError">
 <a class="viewcode-back" href="../../../autoapi/pudl/workspace/datastore/index.html#pudl.workspace.datastore.ChecksumMismatchError">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ChecksumMismatchError</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Resource checksum (md5) does not match.&quot;&quot;&quot;</span></div>
+<span class="w">    </span><span class="sd">"""Resource checksum (md5) does not match."""</span></div>
 
 
 
 <div class="viewcode-block" id="DatapackageDescriptor">
 <a class="viewcode-back" href="../../../autoapi/pudl/workspace/datastore/index.html#pudl.workspace.datastore.DatapackageDescriptor">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">DatapackageDescriptor</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A simple wrapper providing access to datapackage.json contents.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""A simple wrapper providing access to datapackage.json contents."""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">datapackage_json</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">doi</span><span class="p">:</span> <span class="n">ZenodoDoi</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Constructs DatapackageDescriptor.</span>
+<span class="w">        </span><span class="sd">"""Constructs DatapackageDescriptor.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">          datapackage_json: parsed datapackage.json describing this datapackage.</span>
 <span class="sd">          dataset: The name (an identifying string) of the dataset.</span>
 <span class="sd">          doi: A versioned Digital Object Identifier for the dataset.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 <div class="viewcode-block" id="DatapackageDescriptor.datapackage_json">
 <a class="viewcode-back" href="../../../autoapi/pudl/workspace/datastore/index.html#pudl.workspace.datastore.DatapackageDescriptor.datapackage_json">[docs]</a>
         <span class="bp">self</span><span class="o">.</span><span class="n">datapackage_json</span> <span class="o">=</span> <span class="n">datapackage_json</span></div>
@@ -961,20 +961,20 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="DatapackageDescriptor._get_resource_metadata">
 <a class="viewcode-back" href="../../../autoapi/pudl/workspace/datastore/index.html#pudl.workspace.datastore.DatapackageDescriptor._get_resource_metadata">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_resource_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-        <span class="k">for</span> <span class="n">res</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">datapackage_json</span><span class="p">[</span><span class="s2">&quot;resources&quot;</span><span class="p">]:</span>
-            <span class="k">if</span> <span class="n">res</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">name</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">res</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">datapackage_json</span><span class="p">[</span><span class="s2">"resources"</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">res</span><span class="p">[</span><span class="s2">"name"</span><span class="p">]</span> <span class="o">==</span> <span class="n">name</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">res</span>
-        <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Resource </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> not found for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">doi</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+        <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Resource </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> not found for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">doi</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="DatapackageDescriptor.get_resource_path">
 <a class="viewcode-back" href="../../../autoapi/pudl/workspace/datastore/index.html#pudl.workspace.datastore.DatapackageDescriptor.get_resource_path">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_resource_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns zenodo url that holds contents of given named resource.&quot;&quot;&quot;</span>
-        <span class="n">resource_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_resource_metadata</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;path&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+<span class="w">        </span><span class="sd">"""Returns zenodo url that holds contents of given named resource."""</span>
+        <span class="n">resource_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_resource_metadata</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"path"</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">resource_path</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Resource </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> does not have a valid path for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">doi</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">"Resource </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> does not have a valid path for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">doi</span><span class="si">}</span><span class="s2">"</span>
             <span class="p">)</span>
         <span class="k">return</span> <span class="n">resource_path</span></div>
 
@@ -982,24 +982,24 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="DatapackageDescriptor.get_download_size">
 <a class="viewcode-back" href="../../../autoapi/pudl/workspace/datastore/index.html#pudl.workspace.datastore.DatapackageDescriptor.get_download_size">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_download_size</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the total download size of all the resources in MB.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Returns the total download size of all the resources in MB."""</span>
         <span class="n">total_bytes</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="k">for</span> <span class="n">res</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">datapackage_json</span><span class="p">[</span><span class="s2">&quot;resources&quot;</span><span class="p">]:</span>
-            <span class="n">total_bytes</span> <span class="o">+=</span> <span class="n">res</span><span class="p">[</span><span class="s2">&quot;bytes&quot;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">res</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">datapackage_json</span><span class="p">[</span><span class="s2">"resources"</span><span class="p">]:</span>
+            <span class="n">total_bytes</span> <span class="o">+=</span> <span class="n">res</span><span class="p">[</span><span class="s2">"bytes"</span><span class="p">]</span>
         <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">total_bytes</span> <span class="o">/</span> <span class="mi">1_000_000</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="DatapackageDescriptor.validate_checksum">
 <a class="viewcode-back" href="../../../autoapi/pudl/workspace/datastore/index.html#pudl.workspace.datastore.DatapackageDescriptor.validate_checksum">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">validate_checksum</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">content</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns True if content matches checksum for given named resource.&quot;&quot;&quot;</span>
-        <span class="n">expected_checksum</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_resource_metadata</span><span class="p">(</span><span class="n">name</span><span class="p">)[</span><span class="s2">&quot;hash&quot;</span><span class="p">]</span>
+<span class="w">        </span><span class="sd">"""Returns True if content matches checksum for given named resource."""</span>
+        <span class="n">expected_checksum</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_resource_metadata</span><span class="p">(</span><span class="n">name</span><span class="p">)[</span><span class="s2">"hash"</span><span class="p">]</span>
         <span class="n">m</span> <span class="o">=</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">md5</span><span class="p">()</span>  <span class="c1"># noqa: S324 Unfortunately md5 is required by Zenodo</span>
         <span class="n">m</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span> <span class="o">!=</span> <span class="n">expected_checksum</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">ChecksumMismatchError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Checksum for resource </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> does not match.&quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;Expected </span><span class="si">{</span><span class="n">expected_checksum</span><span class="si">}</span><span class="s2">, got </span><span class="si">{</span><span class="n">m</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">"Checksum for resource </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> does not match."</span>
+                <span class="sa">f</span><span class="s2">"Expected </span><span class="si">{</span><span class="n">expected_checksum</span><span class="si">}</span><span class="s2">, got </span><span class="si">{</span><span class="n">m</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span><span class="si">}</span><span class="s2">"</span>
             <span class="p">)</span></div>
 
 
@@ -1009,9 +1009,9 @@ window.runMermaid = runMermaid;</script>
         <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">filters</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Resource filter values should be all lowercase: </span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="sa">f</span><span class="s2">"Resource filter values should be all lowercase: </span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s2">"</span>
                 <span class="p">)</span>
-        <span class="n">parts</span> <span class="o">=</span> <span class="n">res</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;parts&quot;</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="n">parts</span> <span class="o">=</span> <span class="n">res</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"parts"</span><span class="p">,</span> <span class="p">{})</span>
         <span class="c1"># Each selected file should match for all partitions specified.</span>
         <span class="n">matches</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_match_from_partition</span><span class="p">(</span><span class="n">parts</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">filters</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span>
         <span class="k">return</span> <span class="nb">all</span><span class="p">(</span><span class="n">matches</span><span class="p">)</span></div>
@@ -1034,32 +1034,32 @@ window.runMermaid = runMermaid;</script>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_resources</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">:</span> <span class="n">Self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">filters</span><span class="p">:</span> <span class="n">Any</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">PudlResourceKey</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns series of PudlResourceKey identifiers for matching resources.</span>
+<span class="w">        </span><span class="sd">"""Returns series of PudlResourceKey identifiers for matching resources.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            name: if specified, find resource(s) with this name.</span>
 <span class="sd">            filters (dict): if specified, find resource(s) matching these key=value</span>
-<span class="sd">                constraints. The constraints are matched against the &#39;parts&#39; field of</span>
+<span class="sd">                constraints. The constraints are matched against the 'parts' field of</span>
 <span class="sd">                the resource entry in the datapackage.json.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">for</span> <span class="n">res</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">datapackage_json</span><span class="p">[</span><span class="s2">&quot;resources&quot;</span><span class="p">]:</span>
-            <span class="k">if</span> <span class="n">name</span> <span class="ow">and</span> <span class="n">res</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">name</span><span class="p">:</span>
+<span class="sd">        """</span>
+        <span class="k">for</span> <span class="n">res</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">datapackage_json</span><span class="p">[</span><span class="s2">"resources"</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">and</span> <span class="n">res</span><span class="p">[</span><span class="s2">"name"</span><span class="p">]</span> <span class="o">!=</span> <span class="n">name</span><span class="p">:</span>
                 <span class="k">continue</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_matches</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="o">**</span><span class="n">filters</span><span class="p">):</span>
                 <span class="k">yield</span> <span class="n">PudlResourceKey</span><span class="p">(</span>
-                    <span class="n">dataset</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">,</span> <span class="n">doi</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">doi</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">res</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+                    <span class="n">dataset</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">,</span> <span class="n">doi</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">doi</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">res</span><span class="p">[</span><span class="s2">"name"</span><span class="p">]</span>
                 <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="DatapackageDescriptor.get_partitions">
 <a class="viewcode-back" href="../../../autoapi/pudl/workspace/datastore/index.html#pudl.workspace.datastore.DatapackageDescriptor.get_partitions">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_partitions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return mapping of known partition keys to their allowed known values.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return mapping of known partition keys to their allowed known values."""</span>
         <span class="n">partitions</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">set</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">res</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">datapackage_json</span><span class="p">[</span><span class="s2">&quot;resources&quot;</span><span class="p">]:</span>
-            <span class="k">if</span> <span class="n">name</span> <span class="ow">and</span> <span class="n">res</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">name</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">res</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">datapackage_json</span><span class="p">[</span><span class="s2">"resources"</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">and</span> <span class="n">res</span><span class="p">[</span><span class="s2">"name"</span><span class="p">]</span> <span class="o">!=</span> <span class="n">name</span><span class="p">:</span>
                 <span class="k">continue</span>
-            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">res</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;parts&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">res</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"parts"</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
                     <span class="n">partitions</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">|=</span> <span class="nb">set</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>  <span class="c1"># Add all items from list</span>
                 <span class="k">else</span><span class="p">:</span>
@@ -1070,38 +1070,38 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="DatapackageDescriptor.get_partition_filters">
 <a class="viewcode-back" href="../../../autoapi/pudl/workspace/datastore/index.html#pudl.workspace.datastore.DatapackageDescriptor.get_partition_filters">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_partition_filters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">filters</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns list of all known partition mappings.</span>
+<span class="w">        </span><span class="sd">"""Returns list of all known partition mappings.</span>
 
 <span class="sd">        This can be used to iterate over all resources as the mappings can be directly</span>
 <span class="sd">        used as filters and should map to unique resource.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            filters: additional constraints for selecting relevant partitions.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">for</span> <span class="n">res</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">datapackage_json</span><span class="p">[</span><span class="s2">&quot;resources&quot;</span><span class="p">]:</span>
+<span class="sd">        """</span>
+        <span class="k">for</span> <span class="n">res</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">datapackage_json</span><span class="p">[</span><span class="s2">"resources"</span><span class="p">]:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_matches</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="o">**</span><span class="n">filters</span><span class="p">):</span>
-                <span class="k">yield</span> <span class="nb">dict</span><span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;parts&quot;</span><span class="p">,</span> <span class="p">{}))</span></div>
+                <span class="k">yield</span> <span class="nb">dict</span><span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"parts"</span><span class="p">,</span> <span class="p">{}))</span></div>
 
 
 <div class="viewcode-block" id="DatapackageDescriptor._validate_datapackage">
 <a class="viewcode-back" href="../../../autoapi/pudl/workspace/datastore/index.html#pudl.workspace.datastore.DatapackageDescriptor._validate_datapackage">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_validate_datapackage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">datapackage_json</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Checks the correctness of datapackage.json metadata.</span>
+<span class="w">        </span><span class="sd">"""Checks the correctness of datapackage.json metadata.</span>
 
 <span class="sd">        Throws ValueError if invalid.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">report</span> <span class="o">=</span> <span class="n">frictionless</span><span class="o">.</span><span class="n">Package</span><span class="o">.</span><span class="n">validate_descriptor</span><span class="p">(</span><span class="n">datapackage_json</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">report</span><span class="o">.</span><span class="n">valid</span><span class="p">:</span>
-            <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">report</span><span class="o">.</span><span class="n">errors</span><span class="p">)</span><span class="si">}</span><span class="s2"> datapackage validation errors:</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"Found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">report</span><span class="o">.</span><span class="n">errors</span><span class="p">)</span><span class="si">}</span><span class="s2"> datapackage validation errors:</span><span class="se">\n</span><span class="s2">"</span>
             <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">report</span><span class="o">.</span><span class="n">errors</span><span class="p">:</span>
-                <span class="n">msg</span> <span class="o">=</span> <span class="n">msg</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;  * </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="n">msg</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">"  * </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="DatapackageDescriptor.get_json_string">
 <a class="viewcode-back" href="../../../autoapi/pudl/workspace/datastore/index.html#pudl.workspace.datastore.DatapackageDescriptor.get_json_string">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_json_string</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Exports the underlying json as normalized (sorted, indented) json string.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Exports the underlying json as normalized (sorted, indented) json string."""</span>
         <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">datapackage_json</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span></div>
 </div>
 
@@ -1110,7 +1110,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="ZenodoDoiSettings">
 <a class="viewcode-back" href="../../../autoapi/pudl/workspace/datastore/index.html#pudl.workspace.datastore.ZenodoDoiSettings">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ZenodoDoiSettings</span><span class="p">(</span><span class="n">BaseSettings</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Digital Object Identifiers pointing to currently used Zenodo archives.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Digital Object Identifiers pointing to currently used Zenodo archives."""</span>
 
 <div class="viewcode-block" id="ZenodoDoiSettings.censusdp1tract">
 <a class="viewcode-back" href="../../../autoapi/pudl/workspace/datastore/index.html#pudl.workspace.datastore.ZenodoDoiSettings.censusdp1tract">[docs]</a>
@@ -1232,18 +1232,18 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="ZenodoDoiSettings.model_config">
 <a class="viewcode-back" href="../../../autoapi/pudl/workspace/datastore/index.html#pudl.workspace.datastore.ZenodoDoiSettings.model_config">[docs]</a>
     <span class="n">model_config</span> <span class="o">=</span> <span class="n">SettingsConfigDict</span><span class="p">(</span>
-        <span class="n">env_prefix</span><span class="o">=</span><span class="s2">&quot;pudl_zenodo_doi_&quot;</span><span class="p">,</span> <span class="n">env_file</span><span class="o">=</span><span class="s2">&quot;.env&quot;</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span>
+        <span class="n">env_prefix</span><span class="o">=</span><span class="s2">"pudl_zenodo_doi_"</span><span class="p">,</span> <span class="n">env_file</span><span class="o">=</span><span class="s2">".env"</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="s2">"ignore"</span>
     <span class="p">)</span></div>
 
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">data</span><span class="p">:</span> <span class="n">Any</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize ZenodoDoiSettings, loading from default YAML if no data provided.</span>
+<span class="w">        </span><span class="sd">"""Initialize ZenodoDoiSettings, loading from default YAML if no data provided.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            **data: Field values to initialize the settings with. If empty, loads</span>
 <span class="sd">                from the default zenodo_dois.yml configuration file. If partial data</span>
 <span class="sd">                is provided, it will be merged with defaults from the YAML file.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># Load defaults from YAML file</span>
         <span class="n">default_path</span> <span class="o">=</span> <span class="n">get_zenodo_dois_path</span><span class="p">()</span>
         <span class="k">with</span> <span class="n">default_path</span><span class="o">.</span><span class="n">open</span><span class="p">()</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
@@ -1256,25 +1256,25 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="ZenodoDoiSettings.get_doi">
 <a class="viewcode-back" href="../../../autoapi/pudl/workspace/datastore/index.html#pudl.workspace.datastore.ZenodoDoiSettings.get_doi">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_doi</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ZenodoDoi</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Look up configured DOI by dataset.</span>
+<span class="w">        </span><span class="sd">"""Look up configured DOI by dataset.</span>
 
 <span class="sd">        Throws a KeyError if dataset not configured.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)[</span><span class="n">dataset</span><span class="p">]</span></div>
 
 
     <span class="nd">@classmethod</span>
 <div class="viewcode-block" id="ZenodoDoiSettings.from_yaml">
 <a class="viewcode-back" href="../../../autoapi/pudl/workspace/datastore/index.html#pudl.workspace.datastore.ZenodoDoiSettings.from_yaml">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">from_yaml</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;ZenodoDoiSettings&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a ZenodoDoiSettings instance from a YAML file path.</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_yaml</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"ZenodoDoiSettings"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Create a ZenodoDoiSettings instance from a YAML file path.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            path: Path to a YAML file.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A ZenodoDoiSettings object with DOIs loaded from the YAML file.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">with</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">open</span><span class="p">()</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">yaml_data</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="o">**</span><span class="n">yaml_data</span><span class="p">)</span></div>
@@ -1285,7 +1285,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="ZenodoFetcher">
 <a class="viewcode-back" href="../../../autoapi/pudl/workspace/datastore/index.html#pudl.workspace.datastore.ZenodoFetcher">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ZenodoFetcher</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;API for fetching datapackage descriptors and resource contents from zenodo.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""API for fetching datapackage descriptors and resource contents from zenodo."""</span>
 
 <div class="viewcode-block" id="ZenodoFetcher._descriptor_cache">
 <a class="viewcode-back" href="../../../autoapi/pudl/workspace/datastore/index.html#pudl.workspace.datastore.ZenodoFetcher._descriptor_cache">[docs]</a>
@@ -1303,7 +1303,7 @@ window.runMermaid = runMermaid;</script>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">:</span> <span class="n">Self</span><span class="p">,</span> <span class="n">zenodo_dois</span><span class="p">:</span> <span class="n">ZenodoDoiSettings</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">timeout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">100.0</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Constructs ZenodoFetcher instance.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Constructs ZenodoFetcher instance."""</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">zenodo_dois</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">zenodo_dois</span> <span class="o">=</span> <span class="n">ZenodoDoiSettings</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1322,13 +1322,13 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../../autoapi/pudl/workspace/datastore/index.html#pudl.workspace.datastore.ZenodoFetcher.http">[docs]</a>
         <span class="bp">self</span><span class="o">.</span><span class="n">http</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span></div>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">http</span><span class="o">.</span><span class="n">mount</span><span class="p">(</span><span class="s2">&quot;http://&quot;</span><span class="p">,</span> <span class="n">adapter</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">http</span><span class="o">.</span><span class="n">mount</span><span class="p">(</span><span class="s2">&quot;https://&quot;</span><span class="p">,</span> <span class="n">adapter</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">http</span><span class="o">.</span><span class="n">mount</span><span class="p">(</span><span class="s2">"http://"</span><span class="p">,</span> <span class="n">adapter</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">http</span><span class="o">.</span><span class="n">mount</span><span class="p">(</span><span class="s2">"https://"</span><span class="p">,</span> <span class="n">adapter</span><span class="p">)</span>
         <span class="c1"># As of 01/2026, Zenodo rejects all Python requests with no custom user agent.</span>
-        <span class="c1"># We add this to note where our project&#39;s requests are originating from.</span>
+        <span class="c1"># We add this to note where our project's requests are originating from.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">http</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
             <span class="p">{</span>
-                <span class="s2">&quot;User-Agent&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;pudl/</span><span class="si">{</span><span class="n">version</span><span class="p">(</span><span class="s1">&#39;catalystcoop.pudl&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2"> (https://github.com/catalyst-cooperative/pudl)&quot;</span>
+                <span class="s2">"User-Agent"</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"pudl/</span><span class="si">{</span><span class="n">version</span><span class="p">(</span><span class="s1">'catalystcoop.pudl'</span><span class="p">)</span><span class="si">}</span><span class="s2"> (https://github.com/catalyst-cooperative/pudl)"</span>
             <span class="p">}</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_descriptor_cache</span> <span class="o">=</span> <span class="p">{}</span>
@@ -1336,69 +1336,69 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="ZenodoFetcher.get_doi">
 <a class="viewcode-back" href="../../../autoapi/pudl/workspace/datastore/index.html#pudl.workspace.datastore.ZenodoFetcher.get_doi">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_doi</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ZenodoDoi</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns DOI for given dataset.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Returns DOI for given dataset."""</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">doi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">zenodo_dois</span><span class="o">.</span><span class="fm">__getattribute__</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">AttributeError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No Zenodo DOI found for dataset </span><span class="si">{</span><span class="n">dataset</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">err</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"No Zenodo DOI found for dataset </span><span class="si">{</span><span class="n">dataset</span><span class="si">}</span><span class="s2">."</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">err</span>
         <span class="k">return</span> <span class="n">doi</span></div>
 
 
 <div class="viewcode-block" id="ZenodoFetcher.get_known_datasets">
 <a class="viewcode-back" href="../../../autoapi/pudl/workspace/datastore/index.html#pudl.workspace.datastore.ZenodoFetcher.get_known_datasets">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_known_datasets</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns list of supported datasets.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Returns list of supported datasets."""</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">doi</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">zenodo_dois</span><span class="p">)]</span></div>
 
 
 <div class="viewcode-block" id="ZenodoFetcher._get_url">
 <a class="viewcode-back" href="../../../autoapi/pudl/workspace/datastore/index.html#pudl.workspace.datastore.ZenodoFetcher._get_url">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_url</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Self</span><span class="p">,</span> <span class="n">doi</span><span class="p">:</span> <span class="n">ZenodoDoi</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HttpUrl</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Construct a Zenodo depsition URL based on its Zenodo DOI.&quot;&quot;&quot;</span>
-        <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(10\.5072|10\.5281)/zenodo.([\d]+)&quot;</span><span class="p">,</span> <span class="n">doi</span><span class="p">)</span>
+<span class="w">        </span><span class="sd">"""Construct a Zenodo depsition URL based on its Zenodo DOI."""</span>
+        <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">"(10\.5072|10\.5281)/zenodo.([\d]+)"</span><span class="p">,</span> <span class="n">doi</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">match</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid Zenodo DOI: </span><span class="si">{</span><span class="n">doi</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Invalid Zenodo DOI: </span><span class="si">{</span><span class="n">doi</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
         <span class="n">doi_prefix</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">groups</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">zenodo_id</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">groups</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span>
-        <span class="k">if</span> <span class="n">doi_prefix</span> <span class="o">==</span> <span class="s2">&quot;10.5072&quot;</span><span class="p">:</span>
-            <span class="n">api_root</span> <span class="o">=</span> <span class="s2">&quot;https://sandbox.zenodo.org/api&quot;</span>
-        <span class="k">elif</span> <span class="n">doi_prefix</span> <span class="o">==</span> <span class="s2">&quot;10.5281&quot;</span><span class="p">:</span>
-            <span class="n">api_root</span> <span class="o">=</span> <span class="s2">&quot;https://zenodo.org/api&quot;</span>
+        <span class="k">if</span> <span class="n">doi_prefix</span> <span class="o">==</span> <span class="s2">"10.5072"</span><span class="p">:</span>
+            <span class="n">api_root</span> <span class="o">=</span> <span class="s2">"https://sandbox.zenodo.org/api"</span>
+        <span class="k">elif</span> <span class="n">doi_prefix</span> <span class="o">==</span> <span class="s2">"10.5281"</span><span class="p">:</span>
+            <span class="n">api_root</span> <span class="o">=</span> <span class="s2">"https://zenodo.org/api"</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid Zenodo DOI: </span><span class="si">{</span><span class="n">doi</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">api_root</span><span class="si">}</span><span class="s2">/records/</span><span class="si">{</span><span class="n">zenodo_id</span><span class="si">}</span><span class="s2">/files&quot;</span></div>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Invalid Zenodo DOI: </span><span class="si">{</span><span class="n">doi</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">api_root</span><span class="si">}</span><span class="s2">/records/</span><span class="si">{</span><span class="n">zenodo_id</span><span class="si">}</span><span class="s2">/files"</span></div>
 
 
 <div class="viewcode-block" id="ZenodoFetcher._fetch_from_url">
 <a class="viewcode-back" href="../../../autoapi/pudl/workspace/datastore/index.html#pudl.workspace.datastore.ZenodoFetcher._fetch_from_url">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_fetch_from_url</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Self</span><span class="p">,</span> <span class="n">url</span><span class="p">:</span> <span class="n">HttpUrl</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">requests</span><span class="o">.</span><span class="n">Response</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Retrieving </span><span class="si">{</span><span class="n">url</span><span class="si">}</span><span class="s2"> from zenodo&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Retrieving </span><span class="si">{</span><span class="n">url</span><span class="si">}</span><span class="s2"> from zenodo"</span><span class="p">)</span>
         <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">http</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">url</span><span class="p">),</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">timeout</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="n">requests</span><span class="o">.</span><span class="n">codes</span><span class="o">.</span><span class="n">ok</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Successfully downloaded </span><span class="si">{</span><span class="n">url</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Successfully downloaded </span><span class="si">{</span><span class="n">url</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">response</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Could not download </span><span class="si">{</span><span class="n">url</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Could not download </span><span class="si">{</span><span class="n">url</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="ZenodoFetcher.get_descriptor">
 <a class="viewcode-back" href="../../../autoapi/pudl/workspace/datastore/index.html#pudl.workspace.datastore.ZenodoFetcher.get_descriptor">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_descriptor</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DatapackageDescriptor</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns class:`DatapackageDescriptor` for given dataset.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Returns class:`DatapackageDescriptor` for given dataset."""</span>
         <span class="n">doi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_doi</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">doi</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_descriptor_cache</span><span class="p">:</span>
             <span class="n">dpkg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fetch_from_url</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_url</span><span class="p">(</span><span class="n">doi</span><span class="p">))</span>
-            <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">dpkg</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s2">&quot;entries&quot;</span><span class="p">]:</span>
-                <span class="k">if</span> <span class="n">f</span><span class="p">[</span><span class="s2">&quot;key&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;datapackage.json&quot;</span><span class="p">:</span>
-                    <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fetch_from_url</span><span class="p">(</span><span class="n">f</span><span class="p">[</span><span class="s2">&quot;links&quot;</span><span class="p">][</span><span class="s2">&quot;content&quot;</span><span class="p">])</span>
+            <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">dpkg</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s2">"entries"</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">f</span><span class="p">[</span><span class="s2">"key"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"datapackage.json"</span><span class="p">:</span>
+                    <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fetch_from_url</span><span class="p">(</span><span class="n">f</span><span class="p">[</span><span class="s2">"links"</span><span class="p">][</span><span class="s2">"content"</span><span class="p">])</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_descriptor_cache</span><span class="p">[</span><span class="n">doi</span><span class="p">]</span> <span class="o">=</span> <span class="n">DatapackageDescriptor</span><span class="p">(</span>
                         <span class="n">resp</span><span class="o">.</span><span class="n">json</span><span class="p">(),</span> <span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span> <span class="n">doi</span><span class="o">=</span><span class="n">doi</span>
                     <span class="p">)</span>
                     <span class="k">break</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Zenodo datapackage for </span><span class="si">{</span><span class="n">dataset</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">doi</span><span class="si">}</span><span class="s2"> does not contain valid datapackage.json&quot;</span>
+                    <span class="sa">f</span><span class="s2">"Zenodo datapackage for </span><span class="si">{</span><span class="n">dataset</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">doi</span><span class="si">}</span><span class="s2"> does not contain valid datapackage.json"</span>
                 <span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_descriptor_cache</span><span class="p">[</span><span class="n">doi</span><span class="p">]</span></div>
 
@@ -1406,12 +1406,12 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="ZenodoFetcher.get_resource">
 <a class="viewcode-back" href="../../../autoapi/pudl/workspace/datastore/index.html#pudl.workspace.datastore.ZenodoFetcher.get_resource">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_resource</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Self</span><span class="p">,</span> <span class="n">res</span><span class="p">:</span> <span class="n">PudlResourceKey</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Given resource key, retrieve contents of the file from zenodo.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Given resource key, retrieve contents of the file from zenodo."""</span>
         <span class="n">desc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_descriptor</span><span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">dataset</span><span class="p">)</span>
         <span class="n">url</span> <span class="o">=</span> <span class="n">desc</span><span class="o">.</span><span class="n">get_resource_path</span><span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">url</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;gs://&quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">url</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"gs://"</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Resource </span><span class="si">{</span><span class="n">res</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> is stored in GCS (</span><span class="si">{</span><span class="n">desc</span><span class="o">.</span><span class="n">get_resource_path</span><span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="si">}</span><span class="s2">). ZenodoFetcher cannot retrieve it.&quot;</span>
+                <span class="sa">f</span><span class="s2">"Resource </span><span class="si">{</span><span class="n">res</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> is stored in GCS (</span><span class="si">{</span><span class="n">desc</span><span class="o">.</span><span class="n">get_resource_path</span><span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="si">}</span><span class="s2">). ZenodoFetcher cannot retrieve it."</span>
             <span class="p">)</span>
         <span class="n">content</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fetch_from_url</span><span class="p">(</span><span class="n">HttpUrl</span><span class="p">(</span><span class="n">url</span><span class="p">))</span><span class="o">.</span><span class="n">content</span>
         <span class="n">desc</span><span class="o">.</span><span class="n">validate_checksum</span><span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">content</span><span class="p">)</span>
@@ -1423,16 +1423,16 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="Datastore">
 <a class="viewcode-back" href="../../../autoapi/pudl/workspace/datastore/index.html#pudl.workspace.datastore.Datastore">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Datastore</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Handle connections and downloading of Zenodo Source archives.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Handle connections and downloading of Zenodo Source archives."""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">local_cache_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="n">UPath</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">cloud_cache_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">UPath</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="s2">&quot;s3://pudl.catalyst.coop/zenodo&quot;</span><span class="p">,</span>
+        <span class="n">cloud_cache_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">UPath</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="s2">"s3://pudl.catalyst.coop/zenodo"</span><span class="p">,</span>
         <span class="n">timeout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">15.0</span><span class="p">,</span>
         <span class="n">zenodo_dois</span><span class="p">:</span> <span class="n">ZenodoDoiSettings</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Datastore manages input data retrieval for PUDL datasets.</span>
+<span class="w">        </span><span class="sd">"""Datastore manages input data retrieval for PUDL datasets.</span>
 
 <span class="sd">        Requires at least one of local_cache_path or cloud_cache_path to be provided.</span>
 
@@ -1454,7 +1454,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        Raises:</span>
 <span class="sd">            ValueError: if neither local_cache_path nor cloud_cache_path is provided.</span>
 <span class="sd">            ValueError: if local_cache_path or cloud_cache_path has unsupported scheme.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 <div class="viewcode-block" id="Datastore._cache">
 <a class="viewcode-back" href="../../../autoapi/pudl/workspace/datastore/index.html#pudl.workspace.datastore.Datastore._cache">[docs]</a>
         <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span> <span class="o">=</span> <span class="n">resource_cache</span><span class="o">.</span><span class="n">LayeredCache</span><span class="p">()</span></div>
@@ -1472,46 +1472,46 @@ window.runMermaid = runMermaid;</script>
 
 
         <span class="k">assert</span> <span class="n">local_cache_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">cloud_cache_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="p">(</span>
-            <span class="s2">&quot;At least one of local_cache_path or cloud_cache_path must be provided.&quot;</span>
+            <span class="s2">"At least one of local_cache_path or cloud_cache_path must be provided."</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="n">local_cache_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># Convert to UPath with explicit file:// protocol if needed</span>
             <span class="n">local_upath</span> <span class="o">=</span> <span class="n">UPath</span><span class="p">(</span><span class="n">local_cache_path</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
-            <span class="k">if</span> <span class="n">local_upath</span><span class="o">.</span><span class="n">protocol</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">local_upath</span><span class="o">.</span><span class="n">protocol</span> <span class="o">==</span> <span class="s2">""</span><span class="p">:</span>
                 <span class="c1"># Local filesystem path without scheme - add file:// protocol</span>
-                <span class="n">local_upath</span> <span class="o">=</span> <span class="n">UPath</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;file://</span><span class="si">{</span><span class="n">local_cache_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">local_upath</span> <span class="o">=</span> <span class="n">UPath</span><span class="p">(</span><span class="sa">f</span><span class="s2">"file://</span><span class="si">{</span><span class="n">local_cache_path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
-            <span class="k">if</span> <span class="n">local_upath</span><span class="o">.</span><span class="n">protocol</span> <span class="o">!=</span> <span class="s2">&quot;file&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">local_upath</span><span class="o">.</span><span class="n">protocol</span> <span class="o">!=</span> <span class="s2">"file"</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Unsupported local storage scheme: </span><span class="si">{</span><span class="n">local_upath</span><span class="o">.</span><span class="n">protocol</span><span class="si">}</span><span class="s2">. &quot;</span>
-                    <span class="s2">&quot;Only &#39;file&#39; scheme is supported for local_cache_path.&quot;</span>
+                    <span class="sa">f</span><span class="s2">"Unsupported local storage scheme: </span><span class="si">{</span><span class="n">local_upath</span><span class="o">.</span><span class="n">protocol</span><span class="si">}</span><span class="s2">. "</span>
+                    <span class="s2">"Only 'file' scheme is supported for local_cache_path."</span>
                 <span class="p">)</span>
 
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Adding local cache layer at </span><span class="si">{</span><span class="n">local_upath</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Adding local cache layer at </span><span class="si">{</span><span class="n">local_upath</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">add_cache_layer</span><span class="p">(</span><span class="n">UPathCache</span><span class="p">(</span><span class="n">local_upath</span><span class="p">))</span>
 
         <span class="k">if</span> <span class="n">cloud_cache_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># Convert to UPath</span>
             <span class="n">cloud_upath</span> <span class="o">=</span> <span class="n">UPath</span><span class="p">(</span><span class="n">cloud_cache_path</span><span class="p">)</span>
 
-            <span class="c1"># Get supported cloud protocols (everything except &#39;file&#39;)</span>
-            <span class="n">supported_cloud_protocols</span> <span class="o">=</span> <span class="n">UPathCache</span><span class="o">.</span><span class="n">supported_protocols</span> <span class="o">-</span> <span class="p">{</span><span class="s2">&quot;file&quot;</span><span class="p">}</span>
+            <span class="c1"># Get supported cloud protocols (everything except 'file')</span>
+            <span class="n">supported_cloud_protocols</span> <span class="o">=</span> <span class="n">UPathCache</span><span class="o">.</span><span class="n">supported_protocols</span> <span class="o">-</span> <span class="p">{</span><span class="s2">"file"</span><span class="p">}</span>
 
             <span class="k">if</span> <span class="n">cloud_upath</span><span class="o">.</span><span class="n">protocol</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">supported_cloud_protocols</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Unsupported cloud storage scheme: </span><span class="si">{</span><span class="n">cloud_upath</span><span class="o">.</span><span class="n">protocol</span><span class="si">}</span><span class="s2">. &quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;Supported protocols: </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">supported_cloud_protocols</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="sa">f</span><span class="s2">"Unsupported cloud storage scheme: </span><span class="si">{</span><span class="n">cloud_upath</span><span class="o">.</span><span class="n">protocol</span><span class="si">}</span><span class="s2">. "</span>
+                    <span class="sa">f</span><span class="s2">"Supported protocols: </span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">supported_cloud_protocols</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
                 <span class="p">)</span>
 
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Adding </span><span class="si">{</span><span class="n">cloud_upath</span><span class="o">.</span><span class="n">protocol</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2"> cache layer at </span><span class="si">{</span><span class="n">cloud_upath</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">"Adding </span><span class="si">{</span><span class="n">cloud_upath</span><span class="o">.</span><span class="n">protocol</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2"> cache layer at </span><span class="si">{</span><span class="n">cloud_upath</span><span class="si">}</span><span class="s2">"</span>
             <span class="p">)</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">add_cache_layer</span><span class="p">(</span><span class="n">UPathCache</span><span class="p">(</span><span class="n">cloud_upath</span><span class="p">))</span>
             <span class="k">except</span> <span class="ne">RuntimeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Unable to initialize cache at </span><span class="si">{</span><span class="n">cloud_upath</span><span class="si">}</span><span class="s2">. &quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;Falling back to Zenodo if necessary. Error was: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="sa">f</span><span class="s2">"Unable to initialize cache at </span><span class="si">{</span><span class="n">cloud_upath</span><span class="si">}</span><span class="s2">. "</span>
+                    <span class="sa">f</span><span class="s2">"Falling back to Zenodo if necessary. Error was: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span>
                 <span class="p">)</span>
 
 <div class="viewcode-block" id="Datastore._zenodo_fetcher">
@@ -1526,41 +1526,41 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="Datastore.zenodo_dois">
 <a class="viewcode-back" href="../../../autoapi/pudl/workspace/datastore/index.html#pudl.workspace.datastore.Datastore.zenodo_dois">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">zenodo_dois</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ZenodoDoiSettings</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Expose the DOI settings used by this datastore instance.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Expose the DOI settings used by this datastore instance."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_zenodo_fetcher</span><span class="o">.</span><span class="n">zenodo_dois</span></div>
 
 
 <div class="viewcode-block" id="Datastore.get_doi">
 <a class="viewcode-back" href="../../../autoapi/pudl/workspace/datastore/index.html#pudl.workspace.datastore.Datastore.get_doi">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_doi</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ZenodoDoi</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the configured DOI for a dataset.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the configured DOI for a dataset."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_zenodo_fetcher</span><span class="o">.</span><span class="n">get_doi</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Datastore.get_known_datasets">
 <a class="viewcode-back" href="../../../autoapi/pudl/workspace/datastore/index.html#pudl.workspace.datastore.Datastore.get_known_datasets">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_known_datasets</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns list of supported datasets.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Returns list of supported datasets."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_zenodo_fetcher</span><span class="o">.</span><span class="n">get_known_datasets</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="Datastore.get_datapackage_descriptor">
 <a class="viewcode-back" href="../../../autoapi/pudl/workspace/datastore/index.html#pudl.workspace.datastore.Datastore.get_datapackage_descriptor">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_datapackage_descriptor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DatapackageDescriptor</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Fetch datapackage descriptor for dataset either from cache or Zenodo.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Fetch datapackage descriptor for dataset either from cache or Zenodo."""</span>
         <span class="n">doi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_zenodo_fetcher</span><span class="o">.</span><span class="n">get_doi</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">doi</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_datapackage_descriptors</span><span class="p">:</span>
-            <span class="n">res</span> <span class="o">=</span> <span class="n">PudlResourceKey</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">doi</span><span class="p">,</span> <span class="s2">&quot;datapackage.json&quot;</span><span class="p">)</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="n">PudlResourceKey</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">doi</span><span class="p">,</span> <span class="s2">"datapackage.json"</span><span class="p">)</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="n">res</span><span class="p">):</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_datapackage_descriptors</span><span class="p">[</span><span class="n">doi</span><span class="p">]</span> <span class="o">=</span> <span class="n">DatapackageDescriptor</span><span class="p">(</span>
-                    <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">res</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)),</span>
+                    <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">res</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">"utf-8"</span><span class="p">)),</span>
                     <span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span>
                     <span class="n">doi</span><span class="o">=</span><span class="n">doi</span><span class="p">,</span>
                 <span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">desc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_zenodo_fetcher</span><span class="o">.</span><span class="n">get_descriptor</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_datapackage_descriptors</span><span class="p">[</span><span class="n">doi</span><span class="p">]</span> <span class="o">=</span> <span class="n">desc</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">(</span><span class="n">desc</span><span class="o">.</span><span class="n">get_json_string</span><span class="p">(),</span> <span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">(</span><span class="n">desc</span><span class="o">.</span><span class="n">get_json_string</span><span class="p">(),</span> <span class="s2">"utf-8"</span><span class="p">))</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_datapackage_descriptors</span><span class="p">[</span><span class="n">doi</span><span class="p">]</span></div>
 
 
@@ -1573,7 +1573,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">skip_optimally_cached</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="o">**</span><span class="n">filters</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">PudlResourceKey</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">]]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return content of the matching resources.</span>
+<span class="w">        </span><span class="sd">"""Return content of the matching resources.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            dataset: name of the dataset to query.</span>
@@ -1581,31 +1581,31 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">            skip_optimally_cached: if True, only retrieve resources that are not optimally</span>
 <span class="sd">                cached. This triggers attempt to optimally cache these resources.</span>
 <span class="sd">            filters (key=val): only return resources that match the key-value mapping in their</span>
-<span class="sd">            metadata[&quot;parts&quot;].</span>
+<span class="sd">            metadata["parts"].</span>
 
 <span class="sd">        Yields:</span>
 <span class="sd">            (PudlResourceKey, io.BytesIO) holding content for each matching resource</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">desc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_datapackage_descriptor</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">res</span> <span class="ow">in</span> <span class="n">desc</span><span class="o">.</span><span class="n">get_resources</span><span class="p">(</span><span class="o">**</span><span class="n">filters</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">desc</span><span class="o">.</span><span class="n">get_resource_path</span><span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;gs://&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">desc</span><span class="o">.</span><span class="n">get_resource_path</span><span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"gs://"</span><span class="p">):</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Resource </span><span class="si">{</span><span class="n">res</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> is stored in GCS (</span><span class="si">{</span><span class="n">desc</span><span class="o">.</span><span class="n">get_resource_path</span><span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="si">}</span><span class="s2">). Skipping download.&quot;</span>
+                    <span class="sa">f</span><span class="s2">"Resource </span><span class="si">{</span><span class="n">res</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> is stored in GCS (</span><span class="si">{</span><span class="n">desc</span><span class="o">.</span><span class="n">get_resource_path</span><span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="si">}</span><span class="s2">). Skipping download."</span>
                 <span class="p">)</span>
                 <span class="k">continue</span>
 
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">is_optimally_cached</span><span class="p">(</span><span class="n">res</span><span class="p">)</span> <span class="ow">and</span> <span class="n">skip_optimally_cached</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">res</span><span class="si">}</span><span class="s2"> is already optimally cached.&quot;</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">res</span><span class="si">}</span><span class="s2"> is already optimally cached."</span><span class="p">)</span>
                 <span class="k">continue</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="n">res</span><span class="p">):</span>
                 <span class="n">contents</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">res</span><span class="p">)</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Retrieved </span><span class="si">{</span><span class="n">res</span><span class="si">}</span><span class="s2"> from cache.&quot;</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Retrieved </span><span class="si">{</span><span class="n">res</span><span class="si">}</span><span class="s2"> from cache."</span><span class="p">)</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">is_optimally_cached</span><span class="p">(</span><span class="n">res</span><span class="p">):</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">res</span><span class="si">}</span><span class="s2"> was not optimally cached yet, adding.&quot;</span><span class="p">)</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">res</span><span class="si">}</span><span class="s2"> was not optimally cached yet, adding."</span><span class="p">)</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">contents</span><span class="p">)</span>
                 <span class="k">yield</span> <span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">contents</span><span class="p">)</span>
             <span class="k">elif</span> <span class="ow">not</span> <span class="n">cached_only</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Retrieved </span><span class="si">{</span><span class="n">res</span><span class="si">}</span><span class="s2"> from zenodo.&quot;</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Retrieved </span><span class="si">{</span><span class="n">res</span><span class="si">}</span><span class="s2"> from zenodo."</span><span class="p">)</span>
                 <span class="n">contents</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_zenodo_fetcher</span><span class="o">.</span><span class="n">get_resource</span><span class="p">(</span><span class="n">res</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">contents</span><span class="p">)</span>
                 <span class="k">yield</span> <span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">contents</span><span class="p">)</span></div>
@@ -1614,38 +1614,38 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="Datastore.remove_from_cache">
 <a class="viewcode-back" href="../../../autoapi/pudl/workspace/datastore/index.html#pudl.workspace.datastore.Datastore.remove_from_cache">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">remove_from_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">res</span><span class="p">:</span> <span class="n">PudlResourceKey</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Remove given resource from the associated cache.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Remove given resource from the associated cache."""</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">res</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Datastore.get_unique_resource">
 <a class="viewcode-back" href="../../../autoapi/pudl/workspace/datastore/index.html#pudl.workspace.datastore.Datastore.get_unique_resource">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_unique_resource</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">filters</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns content of a resource assuming there is exactly one that matches.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Returns content of a resource assuming there is exactly one that matches."""</span>
         <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_resources</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="o">**</span><span class="n">filters</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">_</span><span class="p">,</span> <span class="n">content</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">res</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">StopIteration</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No resources found for </span><span class="si">{</span><span class="n">dataset</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">filters</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">err</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"No resources found for </span><span class="si">{</span><span class="n">dataset</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">filters</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">err</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="nb">next</span><span class="p">(</span><span class="n">res</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">StopIteration</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">content</span>
-        <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Multiple resources found for </span><span class="si">{</span><span class="n">dataset</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">filters</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+        <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Multiple resources found for </span><span class="si">{</span><span class="n">dataset</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">filters</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Datastore.get_zipfile_resource">
 <a class="viewcode-back" href="../../../autoapi/pudl/workspace/datastore/index.html#pudl.workspace.datastore.Datastore.get_zipfile_resource">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_zipfile_resource</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">filters</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retrieves unique resource and opens it as a ZipFile.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Retrieves unique resource and opens it as a ZipFile."""</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">retryable</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">:</span>
             <span class="n">resource_bytes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_unique_resource</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="o">**</span><span class="n">filters</span><span class="p">)</span>
             <span class="n">resource</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">resource_bytes</span><span class="p">)</span>
-            <span class="n">md5sum</span> <span class="o">=</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">file_digest</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="s2">&quot;md5&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
+            <span class="n">md5sum</span> <span class="o">=</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">file_digest</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="s2">"md5"</span><span class="p">)</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Got resource </span><span class="si">{</span><span class="n">dataset</span><span class="si">=}</span><span class="s2">, </span><span class="si">{</span><span class="n">filters</span><span class="si">=}</span><span class="s2">, </span><span class="si">{</span><span class="n">md5sum</span><span class="si">=}</span><span class="s2">, &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">resource_bytes</span><span class="p">)</span><span class="si">}</span><span class="s2"> bytes; turning into ZipFile&quot;</span>
+                <span class="sa">f</span><span class="s2">"Got resource </span><span class="si">{</span><span class="n">dataset</span><span class="si">=}</span><span class="s2">, </span><span class="si">{</span><span class="n">filters</span><span class="si">=}</span><span class="s2">, </span><span class="si">{</span><span class="n">md5sum</span><span class="si">=}</span><span class="s2">, "</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">resource_bytes</span><span class="p">)</span><span class="si">}</span><span class="s2"> bytes; turning into ZipFile"</span>
             <span class="p">)</span>
             <span class="k">return</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="n">resource</span><span class="p">)</span>
 
@@ -1657,7 +1657,7 @@ window.runMermaid = runMermaid;</script>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_zipfile_resources</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">filters</span><span class="p">:</span> <span class="n">Any</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">PudlResourceKey</span><span class="p">,</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">]]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Iterates over resources that match filters and opens each as ZipFile.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Iterates over resources that match filters and opens each as ZipFile."""</span>
         <span class="k">for</span> <span class="n">resource_key</span><span class="p">,</span> <span class="n">content</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_resources</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="o">**</span><span class="n">filters</span><span class="p">):</span>
             <span class="k">yield</span> <span class="p">(</span>
                 <span class="n">resource_key</span><span class="p">,</span>
@@ -1668,7 +1668,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="Datastore.get_zipfile_file_names">
 <a class="viewcode-back" href="../../../autoapi/pudl/workspace/datastore/index.html#pudl.workspace.datastore.Datastore.get_zipfile_file_names">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_zipfile_file_names</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">zip_file</span><span class="p">:</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Given a zipfile, return a list of the file names in it.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Given a zipfile, return a list of the file names in it."""</span>
         <span class="k">return</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="o">.</span><span class="n">namelist</span><span class="p">(</span><span class="n">zip_file</span><span class="p">)</span></div>
 </div>
 
@@ -1679,10 +1679,10 @@ window.runMermaid = runMermaid;</script>
 <span class="k">def</span><span class="w"> </span><span class="nf">validate_cache</span><span class="p">(</span>
     <span class="n">dstore</span><span class="p">:</span> <span class="n">Datastore</span><span class="p">,</span> <span class="n">datasets</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">partition</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">str</span><span class="p">]</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Validate elements in the datastore cache.</span>
+<span class="w">    </span><span class="sd">"""Validate elements in the datastore cache.</span>
 
 <span class="sd">    Delete invalid entries from cache.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">for</span> <span class="n">single_ds</span> <span class="ow">in</span> <span class="n">datasets</span><span class="p">:</span>
         <span class="n">num_total</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="n">num_invalid</span> <span class="o">=</span> <span class="mi">0</span>
@@ -1696,11 +1696,11 @@ window.runMermaid = runMermaid;</script>
             <span class="k">except</span> <span class="n">ChecksumMismatchError</span><span class="p">:</span>
                 <span class="n">num_invalid</span> <span class="o">+=</span> <span class="mi">1</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Resource </span><span class="si">{</span><span class="n">res</span><span class="si">}</span><span class="s2"> has invalid checksum. Removing from cache.&quot;</span>
+                    <span class="sa">f</span><span class="s2">"Resource </span><span class="si">{</span><span class="n">res</span><span class="si">}</span><span class="s2"> has invalid checksum. Removing from cache."</span>
                 <span class="p">)</span>
                 <span class="n">dstore</span><span class="o">.</span><span class="n">remove_from_cache</span><span class="p">(</span><span class="n">res</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Checked </span><span class="si">{</span><span class="n">num_total</span><span class="si">}</span><span class="s2"> resources for </span><span class="si">{</span><span class="n">single_ds</span><span class="si">}</span><span class="s2">. Removed </span><span class="si">{</span><span class="n">num_invalid</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="sa">f</span><span class="s2">"Checked </span><span class="si">{</span><span class="n">num_total</span><span class="si">}</span><span class="s2"> resources for </span><span class="si">{</span><span class="n">single_ds</span><span class="si">}</span><span class="s2">. Removed </span><span class="si">{</span><span class="n">num_invalid</span><span class="si">}</span><span class="s2">."</span>
         <span class="p">)</span></div>
 
 
@@ -1714,13 +1714,13 @@ window.runMermaid = runMermaid;</script>
     <span class="n">cloud_cache_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">bypass_local_cache</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Retrieve all matching resources and store them in the cache.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Retrieve all matching resources and store them in the cache."""</span>
     <span class="k">for</span> <span class="n">single_ds</span> <span class="ow">in</span> <span class="n">datasets</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">res</span><span class="p">,</span> <span class="n">contents</span> <span class="ow">in</span> <span class="n">dstore</span><span class="o">.</span><span class="n">get_resources</span><span class="p">(</span>
             <span class="n">single_ds</span><span class="p">,</span> <span class="n">skip_optimally_cached</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">partition</span>
         <span class="p">):</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Retrieved </span><span class="si">{</span><span class="n">res</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
-            <span class="c1"># If the cloud_cache_path is specified and we don&#39;t want</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Retrieved </span><span class="si">{</span><span class="n">res</span><span class="si">}</span><span class="s2">."</span><span class="p">)</span>
+            <span class="c1"># If the cloud_cache_path is specified and we don't want</span>
             <span class="c1"># to bypass the local cache, populate the local cache.</span>
             <span class="k">if</span> <span class="n">cloud_cache_path</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">bypass_local_cache</span><span class="p">:</span>
                 <span class="n">dstore</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">contents</span><span class="p">)</span></div>

@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.transform.censuspep &#8212; PUDL 2026.8.1.dev16 documentation</title>
+    <title>pudl.transform.censuspep &#8212; PUDL 2026.8.1.dev20 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=f981bf86"></script>
+    <script src="../../../_static/documentation_options.js?v=8f1a003a"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev20 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev20 documentation - Home"/>
   
   
 </a></div>
@@ -868,7 +868,7 @@ window.runMermaid = runMermaid;</script>
                 <article class="bd-article">
                   
   <h1>Source code for pudl.transform.censuspep</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Transform Census PEP FIPS codes data.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Transform Census PEP FIPS codes data."""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">importlib</span>
 
@@ -882,7 +882,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="_core_censuspep__yearly_geocodes">
 <a class="viewcode-back" href="../../../autoapi/pudl/transform/censuspep/index.html#pudl.transform.censuspep._core_censuspep__yearly_geocodes">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_core_censuspep__yearly_geocodes</span><span class="p">(</span><span class="n">raw_censuspep__geocodes</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a cleaned up table of FIPS codes.</span>
+<span class="w">    </span><span class="sd">"""Create a cleaned up table of FIPS codes.</span>
 
 <span class="sd">    There are three stages of amendments done to the raw table:</span>
 
@@ -906,31 +906,31 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    all of the territories are at the bottom of the txt file. PEP had Puerto Rico so</span>
 <span class="sd">    everything besides PR was migrated over. A fips_level of 050 was added to all of</span>
 <span class="sd">    the counties to match the fips_level from PEP.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">territories_and_fixes</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
-        <span class="n">importlib</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="s2">&quot;pudl.package_data.censuspep&quot;</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;territories.csv&quot;</span><span class="p">,</span>
+        <span class="n">importlib</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="s2">"pudl.package_data.censuspep"</span><span class="p">)</span> <span class="o">/</span> <span class="s2">"territories.csv"</span><span class="p">,</span>
         <span class="n">dtype</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">StringDtype</span><span class="p">(),</span>
-    <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">({</span><span class="s2">&quot;report_year&quot;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Int64Dtype</span><span class="p">()})</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">({</span><span class="s2">"report_year"</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Int64Dtype</span><span class="p">()})</span>
     <span class="n">geocodes</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">raw_censuspep__geocodes</span><span class="p">,</span> <span class="n">territories_and_fixes</span><span class="p">])</span>
 
     <span class="n">state_abbr</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">dfs</span><span class="o">.</span><span class="n">POLITICAL_SUBDIVISIONS</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="p">[</span><span class="s2">&quot;subdivision_code&quot;</span><span class="p">,</span> <span class="s2">&quot;subdivision_name&quot;</span><span class="p">]]</span>
-        <span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;subdivision_code&quot;</span><span class="p">:</span> <span class="s2">&quot;state&quot;</span><span class="p">,</span> <span class="s2">&quot;subdivision_name&quot;</span><span class="p">:</span> <span class="s2">&quot;area_name&quot;</span><span class="p">})</span>
-        <span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">area_name_tmp</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="s2">&quot;area_name&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
+        <span class="n">dfs</span><span class="o">.</span><span class="n">POLITICAL_SUBDIVISIONS</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="p">[</span><span class="s2">"subdivision_code"</span><span class="p">,</span> <span class="s2">"subdivision_name"</span><span class="p">]]</span>
+        <span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">"subdivision_code"</span><span class="p">:</span> <span class="s2">"state"</span><span class="p">,</span> <span class="s2">"subdivision_name"</span><span class="p">:</span> <span class="s2">"area_name"</span><span class="p">})</span>
+        <span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">area_name_tmp</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="s2">"area_name"</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
     <span class="p">)</span>
     <span class="n">states</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">geocodes</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">geocodes</span><span class="p">[</span><span class="s2">&quot;fips_level&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;040&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;area_name&quot;</span><span class="p">,</span> <span class="s2">&quot;state_id_fips&quot;</span><span class="p">]]</span>
+        <span class="n">geocodes</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">geocodes</span><span class="p">[</span><span class="s2">"fips_level"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"040"</span><span class="p">,</span> <span class="p">[</span><span class="s2">"area_name"</span><span class="p">,</span> <span class="s2">"state_id_fips"</span><span class="p">]]</span>
         <span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span>
-        <span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">area_name_tmp</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="s2">&quot;area_name&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
-        <span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">state_abbr</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;area_name_tmp&quot;</span><span class="p">],</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span> <span class="n">validate</span><span class="o">=</span><span class="s2">&quot;1:1&quot;</span><span class="p">)[</span>
-            <span class="p">[</span><span class="s2">&quot;state&quot;</span><span class="p">,</span> <span class="s2">&quot;state_id_fips&quot;</span><span class="p">]</span>
+        <span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">area_name_tmp</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="s2">"area_name"</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
+        <span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">state_abbr</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">"area_name_tmp"</span><span class="p">],</span> <span class="n">how</span><span class="o">=</span><span class="s2">"left"</span><span class="p">,</span> <span class="n">validate</span><span class="o">=</span><span class="s2">"1:1"</span><span class="p">)[</span>
+            <span class="p">[</span><span class="s2">"state"</span><span class="p">,</span> <span class="s2">"state_id_fips"</span><span class="p">]</span>
         <span class="p">]</span>
     <span class="p">)</span>
     <span class="n">geocodes</span> <span class="o">=</span> <span class="n">geocodes</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
         <span class="n">states</span><span class="p">,</span>
-        <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;state_id_fips&quot;</span><span class="p">],</span>
-        <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span>
-        <span class="n">validate</span><span class="o">=</span><span class="s2">&quot;m:1&quot;</span><span class="p">,</span>
+        <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">"state_id_fips"</span><span class="p">],</span>
+        <span class="n">how</span><span class="o">=</span><span class="s2">"left"</span><span class="p">,</span>
+        <span class="n">validate</span><span class="o">=</span><span class="s2">"m:1"</span><span class="p">,</span>
     <span class="p">)</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>  <span class="c1"># squish the state and county fips together to get the full code</span>
         <span class="n">county_id_fips</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">state_id_fips</span> <span class="o">+</span> <span class="n">x</span><span class="o">.</span><span class="n">county_id_fips</span>
     <span class="p">)</span>

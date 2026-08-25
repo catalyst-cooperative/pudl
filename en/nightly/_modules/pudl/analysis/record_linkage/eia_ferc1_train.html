@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.analysis.record_linkage.eia_ferc1_train &#8212; PUDL 2026.8.1.dev16 documentation</title>
+    <title>pudl.analysis.record_linkage.eia_ferc1_train &#8212; PUDL 2026.8.1.dev20 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../../_static/documentation_options.js?v=f981bf86"></script>
+    <script src="../../../../_static/documentation_options.js?v=8f1a003a"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev20 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev20 documentation - Home"/>
   
   
 </a></div>
@@ -868,11 +868,11 @@ window.runMermaid = runMermaid;</script>
                 <article class="bd-article">
                   
   <h1>Source code for pudl.analysis.record_linkage.eia_ferc1_train</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Create spreadsheets for manually mapping FERC-EIA records and validate matches.</span>
+<span></span><span class="sd">"""Create spreadsheets for manually mapping FERC-EIA records and validate matches.</span>
 
 <span class="sd">:mod:`pudl.analysis.record_linkage.eia_ferc1_record_linkage` uses machine learning to link records from FERC Form 1</span>
 <span class="sd">with records from EIA. While this process is way more efficient and logical</span>
-<span class="sd">than a human, it requires a set of hand-compiled training data in order to do it&#39;s job.</span>
+<span class="sd">than a human, it requires a set of hand-compiled training data in order to do it's job.</span>
 
 <span class="sd">The training data also serve as overrides for otherwise bad AI matches. There are</span>
 <span class="sd">several examples of plants that require human intuition to make sense of. For instance,</span>
@@ -883,7 +883,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">matching and machine-matched human validation process much easier. It also contains</span>
 <span class="sd">functions that will read those new/updated/validated matches from the spreadsheet,</span>
 <span class="sd">validate them, and incorporate them into the existing training data.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">importlib.resources</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pathlib</span>
@@ -904,84 +904,84 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="RENAME_COLS_FERC1_EIA">
 <a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/eia_ferc1_train/index.html#pudl.analysis.record_linkage.eia_ferc1_train.RENAME_COLS_FERC1_EIA">[docs]</a>
 <span class="n">RENAME_COLS_FERC1_EIA</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;new_1&quot;</span><span class="p">:</span> <span class="s2">&quot;verified&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;new_2&quot;</span><span class="p">:</span> <span class="s2">&quot;used_match_record&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;new_3&quot;</span><span class="p">:</span> <span class="s2">&quot;signature_1&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;new_4&quot;</span><span class="p">:</span> <span class="s2">&quot;signature_2&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;new_5&quot;</span><span class="p">:</span> <span class="s2">&quot;notes&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;new_6&quot;</span><span class="p">:</span> <span class="s2">&quot;record_id_override_1&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;new_7&quot;</span><span class="p">:</span> <span class="s2">&quot;record_id_override_2&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;new_8&quot;</span><span class="p">:</span> <span class="s2">&quot;record_id_override_3&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;new_9&quot;</span><span class="p">:</span> <span class="s2">&quot;best_match&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;record_id_ferc1&quot;</span><span class="p">:</span> <span class="s2">&quot;record_id_ferc1&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;record_id_eia&quot;</span><span class="p">:</span> <span class="s2">&quot;record_id_eia&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;true_gran&quot;</span><span class="p">:</span> <span class="s2">&quot;true_gran&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;report_year&quot;</span><span class="p">:</span> <span class="s2">&quot;report_year&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;match_type&quot;</span><span class="p">:</span> <span class="s2">&quot;match_type&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;plant_part&quot;</span><span class="p">:</span> <span class="s2">&quot;plant_part&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;ownership_record_type&quot;</span><span class="p">:</span> <span class="s2">&quot;ownership_record_type&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">:</span> <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;utility_id_pudl&quot;</span><span class="p">:</span> <span class="s2">&quot;utility_id_pudl_ferc1&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;utility_name_ferc1&quot;</span><span class="p">:</span> <span class="s2">&quot;utility_name_ferc1&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;utility_name_eia&quot;</span><span class="p">:</span> <span class="s2">&quot;utility_name_eia&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;plant_id_pudl&quot;</span><span class="p">:</span> <span class="s2">&quot;plant_id_pudl_ferc1&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;unit_id_pudl&quot;</span><span class="p">:</span> <span class="s2">&quot;unit_id_pudl&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;generator_id&quot;</span><span class="p">:</span> <span class="s2">&quot;generator_id&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;plant_name_ferc1&quot;</span><span class="p">:</span> <span class="s2">&quot;plant_name_ferc1&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;plant_name_ppe&quot;</span><span class="p">:</span> <span class="s2">&quot;plant_name_eia&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;fuel_type_code_pudl_ferc1&quot;</span><span class="p">:</span> <span class="s2">&quot;fuel_type_code_pudl_ferc1&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;fuel_type_code_pudl_eia&quot;</span><span class="p">:</span> <span class="s2">&quot;fuel_type_code_pudl_eia&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;new_10&quot;</span><span class="p">:</span> <span class="s2">&quot;fuel_type_code_pudl_diff&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;net_generation_mwh_ferc1&quot;</span><span class="p">:</span> <span class="s2">&quot;net_generation_mwh_ferc1&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;net_generation_mwh_eia&quot;</span><span class="p">:</span> <span class="s2">&quot;net_generation_mwh_eia&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;new_11&quot;</span><span class="p">:</span> <span class="s2">&quot;net_generation_mwh_pct_diff&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;capacity_mw_ferc1&quot;</span><span class="p">:</span> <span class="s2">&quot;capacity_mw_ferc1&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;capacity_mw_eia&quot;</span><span class="p">:</span> <span class="s2">&quot;capacity_mw_eia&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;new_12&quot;</span><span class="p">:</span> <span class="s2">&quot;capacity_mw_pct_diff&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;capacity_factor_ferc1&quot;</span><span class="p">:</span> <span class="s2">&quot;capacity_factor_ferc1&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;capacity_factor_eia&quot;</span><span class="p">:</span> <span class="s2">&quot;capacity_factor_eia&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;new_13&quot;</span><span class="p">:</span> <span class="s2">&quot;capacity_factor_pct_diff&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;total_fuel_cost_ferc1&quot;</span><span class="p">:</span> <span class="s2">&quot;total_fuel_cost_ferc1&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;total_fuel_cost_eia&quot;</span><span class="p">:</span> <span class="s2">&quot;total_fuel_cost_eia&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;new_14&quot;</span><span class="p">:</span> <span class="s2">&quot;total_fuel_cost_pct_diff&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;total_mmbtu_ferc1&quot;</span><span class="p">:</span> <span class="s2">&quot;total_mmbtu_ferc1&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;total_mmbtu_eia&quot;</span><span class="p">:</span> <span class="s2">&quot;total_mmbtu_eia&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;new_15&quot;</span><span class="p">:</span> <span class="s2">&quot;total_mmbtu_pct_diff&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;fuel_cost_per_mmbtu_ferc1&quot;</span><span class="p">:</span> <span class="s2">&quot;fuel_cost_per_mmbtu_ferc1&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;fuel_cost_per_mmbtu_eia&quot;</span><span class="p">:</span> <span class="s2">&quot;fuel_cost_per_mmbtu_eia&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;new_16&quot;</span><span class="p">:</span> <span class="s2">&quot;fuel_cost_per_mmbtu_pct_diff&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;installation_year_ferc1&quot;</span><span class="p">:</span> <span class="s2">&quot;installation_year_ferc1&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;installation_year_eia&quot;</span><span class="p">:</span> <span class="s2">&quot;installation_year_eia&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;new_17&quot;</span><span class="p">:</span> <span class="s2">&quot;installation_year_diff&quot;</span><span class="p">,</span>
+    <span class="s2">"new_1"</span><span class="p">:</span> <span class="s2">"verified"</span><span class="p">,</span>
+    <span class="s2">"new_2"</span><span class="p">:</span> <span class="s2">"used_match_record"</span><span class="p">,</span>
+    <span class="s2">"new_3"</span><span class="p">:</span> <span class="s2">"signature_1"</span><span class="p">,</span>
+    <span class="s2">"new_4"</span><span class="p">:</span> <span class="s2">"signature_2"</span><span class="p">,</span>
+    <span class="s2">"new_5"</span><span class="p">:</span> <span class="s2">"notes"</span><span class="p">,</span>
+    <span class="s2">"new_6"</span><span class="p">:</span> <span class="s2">"record_id_override_1"</span><span class="p">,</span>
+    <span class="s2">"new_7"</span><span class="p">:</span> <span class="s2">"record_id_override_2"</span><span class="p">,</span>
+    <span class="s2">"new_8"</span><span class="p">:</span> <span class="s2">"record_id_override_3"</span><span class="p">,</span>
+    <span class="s2">"new_9"</span><span class="p">:</span> <span class="s2">"best_match"</span><span class="p">,</span>
+    <span class="s2">"record_id_ferc1"</span><span class="p">:</span> <span class="s2">"record_id_ferc1"</span><span class="p">,</span>
+    <span class="s2">"record_id_eia"</span><span class="p">:</span> <span class="s2">"record_id_eia"</span><span class="p">,</span>
+    <span class="s2">"true_gran"</span><span class="p">:</span> <span class="s2">"true_gran"</span><span class="p">,</span>
+    <span class="s2">"report_year"</span><span class="p">:</span> <span class="s2">"report_year"</span><span class="p">,</span>
+    <span class="s2">"match_type"</span><span class="p">:</span> <span class="s2">"match_type"</span><span class="p">,</span>
+    <span class="s2">"plant_part"</span><span class="p">:</span> <span class="s2">"plant_part"</span><span class="p">,</span>
+    <span class="s2">"ownership_record_type"</span><span class="p">:</span> <span class="s2">"ownership_record_type"</span><span class="p">,</span>
+    <span class="s2">"utility_id_eia"</span><span class="p">:</span> <span class="s2">"utility_id_eia"</span><span class="p">,</span>
+    <span class="s2">"utility_id_pudl"</span><span class="p">:</span> <span class="s2">"utility_id_pudl_ferc1"</span><span class="p">,</span>
+    <span class="s2">"utility_name_ferc1"</span><span class="p">:</span> <span class="s2">"utility_name_ferc1"</span><span class="p">,</span>
+    <span class="s2">"utility_name_eia"</span><span class="p">:</span> <span class="s2">"utility_name_eia"</span><span class="p">,</span>
+    <span class="s2">"plant_id_pudl"</span><span class="p">:</span> <span class="s2">"plant_id_pudl_ferc1"</span><span class="p">,</span>
+    <span class="s2">"unit_id_pudl"</span><span class="p">:</span> <span class="s2">"unit_id_pudl"</span><span class="p">,</span>
+    <span class="s2">"generator_id"</span><span class="p">:</span> <span class="s2">"generator_id"</span><span class="p">,</span>
+    <span class="s2">"plant_name_ferc1"</span><span class="p">:</span> <span class="s2">"plant_name_ferc1"</span><span class="p">,</span>
+    <span class="s2">"plant_name_ppe"</span><span class="p">:</span> <span class="s2">"plant_name_eia"</span><span class="p">,</span>
+    <span class="s2">"fuel_type_code_pudl_ferc1"</span><span class="p">:</span> <span class="s2">"fuel_type_code_pudl_ferc1"</span><span class="p">,</span>
+    <span class="s2">"fuel_type_code_pudl_eia"</span><span class="p">:</span> <span class="s2">"fuel_type_code_pudl_eia"</span><span class="p">,</span>
+    <span class="s2">"new_10"</span><span class="p">:</span> <span class="s2">"fuel_type_code_pudl_diff"</span><span class="p">,</span>
+    <span class="s2">"net_generation_mwh_ferc1"</span><span class="p">:</span> <span class="s2">"net_generation_mwh_ferc1"</span><span class="p">,</span>
+    <span class="s2">"net_generation_mwh_eia"</span><span class="p">:</span> <span class="s2">"net_generation_mwh_eia"</span><span class="p">,</span>
+    <span class="s2">"new_11"</span><span class="p">:</span> <span class="s2">"net_generation_mwh_pct_diff"</span><span class="p">,</span>
+    <span class="s2">"capacity_mw_ferc1"</span><span class="p">:</span> <span class="s2">"capacity_mw_ferc1"</span><span class="p">,</span>
+    <span class="s2">"capacity_mw_eia"</span><span class="p">:</span> <span class="s2">"capacity_mw_eia"</span><span class="p">,</span>
+    <span class="s2">"new_12"</span><span class="p">:</span> <span class="s2">"capacity_mw_pct_diff"</span><span class="p">,</span>
+    <span class="s2">"capacity_factor_ferc1"</span><span class="p">:</span> <span class="s2">"capacity_factor_ferc1"</span><span class="p">,</span>
+    <span class="s2">"capacity_factor_eia"</span><span class="p">:</span> <span class="s2">"capacity_factor_eia"</span><span class="p">,</span>
+    <span class="s2">"new_13"</span><span class="p">:</span> <span class="s2">"capacity_factor_pct_diff"</span><span class="p">,</span>
+    <span class="s2">"total_fuel_cost_ferc1"</span><span class="p">:</span> <span class="s2">"total_fuel_cost_ferc1"</span><span class="p">,</span>
+    <span class="s2">"total_fuel_cost_eia"</span><span class="p">:</span> <span class="s2">"total_fuel_cost_eia"</span><span class="p">,</span>
+    <span class="s2">"new_14"</span><span class="p">:</span> <span class="s2">"total_fuel_cost_pct_diff"</span><span class="p">,</span>
+    <span class="s2">"total_mmbtu_ferc1"</span><span class="p">:</span> <span class="s2">"total_mmbtu_ferc1"</span><span class="p">,</span>
+    <span class="s2">"total_mmbtu_eia"</span><span class="p">:</span> <span class="s2">"total_mmbtu_eia"</span><span class="p">,</span>
+    <span class="s2">"new_15"</span><span class="p">:</span> <span class="s2">"total_mmbtu_pct_diff"</span><span class="p">,</span>
+    <span class="s2">"fuel_cost_per_mmbtu_ferc1"</span><span class="p">:</span> <span class="s2">"fuel_cost_per_mmbtu_ferc1"</span><span class="p">,</span>
+    <span class="s2">"fuel_cost_per_mmbtu_eia"</span><span class="p">:</span> <span class="s2">"fuel_cost_per_mmbtu_eia"</span><span class="p">,</span>
+    <span class="s2">"new_16"</span><span class="p">:</span> <span class="s2">"fuel_cost_per_mmbtu_pct_diff"</span><span class="p">,</span>
+    <span class="s2">"installation_year_ferc1"</span><span class="p">:</span> <span class="s2">"installation_year_ferc1"</span><span class="p">,</span>
+    <span class="s2">"installation_year_eia"</span><span class="p">:</span> <span class="s2">"installation_year_eia"</span><span class="p">,</span>
+    <span class="s2">"new_17"</span><span class="p">:</span> <span class="s2">"installation_year_diff"</span><span class="p">,</span>
 <span class="p">}</span></div>
 
 
 <div class="viewcode-block" id="RELEVANT_COLS_PPE">
 <a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/eia_ferc1_train/index.html#pudl.analysis.record_linkage.eia_ferc1_train.RELEVANT_COLS_PPE">[docs]</a>
 <span class="n">RELEVANT_COLS_PPE</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s2">&quot;record_id_eia&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;report_year&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;utility_id_pudl&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;utility_name_eia&quot;</span><span class="p">,</span>  <span class="c1"># I add this in from the utils_eia860() table</span>
-    <span class="s2">&quot;operational_status_pudl&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;true_gran&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;plant_part&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;ownership_dupe&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;fraction_owned&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;plant_id_pudl&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;plant_name_ppe&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;generator_id&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;capacity_mw&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;capacity_factor&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;net_generation_mwh&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;installation_year&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;fuel_type_code_pudl&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;total_fuel_cost&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;total_mmbtu&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;fuel_cost_per_mmbtu&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;unit_heat_rate_mmbtu_per_mwh&quot;</span><span class="p">,</span>
+    <span class="s2">"record_id_eia"</span><span class="p">,</span>
+    <span class="s2">"report_year"</span><span class="p">,</span>
+    <span class="s2">"utility_id_pudl"</span><span class="p">,</span>
+    <span class="s2">"utility_id_eia"</span><span class="p">,</span>
+    <span class="s2">"utility_name_eia"</span><span class="p">,</span>  <span class="c1"># I add this in from the utils_eia860() table</span>
+    <span class="s2">"operational_status_pudl"</span><span class="p">,</span>
+    <span class="s2">"true_gran"</span><span class="p">,</span>
+    <span class="s2">"plant_part"</span><span class="p">,</span>
+    <span class="s2">"ownership_dupe"</span><span class="p">,</span>
+    <span class="s2">"fraction_owned"</span><span class="p">,</span>
+    <span class="s2">"plant_id_eia"</span><span class="p">,</span>
+    <span class="s2">"plant_id_pudl"</span><span class="p">,</span>
+    <span class="s2">"plant_name_ppe"</span><span class="p">,</span>
+    <span class="s2">"generator_id"</span><span class="p">,</span>
+    <span class="s2">"capacity_mw"</span><span class="p">,</span>
+    <span class="s2">"capacity_factor"</span><span class="p">,</span>
+    <span class="s2">"net_generation_mwh"</span><span class="p">,</span>
+    <span class="s2">"installation_year"</span><span class="p">,</span>
+    <span class="s2">"fuel_type_code_pudl"</span><span class="p">,</span>
+    <span class="s2">"total_fuel_cost"</span><span class="p">,</span>
+    <span class="s2">"total_mmbtu"</span><span class="p">,</span>
+    <span class="s2">"fuel_cost_per_mmbtu"</span><span class="p">,</span>
+    <span class="s2">"unit_heat_rate_mmbtu_per_mwh"</span><span class="p">,</span>
 <span class="p">]</span></div>
 
 
@@ -993,12 +993,12 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="_pct_diff">
 <a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/eia_ferc1_train/index.html#pudl.analysis.record_linkage.eia_ferc1_train._pct_diff">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_pct_diff</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">col</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate percent difference between EIA and FERC versions of a column.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Calculate percent difference between EIA and FERC versions of a column."""</span>
     <span class="c1"># Fed in the _pct_diff column so make sure it is neutral for this analysis</span>
-    <span class="n">col</span> <span class="o">=</span> <span class="n">col</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_pct_diff&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="n">col</span> <span class="o">=</span> <span class="n">col</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"_pct_diff"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
     <span class="c1"># Fill in the _pct_diff column with the actual percent difference value</span>
-    <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[(</span><span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2">_eia&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2">_ferc1&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2">_pct_diff&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="nb">round</span><span class="p">(((</span><span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2">_ferc1&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2">_eia&quot;</span><span class="p">])</span> <span class="o">/</span> <span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2">_ferc1&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">100</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[(</span><span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2">_eia"</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2">_ferc1"</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">),</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2">_pct_diff"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="nb">round</span><span class="p">(((</span><span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2">_ferc1"</span><span class="p">]</span> <span class="o">-</span> <span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2">_eia"</span><span class="p">])</span> <span class="o">/</span> <span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2">_ferc1"</span><span class="p">]</span> <span class="o">*</span> <span class="mi">100</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span>
     <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">df</span></div>
@@ -1010,25 +1010,25 @@ window.runMermaid = runMermaid;</script>
 <span class="k">def</span><span class="w"> </span><span class="nf">_is_best_match</span><span class="p">(</span>
     <span class="n">df</span><span class="p">,</span> <span class="n">cap_pct_diff</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">net_gen_pct_diff</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">inst_year_diff</span><span class="o">=</span><span class="mi">3</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fill the best_match column with strings to show cap, net_gen, inst_year match.</span>
+<span class="w">    </span><span class="sd">"""Fill the best_match column with strings to show cap, net_gen, inst_year match.</span>
 
 <span class="sd">    The process of manually checking all of the FERC-EIA matches made by the machine</span>
 <span class="sd">    learning algorithm is tedius. This function makes it easier to speed through the</span>
 <span class="sd">    obviously good matches and pay more attention to those that are more questionable.</span>
 
-<span class="sd">    By default, a &quot;best match&quot; is comprised of a FERC-EIA match with a capacity percent</span>
+<span class="sd">    By default, a "best match" is comprised of a FERC-EIA match with a capacity percent</span>
 <span class="sd">    difference of less than 6%, a net generation percent difference of less than 6%, and</span>
 <span class="sd">    an installation year difference of less than 3 years.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">best_cap</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">capacity_mw_pct_diff</span> <span class="o">&lt;</span> <span class="n">cap_pct_diff</span>
     <span class="n">best_net_gen</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">net_generation_mwh_pct_diff</span> <span class="o">&lt;</span> <span class="n">net_gen_pct_diff</span>
     <span class="n">best_inst_year</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">installation_year_diff</span> <span class="o">&lt;</span> <span class="n">inst_year_diff</span>
 
-    <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">&quot;best_match&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">best_match</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
-    <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">best_cap</span><span class="p">,</span> <span class="s2">&quot;best_match&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;cap&quot;</span>
-    <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">best_net_gen</span><span class="p">,</span> <span class="s2">&quot;best_match&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">best_match</span> <span class="o">+</span> <span class="s2">&quot;_net-gen&quot;</span>
-    <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">best_inst_year</span><span class="p">,</span> <span class="s2">&quot;best_match&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">best_match</span> <span class="o">+</span> <span class="s2">&quot;_inst_year&quot;</span>
-    <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">&quot;best_match&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">best_match</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^_&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">"best_match"</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">best_match</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="s2">""</span><span class="p">)</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">best_cap</span><span class="p">,</span> <span class="s2">"best_match"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"cap"</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">best_net_gen</span><span class="p">,</span> <span class="s2">"best_match"</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">best_match</span> <span class="o">+</span> <span class="s2">"_net-gen"</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">best_inst_year</span><span class="p">,</span> <span class="s2">"best_match"</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">best_match</span> <span class="o">+</span> <span class="s2">"_inst_year"</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">"best_match"</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">best_match</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="sa">r</span><span class="s2">"^_"</span><span class="p">,</span> <span class="s2">""</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">df</span></div>
 
@@ -1040,7 +1040,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">eia_ferc1</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
     <span class="n">utils_eia860</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Prep FERC-EIA for use in override output sheet pre-utility subgroups.</span>
+<span class="w">    </span><span class="sd">"""Prep FERC-EIA for use in override output sheet pre-utility subgroups.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        eia_ferc1: The :ref:`out_pudl__yearly_assn_eia_ferc1_plant_parts` table,</span>
@@ -1048,25 +1048,25 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        utils_eia860: The :ref:`out_eia__yearly_utilities` table.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        A version of the EIA-FERC1 plant association table that&#39;s been modified for the</span>
+<span class="sd">        A version of the EIA-FERC1 plant association table that's been modified for the</span>
 <span class="sd">        purposes of creating an manual mapping spreadsheet.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Prepping FERC-EIA table&quot;</span><span class="p">)</span>
+<span class="sd">    """</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Prepping FERC-EIA table"</span><span class="p">)</span>
     <span class="c1"># Only want to keep the plant_name_ppe field which replaces plant_name_eia</span>
-    <span class="n">eia_ferc1_prep</span> <span class="o">=</span> <span class="n">eia_ferc1</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="s2">&quot;plant_name_eia&quot;</span><span class="p">)</span>
+    <span class="n">eia_ferc1_prep</span> <span class="o">=</span> <span class="n">eia_ferc1</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="s2">"plant_name_eia"</span><span class="p">)</span>
     <span class="c1"># Add utility_name_eia - this must happen before renaming the cols or else there</span>
     <span class="c1"># will be duplicate utility_name_eia columns.</span>
-    <span class="n">utils_eia860</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">&quot;report_year&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">utils_eia860</span><span class="o">.</span><span class="n">report_date</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span>
+    <span class="n">utils_eia860</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">"report_year"</span><span class="p">]</span> <span class="o">=</span> <span class="n">utils_eia860</span><span class="o">.</span><span class="n">report_date</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span>
     <span class="n">eia_ferc1_prep</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
         <span class="n">eia_ferc1_prep</span><span class="p">,</span>
-        <span class="n">utils_eia860</span><span class="p">[[</span><span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;utility_name_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;report_year&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span>
-        <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;report_year&quot;</span><span class="p">],</span>
-        <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span>
-        <span class="n">validate</span><span class="o">=</span><span class="s2">&quot;m:1&quot;</span><span class="p">,</span>
+        <span class="n">utils_eia860</span><span class="p">[[</span><span class="s2">"utility_id_eia"</span><span class="p">,</span> <span class="s2">"utility_name_eia"</span><span class="p">,</span> <span class="s2">"report_year"</span><span class="p">]]</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span>
+        <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">"utility_id_eia"</span><span class="p">,</span> <span class="s2">"report_year"</span><span class="p">],</span>
+        <span class="n">how</span><span class="o">=</span><span class="s2">"left"</span><span class="p">,</span>
+        <span class="n">validate</span><span class="o">=</span><span class="s2">"m:1"</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="c1"># Add the new columns to the df</span>
-    <span class="k">for</span> <span class="n">new_col</span> <span class="ow">in</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">RENAME_COLS_FERC1_EIA</span> <span class="k">if</span> <span class="s2">&quot;new_&quot;</span> <span class="ow">in</span> <span class="n">x</span><span class="p">]:</span>
+    <span class="k">for</span> <span class="n">new_col</span> <span class="ow">in</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">RENAME_COLS_FERC1_EIA</span> <span class="k">if</span> <span class="s2">"new_"</span> <span class="ow">in</span> <span class="n">x</span><span class="p">]:</span>
         <span class="n">eia_ferc1_prep</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">new_col</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span>
 
     <span class="c1"># Rename the columns, and remove unwanted columns from ferc-eia table</span>
@@ -1074,15 +1074,15 @@ window.runMermaid = runMermaid;</script>
         <span class="nb">list</span><span class="p">(</span><span class="n">RENAME_COLS_FERC1_EIA</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
     <span class="p">]</span>
     <span class="c1"># Add in pct diff values</span>
-    <span class="k">for</span> <span class="n">pct_diff_col</span> <span class="ow">in</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">RENAME_COLS_FERC1_EIA</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="k">if</span> <span class="s2">&quot;_pct_diff&quot;</span> <span class="ow">in</span> <span class="n">x</span><span class="p">]:</span>
+    <span class="k">for</span> <span class="n">pct_diff_col</span> <span class="ow">in</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">RENAME_COLS_FERC1_EIA</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="k">if</span> <span class="s2">"_pct_diff"</span> <span class="ow">in</span> <span class="n">x</span><span class="p">]:</span>
         <span class="n">eia_ferc1_prep</span> <span class="o">=</span> <span class="n">_pct_diff</span><span class="p">(</span><span class="n">eia_ferc1_prep</span><span class="p">,</span> <span class="n">pct_diff_col</span><span class="p">)</span>
     <span class="c1"># Add in fuel_type_code_pudl diff (qualitative bool)</span>
-    <span class="n">eia_ferc1_prep</span><span class="p">[</span><span class="s2">&quot;fuel_type_code_pudl_diff&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">eia_ferc1_prep</span><span class="p">[</span><span class="s2">"fuel_type_code_pudl_diff"</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="n">eia_ferc1_prep_nona</span> <span class="o">=</span> <span class="n">eia_ferc1_prep</span><span class="p">[</span>
         <span class="n">eia_ferc1_prep</span><span class="o">.</span><span class="n">fuel_type_code_pudl_eia</span><span class="o">.</span><span class="n">notna</span><span class="p">()</span>
         <span class="o">&amp;</span> <span class="n">eia_ferc1_prep</span><span class="o">.</span><span class="n">fuel_type_code_pudl_ferc1</span><span class="o">.</span><span class="n">notna</span><span class="p">()</span>
     <span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-    <span class="n">eia_ferc1_prep_nona</span><span class="p">[</span><span class="s2">&quot;fuel_type_code_pudl_diff&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">eia_ferc1_prep_nona</span><span class="p">[</span><span class="s2">"fuel_type_code_pudl_diff"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">eia_ferc1_prep_nona</span><span class="o">.</span><span class="n">fuel_type_code_pudl_eia</span>
         <span class="o">==</span> <span class="n">eia_ferc1_prep_nona</span><span class="o">.</span><span class="n">fuel_type_code_pudl_ferc1</span>
     <span class="p">)</span>
@@ -1090,13 +1090,13 @@ window.runMermaid = runMermaid;</script>
 
     <span class="c1"># Add in installation_year diff (diff vs. pct_diff)</span>
     <span class="n">eia_ferc1_prep</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
-        <span class="n">eia_ferc1_prep</span><span class="o">.</span><span class="n">installation_year_ferc1</span><span class="o">.</span><span class="n">notna</span><span class="p">(),</span> <span class="s2">&quot;installation_year_ferc1&quot;</span>
-    <span class="p">]</span> <span class="o">=</span> <span class="n">eia_ferc1_prep</span><span class="o">.</span><span class="n">installation_year_ferc1</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;Int64&quot;</span><span class="p">)</span>
+        <span class="n">eia_ferc1_prep</span><span class="o">.</span><span class="n">installation_year_ferc1</span><span class="o">.</span><span class="n">notna</span><span class="p">(),</span> <span class="s2">"installation_year_ferc1"</span>
+    <span class="p">]</span> <span class="o">=</span> <span class="n">eia_ferc1_prep</span><span class="o">.</span><span class="n">installation_year_ferc1</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">"Int64"</span><span class="p">)</span>
 
     <span class="n">eia_ferc1_prep</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
         <span class="n">eia_ferc1_prep</span><span class="o">.</span><span class="n">installation_year_eia</span><span class="o">.</span><span class="n">notna</span><span class="p">()</span>
         <span class="o">&amp;</span> <span class="n">eia_ferc1_prep</span><span class="o">.</span><span class="n">installation_year_ferc1</span><span class="o">.</span><span class="n">notna</span><span class="p">(),</span>
-        <span class="s2">&quot;installation_year_diff&quot;</span><span class="p">,</span>
+        <span class="s2">"installation_year_diff"</span><span class="p">,</span>
     <span class="p">]</span> <span class="o">=</span> <span class="n">eia_ferc1_prep</span><span class="o">.</span><span class="n">installation_year_eia</span> <span class="o">-</span> <span class="n">eia_ferc1_prep</span><span class="o">.</span><span class="n">installation_year_ferc1</span>
 
     <span class="c1"># Add best match col</span>
@@ -1108,14 +1108,14 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="_prep_deprish">
 <a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/eia_ferc1_train/index.html#pudl.analysis.record_linkage.eia_ferc1_train._prep_deprish">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_prep_deprish</span><span class="p">(</span><span class="n">deprish</span><span class="p">,</span> <span class="n">utils_eia860</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Prep depreciation data for use in override output sheet pre-utility subgroups.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Prep depreciation data for use in override output sheet pre-utility subgroups."""</span>
     <span class="c1"># Not using this function ATM.</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Prepping Deprish Data&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Prepping Deprish Data"</span><span class="p">)</span>
 
     <span class="c1"># Get utility_id_eia from EIA</span>
-    <span class="n">util_df</span> <span class="o">=</span> <span class="n">utils_eia860</span><span class="p">()[[</span><span class="s2">&quot;utility_id_pudl&quot;</span><span class="p">,</span> <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span>
-    <span class="n">deprish</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">&quot;report_year&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">deprish</span><span class="o">.</span><span class="n">report_date</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;Int64&quot;</span><span class="p">)</span>
-    <span class="n">deprish</span> <span class="o">=</span> <span class="n">deprish</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">util_df</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;utility_id_pudl&quot;</span><span class="p">],</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">)</span>
+    <span class="n">util_df</span> <span class="o">=</span> <span class="n">utils_eia860</span><span class="p">()[[</span><span class="s2">"utility_id_pudl"</span><span class="p">,</span> <span class="s2">"utility_id_eia"</span><span class="p">]]</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span>
+    <span class="n">deprish</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">"report_year"</span><span class="p">]</span> <span class="o">=</span> <span class="n">deprish</span><span class="o">.</span><span class="n">report_date</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">"Int64"</span><span class="p">)</span>
+    <span class="n">deprish</span> <span class="o">=</span> <span class="n">deprish</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">util_df</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">"utility_id_pudl"</span><span class="p">],</span> <span class="n">how</span><span class="o">=</span><span class="s2">"left"</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">deprish</span></div>
 
@@ -1124,10 +1124,10 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="_get_util_year_subsets">
 <a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/eia_ferc1_train/index.html#pudl.analysis.record_linkage.eia_ferc1_train._get_util_year_subsets">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_get_util_year_subsets</span><span class="p">(</span><span class="n">inputs_dict</span><span class="p">,</span> <span class="n">util_id_eia_list</span><span class="p">,</span> <span class="n">years</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get utility and year subsets for each of the input dfs.</span>
+<span class="w">    </span><span class="sd">"""Get utility and year subsets for each of the input dfs.</span>
 
-<span class="sd">    After generating the dictionary with all of the inputs tables loaded, we&#39;ll want to</span>
-<span class="sd">    create subsets of each of those tables based on the utility and year inputs we&#39;re</span>
+<span class="sd">    After generating the dictionary with all of the inputs tables loaded, we'll want to</span>
+<span class="sd">    create subsets of each of those tables based on the utility and year inputs we're</span>
 <span class="sd">    given. This function takes the input dict generated in _generate_input_dfs() and</span>
 <span class="sd">    outputs an updated version with df values pertaining to the utilities in</span>
 <span class="sd">    util_id_eia_list and years in years.</span>
@@ -1137,45 +1137,45 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        util_id_eia_list (list): A list of the utility_id_eia values you want to</span>
 <span class="sd">            include in a single spreadsheet output. Generally this is a list of the</span>
 <span class="sd">            subsidiaries that pertain to a single parent company.</span>
-<span class="sd">        years (list): A list of the years you&#39;d like to add to the override sheets.</span>
+<span class="sd">        years (list): A list of the years you'd like to add to the override sheets.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        dict: A subset of the inputs_dict that contains versions of the value dfs that</span>
 <span class="sd">            pertain only to the utilities and years specified in util_id_eia_list and</span>
 <span class="sd">            years.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">util_year_subset_dict</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Getting utility-year subsets&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Getting utility-year subsets"</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">df_name</span><span class="p">,</span> <span class="n">df</span> <span class="ow">in</span> <span class="n">inputs_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="n">subset_df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span>
-            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;report_year&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">years</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;utility_id_eia&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">util_id_eia_list</span><span class="p">)</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">"report_year"</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">years</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">df</span><span class="p">[</span><span class="s2">"utility_id_eia"</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">util_id_eia_list</span><span class="p">)</span>
         <span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-        <span class="c1"># Make sure dfs aren&#39;t too big...</span>
+        <span class="c1"># Make sure dfs aren't too big...</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">subset_df</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">500000</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span>
-                <span class="s2">&quot;Your subset is more than 500,000 rows...this </span><span class="se">\</span>
+                <span class="s2">"Your subset is more than 500,000 rows...this </span><span class="se">\</span>
 <span class="s2">                is going to make excel reaaalllllyyy slow. Try entering a smaller utility </span><span class="se">\</span>
-<span class="s2">                or year subset&quot;</span>
+<span class="s2">                or year subset"</span>
             <span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">df_name</span> <span class="o">==</span> <span class="s2">&quot;eia_ferc1&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">df_name</span> <span class="o">==</span> <span class="s2">"eia_ferc1"</span><span class="p">:</span>
             <span class="c1"># Add column with excel formula to check if the override record id is the</span>
             <span class="c1"># same as the AI assigned id. Doing this here instead of prep_eia_ferc1</span>
             <span class="c1"># because it is based on row index number which is changes when you take a</span>
             <span class="c1"># subset of the data.</span>
             <span class="n">subset_df</span> <span class="o">=</span> <span class="n">subset_df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-            <span class="n">override_col_index</span> <span class="o">=</span> <span class="n">subset_df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">get_loc</span><span class="p">(</span><span class="s2">&quot;record_id_override_1&quot;</span><span class="p">)</span>
-            <span class="n">record_link_col_index</span> <span class="o">=</span> <span class="n">subset_df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">get_loc</span><span class="p">(</span><span class="s2">&quot;record_id_eia&quot;</span><span class="p">)</span>
-            <span class="n">subset_df</span><span class="p">[</span><span class="s2">&quot;used_match_record&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="s2">&quot;=&quot;</span>
-                <span class="o">+</span> <span class="nb">chr</span><span class="p">(</span><span class="nb">ord</span><span class="p">(</span><span class="s2">&quot;a&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="n">override_col_index</span><span class="p">)</span>
+            <span class="n">override_col_index</span> <span class="o">=</span> <span class="n">subset_df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">get_loc</span><span class="p">(</span><span class="s2">"record_id_override_1"</span><span class="p">)</span>
+            <span class="n">record_link_col_index</span> <span class="o">=</span> <span class="n">subset_df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">get_loc</span><span class="p">(</span><span class="s2">"record_id_eia"</span><span class="p">)</span>
+            <span class="n">subset_df</span><span class="p">[</span><span class="s2">"used_match_record"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s2">"="</span>
+                <span class="o">+</span> <span class="nb">chr</span><span class="p">(</span><span class="nb">ord</span><span class="p">(</span><span class="s2">"a"</span><span class="p">)</span> <span class="o">+</span> <span class="n">override_col_index</span><span class="p">)</span>
                 <span class="o">+</span> <span class="p">(</span><span class="n">subset_df</span><span class="o">.</span><span class="n">index</span> <span class="o">+</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
-                <span class="o">+</span> <span class="s2">&quot;=&quot;</span>
-                <span class="o">+</span> <span class="nb">chr</span><span class="p">(</span><span class="nb">ord</span><span class="p">(</span><span class="s2">&quot;a&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="n">record_link_col_index</span><span class="p">)</span>
+                <span class="o">+</span> <span class="s2">"="</span>
+                <span class="o">+</span> <span class="nb">chr</span><span class="p">(</span><span class="nb">ord</span><span class="p">(</span><span class="s2">"a"</span><span class="p">)</span> <span class="o">+</span> <span class="n">record_link_col_index</span><span class="p">)</span>
                 <span class="o">+</span> <span class="p">(</span><span class="n">subset_df</span><span class="o">.</span><span class="n">index</span> <span class="o">+</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
             <span class="p">)</span>
 
-        <span class="n">util_year_subset_dict</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">df_name</span><span class="si">}</span><span class="s2">_util_year_subset&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">subset_df</span>
+        <span class="n">util_year_subset_dict</span><span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">df_name</span><span class="si">}</span><span class="s2">_util_year_subset"</span><span class="p">]</span> <span class="o">=</span> <span class="n">subset_df</span>
 
     <span class="k">return</span> <span class="n">util_year_subset_dict</span></div>
 
@@ -1186,23 +1186,23 @@ window.runMermaid = runMermaid;</script>
 <span class="k">def</span><span class="w"> </span><span class="nf">_output_override_spreadsheet</span><span class="p">(</span>
     <span class="n">util_year_subset_dict</span><span class="p">,</span> <span class="n">util_name</span><span class="p">,</span> <span class="n">output_dir_path</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Output spreadsheet with tabs for ferc-eia, ppe, deprish for one utility.</span>
+<span class="w">    </span><span class="sd">"""Output spreadsheet with tabs for ferc-eia, ppe, deprish for one utility.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        util_year_subset_dict (dict): The output from _get_util_year_subsets()</span>
 <span class="sd">        util_name (str): A string indicating the name of the utility that you are</span>
 <span class="sd">            creating an override sheet for. The string will be used as the suffix for</span>
-<span class="sd">            the name of the excel file. Ex: for util_name = &quot;BHE&quot;, the file name will be</span>
+<span class="sd">            the name of the excel file. Ex: for util_name = "BHE", the file name will be</span>
 <span class="sd">            BHE_fix_FERC-EIA_overrides.xlsx.</span>
-<span class="sd">        output_dir_path (str): The relative path to the folder where you&#39;d like to</span>
+<span class="sd">        output_dir_path (str): The relative path to the folder where you'd like to</span>
 <span class="sd">            output the override spreadsheets that this function creates.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># Enable unique file names and put all files in directory called overrides</span>
-    <span class="n">new_output_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">output_dir_path</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">util_name</span><span class="si">}</span><span class="s2">_fix_FERC-EIA_overrides.xlsx&quot;</span>
+    <span class="n">new_output_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">output_dir_path</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">util_name</span><span class="si">}</span><span class="s2">_fix_FERC-EIA_overrides.xlsx"</span>
     <span class="c1"># Output file to a folder called overrides</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Outputting </span><span class="si">{</span><span class="n">util_name</span><span class="si">}</span><span class="s2"> subsets to tabs</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Outputting </span><span class="si">{</span><span class="n">util_name</span><span class="si">}</span><span class="s2"> subsets to tabs</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
     <span class="k">with</span> <span class="n">pd</span><span class="o">.</span><span class="n">ExcelWriter</span><span class="p">(</span><span class="n">new_output_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">writer</span><span class="p">:</span>
-        <span class="c1"># writer = pd.ExcelWriter(new_output_path, engine=&quot;xlsxwriter&quot;)</span>
+        <span class="c1"># writer = pd.ExcelWriter(new_output_path, engine="xlsxwriter")</span>
         <span class="k">for</span> <span class="n">df_name</span><span class="p">,</span> <span class="n">df</span> <span class="ow">in</span> <span class="n">util_year_subset_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">df</span><span class="o">.</span><span class="n">to_excel</span><span class="p">(</span><span class="n">writer</span><span class="p">,</span> <span class="n">sheet_name</span><span class="o">=</span><span class="n">df_name</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
 
@@ -1218,9 +1218,9 @@ window.runMermaid = runMermaid;</script>
     <span class="n">years</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
     <span class="n">output_dir_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Output override spreadsheets for all specified utilities and years.</span>
+<span class="w">    </span><span class="sd">"""Output override spreadsheets for all specified utilities and years.</span>
 
-<span class="sd">    These manual override files will be output to a folder called &quot;overrides&quot; in the</span>
+<span class="sd">    These manual override files will be output to a folder called "overrides" in the</span>
 <span class="sd">    output directory.</span>
 
 <span class="sd">    Args:</span>
@@ -1232,18 +1232,18 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">            parent companies and values that are lists of subsidiary utility_id_eia</span>
 <span class="sd">            values. EIA values are used instead of PUDL in this case because PUDL values</span>
 <span class="sd">            are subject to change.</span>
-<span class="sd">        years: A list of the years you&#39;d like to add to the override sheets.</span>
-<span class="sd">        output_dir_path: The relative path to the folder where you&#39;d like to output the</span>
+<span class="sd">        years: A list of the years you'd like to add to the override sheets.</span>
+<span class="sd">        output_dir_path: The relative path to the folder where you'd like to output the</span>
 <span class="sd">            override spreadsheets that this function creates.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">inputs_dict</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;eia_ferc1&quot;</span><span class="p">:</span> <span class="n">_prep_eia_ferc1</span><span class="p">(</span><span class="n">eia_ferc1</span><span class="p">,</span> <span class="n">utils_eia860</span><span class="p">),</span>
-        <span class="s2">&quot;ppe&quot;</span><span class="p">:</span> <span class="n">ppe</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()[</span><span class="n">RELEVANT_COLS_PPE</span><span class="p">],</span>
+        <span class="s2">"eia_ferc1"</span><span class="p">:</span> <span class="n">_prep_eia_ferc1</span><span class="p">(</span><span class="n">eia_ferc1</span><span class="p">,</span> <span class="n">utils_eia860</span><span class="p">),</span>
+        <span class="s2">"ppe"</span><span class="p">:</span> <span class="n">ppe</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()[</span><span class="n">RELEVANT_COLS_PPE</span><span class="p">],</span>
     <span class="p">}</span>
 
     <span class="c1"># For each utility, make an override sheet with the correct input table slices</span>
     <span class="k">for</span> <span class="n">util_name</span><span class="p">,</span> <span class="n">util_id_eia_list</span> <span class="ow">in</span> <span class="n">util_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Developing outputs for </span><span class="si">{</span><span class="n">util_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Developing outputs for </span><span class="si">{</span><span class="n">util_name</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="n">util_year_subset_dict</span> <span class="o">=</span> <span class="n">_get_util_year_subsets</span><span class="p">(</span>
             <span class="n">inputs_dict</span><span class="p">,</span> <span class="n">util_id_eia_list</span><span class="p">,</span> <span class="n">years</span>
         <span class="p">)</span>
@@ -1259,12 +1259,12 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="_check_id_consistency">
 <a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/eia_ferc1_train/index.html#pudl.analysis.record_linkage.eia_ferc1_train._check_id_consistency">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_check_id_consistency</span><span class="p">(</span>
-    <span class="n">id_col</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;record_id_eia_override_1&quot;</span><span class="p">,</span> <span class="s2">&quot;record_id_ferc1&quot;</span><span class="p">],</span>
+    <span class="n">id_col</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"record_id_eia_override_1"</span><span class="p">,</span> <span class="s2">"record_id_ferc1"</span><span class="p">],</span>
     <span class="n">df</span><span class="p">,</span>
     <span class="n">actual_ids</span><span class="p">,</span>
     <span class="n">error_message</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check for rogue FERC or EIA ids that don&#39;t exist.</span>
+<span class="w">    </span><span class="sd">"""Check for rogue FERC or EIA ids that don't exist.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        id_col (str): The name of either the ferc record id column: record_id_ferc1 or</span>
@@ -1272,14 +1272,14 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        df (pd.DataFrame): A dataframe of intended overrides.</span>
 <span class="sd">        actual_ids (list): A list of the ferc or eia ids that are valid and come from</span>
 <span class="sd">            either the ppe or official ferc-eia record linkage.</span>
-<span class="sd">        error_message (str): A short string to indicate the type of error you&#39;re</span>
-<span class="sd">            checking for. This could be looking for values that aren&#39;t in the official</span>
+<span class="sd">        error_message (str): A short string to indicate the type of error you're</span>
+<span class="sd">            checking for. This could be looking for values that aren't in the official</span>
 <span class="sd">            list or values that are already in the training data.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Checking </span><span class="si">{</span><span class="n">id_col</span><span class="si">}</span><span class="s2"> consistency for </span><span class="si">{</span><span class="n">error_message</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="sd">    """</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Checking </span><span class="si">{</span><span class="n">id_col</span><span class="si">}</span><span class="s2"> consistency for </span><span class="si">{</span><span class="n">error_message</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
     <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">bad_ids</span> <span class="o">:=</span> <span class="n">df</span><span class="p">[</span><span class="o">~</span><span class="n">df</span><span class="p">[</span><span class="n">id_col</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">actual_ids</span><span class="p">)][</span><span class="n">id_col</span><span class="p">]</span><span class="o">.</span><span class="n">to_list</span><span class="p">())</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">id_col</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">error_message</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">bad_ids</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">id_col</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">error_message</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">bad_ids</span><span class="si">}</span><span class="s2">"</span>
     <span class="p">)</span></div>
 
 
@@ -1287,23 +1287,23 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="check_if_already_in_training">
 <a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/eia_ferc1_train/index.html#pudl.analysis.record_linkage.eia_ferc1_train.check_if_already_in_training">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">check_if_already_in_training</span><span class="p">(</span><span class="n">training_data</span><span class="p">,</span> <span class="n">validated_connections</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check whether any manually mapped records aren&#39;t yet in the training data.</span>
+<span class="w">    </span><span class="sd">"""Check whether any manually mapped records aren't yet in the training data.</span>
 
-<span class="sd">    This function is useful for instances where you&#39;ve started the manual mapping</span>
-<span class="sd">    process, taken an extended break, and need to check whether the data you&#39;ve mapped</span>
+<span class="sd">    This function is useful for instances where you've started the manual mapping</span>
+<span class="sd">    process, taken an extended break, and need to check whether the data you've mapped</span>
 <span class="sd">    has been integrated into the training data or not.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Checking to see if any of the manual matches aren&#39;t in the training data.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Checking to see if any of the manual matches aren't in the training data."""</span>
     <span class="p">)</span>
     <span class="n">training_vals</span> <span class="o">=</span> <span class="n">training_data</span><span class="o">.</span><span class="n">record_id_eia</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
     <span class="n">val_vals</span> <span class="o">=</span> <span class="n">validated_connections</span><span class="o">.</span><span class="n">record_id_eia_override_1</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
 
     <span class="n">not_in_training</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">val_vals</span> <span class="k">if</span> <span class="n">x</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">training_vals</span><span class="p">]</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Total records: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">val_vals</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Number of records not in training data: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">not_in_training</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Total records: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">val_vals</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Number of records not in training data: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">not_in_training</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;Number of records already in training data: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">val_vals</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">not_in_training</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="sa">f</span><span class="s2">"Number of records already in training data: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">val_vals</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">not_in_training</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
     <span class="p">)</span></div>
 
 
@@ -1318,7 +1318,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">expect_override_overrides</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">allow_mismatched_utilities</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Process the verified and/or fixed matches and look for human error.</span>
+<span class="w">    </span><span class="sd">"""Process the verified and/or fixed matches and look for human error.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        validated_connections: A dataframe in the add_to_training directory that is</span>
@@ -1333,39 +1333,39 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">            record ids to come from different utilities.</span>
 
 <span class="sd">    Raises:</span>
-<span class="sd">        AssertionError: If there are EIA override id records that aren&#39;t in the original</span>
+<span class="sd">        AssertionError: If there are EIA override id records that aren't in the original</span>
 <span class="sd">            FERC-EIA connection.</span>
-<span class="sd">        AssertionError: If there are FERC record ids that aren&#39;t in the original</span>
+<span class="sd">        AssertionError: If there are FERC record ids that aren't in the original</span>
 <span class="sd">            FERC-EIA connection.</span>
 <span class="sd">        AssertionError: If there are EIA override ids that are duplicated throughout the</span>
 <span class="sd">            override document.</span>
-<span class="sd">        AssertionError: If the utility id in the EIA override id doesn&#39;t match the pudl</span>
+<span class="sd">        AssertionError: If the utility id in the EIA override id doesn't match the pudl</span>
 <span class="sd">            id corresponding with the FERC record.</span>
-<span class="sd">        AssertionError: If there are EIA override id records that don&#39;t correspond to</span>
+<span class="sd">        AssertionError: If there are EIA override id records that don't correspond to</span>
 <span class="sd">            the correct report year.</span>
-<span class="sd">        AssertionError: If you didn&#39;t expect to override overrides but the new training</span>
+<span class="sd">        AssertionError: If you didn't expect to override overrides but the new training</span>
 <span class="sd">            data implies an override to the existing training data.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        The validated FERC-EIA dataframe you&#39;re trying to add to the training data.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Validating overrides&quot;</span><span class="p">)</span>
+<span class="sd">        The validated FERC-EIA dataframe you're trying to add to the training data.</span>
+<span class="sd">    """</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Validating overrides"</span><span class="p">)</span>
     <span class="c1"># When there are NA values in the verified column in the excel doc, it seems that</span>
-    <span class="c1"># the TRUE values become 1.0 and the column becomes a type float. Let&#39;s replace</span>
+    <span class="c1"># the TRUE values become 1.0 and the column becomes a type float. Let's replace</span>
     <span class="c1"># those here and make it a boolean.</span>
-    <span class="n">validated_connections</span><span class="p">[</span><span class="s2">&quot;verified&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">validated_connections</span><span class="p">[</span><span class="s2">&quot;verified&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+    <span class="n">validated_connections</span><span class="p">[</span><span class="s2">"verified"</span><span class="p">]</span> <span class="o">=</span> <span class="n">validated_connections</span><span class="p">[</span><span class="s2">"verified"</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
         <span class="p">{</span><span class="mi">1</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">:</span> <span class="kc">False</span><span class="p">}</span>
     <span class="p">)</span>
-    <span class="c1"># Make sure the verified column doesn&#39;t contain non-boolean outliers. This will fail</span>
+    <span class="c1"># Make sure the verified column doesn't contain non-boolean outliers. This will fail</span>
     <span class="c1"># if there are bad values.</span>
     <span class="n">validated_connections</span> <span class="o">=</span> <span class="n">validated_connections</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span>
-        <span class="p">{</span><span class="s2">&quot;verified&quot;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">BooleanDtype</span><span class="p">()}</span>
+        <span class="p">{</span><span class="s2">"verified"</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">BooleanDtype</span><span class="p">()}</span>
     <span class="p">)</span>
 
     <span class="c1"># From validated records, get only records with an override</span>
     <span class="n">only_overrides</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">validated_connections</span><span class="p">[</span><span class="n">validated_connections</span><span class="p">[</span><span class="s2">&quot;verified&quot;</span><span class="p">]]</span>
-        <span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;record_id_eia_override_1&quot;</span><span class="p">])</span>
+        <span class="n">validated_connections</span><span class="p">[</span><span class="n">validated_connections</span><span class="p">[</span><span class="s2">"verified"</span><span class="p">]]</span>
+        <span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">"record_id_eia_override_1"</span><span class="p">])</span>
         <span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
         <span class="o">.</span><span class="n">copy</span><span class="p">()</span>
     <span class="p">)</span>
@@ -1374,44 +1374,44 @@ window.runMermaid = runMermaid;</script>
     <span class="c1"># record linkage.</span>
     <span class="n">actual_eia_ids</span> <span class="o">=</span> <span class="n">ppe</span><span class="o">.</span><span class="n">record_id_eia</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
     <span class="n">_check_id_consistency</span><span class="p">(</span>
-        <span class="s2">&quot;record_id_eia_override_1&quot;</span><span class="p">,</span>
+        <span class="s2">"record_id_eia_override_1"</span><span class="p">,</span>
         <span class="n">only_overrides</span><span class="p">,</span>
         <span class="n">actual_eia_ids</span><span class="p">,</span>
-        <span class="s2">&quot;values that don&#39;t exist&quot;</span><span class="p">,</span>
+        <span class="s2">"values that don't exist"</span><span class="p">,</span>
     <span class="p">)</span>
 
-    <span class="c1"># It&#39;s unlikely that this changed, but check FERC id too just in case!</span>
+    <span class="c1"># It's unlikely that this changed, but check FERC id too just in case!</span>
     <span class="n">actual_ferc_ids</span> <span class="o">=</span> <span class="n">eia_ferc1</span><span class="o">.</span><span class="n">record_id_ferc1</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
     <span class="n">_check_id_consistency</span><span class="p">(</span>
-        <span class="s2">&quot;record_id_ferc1&quot;</span><span class="p">,</span> <span class="n">only_overrides</span><span class="p">,</span> <span class="n">actual_ferc_ids</span><span class="p">,</span> <span class="s2">&quot;values that don&#39;t exist&quot;</span>
+        <span class="s2">"record_id_ferc1"</span><span class="p">,</span> <span class="n">only_overrides</span><span class="p">,</span> <span class="n">actual_ferc_ids</span><span class="p">,</span> <span class="s2">"values that don't exist"</span>
     <span class="p">)</span>
 
     <span class="c1"># Make sure there are no duplicate EIA id overrides</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Checking for duplicate override ids&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Checking for duplicate override ids"</span><span class="p">)</span>
     <span class="k">assert</span> <span class="p">(</span>
         <span class="nb">len</span><span class="p">(</span>
             <span class="n">override_dups</span> <span class="o">:=</span> <span class="n">only_overrides</span><span class="p">[</span>
-                <span class="n">only_overrides</span><span class="p">[</span><span class="s2">&quot;record_id_eia_override_1&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">duplicated</span><span class="p">(</span><span class="n">keep</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                <span class="n">only_overrides</span><span class="p">[</span><span class="s2">"record_id_eia_override_1"</span><span class="p">]</span><span class="o">.</span><span class="n">duplicated</span><span class="p">(</span><span class="n">keep</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
             <span class="p">]</span>
         <span class="p">)</span>
         <span class="o">==</span> <span class="mi">0</span>
     <span class="p">),</span> <span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;Found record_id_eia_override_1 duplicates: </span><span class="se">\</span>
-<span class="s2">    </span><span class="si">{</span><span class="n">override_dups</span><span class="o">.</span><span class="n">record_id_eia_override_1</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="sa">f</span><span class="s2">"Found record_id_eia_override_1 duplicates: </span><span class="se">\</span>
+<span class="s2">    </span><span class="si">{</span><span class="n">override_dups</span><span class="o">.</span><span class="n">record_id_eia_override_1</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span><span class="si">}</span><span class="s2">"</span>
     <span class="p">)</span>
 
     <span class="c1"># Make sure there are no duplicate FERC1 id overrides</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Checking for duplicate FERC1 override ids&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Checking for duplicate FERC1 override ids"</span><span class="p">)</span>
     <span class="k">assert</span> <span class="p">(</span>
         <span class="nb">len</span><span class="p">(</span>
             <span class="n">ferc_override_dups</span> <span class="o">:=</span> <span class="n">only_overrides</span><span class="p">[</span>
-                <span class="n">only_overrides</span><span class="p">[</span><span class="s2">&quot;record_id_ferc1&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">duplicated</span><span class="p">(</span><span class="n">keep</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                <span class="n">only_overrides</span><span class="p">[</span><span class="s2">"record_id_ferc1"</span><span class="p">]</span><span class="o">.</span><span class="n">duplicated</span><span class="p">(</span><span class="n">keep</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
             <span class="p">]</span>
         <span class="p">)</span>
         <span class="o">==</span> <span class="mi">0</span>
     <span class="p">),</span> <span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;Found record_id_ferc1 duplicates: </span><span class="se">\</span>
-<span class="s2">    </span><span class="si">{</span><span class="n">ferc_override_dups</span><span class="o">.</span><span class="n">record_id_ferc1</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="sa">f</span><span class="s2">"Found record_id_ferc1 duplicates: </span><span class="se">\</span>
+<span class="s2">    </span><span class="si">{</span><span class="n">ferc_override_dups</span><span class="o">.</span><span class="n">record_id_ferc1</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span><span class="si">}</span><span class="s2">"</span>
     <span class="p">)</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">allow_mismatched_utilities</span><span class="p">:</span>
@@ -1419,71 +1419,71 @@ window.runMermaid = runMermaid;</script>
         <span class="c1"># FERC record. Start by mapping utility_id_pudl from PPE onto each</span>
         <span class="c1"># record_id_eia_override_1 and then compare to the existing</span>
         <span class="c1"># utility_id_pudl_ferc1 record.</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Checking for mismatched utility ids&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Checking for mismatched utility ids"</span><span class="p">)</span>
         <span class="n">only_overrides</span> <span class="o">=</span> <span class="n">only_overrides</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
-            <span class="n">ppe</span><span class="p">[[</span><span class="s2">&quot;record_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;utility_id_pudl&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(),</span>
-            <span class="n">left_on</span><span class="o">=</span><span class="s2">&quot;record_id_eia_override_1&quot;</span><span class="p">,</span>
-            <span class="n">right_on</span><span class="o">=</span><span class="s2">&quot;record_id_eia&quot;</span><span class="p">,</span>
-            <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span>
+            <span class="n">ppe</span><span class="p">[[</span><span class="s2">"record_id_eia"</span><span class="p">,</span> <span class="s2">"utility_id_pudl"</span><span class="p">]]</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(),</span>
+            <span class="n">left_on</span><span class="o">=</span><span class="s2">"record_id_eia_override_1"</span><span class="p">,</span>
+            <span class="n">right_on</span><span class="o">=</span><span class="s2">"record_id_eia"</span><span class="p">,</span>
+            <span class="n">how</span><span class="o">=</span><span class="s2">"left"</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="c1"># Now we compare the two utility_id_pudl columns</span>
         <span class="k">if</span> <span class="p">(</span>
             <span class="nb">len</span><span class="p">(</span>
-                <span class="n">bad_utils</span> <span class="o">:=</span> <span class="n">only_overrides</span><span class="p">[</span><span class="s2">&quot;utility_id_pudl&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">compare</span><span class="p">(</span>
-                    <span class="n">only_overrides</span><span class="p">[</span><span class="s2">&quot;utility_id_pudl_ferc1&quot;</span><span class="p">]</span>
+                <span class="n">bad_utils</span> <span class="o">:=</span> <span class="n">only_overrides</span><span class="p">[</span><span class="s2">"utility_id_pudl"</span><span class="p">]</span><span class="o">.</span><span class="n">compare</span><span class="p">(</span>
+                    <span class="n">only_overrides</span><span class="p">[</span><span class="s2">"utility_id_pudl_ferc1"</span><span class="p">]</span>
                 <span class="p">)</span>
             <span class="p">)</span>
             <span class="o">&gt;</span> <span class="mi">0</span>
         <span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Found mismatched utilities: </span><span class="si">{</span><span class="n">bad_utils</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Found mismatched utilities: </span><span class="si">{</span><span class="n">bad_utils</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
     <span class="c1"># Make sure the year in the EIA id overrides match the year in the report_year</span>
     <span class="c1"># column (which comes from FERC)</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Checking that year in override id matches report year&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Checking that year in override id matches report year"</span><span class="p">)</span>
     <span class="n">only_overrides</span> <span class="o">=</span> <span class="n">only_overrides</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
-        <span class="n">ppe</span><span class="p">[[</span><span class="s2">&quot;record_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;report_year&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(),</span>
-        <span class="n">left_on</span><span class="o">=</span><span class="s2">&quot;record_id_eia_override_1&quot;</span><span class="p">,</span>
-        <span class="n">right_on</span><span class="o">=</span><span class="s2">&quot;record_id_eia&quot;</span><span class="p">,</span>
-        <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span>
-        <span class="n">suffixes</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;_ppe&quot;</span><span class="p">),</span>
+        <span class="n">ppe</span><span class="p">[[</span><span class="s2">"record_id_eia"</span><span class="p">,</span> <span class="s2">"report_year"</span><span class="p">]]</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(),</span>
+        <span class="n">left_on</span><span class="o">=</span><span class="s2">"record_id_eia_override_1"</span><span class="p">,</span>
+        <span class="n">right_on</span><span class="o">=</span><span class="s2">"record_id_eia"</span><span class="p">,</span>
+        <span class="n">how</span><span class="o">=</span><span class="s2">"left"</span><span class="p">,</span>
+        <span class="n">suffixes</span><span class="o">=</span><span class="p">(</span><span class="s2">""</span><span class="p">,</span> <span class="s2">"_ppe"</span><span class="p">),</span>
     <span class="p">)</span>
     <span class="k">if</span> <span class="p">(</span>
         <span class="nb">len</span><span class="p">(</span>
-            <span class="n">bad_eia_year</span> <span class="o">:=</span> <span class="n">only_overrides</span><span class="p">[</span><span class="s2">&quot;report_year&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">compare</span><span class="p">(</span>
-                <span class="n">only_overrides</span><span class="p">[</span><span class="s2">&quot;report_year_ppe&quot;</span><span class="p">]</span>
+            <span class="n">bad_eia_year</span> <span class="o">:=</span> <span class="n">only_overrides</span><span class="p">[</span><span class="s2">"report_year"</span><span class="p">]</span><span class="o">.</span><span class="n">compare</span><span class="p">(</span>
+                <span class="n">only_overrides</span><span class="p">[</span><span class="s2">"report_year_ppe"</span><span class="p">]</span>
             <span class="p">)</span>
         <span class="p">)</span>
         <span class="o">&gt;</span> <span class="mi">0</span>
     <span class="p">):</span>
         <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Found record_id_eia_override_1 values that don&#39;t correspond to the right </span><span class="se">\</span>
+            <span class="sa">f</span><span class="s2">"Found record_id_eia_override_1 values that don't correspond to the right </span><span class="se">\</span>
 <span class="s2">            report year:</span><span class="se">\</span>
-<span class="s2">            </span><span class="si">{</span><span class="p">[</span><span class="n">only_overrides</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">x</span><span class="p">]</span><span class="o">.</span><span class="n">record_id_eia_override_1</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">bad_eia_year</span><span class="o">.</span><span class="n">index</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="s2">            </span><span class="si">{</span><span class="p">[</span><span class="n">only_overrides</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">x</span><span class="p">]</span><span class="o">.</span><span class="n">record_id_eia_override_1</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">bad_eia_year</span><span class="o">.</span><span class="n">index</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span>
         <span class="p">)</span>
 
-    <span class="c1"># If you don&#39;t expect to override values that have already been overridden, make</span>
-    <span class="c1"># sure the ids you fixed aren&#39;t already in the training data.</span>
+    <span class="c1"># If you don't expect to override values that have already been overridden, make</span>
+    <span class="c1"># sure the ids you fixed aren't already in the training data.</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">expect_override_overrides</span><span class="p">:</span>
         <span class="n">existing_training_eia_ids</span> <span class="o">=</span> <span class="n">training_data</span><span class="o">.</span><span class="n">record_id_eia</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
-        <span class="n">new_training_eia_ids</span> <span class="o">=</span> <span class="n">only_overrides</span><span class="p">[</span><span class="s2">&quot;record_id_eia_override_1&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+        <span class="n">new_training_eia_ids</span> <span class="o">=</span> <span class="n">only_overrides</span><span class="p">[</span><span class="s2">"record_id_eia_override_1"</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">eia_overrides</span> <span class="o">:=</span> <span class="p">[</span>
             <span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">new_training_eia_ids</span> <span class="k">if</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">existing_training_eia_ids</span>
         <span class="p">]:</span>
             <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;&quot;&quot;The following EIA records are already in the training data: </span><span class="si">{</span><span class="n">eia_overrides</span><span class="si">}</span><span class="s2">&quot;&quot;&quot;</span>
+                <span class="sa">f</span><span class="s2">"""The following EIA records are already in the training data: </span><span class="si">{</span><span class="n">eia_overrides</span><span class="si">}</span><span class="s2">"""</span>
             <span class="p">)</span>
         <span class="n">existing_training_ferc1_ids</span> <span class="o">=</span> <span class="n">training_data</span><span class="o">.</span><span class="n">record_id_ferc1</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
-        <span class="n">new_training_ferc1_ids</span> <span class="o">=</span> <span class="n">only_overrides</span><span class="p">[</span><span class="s2">&quot;record_id_ferc1&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+        <span class="n">new_training_ferc1_ids</span> <span class="o">=</span> <span class="n">only_overrides</span><span class="p">[</span><span class="s2">"record_id_ferc1"</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">ferc_overrides</span> <span class="o">:=</span> <span class="p">[</span>
             <span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">new_training_ferc1_ids</span> <span class="k">if</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">existing_training_ferc1_ids</span>
         <span class="p">]:</span>
             <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;&quot;&quot;The following FERC 1 records are already in the training data: </span><span class="si">{</span><span class="n">ferc_overrides</span><span class="si">}</span><span class="s2">&quot;&quot;&quot;</span>
+                <span class="sa">f</span><span class="s2">"""The following FERC 1 records are already in the training data: </span><span class="si">{</span><span class="n">ferc_overrides</span><span class="si">}</span><span class="s2">"""</span>
             <span class="p">)</span>
 
     <span class="c1"># Only return the results that have been verified</span>
     <span class="n">verified_connections</span> <span class="o">=</span> <span class="n">validated_connections</span><span class="p">[</span>
-        <span class="n">validated_connections</span><span class="p">[</span><span class="s2">&quot;verified&quot;</span><span class="p">]</span>
+        <span class="n">validated_connections</span><span class="p">[</span><span class="s2">"verified"</span><span class="p">]</span>
     <span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
     <span class="k">return</span> <span class="n">verified_connections</span></div>
@@ -1493,7 +1493,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="get_multi_match_df">
 <a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/eia_ferc1_train/index.html#pudl.analysis.record_linkage.eia_ferc1_train.get_multi_match_df">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_multi_match_df</span><span class="p">(</span><span class="n">training_data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Process the verified and/or fixed matches and generate a list of 1:m matches.</span>
+<span class="w">    </span><span class="sd">"""Process the verified and/or fixed matches and generate a list of 1:m matches.</span>
 
 <span class="sd">    Filter the dataframe to only include FERC records with more than one EIA match.</span>
 <span class="sd">    Melt this dataframe to report all matched EIA records in the</span>
@@ -1506,20 +1506,20 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    Returns:</span>
 <span class="sd">        A dataframe of one_to_many matches formatted to fit into the existing validation</span>
 <span class="sd">        framework.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">match_cols</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">training_data</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="s2">&quot;record_id_eia_override_&quot;</span> <span class="ow">in</span> <span class="n">col</span>
+        <span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">training_data</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="s2">"record_id_eia_override_"</span> <span class="ow">in</span> <span class="n">col</span>
     <span class="p">]</span>
-    <span class="n">multi_match_cols</span> <span class="o">=</span> <span class="p">[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">match_cols</span> <span class="k">if</span> <span class="n">col</span> <span class="o">!=</span> <span class="s2">&quot;record_id_eia_override_1&quot;</span><span class="p">]</span>
+    <span class="n">multi_match_cols</span> <span class="o">=</span> <span class="p">[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">match_cols</span> <span class="k">if</span> <span class="n">col</span> <span class="o">!=</span> <span class="s2">"record_id_eia_override_1"</span><span class="p">]</span>
 
     <span class="n">id_cols</span> <span class="o">=</span> <span class="p">[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">training_data</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">col</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">match_cols</span><span class="p">]</span>
     <span class="n">multimatch_df</span> <span class="o">=</span> <span class="n">training_data</span><span class="p">[</span><span class="n">training_data</span><span class="p">[</span><span class="n">multi_match_cols</span><span class="p">]</span><span class="o">.</span><span class="n">notnull</span><span class="p">()</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)]</span>
     <span class="n">multimatch_df</span> <span class="o">=</span> <span class="n">multimatch_df</span><span class="o">.</span><span class="n">melt</span><span class="p">(</span>
-        <span class="n">id_vars</span><span class="o">=</span><span class="n">id_cols</span><span class="p">,</span> <span class="n">var_name</span><span class="o">=</span><span class="s2">&quot;match_number&quot;</span><span class="p">,</span> <span class="n">value_name</span><span class="o">=</span><span class="s2">&quot;record_id_eia_override&quot;</span>
-    <span class="p">)</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;record_id_eia_override&quot;</span><span class="p">])</span>
+        <span class="n">id_vars</span><span class="o">=</span><span class="n">id_cols</span><span class="p">,</span> <span class="n">var_name</span><span class="o">=</span><span class="s2">"match_number"</span><span class="p">,</span> <span class="n">value_name</span><span class="o">=</span><span class="s2">"record_id_eia_override"</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">"record_id_eia_override"</span><span class="p">])</span>
     <span class="n">multimatch_df</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">multimatch_df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>  <span class="c1"># To match existing validation function format</span>
-            <span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;record_id_eia_override&quot;</span><span class="p">:</span> <span class="s2">&quot;record_id_eia_override_1&quot;</span><span class="p">}</span>
+            <span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">"record_id_eia_override"</span><span class="p">:</span> <span class="s2">"record_id_eia_override_1"</span><span class="p">}</span>
         <span class="p">)</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">multimatch_df</span></div>
@@ -1529,20 +1529,20 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="_add_to_training">
 <a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/eia_ferc1_train/index.html#pudl.analysis.record_linkage.eia_ferc1_train._add_to_training">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_add_to_training</span><span class="p">(</span><span class="n">new_overrides</span><span class="p">,</span> <span class="n">path_to_current_training</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Add the new overrides to the old override sheet.&quot;&quot;&quot;</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Combining all new overrides with existing training data&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">"""Add the new overrides to the old override sheet."""</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Combining all new overrides with existing training data"</span><span class="p">)</span>
     <span class="n">current_training_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">path_to_current_training</span><span class="p">)</span>
     <span class="n">new_training</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">new_overrides</span><span class="p">[</span>
-            <span class="p">[</span><span class="s2">&quot;record_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;record_id_ferc1&quot;</span><span class="p">,</span> <span class="s2">&quot;signature_1&quot;</span><span class="p">,</span> <span class="s2">&quot;signature_2&quot;</span><span class="p">,</span> <span class="s2">&quot;notes&quot;</span><span class="p">]</span>
+            <span class="p">[</span><span class="s2">"record_id_eia"</span><span class="p">,</span> <span class="s2">"record_id_ferc1"</span><span class="p">,</span> <span class="s2">"signature_1"</span><span class="p">,</span> <span class="s2">"signature_2"</span><span class="p">,</span> <span class="s2">"notes"</span><span class="p">]</span>
         <span class="p">]</span>
         <span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-        <span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;record_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;record_id_ferc1&quot;</span><span class="p">])</span>
+        <span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">"record_id_eia"</span><span class="p">,</span> <span class="s2">"record_id_ferc1"</span><span class="p">])</span>
     <span class="p">)</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">new_training</span><span class="p">)</span><span class="si">}</span><span class="s2"> new overrides&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">new_training</span><span class="p">)</span><span class="si">}</span><span class="s2"> new overrides"</span><span class="p">)</span>
     <span class="c1"># Combine new and old training data; drop old data in favor or new overrides</span>
     <span class="n">training_data_out</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">current_training_df</span><span class="p">,</span> <span class="n">new_training</span><span class="p">])</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span>
-        <span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;record_id_ferc1&quot;</span><span class="p">],</span> <span class="n">keep</span><span class="o">=</span><span class="s2">&quot;last&quot;</span>
+        <span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">"record_id_ferc1"</span><span class="p">],</span> <span class="n">keep</span><span class="o">=</span><span class="s2">"last"</span>
     <span class="p">)</span>
     <span class="c1"># Output combined training data</span>
     <span class="n">training_data_out</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">path_to_current_training</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
@@ -1552,11 +1552,11 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="_add_to_null_overrides">
 <a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/eia_ferc1_train/index.html#pudl.analysis.record_linkage.eia_ferc1_train._add_to_null_overrides">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_add_to_null_overrides</span><span class="p">(</span><span class="n">null_matches</span><span class="p">,</span> <span class="n">current_null_overrides_path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Take record_id_ferc1 values verified to have no EIA match and add them to csv.&quot;&quot;&quot;</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Adding record_id_ferc1 values with no EIA match to null_overrides csv&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">"""Take record_id_ferc1 values verified to have no EIA match and add them to csv."""</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Adding record_id_ferc1 values with no EIA match to null_overrides csv"</span><span class="p">)</span>
     <span class="c1"># Get new null matches</span>
-    <span class="n">new_null_matches</span> <span class="o">=</span> <span class="n">null_matches</span><span class="p">[[</span><span class="s2">&quot;record_id_ferc1&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">new_null_matches</span><span class="p">)</span><span class="si">}</span><span class="s2"> new null matches&quot;</span><span class="p">)</span>
+    <span class="n">new_null_matches</span> <span class="o">=</span> <span class="n">null_matches</span><span class="p">[[</span><span class="s2">"record_id_ferc1"</span><span class="p">]]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">new_null_matches</span><span class="p">)</span><span class="si">}</span><span class="s2"> new null matches"</span><span class="p">)</span>
     <span class="c1"># Get current null matches</span>
     <span class="n">current_null_matches</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">current_null_overrides_path</span><span class="p">)</span>
     <span class="c1"># Combine new and current record_id_ferc1 values that have no EIA match</span>
@@ -1571,24 +1571,24 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="_add_to_one_to_many_overrides">
 <a class="viewcode-back" href="../../../../autoapi/pudl/analysis/record_linkage/eia_ferc1_train/index.html#pudl.analysis.record_linkage.eia_ferc1_train._add_to_one_to_many_overrides">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_add_to_one_to_many_overrides</span><span class="p">(</span><span class="n">one_to_many</span><span class="p">,</span> <span class="n">current_one_to_many_path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Add record_id_ferc1 values verified to have multiple EIA matches to csv.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Add record_id_ferc1 values verified to have multiple EIA matches to csv."""</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-        <span class="s2">&quot;Adding record_id_ferc1 values with multiple EIA matches to one_to_many_overrides csv&quot;</span>
+        <span class="s2">"Adding record_id_ferc1 values with multiple EIA matches to one_to_many_overrides csv"</span>
     <span class="p">)</span>
     <span class="n">current_one_to_many</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">current_one_to_many_path</span><span class="p">)</span>
     <span class="n">new_one_to_many</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">one_to_many</span><span class="p">[</span>
-            <span class="p">[</span><span class="s2">&quot;record_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;record_id_ferc1&quot;</span><span class="p">,</span> <span class="s2">&quot;signature_1&quot;</span><span class="p">,</span> <span class="s2">&quot;signature_2&quot;</span><span class="p">,</span> <span class="s2">&quot;notes&quot;</span><span class="p">]</span>
+            <span class="p">[</span><span class="s2">"record_id_eia"</span><span class="p">,</span> <span class="s2">"record_id_ferc1"</span><span class="p">,</span> <span class="s2">"signature_1"</span><span class="p">,</span> <span class="s2">"signature_2"</span><span class="p">,</span> <span class="s2">"notes"</span><span class="p">]</span>
         <span class="p">]</span>
         <span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-        <span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;record_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;record_id_ferc1&quot;</span><span class="p">])</span>
+        <span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">"record_id_eia"</span><span class="p">,</span> <span class="s2">"record_id_ferc1"</span><span class="p">])</span>
     <span class="p">)</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;Found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">new_one_to_many</span><span class="o">.</span><span class="n">record_id_ferc1</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span><span class="si">}</span><span class="s2"> new FERC1 records with multiple EIA matches.&quot;</span>
+        <span class="sa">f</span><span class="s2">"Found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">new_one_to_many</span><span class="o">.</span><span class="n">record_id_ferc1</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span><span class="si">}</span><span class="s2"> new FERC1 records with multiple EIA matches."</span>
     <span class="p">)</span>
     <span class="c1"># Combine new and old training data; drop old data in favor or new overrides</span>
     <span class="n">one_to_many</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">current_one_to_many</span><span class="p">,</span> <span class="n">new_one_to_many</span><span class="p">])</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span>
-        <span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;record_id_ferc1&quot;</span><span class="p">,</span> <span class="s2">&quot;record_id_eia&quot;</span><span class="p">],</span> <span class="n">keep</span><span class="o">=</span><span class="s2">&quot;last&quot;</span>
+        <span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">"record_id_ferc1"</span><span class="p">,</span> <span class="s2">"record_id_eia"</span><span class="p">],</span> <span class="n">keep</span><span class="o">=</span><span class="s2">"last"</span>
     <span class="p">)</span>
     <span class="c1"># Write the combined values out to the same location as before</span>
     <span class="n">one_to_many</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">current_one_to_many_path</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
@@ -1605,7 +1605,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">allow_mismatched_utilities</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">one_to_many</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Validate, combine, and add overrides to the training data.</span>
+<span class="w">    </span><span class="sd">"""Validate, combine, and add overrides to the training data.</span>
 
 <span class="sd">    Validating and combining the records so you only have to loop through the files</span>
 <span class="sd">    once. Runs :func:`validate_override_fixes` and :func:`_add_to_training`.</span>
@@ -1618,22 +1618,22 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        allow_mismatched_utilities: Whether you are allowed to have FERC-EIA matches</span>
 <span class="sd">            from different utilities.</span>
 <span class="sd">        one_to_many: If True, will also validate and save a CSV of one_to_many matches.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">glue_resource_path</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="s2">&quot;pudl.package_data.glue&quot;</span><span class="p">)</span>
-    <span class="n">path_to_current_training</span> <span class="o">=</span> <span class="n">glue_resource_path</span> <span class="o">/</span> <span class="s2">&quot;eia_ferc1_train.csv&quot;</span>
+<span class="sd">    """</span>
+    <span class="n">glue_resource_path</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="s2">"pudl.package_data.glue"</span><span class="p">)</span>
+    <span class="n">path_to_current_training</span> <span class="o">=</span> <span class="n">glue_resource_path</span> <span class="o">/</span> <span class="s2">"eia_ferc1_train.csv"</span>
     <span class="n">path_to_new_training</span> <span class="o">=</span> <span class="n">input_dir_path</span>
     <span class="n">current_training_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">path_to_current_training</span><span class="p">)</span>
-    <span class="n">path_to_null_overrides</span> <span class="o">=</span> <span class="n">glue_resource_path</span> <span class="o">/</span> <span class="s2">&quot;eia_ferc1_null.csv&quot;</span>
+    <span class="n">path_to_null_overrides</span> <span class="o">=</span> <span class="n">glue_resource_path</span> <span class="o">/</span> <span class="s2">"eia_ferc1_null.csv"</span>
     <span class="k">if</span> <span class="n">one_to_many</span><span class="p">:</span>
-        <span class="n">path_to_one_to_many</span> <span class="o">=</span> <span class="n">glue_resource_path</span> <span class="o">/</span> <span class="s2">&quot;eia_ferc1_one_to_many.csv&quot;</span>
+        <span class="n">path_to_one_to_many</span> <span class="o">=</span> <span class="n">glue_resource_path</span> <span class="o">/</span> <span class="s2">"eia_ferc1_one_to_many.csv"</span>
     <span class="n">override_cols</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="s2">&quot;record_id_eia&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;record_id_ferc1&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;signature_1&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;signature_2&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;notes&quot;</span><span class="p">,</span>
+        <span class="s2">"record_id_eia"</span><span class="p">,</span>
+        <span class="s2">"record_id_ferc1"</span><span class="p">,</span>
+        <span class="s2">"signature_1"</span><span class="p">,</span>
+        <span class="s2">"signature_2"</span><span class="p">,</span>
+        <span class="s2">"notes"</span><span class="p">,</span>
     <span class="p">]</span>
-    <span class="n">null_match_cols</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;record_id_ferc1&quot;</span><span class="p">]</span>
+    <span class="n">null_match_cols</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"record_id_ferc1"</span><span class="p">]</span>
     <span class="n">all_overrides_list</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">all_null_matches_list</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">if</span> <span class="n">one_to_many</span><span class="p">:</span>
@@ -1641,12 +1641,12 @@ window.runMermaid = runMermaid;</script>
 
     <span class="c1"># Loop through all the files, validate, and combine them.</span>
     <span class="n">all_files</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">path_to_new_training</span><span class="p">)</span><span class="o">.</span><span class="n">iterdir</span><span class="p">()</span>
-    <span class="n">excel_files</span> <span class="o">=</span> <span class="p">[</span><span class="n">file</span> <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">all_files</span> <span class="k">if</span> <span class="n">file</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.xlsx&quot;</span><span class="p">)]</span>
+    <span class="n">excel_files</span> <span class="o">=</span> <span class="p">[</span><span class="n">file</span> <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">all_files</span> <span class="k">if</span> <span class="n">file</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">".xlsx"</span><span class="p">)]</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">excel_files</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span><span class="s2">&quot;Found no override files in the add_to_training directory&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span><span class="s2">"Found no override files in the add_to_training directory"</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">excel_files</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Processing fixes in </span><span class="si">{</span><span class="n">file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="n">file_raw</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span><span class="n">path_to_new_training</span> <span class="o">+</span> <span class="n">file</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="s2">&quot;calamine&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Processing fixes in </span><span class="si">{</span><span class="n">file</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="n">file_raw</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span><span class="n">path_to_new_training</span> <span class="o">+</span> <span class="n">file</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="s2">"calamine"</span><span class="p">)</span>
         <span class="n">file_df</span> <span class="o">=</span> <span class="n">file_raw</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span>
             <span class="n">validate_override_fixes</span><span class="p">,</span>
             <span class="n">ppe</span><span class="p">,</span>
@@ -1656,15 +1656,15 @@ window.runMermaid = runMermaid;</script>
             <span class="n">allow_mismatched_utilities</span><span class="o">=</span><span class="n">allow_mismatched_utilities</span><span class="p">,</span>
         <span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
             <span class="n">columns</span><span class="o">=</span><span class="p">{</span>
-                <span class="s2">&quot;record_id_eia&quot;</span><span class="p">:</span> <span class="s2">&quot;record_id_eia_old&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;record_id_eia_override_1&quot;</span><span class="p">:</span> <span class="s2">&quot;record_id_eia&quot;</span><span class="p">,</span>
+                <span class="s2">"record_id_eia"</span><span class="p">:</span> <span class="s2">"record_id_eia_old"</span><span class="p">,</span>
+                <span class="s2">"record_id_eia_override_1"</span><span class="p">:</span> <span class="s2">"record_id_eia"</span><span class="p">,</span>
             <span class="p">}</span>
         <span class="p">)</span>
         <span class="c1"># Get just the overrides and combine them to full list of overrides</span>
-        <span class="n">only_overrides</span> <span class="o">=</span> <span class="n">file_df</span><span class="p">[</span><span class="n">file_df</span><span class="p">[</span><span class="s2">&quot;record_id_eia&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">notna</span><span class="p">()][</span><span class="n">override_cols</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">only_overrides</span> <span class="o">=</span> <span class="n">file_df</span><span class="p">[</span><span class="n">file_df</span><span class="p">[</span><span class="s2">"record_id_eia"</span><span class="p">]</span><span class="o">.</span><span class="n">notna</span><span class="p">()][</span><span class="n">override_cols</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="n">all_overrides_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">only_overrides</span><span class="p">)</span>
         <span class="c1"># Get just the null matches and combine them to full list of overrides</span>
-        <span class="n">only_null_matches</span> <span class="o">=</span> <span class="n">file_df</span><span class="p">[</span><span class="n">file_df</span><span class="p">[</span><span class="s2">&quot;record_id_eia&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">()][</span>
+        <span class="n">only_null_matches</span> <span class="o">=</span> <span class="n">file_df</span><span class="p">[</span><span class="n">file_df</span><span class="p">[</span><span class="s2">"record_id_eia"</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">()][</span>
             <span class="n">null_match_cols</span>
         <span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="n">all_null_matches_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">only_null_matches</span><span class="p">)</span>
@@ -1680,12 +1680,12 @@ window.runMermaid = runMermaid;</script>
                 <span class="n">allow_mismatched_utilities</span><span class="o">=</span><span class="n">allow_mismatched_utilities</span><span class="p">,</span>
             <span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
                 <span class="n">columns</span><span class="o">=</span><span class="p">{</span>
-                    <span class="s2">&quot;record_id_eia&quot;</span><span class="p">:</span> <span class="s2">&quot;record_id_eia_old&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;record_id_eia_override_1&quot;</span><span class="p">:</span> <span class="s2">&quot;record_id_eia&quot;</span><span class="p">,</span>
+                    <span class="s2">"record_id_eia"</span><span class="p">:</span> <span class="s2">"record_id_eia_old"</span><span class="p">,</span>
+                    <span class="s2">"record_id_eia_override_1"</span><span class="p">:</span> <span class="s2">"record_id_eia"</span><span class="p">,</span>
                 <span class="p">}</span>
             <span class="p">)</span>
 
-            <span class="n">only_multi</span> <span class="o">=</span> <span class="n">multi_file_df</span><span class="p">[</span><span class="n">multi_file_df</span><span class="p">[</span><span class="s2">&quot;record_id_eia&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">notna</span><span class="p">()][</span>
+            <span class="n">only_multi</span> <span class="o">=</span> <span class="n">multi_file_df</span><span class="p">[</span><span class="n">multi_file_df</span><span class="p">[</span><span class="s2">"record_id_eia"</span><span class="p">]</span><span class="o">.</span><span class="n">notna</span><span class="p">()][</span>
                 <span class="n">override_cols</span>
             <span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
             <span class="n">all_multi_matches_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">only_multi</span><span class="p">)</span>

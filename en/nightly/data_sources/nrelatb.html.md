@@ -43,11 +43,11 @@ with projections through 2050.
 
 ### Download additional documentation
 
-* [`Nrelatb Definitions 2020 (HTML)`](nrelatb/nrelatb_definitions_2020.html)
-* [`Nrelatb Definitions 2021 (HTML)`](nrelatb/nrelatb_definitions_2021.html)
-* [`Nrelatb Definitions 2022 (HTML)`](nrelatb/nrelatb_definitions_2022.html)
-* [`Nrelatb Definitions 2023 (HTML)`](nrelatb/nrelatb_definitions_2023.html)
-* [`Nrelatb Definitions 2024 (HTML)`](nrelatb/nrelatb_definitions_2024.html)
+* [`Nrelatb Definitions 2020 (HTML)`](_downloads/d7595350dfe362c3d2e1a5bc53383601/nrelatb_definitions_2020.html)
+* [`Nrelatb Definitions 2021 (HTML)`](_downloads/899cce231a7cff5c097e14b663d5beb6/nrelatb_definitions_2021.html)
+* [`Nrelatb Definitions 2022 (HTML)`](_downloads/bab04d7c8a3f284f3c1016be1e2ea45d/nrelatb_definitions_2022.html)
+* [`Nrelatb Definitions 2023 (HTML)`](_downloads/ef1008b992db8aceecc639b540f6fcbf/nrelatb_definitions_2023.html)
+* [`Nrelatb Definitions 2024 (HTML)`](_downloads/ef1bb0966ad08ac9e8f100881564103c/nrelatb_definitions_2024.html)
 
 ### Data available through PUDL
 

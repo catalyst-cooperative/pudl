@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.scripts.auto_match_utilities &#8212; PUDL 2026.8.1.dev16 documentation</title>
+    <title>pudl.scripts.auto_match_utilities &#8212; PUDL 2026.8.1.dev20 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=f981bf86"></script>
+    <script src="../../../_static/documentation_options.js?v=8f1a003a"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev20 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev20 documentation - Home"/>
   
   
 </a></div>
@@ -868,7 +868,7 @@ window.runMermaid = runMermaid;</script>
                 <article class="bd-article">
                   
   <h1>Source code for pudl.scripts.auto_match_utilities</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;A CLI tool for matching FERC and EIA utilities.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""A CLI tool for matching FERC and EIA utilities."""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">importlib</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
@@ -891,20 +891,20 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../../autoapi/pudl/scripts/auto_match_utilities/index.html#pudl.scripts.auto_match_utilities.UTILITY_NAME_CLEANER">[docs]</a>
 <span class="n">UTILITY_NAME_CLEANER</span> <span class="o">=</span> <span class="n">name_cleaner</span><span class="o">.</span><span class="n">CompanyNameCleaner</span><span class="p">(</span>
     <span class="n">cleaning_rules_list</span><span class="o">=</span><span class="p">[</span>
-        <span class="s2">&quot;remove_word_the_from_the_end&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;remove_word_the_from_the_beginning&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;replace_ampersand_by_AND&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;replace_hyphen_by_space&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;replace_underscore_by_space&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;remove_punctuation_except_dot&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;replace_dot_with_nothing&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;remove_math_symbols&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;add_space_before_opening_parentheses&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;add_space_after_closing_parentheses&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;remove_parentheses&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;remove_brackets&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;remove_curly_brackets&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;enforce_single_space_between_words&quot;</span><span class="p">,</span>
+        <span class="s2">"remove_word_the_from_the_end"</span><span class="p">,</span>
+        <span class="s2">"remove_word_the_from_the_beginning"</span><span class="p">,</span>
+        <span class="s2">"replace_ampersand_by_AND"</span><span class="p">,</span>
+        <span class="s2">"replace_hyphen_by_space"</span><span class="p">,</span>
+        <span class="s2">"replace_underscore_by_space"</span><span class="p">,</span>
+        <span class="s2">"remove_punctuation_except_dot"</span><span class="p">,</span>
+        <span class="s2">"replace_dot_with_nothing"</span><span class="p">,</span>
+        <span class="s2">"remove_math_symbols"</span><span class="p">,</span>
+        <span class="s2">"add_space_before_opening_parentheses"</span><span class="p">,</span>
+        <span class="s2">"add_space_after_closing_parentheses"</span><span class="p">,</span>
+        <span class="s2">"remove_parentheses"</span><span class="p">,</span>
+        <span class="s2">"remove_brackets"</span><span class="p">,</span>
+        <span class="s2">"remove_curly_brackets"</span><span class="p">,</span>
+        <span class="s2">"enforce_single_space_between_words"</span><span class="p">,</span>
     <span class="p">],</span>
     <span class="n">legal_term_location</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
 <span class="p">)</span></div>
@@ -914,10 +914,10 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="clean_utility_name">
 <a class="viewcode-back" href="../../../autoapi/pudl/scripts/auto_match_utilities/index.html#pudl.scripts.auto_match_utilities.clean_utility_name">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">clean_utility_name</span><span class="p">(</span><span class="n">col</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Apply standard cleaning steps to the utility name column.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Apply standard cleaning steps to the utility name column."""</span>
     <span class="n">col</span> <span class="o">=</span> <span class="n">col</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">NA</span><span class="p">)</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
     <span class="n">col</span> <span class="o">=</span> <span class="n">UTILITY_NAME_CLEANER</span><span class="o">.</span><span class="n">apply_name_cleaning</span><span class="p">(</span><span class="n">col</span><span class="p">)</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-    <span class="n">col</span> <span class="o">=</span> <span class="n">col</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span><span class="p">)</span>
+    <span class="n">col</span> <span class="o">=</span> <span class="n">col</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">""</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">col</span></div>
 
 
@@ -927,7 +927,7 @@ window.runMermaid = runMermaid;</script>
 <span class="k">def</span><span class="w"> </span><span class="nf">match_utility_names</span><span class="p">(</span>
     <span class="n">eia_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">ferc_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">false_matches</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Match FERC and EIA utilities based on their utility names.</span>
+<span class="w">    </span><span class="sd">"""Match FERC and EIA utilities based on their utility names.</span>
 
 <span class="sd">    We note how many of these records are already matched to one another, and</span>
 <span class="sd">    ignore these matches.</span>
@@ -935,23 +935,23 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    We also ignore matches contained in</span>
 <span class="sd">    src/pudl/package_data/glue/utility_id_pudl_false_matches.csv. These are matches that</span>
 <span class="sd">    we have hand-labelled as incorrect.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># Try an exact match on the cleaned name</span>
     <span class="n">matches</span> <span class="o">=</span> <span class="n">ferc_df</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
         <span class="n">eia_df</span><span class="p">,</span>
-        <span class="n">on</span><span class="o">=</span><span class="s2">&quot;cleaned_utility_name&quot;</span><span class="p">,</span>
-        <span class="n">how</span><span class="o">=</span><span class="s2">&quot;inner&quot;</span><span class="p">,</span>
-        <span class="n">validate</span><span class="o">=</span><span class="s2">&quot;m:m&quot;</span><span class="p">,</span>
-        <span class="n">suffixes</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;_ferc1&quot;</span><span class="p">,</span> <span class="s2">&quot;_eia&quot;</span><span class="p">],</span>
+        <span class="n">on</span><span class="o">=</span><span class="s2">"cleaned_utility_name"</span><span class="p">,</span>
+        <span class="n">how</span><span class="o">=</span><span class="s2">"inner"</span><span class="p">,</span>
+        <span class="n">validate</span><span class="o">=</span><span class="s2">"m:m"</span><span class="p">,</span>
+        <span class="n">suffixes</span><span class="o">=</span><span class="p">[</span><span class="s2">"_ferc1"</span><span class="p">,</span> <span class="s2">"_eia"</span><span class="p">],</span>
     <span class="p">)</span>
 
     <span class="c1"># Check to see how many of these are already matched.</span>
     <span class="n">already_matched</span> <span class="o">=</span> <span class="n">matches</span><span class="p">[</span>
         <span class="p">(</span><span class="n">matches</span><span class="o">.</span><span class="n">utility_id_pudl_ferc1</span> <span class="o">==</span> <span class="n">matches</span><span class="o">.</span><span class="n">utility_id_pudl_eia</span><span class="p">)</span>
     <span class="p">]</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">already_matched</span><span class="p">)</span><span class="si">}</span><span class="s2"> matches have already been made.&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">already_matched</span><span class="p">)</span><span class="si">}</span><span class="s2"> matches have already been made."</span><span class="p">)</span>
 
-    <span class="c1"># Which utilities aren&#39;t currently matched but should be under this model?</span>
+    <span class="c1"># Which utilities aren't currently matched but should be under this model?</span>
     <span class="c1"># This includes new utilities (not yet assigned a PUDL ID) or utilities where the FERC and EIA PUDL IDs are not the same.</span>
     <span class="n">matches</span> <span class="o">=</span> <span class="n">matches</span><span class="p">[</span>
         <span class="p">(</span><span class="n">matches</span><span class="o">.</span><span class="n">utility_id_pudl_ferc1</span> <span class="o">!=</span> <span class="n">matches</span><span class="o">.</span><span class="n">utility_id_pudl_eia</span><span class="p">)</span>
@@ -962,15 +962,15 @@ window.runMermaid = runMermaid;</script>
     <span class="n">matches</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
         <span class="n">matches</span><span class="p">,</span>
         <span class="n">false_matches</span><span class="p">,</span>
-        <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;utility_id_ferc1&quot;</span><span class="p">,</span> <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">],</span>
-        <span class="n">suffixes</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;_ignore&quot;</span><span class="p">],</span>
-        <span class="n">how</span><span class="o">=</span><span class="s2">&quot;outer&quot;</span><span class="p">,</span>
+        <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">"utility_id_ferc1"</span><span class="p">,</span> <span class="s2">"utility_id_eia"</span><span class="p">],</span>
+        <span class="n">suffixes</span><span class="o">=</span><span class="p">[</span><span class="s2">""</span><span class="p">,</span> <span class="s2">"_ignore"</span><span class="p">],</span>
+        <span class="n">how</span><span class="o">=</span><span class="s2">"outer"</span><span class="p">,</span>
         <span class="n">indicator</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="c1"># Drop the matches we wish to ignore</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Ignoring </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">matches</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">matches</span><span class="o">.</span><span class="n">_merge</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s1">&#39;both&#39;</span><span class="p">])</span><span class="si">}</span><span class="s2"> matches.&quot;</span><span class="p">)</span>
-    <span class="n">matches</span> <span class="o">=</span> <span class="n">matches</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">matches</span><span class="o">.</span><span class="n">_merge</span> <span class="o">==</span> <span class="s2">&quot;left_only&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span>
-        <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;_merge&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">matches</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">col</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;_ignore&quot;</span><span class="p">)]</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Ignoring </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">matches</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">matches</span><span class="o">.</span><span class="n">_merge</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s1">'both'</span><span class="p">])</span><span class="si">}</span><span class="s2"> matches."</span><span class="p">)</span>
+    <span class="n">matches</span> <span class="o">=</span> <span class="n">matches</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">matches</span><span class="o">.</span><span class="n">_merge</span> <span class="o">==</span> <span class="s2">"left_only"</span><span class="p">]</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span>
+        <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">"_merge"</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">matches</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">col</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">"_ignore"</span><span class="p">)]</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">matches</span></div>
 
@@ -979,9 +979,9 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="get_existing_glue_df">
 <a class="viewcode-back" href="../../../autoapi/pudl/scripts/auto_match_utilities/index.html#pudl.scripts.auto_match_utilities.get_existing_glue_df">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_existing_glue_df</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Read in the existing handmade glue spreadsheet.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Read in the existing handmade glue spreadsheet."""</span>
     <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
-        <span class="n">importlib</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="s2">&quot;pudl.package_data.glue&quot;</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;utility_id_pudl.csv&quot;</span>
+        <span class="n">importlib</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="s2">"pudl.package_data.glue"</span><span class="p">)</span> <span class="o">/</span> <span class="s2">"utility_id_pudl.csv"</span>
     <span class="p">)</span></div>
 
 
@@ -989,10 +989,10 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="get_false_matches">
 <a class="viewcode-back" href="../../../autoapi/pudl/scripts/auto_match_utilities/index.html#pudl.scripts.auto_match_utilities.get_false_matches">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_false_matches</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Read in the existing handmade false matches spreadsheet.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Read in the existing handmade false matches spreadsheet."""</span>
     <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
-        <span class="n">importlib</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="s2">&quot;pudl.package_data.glue&quot;</span><span class="p">)</span>
-        <span class="o">/</span> <span class="s2">&quot;utility_id_pudl_false_matches.csv&quot;</span>
+        <span class="n">importlib</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="s2">"pudl.package_data.glue"</span><span class="p">)</span>
+        <span class="o">/</span> <span class="s2">"utility_id_pudl_false_matches.csv"</span>
     <span class="p">)</span></div>
 
 
@@ -1000,27 +1000,27 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="drop_records_with_matches">
 <a class="viewcode-back" href="../../../autoapi/pudl/scripts/auto_match_utilities/index.html#pudl.scripts.auto_match_utilities.drop_records_with_matches">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">drop_records_with_matches</span><span class="p">(</span>
-    <span class="n">entity</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;ferc1&quot;</span><span class="p">,</span> <span class="s2">&quot;eia&quot;</span><span class="p">],</span>
+    <span class="n">entity</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"ferc1"</span><span class="p">,</span> <span class="s2">"eia"</span><span class="p">],</span>
     <span class="n">matches_new</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
     <span class="n">existing_glue_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
     <span class="n">matches_existing</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
     <span class="n">unmatched_existing</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Drop records in the original dataframe where matches have been found.</span>
+<span class="w">    </span><span class="sd">"""Drop records in the original dataframe where matches have been found.</span>
 
 <span class="sd">    This takes the original existing_glue_df dataframe, and drops records which were</span>
 <span class="sd">    previously unmatched and have been matched using the automated matching method.</span>
 <span class="sd">    We do this in preparation for adding the new matches to the spreadsheet.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">utility_column</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;utility_id_</span><span class="si">{</span><span class="n">entity</span><span class="si">}</span><span class="s2">&quot;</span>
-    <span class="n">utility_pudl_column</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;utility_id_pudl_</span><span class="si">{</span><span class="n">entity</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="sd">    """</span>
+    <span class="n">utility_column</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"utility_id_</span><span class="si">{</span><span class="n">entity</span><span class="si">}</span><span class="s2">"</span>
+    <span class="n">utility_pudl_column</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"utility_id_pudl_</span><span class="si">{</span><span class="n">entity</span><span class="si">}</span><span class="s2">"</span>
     <span class="n">matching_utility_column</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="s2">&quot;utility_id_ferc1&quot;</span> <span class="k">if</span> <span class="n">entity</span> <span class="o">==</span> <span class="s2">&quot;eia&quot;</span> <span class="k">else</span> <span class="s2">&quot;utility_id_eia&quot;</span>
+        <span class="s2">"utility_id_ferc1"</span> <span class="k">if</span> <span class="n">entity</span> <span class="o">==</span> <span class="s2">"eia"</span> <span class="k">else</span> <span class="s2">"utility_id_eia"</span>
     <span class="p">)</span>
 
     <span class="c1"># Get all records where:</span>
     <span class="c1"># 1) The utility ID of the entity is unmatched in the override CSV</span>
-    <span class="c1"># 2) The PUDL-assigned utility ID isn&#39;t already used in any match.</span>
+    <span class="c1"># 2) The PUDL-assigned utility ID isn't already used in any match.</span>
     <span class="n">entity_matched</span> <span class="o">=</span> <span class="n">matches_new</span><span class="p">[</span>
         <span class="n">matches_new</span><span class="p">[</span><span class="n">utility_column</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">unmatched_existing</span><span class="p">[</span><span class="n">utility_column</span><span class="p">])</span>
         <span class="o">&amp;</span> <span class="p">(</span><span class="o">~</span><span class="n">matches_new</span><span class="p">[</span><span class="n">utility_pudl_column</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">matches_existing</span><span class="o">.</span><span class="n">utility_id_pudl</span><span class="p">))</span>
@@ -1028,7 +1028,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">drop_records</span> <span class="o">=</span> <span class="n">existing_glue_df</span><span class="p">[</span>
         <span class="n">existing_glue_df</span><span class="p">[</span><span class="n">utility_column</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">entity_matched</span><span class="p">[</span><span class="n">utility_column</span><span class="p">])</span>
     <span class="p">]</span>
-    <span class="c1"># Check that we aren&#39;t dropping any EIA matches</span>
+    <span class="c1"># Check that we aren't dropping any EIA matches</span>
     <span class="k">assert</span> <span class="n">drop_records</span><span class="p">[</span><span class="n">matching_utility_column</span><span class="p">]</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
     <span class="c1"># Check that no other plants are mapped to this ID before we drop it</span>
     <span class="n">pudl_ids</span> <span class="o">=</span> <span class="n">drop_records</span><span class="o">.</span><span class="n">utility_id_pudl</span>
@@ -1038,10 +1038,10 @@ window.runMermaid = runMermaid;</script>
             <span class="o">&amp;</span> <span class="p">(</span><span class="n">existing_glue_df</span><span class="p">[</span><span class="n">matching_utility_column</span><span class="p">]</span><span class="o">.</span><span class="n">notnull</span><span class="p">())</span>
         <span class="p">]</span>
     <span class="p">)</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
-        <span class="sa">f</span><span class="s2">&quot;Other records are mapped to the ID we want to drop: </span><span class="se">\n</span><span class="si">{</span><span class="n">other_records</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="sa">f</span><span class="s2">"Other records are mapped to the ID we want to drop: </span><span class="se">\n</span><span class="si">{</span><span class="n">other_records</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
     <span class="c1"># Drop these unmatched records so we can replace them with matches.</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;Dropping </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">drop_records</span><span class="p">)</span><span class="si">}</span><span class="s2"> unmatched </span><span class="si">{</span><span class="n">entity</span><span class="si">}</span><span class="s2"> records to replace with matches.&quot;</span>
+        <span class="sa">f</span><span class="s2">"Dropping </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">drop_records</span><span class="p">)</span><span class="si">}</span><span class="s2"> unmatched </span><span class="si">{</span><span class="n">entity</span><span class="si">}</span><span class="s2"> records to replace with matches."</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">existing_glue_df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">drop_records</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
 
@@ -1052,13 +1052,13 @@ window.runMermaid = runMermaid;</script>
 <span class="k">def</span><span class="w"> </span><span class="nf">add_new_matches_to_dataframe</span><span class="p">(</span>
     <span class="n">matches_new</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">existing_glue_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Add new matches to existing hand-mapped dataframe.</span>
+<span class="w">    </span><span class="sd">"""Add new matches to existing hand-mapped dataframe.</span>
 
 <span class="sd">    We add new matches and assign them new PUDL utility IDs, following one of the</span>
 <span class="sd">    following scenarios:</span>
 <span class="sd">    1) If the PUDL utility ID already exists in another match, we keep that utility ID</span>
 <span class="sd">    to avoid splitting up existing sets of matches.</span>
-<span class="sd">    2) If the PUDL utility ID doesn&#39;t show up anywhere else (i.e., this record was</span>
+<span class="sd">    2) If the PUDL utility ID doesn't show up anywhere else (i.e., this record was</span>
 <span class="sd">    previously unmatched to any other utility), we create a new auto-incremented PUDL ID.</span>
 <span class="sd">    3) If the PUDL utility ID was previously matched to both another EIA and another</span>
 <span class="sd">    FERC utility, this poses a challenge that needs to be resolved by hand and we raise</span>
@@ -1067,21 +1067,21 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    Once all PUDL utility IDs are assigned, we flag all records where multiple FERC and</span>
 <span class="sd">    multiple EIA utilities are matched together. These are uncommon cases and benefit</span>
 <span class="sd">    from manual review to ensure that no unexpected connections have been created.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">final_updates</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">matches_new</span><span class="p">[</span><span class="s2">&quot;utility_id_pudl&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span>
+    <span class="n">matches_new</span><span class="p">[</span><span class="s2">"utility_id_pudl"</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span>
 
     <span class="k">for</span> <span class="n">_i</span><span class="p">,</span> <span class="n">match</span> <span class="ow">in</span> <span class="n">matches_new</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
         <span class="k">if</span> <span class="n">match</span><span class="o">.</span><span class="n">utility_id_ferc1</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">existing_glue_df</span><span class="o">.</span><span class="n">utility_id_ferc1</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">match</span><span class="o">.</span><span class="n">utility_id_eia</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">existing_glue_df</span><span class="o">.</span><span class="n">utility_id_eia</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Found a complex match that connects to different FERC and EIA utilities. This will require manual debugging: </span><span class="si">{</span><span class="n">match</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="sa">f</span><span class="s2">"Found a complex match that connects to different FERC and EIA utilities. This will require manual debugging: </span><span class="si">{</span><span class="n">match</span><span class="si">}</span><span class="s2">"</span>
                 <span class="p">)</span>
             <span class="k">match</span><span class="o">.</span><span class="n">utility_id_pudl</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">utility_id_pudl_ferc1</span>
         <span class="k">elif</span> <span class="n">match</span><span class="o">.</span><span class="n">utility_id_eia</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">existing_glue_df</span><span class="o">.</span><span class="n">utility_id_eia</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">match</span><span class="o">.</span><span class="n">utility_id_ferc1</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">existing_glue_df</span><span class="o">.</span><span class="n">utility_id_ferc1</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Found a complex match that connects to different FERC and EIA utilities. This will require manual debugging: </span><span class="si">{</span><span class="n">match</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="sa">f</span><span class="s2">"Found a complex match that connects to different FERC and EIA utilities. This will require manual debugging: </span><span class="si">{</span><span class="n">match</span><span class="si">}</span><span class="s2">"</span>
                 <span class="p">)</span>
             <span class="k">match</span><span class="o">.</span><span class="n">utility_id_pudl</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">utility_id_pudl_eia</span>
         <span class="n">final_updates</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">match</span><span class="p">)</span>
@@ -1089,11 +1089,11 @@ window.runMermaid = runMermaid;</script>
     <span class="n">updates_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">final_updates</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">updates_df</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>  <span class="c1"># If no updates, do nothing</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;No new matches found.&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"No new matches found."</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">None</span>
 
     <span class="n">updates_df</span> <span class="o">=</span> <span class="n">updates_df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span>
-        <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;utility_id_pudl_ferc1&quot;</span><span class="p">,</span> <span class="s2">&quot;utility_id_pudl_eia&quot;</span><span class="p">]</span>
+        <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">"utility_id_pudl_ferc1"</span><span class="p">,</span> <span class="s2">"utility_id_pudl_eia"</span><span class="p">]</span>
     <span class="p">)</span>
     <span class="c1"># Whichever records have a blank PUDL ID have no linkage to other existing records</span>
     <span class="c1"># and can be reassigned without impact.</span>
@@ -1103,34 +1103,34 @@ window.runMermaid = runMermaid;</script>
     <span class="c1"># we used to originally join these records.</span>
     <span class="c1"># TODO: If we introduce different joining methods (e.g., address), revise this method.</span>
     <span class="n">updates_df</span> <span class="o">=</span> <span class="n">updates_df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
-        <span class="n">group_id</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;cleaned_utility_name&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">ngroup</span><span class="p">()</span>
+        <span class="n">group_id</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">"cleaned_utility_name"</span><span class="p">)</span><span class="o">.</span><span class="n">ngroup</span><span class="p">()</span>
     <span class="p">)</span>
     <span class="c1"># Then use this value to fill NAs in the utility ID PUDL.</span>
     <span class="n">updates_df</span><span class="o">.</span><span class="n">utility_id_pudl</span> <span class="o">=</span> <span class="n">updates_df</span><span class="o">.</span><span class="n">utility_id_pudl</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span>
         <span class="n">updates_df</span><span class="o">.</span><span class="n">group_id</span> <span class="o">+</span> <span class="nb">max</span><span class="p">(</span><span class="n">existing_glue_df</span><span class="o">.</span><span class="n">utility_id_pudl</span><span class="p">)</span>
-    <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;Int64&quot;</span><span class="p">)</span>
-    <span class="n">updates_df</span> <span class="o">=</span> <span class="n">updates_df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;group_id&quot;</span><span class="p">,</span> <span class="s2">&quot;cleaned_utility_name&quot;</span><span class="p">])</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">"Int64"</span><span class="p">)</span>
+    <span class="n">updates_df</span> <span class="o">=</span> <span class="n">updates_df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">"group_id"</span><span class="p">,</span> <span class="s2">"cleaned_utility_name"</span><span class="p">])</span>
     <span class="c1"># Add a note to these records to help us quickly identify which were matched automatically.s</span>
-    <span class="n">updates_df</span><span class="p">[</span><span class="s2">&quot;notes&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;These records were automatically matched based on utility name on </span><span class="si">{</span><span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="s1">&#39;today&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%m/</span><span class="si">%d</span><span class="s1">/%Y&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">updates_df</span><span class="p">[</span><span class="s2">"notes"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="sa">f</span><span class="s2">"These records were automatically matched based on utility name on </span><span class="si">{</span><span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="s1">'today'</span><span class="p">)</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">'%m/</span><span class="si">%d</span><span class="s1">/%Y'</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
     <span class="p">)</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;Adding </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">updates_df</span><span class="p">)</span><span class="si">}</span><span class="s2"> utility matches to the override spreadsheet. Remember to manually review these.&quot;</span>
+        <span class="sa">f</span><span class="s2">"Adding </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">updates_df</span><span class="p">)</span><span class="si">}</span><span class="s2"> utility matches to the override spreadsheet. Remember to manually review these."</span>
     <span class="p">)</span>
     <span class="n">updated_existing_glue_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">existing_glue_df</span><span class="p">,</span> <span class="n">updates_df</span><span class="p">])</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span>
-        <span class="p">[</span><span class="s2">&quot;utility_id_pudl&quot;</span><span class="p">,</span> <span class="s2">&quot;utility_id_ferc1&quot;</span><span class="p">,</span> <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">]</span>
+        <span class="p">[</span><span class="s2">"utility_id_pudl"</span><span class="p">,</span> <span class="s2">"utility_id_ferc1"</span><span class="p">,</span> <span class="s2">"utility_id_eia"</span><span class="p">]</span>
     <span class="p">)</span>
 
     <span class="c1"># Run some sanity checks</span>
     <span class="c1"># Flag all records where one utility ID corresponds to more than one FERC AND more than one EIA utility.</span>
-    <span class="n">ids_per_utility</span> <span class="o">=</span> <span class="n">updated_existing_glue_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;utility_id_pudl&quot;</span><span class="p">)[</span>
-        <span class="p">[</span><span class="s2">&quot;utility_id_ferc1&quot;</span><span class="p">,</span> <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">]</span>
+    <span class="n">ids_per_utility</span> <span class="o">=</span> <span class="n">updated_existing_glue_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">"utility_id_pudl"</span><span class="p">)[</span>
+        <span class="p">[</span><span class="s2">"utility_id_ferc1"</span><span class="p">,</span> <span class="s2">"utility_id_eia"</span><span class="p">]</span>
     <span class="p">]</span><span class="o">.</span><span class="n">nunique</span><span class="p">()</span>
     <span class="n">multi_utility_ids</span> <span class="o">=</span> <span class="n">ids_per_utility</span><span class="p">[</span>
         <span class="p">(</span><span class="n">ids_per_utility</span><span class="o">.</span><span class="n">utility_id_ferc1</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">ids_per_utility</span><span class="o">.</span><span class="n">utility_id_eia</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">)</span>
     <span class="p">]</span><span class="o">.</span><span class="n">index</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-        <span class="s2">&quot;The following records have more than one FERC and more than one EIA utility matched to them. Please manually review!&quot;</span>
+        <span class="s2">"The following records have more than one FERC and more than one EIA utility matched to them. Please manually review!"</span>
     <span class="p">)</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
         <span class="n">updated_existing_glue_df</span><span class="p">[</span>
@@ -1144,42 +1144,42 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="write_updated_matches">
 <a class="viewcode-back" href="../../../autoapi/pudl/scripts/auto_match_utilities/index.html#pudl.scripts.auto_match_utilities.write_updated_matches">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">write_updated_matches</span><span class="p">(</span><span class="n">test_run</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">dataframe</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Write the updated matching spreadsheet to disk.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Write the updated matching spreadsheet to disk."""</span>
     <span class="k">if</span> <span class="n">test_run</span><span class="p">:</span>
         <span class="n">repo_root</span> <span class="o">=</span> <span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">()</span>
-        <span class="n">devtools_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">repo_root</span> <span class="o">/</span> <span class="s2">&quot;devtools&quot;</span> <span class="o">/</span> <span class="s2">&quot;ferc1-eia-glue&quot;</span><span class="p">)</span>
-        <span class="n">csv_path</span> <span class="o">=</span> <span class="n">devtools_dir</span> <span class="o">/</span> <span class="s2">&quot;utility_id_pudl_test_update.csv&quot;</span>
+        <span class="n">devtools_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">repo_root</span> <span class="o">/</span> <span class="s2">"devtools"</span> <span class="o">/</span> <span class="s2">"ferc1-eia-glue"</span><span class="p">)</span>
+        <span class="n">csv_path</span> <span class="o">=</span> <span class="n">devtools_dir</span> <span class="o">/</span> <span class="s2">"utility_id_pudl_test_update.csv"</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">csv_path</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">importlib</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="s2">&quot;pudl.package_data.glue&quot;</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;utility_id_pudl.csv&quot;</span>
+            <span class="n">importlib</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="s2">"pudl.package_data.glue"</span><span class="p">)</span> <span class="o">/</span> <span class="s2">"utility_id_pudl.csv"</span>
         <span class="p">)</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Writing matches to </span><span class="si">{</span><span class="n">csv_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Writing matches to </span><span class="si">{</span><span class="n">csv_path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
     <span class="n">dataframe</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">csv_path</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
 
 
 
 <span class="nd">@click</span><span class="o">.</span><span class="n">command</span><span class="p">(</span>
-    <span class="n">context_settings</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;help_option_names&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;-h&quot;</span><span class="p">,</span> <span class="s2">&quot;--help&quot;</span><span class="p">]},</span>
+    <span class="n">context_settings</span><span class="o">=</span><span class="p">{</span><span class="s2">"help_option_names"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"-h"</span><span class="p">,</span> <span class="s2">"--help"</span><span class="p">]},</span>
 <span class="p">)</span>
 <span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
-    <span class="s2">&quot;--test-run&quot;</span><span class="p">,</span>
+    <span class="s2">"--test-run"</span><span class="p">,</span>
     <span class="n">is_flag</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;If passed, will save the updated spreadsheet to a test file rather than overwriting the existing package data.&quot;</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">"If passed, will save the updated spreadsheet to a test file rather than overwriting the existing package data."</span><span class="p">,</span>
 <span class="p">)</span>
 <div class="viewcode-block" id="main">
 <a class="viewcode-back" href="../../../autoapi/pudl/scripts/auto_match_utilities/index.html#pudl.scripts.auto_match_utilities.main">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="n">test_run</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Match EIA and FERC utilities based on utility name alone.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Match EIA and FERC utilities based on utility name alone."""</span>
     <span class="c1"># Read in the data, keeping only utility IDs and name</span>
     <span class="n">eia_df</span> <span class="o">=</span> <span class="n">get_parquet_table</span><span class="p">(</span>
-        <span class="s2">&quot;out_eia__yearly_utilities&quot;</span><span class="p">,</span>
-        <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;utility_id_pudl&quot;</span><span class="p">,</span> <span class="s2">&quot;utility_name_eia&quot;</span><span class="p">],</span>
+        <span class="s2">"out_eia__yearly_utilities"</span><span class="p">,</span>
+        <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">"utility_id_eia"</span><span class="p">,</span> <span class="s2">"utility_id_pudl"</span><span class="p">,</span> <span class="s2">"utility_name_eia"</span><span class="p">],</span>
     <span class="p">)</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span>
-    <span class="n">ferc_df</span> <span class="o">=</span> <span class="n">get_parquet_table</span><span class="p">(</span><span class="s2">&quot;core_pudl__assn_ferc1_pudl_utilities&quot;</span><span class="p">)</span>
+    <span class="n">ferc_df</span> <span class="o">=</span> <span class="n">get_parquet_table</span><span class="p">(</span><span class="s2">"core_pudl__assn_ferc1_pudl_utilities"</span><span class="p">)</span>
     <span class="c1"># Clean the data</span>
-    <span class="n">eia_df</span><span class="p">[</span><span class="s2">&quot;cleaned_utility_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">clean_utility_name</span><span class="p">(</span><span class="n">eia_df</span><span class="p">[</span><span class="s2">&quot;utility_name_eia&quot;</span><span class="p">])</span>
-    <span class="n">ferc_df</span><span class="p">[</span><span class="s2">&quot;cleaned_utility_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">clean_utility_name</span><span class="p">(</span><span class="n">ferc_df</span><span class="p">[</span><span class="s2">&quot;utility_name_ferc1&quot;</span><span class="p">])</span>
+    <span class="n">eia_df</span><span class="p">[</span><span class="s2">"cleaned_utility_name"</span><span class="p">]</span> <span class="o">=</span> <span class="n">clean_utility_name</span><span class="p">(</span><span class="n">eia_df</span><span class="p">[</span><span class="s2">"utility_name_eia"</span><span class="p">])</span>
+    <span class="n">ferc_df</span><span class="p">[</span><span class="s2">"cleaned_utility_name"</span><span class="p">]</span> <span class="o">=</span> <span class="n">clean_utility_name</span><span class="p">(</span><span class="n">ferc_df</span><span class="p">[</span><span class="s2">"utility_name_ferc1"</span><span class="p">])</span>
 
     <span class="c1"># Get false matches (we ignore these even if they exactly name match)</span>
     <span class="n">false_matches</span> <span class="o">=</span> <span class="n">get_false_matches</span><span class="p">()</span>
@@ -1190,17 +1190,17 @@ window.runMermaid = runMermaid;</script>
     <span class="p">)</span>
 
     <span class="c1"># Warn about duplicated utilities</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;The following utilities are matched to more than one FERC ID:&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"The following utilities are matched to more than one FERC ID:"</span><span class="p">)</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
         <span class="n">matched_utilities</span><span class="p">[</span>
             <span class="n">matched_utilities</span><span class="o">.</span><span class="n">utility_id_ferc1</span><span class="o">.</span><span class="n">duplicated</span><span class="p">(</span><span class="n">keep</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-        <span class="p">]</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s2">&quot;utility_id_ferc1&quot;</span><span class="p">)</span>
+        <span class="p">]</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s2">"utility_id_ferc1"</span><span class="p">)</span>
     <span class="p">)</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;The following utilities are matched to more than one EIA ID:&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"The following utilities are matched to more than one EIA ID:"</span><span class="p">)</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
         <span class="n">matched_utilities</span><span class="p">[</span>
             <span class="n">matched_utilities</span><span class="o">.</span><span class="n">utility_id_eia</span><span class="o">.</span><span class="n">duplicated</span><span class="p">(</span><span class="n">keep</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-        <span class="p">]</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s2">&quot;utility_id_eia&quot;</span><span class="p">)</span>
+        <span class="p">]</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s2">"utility_id_eia"</span><span class="p">)</span>
     <span class="p">)</span>
 
     <span class="c1"># Get the override spreadsheet</span>
@@ -1218,7 +1218,7 @@ window.runMermaid = runMermaid;</script>
         <span class="p">)</span>
     <span class="p">]</span>
 
-    <span class="k">for</span> <span class="n">entity</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;ferc1&quot;</span><span class="p">,</span> <span class="s2">&quot;eia&quot;</span><span class="p">]:</span>
+    <span class="k">for</span> <span class="n">entity</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"ferc1"</span><span class="p">,</span> <span class="s2">"eia"</span><span class="p">]:</span>
         <span class="n">existing_glue_df</span> <span class="o">=</span> <span class="n">drop_records_with_matches</span><span class="p">(</span>
             <span class="n">entity</span><span class="o">=</span><span class="n">entity</span><span class="p">,</span>
             <span class="n">matches_new</span><span class="o">=</span><span class="n">matched_utilities</span><span class="p">,</span>
@@ -1238,7 +1238,7 @@ window.runMermaid = runMermaid;</script>
 
 
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
     <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
 </pre></div>
 

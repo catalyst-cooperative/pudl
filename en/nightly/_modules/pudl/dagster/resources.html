@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.dagster.resources &#8212; PUDL 2026.8.1.dev16 documentation</title>
+    <title>pudl.dagster.resources &#8212; PUDL 2026.8.1.dev20 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=f981bf86"></script>
+    <script src="../../../_static/documentation_options.js?v=8f1a003a"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev20 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev20 documentation - Home"/>
   
   
 </a></div>
@@ -868,7 +868,7 @@ window.runMermaid = runMermaid;</script>
                 <article class="bd-article">
                   
   <h1>Source code for pudl.dagster.resources</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Dagster resources for PUDL.</span>
+<span></span><span class="sd">"""Dagster resources for PUDL.</span>
 
 <span class="sd">This module defines the configurable resources that PUDL assets depend on at runtime,</span>
 <span class="sd">such as data configuration, datastore access, and other run-scoped helpers, along with</span>
@@ -880,7 +880,7 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">For the underlying Dagster concept, see</span>
 <span class="sd">https://docs.dagster.io/guides/build/external-resources</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
@@ -900,7 +900,7 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.workspace.setup</span><span class="w"> </span><span class="kn">import</span> <span class="n">PudlPaths</span>
 
 <span class="n">DEFAULT_FERCEQR_DEPLOYMENT_CONFIG_PATH</span> <span class="o">=</span> <span class="p">(</span>
-    <span class="n">PUDL_SETTINGS_PATH</span> <span class="o">/</span> <span class="s2">&quot;ferceqr_deployment_targets.yml&quot;</span>
+    <span class="n">PUDL_SETTINGS_PATH</span> <span class="o">/</span> <span class="s2">"ferceqr_deployment_targets.yml"</span>
 <span class="p">)</span>
 
 
@@ -910,27 +910,27 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="PudlPathsResource">
 <a class="viewcode-back" href="../../../autoapi/pudl/dagster/resources/index.html#pudl.dagster.resources.PudlPathsResource">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">PudlPathsResource</span><span class="p">(</span><span class="n">dg</span><span class="o">.</span><span class="n">ConfigurableResource</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load the input/output paths used by Dagster-managed PUDL runs.</span>
+<span class="w">    </span><span class="sd">"""Load the input/output paths used by Dagster-managed PUDL runs.</span>
 
 <span class="sd">    Explicit Dagster resource config takes precedence. Any unset field falls back to</span>
 <span class="sd">    the current process environment so `dg` runs, local `.env` files, test fixtures,</span>
 <span class="sd">    and container-provided environment variables all share a single typed entry point.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="PudlPathsResource.pudl_input">
 <a class="viewcode-back" href="../../../autoapi/pudl/dagster/resources/index.html#pudl.dagster.resources.PudlPathsResource.pudl_input">[docs]</a>
-    <span class="n">pudl_input</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">dg</span><span class="o">.</span><span class="n">EnvVar</span><span class="p">(</span><span class="s2">&quot;PUDL_INPUT&quot;</span><span class="p">)</span></div>
+    <span class="n">pudl_input</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">dg</span><span class="o">.</span><span class="n">EnvVar</span><span class="p">(</span><span class="s2">"PUDL_INPUT"</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="PudlPathsResource.pudl_output">
 <a class="viewcode-back" href="../../../autoapi/pudl/dagster/resources/index.html#pudl.dagster.resources.PudlPathsResource.pudl_output">[docs]</a>
-    <span class="n">pudl_output</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">dg</span><span class="o">.</span><span class="n">EnvVar</span><span class="p">(</span><span class="s2">&quot;PUDL_OUTPUT&quot;</span><span class="p">)</span></div>
+    <span class="n">pudl_output</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">dg</span><span class="o">.</span><span class="n">EnvVar</span><span class="p">(</span><span class="s2">"PUDL_OUTPUT"</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="PudlPathsResource.create_resource">
 <a class="viewcode-back" href="../../../autoapi/pudl/dagster/resources/index.html#pudl.dagster.resources.PudlPathsResource.create_resource">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">create_resource</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PudlPaths</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create validated runtime path settings for the current Dagster run.&quot;&quot;&quot;</span>
-        <span class="k">del</span> <span class="n">context</span>  <span class="c1"># Required by Dagster&#39;s hook signature; intentionally unused here.</span>
+<span class="w">        </span><span class="sd">"""Create validated runtime path settings for the current Dagster run."""</span>
+        <span class="k">del</span> <span class="n">context</span>  <span class="c1"># Required by Dagster's hook signature; intentionally unused here.</span>
         <span class="k">return</span> <span class="n">PudlPaths</span><span class="p">(</span><span class="n">pudl_input</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pudl_input</span><span class="p">,</span> <span class="n">pudl_output</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pudl_output</span><span class="p">)</span></div>
 </div>
 
@@ -939,7 +939,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="FercXbrlRuntimeSettings">
 <a class="viewcode-back" href="../../../autoapi/pudl/dagster/resources/index.html#pudl.dagster.resources.FercXbrlRuntimeSettings">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">FercXbrlRuntimeSettings</span><span class="p">(</span><span class="n">dg</span><span class="o">.</span><span class="n">ConfigurableResource</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Encodes runtime settings for the ferc_to_sqlite graphs.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Encodes runtime settings for the ferc_to_sqlite graphs."""</span>
 
 <div class="viewcode-block" id="FercXbrlRuntimeSettings.xbrl_num_workers">
 <a class="viewcode-back" href="../../../autoapi/pudl/dagster/resources/index.html#pudl.dagster.resources.FercXbrlRuntimeSettings.xbrl_num_workers">[docs]</a>
@@ -951,7 +951,7 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="FercXbrlRuntimeSettings.xbrl_loglevel">
 <a class="viewcode-back" href="../../../autoapi/pudl/dagster/resources/index.html#pudl.dagster.resources.FercXbrlRuntimeSettings.xbrl_loglevel">[docs]</a>
-    <span class="n">xbrl_loglevel</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;INFO&quot;</span></div>
+    <span class="n">xbrl_loglevel</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"INFO"</span></div>
 </div>
 
 
@@ -959,18 +959,18 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="GlobalDataConfigResource">
 <a class="viewcode-back" href="../../../autoapi/pudl/dagster/resources/index.html#pudl.dagster.resources.GlobalDataConfigResource">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">GlobalDataConfigResource</span><span class="p">(</span><span class="n">dg</span><span class="o">.</span><span class="n">ConfigurableResource</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load validated PUDL data configuration from a shared ETL YAML file.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Load validated PUDL data configuration from a shared ETL YAML file."""</span>
 
 <div class="viewcode-block" id="GlobalDataConfigResource.global_data_config_path">
 <a class="viewcode-back" href="../../../autoapi/pudl/dagster/resources/index.html#pudl.dagster.resources.GlobalDataConfigResource.global_data_config_path">[docs]</a>
-    <span class="n">global_data_config_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">PUDL_SETTINGS_PATH</span> <span class="o">/</span> <span class="s2">&quot;etl_full.yml&quot;</span><span class="p">)</span></div>
+    <span class="n">global_data_config_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">PUDL_SETTINGS_PATH</span> <span class="o">/</span> <span class="s2">"etl_full.yml"</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="GlobalDataConfigResource.create_resource">
 <a class="viewcode-back" href="../../../autoapi/pudl/dagster/resources/index.html#pudl.dagster.resources.GlobalDataConfigResource.create_resource">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">create_resource</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">GlobalDataConfig</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create runtime data configuration from the configured YAML file.&quot;&quot;&quot;</span>
-        <span class="k">del</span> <span class="n">context</span>  <span class="c1"># Required by Dagster&#39;s hook signature; intentionally unused here.</span>
+<span class="w">        </span><span class="sd">"""Create runtime data configuration from the configured YAML file."""</span>
+        <span class="k">del</span> <span class="n">context</span>  <span class="c1"># Required by Dagster's hook signature; intentionally unused here.</span>
         <span class="k">return</span> <span class="n">GlobalDataConfig</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">global_data_config_path</span><span class="p">)</span></div>
 </div>
 
@@ -979,17 +979,17 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="ZenodoDoiSettingsResource">
 <a class="viewcode-back" href="../../../autoapi/pudl/dagster/resources/index.html#pudl.dagster.resources.ZenodoDoiSettingsResource">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ZenodoDoiSettingsResource</span><span class="p">(</span><span class="n">dg</span><span class="o">.</span><span class="n">ConfigurableResource</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load the canonical Zenodo DOI settings for Dagster-managed runs.</span>
+<span class="w">    </span><span class="sd">"""Load the canonical Zenodo DOI settings for Dagster-managed runs.</span>
 
 <span class="sd">    Two configuration paths are supported:</span>
 
 <span class="sd">    * **Inline defaults** (``zenodo_dois_path=None``): uses the canonical Zenodo DOIs</span>
 <span class="sd">      that are hardcoded as defaults in :class:`~pudl.workspace.datastore.ZenodoDoiSettings`.</span>
 <span class="sd">      This is the normal production path — no extra config file is needed.</span>
-<span class="sd">    * **Path override** (``zenodo_dois_path=&quot;...&quot;``): loads DOIs from an external YAML</span>
+<span class="sd">    * **Path override** (``zenodo_dois_path="..."``): loads DOIs from an external YAML</span>
 <span class="sd">      file, allowing deployments or tests to substitute different DOIs without modifying</span>
 <span class="sd">      the source code.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="ZenodoDoiSettingsResource.zenodo_dois_path">
 <a class="viewcode-back" href="../../../autoapi/pudl/dagster/resources/index.html#pudl.dagster.resources.ZenodoDoiSettingsResource.zenodo_dois_path">[docs]</a>
@@ -999,8 +999,8 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="ZenodoDoiSettingsResource.create_resource">
 <a class="viewcode-back" href="../../../autoapi/pudl/dagster/resources/index.html#pudl.dagster.resources.ZenodoDoiSettingsResource.create_resource">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">create_resource</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ZenodoDoiSettings</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create runtime DOI settings, optionally from an override YAML file.&quot;&quot;&quot;</span>
-        <span class="k">del</span> <span class="n">context</span>  <span class="c1"># Required by Dagster&#39;s hook signature; intentionally unused here.</span>
+<span class="w">        </span><span class="sd">"""Create runtime DOI settings, optionally from an override YAML file."""</span>
+        <span class="k">del</span> <span class="n">context</span>  <span class="c1"># Required by Dagster's hook signature; intentionally unused here.</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">zenodo_dois_path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">ZenodoDoiSettings</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">ZenodoDoiSettings</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">zenodo_dois_path</span><span class="p">)</span></div>
@@ -1011,7 +1011,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="DatastoreResource">
 <a class="viewcode-back" href="../../../autoapi/pudl/dagster/resources/index.html#pudl.dagster.resources.DatastoreResource">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">DatastoreResource</span><span class="p">(</span><span class="n">dg</span><span class="o">.</span><span class="n">ConfigurableResource</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Dagster resource to interact with Zenodo archives.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Dagster resource to interact with Zenodo archives."""</span>
 
 <div class="viewcode-block" id="DatastoreResource.zenodo_dois">
 <a class="viewcode-back" href="../../../autoapi/pudl/dagster/resources/index.html#pudl.dagster.resources.DatastoreResource.zenodo_dois">[docs]</a>
@@ -1023,7 +1023,7 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="DatastoreResource.cloud_cache_path">
 <a class="viewcode-back" href="../../../autoapi/pudl/dagster/resources/index.html#pudl.dagster.resources.DatastoreResource.cloud_cache_path">[docs]</a>
-    <span class="n">cloud_cache_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;s3://pudl.catalyst.coop/zenodo&quot;</span></div>
+    <span class="n">cloud_cache_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"s3://pudl.catalyst.coop/zenodo"</span></div>
 
 <div class="viewcode-block" id="DatastoreResource.use_local_cache">
 <a class="viewcode-back" href="../../../autoapi/pudl/dagster/resources/index.html#pudl.dagster.resources.DatastoreResource.use_local_cache">[docs]</a>
@@ -1033,15 +1033,15 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="DatastoreResource.create_resource">
 <a class="viewcode-back" href="../../../autoapi/pudl/dagster/resources/index.html#pudl.dagster.resources.DatastoreResource.create_resource">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">create_resource</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Datastore</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a configured datastore runtime object.&quot;&quot;&quot;</span>
-        <span class="k">del</span> <span class="n">context</span>  <span class="c1"># Required by Dagster&#39;s hook signature; intentionally unused here.</span>
+<span class="w">        </span><span class="sd">"""Create a configured datastore runtime object."""</span>
+        <span class="k">del</span> <span class="n">context</span>  <span class="c1"># Required by Dagster's hook signature; intentionally unused here.</span>
         <span class="n">ds_kwargs</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;cloud_cache_path&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">cloud_cache_path</span><span class="p">,</span>
-            <span class="s2">&quot;zenodo_dois&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">zenodo_dois</span><span class="p">,</span>
+            <span class="s2">"cloud_cache_path"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">cloud_cache_path</span><span class="p">,</span>
+            <span class="s2">"zenodo_dois"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">zenodo_dois</span><span class="p">,</span>
         <span class="p">}</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_local_cache</span><span class="p">:</span>
-            <span class="n">ds_kwargs</span><span class="p">[</span><span class="s2">&quot;local_cache_path&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pudl_paths</span><span class="o">.</span><span class="n">pudl_input</span>
+            <span class="n">ds_kwargs</span><span class="p">[</span><span class="s2">"local_cache_path"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pudl_paths</span><span class="o">.</span><span class="n">pudl_input</span>
         <span class="k">return</span> <span class="n">Datastore</span><span class="p">(</span><span class="o">**</span><span class="n">ds_kwargs</span><span class="p">)</span></div>
 </div>
 
@@ -1050,23 +1050,23 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="FercEqrArchiveResource">
 <a class="viewcode-back" href="../../../autoapi/pudl/dagster/resources/index.html#pudl.dagster.resources.FercEqrArchiveResource">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">FercEqrArchiveResource</span><span class="p">(</span><span class="n">dg</span><span class="o">.</span><span class="n">ConfigurableResource</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Configure which archived FERC EQR filings are available for extraction.</span>
+<span class="w">    </span><span class="sd">"""Configure which archived FERC EQR filings are available for extraction.</span>
 
 <span class="sd">    The default value of ``path`` points to the published archive of FERC EQR filings on</span>
 <span class="sd">    GCS which is what we use in production. For testing or development, this can be</span>
 <span class="sd">    overridden to point to a local path with a subset of the archive.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="FercEqrArchiveResource.path">
 <a class="viewcode-back" href="../../../autoapi/pudl/dagster/resources/index.html#pudl.dagster.resources.FercEqrArchiveResource.path">[docs]</a>
-    <span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">dg</span><span class="o">.</span><span class="n">EnvVar</span><span class="p">(</span><span class="s2">&quot;PUDL_FERCEQR_ARCHIVE_PATH&quot;</span><span class="p">)</span></div>
+    <span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">dg</span><span class="o">.</span><span class="n">EnvVar</span><span class="p">(</span><span class="s2">"PUDL_FERCEQR_ARCHIVE_PATH"</span><span class="p">)</span></div>
 
 
     <span class="nd">@property</span>
 <div class="viewcode-block" id="FercEqrArchiveResource.upath">
 <a class="viewcode-back" href="../../../autoapi/pudl/dagster/resources/index.html#pudl.dagster.resources.FercEqrArchiveResource.upath">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">upath</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UPath</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return UPath pointing to archive base path.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return UPath pointing to archive base path."""</span>
         <span class="k">return</span> <span class="n">UPath</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">)</span></div>
 </div>
 
@@ -1075,13 +1075,13 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="FercEqrDeploymentTargetConfig">
 <a class="viewcode-back" href="../../../autoapi/pudl/dagster/resources/index.html#pudl.dagster.resources.FercEqrDeploymentTargetConfig">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">FercEqrDeploymentTargetConfig</span><span class="p">(</span><span class="n">dg</span><span class="o">.</span><span class="n">Config</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A single deployment destination for FERC EQR outputs.</span>
+<span class="w">    </span><span class="sd">"""A single deployment destination for FERC EQR outputs.</span>
 
 <span class="sd">    ``path`` is a UPath-compatible string: an absolute local directory path, ``file://``</span>
 <span class="sd">    URI, ``gs://`` URI, or ``s3://`` URI.  ``storage_options`` is unpacked as</span>
 <span class="sd">    ``**kwargs`` when constructing the :class:`~upath.UPath`, allowing per-target fsspec</span>
 <span class="sd">    settings such as ``requester_pays=True`` for requester-pays GCS buckets.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="FercEqrDeploymentTargetConfig.path">
 <a class="viewcode-back" href="../../../autoapi/pudl/dagster/resources/index.html#pudl.dagster.resources.FercEqrDeploymentTargetConfig.path">[docs]</a>
@@ -1096,56 +1096,56 @@ window.runMermaid = runMermaid;</script>
     <span class="n">append_build_id</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></div>
 
 
-    <span class="nd">@field_validator</span><span class="p">(</span><span class="s2">&quot;path&quot;</span><span class="p">)</span>
+    <span class="nd">@field_validator</span><span class="p">(</span><span class="s2">"path"</span><span class="p">)</span>
     <span class="nd">@classmethod</span>
 <div class="viewcode-block" id="FercEqrDeploymentTargetConfig.validate_path">
 <a class="viewcode-back" href="../../../autoapi/pudl/dagster/resources/index.html#pudl.dagster.resources.FercEqrDeploymentTargetConfig.validate_path">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">validate_path</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>  <span class="c1"># noqa: C901</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Validate deployment targets as remote URLs or local directories.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Validate deployment targets as remote URLs or local directories."""</span>
         <span class="n">normalized_value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">normalized_value</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Deployment target path cannot be empty.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Deployment target path cannot be empty."</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">normalized_value</span><span class="o">.</span><span class="n">startswith</span><span class="p">((</span><span class="s2">&quot;s3://&quot;</span><span class="p">,</span> <span class="s2">&quot;gs://&quot;</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="n">normalized_value</span><span class="o">.</span><span class="n">startswith</span><span class="p">((</span><span class="s2">"s3://"</span><span class="p">,</span> <span class="s2">"gs://"</span><span class="p">)):</span>
             <span class="n">parsed_path</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">normalized_value</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">parsed_path</span><span class="o">.</span><span class="n">scheme</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">&quot;s3&quot;</span><span class="p">,</span> <span class="s2">&quot;gs&quot;</span><span class="p">}</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">parsed_path</span><span class="o">.</span><span class="n">netloc</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">parsed_path</span><span class="o">.</span><span class="n">scheme</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">"s3"</span><span class="p">,</span> <span class="s2">"gs"</span><span class="p">}</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">parsed_path</span><span class="o">.</span><span class="n">netloc</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="s2">&quot;Deployment target path must be a valid s3:// or gs:// URL.&quot;</span>
+                    <span class="s2">"Deployment target path must be a valid s3:// or gs:// URL."</span>
                 <span class="p">)</span>
             <span class="k">return</span> <span class="n">normalized_value</span>
 
-        <span class="k">if</span> <span class="n">normalized_value</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;file://&quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">normalized_value</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"file://"</span><span class="p">):</span>
             <span class="n">parsed_path</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">normalized_value</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">parsed_path</span><span class="o">.</span><span class="n">scheme</span> <span class="o">!=</span> <span class="s2">&quot;file&quot;</span> <span class="ow">or</span> <span class="n">parsed_path</span><span class="o">.</span><span class="n">netloc</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">{</span>
-                <span class="s2">&quot;&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;localhost&quot;</span><span class="p">,</span>
+            <span class="k">if</span> <span class="n">parsed_path</span><span class="o">.</span><span class="n">scheme</span> <span class="o">!=</span> <span class="s2">"file"</span> <span class="ow">or</span> <span class="n">parsed_path</span><span class="o">.</span><span class="n">netloc</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">{</span>
+                <span class="s2">""</span><span class="p">,</span>
+                <span class="s2">"localhost"</span><span class="p">,</span>
             <span class="p">}:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="s2">&quot;Deployment target path must be a valid file:// URI with an absolute local path.&quot;</span>
+                    <span class="s2">"Deployment target path must be a valid file:// URI with an absolute local path."</span>
                 <span class="p">)</span>
             <span class="n">local_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">parsed_path</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">if</span> <span class="s2">&quot;://&quot;</span> <span class="ow">in</span> <span class="n">normalized_value</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">"://"</span> <span class="ow">in</span> <span class="n">normalized_value</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="s2">&quot;Deployment target path must be a valid s3:// URL, gs:// URL, &quot;</span>
-                    <span class="s2">&quot;file:// URI, or local filesystem path.&quot;</span>
+                    <span class="s2">"Deployment target path must be a valid s3:// URL, gs:// URL, "</span>
+                    <span class="s2">"file:// URI, or local filesystem path."</span>
                 <span class="p">)</span>
             <span class="n">local_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">normalized_value</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">local_path</span><span class="o">.</span><span class="n">is_absolute</span><span class="p">():</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;Local deployment target paths must be absolute filesystem paths.&quot;</span>
+                <span class="s2">"Local deployment target paths must be absolute filesystem paths."</span>
             <span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">local_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Local deployment target path </span><span class="si">{</span><span class="n">local_path</span><span class="si">}</span><span class="s2"> does not exist.&quot;</span>
+                <span class="sa">f</span><span class="s2">"Local deployment target path </span><span class="si">{</span><span class="n">local_path</span><span class="si">}</span><span class="s2"> does not exist."</span>
             <span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">local_path</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Local deployment target path </span><span class="si">{</span><span class="n">local_path</span><span class="si">}</span><span class="s2"> is not a directory.&quot;</span>
+                <span class="sa">f</span><span class="s2">"Local deployment target path </span><span class="si">{</span><span class="n">local_path</span><span class="si">}</span><span class="s2"> is not a directory."</span>
             <span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">access</span><span class="p">(</span><span class="n">local_path</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">W_OK</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Local deployment target path </span><span class="si">{</span><span class="n">local_path</span><span class="si">}</span><span class="s2"> is not writable.&quot;</span>
+                <span class="sa">f</span><span class="s2">"Local deployment target path </span><span class="si">{</span><span class="n">local_path</span><span class="si">}</span><span class="s2"> is not writable."</span>
             <span class="p">)</span>
         <span class="k">return</span> <span class="n">normalized_value</span></div>
 </div>
@@ -1155,12 +1155,12 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="FercEqrDeploymentResource">
 <a class="viewcode-back" href="../../../autoapi/pudl/dagster/resources/index.html#pudl.dagster.resources.FercEqrDeploymentResource">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">FercEqrDeploymentResource</span><span class="p">(</span><span class="n">dg</span><span class="o">.</span><span class="n">ConfigurableResource</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;One or more deployment destinations for FERC EQR outputs.</span>
+<span class="w">    </span><span class="sd">"""One or more deployment destinations for FERC EQR outputs.</span>
 
 <span class="sd">    Deployment targets can be provided directly as structured config or loaded from a</span>
 <span class="sd">    YAML file. Direct ``deployment_targets`` take precedence. When neither explicit</span>
 <span class="sd">    targets nor a deployment config path are provided, deployment is skipped.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="FercEqrDeploymentResource.deployment_targets">
 <a class="viewcode-back" href="../../../autoapi/pudl/dagster/resources/index.html#pudl.dagster.resources.FercEqrDeploymentResource.deployment_targets">[docs]</a>
@@ -1176,8 +1176,8 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../../autoapi/pudl/dagster/resources/index.html#pudl.dagster.resources.FercEqrDeploymentResource.from_yaml">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">from_yaml</span><span class="p">(</span>
         <span class="bp">cls</span><span class="p">,</span> <span class="n">deployment_config_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;FercEqrDeploymentResource&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a FERC EQR deployment resource from a YAML config file.&quot;&quot;&quot;</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"FercEqrDeploymentResource"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Create a FERC EQR deployment resource from a YAML config file."""</span>
         <span class="n">yaml_data</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">deployment_config_path</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">())</span> <span class="ow">or</span> <span class="p">{}</span>
         <span class="n">resource</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">model_validate</span><span class="p">(</span><span class="n">yaml_data</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">resource</span></div>
@@ -1186,14 +1186,14 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="FercEqrDeploymentResource.configured_targets">
 <a class="viewcode-back" href="../../../autoapi/pudl/dagster/resources/index.html#pudl.dagster.resources.FercEqrDeploymentResource.configured_targets">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">configured_targets</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">FercEqrDeploymentTargetConfig</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return deployment-target config with explicit overrides taking precedence.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return deployment-target config with explicit overrides taking precedence."""</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">deployment_targets</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">deployment_targets</span>
 
         <span class="n">deployment_config_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">deployment_config_path</span>
         <span class="k">if</span> <span class="n">deployment_config_path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">deployment_config_path</span> <span class="o">=</span> <span class="n">dg</span><span class="o">.</span><span class="n">EnvVar</span><span class="p">(</span>
-                <span class="s2">&quot;PUDL_FERCEQR_DEPLOYMENT_CONFIG_PATH&quot;</span>
+                <span class="s2">"PUDL_FERCEQR_DEPLOYMENT_CONFIG_PATH"</span>
             <span class="p">)</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">deployment_config_path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">[]</span>
@@ -1206,19 +1206,19 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="FercEqrDeploymentResource.resolved_targets">
 <a class="viewcode-back" href="../../../autoapi/pudl/dagster/resources/index.html#pudl.dagster.resources.FercEqrDeploymentResource.resolved_targets">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">resolved_targets</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">UPath</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the list of :class:`~upath.UPath` deployment destinations.</span>
+<span class="w">        </span><span class="sd">"""Return the list of :class:`~upath.UPath` deployment destinations.</span>
 
 <span class="sd">        Each configured target is converted to a :class:`~upath.UPath` using its</span>
 <span class="sd">        provided ``storage_options``.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">resolved_targets</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">UPath</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">target</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">configured_targets</span><span class="p">():</span>
             <span class="n">resolved_target</span> <span class="o">=</span> <span class="n">UPath</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">path</span><span class="p">),</span> <span class="o">**</span><span class="n">target</span><span class="o">.</span><span class="n">storage_options</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">target</span><span class="o">.</span><span class="n">append_build_id</span><span class="p">:</span>
-                <span class="n">build_id</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;BUILD_ID&quot;</span><span class="p">)</span>
+                <span class="n">build_id</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"BUILD_ID"</span><span class="p">)</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">build_id</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                        <span class="s2">&quot;BUILD_ID must be set for deployment targets with append_build_id enabled.&quot;</span>
+                        <span class="s2">"BUILD_ID must be set for deployment targets with append_build_id enabled."</span>
                     <span class="p">)</span>
                 <span class="n">resolved_target</span> <span class="o">=</span> <span class="n">resolved_target</span> <span class="o">/</span> <span class="n">build_id</span>
             <span class="n">resolved_targets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">resolved_target</span><span class="p">)</span>
@@ -1231,19 +1231,19 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="ZulipNotificationResource">
 <a class="viewcode-back" href="../../../autoapi/pudl/dagster/resources/index.html#pudl.dagster.resources.ZulipNotificationResource">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ZulipNotificationResource</span><span class="p">(</span><span class="n">dg</span><span class="o">.</span><span class="n">ConfigurableResource</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Send notifications to Zulip streams via the Zulip API.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Send notifications to Zulip streams via the Zulip API."""</span>
 
 <div class="viewcode-block" id="ZulipNotificationResource.base_url">
 <a class="viewcode-back" href="../../../autoapi/pudl/dagster/resources/index.html#pudl.dagster.resources.ZulipNotificationResource.base_url">[docs]</a>
-    <span class="n">base_url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;https://catalyst-cooperative.zulipchat.com&quot;</span></div>
+    <span class="n">base_url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"https://catalyst-cooperative.zulipchat.com"</span></div>
 
 <div class="viewcode-block" id="ZulipNotificationResource.bot_email">
 <a class="viewcode-back" href="../../../autoapi/pudl/dagster/resources/index.html#pudl.dagster.resources.ZulipNotificationResource.bot_email">[docs]</a>
-    <span class="n">bot_email</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;build-status-bot@catalyst-cooperative.zulipchat.com&quot;</span></div>
+    <span class="n">bot_email</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"build-status-bot@catalyst-cooperative.zulipchat.com"</span></div>
 
 <div class="viewcode-block" id="ZulipNotificationResource.api_key">
 <a class="viewcode-back" href="../../../autoapi/pudl/dagster/resources/index.html#pudl.dagster.resources.ZulipNotificationResource.api_key">[docs]</a>
-    <span class="n">api_key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">dg</span><span class="o">.</span><span class="n">EnvVar</span><span class="p">(</span><span class="s2">&quot;ZULIP_API_KEY&quot;</span><span class="p">)</span></div>
+    <span class="n">api_key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">dg</span><span class="o">.</span><span class="n">EnvVar</span><span class="p">(</span><span class="s2">"ZULIP_API_KEY"</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ZulipNotificationResource.timeout_seconds">
 <a class="viewcode-back" href="../../../autoapi/pudl/dagster/resources/index.html#pudl.dagster.resources.ZulipNotificationResource.timeout_seconds">[docs]</a>
@@ -1260,73 +1260,73 @@ window.runMermaid = runMermaid;</script>
         <span class="n">content</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Send a message to a Zulip stream topic and return the API response.</span>
+<span class="w">        </span><span class="sd">"""Send a message to a Zulip stream topic and return the API response.</span>
 
 <span class="sd">        Optionally upload a file and attach a download link to the message content.</span>
 
 <span class="sd">        Sends are best-effort: all failures are logged as warnings and returned in the</span>
 <span class="sd">        result dict so callers can inspect them, but no exception is raised. This</span>
 <span class="sd">        ensures a notification hiccup never crashes an asset.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># Optionally upload a file and embed a Markdown link in the content.</span>
         <span class="k">if</span> <span class="n">file_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="k">with</span> <span class="n">Path</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="k">with</span> <span class="n">Path</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">"rb"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
                     <span class="n">upload_response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">base_url</span><span class="si">}</span><span class="s2">/api/v1/user_uploads&quot;</span><span class="p">,</span>
+                        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">base_url</span><span class="si">}</span><span class="s2">/api/v1/user_uploads"</span><span class="p">,</span>
                         <span class="n">auth</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bot_email</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_key</span><span class="p">),</span>
-                        <span class="n">files</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;file&quot;</span><span class="p">:</span> <span class="n">f</span><span class="p">},</span>
+                        <span class="n">files</span><span class="o">=</span><span class="p">{</span><span class="s2">"file"</span><span class="p">:</span> <span class="n">f</span><span class="p">},</span>
                         <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">timeout_seconds</span><span class="p">,</span>
                     <span class="p">)</span>
                     <span class="n">upload_response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
                     <span class="n">upload_payload</span> <span class="o">=</span> <span class="n">upload_response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
-                <span class="k">if</span> <span class="n">upload_payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;result&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;success&quot;</span><span class="p">:</span>
-                    <span class="n">file_url</span> <span class="o">=</span> <span class="n">upload_payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;url&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">upload_payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-                        <span class="s2">&quot;uri&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span>
+                <span class="k">if</span> <span class="n">upload_payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"result"</span><span class="p">)</span> <span class="o">==</span> <span class="s2">"success"</span><span class="p">:</span>
+                    <span class="n">file_url</span> <span class="o">=</span> <span class="n">upload_payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"url"</span><span class="p">)</span> <span class="ow">or</span> <span class="n">upload_payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                        <span class="s2">"uri"</span><span class="p">,</span> <span class="s2">""</span>
                     <span class="p">)</span>
-                    <span class="n">filename</span> <span class="o">=</span> <span class="n">upload_payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;filename&quot;</span><span class="p">,</span> <span class="s2">&quot;attachment&quot;</span><span class="p">)</span>
-                    <span class="n">link</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">](</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">base_url</span><span class="si">}{</span><span class="n">file_url</span><span class="si">}</span><span class="s2">)&quot;</span>
-                    <span class="n">content</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">content</span><span class="si">}</span><span class="se">\n\n</span><span class="si">{</span><span class="n">link</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="n">filename</span> <span class="o">=</span> <span class="n">upload_payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"filename"</span><span class="p">,</span> <span class="s2">"attachment"</span><span class="p">)</span>
+                    <span class="n">link</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"[</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">](</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">base_url</span><span class="si">}{</span><span class="n">file_url</span><span class="si">}</span><span class="s2">)"</span>
+                    <span class="n">content</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">content</span><span class="si">}</span><span class="se">\n\n</span><span class="si">{</span><span class="n">link</span><span class="si">}</span><span class="s2">"</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;Zulip file upload returned error: </span><span class="si">{</span><span class="n">upload_payload</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="sa">f</span><span class="s2">"Zulip file upload returned error: </span><span class="si">{</span><span class="n">upload_payload</span><span class="si">}</span><span class="s2">"</span>
                     <span class="p">)</span>
             <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Zulip file upload failed: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Zulip file upload failed: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
         <span class="k">try</span><span class="p">:</span>
             <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">base_url</span><span class="si">}</span><span class="s2">/api/v1/messages&quot;</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">base_url</span><span class="si">}</span><span class="s2">/api/v1/messages"</span><span class="p">,</span>
                 <span class="n">auth</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bot_email</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_key</span><span class="p">),</span>
                 <span class="n">data</span><span class="o">=</span><span class="p">{</span>
-                    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;stream&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;to&quot;</span><span class="p">:</span> <span class="n">stream</span><span class="p">,</span>
-                    <span class="s2">&quot;topic&quot;</span><span class="p">:</span> <span class="n">topic</span><span class="p">,</span>
-                    <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">content</span><span class="p">,</span>
+                    <span class="s2">"type"</span><span class="p">:</span> <span class="s2">"stream"</span><span class="p">,</span>
+                    <span class="s2">"to"</span><span class="p">:</span> <span class="n">stream</span><span class="p">,</span>
+                    <span class="s2">"topic"</span><span class="p">:</span> <span class="n">topic</span><span class="p">,</span>
+                    <span class="s2">"content"</span><span class="p">:</span> <span class="n">content</span><span class="p">,</span>
                 <span class="p">},</span>
                 <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">timeout_seconds</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="n">response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
         <span class="k">except</span> <span class="n">requests</span><span class="o">.</span><span class="n">RequestException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Zulip notification failed (request error): </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;result&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">,</span> <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)}</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Zulip notification failed (request error): </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">{</span><span class="s2">"result"</span><span class="p">:</span> <span class="s2">"error"</span><span class="p">,</span> <span class="s2">"msg"</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)}</span>
 
         <span class="k">try</span><span class="p">:</span>
             <span class="n">payload</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
         <span class="k">except</span> <span class="n">json</span><span class="o">.</span><span class="n">JSONDecodeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Zulip returned 200 with invalid JSON body: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">. &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;Message was almost certainly delivered.&quot;</span>
+                <span class="sa">f</span><span class="s2">"Zulip returned 200 with invalid JSON body: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">. "</span>
+                <span class="sa">f</span><span class="s2">"Message was almost certainly delivered."</span>
             <span class="p">)</span>
             <span class="k">return</span> <span class="p">{</span>
-                <span class="s2">&quot;result&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;invalid JSON: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="s2">"result"</span><span class="p">:</span> <span class="s2">"error"</span><span class="p">,</span>
+                <span class="s2">"msg"</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"invalid JSON: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
                 <span class="c1"># Include the raw response for debugging</span>
-                <span class="s2">&quot;response_text&quot;</span><span class="p">:</span> <span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="p">,</span>
+                <span class="s2">"response_text"</span><span class="p">:</span> <span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="p">,</span>
             <span class="p">}</span>
 
-        <span class="k">if</span> <span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;result&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;success&quot;</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Zulip notification returned error payload: </span><span class="si">{</span><span class="n">payload</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"result"</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">"success"</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Zulip notification returned error payload: </span><span class="si">{</span><span class="n">payload</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">payload</span></div>
 </div>
 
@@ -1371,36 +1371,36 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="default_resources">
 <a class="viewcode-back" href="../../../autoapi/pudl/dagster/resources/index.html#pudl.dagster.resources.default_resources">[docs]</a>
 <span class="n">default_resources</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;datastore&quot;</span><span class="p">:</span> <span class="n">datastore_resource</span><span class="p">,</span>
-    <span class="s2">&quot;global_data_config&quot;</span><span class="p">:</span> <span class="n">global_data_config_resource</span><span class="p">,</span>
-    <span class="s2">&quot;pudl_paths&quot;</span><span class="p">:</span> <span class="n">pudl_paths_resource</span><span class="p">,</span>
-    <span class="s2">&quot;ferceqr_archive&quot;</span><span class="p">:</span> <span class="n">ferceqr_archive</span><span class="p">,</span>
-    <span class="s2">&quot;runtime_settings&quot;</span><span class="p">:</span> <span class="n">ferc_xbrl_runtime_settings</span><span class="p">,</span>
-    <span class="s2">&quot;zenodo_dois&quot;</span><span class="p">:</span> <span class="n">zenodo_doi_settings_resource</span><span class="p">,</span>
-    <span class="s2">&quot;ferceqr_deployment_targets&quot;</span><span class="p">:</span> <span class="n">ferceqr_deployment_targets</span><span class="p">,</span>
-    <span class="s2">&quot;zulip_notification&quot;</span><span class="p">:</span> <span class="n">zulip_notification_resource</span><span class="p">,</span>
+    <span class="s2">"datastore"</span><span class="p">:</span> <span class="n">datastore_resource</span><span class="p">,</span>
+    <span class="s2">"global_data_config"</span><span class="p">:</span> <span class="n">global_data_config_resource</span><span class="p">,</span>
+    <span class="s2">"pudl_paths"</span><span class="p">:</span> <span class="n">pudl_paths_resource</span><span class="p">,</span>
+    <span class="s2">"ferceqr_archive"</span><span class="p">:</span> <span class="n">ferceqr_archive</span><span class="p">,</span>
+    <span class="s2">"runtime_settings"</span><span class="p">:</span> <span class="n">ferc_xbrl_runtime_settings</span><span class="p">,</span>
+    <span class="s2">"zenodo_dois"</span><span class="p">:</span> <span class="n">zenodo_doi_settings_resource</span><span class="p">,</span>
+    <span class="s2">"ferceqr_deployment_targets"</span><span class="p">:</span> <span class="n">ferceqr_deployment_targets</span><span class="p">,</span>
+    <span class="s2">"zulip_notification"</span><span class="p">:</span> <span class="n">zulip_notification_resource</span><span class="p">,</span>
 <span class="p">}</span></div>
 
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s2">&quot;DatastoreResource&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;FercEqrArchiveResource&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;FercEqrDeploymentTargetConfig&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;FercEqrDeploymentResource&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;FercXbrlRuntimeSettings&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;GlobalDataConfigResource&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;PudlPathsResource&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;ZulipNotificationResource&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;ZenodoDoiSettingsResource&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;datastore_resource&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;default_resources&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;ferceqr_archive&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;ferceqr_deployment_targets&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;ferc_xbrl_runtime_settings&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;global_data_config_resource&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;pudl_paths_resource&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;zulip_notification_resource&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;zenodo_doi_settings_resource&quot;</span><span class="p">,</span>
+    <span class="s2">"DatastoreResource"</span><span class="p">,</span>
+    <span class="s2">"FercEqrArchiveResource"</span><span class="p">,</span>
+    <span class="s2">"FercEqrDeploymentTargetConfig"</span><span class="p">,</span>
+    <span class="s2">"FercEqrDeploymentResource"</span><span class="p">,</span>
+    <span class="s2">"FercXbrlRuntimeSettings"</span><span class="p">,</span>
+    <span class="s2">"GlobalDataConfigResource"</span><span class="p">,</span>
+    <span class="s2">"PudlPathsResource"</span><span class="p">,</span>
+    <span class="s2">"ZulipNotificationResource"</span><span class="p">,</span>
+    <span class="s2">"ZenodoDoiSettingsResource"</span><span class="p">,</span>
+    <span class="s2">"datastore_resource"</span><span class="p">,</span>
+    <span class="s2">"default_resources"</span><span class="p">,</span>
+    <span class="s2">"ferceqr_archive"</span><span class="p">,</span>
+    <span class="s2">"ferceqr_deployment_targets"</span><span class="p">,</span>
+    <span class="s2">"ferc_xbrl_runtime_settings"</span><span class="p">,</span>
+    <span class="s2">"global_data_config_resource"</span><span class="p">,</span>
+    <span class="s2">"pudl_paths_resource"</span><span class="p">,</span>
+    <span class="s2">"zulip_notification_resource"</span><span class="p">,</span>
+    <span class="s2">"zenodo_doi_settings_resource"</span><span class="p">,</span>
 <span class="p">]</span>
 </pre></div>
 

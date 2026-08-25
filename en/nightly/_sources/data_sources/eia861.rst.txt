@@ -12,9 +12,9 @@ EIA Form 861 -- Annual Electric Power Industry Report
    * - Source Description
      - EIA Form 861 Annual Electric Power Industry Report, detailed data files.
    * - Download Size
-     - 96 MB
+     - 100 MB
    * - Temporal Coverage
-     - 2001-2024
+     - 2001-2025
    * - PUDL Code
      - ``eia861``
    * - Unprocessed Source Data Archive

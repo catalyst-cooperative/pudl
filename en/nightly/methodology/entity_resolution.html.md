@@ -143,6 +143,14 @@ We use different rules for columns with additional requirements:
 * We set the consistency threshold to 0% for a few columns so that we always get a
   value. These include plant name, utility name, and prime mover code.
 
+#### CAUTION
+Because we always choose the most consistent prime mover code, even when less than
+50% of occurrences have that value, we occasionally see a tie between two equally
+consistent values. In these cases, the resolved value may not be deterministic.
+Because prime mover code is part of the primary key in some tables it is possible for
+some records to appear or disappear based on which value was chosen. However, this
+scenario is extremely rare (on the order of 1 in 100,000 records).
+
 ## Interpreting Discrepancies
 
 If you compare a PUDL entity table, SCD table, or any table downstream of them to a raw
@@ -170,6 +178,12 @@ The entity resolution process is heuristic and can definitely be improved.
   or email us at [hello@catalyst.coop](mailto:hello.catalyst.coop)!
 * If you see any static entity attributes that should actually be allowed to vary from
   year to year, it’s easy for us to move them from the entity table to the SCD table.
+
+#### CAUTION
+We have **NOT** yet applied this process to the [EIA-861](../data_sources/eia861.html.md)
+tables, so they still reflect the original, internally inconsistent reporting, and any
+utilities which only appear in the EIA-861 data do not yet show up in the utility
+entity tables.
 
 ## Related Tables And Source Documentation
 

@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.transform.eiaapi &#8212; PUDL 2026.8.1.dev16 documentation</title>
+    <title>pudl.transform.eiaapi &#8212; PUDL 2026.8.1.dev20 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=f981bf86"></script>
+    <script src="../../../_static/documentation_options.js?v=8f1a003a"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev20 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev20 documentation - Home"/>
   
   
 </a></div>
@@ -868,27 +868,27 @@ window.runMermaid = runMermaid;</script>
                 <article class="bd-article">
                   
   <h1>Source code for pudl.transform.eiaapi</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Clean and normalize EIA bulk electricity data.</span>
+<span></span><span class="sd">"""Clean and normalize EIA bulk electricity data.</span>
 
-<span class="sd">EIA&#39;s bulk electricity data contains &gt;750,000 timeseries. These timeseries contain a</span>
+<span class="sd">EIA's bulk electricity data contains &gt;750,000 timeseries. These timeseries contain a</span>
 <span class="sd">variety of measures (fuel amount and cost are just two) across multiple levels of</span>
 <span class="sd">aggregation, from individual plants to national averages.</span>
 
 <span class="sd">The data is formatted as a single &gt;1GB text file of line-delimited JSON with one line</span>
 <span class="sd">per timeseries. Each JSON structure has two nested levels: the top level contains</span>
-<span class="sd">metadata describing the series and the second level (under the &quot;data&quot; heading) contains</span>
+<span class="sd">metadata describing the series and the second level (under the "data" heading) contains</span>
 <span class="sd">an array of timestamp/value pairs. This structure leads to a natural normalization into</span>
 <span class="sd">two tables: one of metadata and one of timeseries. That is the format delivered by the</span>
 <span class="sd">extract module.</span>
 
-<span class="sd">The transform module parses a compound primary key out of long string IDs (&quot;series_id&quot;).</span>
+<span class="sd">The transform module parses a compound primary key out of long string IDs ("series_id").</span>
 <span class="sd">The rest of the metadata is not very valuable so is not transformed or returned.</span>
 
 <span class="sd">The EIA aggregates are related to their component categories via a set of association</span>
-<span class="sd">tables defined in pudl.metadata.dfs. For example, the &quot;all_coal&quot; fuel aggregate is</span>
+<span class="sd">tables defined in pudl.metadata.dfs. For example, the "all_coal" fuel aggregate is</span>
 <span class="sd">linked to all the coal-related energy_source_code values: BIT, SUB, LIG, and WC. Similar</span>
 <span class="sd">relationships are defined for aggregates over fuel, sector, geography, and time.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 
@@ -896,19 +896,19 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="_extract_keys_from_series_id">
 <a class="viewcode-back" href="../../../autoapi/pudl/transform/eiaapi/index.html#pudl.transform.eiaapi._extract_keys_from_series_id">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_extract_keys_from_series_id</span><span class="p">(</span><span class="n">raw_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse primary key codes from EIA series_id.</span>
+<span class="w">    </span><span class="sd">"""Parse primary key codes from EIA series_id.</span>
 
 <span class="sd">    These codes comprise the compound primary key that uniquely identifies a data</span>
 <span class="sd">    series: (metric, fuel, region, sector, frequency).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># drop first one (constant value of &quot;ELEC&quot;)</span>
+<span class="sd">    """</span>
+    <span class="c1"># drop first one (constant value of "ELEC")</span>
     <span class="n">keys</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">raw_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">&quot;series_id&quot;</span><span class="p">]</span>
-        <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[\.-]&quot;</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">raw_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">"series_id"</span><span class="p">]</span>
+        <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">r</span><span class="s2">"[\.-]"</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
     <span class="p">)</span>
     <span class="n">keys</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">(</span>
-        <span class="p">[</span><span class="s2">&quot;series_code&quot;</span><span class="p">,</span> <span class="s2">&quot;fuel_agg&quot;</span><span class="p">,</span> <span class="s2">&quot;geo_agg&quot;</span><span class="p">,</span> <span class="s2">&quot;sector_agg&quot;</span><span class="p">,</span> <span class="s2">&quot;temporal_agg&quot;</span><span class="p">]</span>
+        <span class="p">[</span><span class="s2">"series_code"</span><span class="p">,</span> <span class="s2">"fuel_agg"</span><span class="p">,</span> <span class="s2">"geo_agg"</span><span class="p">,</span> <span class="s2">"sector_agg"</span><span class="p">,</span> <span class="s2">"temporal_agg"</span><span class="p">]</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">keys</span></div>
 
@@ -919,44 +919,44 @@ window.runMermaid = runMermaid;</script>
 <span class="k">def</span><span class="w"> </span><span class="nf">_map_key_codes_to_readable_values</span><span class="p">(</span><span class="n">compound_keys</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
     <span class="n">keys</span> <span class="o">=</span> <span class="n">compound_keys</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
     <span class="n">mappings</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;fuel_agg&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"fuel_agg"</span><span class="p">:</span> <span class="p">{</span>
             <span class="c1"># match values in pudl.metadata.dfs.py:EIA_FUEL_AGGREGATE_ASSN</span>
-            <span class="s2">&quot;BIT&quot;</span><span class="p">:</span> <span class="s2">&quot;bituminous_coal&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;SUB&quot;</span><span class="p">:</span> <span class="s2">&quot;sub_bituminous_coal&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;LIG&quot;</span><span class="p">:</span> <span class="s2">&quot;lignite_coal&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;COW&quot;</span><span class="p">:</span> <span class="s2">&quot;all_coal&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;NG&quot;</span><span class="p">:</span> <span class="s2">&quot;natural_gas&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;PC&quot;</span><span class="p">:</span> <span class="s2">&quot;petroleum_coke&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;PEL&quot;</span><span class="p">:</span> <span class="s2">&quot;petroleum_liquids&quot;</span><span class="p">,</span>
+            <span class="s2">"BIT"</span><span class="p">:</span> <span class="s2">"bituminous_coal"</span><span class="p">,</span>
+            <span class="s2">"SUB"</span><span class="p">:</span> <span class="s2">"sub_bituminous_coal"</span><span class="p">,</span>
+            <span class="s2">"LIG"</span><span class="p">:</span> <span class="s2">"lignite_coal"</span><span class="p">,</span>
+            <span class="s2">"COW"</span><span class="p">:</span> <span class="s2">"all_coal"</span><span class="p">,</span>
+            <span class="s2">"NG"</span><span class="p">:</span> <span class="s2">"natural_gas"</span><span class="p">,</span>
+            <span class="s2">"PC"</span><span class="p">:</span> <span class="s2">"petroleum_coke"</span><span class="p">,</span>
+            <span class="s2">"PEL"</span><span class="p">:</span> <span class="s2">"petroleum_liquids"</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;sector_agg&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"sector_agg"</span><span class="p">:</span> <span class="p">{</span>
             <span class="c1"># match values in pudl.metadata.dfs.py:EIA_SECTOR_AGGREGATE_ASSN</span>
-            <span class="s2">&quot;1&quot;</span><span class="p">:</span> <span class="s2">&quot;electric_utility&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;2&quot;</span><span class="p">:</span> <span class="s2">&quot;ipp_non_cogen&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;3&quot;</span><span class="p">:</span> <span class="s2">&quot;ipp_cogen&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;4&quot;</span><span class="p">:</span> <span class="s2">&quot;commercial_non_cogen&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;5&quot;</span><span class="p">:</span> <span class="s2">&quot;commercial_cogen&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;6&quot;</span><span class="p">:</span> <span class="s2">&quot;industrial_non_cogen&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;7&quot;</span><span class="p">:</span> <span class="s2">&quot;industrial_cogen&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;94&quot;</span><span class="p">:</span> <span class="s2">&quot;all_ipp&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;96&quot;</span><span class="p">:</span> <span class="s2">&quot;all_commercial&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;97&quot;</span><span class="p">:</span> <span class="s2">&quot;all_industrial&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;98&quot;</span><span class="p">:</span> <span class="s2">&quot;all_electric_power&quot;</span><span class="p">,</span>  <span class="c1"># all_IPP + regulated utilities</span>
-            <span class="s2">&quot;99&quot;</span><span class="p">:</span> <span class="s2">&quot;all_sectors&quot;</span><span class="p">,</span>
+            <span class="s2">"1"</span><span class="p">:</span> <span class="s2">"electric_utility"</span><span class="p">,</span>
+            <span class="s2">"2"</span><span class="p">:</span> <span class="s2">"ipp_non_cogen"</span><span class="p">,</span>
+            <span class="s2">"3"</span><span class="p">:</span> <span class="s2">"ipp_cogen"</span><span class="p">,</span>
+            <span class="s2">"4"</span><span class="p">:</span> <span class="s2">"commercial_non_cogen"</span><span class="p">,</span>
+            <span class="s2">"5"</span><span class="p">:</span> <span class="s2">"commercial_cogen"</span><span class="p">,</span>
+            <span class="s2">"6"</span><span class="p">:</span> <span class="s2">"industrial_non_cogen"</span><span class="p">,</span>
+            <span class="s2">"7"</span><span class="p">:</span> <span class="s2">"industrial_cogen"</span><span class="p">,</span>
+            <span class="s2">"94"</span><span class="p">:</span> <span class="s2">"all_ipp"</span><span class="p">,</span>
+            <span class="s2">"96"</span><span class="p">:</span> <span class="s2">"all_commercial"</span><span class="p">,</span>
+            <span class="s2">"97"</span><span class="p">:</span> <span class="s2">"all_industrial"</span><span class="p">,</span>
+            <span class="s2">"98"</span><span class="p">:</span> <span class="s2">"all_electric_power"</span><span class="p">,</span>  <span class="c1"># all_IPP + regulated utilities</span>
+            <span class="s2">"99"</span><span class="p">:</span> <span class="s2">"all_sectors"</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;temporal_agg&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;M&quot;</span><span class="p">:</span> <span class="s2">&quot;monthly&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;Q&quot;</span><span class="p">:</span> <span class="s2">&quot;quarterly&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;A&quot;</span><span class="p">:</span> <span class="s2">&quot;annual&quot;</span><span class="p">,</span>
+        <span class="s2">"temporal_agg"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"M"</span><span class="p">:</span> <span class="s2">"monthly"</span><span class="p">,</span>
+            <span class="s2">"Q"</span><span class="p">:</span> <span class="s2">"quarterly"</span><span class="p">,</span>
+            <span class="s2">"A"</span><span class="p">:</span> <span class="s2">"annual"</span><span class="p">,</span>
         <span class="p">},</span>
     <span class="p">}</span>
     <span class="k">for</span> <span class="n">col_name</span><span class="p">,</span> <span class="n">mapping</span> <span class="ow">in</span> <span class="n">mappings</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="n">keys</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">col_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">keys</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">col_name</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">mapping</span><span class="p">)</span>
         <span class="k">assert</span> <span class="n">keys</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">col_name</span><span class="p">]</span><span class="o">.</span><span class="n">notnull</span><span class="p">()</span><span class="o">.</span><span class="n">all</span><span class="p">(),</span> <span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">col_name</span><span class="si">}</span><span class="s2"> contains an unmapped category.&quot;</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">col_name</span><span class="si">}</span><span class="s2"> contains an unmapped category."</span>
         <span class="p">)</span>
 
-    <span class="n">keys</span> <span class="o">=</span> <span class="n">keys</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;category&quot;</span><span class="p">)</span>
+    <span class="n">keys</span> <span class="o">=</span> <span class="n">keys</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">"category"</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">keys</span></div>
 
 
@@ -964,36 +964,36 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="_transform_timeseries">
 <a class="viewcode-back" href="../../../autoapi/pudl/transform/eiaapi/index.html#pudl.transform.eiaapi._transform_timeseries">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_transform_timeseries</span><span class="p">(</span><span class="n">raw_ts</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Transform raw timeseries.</span>
+<span class="w">    </span><span class="sd">"""Transform raw timeseries.</span>
 
 <span class="sd">    Transform to tidy format and replace the obscure series_id with a readable</span>
 <span class="sd">    compound primary key.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        A dataframe with compound key (&quot;fuel_agg&quot;, &quot;geo_agg&quot;, &quot;sector_agg&quot;,</span>
-<span class="sd">        &quot;temporal_agg&quot;, &quot;report_date&quot;) and two value columns: &quot;fuel_received_mmbtu&quot;,</span>
-<span class="sd">        &quot;fuel_cost_per_mmbtu&quot;</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">        A dataframe with compound key ("fuel_agg", "geo_agg", "sector_agg",</span>
+<span class="sd">        "temporal_agg", "report_date") and two value columns: "fuel_received_mmbtu",</span>
+<span class="sd">        "fuel_cost_per_mmbtu"</span>
+<span class="sd">    """</span>
     <span class="n">compound_key</span> <span class="o">=</span> <span class="n">_map_key_codes_to_readable_values</span><span class="p">(</span>
         <span class="n">_extract_keys_from_series_id</span><span class="p">(</span><span class="n">raw_ts</span><span class="p">)</span>
     <span class="p">)</span>
-    <span class="n">ts</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">compound_key</span><span class="p">,</span> <span class="n">raw_ts</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="s2">&quot;series_id&quot;</span><span class="p">)],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">ts</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">compound_key</span><span class="p">,</span> <span class="n">raw_ts</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="s2">"series_id"</span><span class="p">)],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
     <span class="n">ts</span> <span class="o">=</span> <span class="n">ts</span><span class="o">.</span><span class="n">pivot</span><span class="p">(</span>
-        <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;fuel_agg&quot;</span><span class="p">,</span> <span class="s2">&quot;geo_agg&quot;</span><span class="p">,</span> <span class="s2">&quot;sector_agg&quot;</span><span class="p">,</span> <span class="s2">&quot;temporal_agg&quot;</span><span class="p">,</span> <span class="s2">&quot;date&quot;</span><span class="p">],</span>
-        <span class="n">columns</span><span class="o">=</span><span class="s2">&quot;series_code&quot;</span><span class="p">,</span>
+        <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="s2">"fuel_agg"</span><span class="p">,</span> <span class="s2">"geo_agg"</span><span class="p">,</span> <span class="s2">"sector_agg"</span><span class="p">,</span> <span class="s2">"temporal_agg"</span><span class="p">,</span> <span class="s2">"date"</span><span class="p">],</span>
+        <span class="n">columns</span><span class="o">=</span><span class="s2">"series_code"</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">ts</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">ts</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">droplevel</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
-    <span class="n">ts</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># remove &quot;series_code&quot; as name - no longer appropriate</span>
+    <span class="n">ts</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># remove "series_code" as name - no longer appropriate</span>
     <span class="n">ts</span> <span class="o">=</span> <span class="n">ts</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
     <span class="c1"># convert units from billion BTU to MMBTU for consistency with other PUDL tables</span>
-    <span class="n">ts</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">&quot;RECEIPTS_BTU&quot;</span><span class="p">]</span> <span class="o">*=</span> <span class="mi">1000</span>
+    <span class="n">ts</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">"RECEIPTS_BTU"</span><span class="p">]</span> <span class="o">*=</span> <span class="mi">1000</span>
 
     <span class="n">ts</span> <span class="o">=</span> <span class="n">ts</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
         <span class="n">columns</span><span class="o">=</span><span class="p">{</span>
-            <span class="s2">&quot;RECEIPTS_BTU&quot;</span><span class="p">:</span> <span class="s2">&quot;fuel_received_mmbtu&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;COST_BTU&quot;</span><span class="p">:</span> <span class="s2">&quot;fuel_cost_per_mmbtu&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;date&quot;</span><span class="p">:</span> <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
+            <span class="s2">"RECEIPTS_BTU"</span><span class="p">:</span> <span class="s2">"fuel_received_mmbtu"</span><span class="p">,</span>
+            <span class="s2">"COST_BTU"</span><span class="p">:</span> <span class="s2">"fuel_cost_per_mmbtu"</span><span class="p">,</span>
+            <span class="s2">"date"</span><span class="p">:</span> <span class="s2">"report_date"</span><span class="p">,</span>
         <span class="p">},</span>
     <span class="p">)</span>
 
@@ -1005,19 +1005,19 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="transform">
 <a class="viewcode-back" href="../../../autoapi/pudl/transform/eiaapi/index.html#pudl.transform.eiaapi.transform">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">transform</span><span class="p">(</span><span class="n">raw_dfs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Transform raw EIA bulk electricity aggregates.</span>
+<span class="w">    </span><span class="sd">"""Transform raw EIA bulk electricity aggregates.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        raw_dfs: raw timeseries dataframe</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Transformed timeseries dataframe with compound key:</span>
-<span class="sd">        (&quot;fuel_agg&quot;, &quot;geo_agg&quot;, &quot;sector_agg&quot;, &quot;temporal_agg&quot;, &quot;report_date&quot;)</span>
-<span class="sd">        and two value columns: &quot;fuel_received_mmbtu&quot;, &quot;fuel_cost_per_mmbtu&quot;</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">ts</span> <span class="o">=</span> <span class="n">_transform_timeseries</span><span class="p">(</span><span class="n">raw_dfs</span><span class="p">[</span><span class="s2">&quot;timeseries&quot;</span><span class="p">])</span>
-    <span class="c1"># raw_dfs[&quot;metadata&quot;] is mostly useless after joining the keys into the timeseries,</span>
-    <span class="c1"># so don&#39;t return it</span>
+<span class="sd">        ("fuel_agg", "geo_agg", "sector_agg", "temporal_agg", "report_date")</span>
+<span class="sd">        and two value columns: "fuel_received_mmbtu", "fuel_cost_per_mmbtu"</span>
+<span class="sd">    """</span>
+    <span class="n">ts</span> <span class="o">=</span> <span class="n">_transform_timeseries</span><span class="p">(</span><span class="n">raw_dfs</span><span class="p">[</span><span class="s2">"timeseries"</span><span class="p">])</span>
+    <span class="c1"># raw_dfs["metadata"] is mostly useless after joining the keys into the timeseries,</span>
+    <span class="c1"># so don't return it</span>
     <span class="k">return</span> <span class="n">ts</span></div>
 
 </pre></div>

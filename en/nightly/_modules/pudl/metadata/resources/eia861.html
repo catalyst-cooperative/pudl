@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.metadata.resources.eia861 &#8212; PUDL 2026.8.1.dev16 documentation</title>
+    <title>pudl.metadata.resources.eia861 &#8212; PUDL 2026.8.1.dev20 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../../_static/documentation_options.js?v=f981bf86"></script>
+    <script src="../../../../_static/documentation_options.js?v=8f1a003a"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev20 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev20 documentation - Home"/>
   
   
 </a></div>
@@ -871,222 +871,222 @@ window.runMermaid = runMermaid;</script>
                 <article class="bd-article">
                   
   <h1>Source code for pudl.metadata.resources.eia861</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Definitions of data tables primarily coming from EIA-861.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Definitions of data tables primarily coming from EIA-861."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
 
 <div class="viewcode-block" id="DISTRIBUTED_GENERATION_NON_NET_METERING_TRANSITION">
 <a class="viewcode-back" href="../../../../autoapi/pudl/metadata/resources/eia861/index.html#pudl.metadata.resources.eia861.DISTRIBUTED_GENERATION_NON_NET_METERING_TRANSITION">[docs]</a>
-<span class="n">DISTRIBUTED_GENERATION_NON_NET_METERING_TRANSITION</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;The raw EIA861 distributed generation (DG) table (split into three normalized tables in</span>
+<span class="n">DISTRIBUTED_GENERATION_NON_NET_METERING_TRANSITION</span> <span class="o">=</span> <span class="s2">"""The raw EIA861 distributed generation (DG) table (split into three normalized tables in</span>
 <span class="s2">PUDL) was renamed in 2016 to Non-Net Metering to prevent double counting. The data in</span>
 <span class="s2">the Non-Net Metering table (2016+) are split by sector, contain fuel cell information,</span>
-<span class="s2">and convert capacity reported in DC units to AC units.&quot;&quot;&quot;</span></div>
+<span class="s2">and convert capacity reported in DC units to AC units."""</span></div>
 
 
 <div class="viewcode-block" id="EIA861_88888">
 <a class="viewcode-back" href="../../../../autoapi/pudl/metadata/resources/eia861/index.html#pudl.metadata.resources.eia861.EIA861_88888">[docs]</a>
-<span class="n">EIA861_88888</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;Respondents are required to report this information to the EIA, but are not required</span>
+<span class="n">EIA861_88888</span> <span class="o">=</span> <span class="s2">"""Respondents are required to report this information to the EIA, but are not required</span>
 <span class="s2">to disclose utility-level data to the public. When a respondent chooses to keep its</span>
 <span class="s2">utility-level data proprietary, it files using EIA utility id 88888. For more details,</span>
-<span class="s2">see :ref:`EIA-861 Notable Irregularities &lt;eia861-notable-irregularities&gt;`.&quot;&quot;&quot;</span></div>
+<span class="s2">see :ref:`EIA-861 Notable Irregularities &lt;eia861-notable-irregularities&gt;`."""</span></div>
 
 
 <div class="viewcode-block" id="RESOURCE_METADATA">
 <a class="viewcode-back" href="../../../../autoapi/pudl/metadata/resources/eia861/index.html#pudl.metadata.resources.eia861.RESOURCE_METADATA">[docs]</a>
 <span class="n">RESOURCE_METADATA</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;core_eia861__yearly_advanced_metering_infrastructure&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;advanced metering infrastructure (AMI) and automated meter reading (AMR) by state, sector, and balancing authority.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;&quot;The energy served (in MWH) for AMI systems is provided. Form EIA-861 respondents also report the number</span>
+    <span class="s2">"core_eia861__yearly_advanced_metering_infrastructure"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="s2">"advanced metering infrastructure (AMI) and automated meter reading (AMR) by state, sector, and balancing authority."</span><span class="p">,</span>
+            <span class="s2">"additional_details_text"</span><span class="p">:</span> <span class="s2">"""The energy served (in MWH) for AMI systems is provided. Form EIA-861 respondents also report the number</span>
 <span class="s2">of standard meters (non AMR/AMI) in their system. Historical Changes: We started collecting the number of standard meters in 2013. The monthly survey collected</span>
-<span class="s2">these data from January 2011 to January 2017.&quot;&quot;&quot;</span><span class="p">,</span>
+<span class="s2">these data from January 2011 to January 2017."""</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;advanced_metering_infrastructure&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;automated_meter_reading&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;balancing_authority_code_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;customer_class&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;daily_digital_access_customers&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;direct_load_control_customers&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;energy_served_ami_mwh&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;entity_type&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;home_area_network&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;non_amr_ami&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;short_form&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;state&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;utility_name_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;data_maturity&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"advanced_metering_infrastructure"</span><span class="p">,</span>
+                <span class="s2">"automated_meter_reading"</span><span class="p">,</span>
+                <span class="s2">"balancing_authority_code_eia"</span><span class="p">,</span>
+                <span class="s2">"customer_class"</span><span class="p">,</span>
+                <span class="s2">"daily_digital_access_customers"</span><span class="p">,</span>
+                <span class="s2">"direct_load_control_customers"</span><span class="p">,</span>
+                <span class="s2">"energy_served_ami_mwh"</span><span class="p">,</span>
+                <span class="s2">"entity_type"</span><span class="p">,</span>
+                <span class="s2">"home_area_network"</span><span class="p">,</span>
+                <span class="s2">"non_amr_ami"</span><span class="p">,</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"short_form"</span><span class="p">,</span>
+                <span class="s2">"state"</span><span class="p">,</span>
+                <span class="s2">"utility_id_eia"</span><span class="p">,</span>
+                <span class="s2">"utility_name_eia"</span><span class="p">,</span>
+                <span class="s2">"data_maturity"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;balancing_authority_code_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;customer_class&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;state&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"balancing_authority_code_eia"</span><span class="p">,</span>
+                <span class="s2">"customer_class"</span><span class="p">,</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"state"</span><span class="p">,</span>
+                <span class="s2">"utility_id_eia"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;eia&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;eia861&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;eia861&quot;</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"eia"</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"eia861"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"eia861"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_eia861__assn_balancing_authority&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;state, balancing authority, and utility in a given year.&quot;</span>
+    <span class="s2">"core_eia861__assn_balancing_authority"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="s2">"state, balancing authority, and utility in a given year."</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;balancing_authority_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;state&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"balancing_authority_id_eia"</span><span class="p">,</span>
+                <span class="s2">"utility_id_eia"</span><span class="p">,</span>
+                <span class="s2">"state"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;balancing_authority_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;state&quot;</span><span class="p">,</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"balancing_authority_id_eia"</span><span class="p">,</span>
+                <span class="s2">"utility_id_eia"</span><span class="p">,</span>
+                <span class="s2">"state"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;eia&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;eia861&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;eia861&quot;</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"eia"</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"eia861"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"eia861"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_eia861__yearly_balancing_authority&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;balancing authorities.&quot;</span><span class="p">,</span>
+    <span class="s2">"core_eia861__yearly_balancing_authority"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="s2">"balancing authorities."</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;balancing_authority_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;balancing_authority_code_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;balancing_authority_name_eia&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"balancing_authority_id_eia"</span><span class="p">,</span>
+                <span class="s2">"balancing_authority_code_eia"</span><span class="p">,</span>
+                <span class="s2">"balancing_authority_name_eia"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;balancing_authority_id_eia&quot;</span><span class="p">,</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"balancing_authority_id_eia"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;eia&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;eia861&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;eia861&quot;</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"eia"</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"eia861"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"eia861"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_eia861__yearly_demand_response&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;demand response programs by state, sector, and balancing authority.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;&quot;The EIA861 demand-side management (DSM) table (split into three normalized tables in</span>
+    <span class="s2">"core_eia861__yearly_demand_response"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="s2">"demand response programs by state, sector, and balancing authority."</span><span class="p">,</span>
+            <span class="s2">"additional_details_text"</span><span class="p">:</span> <span class="s2">"""The EIA861 demand-side management (DSM) table (split into three normalized tables in</span>
 <span class="s2">PUDL) contain data through 2012. The form changed in 2013 and split the contents of the</span>
 <span class="s2">DSM table into energy efficiency and demand response tables. Though similar, the</span>
 <span class="s2">information collected before and after 2012 are not comparable enough to combine into a</span>
 <span class="s2">singular, continuous table. We were discouraged from doing so after contacting a</span>
-<span class="s2">representative from EIA.&quot;&quot;&quot;</span><span class="p">,</span>
+<span class="s2">representative from EIA."""</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;actual_peak_demand_savings_mw&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;balancing_authority_code_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;customer_class&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;customer_incentives_cost&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;customers&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;energy_savings_mwh&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;other_costs&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;potential_peak_demand_savings_mw&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;short_form&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;state&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;utility_name_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;data_maturity&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"actual_peak_demand_savings_mw"</span><span class="p">,</span>
+                <span class="s2">"balancing_authority_code_eia"</span><span class="p">,</span>
+                <span class="s2">"customer_class"</span><span class="p">,</span>
+                <span class="s2">"customer_incentives_cost"</span><span class="p">,</span>
+                <span class="s2">"customers"</span><span class="p">,</span>
+                <span class="s2">"energy_savings_mwh"</span><span class="p">,</span>
+                <span class="s2">"other_costs"</span><span class="p">,</span>
+                <span class="s2">"potential_peak_demand_savings_mw"</span><span class="p">,</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"short_form"</span><span class="p">,</span>
+                <span class="s2">"state"</span><span class="p">,</span>
+                <span class="s2">"utility_id_eia"</span><span class="p">,</span>
+                <span class="s2">"utility_name_eia"</span><span class="p">,</span>
+                <span class="s2">"data_maturity"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;balancing_authority_code_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;customer_class&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;state&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"balancing_authority_code_eia"</span><span class="p">,</span>
+                <span class="s2">"customer_class"</span><span class="p">,</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"state"</span><span class="p">,</span>
+                <span class="s2">"utility_id_eia"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;eia&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;eia861&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;eia861&quot;</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"eia"</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"eia861"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"eia861"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_eia861__yearly_demand_response_water_heater&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;grid-connected water heaters enrolled in demand response programs.&quot;</span>
+    <span class="s2">"core_eia861__yearly_demand_response_water_heater"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="s2">"grid-connected water heaters enrolled in demand response programs."</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;balancing_authority_code_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;state&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;num_water_heaters&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;data_maturity&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"balancing_authority_code_eia"</span><span class="p">,</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"state"</span><span class="p">,</span>
+                <span class="s2">"utility_id_eia"</span><span class="p">,</span>
+                <span class="s2">"num_water_heaters"</span><span class="p">,</span>
+                <span class="s2">"data_maturity"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;balancing_authority_code_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;state&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"balancing_authority_code_eia"</span><span class="p">,</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"state"</span><span class="p">,</span>
+                <span class="s2">"utility_id_eia"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;eia&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;eia861&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;eia861&quot;</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"eia"</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"eia861"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"eia861"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_eia861__yearly_demand_side_management_ee_dr&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;The impact of energy efficiency and load management programs on total energy sold (MWh) and peak demand (MW) by customer class.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;discontinued_data&quot;</span><span class="p">],</span>
-            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;&quot;The raw EIA861 demand-side management (DSM) table (split into three normalized tables in</span>
+    <span class="s2">"core_eia861__yearly_demand_side_management_ee_dr"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="s2">"The impact of energy efficiency and load management programs on total energy sold (MWh) and peak demand (MW) by customer class."</span><span class="p">,</span>
+            <span class="s2">"usage_warnings"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"discontinued_data"</span><span class="p">],</span>
+            <span class="s2">"additional_details_text"</span><span class="p">:</span> <span class="s2">"""The raw EIA861 demand-side management (DSM) table (split into three normalized tables in</span>
 <span class="s2">PUDL) contain data through 2012. The form changed in 2013 and split the contents of the</span>
 <span class="s2">DSM table into energy efficiency and demand response tables. Though similar, the</span>
 <span class="s2">information collected before and after 2012 are not comparable enough to combine into a</span>
 <span class="s2">singular, continuous table. We were discouraged from doing so after contacting a</span>
-<span class="s2">representative from EIA.&quot;&quot;&quot;</span><span class="p">,</span>
+<span class="s2">representative from EIA."""</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;annual_indirect_program_cost&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;annual_total_cost&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;customer_class&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;energy_efficiency_annual_actual_peak_reduction_mw&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;energy_efficiency_annual_direct_cost&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;energy_efficiency_annual_effects_mwh&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;energy_efficiency_annual_incentive_cost&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;energy_efficiency_incremental_actual_peak_reduction_mw&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;energy_efficiency_incremental_effects_mwh&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;load_management_annual_actual_peak_reduction_mw&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;load_management_annual_direct_cost&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;load_management_annual_effects_mwh&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;load_management_annual_incentive_cost&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;load_management_annual_potential_peak_reduction_mw&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;load_management_incremental_actual_peak_reduction_mw&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;load_management_incremental_effects_mwh&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;load_management_incremental_potential_peak_reduction_mw&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;nerc_region&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;price_responsiveness_customers&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;state&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;time_responsiveness_customers&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;data_maturity&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"annual_indirect_program_cost"</span><span class="p">,</span>
+                <span class="s2">"annual_total_cost"</span><span class="p">,</span>
+                <span class="s2">"customer_class"</span><span class="p">,</span>
+                <span class="s2">"energy_efficiency_annual_actual_peak_reduction_mw"</span><span class="p">,</span>
+                <span class="s2">"energy_efficiency_annual_direct_cost"</span><span class="p">,</span>
+                <span class="s2">"energy_efficiency_annual_effects_mwh"</span><span class="p">,</span>
+                <span class="s2">"energy_efficiency_annual_incentive_cost"</span><span class="p">,</span>
+                <span class="s2">"energy_efficiency_incremental_actual_peak_reduction_mw"</span><span class="p">,</span>
+                <span class="s2">"energy_efficiency_incremental_effects_mwh"</span><span class="p">,</span>
+                <span class="s2">"load_management_annual_actual_peak_reduction_mw"</span><span class="p">,</span>
+                <span class="s2">"load_management_annual_direct_cost"</span><span class="p">,</span>
+                <span class="s2">"load_management_annual_effects_mwh"</span><span class="p">,</span>
+                <span class="s2">"load_management_annual_incentive_cost"</span><span class="p">,</span>
+                <span class="s2">"load_management_annual_potential_peak_reduction_mw"</span><span class="p">,</span>
+                <span class="s2">"load_management_incremental_actual_peak_reduction_mw"</span><span class="p">,</span>
+                <span class="s2">"load_management_incremental_effects_mwh"</span><span class="p">,</span>
+                <span class="s2">"load_management_incremental_potential_peak_reduction_mw"</span><span class="p">,</span>
+                <span class="s2">"nerc_region"</span><span class="p">,</span>
+                <span class="s2">"price_responsiveness_customers"</span><span class="p">,</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"state"</span><span class="p">,</span>
+                <span class="s2">"time_responsiveness_customers"</span><span class="p">,</span>
+                <span class="s2">"utility_id_eia"</span><span class="p">,</span>
+                <span class="s2">"data_maturity"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;eia&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;eia861&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;eia861&quot;</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"eia"</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"eia861"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"eia861"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_eia861__yearly_demand_side_management_misc&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;demand-side management (DSM) program information.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;discontinued_data&quot;</span><span class="p">],</span>
-            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;&quot;Includes boolean fields about whether the energy savings estimates/calculations were</span>
+    <span class="s2">"core_eia861__yearly_demand_side_management_misc"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="s2">"demand-side management (DSM) program information."</span><span class="p">,</span>
+            <span class="s2">"usage_warnings"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"discontinued_data"</span><span class="p">],</span>
+            <span class="s2">"additional_details_text"</span><span class="p">:</span> <span class="s2">"""Includes boolean fields about whether the energy savings estimates/calculations were</span>
 <span class="s2">independently verified and whether the utility runs time and or price responsive</span>
-<span class="s2">programs. Also contains information on whether any of the respondent&#39;s DSM activities</span>
+<span class="s2">programs. Also contains information on whether any of the respondent's DSM activities</span>
 <span class="s2">are reported under another company, and if so which one.</span>
 
 <span class="s2">The raw EIA861 demand-side management (DSM) table (split into three normalized tables in</span>
@@ -1094,473 +1094,473 @@ window.runMermaid = runMermaid;</script>
 <span class="s2">DSM table into energy efficiency and demand response tables. Though similar, the</span>
 <span class="s2">information collected before and after 2012 are not comparable enough to combine into a</span>
 <span class="s2">singular, continuous table. We were discouraged from doing so after contacting a</span>
-<span class="s2">representative from EIA.&quot;&quot;&quot;</span><span class="p">,</span>
+<span class="s2">representative from EIA."""</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;energy_savings_estimates_independently_verified&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;energy_savings_independently_verified&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;entity_type&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;major_program_changes&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;nerc_region&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;price_responsive_programs&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;reported_as_another_company&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;short_form&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;state&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;has_time_responsive_programs&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;utility_name_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;data_maturity&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"energy_savings_estimates_independently_verified"</span><span class="p">,</span>
+                <span class="s2">"energy_savings_independently_verified"</span><span class="p">,</span>
+                <span class="s2">"entity_type"</span><span class="p">,</span>
+                <span class="s2">"major_program_changes"</span><span class="p">,</span>
+                <span class="s2">"nerc_region"</span><span class="p">,</span>
+                <span class="s2">"price_responsive_programs"</span><span class="p">,</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"reported_as_another_company"</span><span class="p">,</span>
+                <span class="s2">"short_form"</span><span class="p">,</span>
+                <span class="s2">"state"</span><span class="p">,</span>
+                <span class="s2">"has_time_responsive_programs"</span><span class="p">,</span>
+                <span class="s2">"utility_id_eia"</span><span class="p">,</span>
+                <span class="s2">"utility_name_eia"</span><span class="p">,</span>
+                <span class="s2">"data_maturity"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;eia&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;eia861&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;eia861&quot;</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"eia"</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"eia861"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"eia861"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_eia861__yearly_demand_side_management_sales&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;electricity sales related to demand-side management (DSM).&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;discontinued_data&quot;</span><span class="p">],</span>
-            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;&quot;The raw EIA861 demand-side management (DSM) table (split into three normalized tables in</span>
+    <span class="s2">"core_eia861__yearly_demand_side_management_sales"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="s2">"electricity sales related to demand-side management (DSM)."</span><span class="p">,</span>
+            <span class="s2">"usage_warnings"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"discontinued_data"</span><span class="p">],</span>
+            <span class="s2">"additional_details_text"</span><span class="p">:</span> <span class="s2">"""The raw EIA861 demand-side management (DSM) table (split into three normalized tables in</span>
 <span class="s2">PUDL) contain data through 2012. The form changed in 2013 and split the contents of the</span>
 <span class="s2">DSM table into energy efficiency and demand response tables. Though similar, the</span>
 <span class="s2">information collected before and after 2012 are not comparable enough to combine into a</span>
 <span class="s2">singular, continuous table. We were discouraged from doing so after contacting a</span>
-<span class="s2">representative from EIA.&quot;&quot;&quot;</span><span class="p">,</span>
+<span class="s2">representative from EIA."""</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;nerc_region&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;sales_for_resale_mwh&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;sales_to_ultimate_consumers_mwh&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;state&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;data_maturity&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"nerc_region"</span><span class="p">,</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"sales_for_resale_mwh"</span><span class="p">,</span>
+                <span class="s2">"sales_to_ultimate_consumers_mwh"</span><span class="p">,</span>
+                <span class="s2">"state"</span><span class="p">,</span>
+                <span class="s2">"utility_id_eia"</span><span class="p">,</span>
+                <span class="s2">"data_maturity"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;eia&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;eia861&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;eia861&quot;</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"eia"</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"eia861"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"eia861"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_eia861__yearly_distributed_generation_fuel&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;the energy sources used for utility or customer-owned distributed generation capacity.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;discontinued_data&quot;</span><span class="p">,</span>
+    <span class="s2">"core_eia861__yearly_distributed_generation_fuel"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="s2">"the energy sources used for utility or customer-owned distributed generation capacity."</span><span class="p">,</span>
+            <span class="s2">"usage_warnings"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"discontinued_data"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;From 2016 on, there&#39;s no great match for the data found in this table.</span>
+            <span class="s2">"additional_details_text"</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"""From 2016 on, there's no great match for the data found in this table.</span>
 <span class="s2">You may be able to compute an analog for fuel percents using the capacity and tech class</span>
 <span class="s2">figures in :ref:`core_eia861__yearly_non_net_metering_customer_fuel_class`, but no</span>
 <span class="s2">corresponding consumption or generation information is available in the new format.</span>
 
-<span class="si">{</span><span class="n">DISTRIBUTED_GENERATION_NON_NET_METERING_TRANSITION</span><span class="si">}</span><span class="s2">&quot;&quot;&quot;</span><span class="p">,</span>
+<span class="si">{</span><span class="n">DISTRIBUTED_GENERATION_NON_NET_METERING_TRANSITION</span><span class="si">}</span><span class="s2">"""</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;estimated_or_actual_fuel_data&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;fuel_class&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;fuel_pct&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;state&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;data_maturity&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"estimated_or_actual_fuel_data"</span><span class="p">,</span>
+                <span class="s2">"fuel_class"</span><span class="p">,</span>
+                <span class="s2">"fuel_pct"</span><span class="p">,</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"state"</span><span class="p">,</span>
+                <span class="s2">"utility_id_eia"</span><span class="p">,</span>
+                <span class="s2">"data_maturity"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;eia&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;eia861&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;eia861&quot;</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"eia"</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"eia861"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"eia861"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_eia861__yearly_distributed_generation_misc&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s2">"core_eia861__yearly_distributed_generation_misc"</span><span class="p">:</span> <span class="p">{</span>
         <span class="c1"># TODO: might want to rename this table to be _capacity</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;the capacity and quantity of utility or customer-owned distributed generation.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;discontinued_data&quot;</span><span class="p">,</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="s2">"the capacity and quantity of utility or customer-owned distributed generation."</span><span class="p">,</span>
+            <span class="s2">"usage_warnings"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"discontinued_data"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;From 2016 on, data similar to that found in this table can be found in</span>
+            <span class="s2">"additional_details_text"</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"""From 2016 on, data similar to that found in this table can be found in</span>
 <span class="s2">:ref:`core_eia861__yearly_non_net_metering_misc`.</span>
 
-<span class="si">{</span><span class="n">DISTRIBUTED_GENERATION_NON_NET_METERING_TRANSITION</span><span class="si">}</span><span class="s2">&quot;&quot;&quot;</span><span class="p">,</span>
+<span class="si">{</span><span class="n">DISTRIBUTED_GENERATION_NON_NET_METERING_TRANSITION</span><span class="si">}</span><span class="s2">"""</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;backup_capacity_mw&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;distributed_generation_owned_capacity_mw&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;estimated_or_actual_capacity_data&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;generators_num_less_1_mw&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;generators_number&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;state&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;total_capacity_less_1_mw&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;utility_name_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;data_maturity&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"backup_capacity_mw"</span><span class="p">,</span>
+                <span class="s2">"distributed_generation_owned_capacity_mw"</span><span class="p">,</span>
+                <span class="s2">"estimated_or_actual_capacity_data"</span><span class="p">,</span>
+                <span class="s2">"generators_num_less_1_mw"</span><span class="p">,</span>
+                <span class="s2">"generators_number"</span><span class="p">,</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"state"</span><span class="p">,</span>
+                <span class="s2">"total_capacity_less_1_mw"</span><span class="p">,</span>
+                <span class="s2">"utility_id_eia"</span><span class="p">,</span>
+                <span class="s2">"utility_name_eia"</span><span class="p">,</span>
+                <span class="s2">"data_maturity"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;eia&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;eia861&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;eia861&quot;</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"eia"</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"eia861"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"eia861"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_eia861__yearly_distributed_generation_tech&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;the technology used for utility or customer-owned distributed generation.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;discontinued_data&quot;</span><span class="p">,</span>
+    <span class="s2">"core_eia861__yearly_distributed_generation_tech"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="s2">"the technology used for utility or customer-owned distributed generation."</span><span class="p">,</span>
+            <span class="s2">"usage_warnings"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"discontinued_data"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;From 2016 on, data similar to that found in this table can be found in</span>
+            <span class="s2">"additional_details_text"</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"""From 2016 on, data similar to that found in this table can be found in</span>
 <span class="s2">:ref:`core_eia861__yearly_non_net_metering_customer_fuel_class`.</span>
 
-<span class="si">{</span><span class="n">DISTRIBUTED_GENERATION_NON_NET_METERING_TRANSITION</span><span class="si">}</span><span class="s2">&quot;&quot;&quot;</span><span class="p">,</span>
+<span class="si">{</span><span class="n">DISTRIBUTED_GENERATION_NON_NET_METERING_TRANSITION</span><span class="si">}</span><span class="s2">"""</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;capacity_mw&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;estimated_or_actual_tech_data&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;state&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;tech_class&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;data_maturity&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"capacity_mw"</span><span class="p">,</span>
+                <span class="s2">"estimated_or_actual_tech_data"</span><span class="p">,</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"state"</span><span class="p">,</span>
+                <span class="s2">"tech_class"</span><span class="p">,</span>
+                <span class="s2">"utility_id_eia"</span><span class="p">,</span>
+                <span class="s2">"data_maturity"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;eia&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;eia861&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;eia861&quot;</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"eia"</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"eia861"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"eia861"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_eia861__yearly_distribution_systems&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;distribution circuits and circuits with voltage optimization by state.&quot;</span>
+    <span class="s2">"core_eia861__yearly_distribution_systems"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="s2">"distribution circuits and circuits with voltage optimization by state."</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;circuits_with_voltage_optimization&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;distribution_circuits&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;short_form&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;state&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;utility_name_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;data_maturity&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"circuits_with_voltage_optimization"</span><span class="p">,</span>
+                <span class="s2">"distribution_circuits"</span><span class="p">,</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"short_form"</span><span class="p">,</span>
+                <span class="s2">"state"</span><span class="p">,</span>
+                <span class="s2">"utility_id_eia"</span><span class="p">,</span>
+                <span class="s2">"utility_name_eia"</span><span class="p">,</span>
+                <span class="s2">"data_maturity"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;eia&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;eia861&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;eia861&quot;</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"eia"</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"eia861"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"eia861"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_eia861__yearly_dynamic_pricing&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot; enrollment in dynamic pricing programs by state, sector, and balancing authority.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;&quot;Respondents check if one or more customers are enrolled in time-of-use pricing, real</span>
-<span class="s2">time pricing, variable peak pricing, critical peak pricing, and critical peak rebates.&quot;&quot;&quot;</span><span class="p">,</span>
+    <span class="s2">"core_eia861__yearly_dynamic_pricing"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="s2">" enrollment in dynamic pricing programs by state, sector, and balancing authority."</span><span class="p">,</span>
+            <span class="s2">"additional_details_text"</span><span class="p">:</span> <span class="s2">"""Respondents check if one or more customers are enrolled in time-of-use pricing, real</span>
+<span class="s2">time pricing, variable peak pricing, critical peak pricing, and critical peak rebates."""</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;balancing_authority_code_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;critical_peak_pricing&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;critical_peak_rebate&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;customer_class&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;customers&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;real_time_pricing&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;short_form&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;state&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;time_of_use_pricing&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;utility_name_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;variable_peak_pricing&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;data_maturity&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"balancing_authority_code_eia"</span><span class="p">,</span>
+                <span class="s2">"critical_peak_pricing"</span><span class="p">,</span>
+                <span class="s2">"critical_peak_rebate"</span><span class="p">,</span>
+                <span class="s2">"customer_class"</span><span class="p">,</span>
+                <span class="s2">"customers"</span><span class="p">,</span>
+                <span class="s2">"real_time_pricing"</span><span class="p">,</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"short_form"</span><span class="p">,</span>
+                <span class="s2">"state"</span><span class="p">,</span>
+                <span class="s2">"time_of_use_pricing"</span><span class="p">,</span>
+                <span class="s2">"utility_id_eia"</span><span class="p">,</span>
+                <span class="s2">"utility_name_eia"</span><span class="p">,</span>
+                <span class="s2">"variable_peak_pricing"</span><span class="p">,</span>
+                <span class="s2">"data_maturity"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;eia&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;eia861&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;eia861&quot;</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"eia"</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"eia861"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"eia861"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_eia861__yearly_energy_efficiency&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;&quot;incremental energy savings, peak demand savings, weighted average life</span>
+    <span class="s2">"core_eia861__yearly_energy_efficiency"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="s2">"""incremental energy savings, peak demand savings, weighted average life</span>
 <span class="s2">cycle, and associated costs for the reporting year and life cycle of energy efficiency</span>
-<span class="s2">programs.&quot;&quot;&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;&quot;The EIA861 demand-side management (DSM) table (split into three normalized tables in</span>
+<span class="s2">programs."""</span><span class="p">,</span>
+            <span class="s2">"additional_details_text"</span><span class="p">:</span> <span class="s2">"""The EIA861 demand-side management (DSM) table (split into three normalized tables in</span>
 <span class="s2">PUDL) contain data through 2012. The form changed in 2013 and split the contents of the</span>
 <span class="s2">DSM table into energy efficiency and demand response tables. Though similar, the</span>
 <span class="s2">information collected before and after 2012 are not comparable enough to combine into a</span>
 <span class="s2">singular, continuous table. We were discouraged from doing so after contacting a</span>
-<span class="s2">representative from EIA.&quot;&quot;&quot;</span><span class="p">,</span>
+<span class="s2">representative from EIA."""</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;balancing_authority_code_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;customer_class&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;customer_incentives_incremental_cost&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;customer_incentives_incremental_life_cycle_cost&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;customer_other_costs_incremental_life_cycle_cost&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;incremental_energy_savings_mwh&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;incremental_life_cycle_energy_savings_mwh&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;incremental_life_cycle_peak_reduction_mw&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;incremental_peak_reduction_mw&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;other_costs_incremental_cost&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;short_form&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;state&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;utility_name_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;weighted_average_life_years&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;data_maturity&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"balancing_authority_code_eia"</span><span class="p">,</span>
+                <span class="s2">"customer_class"</span><span class="p">,</span>
+                <span class="s2">"customer_incentives_incremental_cost"</span><span class="p">,</span>
+                <span class="s2">"customer_incentives_incremental_life_cycle_cost"</span><span class="p">,</span>
+                <span class="s2">"customer_other_costs_incremental_life_cycle_cost"</span><span class="p">,</span>
+                <span class="s2">"incremental_energy_savings_mwh"</span><span class="p">,</span>
+                <span class="s2">"incremental_life_cycle_energy_savings_mwh"</span><span class="p">,</span>
+                <span class="s2">"incremental_life_cycle_peak_reduction_mw"</span><span class="p">,</span>
+                <span class="s2">"incremental_peak_reduction_mw"</span><span class="p">,</span>
+                <span class="s2">"other_costs_incremental_cost"</span><span class="p">,</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"short_form"</span><span class="p">,</span>
+                <span class="s2">"state"</span><span class="p">,</span>
+                <span class="s2">"utility_id_eia"</span><span class="p">,</span>
+                <span class="s2">"utility_name_eia"</span><span class="p">,</span>
+                <span class="s2">"weighted_average_life_years"</span><span class="p">,</span>
+                <span class="s2">"data_maturity"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;eia&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;eia861&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;eia861&quot;</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"eia"</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"eia861"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"eia861"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_eia861__yearly_green_pricing&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;green pricing program revenue, sales, and customer count by sector and state.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;discontinued_data&quot;</span><span class="p">],</span>
+    <span class="s2">"core_eia861__yearly_green_pricing"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="s2">"green pricing program revenue, sales, and customer count by sector and state."</span><span class="p">,</span>
+            <span class="s2">"usage_warnings"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"discontinued_data"</span><span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;customer_class&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;customers&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;green_pricing_revenue&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;rec_revenue&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;rec_sales_mwh&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;sales_mwh&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;state&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;utility_name_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;data_maturity&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"customer_class"</span><span class="p">,</span>
+                <span class="s2">"customers"</span><span class="p">,</span>
+                <span class="s2">"green_pricing_revenue"</span><span class="p">,</span>
+                <span class="s2">"rec_revenue"</span><span class="p">,</span>
+                <span class="s2">"rec_sales_mwh"</span><span class="p">,</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"sales_mwh"</span><span class="p">,</span>
+                <span class="s2">"state"</span><span class="p">,</span>
+                <span class="s2">"utility_id_eia"</span><span class="p">,</span>
+                <span class="s2">"utility_name_eia"</span><span class="p">,</span>
+                <span class="s2">"data_maturity"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;eia&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;eia861&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;eia861&quot;</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"eia"</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"eia861"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"eia861"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_eia861__yearly_mergers&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;utility mergers and acquisitions.&quot;</span><span class="p">,</span>
+    <span class="s2">"core_eia861__yearly_mergers"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="s2">"utility mergers and acquisitions."</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;entity_type&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;merge_address&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;merge_city&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;merge_company&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;merge_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;merge_state&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;new_parent&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;state&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;utility_name_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;zip_code&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;zip_code_4&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;data_maturity&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"entity_type"</span><span class="p">,</span>
+                <span class="s2">"merge_address"</span><span class="p">,</span>
+                <span class="s2">"merge_city"</span><span class="p">,</span>
+                <span class="s2">"merge_company"</span><span class="p">,</span>
+                <span class="s2">"merge_date"</span><span class="p">,</span>
+                <span class="s2">"merge_state"</span><span class="p">,</span>
+                <span class="s2">"new_parent"</span><span class="p">,</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"state"</span><span class="p">,</span>
+                <span class="s2">"utility_id_eia"</span><span class="p">,</span>
+                <span class="s2">"utility_name_eia"</span><span class="p">,</span>
+                <span class="s2">"zip_code"</span><span class="p">,</span>
+                <span class="s2">"zip_code_4"</span><span class="p">,</span>
+                <span class="s2">"data_maturity"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;eia&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;eia861&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;eia861&quot;</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"eia"</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"eia861"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"eia861"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_eia861__yearly_net_metering_customer_fuel_class&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;net metering by customer and fuel class.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;irregular_years&quot;</span><span class="p">],</span>
-            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;&quot;The amount of energy sold to back to the grid. From 2007 - 2009 the data</span>
+    <span class="s2">"core_eia861__yearly_net_metering_customer_fuel_class"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="s2">"net metering by customer and fuel class."</span><span class="p">,</span>
+            <span class="s2">"usage_warnings"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"irregular_years"</span><span class="p">],</span>
+            <span class="s2">"additional_details_text"</span><span class="p">:</span> <span class="s2">"""The amount of energy sold to back to the grid. From 2007 - 2009 the data</span>
 <span class="s2">are reported as a lump sum of total energy dispatched by sector. After 2009, the data</span>
-<span class="s2">are broken down by sector and technology type.&quot;&quot;&quot;</span><span class="p">,</span>
+<span class="s2">are broken down by sector and technology type."""</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;balancing_authority_code_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;capacity_mw&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;energy_capacity_mwh&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;customer_class&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;customers&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;short_form&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;sold_to_utility_mwh&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;state&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;tech_class&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;utility_name_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;data_maturity&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"balancing_authority_code_eia"</span><span class="p">,</span>
+                <span class="s2">"capacity_mw"</span><span class="p">,</span>
+                <span class="s2">"energy_capacity_mwh"</span><span class="p">,</span>
+                <span class="s2">"customer_class"</span><span class="p">,</span>
+                <span class="s2">"customers"</span><span class="p">,</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"short_form"</span><span class="p">,</span>
+                <span class="s2">"sold_to_utility_mwh"</span><span class="p">,</span>
+                <span class="s2">"state"</span><span class="p">,</span>
+                <span class="s2">"tech_class"</span><span class="p">,</span>
+                <span class="s2">"utility_id_eia"</span><span class="p">,</span>
+                <span class="s2">"utility_name_eia"</span><span class="p">,</span>
+                <span class="s2">"data_maturity"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;eia&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;eia861&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;eia861&quot;</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"eia"</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"eia861"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"eia861"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_eia861__yearly_net_metering_misc&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="c1"># TODO: I feel skeptical that the pv_current_flow_type field shouldn&#39;t be linked to the other net metering table.</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;PV current flow type for net metered capacity.&quot;</span><span class="p">,</span>
+    <span class="s2">"core_eia861__yearly_net_metering_misc"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="c1"># TODO: I feel skeptical that the pv_current_flow_type field shouldn't be linked to the other net metering table.</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="s2">"PV current flow type for net metered capacity."</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;balancing_authority_code_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;pv_current_flow_type&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;state&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;data_maturity&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"balancing_authority_code_eia"</span><span class="p">,</span>
+                <span class="s2">"pv_current_flow_type"</span><span class="p">,</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"state"</span><span class="p">,</span>
+                <span class="s2">"utility_id_eia"</span><span class="p">,</span>
+                <span class="s2">"data_maturity"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;eia&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;eia861&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;eia861&quot;</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"eia"</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"eia861"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"eia861"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_eia861__yearly_non_net_metering_customer_fuel_class&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;non-net metered distributed generation by sector and technology type.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;This table&#39;s data starts in 2016. For 2015 and earlier, data similar to that found in this table can be found in</span>
+    <span class="s2">"core_eia861__yearly_non_net_metering_customer_fuel_class"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="s2">"non-net metered distributed generation by sector and technology type."</span><span class="p">,</span>
+            <span class="s2">"additional_details_text"</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"""This table's data starts in 2016. For 2015 and earlier, data similar to that found in this table can be found in</span>
 <span class="s2">:ref:`core_eia861__yearly_distributed_generation_tech`.</span>
 
-<span class="si">{</span><span class="n">DISTRIBUTED_GENERATION_NON_NET_METERING_TRANSITION</span><span class="si">}</span><span class="s2">&quot;&quot;&quot;</span><span class="p">,</span>
+<span class="si">{</span><span class="n">DISTRIBUTED_GENERATION_NON_NET_METERING_TRANSITION</span><span class="si">}</span><span class="s2">"""</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;balancing_authority_code_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;capacity_mw&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;energy_capacity_mwh&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;customer_class&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;state&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;tech_class&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;utility_name_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;data_maturity&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"balancing_authority_code_eia"</span><span class="p">,</span>
+                <span class="s2">"capacity_mw"</span><span class="p">,</span>
+                <span class="s2">"energy_capacity_mwh"</span><span class="p">,</span>
+                <span class="s2">"customer_class"</span><span class="p">,</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"state"</span><span class="p">,</span>
+                <span class="s2">"tech_class"</span><span class="p">,</span>
+                <span class="s2">"utility_id_eia"</span><span class="p">,</span>
+                <span class="s2">"utility_name_eia"</span><span class="p">,</span>
+                <span class="s2">"data_maturity"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;eia&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;eia861&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;eia861&quot;</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"eia"</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"eia861"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"eia861"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_eia861__yearly_non_net_metering_misc&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;non-net metered distributed generation generators, pv current flow type, backup capacity and utility owned capacity.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;This table&#39;s data starts in 2016. For 2015 and earlier, data similar to that found in this table can be found in</span>
+    <span class="s2">"core_eia861__yearly_non_net_metering_misc"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="s2">"non-net metered distributed generation generators, pv current flow type, backup capacity and utility owned capacity."</span><span class="p">,</span>
+            <span class="s2">"additional_details_text"</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"""This table's data starts in 2016. For 2015 and earlier, data similar to that found in this table can be found in</span>
 <span class="s2">:ref:`core_eia861__yearly_distributed_generation_misc`.</span>
 
-<span class="si">{</span><span class="n">DISTRIBUTED_GENERATION_NON_NET_METERING_TRANSITION</span><span class="si">}</span><span class="s2">&quot;&quot;&quot;</span><span class="p">,</span>
+<span class="si">{</span><span class="n">DISTRIBUTED_GENERATION_NON_NET_METERING_TRANSITION</span><span class="si">}</span><span class="s2">"""</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;backup_capacity_mw&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;balancing_authority_code_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;generators_number&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;pv_current_flow_type&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;state&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;utility_owned_capacity_mw&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;data_maturity&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"backup_capacity_mw"</span><span class="p">,</span>
+                <span class="s2">"balancing_authority_code_eia"</span><span class="p">,</span>
+                <span class="s2">"generators_number"</span><span class="p">,</span>
+                <span class="s2">"pv_current_flow_type"</span><span class="p">,</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"state"</span><span class="p">,</span>
+                <span class="s2">"utility_id_eia"</span><span class="p">,</span>
+                <span class="s2">"utility_owned_capacity_mw"</span><span class="p">,</span>
+                <span class="s2">"data_maturity"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;eia&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;eia861&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;eia861&quot;</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"eia"</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"eia861"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"eia861"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_eia861__yearly_operational_data_misc&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s2">"core_eia861__yearly_operational_data_misc"</span><span class="p">:</span> <span class="p">{</span>
         <span class="c1"># TODO: misc might be a misleading name</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;megawatt hours (MWH) for the sources and disposition of a utility&#39;s electricity.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Schedule 2B)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span><span class="si">{</span><span class="n">EIA861_88888</span><span class="si">}</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="s2">"megawatt hours (MWH) for the sources and disposition of a utility's electricity."</span><span class="p">,</span>
+            <span class="s2">"additional_source_text"</span><span class="p">:</span> <span class="s2">"(Schedule 2B)"</span><span class="p">,</span>
+            <span class="s2">"additional_details_text"</span><span class="p">:</span> <span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"""</span><span class="si">{</span><span class="n">EIA861_88888</span><span class="si">}</span>
 
 <span class="s2">Rows where ``data_observed`` is False were labeled as imputed in the raw EIA data.</span>
 <span class="s2">The EIA documentation does not specify what imputation applies to operational data,</span>
 <span class="s2">only net metering and non net-metering distributed data. Less than 1% of rows are</span>
 <span class="s2">labeled as imputed, all of which occur in 2004 or 2005. Imputed rows make up no</span>
 <span class="s2">more than 25% of the rows for any utility.</span>
-<span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">"""</span>
             <span class="p">),</span>
-            <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;redacted_values&quot;</span><span class="p">,</span> <span class="s2">&quot;imputed_values&quot;</span><span class="p">],</span>
+            <span class="s2">"usage_warnings"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"redacted_values"</span><span class="p">,</span> <span class="s2">"imputed_values"</span><span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;consumed_by_facility_mwh&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;consumed_by_respondent_without_charge_mwh&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;data_observed&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;entity_type&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;exchange_energy_delivered_mwh&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;exchange_energy_received_mwh&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;furnished_without_charge_mwh&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;nerc_region&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;net_generation_mwh&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;net_power_exchanged_mwh&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;net_wheeled_power_mwh&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;retail_sales_mwh&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;sales_for_resale_mwh&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;short_form&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;state&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;summer_peak_demand_mw&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;total_disposition_mwh&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;total_energy_losses_mwh&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;total_sources_mwh&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;transmission_by_other_losses_mwh&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;utility_name_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;wheeled_power_delivered_mwh&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;wheeled_power_received_mwh&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;wholesale_power_purchases_mwh&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;winter_peak_demand_mw&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;data_maturity&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"consumed_by_facility_mwh"</span><span class="p">,</span>
+                <span class="s2">"consumed_by_respondent_without_charge_mwh"</span><span class="p">,</span>
+                <span class="s2">"data_observed"</span><span class="p">,</span>
+                <span class="s2">"entity_type"</span><span class="p">,</span>
+                <span class="s2">"exchange_energy_delivered_mwh"</span><span class="p">,</span>
+                <span class="s2">"exchange_energy_received_mwh"</span><span class="p">,</span>
+                <span class="s2">"furnished_without_charge_mwh"</span><span class="p">,</span>
+                <span class="s2">"nerc_region"</span><span class="p">,</span>
+                <span class="s2">"net_generation_mwh"</span><span class="p">,</span>
+                <span class="s2">"net_power_exchanged_mwh"</span><span class="p">,</span>
+                <span class="s2">"net_wheeled_power_mwh"</span><span class="p">,</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"retail_sales_mwh"</span><span class="p">,</span>
+                <span class="s2">"sales_for_resale_mwh"</span><span class="p">,</span>
+                <span class="s2">"short_form"</span><span class="p">,</span>
+                <span class="s2">"state"</span><span class="p">,</span>
+                <span class="s2">"summer_peak_demand_mw"</span><span class="p">,</span>
+                <span class="s2">"total_disposition_mwh"</span><span class="p">,</span>
+                <span class="s2">"total_energy_losses_mwh"</span><span class="p">,</span>
+                <span class="s2">"total_sources_mwh"</span><span class="p">,</span>
+                <span class="s2">"transmission_by_other_losses_mwh"</span><span class="p">,</span>
+                <span class="s2">"utility_id_eia"</span><span class="p">,</span>
+                <span class="s2">"utility_name_eia"</span><span class="p">,</span>
+                <span class="s2">"wheeled_power_delivered_mwh"</span><span class="p">,</span>
+                <span class="s2">"wheeled_power_received_mwh"</span><span class="p">,</span>
+                <span class="s2">"wholesale_power_purchases_mwh"</span><span class="p">,</span>
+                <span class="s2">"winter_peak_demand_mw"</span><span class="p">,</span>
+                <span class="s2">"data_maturity"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;nerc_region&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"utility_id_eia"</span><span class="p">,</span>
+                <span class="s2">"nerc_region"</span><span class="p">,</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;eia&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;eia861&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;eia861&quot;</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"eia"</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"eia861"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"eia861"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_eia861__yearly_operational_data_revenue&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;utility revenue by type of electric operating revenue.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Schedule 2C)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;A utility&#39;s revenue by type of electric operating revenue.</span>
+    <span class="s2">"core_eia861__yearly_operational_data_revenue"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="s2">"utility revenue by type of electric operating revenue."</span><span class="p">,</span>
+            <span class="s2">"additional_source_text"</span><span class="p">:</span> <span class="s2">"(Schedule 2C)"</span><span class="p">,</span>
+            <span class="s2">"additional_details_text"</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"""A utility's revenue by type of electric operating revenue.</span>
 <span class="s2">Includes electric operating revenue from sales to ultimate customers, revenue from</span>
 <span class="s2">unbundled (delivery) customers, revenue from sales for resale, electric credits/other</span>
 <span class="s2">adjustments, revenue from transmission, other electric operating revenue, and total</span>
 <span class="s2">electric operating revenue.</span>
 
-<span class="si">{</span><span class="n">EIA861_88888</span><span class="si">}</span><span class="s2">&quot;&quot;&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;redacted_values&quot;</span><span class="p">],</span>
+<span class="si">{</span><span class="n">EIA861_88888</span><span class="si">}</span><span class="s2">"""</span><span class="p">,</span>
+            <span class="s2">"usage_warnings"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"redacted_values"</span><span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;nerc_region&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;revenue&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;revenue_class&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;state&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;data_maturity&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"nerc_region"</span><span class="p">,</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"revenue"</span><span class="p">,</span>
+                <span class="s2">"revenue_class"</span><span class="p">,</span>
+                <span class="s2">"state"</span><span class="p">,</span>
+                <span class="s2">"utility_id_eia"</span><span class="p">,</span>
+                <span class="s2">"data_maturity"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;nerc_region&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;revenue_class&quot;</span><span class="p">,</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"utility_id_eia"</span><span class="p">,</span>
+                <span class="s2">"nerc_region"</span><span class="p">,</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"revenue_class"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;eia&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;eia861&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;eia861&quot;</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"eia"</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"eia861"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"eia861"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_eia861__yearly_reliability&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;electricity system reliability and outage impacts.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Schedules 3B and 3C)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;additional_primary_key_text&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">  Note: ``standard`` is included because while respondents are asked to only fill out one of parts B or C, sometimes they fill out both.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;&quot;Contains information on non-momentary electrical interruptions.</span>
+    <span class="s2">"core_eia861__yearly_reliability"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="s2">"electricity system reliability and outage impacts."</span><span class="p">,</span>
+            <span class="s2">"additional_source_text"</span><span class="p">:</span> <span class="s2">"(Schedules 3B and 3C)"</span><span class="p">,</span>
+            <span class="s2">"additional_primary_key_text"</span><span class="p">:</span> <span class="s2">"</span><span class="se">\n\n</span><span class="s2">  Note: ``standard`` is included because while respondents are asked to only fill out one of parts B or C, sometimes they fill out both."</span><span class="p">,</span>
+            <span class="s2">"additional_details_text"</span><span class="p">:</span> <span class="s2">"""Contains information on non-momentary electrical interruptions.</span>
 <span class="s2">Includes the system average interruption duration index (SAIDI), system average</span>
 <span class="s2">interruption frequency index (SAIFI), and customer average interruption duration index</span>
 <span class="s2">(CAIDI) aka SAIDI/SAIFI with and without major event days and loss of service. Includes</span>
@@ -1589,87 +1589,87 @@ window.runMermaid = runMermaid;</script>
 <span class="s2">* whether inactive accounts are included</span>
 <span class="s2">* how they define a momentary interruption (less than 1 minute, less than or equal to 5 minutes, or other)</span>
 
-<span class="s2">In this table, column ``standard`` is &quot;ieee_standard&quot; for respondents who have filled out part B, and</span>
-<span class="s2">&quot;other_standard&quot; for respondents who have filled out part C.</span>
-<span class="s2">&quot;&quot;&quot;</span><span class="p">,</span>
+<span class="s2">In this table, column ``standard`` is "ieee_standard" for respondents who have filled out part B, and</span>
+<span class="s2">"other_standard" for respondents who have filled out part C.</span>
+<span class="s2">"""</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;caidi_w_major_event_days_minus_loss_of_service_minutes&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;caidi_w_major_event_days_minutes&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;caidi_wo_major_event_days_minutes&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;customers&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;entity_type&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;highest_distribution_voltage_kv&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;inactive_accounts_included&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;momentary_interruption_definition&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;outages_recorded_automatically&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;saidi_w_major_event_days_minus_loss_of_service_minutes&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;saidi_w_major_event_days_minutes&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;saidi_wo_major_event_days_minutes&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;saifi_w_major_event_days_customers&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;saifi_w_major_event_days_minus_loss_of_service_customers&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;saifi_wo_major_event_days_customers&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;short_form&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;standard&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;state&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;utility_name_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;data_maturity&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"caidi_w_major_event_days_minus_loss_of_service_minutes"</span><span class="p">,</span>
+                <span class="s2">"caidi_w_major_event_days_minutes"</span><span class="p">,</span>
+                <span class="s2">"caidi_wo_major_event_days_minutes"</span><span class="p">,</span>
+                <span class="s2">"customers"</span><span class="p">,</span>
+                <span class="s2">"entity_type"</span><span class="p">,</span>
+                <span class="s2">"highest_distribution_voltage_kv"</span><span class="p">,</span>
+                <span class="s2">"inactive_accounts_included"</span><span class="p">,</span>
+                <span class="s2">"momentary_interruption_definition"</span><span class="p">,</span>
+                <span class="s2">"outages_recorded_automatically"</span><span class="p">,</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"saidi_w_major_event_days_minus_loss_of_service_minutes"</span><span class="p">,</span>
+                <span class="s2">"saidi_w_major_event_days_minutes"</span><span class="p">,</span>
+                <span class="s2">"saidi_wo_major_event_days_minutes"</span><span class="p">,</span>
+                <span class="s2">"saifi_w_major_event_days_customers"</span><span class="p">,</span>
+                <span class="s2">"saifi_w_major_event_days_minus_loss_of_service_customers"</span><span class="p">,</span>
+                <span class="s2">"saifi_wo_major_event_days_customers"</span><span class="p">,</span>
+                <span class="s2">"short_form"</span><span class="p">,</span>
+                <span class="s2">"standard"</span><span class="p">,</span>
+                <span class="s2">"state"</span><span class="p">,</span>
+                <span class="s2">"utility_id_eia"</span><span class="p">,</span>
+                <span class="s2">"utility_name_eia"</span><span class="p">,</span>
+                <span class="s2">"data_maturity"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;state&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;standard&quot;</span><span class="p">,</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"utility_id_eia"</span><span class="p">,</span>
+                <span class="s2">"state"</span><span class="p">,</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"standard"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;eia&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;eia861&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;eia861&quot;</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"eia"</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"eia861"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"eia861"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_eia861__yearly_sales&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;electricity sales to ultimate customers by utility, balancing authority, state, and customer class.&quot;</span>
+    <span class="s2">"core_eia861__yearly_sales"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="s2">"electricity sales to ultimate customers by utility, balancing authority, state, and customer class."</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;state&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;balancing_authority_code_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;customer_class&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;business_model&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;data_observed&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;entity_type&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;service_type&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;short_form&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;utility_name_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;customers&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;sales_mwh&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;sales_revenue&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;data_maturity&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"utility_id_eia"</span><span class="p">,</span>
+                <span class="s2">"state"</span><span class="p">,</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"balancing_authority_code_eia"</span><span class="p">,</span>
+                <span class="s2">"customer_class"</span><span class="p">,</span>
+                <span class="s2">"business_model"</span><span class="p">,</span>
+                <span class="s2">"data_observed"</span><span class="p">,</span>
+                <span class="s2">"entity_type"</span><span class="p">,</span>
+                <span class="s2">"service_type"</span><span class="p">,</span>
+                <span class="s2">"short_form"</span><span class="p">,</span>
+                <span class="s2">"utility_name_eia"</span><span class="p">,</span>
+                <span class="s2">"customers"</span><span class="p">,</span>
+                <span class="s2">"sales_mwh"</span><span class="p">,</span>
+                <span class="s2">"sales_revenue"</span><span class="p">,</span>
+                <span class="s2">"data_maturity"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;state&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;balancing_authority_code_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;customer_class&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;business_model&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;service_type&quot;</span><span class="p">,</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"utility_id_eia"</span><span class="p">,</span>
+                <span class="s2">"state"</span><span class="p">,</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"balancing_authority_code_eia"</span><span class="p">,</span>
+                <span class="s2">"customer_class"</span><span class="p">,</span>
+                <span class="s2">"business_model"</span><span class="p">,</span>
+                <span class="s2">"service_type"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;eia&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;eia861&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;eia861&quot;</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"eia"</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"eia861"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"eia861"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_eia861__yearly_short_form&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;data from the short form (EIA-861S).&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;missing_years&quot;</span><span class="p">],</span>
-            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;&quot;The data started being reported in 2012. However, the 2019 data is not available.</span>
+    <span class="s2">"core_eia861__yearly_short_form"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="s2">"data from the short form (EIA-861S)."</span><span class="p">,</span>
+            <span class="s2">"usage_warnings"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"missing_years"</span><span class="p">],</span>
+            <span class="s2">"additional_details_text"</span><span class="p">:</span> <span class="s2">"""The data started being reported in 2012. However, the 2019 data is not available.</span>
 <span class="s2">They are expected to submit the completed Form EIA-861S to EIA by April 30th, following the end of the prior calendar year.</span>
 <span class="s2">Utilities report on Form EIA-861S if they:</span>
 
@@ -1681,209 +1681,209 @@ window.runMermaid = runMermaid;</script>
 
 <span class="s2">- Are not part of the aggregate TVA or WPPI.</span>
 
-<span class="s2">- Do not report on Form EIA-861M.&quot;&quot;&quot;</span><span class="p">,</span>
+<span class="s2">- Do not report on Form EIA-861M."""</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;utility_name_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;entity_type&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;state&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;balancing_authority_code_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;sales_revenue&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;sales_mwh&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;customers&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;has_net_metering&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;has_demand_side_management&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;has_time_responsive_programs&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;has_green_pricing&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;data_maturity&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"utility_id_eia"</span><span class="p">,</span>
+                <span class="s2">"utility_name_eia"</span><span class="p">,</span>
+                <span class="s2">"entity_type"</span><span class="p">,</span>
+                <span class="s2">"state"</span><span class="p">,</span>
+                <span class="s2">"balancing_authority_code_eia"</span><span class="p">,</span>
+                <span class="s2">"sales_revenue"</span><span class="p">,</span>
+                <span class="s2">"sales_mwh"</span><span class="p">,</span>
+                <span class="s2">"customers"</span><span class="p">,</span>
+                <span class="s2">"has_net_metering"</span><span class="p">,</span>
+                <span class="s2">"has_demand_side_management"</span><span class="p">,</span>
+                <span class="s2">"has_time_responsive_programs"</span><span class="p">,</span>
+                <span class="s2">"has_green_pricing"</span><span class="p">,</span>
+                <span class="s2">"data_maturity"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;state&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;balancing_authority_code_eia&quot;</span><span class="p">,</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"utility_id_eia"</span><span class="p">,</span>
+                <span class="s2">"state"</span><span class="p">,</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"balancing_authority_code_eia"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;eia&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;eia861&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;eia861&quot;</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"eia"</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"eia861"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"eia861"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_eia861__yearly_service_territory&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;counties in utility service territories.&quot;</span>
+    <span class="s2">"core_eia861__yearly_service_territory"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="s2">"counties in utility service territories."</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;county&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;short_form&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;state&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;utility_name_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;state_id_fips&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;county_id_fips&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;data_maturity&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"county"</span><span class="p">,</span>
+                <span class="s2">"short_form"</span><span class="p">,</span>
+                <span class="s2">"state"</span><span class="p">,</span>
+                <span class="s2">"utility_id_eia"</span><span class="p">,</span>
+                <span class="s2">"utility_name_eia"</span><span class="p">,</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"state_id_fips"</span><span class="p">,</span>
+                <span class="s2">"county_id_fips"</span><span class="p">,</span>
+                <span class="s2">"data_maturity"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;county_id_fips&quot;</span><span class="p">,</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"utility_id_eia"</span><span class="p">,</span>
+                <span class="s2">"county_id_fips"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;eia&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;eia861&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;eia861&quot;</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"eia"</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"eia861"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"eia861"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_eia861__assn_utility&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;utility and state in a given year.&quot;</span>
+    <span class="s2">"core_eia861__assn_utility"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="s2">"utility and state in a given year."</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;state&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"utility_id_eia"</span><span class="p">,</span>
+                <span class="s2">"state"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;state&quot;</span><span class="p">,</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"utility_id_eia"</span><span class="p">,</span>
+                <span class="s2">"state"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;eia&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;eia861&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;eia861&quot;</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"eia"</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"eia861"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"eia861"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_eia861__yearly_utility_data_misc&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;utility business activities.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;additional_primary_key_text&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;&quot;The primary key would have been: utility_id_eia, state, report_date,</span>
-<span class="s2">  and nerc_region, but there are nulls in the state column across several years of reporting.&quot;&quot;&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;&quot;This includes whether they operate alternative fuel vehicles, whether they provide</span>
+    <span class="s2">"core_eia861__yearly_utility_data_misc"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="s2">"utility business activities."</span><span class="p">,</span>
+            <span class="s2">"additional_primary_key_text"</span><span class="p">:</span> <span class="s2">"""The primary key would have been: utility_id_eia, state, report_date,</span>
+<span class="s2">  and nerc_region, but there are nulls in the state column across several years of reporting."""</span><span class="p">,</span>
+            <span class="s2">"additional_details_text"</span><span class="p">:</span> <span class="s2">"""This includes whether they operate alternative fuel vehicles, whether they provide</span>
 <span class="s2">transmission, distribution, or generation services (bundled or unbundled), and whether</span>
-<span class="s2">they engage in wholesale and/or retail markets.&quot;&quot;&quot;</span><span class="p">,</span>
+<span class="s2">they engage in wholesale and/or retail markets."""</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;alternative_fuel_vehicle_2_activity&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;alternative_fuel_vehicle_activity&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;bundled_activity&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;buying_distribution_activity&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;buying_transmission_activity&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;distribution_activity&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;entity_type&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;generation_activity&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;nerc_region&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;operates_generating_plant&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;retail_marketing_activity&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;short_form&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;state&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;transmission_activity&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;utility_name_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;wholesale_marketing_activity&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;data_maturity&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"alternative_fuel_vehicle_2_activity"</span><span class="p">,</span>
+                <span class="s2">"alternative_fuel_vehicle_activity"</span><span class="p">,</span>
+                <span class="s2">"bundled_activity"</span><span class="p">,</span>
+                <span class="s2">"buying_distribution_activity"</span><span class="p">,</span>
+                <span class="s2">"buying_transmission_activity"</span><span class="p">,</span>
+                <span class="s2">"distribution_activity"</span><span class="p">,</span>
+                <span class="s2">"entity_type"</span><span class="p">,</span>
+                <span class="s2">"generation_activity"</span><span class="p">,</span>
+                <span class="s2">"nerc_region"</span><span class="p">,</span>
+                <span class="s2">"operates_generating_plant"</span><span class="p">,</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"retail_marketing_activity"</span><span class="p">,</span>
+                <span class="s2">"short_form"</span><span class="p">,</span>
+                <span class="s2">"state"</span><span class="p">,</span>
+                <span class="s2">"transmission_activity"</span><span class="p">,</span>
+                <span class="s2">"utility_id_eia"</span><span class="p">,</span>
+                <span class="s2">"utility_name_eia"</span><span class="p">,</span>
+                <span class="s2">"wholesale_marketing_activity"</span><span class="p">,</span>
+                <span class="s2">"data_maturity"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;eia&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;eia861&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;eia861&quot;</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"eia"</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"eia861"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"eia861"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_eia861__yearly_utility_data_nerc&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;the NERC regions that utilities operate in.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;additional_primary_key_text&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;&quot;The primary key would have been: utility_id_eia, state, report_date,</span>
-<span class="s2">  nerc_region, and nerc_regions_of_operation, but there are nulls in the state column across several years of reporting.&quot;&quot;&quot;</span><span class="p">,</span>
+    <span class="s2">"core_eia861__yearly_utility_data_nerc"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="s2">"the NERC regions that utilities operate in."</span><span class="p">,</span>
+            <span class="s2">"additional_primary_key_text"</span><span class="p">:</span> <span class="s2">"""The primary key would have been: utility_id_eia, state, report_date,</span>
+<span class="s2">  nerc_region, and nerc_regions_of_operation, but there are nulls in the state column across several years of reporting."""</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;nerc_region&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;nerc_regions_of_operation&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;state&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;data_maturity&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"nerc_region"</span><span class="p">,</span>
+                <span class="s2">"nerc_regions_of_operation"</span><span class="p">,</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"state"</span><span class="p">,</span>
+                <span class="s2">"utility_id_eia"</span><span class="p">,</span>
+                <span class="s2">"data_maturity"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;eia&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;eia861&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;eia861&quot;</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"eia"</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"eia861"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"eia861"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;core_eia861__yearly_utility_data_rto&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;the RTOs that utilities operate in.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;additional_primary_key_text&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;&quot;The primary key would have been: utility_id_eia, state, report_date,</span>
-<span class="s2">  nerc_region, and rtos_of_operation, but there are nulls in the state column across several years of reporting.&quot;&quot;&quot;</span><span class="p">,</span>
+    <span class="s2">"core_eia861__yearly_utility_data_rto"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="s2">"the RTOs that utilities operate in."</span><span class="p">,</span>
+            <span class="s2">"additional_primary_key_text"</span><span class="p">:</span> <span class="s2">"""The primary key would have been: utility_id_eia, state, report_date,</span>
+<span class="s2">  nerc_region, and rtos_of_operation, but there are nulls in the state column across several years of reporting."""</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;nerc_region&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;rtos_of_operation&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;state&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;data_maturity&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"nerc_region"</span><span class="p">,</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"rtos_of_operation"</span><span class="p">,</span>
+                <span class="s2">"state"</span><span class="p">,</span>
+                <span class="s2">"utility_id_eia"</span><span class="p">,</span>
+                <span class="s2">"data_maturity"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;eia&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;eia861&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;eia861&quot;</span><span class="p">,</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"eia"</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"eia861"</span><span class="p">],</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"eia861"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;out_eia861__yearly_utility_service_territory&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;counties in utility service territories.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;layer_code&quot;</span><span class="p">:</span> <span class="s2">&quot;out_narrow&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="s2">&quot;Contains additional information about counties.&quot;</span><span class="p">,</span>
+    <span class="s2">"out_eia861__yearly_utility_service_territory"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="s2">"counties in utility service territories."</span><span class="p">,</span>
+            <span class="s2">"layer_code"</span><span class="p">:</span> <span class="s2">"out_narrow"</span><span class="p">,</span>
+            <span class="s2">"additional_details_text"</span><span class="p">:</span> <span class="s2">"Contains additional information about counties."</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;county_id_fips&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;county_name_census&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;population&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;area_km2&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;state&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;county&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;state_id_fips&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"county_id_fips"</span><span class="p">,</span>
+                <span class="s2">"county_name_census"</span><span class="p">,</span>
+                <span class="s2">"population"</span><span class="p">,</span>
+                <span class="s2">"area_km2"</span><span class="p">,</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"utility_id_eia"</span><span class="p">,</span>
+                <span class="s2">"state"</span><span class="p">,</span>
+                <span class="s2">"county"</span><span class="p">,</span>
+                <span class="s2">"state_id_fips"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;report_date&quot;</span><span class="p">,</span> <span class="s2">&quot;county_id_fips&quot;</span><span class="p">],</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"utility_id_eia"</span><span class="p">,</span> <span class="s2">"report_date"</span><span class="p">,</span> <span class="s2">"county_id_fips"</span><span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;eia861&quot;</span><span class="p">,</span> <span class="s2">&quot;censusdp1&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;eia&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;service_territories&quot;</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"eia861"</span><span class="p">,</span> <span class="s2">"censusdp1"</span><span class="p">],</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"eia"</span><span class="p">,</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"service_territories"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;out_eia861__yearly_balancing_authority_service_territory&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;counties in balancing authority service territories.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;layer_code&quot;</span><span class="p">:</span> <span class="s2">&quot;out_narrow&quot;</span><span class="p">,</span>
+    <span class="s2">"out_eia861__yearly_balancing_authority_service_territory"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="s2">"counties in balancing authority service territories."</span><span class="p">,</span>
+            <span class="s2">"layer_code"</span><span class="p">:</span> <span class="s2">"out_narrow"</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;county_id_fips&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;county_name_census&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;population&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;area_km2&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;balancing_authority_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;state&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;county&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;state_id_fips&quot;</span><span class="p">,</span>
+        <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"county_id_fips"</span><span class="p">,</span>
+                <span class="s2">"county_name_census"</span><span class="p">,</span>
+                <span class="s2">"population"</span><span class="p">,</span>
+                <span class="s2">"area_km2"</span><span class="p">,</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"balancing_authority_id_eia"</span><span class="p">,</span>
+                <span class="s2">"state"</span><span class="p">,</span>
+                <span class="s2">"county"</span><span class="p">,</span>
+                <span class="s2">"state_id_fips"</span><span class="p">,</span>
             <span class="p">],</span>
-            <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">&quot;balancing_authority_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;county_id_fips&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;county&quot;</span><span class="p">,</span>
+            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"balancing_authority_id_eia"</span><span class="p">,</span>
+                <span class="s2">"report_date"</span><span class="p">,</span>
+                <span class="s2">"county_id_fips"</span><span class="p">,</span>
+                <span class="s2">"county"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
-        <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;eia861&quot;</span><span class="p">,</span> <span class="s2">&quot;censusdp1&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;eia&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;service_territories&quot;</span><span class="p">,</span>
+        <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"eia861"</span><span class="p">,</span> <span class="s2">"censusdp1"</span><span class="p">],</span>
+        <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"eia"</span><span class="p">,</span>
+        <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"service_territories"</span><span class="p">,</span>
     <span class="p">},</span>
 <span class="p">}</span></div>
 

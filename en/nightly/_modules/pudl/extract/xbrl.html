@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.extract.xbrl &#8212; PUDL 2026.8.1.dev16 documentation</title>
+    <title>pudl.extract.xbrl &#8212; PUDL 2026.8.1.dev20 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=f981bf86"></script>
+    <script src="../../../_static/documentation_options.js?v=8f1a003a"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev20 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev20 documentation - Home"/>
   
   
 </a></div>
@@ -868,7 +868,7 @@ window.runMermaid = runMermaid;</script>
                 <article class="bd-article">
                   
   <h1>Source code for pudl.extract.xbrl</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Generic extractor for all FERC XBRL data.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Generic extractor for all FERC XBRL data."""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">io</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
@@ -896,7 +896,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="_FilteringStream">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/xbrl/index.html#pudl.extract.xbrl._FilteringStream">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">_FilteringStream</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Pass-through text stream that drops matching noisy lines.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Pass-through text stream that drops matching noisy lines."""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wrapped</span><span class="p">,</span> <span class="n">drop_patterns</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">re</span><span class="o">.</span><span class="n">Pattern</span><span class="p">[</span><span class="nb">str</span><span class="p">]]):</span>
 <div class="viewcode-block" id="_FilteringStream._wrapped">
@@ -916,7 +916,7 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/xbrl/index.html#pudl.extract.xbrl._FilteringStream.write">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">text</span><span class="o">.</span><span class="n">splitlines</span><span class="p">(</span><span class="n">keepends</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-            <span class="n">stripped</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\r\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">stripped</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s2">"</span><span class="se">\r\n</span><span class="s2">"</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">stripped</span> <span class="ow">and</span> <span class="nb">any</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">stripped</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_drop_patterns</span><span class="p">):</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_dropped_previous_line</span> <span class="o">=</span> <span class="kc">True</span>
                 <span class="k">continue</span>
@@ -942,10 +942,10 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="_suppress_arelle_message_spam">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/xbrl/index.html#pudl.extract.xbrl._suppress_arelle_message_spam">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_suppress_arelle_message_spam</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Filter known Arelle console spam without suppressing normal logs.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Filter known Arelle console spam without suppressing normal logs."""</span>
     <span class="n">drop_patterns</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^Message:\s+Try\s+#\d+&quot;</span><span class="p">),</span>
-        <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^Message log error:\s+Formatting field not found in record:&quot;</span><span class="p">),</span>
+        <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">"^Message:\s+Try\s+#\d+"</span><span class="p">),</span>
+        <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">"^Message log error:\s+Formatting field not found in record:"</span><span class="p">),</span>
     <span class="p">]</span>
     <span class="n">old_stdout</span><span class="p">,</span> <span class="n">old_stderr</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">,</span> <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span>
     <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span> <span class="o">=</span> <span class="n">_FilteringStream</span><span class="p">(</span><span class="n">old_stdout</span><span class="p">,</span> <span class="n">drop_patterns</span><span class="p">)</span>
@@ -961,10 +961,10 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="FercXbrlDatastore">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/xbrl/index.html#pudl.extract.xbrl.FercXbrlDatastore">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">FercXbrlDatastore</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Simple datastore wrapper for accessing ferc1 xbrl resources.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Simple datastore wrapper for accessing ferc1 xbrl resources."""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">datastore</span><span class="p">:</span> <span class="n">Datastore</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Instantiate datastore wrapper for ferc1 resources.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Instantiate datastore wrapper for ferc1 resources."""</span>
 <div class="viewcode-block" id="FercXbrlDatastore.datastore">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/xbrl/index.html#pudl.extract.xbrl.FercXbrlDatastore.datastore">[docs]</a>
         <span class="bp">self</span><span class="o">.</span><span class="n">datastore</span> <span class="o">=</span> <span class="n">datastore</span></div>
@@ -973,10 +973,10 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="FercXbrlDatastore.get_taxonomy">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/xbrl/index.html#pudl.extract.xbrl.FercXbrlDatastore.get_taxonomy">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_taxonomy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">form</span><span class="p">:</span> <span class="n">FercForm</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the path to the taxonomy entry point within the an archive.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Returns the path to the taxonomy entry point within the an archive."""</span>
         <span class="n">raw_archive</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">datastore</span><span class="o">.</span><span class="n">get_unique_resource</span><span class="p">(</span>
             <span class="nb">str</span><span class="p">(</span><span class="n">form</span><span class="p">),</span>
-            <span class="n">data_format</span><span class="o">=</span><span class="s2">&quot;xbrl_taxonomy&quot;</span><span class="p">,</span>
+            <span class="n">data_format</span><span class="o">=</span><span class="s2">"xbrl_taxonomy"</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">raw_archive</span><span class="p">)</span></div>
@@ -985,9 +985,9 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="FercXbrlDatastore.get_filings">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/xbrl/index.html#pudl.extract.xbrl.FercXbrlDatastore.get_filings">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_filings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">year</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">form</span><span class="p">:</span> <span class="n">FercForm</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the corresponding archive full of XBRL filings.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the corresponding archive full of XBRL filings."""</span>
         <span class="k">return</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">datastore</span><span class="o">.</span><span class="n">get_unique_resource</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">form</span><span class="p">),</span> <span class="n">year</span><span class="o">=</span><span class="n">year</span><span class="p">,</span> <span class="n">data_format</span><span class="o">=</span><span class="s2">&quot;xbrl&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">datastore</span><span class="o">.</span><span class="n">get_unique_resource</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">form</span><span class="p">),</span> <span class="n">year</span><span class="o">=</span><span class="n">year</span><span class="p">,</span> <span class="n">data_format</span><span class="o">=</span><span class="s2">"xbrl"</span><span class="p">)</span>
         <span class="p">)</span></div>
 </div>
 
@@ -1002,9 +1002,9 @@ window.runMermaid = runMermaid;</script>
     <span class="n">pudl_paths</span><span class="p">:</span> <span class="n">PudlPaths</span><span class="p">,</span>
     <span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">workers</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">loglevel</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;INFO&quot;</span><span class="p">,</span>
+    <span class="n">loglevel</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"INFO"</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Clone a single FERC XBRL form to SQLite.</span>
+<span class="w">    </span><span class="sd">"""Clone a single FERC XBRL form to SQLite.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        ferc_to_sqlite: Validated data configuration for converting FERC data to SQLite.</span>
@@ -1014,24 +1014,24 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        batch_size: Number of XBRL filings to process in a single CPU process.</span>
 <span class="sd">        workers: Number of CPU processes to create for processing XBRL filings.</span>
 <span class="sd">        loglevel: Log level to pass to ``ferc_xbrl_extractor``.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">output_path</span> <span class="o">=</span> <span class="n">pudl_paths</span><span class="o">.</span><span class="n">pudl_output</span>
-    <span class="n">sqlite_path</span> <span class="o">=</span> <span class="n">pudl_paths</span><span class="o">.</span><span class="n">sqlite_db_path</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">form</span><span class="si">}</span><span class="s2">_xbrl&quot;</span><span class="p">)</span>
-    <span class="n">duckdb_path</span> <span class="o">=</span> <span class="n">pudl_paths</span><span class="o">.</span><span class="n">duckdb_db_path</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">form</span><span class="si">}</span><span class="s2">_xbrl&quot;</span><span class="p">)</span>
+    <span class="n">sqlite_path</span> <span class="o">=</span> <span class="n">pudl_paths</span><span class="o">.</span><span class="n">sqlite_db_path</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">form</span><span class="si">}</span><span class="s2">_xbrl"</span><span class="p">)</span>
+    <span class="n">duckdb_path</span> <span class="o">=</span> <span class="n">pudl_paths</span><span class="o">.</span><span class="n">duckdb_db_path</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">form</span><span class="si">}</span><span class="s2">_xbrl"</span><span class="p">)</span>
 
     <span class="n">taxonomy_archive</span> <span class="o">=</span> <span class="n">datastore</span><span class="o">.</span><span class="n">get_taxonomy</span><span class="p">(</span><span class="n">form</span><span class="p">)</span>
     <span class="c1"># Process XBRL filings for each year requested</span>
     <span class="n">filings_archives</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">BytesIO</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
         <span class="n">datastore</span><span class="o">.</span><span class="n">get_filings</span><span class="p">(</span><span class="n">year</span><span class="p">,</span> <span class="n">form</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">year</span> <span class="ow">in</span> <span class="n">ferc_to_sqlite</span><span class="o">.</span><span class="n">get_data_config</span><span class="p">(</span>
-            <span class="n">dataset</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">form</span><span class="p">),</span> <span class="n">data_format</span><span class="o">=</span><span class="s2">&quot;xbrl&quot;</span>
+            <span class="n">dataset</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">form</span><span class="p">),</span> <span class="n">data_format</span><span class="o">=</span><span class="s2">"xbrl"</span>
         <span class="p">)</span><span class="o">.</span><span class="n">years</span>
     <span class="p">]</span>
     <span class="c1"># if we set clobber=True, clobbers on *every* call to run_main;</span>
     <span class="c1"># we already delete the existing base on `clobber=True` in `xbrl2sqlite`</span>
     <span class="c1"># Arelle can emit very verbose internals; keep its logger at ERROR unless</span>
     <span class="c1"># troubleshooting parser internals.</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;arelle&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">ERROR</span><span class="p">)</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">"arelle"</span><span class="p">)</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">ERROR</span><span class="p">)</span>
 
     <span class="k">with</span> <span class="n">_suppress_arelle_message_spam</span><span class="p">():</span>
         <span class="n">run_main</span><span class="p">(</span>

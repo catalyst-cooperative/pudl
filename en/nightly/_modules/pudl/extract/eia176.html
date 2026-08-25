@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.extract.eia176 &#8212; PUDL 2026.8.1.dev16 documentation</title>
+    <title>pudl.extract.eia176 &#8212; PUDL 2026.8.1.dev20 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=f981bf86"></script>
+    <script src="../../../_static/documentation_options.js?v=8f1a003a"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev20 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev20 documentation - Home"/>
   
   
 </a></div>
@@ -868,7 +868,7 @@ window.runMermaid = runMermaid;</script>
                 <article class="bd-article">
                   
   <h1>Source code for pudl.extract.eia176</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Extract EIA Form 176 data from CSVs.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Extract EIA Form 176 data from CSVs."""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dagster</span><span class="w"> </span><span class="kn">import</span> <span class="n">asset</span>
@@ -880,48 +880,48 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="Extractor">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/eia176/index.html#pudl.extract.eia176.Extractor">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Extractor</span><span class="p">(</span><span class="n">CsvExtractor</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extractor for EIA form 176.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Extractor for EIA form 176."""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the module.</span>
+<span class="w">        </span><span class="sd">"""Initialize the module.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            ds (:class:datastore.Datastore): Initialized datastore.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 <div class="viewcode-block" id="Extractor.METADATA">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/eia176/index.html#pudl.extract.eia176.Extractor.METADATA">[docs]</a>
-        <span class="bp">self</span><span class="o">.</span><span class="n">METADATA</span> <span class="o">=</span> <span class="n">GenericMetadata</span><span class="p">(</span><span class="s2">&quot;eia176&quot;</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">METADATA</span> <span class="o">=</span> <span class="n">GenericMetadata</span><span class="p">(</span><span class="s2">"eia176"</span><span class="p">)</span></div>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Extractor.source_filename">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/eia176/index.html#pudl.extract.eia176.Extractor.source_filename">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">source_filename</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">page</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">partition</span><span class="p">:</span> <span class="n">PartitionSelection</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Produce the source file name as it will appear in the ZIP archive.</span>
+<span class="w">        </span><span class="sd">"""Produce the source file name as it will appear in the ZIP archive.</span>
 
 <span class="sd">        For this archive in particular, we control the naming of the CSV files because</span>
-<span class="sd">        they are created by scraping EIA&#39;s natural gas query viewer interface. Rather</span>
+<span class="sd">        they are created by scraping EIA's natural gas query viewer interface. Rather</span>
 <span class="sd">        than creating a file_map.csv like the other EIA extractors, we handle the one</span>
-<span class="sd">        the missing company_list file in certain years here, returning &quot;-1&quot; since that</span>
+<span class="sd">        the missing company_list file in certain years here, returning "-1" since that</span>
 <span class="sd">        mirrors the behavior of the other extractors that do rely on file_map.csv.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            page: the name of the &quot;page&quot; within the dataset to extract. For EIA-176</span>
+<span class="sd">            page: the name of the "page" within the dataset to extract. For EIA-176</span>
 <span class="sd">                this is the descriptive portion of the name of one of the CSV files in</span>
-<span class="sd">                the ZIP archive, e.g. &quot;natural_gas_deliveries&quot;.</span>
+<span class="sd">                the ZIP archive, e.g. "natural_gas_deliveries".</span>
 <span class="sd">            partition: a dictionary uniquely identifying a partition to extract, e.g.</span>
-<span class="sd">                {&quot;year&quot;: &quot;2019&quot;, &quot;format&quot;: &quot;by_report&quot;}</span>
+<span class="sd">                {"year": "2019", "format": "by_report"}</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            Full name of the CSV file within the ZIP archive as a string.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">partition_selection</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="o">.</span><span class="n">_get_partition_selection</span><span class="p">(</span><span class="n">partition</span><span class="p">)</span>
-        <span class="c1"># Company list doesn&#39;t exist in certain years</span>
-        <span class="k">if</span> <span class="n">page</span> <span class="o">==</span> <span class="s2">&quot;company_list&quot;</span> <span class="ow">and</span> <span class="p">(</span>
+        <span class="c1"># Company list doesn't exist in certain years</span>
+        <span class="k">if</span> <span class="n">page</span> <span class="o">==</span> <span class="s2">"company_list"</span> <span class="ow">and</span> <span class="p">(</span>
             <span class="nb">int</span><span class="p">(</span><span class="n">partition_selection</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">4</span><span class="p">])</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">2000</span><span class="p">,</span> <span class="mi">2001</span><span class="p">,</span> <span class="mi">2019</span><span class="p">]</span>
         <span class="p">):</span>
-            <span class="k">return</span> <span class="s2">&quot;-1&quot;</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataset_name</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">partition_selection</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">page</span><span class="si">}</span><span class="s2">.csv&quot;</span></div>
+            <span class="k">return</span> <span class="s2">"-1"</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataset_name</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">partition_selection</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">page</span><span class="si">}</span><span class="s2">.csv"</span></div>
 
 
 <div class="viewcode-block" id="Extractor.process_raw">
@@ -929,14 +929,14 @@ window.runMermaid = runMermaid;</script>
     <span class="k">def</span><span class="w"> </span><span class="nf">process_raw</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">page</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">partition</span><span class="p">:</span> <span class="n">PartitionSelection</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Append report year to df to distinguish data from other years.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Append report year to df to distinguish data from other years."""</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="o">.</span><span class="n">get_column_map</span><span class="p">(</span><span class="n">page</span><span class="p">,</span> <span class="o">**</span><span class="n">partition</span><span class="p">))</span>
         <span class="c1"># Some but not all of our input data has a report_year column,</span>
         <span class="c1"># so we assign it from the partition where it is not provided.</span>
-        <span class="k">if</span> <span class="s2">&quot;report_year&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s2">"report_year"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
             <span class="n">selection</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="o">.</span><span class="n">_get_partition_selection</span><span class="p">(</span><span class="n">partition</span><span class="p">)</span>
             <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">report_year</span><span class="o">=</span><span class="n">selection</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">cols_added</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;report_year&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cols_added</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"report_year"</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">df</span></div>
 </div>
 
@@ -944,23 +944,23 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="raw_eia176__all_dfs">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/eia176/index.html#pudl.extract.eia176.raw_eia176__all_dfs">[docs]</a>
-<span class="n">raw_eia176__all_dfs</span> <span class="o">=</span> <span class="n">raw_df_factory</span><span class="p">(</span><span class="n">Extractor</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;eia176&quot;</span><span class="p">)</span></div>
+<span class="n">raw_eia176__all_dfs</span> <span class="o">=</span> <span class="n">raw_df_factory</span><span class="p">(</span><span class="n">Extractor</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"eia176"</span><span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="raw_eia176_asset_factory">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/eia176/index.html#pudl.extract.eia176.raw_eia176_asset_factory">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">raw_eia176_asset_factory</span><span class="p">(</span><span class="n">in_page</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">out_page</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create raw EIA 176 asset for a specific page.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Create raw EIA 176 asset for a specific page."""</span>
     <span class="n">out_page</span> <span class="o">=</span> <span class="n">in_page</span> <span class="k">if</span> <span class="n">out_page</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">out_page</span>
 
-    <span class="nd">@asset</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;raw_eia176__</span><span class="si">{</span><span class="n">out_page</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nd">@asset</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">"raw_eia176__</span><span class="si">{</span><span class="n">out_page</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_raw_eia176__page</span><span class="p">(</span><span class="n">raw_eia176__all_dfs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Extract raw EIA 176 data from CSV sheets into dataframes.</span>
+<span class="w">        </span><span class="sd">"""Extract raw EIA 176 data from CSV sheets into dataframes.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            An extracted EIA 176 dataframe.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="n">raw_eia176__all_dfs</span><span class="p">[</span><span class="n">in_page</span><span class="p">]</span>
 
     <span class="k">return</span> <span class="n">_raw_eia176__page</span></div>
@@ -972,13 +972,13 @@ window.runMermaid = runMermaid;</script>
 <span class="n">raw_eia176_assets</span> <span class="o">=</span> <span class="p">[</span>
     <span class="n">raw_eia176_asset_factory</span><span class="p">(</span><span class="n">in_page</span><span class="o">=</span><span class="n">in_page</span><span class="p">,</span> <span class="n">out_page</span><span class="o">=</span><span class="n">out_page</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">in_page</span><span class="p">,</span> <span class="n">out_page</span> <span class="ow">in</span> <span class="p">{</span>
-        <span class="s2">&quot;company_list&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="s2">&quot;continuation_text_lines&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="s2">&quot;custom&quot;</span><span class="p">:</span> <span class="s2">&quot;numeric_data&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;natural_gas_deliveries&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="s2">&quot;natural_gas_other_disposition_items&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="s2">&quot;natural_gas_supply_items&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="s2">&quot;type_of_operations_and_sector_items&quot;</span><span class="p">:</span> <span class="s2">&quot;operation_types_and_sector_items&quot;</span><span class="p">,</span>  <span class="c1"># We rename this page</span>
+        <span class="s2">"company_list"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"continuation_text_lines"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"custom"</span><span class="p">:</span> <span class="s2">"numeric_data"</span><span class="p">,</span>
+        <span class="s2">"natural_gas_deliveries"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"natural_gas_other_disposition_items"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"natural_gas_supply_items"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"type_of_operations_and_sector_items"</span><span class="p">:</span> <span class="s2">"operation_types_and_sector_items"</span><span class="p">,</span>  <span class="c1"># We rename this page</span>
     <span class="p">}</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
 <span class="p">]</span></div>
 

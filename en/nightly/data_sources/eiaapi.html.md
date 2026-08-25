@@ -59,7 +59,7 @@ energy categories:
 
 ### Download additional documentation
 
-* [`Eiaapi Technical Documentation 2025-08-26 (HTML)`](eiaapi/eiaapi_technical_documentation_2025-08-26.html)
+* [`Eiaapi Technical Documentation 2025-08-26 (HTML)`](_downloads/ec4214f82f7635515842cc17d7eb01dd/eiaapi_technical_documentation_2025-08-26.html)
 
 See EIA’s [current API documentation here](https://www.eia.gov/opendata/).
 

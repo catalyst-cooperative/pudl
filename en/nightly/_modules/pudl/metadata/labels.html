@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.metadata.labels &#8212; PUDL 2026.8.1.dev16 documentation</title>
+    <title>pudl.metadata.labels &#8212; PUDL 2026.8.1.dev20 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=f981bf86"></script>
+    <script src="../../../_static/documentation_options.js?v=8f1a003a"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev20 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev20 documentation - Home"/>
   
   
 </a></div>
@@ -868,97 +868,97 @@ window.runMermaid = runMermaid;</script>
                 <article class="bd-article">
                   
   <h1>Source code for pudl.metadata.labels</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Descriptive labels for coded field values.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Descriptive labels for coded field values."""</span>
 
 <div class="viewcode-block" id="ESTIMATED_OR_ACTUAL">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/labels/index.html#pudl.metadata.labels.ESTIMATED_OR_ACTUAL">[docs]</a>
-<span class="n">ESTIMATED_OR_ACTUAL</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;E&quot;</span><span class="p">:</span> <span class="s2">&quot;estimated&quot;</span><span class="p">,</span> <span class="s2">&quot;A&quot;</span><span class="p">:</span> <span class="s2">&quot;actual&quot;</span><span class="p">}</span></div>
+<span class="n">ESTIMATED_OR_ACTUAL</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"E"</span><span class="p">:</span> <span class="s2">"estimated"</span><span class="p">,</span> <span class="s2">"A"</span><span class="p">:</span> <span class="s2">"actual"</span><span class="p">}</span></div>
 
-<span class="sd">&quot;&quot;&quot;Descriptive labels for EIA estimated or actual codes.&quot;&quot;&quot;</span>
+<span class="sd">"""Descriptive labels for EIA estimated or actual codes."""</span>
 
 <div class="viewcode-block" id="POWER_PURCHASE_TYPES_FERC1">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/labels/index.html#pudl.metadata.labels.POWER_PURCHASE_TYPES_FERC1">[docs]</a>
 <span class="n">POWER_PURCHASE_TYPES_FERC1</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;RQ&quot;</span><span class="p">:</span> <span class="s2">&quot;requirement&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;LF&quot;</span><span class="p">:</span> <span class="s2">&quot;long_firm&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;IF&quot;</span><span class="p">:</span> <span class="s2">&quot;intermediate_firm&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;SF&quot;</span><span class="p">:</span> <span class="s2">&quot;short_firm&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;LU&quot;</span><span class="p">:</span> <span class="s2">&quot;long_unit&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;IU&quot;</span><span class="p">:</span> <span class="s2">&quot;intermediate_unit&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;EX&quot;</span><span class="p">:</span> <span class="s2">&quot;electricity_exchange&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;OS&quot;</span><span class="p">:</span> <span class="s2">&quot;other_service&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;AD&quot;</span><span class="p">:</span> <span class="s2">&quot;adjustment&quot;</span><span class="p">,</span>
+    <span class="s2">"RQ"</span><span class="p">:</span> <span class="s2">"requirement"</span><span class="p">,</span>
+    <span class="s2">"LF"</span><span class="p">:</span> <span class="s2">"long_firm"</span><span class="p">,</span>
+    <span class="s2">"IF"</span><span class="p">:</span> <span class="s2">"intermediate_firm"</span><span class="p">,</span>
+    <span class="s2">"SF"</span><span class="p">:</span> <span class="s2">"short_firm"</span><span class="p">,</span>
+    <span class="s2">"LU"</span><span class="p">:</span> <span class="s2">"long_unit"</span><span class="p">,</span>
+    <span class="s2">"IU"</span><span class="p">:</span> <span class="s2">"intermediate_unit"</span><span class="p">,</span>
+    <span class="s2">"EX"</span><span class="p">:</span> <span class="s2">"electricity_exchange"</span><span class="p">,</span>
+    <span class="s2">"OS"</span><span class="p">:</span> <span class="s2">"other_service"</span><span class="p">,</span>
+    <span class="s2">"AD"</span><span class="p">:</span> <span class="s2">"adjustment"</span><span class="p">,</span>
 <span class="p">}</span></div>
 
-<span class="sd">&quot;&quot;&quot;Descriptive labels for FERC 1 power purchase type codes.&quot;&quot;&quot;</span>
+<span class="sd">"""Descriptive labels for FERC 1 power purchase type codes."""</span>
 
 <div class="viewcode-block" id="COALMINE_TYPES_EIA">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/labels/index.html#pudl.metadata.labels.COALMINE_TYPES_EIA">[docs]</a>
 <span class="n">COALMINE_TYPES_EIA</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;P&quot;</span><span class="p">:</span> <span class="s2">&quot;preparation_plant&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;S&quot;</span><span class="p">:</span> <span class="s2">&quot;surface&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;U&quot;</span><span class="p">:</span> <span class="s2">&quot;underground&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;US&quot;</span><span class="p">:</span> <span class="s2">&quot;underground_and_surface&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;SU&quot;</span><span class="p">:</span> <span class="s2">&quot;surface_and_underground&quot;</span><span class="p">,</span>
+    <span class="s2">"P"</span><span class="p">:</span> <span class="s2">"preparation_plant"</span><span class="p">,</span>
+    <span class="s2">"S"</span><span class="p">:</span> <span class="s2">"surface"</span><span class="p">,</span>
+    <span class="s2">"U"</span><span class="p">:</span> <span class="s2">"underground"</span><span class="p">,</span>
+    <span class="s2">"US"</span><span class="p">:</span> <span class="s2">"underground_and_surface"</span><span class="p">,</span>
+    <span class="s2">"SU"</span><span class="p">:</span> <span class="s2">"surface_and_underground"</span><span class="p">,</span>
 <span class="p">}</span></div>
 
-<span class="sd">&quot;&quot;&quot;Descriptive labels for coal mine type codes used in EIA 923 reporting.</span>
+<span class="sd">"""Descriptive labels for coal mine type codes used in EIA 923 reporting.</span>
 
 <span class="sd">These codes and descriptions come from Page 7 of the EIA 923.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <div class="viewcode-block" id="CENSUS_REGIONS">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/labels/index.html#pudl.metadata.labels.CENSUS_REGIONS">[docs]</a>
 <span class="n">CENSUS_REGIONS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;NEW&quot;</span><span class="p">:</span> <span class="s2">&quot;New England&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;MAT&quot;</span><span class="p">:</span> <span class="s2">&quot;Middle Atlantic&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;SAT&quot;</span><span class="p">:</span> <span class="s2">&quot;South Atlantic&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;ESC&quot;</span><span class="p">:</span> <span class="s2">&quot;East South Central&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;WSC&quot;</span><span class="p">:</span> <span class="s2">&quot;West South Central&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;ENC&quot;</span><span class="p">:</span> <span class="s2">&quot;East North Central&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;WNC&quot;</span><span class="p">:</span> <span class="s2">&quot;West North Central&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;MTN&quot;</span><span class="p">:</span> <span class="s2">&quot;Mountain&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;PACC&quot;</span><span class="p">:</span> <span class="s2">&quot;Pacific Contiguous (OR, WA, CA)&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;PACN&quot;</span><span class="p">:</span> <span class="s2">&quot;Pacific Non-Contiguous (AK, HI)&quot;</span><span class="p">,</span>
+    <span class="s2">"NEW"</span><span class="p">:</span> <span class="s2">"New England"</span><span class="p">,</span>
+    <span class="s2">"MAT"</span><span class="p">:</span> <span class="s2">"Middle Atlantic"</span><span class="p">,</span>
+    <span class="s2">"SAT"</span><span class="p">:</span> <span class="s2">"South Atlantic"</span><span class="p">,</span>
+    <span class="s2">"ESC"</span><span class="p">:</span> <span class="s2">"East South Central"</span><span class="p">,</span>
+    <span class="s2">"WSC"</span><span class="p">:</span> <span class="s2">"West South Central"</span><span class="p">,</span>
+    <span class="s2">"ENC"</span><span class="p">:</span> <span class="s2">"East North Central"</span><span class="p">,</span>
+    <span class="s2">"WNC"</span><span class="p">:</span> <span class="s2">"West North Central"</span><span class="p">,</span>
+    <span class="s2">"MTN"</span><span class="p">:</span> <span class="s2">"Mountain"</span><span class="p">,</span>
+    <span class="s2">"PACC"</span><span class="p">:</span> <span class="s2">"Pacific Contiguous (OR, WA, CA)"</span><span class="p">,</span>
+    <span class="s2">"PACN"</span><span class="p">:</span> <span class="s2">"Pacific Non-Contiguous (AK, HI)"</span><span class="p">,</span>
 <span class="p">}</span></div>
 
-<span class="sd">&quot;&quot;&quot;Descriptive labels for Census Region codes.</span>
+<span class="sd">"""Descriptive labels for Census Region codes.</span>
 
 <span class="sd">Not currently being used.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <div class="viewcode-block" id="RTO_ISO">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/labels/index.html#pudl.metadata.labels.RTO_ISO">[docs]</a>
 <span class="n">RTO_ISO</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;CAISO&quot;</span><span class="p">:</span> <span class="s2">&quot;California ISO&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;ERCOT&quot;</span><span class="p">:</span> <span class="s2">&quot;Electric Reliability Council of Texas&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;ISONE&quot;</span><span class="p">:</span> <span class="s2">&quot;ISO New England&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;MISO&quot;</span><span class="p">:</span> <span class="s2">&quot;Midcontinent ISO&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;NYISO&quot;</span><span class="p">:</span> <span class="s2">&quot;New York ISO&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;PJM&quot;</span><span class="p">:</span> <span class="s2">&quot;PJM Interconnection&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;SPP&quot;</span><span class="p">:</span> <span class="s2">&quot;Southwest Power Pool&quot;</span><span class="p">,</span>
+    <span class="s2">"CAISO"</span><span class="p">:</span> <span class="s2">"California ISO"</span><span class="p">,</span>
+    <span class="s2">"ERCOT"</span><span class="p">:</span> <span class="s2">"Electric Reliability Council of Texas"</span><span class="p">,</span>
+    <span class="s2">"ISONE"</span><span class="p">:</span> <span class="s2">"ISO New England"</span><span class="p">,</span>
+    <span class="s2">"MISO"</span><span class="p">:</span> <span class="s2">"Midcontinent ISO"</span><span class="p">,</span>
+    <span class="s2">"NYISO"</span><span class="p">:</span> <span class="s2">"New York ISO"</span><span class="p">,</span>
+    <span class="s2">"PJM"</span><span class="p">:</span> <span class="s2">"PJM Interconnection"</span><span class="p">,</span>
+    <span class="s2">"SPP"</span><span class="p">:</span> <span class="s2">"Southwest Power Pool"</span><span class="p">,</span>
 <span class="p">}</span></div>
 
-<span class="sd">&quot;&quot;&quot;Descriptive labels for RTO/ISO short codes.</span>
+<span class="sd">"""Descriptive labels for RTO/ISO short codes.</span>
 
 <span class="sd">Not currently being used.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <div class="viewcode-block" id="FUEL_UNITS_EIA">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/labels/index.html#pudl.metadata.labels.FUEL_UNITS_EIA">[docs]</a>
 <span class="n">FUEL_UNITS_EIA</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;mcf&quot;</span><span class="p">:</span> <span class="s2">&quot;Thousands of cubic feet (for gases)&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;short_tons&quot;</span><span class="p">:</span> <span class="s2">&quot;Short tons (for solids)&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;barrels&quot;</span><span class="p">:</span> <span class="s2">&quot;Barrels (for liquids)&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;mwh&quot;</span><span class="p">:</span> <span class="s2">&quot;Megawatt hours (for electricity)&quot;</span><span class="p">,</span>
+    <span class="s2">"mcf"</span><span class="p">:</span> <span class="s2">"Thousands of cubic feet (for gases)"</span><span class="p">,</span>
+    <span class="s2">"short_tons"</span><span class="p">:</span> <span class="s2">"Short tons (for solids)"</span><span class="p">,</span>
+    <span class="s2">"barrels"</span><span class="p">:</span> <span class="s2">"Barrels (for liquids)"</span><span class="p">,</span>
+    <span class="s2">"mwh"</span><span class="p">:</span> <span class="s2">"Megawatt hours (for electricity)"</span><span class="p">,</span>
 <span class="p">}</span></div>
 
-<span class="sd">&quot;&quot;&quot;Descriptive labels for the units of measure EIA uses for fuels.</span>
+<span class="sd">"""Descriptive labels for the units of measure EIA uses for fuels.</span>
 
 <span class="sd">The physical units fuel consumption is reported in.  All consumption is reported in</span>
 <span class="sd">either short tons for solids, thousands of cubic feet for gases, and barrels for</span>
 <span class="sd">liquids.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 </pre></div>
 
                 </article>

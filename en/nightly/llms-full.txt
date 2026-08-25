@@ -15693,6 +15693,8 @@ Enumerations of valid field values.
 | [`ASSET_TYPES_FERC1`](autoapi/pudl/metadata/enums/index.html.md#pudl.metadata.enums.ASSET_TYPES_FERC1)                      | Asset types for FERC Form 1 data.                                               |
 | [`INCOME_TYPES_FERC1`](autoapi/pudl/metadata/enums/index.html.md#pudl.metadata.enums.INCOME_TYPES_FERC1)                     | Income types for FERC Form 1 data.                                              |
 | [`FUNCTIONAL_STATUS_CODES_CENSUS`](autoapi/pudl/metadata/enums/index.html.md#pudl.metadata.enums.FUNCTIONAL_STATUS_CODES_CENSUS)         | Functional status codes for Census geographic entities.                         |
+| [`COMMODITY_TYPES_PHMSAGAS`](autoapi/pudl/metadata/enums/index.html.md#pudl.metadata.enums.COMMODITY_TYPES_PHMSAGAS)               |                                                                                 |
+| [`INSTALL_DECADES_PHMSAGAS`](autoapi/pudl/metadata/enums/index.html.md#pudl.metadata.enums.INSTALL_DECADES_PHMSAGAS)               |                                                                                 |
 | [`MATERIAL_TYPES_PHMSAGAS`](autoapi/pudl/metadata/enums/index.html.md#pudl.metadata.enums.MATERIAL_TYPES_PHMSAGAS)                |                                                                                 |
 | [`MAIN_PIPE_SIZES_PHMSAGAS`](autoapi/pudl/metadata/enums/index.html.md#pudl.metadata.enums.MAIN_PIPE_SIZES_PHMSAGAS)               |                                                                                 |
 | [`LEAK_SOURCE_PHMSAGAS`](autoapi/pudl/metadata/enums/index.html.md#pudl.metadata.enums.LEAK_SOURCE_PHMSAGAS)                   |                                                                                 |
@@ -15873,6 +15875,10 @@ Income types for FERC Form 1 data.
 Functional status codes for Census geographic entities.
 
 [https://www.census.gov/library/reference/code-lists/functional-status-codes.html](https://www.census.gov/library/reference/code-lists/functional-status-codes.html)
+
+### pudl.metadata.enums.COMMODITY_TYPES_PHMSAGAS *= ['all', 'natural_gas', 'propane_gas', 'landfill_gas', 'synthetic_gas', 'hydrogen_gas',...*
+
+### pudl.metadata.enums.INSTALL_DECADES_PHMSAGAS *= ['pre_1940', '1940s', '1950s', '1960s', '1970s', '1980s', '1990s', '2000s', '2010s', '2020s',...*
 
 ### pudl.metadata.enums.MATERIAL_TYPES_PHMSAGAS *= ['unprotected_steel_bare', 'unprotected_steel_coated', 'cathodically_protected_steel_bare',...*
 
@@ -24534,6 +24540,7 @@ All transformations include:
 | [`_filter_non_class_cols`](autoapi/pudl/transform/eia861/index.html.md#pudl.transform.eia861._filter_non_class_cols)(df, class_list)                      |                                                                                  |
 | [`add_backfilled_ba_code_column`](autoapi/pudl/transform/eia861/index.html.md#pudl.transform.eia861.add_backfilled_ba_code_column)(→ pandas.DataFrame)           | Make a backfilled Balancing Authority Code column based on codes in later years. |
 | [`backfill_ba_codes_by_ba_id`](autoapi/pudl/transform/eia861/index.html.md#pudl.transform.eia861.backfill_ba_codes_by_ba_id)(→ pandas.DataFrame)              | Fill in missing BA Codes by backfilling based on BA ID.                          |
+| [`_dedupe_cols_agg`](autoapi/pudl/transform/eia861/index.html.md#pudl.transform.eia861._dedupe_cols_agg)(→ dict)                                    | Sum numeric duplicates and keep non-null value for non-numeric columns.          |
 | [`_tidy_class_dfs`](autoapi/pudl/transform/eia861/index.html.md#pudl.transform.eia861._tidy_class_dfs)(→ pandas.DataFrame)                         | Stack multiple data columns and create a categorical column for filtering.       |
 | [`_drop_dupes`](autoapi/pudl/transform/eia861/index.html.md#pudl.transform.eia861._drop_dupes)(df, df_name, subset)                            |                                                                                  |
 | [`_check_for_dupes`](autoapi/pudl/transform/eia861/index.html.md#pudl.transform.eia861._check_for_dupes)(→ pandas.DataFrame)                        |                                                                                  |
@@ -24629,6 +24636,10 @@ retained.
   NA values in the balancing_authority_code_eia column.
 * **Return type:**
   [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+
+### pudl.transform.eia861.\_dedupe_cols_agg(data_dupes: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), df_name: [str](https://docs.python.org/3/library/stdtypes.html#str), idx_cols: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], class_type: [str](https://docs.python.org/3/library/stdtypes.html#str)) → [dict](https://docs.python.org/3/library/stdtypes.html#dict)
+
+Sum numeric duplicates and keep non-null value for non-numeric columns.
 
 ### pudl.transform.eia861.\_tidy_class_dfs(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), df_name: [str](https://docs.python.org/3/library/stdtypes.html#str), idx_cols: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], class_list: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)], class_type: [str](https://docs.python.org/3/library/stdtypes.html#str), keep_totals: [bool](https://docs.python.org/3/library/functions.html#bool) = False) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
@@ -30959,6 +30970,7 @@ Classes & functions to process PHMSA natural gas data before loading into the PU
 | [`YEARLY_DISTRIBUTION_OPERATORS_COLUMNS`](autoapi/pudl/transform/phmsagas/index.html.md#pudl.transform.phmsagas.YEARLY_DISTRIBUTION_OPERATORS_COLUMNS) |    |
 | [`YEARLY_DISTRIBUTION_MISC_COLUMNS`](autoapi/pudl/transform/phmsagas/index.html.md#pudl.transform.phmsagas.YEARLY_DISTRIBUTION_MISC_COLUMNS)      |    |
 | [`YEARLY_DISTRIBUTION_IDX_ISH`](autoapi/pudl/transform/phmsagas/index.html.md#pudl.transform.phmsagas.YEARLY_DISTRIBUTION_IDX_ISH)           |    |
+| [`INSTALL_DECADE_TOTAL_MISMATCHES`](autoapi/pudl/transform/phmsagas/index.html.md#pudl.transform.phmsagas.INSTALL_DECADE_TOTAL_MISMATCHES)       |    |
 | [`MELT_PATTERNS`](autoapi/pudl/transform/phmsagas/index.html.md#pudl.transform.phmsagas.MELT_PATTERNS)                         |    |
 
 ## Functions
@@ -30980,6 +30992,8 @@ Classes & functions to process PHMSA natural gas data before loading into the PU
 | [`_core_phmsagas__yearly_distribution_leaks`](autoapi/pudl/transform/phmsagas/index.html.md#pudl.transform.phmsagas._core_phmsagas__yearly_distribution_leaks)(...)                | Transform table of leaks - broken out by source and leak severity.                      |
 | [`_core_phmsagas__yearly_distribution_excavation_damages`](autoapi/pudl/transform/phmsagas/index.html.md#pudl.transform.phmsagas._core_phmsagas__yearly_distribution_excavation_damages)(...)   | Transform table of damages - broken out by type and sub-type.                           |
 | [`_core_phmsagas__yearly_distribution_misc`](autoapi/pudl/transform/phmsagas/index.html.md#pudl.transform.phmsagas._core_phmsagas__yearly_distribution_misc)(...)                 | Transform this distribution table of miscellaneous numeric values.                      |
+| [`_assert_install_decade_totals_match_expected`](autoapi/pudl/transform/phmsagas/index.html.md#pudl.transform.phmsagas._assert_install_decade_totals_match_expected)(→ None)          | Assert known mismatch counts between reported and summed install decades.               |
+| [`core_phmsagas__yearly_distribution_by_install_decade`](autoapi/pudl/transform/phmsagas/index.html.md#pudl.transform.phmsagas.core_phmsagas__yearly_distribution_by_install_decade)(...)     | Create core_phmsagas_\_yearly_distribution_by_install_decade.                           |
 
 ## Module Contents
 
@@ -30992,6 +31006,8 @@ Classes & functions to process PHMSA natural gas data before loading into the PU
 ### pudl.transform.phmsagas.YEARLY_DISTRIBUTION_MISC_COLUMNS *= ['all_known_leaks_scheduled_for_repair_main', 'all_known_leaks_scheduled_for_repair',...*
 
 ### pudl.transform.phmsagas.YEARLY_DISTRIBUTION_IDX_ISH *= ['report_date', 'report_id', 'operator_id_phmsa', 'commodity', 'operating_state']*
+
+### pudl.transform.phmsagas.INSTALL_DECADE_TOTAL_MISMATCHES
 
 ### pudl.transform.phmsagas.MELT_PATTERNS
 
@@ -31114,6 +31130,14 @@ Transform table of damages - broken out by type and sub-type.
 ### pudl.transform.phmsagas.\_core_phmsagas_\_yearly_distribution_misc(\_core_phmsagas_\_yearly_distribution: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
 
 Transform this distribution table of miscellaneous numeric values.
+
+### pudl.transform.phmsagas.\_assert_install_decade_totals_match_expected(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [None](https://docs.python.org/3/library/constants.html#None)
+
+Assert known mismatch counts between reported and summed install decades.
+
+### pudl.transform.phmsagas.core_phmsagas_\_yearly_distribution_by_install_decade(\_core_phmsagas_\_yearly_distribution_by_install_decade: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+
+Create core_phmsagas_\_yearly_distribution_by_install_decade.
 
 
 # autoapi/pudl/transform/rus/index.html.md
@@ -36108,7 +36132,7 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 Annual time series of counties in balancing authority service territories.
 
 Most-recent data:
-: 2024
+: 2025
 
 Processing:
 : Data is ready for use in analyses, but for practical reasons has not been denormalized and remains in narrow format.
@@ -36182,7 +36206,7 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 Annual time series of counties in utility service territories.
 
 Most-recent data:
-: 2024
+: 2025
 
 Processing:
 : Data is ready for use in analyses, but for practical reasons has not been denormalized and remains in narrow format.
@@ -43224,7 +43248,7 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 Hourly time series of estimated electricity demand for each state, scaled such that it matches the total electricity sales by state reported in EIA 861.
 
 Most-recent data:
-: 2024
+: 2025
 
 Processing:
 : Data is ready for use in analyses, but for practical reasons has not been denormalized and remains in narrow format.
@@ -50501,7 +50525,7 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 Association table providing connections between state, balancing authority, and utility in a given year.
 
 Most-recent data:
-: 2024
+: 2025
 
 Processing:
 : Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
@@ -50570,7 +50594,7 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 Association table providing connections between utility and state in a given year.
 
 Most-recent data:
-: 2024
+: 2025
 
 Processing:
 : Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
@@ -50638,7 +50662,7 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 Annual time series of advanced metering infrastructure (AMI) and automated meter reading (AMR) by state, sector, and balancing authority.
 
 Most-recent data:
-: 2024
+: 2025
 
 Processing:
 : Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
@@ -50725,7 +50749,7 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 Annual time series of balancing authorities.
 
 Most-recent data:
-: 2024
+: 2025
 
 Processing:
 : Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
@@ -50794,7 +50818,7 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 Annual time series of demand response programs by state, sector, and balancing authority.
 
 Most-recent data:
-: 2024
+: 2025
 
 Processing:
 : Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
@@ -50882,7 +50906,7 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 Annual time series of grid-connected water heaters enrolled in demand response programs.
 
 Most-recent data:
-: 2024
+: 2025
 
 Processing:
 : Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
@@ -51501,7 +51525,7 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 Annual time series of distribution circuits and circuits with voltage optimization by state.
 
 Most-recent data:
-: 2024
+: 2025
 
 Processing:
 : Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
@@ -51574,7 +51598,7 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 Annual time series of  enrollment in dynamic pricing programs by state, sector, and balancing authority.
 
 Most-recent data:
-: 2024
+: 2025
 
 Processing:
 : Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
@@ -51660,7 +51684,7 @@ cycle, and associated costs for the reporting year and life cycle of energy effi
 programs.
 
 Most-recent data:
-: 2024
+: 2025
 
 Processing:
 : Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
@@ -51831,7 +51855,7 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 Annual time series of utility mergers and acquisitions.
 
 Most-recent data:
-: 2024
+: 2025
 
 Processing:
 : Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
@@ -51910,7 +51934,7 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 Annual time series of net metering by customer and fuel class.
 
 Most-recent data:
-: 2024
+: 2025
 
 Processing:
 : Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
@@ -51998,7 +52022,7 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 Annual time series of PV current flow type for net metered capacity.
 
 Most-recent data:
-: 2024
+: 2025
 
 Processing:
 : Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
@@ -52069,7 +52093,7 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 Annual time series of non-net metered distributed generation by sector and technology type.
 
 Most-recent data:
-: 2024
+: 2025
 
 Processing:
 : Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
@@ -52154,7 +52178,7 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 Annual time series of non-net metered distributed generation generators, pv current flow type, backup capacity and utility owned capacity.
 
 Most-recent data:
-: 2024
+: 2025
 
 Processing:
 : Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
@@ -52238,7 +52262,7 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 Annual time series of megawatt hours (MWH) for the sources and disposition of a utility’s electricity.
 
 Most-recent data:
-: 2024
+: 2025
 
 Processing:
 : Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
@@ -52349,7 +52373,7 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 Annual time series of utility revenue by type of electric operating revenue.
 
 Most-recent data:
-: 2024
+: 2025
 
 Processing:
 : Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
@@ -52438,7 +52462,7 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 Annual time series of electricity system reliability and outage impacts.
 
 Most-recent data:
-: 2024
+: 2025
 
 Processing:
 : Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
@@ -52561,7 +52585,7 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 Annual time series of electricity sales to ultimate customers by utility, balancing authority, state, and customer class.
 
 Most-recent data:
-: 2024
+: 2025
 
 Processing:
 : Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
@@ -52641,7 +52665,7 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 Annual time series of counties in utility service territories.
 
 Most-recent data:
-: 2024
+: 2025
 
 Processing:
 : Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
@@ -52715,7 +52739,7 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 Annual time series of data from the short form (EIA-861S).
 
 Most-recent data:
-: 2024
+: 2025
 
 Processing:
 : Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
@@ -52810,7 +52834,7 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 Annual time series of utility business activities.
 
 Most-recent data:
-: 2024
+: 2025
 
 Processing:
 : Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
@@ -52901,7 +52925,7 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 Annual time series of the NERC regions that utilities operate in.
 
 Most-recent data:
-: 2024
+: 2025
 
 Processing:
 : Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
@@ -52973,7 +52997,7 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 Annual time series of the RTOs that utilities operate in.
 
 Most-recent data:
-: 2024
+: 2025
 
 Processing:
 : Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
@@ -55354,7 +55378,7 @@ Noticed any irregularities with this table? [File a report.](https://github.com/
 Code table containing descriptions of categorical codes for utility definitions of momentary service interruptions.
 
 Most-recent data:
-: 2024
+: 2025
 
 Processing:
 : Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
@@ -61438,6 +61462,83 @@ df <- read_parquet(
 | technology_description          | string     |            | High level description of the technology used by the generator to produce electricity.                                                                                              |
 | technology_description_detail_1 | string     |            | Technology details indicate resource levels and specific technology subcategories.                                                                                                  |
 | technology_description_detail_2 | string     |            | Technology details indicate resource levels and specific technology subcategories.                                                                                                  |
+
+<a id="core-phmsagas-yearly-distribution-by-install-decade"></a>
+
+## core_phmsagas_\_yearly_distribution_by_install_decade
+
+Noticed any irregularities with this table? [File a report.](https://github.com/catalyst-cooperative/pudl/issues/new?template=data_bug_report.yml&table=core_phmsagas__yearly_distribution_by_install_decade)
+
+Annual time series of miles of mains and the number of services in operation at the end of the year by install decade.
+
+Most-recent data:
+: 2024
+
+Processing:
+: Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.
+
+Source:
+: Pipelines and Hazardous Materials Safety Administration (PHMSA) Annual Natural Gas Report (Part B - System Description / Section 4)
+
+Primary key:
+: report_id, report_date, operator_id_phmsa, commodity, install_decade
+
+### Additional Details
+
+PHMSA indicated that some operators may have reported negative `mains_miles` or `services` values to reconcile totals across Parts B1 and B4, but that negative values are not valid. These negative values have been replaced with zero.
+
+### Access methods
+
+* [Browse and query this table online](https://data.catalyst.coop/preview/pudl/core_phmsagas__yearly_distribution_by_install_decade)
+* [Download this table as a Parquet file](https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/core_phmsagas__yearly_distribution_by_install_decade.parquet)
+
+### pandas
+
+```python
+import pandas as pd
+df = pd.read_parquet(
+      "s3://pudl.catalyst.coop/nightly/core_phmsagas__yearly_distribution_by_install_decade.parquet",
+      dtype_backend="pyarrow",
+)
+```
+
+### polars
+
+```python
+import polars as pl
+df = pl.read_parquet(
+      "s3://pudl.catalyst.coop/nightly/core_phmsagas__yearly_distribution_by_install_decade.parquet",
+      storage_options={"aws_region": "us-west-2", "aws_skip_signature": "True"},
+)
+```
+
+### SQL (DuckDB)
+
+```sql
+SELECT * FROM 's3://pudl.catalyst.coop/nightly/core_phmsagas__yearly_distribution_by_install_decade.parquet';
+```
+
+### R
+
+```r
+library(arrow)
+df <- read_parquet(
+      "s3://pudl.catalyst.coop/nightly/core_phmsagas__yearly_distribution_by_install_decade.parquet"
+)
+```
+
+### Columns
+
+| **Field Name**    | **Type**   | **Unit**   | **Description**                                                                                      |
+|-------------------|------------|------------|------------------------------------------------------------------------------------------------------|
+| commodity         | string     |            | The type of gas delivered by the distribution pipeline.                                              |
+| install_decade    | string     |            | The decade the distribution pipeline was installed.                                                  |
+| mains_miles       | number     | mile       | The miles of mains distribution pipeline.                                                            |
+| operating_state   | string     |            | Two-letter postal abbreviation for the state or territory the distribution utility is reporting for. |
+| operator_id_phmsa | integer    |            | PHMSA unique operator ID. A value of zero represents an unknown operator ID.                         |
+| report_date       | date       |            | Date reported.                                                                                       |
+| report_id         | integer    |            | Report number of the PHMSA Gas utility submission.                                                   |
+| services          | integer    | count      | Number of services in system at end of year.                                                         |
 
 <a id="core-phmsagas-yearly-distribution-operators"></a>
 
@@ -69275,18 +69376,18 @@ As of 2025, the EIA-176 Form is organized into the following parts:
 
 ### Download additional documentation
 
-* [`Eia176 Blank 2011-12-31 (PDF)`](eia176/eia176_blank_2011-12-31.pdf)
-* [`Eia176 Blank 2015-02-28 (PDF)`](eia176/eia176_blank_2015-02-28.pdf)
-* [`Eia176 Blank 2017-12-31 (PDF)`](eia176/eia176_blank_2017-12-31.pdf)
-* [`Eia176 Blank 2021-01-31 (PDF)`](eia176/eia176_blank_2021-01-31.pdf)
-* [`Eia176 Blank 2024-06-30 (PDF)`](eia176/eia176_blank_2024-06-30.pdf)
-* [`Eia176 Blank 2027-07-31 (PDF)`](eia176/eia176_blank_2027-07-31.pdf)
-* [`Eia176 Instructions 2011-12-31 (PDF)`](eia176/eia176_instructions_2011-12-31.pdf)
-* [`Eia176 Instructions 2015-02-28 (PDF)`](eia176/eia176_instructions_2015-02-28.pdf)
-* [`Eia176 Instructions 2017-12-31 (PDF)`](eia176/eia176_instructions_2017-12-31.pdf)
-* [`Eia176 Instructions 2021-01-31 (PDF)`](eia176/eia176_instructions_2021-01-31.pdf)
-* [`Eia176 Instructions 2024-06-30 (PDF)`](eia176/eia176_instructions_2024-06-30.pdf)
-* [`Eia176 Instructions 2027-07-31 (PDF)`](eia176/eia176_instructions_2027-07-31.pdf)
+* [`Eia176 Blank 2011-12-31 (PDF)`](_downloads/5748f663d917fb556248961d0b7123cf/eia176_blank_2011-12-31.pdf)
+* [`Eia176 Blank 2015-02-28 (PDF)`](_downloads/334d05b12c553ab360ab5f4388f24325/eia176_blank_2015-02-28.pdf)
+* [`Eia176 Blank 2017-12-31 (PDF)`](_downloads/343d002b6566137e5068841650751aaf/eia176_blank_2017-12-31.pdf)
+* [`Eia176 Blank 2021-01-31 (PDF)`](_downloads/2ff3d69b6888bef691d2c6cb7da6c041/eia176_blank_2021-01-31.pdf)
+* [`Eia176 Blank 2024-06-30 (PDF)`](_downloads/711138f6a157285b4dfc826b559eaae0/eia176_blank_2024-06-30.pdf)
+* [`Eia176 Blank 2027-07-31 (PDF)`](_downloads/008a64e20b0fec5c7f08357ac590f61f/eia176_blank_2027-07-31.pdf)
+* [`Eia176 Instructions 2011-12-31 (PDF)`](_downloads/bbc3bfc78f1da3212a6513d848c64b79/eia176_instructions_2011-12-31.pdf)
+* [`Eia176 Instructions 2015-02-28 (PDF)`](_downloads/f598d77c2d39b385dcb23ef8f85c5de1/eia176_instructions_2015-02-28.pdf)
+* [`Eia176 Instructions 2017-12-31 (PDF)`](_downloads/d3ab38308a23e0cf6e438a69516196b5/eia176_instructions_2017-12-31.pdf)
+* [`Eia176 Instructions 2021-01-31 (PDF)`](_downloads/fe89976e6d65d5be9f6ab4c851ff94b2/eia176_instructions_2021-01-31.pdf)
+* [`Eia176 Instructions 2024-06-30 (PDF)`](_downloads/f848dd1ab39cbaffa1597860f73b594d/eia176_instructions_2024-06-30.pdf)
+* [`Eia176 Instructions 2027-07-31 (PDF)`](_downloads/a19477b7bd485dc854c16a4e14d1a149/eia176_instructions_2027-07-31.pdf)
 
 ### What data is available through PUDL?
 
@@ -69401,11 +69502,11 @@ The EIA-191 Form is organized into the following parts:
 
 ### Download additional documentation
 
-* [`Eia191 Blank 2027-07-31 (PDF)`](eia191/eia191_blank_2027-07-31.pdf)
-* [`Eia191 Instructions 2011-12-31 (PDF)`](eia191/eia191_instructions_2011-12-31.pdf)
-* [`Eia191 Instructions 2024-01-31 (PDF)`](eia191/eia191_instructions_2024-01-31.pdf)
-* [`Eia191 Instructions 2024-06-30 (PDF)`](eia191/eia191_instructions_2024-06-30.pdf)
-* [`Eia191 Instructions 2027-07-31 (PDF)`](eia191/eia191_instructions_2027-07-31.pdf)
+* [`Eia191 Blank 2027-07-31 (PDF)`](_downloads/d7bcd3aecc935dfe615eabd53515fad9/eia191_blank_2027-07-31.pdf)
+* [`Eia191 Instructions 2011-12-31 (PDF)`](_downloads/2d218afab32c2bc982244e57dc97e7ed/eia191_instructions_2011-12-31.pdf)
+* [`Eia191 Instructions 2024-01-31 (PDF)`](_downloads/1d90de7c0679204ca48a923ebe24f9dc/eia191_instructions_2024-01-31.pdf)
+* [`Eia191 Instructions 2024-06-30 (PDF)`](_downloads/3dce5dc752dac89fd606352585c2ff97/eia191_instructions_2024-06-30.pdf)
+* [`Eia191 Instructions 2027-07-31 (PDF)`](_downloads/9cd8c70b2128b34089f5d926cb58c5a9/eia191_instructions_2027-07-31.pdf)
 
 ### What data is available through PUDL?
 
@@ -69536,12 +69637,12 @@ and are not considered as reliable as those in the annual form.
 
 ### Download additional documentation
 
-* [`Eia860 Instructions 2013-10-31 (PDF)`](eia860/eia860_instructions_2013-10-31.pdf)
-* [`Eia860 Instructions 2017-05-31 (PDF)`](eia860/eia860_instructions_2017-05-31.pdf)
-* [`Eia860 Instructions 2020-03-31 (PDF)`](eia860/eia860_instructions_2020-03-31.pdf)
-* [`Eia860 Instructions 2023-05-31 (PDF)`](eia860/eia860_instructions_2023-05-31.pdf)
-* [`Eia860 Instructions 2026-07-31 (PDF)`](eia860/eia860_instructions_2026-07-31.pdf)
-* [`Eia860 Instructions 2029-07-31 (PDF)`](eia860/eia860_instructions_2029-07-31.pdf)
+* [`Eia860 Instructions 2013-10-31 (PDF)`](_downloads/dde2a34cb79232ef62fbbe4fc0ab8add/eia860_instructions_2013-10-31.pdf)
+* [`Eia860 Instructions 2017-05-31 (PDF)`](_downloads/61811077ad04f879efb31b4166742870/eia860_instructions_2017-05-31.pdf)
+* [`Eia860 Instructions 2020-03-31 (PDF)`](_downloads/c593807ea807afaa8cccb1d4a4eefb53/eia860_instructions_2020-03-31.pdf)
+* [`Eia860 Instructions 2023-05-31 (PDF)`](_downloads/b2b6a6507bb154840c8d8c443e259199/eia860_instructions_2023-05-31.pdf)
+* [`Eia860 Instructions 2026-07-31 (PDF)`](_downloads/3bd35ff9c0a30224da11e63d718a05ce/eia860_instructions_2026-07-31.pdf)
+* [`Eia860 Instructions 2029-07-31 (PDF)`](_downloads/c98ae04f9cde110c41226fee4b07543c/eia860_instructions_2029-07-31.pdf)
 
 ### Data available through PUDL
 
@@ -69611,8 +69712,8 @@ respective transform function.
 | Source URL                      | [https://www.eia.gov/electricity/data/eia861](https://www.eia.gov/electricity/data/eia861)                                                                                   |
 |---------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | Source Description              | EIA Form 861 Annual Electric Power Industry Report, detailed data files.                                                                                                     |
-| Download Size                   | 96 MB                                                                                                                                                                        |
-| Temporal Coverage               | 2001-2024                                                                                                                                                                    |
+| Download Size                   | 100 MB                                                                                                                                                                       |
+| Temporal Coverage               | 2001-2025                                                                                                                                                                    |
 | PUDL Code                       | `eia861`                                                                                                                                                                     |
 | Unprocessed Source Data Archive | [10.5281/zenodo.4127028](https://doi.org/10.5281/zenodo.4127028)                                                                                                             |
 | Issues                          | [Open EIA Form 861 – Annual Electric Power Industry Report issues](https://github.com/catalyst-cooperative/pudl/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3Aeia861) |
@@ -69678,13 +69779,13 @@ details, see the [official EIA-861 page](https://www.eia.gov/electricity/data/ei
 
 ### Download additional documentation
 
-* [`Eia861 Instructions 2013-10-31 (PDF)`](eia861/eia861_instructions_2013-10-31.pdf)
-* [`Eia861 Instructions 2015-12-31 (PDF)`](eia861/eia861_instructions_2015-12-31.pdf)
-* [`Eia861 Instructions 2017-05-31 (PDF)`](eia861/eia861_instructions_2017-05-31.pdf)
-* [`Eia861 Instructions 2020-03-31 (PDF)`](eia861/eia861_instructions_2020-03-31.pdf)
-* [`Eia861 Instructions 2023-05-31 (PDF)`](eia861/eia861_instructions_2023-05-31.pdf)
-* [`Eia861 Instructions 2026-07-31 (PDF)`](eia861/eia861_instructions_2026-07-31.pdf)
-* [`Eia861 Instructions 2029-07-31 (PDF)`](eia861/eia861_instructions_2029-07-31.pdf)
+* [`Eia861 Instructions 2013-10-31 (PDF)`](_downloads/5bf907efe4e022d35b433c0168617a6a/eia861_instructions_2013-10-31.pdf)
+* [`Eia861 Instructions 2015-12-31 (PDF)`](_downloads/6ee26e2d78781e59cae6a327a485f19b/eia861_instructions_2015-12-31.pdf)
+* [`Eia861 Instructions 2017-05-31 (PDF)`](_downloads/bb12d16ebc344ebd6d1af3d5a2a1321c/eia861_instructions_2017-05-31.pdf)
+* [`Eia861 Instructions 2020-03-31 (PDF)`](_downloads/97263e296bc0127e02de4570c2e3db8d/eia861_instructions_2020-03-31.pdf)
+* [`Eia861 Instructions 2023-05-31 (PDF)`](_downloads/c6f79a9ec9b5757107ea931d0cb4aaa1/eia861_instructions_2023-05-31.pdf)
+* [`Eia861 Instructions 2026-07-31 (PDF)`](_downloads/c0fcd2bc998793c94815f0bbfe434a51/eia861_instructions_2026-07-31.pdf)
+* [`Eia861 Instructions 2029-07-31 (PDF)`](_downloads/e6db14c500fac4ab26068e40dfb8b921/eia861_instructions_2029-07-31.pdf)
 
 ### Data available through PUDL
 
@@ -69836,13 +69937,13 @@ As of 2019, the EIA-923 Form is organized into the following schedules:
 
 ### Download additional documentation
 
-* [`Eia923 Instructions 2013-10-31 (PDF)`](eia923/eia923_instructions_2013-10-31.pdf)
-* [`Eia923 Instructions 2015-12-31 (PDF)`](eia923/eia923_instructions_2015-12-31.pdf)
-* [`Eia923 Instructions 2017-05-31 (PDF)`](eia923/eia923_instructions_2017-05-31.pdf)
-* [`Eia923 Instructions 2020-03-31 (PDF)`](eia923/eia923_instructions_2020-03-31.pdf)
-* [`Eia923 Instructions 2023-05-31 (PDF)`](eia923/eia923_instructions_2023-05-31.pdf)
-* [`Eia923 Instructions 2026-07-31 (PDF)`](eia923/eia923_instructions_2026-07-31.pdf)
-* [`Eia923 Instructions 2029-07-31 (PDF)`](eia923/eia923_instructions_2029-07-31.pdf)
+* [`Eia923 Instructions 2013-10-31 (PDF)`](_downloads/b6265ec26b36b0389c6a3b595a759d7b/eia923_instructions_2013-10-31.pdf)
+* [`Eia923 Instructions 2015-12-31 (PDF)`](_downloads/bbc6d66cde19321ef1161c4c4133df0f/eia923_instructions_2015-12-31.pdf)
+* [`Eia923 Instructions 2017-05-31 (PDF)`](_downloads/5d32597bff2ce0c8374e254bd950faa1/eia923_instructions_2017-05-31.pdf)
+* [`Eia923 Instructions 2020-03-31 (PDF)`](_downloads/07c228ecbd2f7c29424204a3ff460df2/eia923_instructions_2020-03-31.pdf)
+* [`Eia923 Instructions 2023-05-31 (PDF)`](_downloads/99f226c17e541e441700a283f2cf7e0f/eia923_instructions_2023-05-31.pdf)
+* [`Eia923 Instructions 2026-07-31 (PDF)`](_downloads/5ceb94d13794f5217510a8307f2ec4af/eia923_instructions_2026-07-31.pdf)
+* [`Eia923 Instructions 2029-07-31 (PDF)`](_downloads/0405d5fe5d87cb23c3dc22ba85e2710d/eia923_instructions_2029-07-31.pdf)
 
 ### Data available through PUDL
 
@@ -70058,8 +70159,8 @@ indicate net outflows.
 
 ### Download additional documentation
 
-* [`Eia930 Instructions 2026-07-31 (PDF)`](eia930/eia930_instructions_2026-07-31.pdf)
-* [`Eia930 Instructions 2029-07-31 (PDF)`](eia930/eia930_instructions_2029-07-31.pdf)
+* [`Eia930 Instructions 2026-07-31 (PDF)`](_downloads/2297feef7fae5877a95f4a67bdc3cab2/eia930_instructions_2026-07-31.pdf)
+* [`Eia930 Instructions 2029-07-31 (PDF)`](_downloads/b8fe31e51b528d33a75b75308ea9cca1/eia930_instructions_2029-07-31.pdf)
 
 ### Data available through PUDL
 
@@ -70284,25 +70385,25 @@ For more information about scenarios, policy assumptions, and more, visit [EIA�
 
 ### Download additional documentation
 
-* [`Eiaaeo 2025 Carbon Capture Allocation Transport And Sequestration Assumptions (PDF)`](eiaaeo/eiaaeo_2025_carbon_capture_allocation_transport_and_sequestration_assumptions.pdf)
-* [`Eiaaeo 2025 Case Descriptions (PDF)`](eiaaeo/eiaaeo_2025_case_descriptions.pdf)
-* [`Eiaaeo 2025 Coal Market Assumptions (PDF)`](eiaaeo/eiaaeo_2025_coal_market_assumptions.pdf)
-* [`Eiaaeo 2025 Commercial Demand Assumptions (PDF)`](eiaaeo/eiaaeo_2025_commercial_demand_assumptions.pdf)
-* [`Eiaaeo 2025 Electricity Market Assumptions (PDF)`](eiaaeo/eiaaeo_2025_electricity_market_assumptions.pdf)
-* [`Eiaaeo 2025 Emissions Policy Assumptions (PDF)`](eiaaeo/eiaaeo_2025_emissions_policy_assumptions.pdf)
-* [`Eiaaeo 2025 Hydrocarbon Supply Assumptions (PDF)`](eiaaeo/eiaaeo_2025_hydrocarbon_supply_assumptions.pdf)
-* [`Eiaaeo 2025 Hydrogen Market Assumptions (PDF)`](eiaaeo/eiaaeo_2025_hydrogen_market_assumptions.pdf)
-* [`Eiaaeo 2025 Industrial Demand Assumptions (PDF)`](eiaaeo/eiaaeo_2025_industrial_demand_assumptions.pdf)
-* [`Eiaaeo 2025 International Energy Assumptions (PDF)`](eiaaeo/eiaaeo_2025_international_energy_assumptions.pdf)
-* [`Eiaaeo 2025 Liquid Fuels Market Assumptions (PDF)`](eiaaeo/eiaaeo_2025_liquid_fuels_market_assumptions.pdf)
-* [`Eiaaeo 2025 Macroeconomic Activity Assumptions (PDF)`](eiaaeo/eiaaeo_2025_macroeconomic_activity_assumptions.pdf)
-* [`Eiaaeo 2025 Narrative (PDF)`](eiaaeo/eiaaeo_2025_narrative.pdf)
-* [`Eiaaeo 2025 Natural Gas Market Assumptions (PDF)`](eiaaeo/eiaaeo_2025_natural_gas_market_assumptions.pdf)
-* [`Eiaaeo 2025 Renewable Fuels Assumptions (PDF)`](eiaaeo/eiaaeo_2025_renewable_fuels_assumptions.pdf)
-* [`Eiaaeo 2025 Residential Demand Assumptions (PDF)`](eiaaeo/eiaaeo_2025_residential_demand_assumptions.pdf)
-* [`Eiaaeo 2025 Summary Of Legislation And Regulations (PDF)`](eiaaeo/eiaaeo_2025_summary_of_legislation_and_regulations.pdf)
-* [`Eiaaeo 2025 Transportation Demand Assumptions (PDF)`](eiaaeo/eiaaeo_2025_transportation_demand_assumptions.pdf)
-* [`Nems Overview (PDF)`](eiaaeo/nems_overview.pdf)
+* [`Eiaaeo 2025 Carbon Capture Allocation Transport And Sequestration Assumptions (PDF)`](_downloads/c90c4e72fd54731ab93abc8be38b65a1/eiaaeo_2025_carbon_capture_allocation_transport_and_sequestration_assumptions.pdf)
+* [`Eiaaeo 2025 Case Descriptions (PDF)`](_downloads/5d7431fba21e3f5ae6a9e8c4ff4869db/eiaaeo_2025_case_descriptions.pdf)
+* [`Eiaaeo 2025 Coal Market Assumptions (PDF)`](_downloads/73e00bc5b5d9a849704cc6bb9be54c1a/eiaaeo_2025_coal_market_assumptions.pdf)
+* [`Eiaaeo 2025 Commercial Demand Assumptions (PDF)`](_downloads/d92ddc3c3255d593915755d5e33d31c9/eiaaeo_2025_commercial_demand_assumptions.pdf)
+* [`Eiaaeo 2025 Electricity Market Assumptions (PDF)`](_downloads/fcef77222b0e504440dfa03fa3984d08/eiaaeo_2025_electricity_market_assumptions.pdf)
+* [`Eiaaeo 2025 Emissions Policy Assumptions (PDF)`](_downloads/fe375b9ff43bfe98d41823af35c3d491/eiaaeo_2025_emissions_policy_assumptions.pdf)
+* [`Eiaaeo 2025 Hydrocarbon Supply Assumptions (PDF)`](_downloads/252d2d500400b47b70c5692166a96d35/eiaaeo_2025_hydrocarbon_supply_assumptions.pdf)
+* [`Eiaaeo 2025 Hydrogen Market Assumptions (PDF)`](_downloads/bdb8d5b44c0bda5cdb57ae6bf8265309/eiaaeo_2025_hydrogen_market_assumptions.pdf)
+* [`Eiaaeo 2025 Industrial Demand Assumptions (PDF)`](_downloads/ccea91e4be7d818fa8cc23002ccfd8c9/eiaaeo_2025_industrial_demand_assumptions.pdf)
+* [`Eiaaeo 2025 International Energy Assumptions (PDF)`](_downloads/cfe9068d3598e04a84ba021f5a41c96c/eiaaeo_2025_international_energy_assumptions.pdf)
+* [`Eiaaeo 2025 Liquid Fuels Market Assumptions (PDF)`](_downloads/9c3ccd30529f6af4037ad2a477e94651/eiaaeo_2025_liquid_fuels_market_assumptions.pdf)
+* [`Eiaaeo 2025 Macroeconomic Activity Assumptions (PDF)`](_downloads/1785caec55593937c49d501665002ee6/eiaaeo_2025_macroeconomic_activity_assumptions.pdf)
+* [`Eiaaeo 2025 Narrative (PDF)`](_downloads/737d5a9cbcaf293b3d74c1089ea96c94/eiaaeo_2025_narrative.pdf)
+* [`Eiaaeo 2025 Natural Gas Market Assumptions (PDF)`](_downloads/a42e8e719e504619540e56982c78e626/eiaaeo_2025_natural_gas_market_assumptions.pdf)
+* [`Eiaaeo 2025 Renewable Fuels Assumptions (PDF)`](_downloads/ba8ae1e8264be8d75dc26d2043a42b85/eiaaeo_2025_renewable_fuels_assumptions.pdf)
+* [`Eiaaeo 2025 Residential Demand Assumptions (PDF)`](_downloads/4f6778d7575d1f108d94747a4522c324/eiaaeo_2025_residential_demand_assumptions.pdf)
+* [`Eiaaeo 2025 Summary Of Legislation And Regulations (PDF)`](_downloads/d142fc1b8d5f135033cec12c568b62c7/eiaaeo_2025_summary_of_legislation_and_regulations.pdf)
+* [`Eiaaeo 2025 Transportation Demand Assumptions (PDF)`](_downloads/ed1d40a6540e5ea526a5884f1dcaf0cd/eiaaeo_2025_transportation_demand_assumptions.pdf)
+* [`Nems Overview (PDF)`](_downloads/b5c53c053a6c984c898cac6b86302be0/nems_overview.pdf)
 
 ### Data available through PUDL
 
@@ -70406,7 +70507,7 @@ energy categories:
 
 ### Download additional documentation
 
-* [`Eiaapi Technical Documentation 2025-08-26 (HTML)`](eiaapi/eiaapi_technical_documentation_2025-08-26.html)
+* [`Eiaapi Technical Documentation 2025-08-26 (HTML)`](_downloads/ec4214f82f7635515842cc17d7eb01dd/eiaapi_technical_documentation_2025-08-26.html)
 
 See EIA’s [current API documentation here](https://www.eia.gov/opendata/).
 
@@ -70625,8 +70726,8 @@ units and EIA boilers isn’t perfect. See “Notable Irregularities” below.
 
 ### Download additional documentation
 
-* [`Camd Power Sector Emissions Guide (PDF)`](epacems/camd_power_sector_emissions_guide.pdf)
-* [`Plain English Guide To The Part 75 Rule (PDF)`](epacems/plain_english_guide_to_the_part_75_rule.pdf)
+* [`Camd Power Sector Emissions Guide (PDF)`](_downloads/7f77fdc7b4f9859c2c2f027a2dfc111c/camd_power_sector_emissions_guide.pdf)
+* [`Plain English Guide To The Part 75 Rule (PDF)`](_downloads/285eb2466521b5e2d7f0cdc5c6b6182c/plain_english_guide_to_the_part_75_rule.pdf)
 
 ### Data available through PUDL
 
@@ -70653,7 +70754,7 @@ backup monitoring for instances of CEMS failure (see §75.31-37).
 
 A plain English explanation of the requirements of Part 75 is available in section
 2.0 Overview of Part 75 Monitoring Requirements in the
-[`Plain English Guide to the Part 75 Rule`](epacems/plain_english_guide_to_the_part_75_rule.pdf).
+[`Plain English Guide to the Part 75 Rule`](_downloads/285eb2466521b5e2d7f0cdc5c6b6182c/plain_english_guide_to_the_part_75_rule.pdf).
 
 ### What does the original data look like?
 
@@ -70772,20 +70873,20 @@ publicly available anywhere else.
 
 ### Download additional documentation
 
-> * [`Ferc1 Blank 2005-03-31`](ferc1/ferc1_blank_2005-03-31.pdf)
-> * [`Ferc1 Blank 2007-06-30`](ferc1/ferc1_blank_2007-06-30.pdf)
-> * [`Ferc1 Blank 2008-07-31`](ferc1/ferc1_blank_2008-07-31.pdf)
-> * [`Ferc1 Blank 2011-12-31`](ferc1/ferc1_blank_2011-12-31.pdf)
-> * [`Ferc1 Blank 2014-12-31`](ferc1/ferc1_blank_2014-12-31.pdf)
-> * [`Ferc1 Blank 2016-11-30`](ferc1/ferc1_blank_2016-11-30.pdf)
-> * [`Ferc1 Blank 2019-12-31`](ferc1/ferc1_blank_2019-12-31.pdf)
-> * [`Ferc1 Blank 2022-11-30`](ferc1/ferc1_blank_2022-11-30.pdf)
-> * [`Ferc1 Blank 2025-07-31`](ferc1/ferc1_blank_2025-07-31.html)
-> * [`Ferc1 Db Diagram 2015`](ferc1/ferc1_db_diagram_2015.pdf)
-> * [`Ferc1A Blank 2025-07-31`](ferc1/ferc1a_blank_2025-07-31.html)
-> * [`Ferc1F Blank 2025-07-31`](ferc1/ferc1f_blank_2025-07-31.html)
-> * [`Ferc3Q Electric 2025-07-31`](ferc1/ferc3q_electric_2025-07-31.html)
-> * [`Ferc3Q Gas 2025-07-31`](ferc1/ferc3q_gas_2025-07-31.html)
+> * [`Ferc1 Blank 2005-03-31`](_downloads/d7290d42f21382a9bbb9d341ab6348ad/ferc1_blank_2005-03-31.pdf)
+> * [`Ferc1 Blank 2007-06-30`](_downloads/59ab45207576606fa64e9dff1d42b97c/ferc1_blank_2007-06-30.pdf)
+> * [`Ferc1 Blank 2008-07-31`](_downloads/666cdcb68255f9bdcf7e32783184b9ca/ferc1_blank_2008-07-31.pdf)
+> * [`Ferc1 Blank 2011-12-31`](_downloads/4b1a60c04ace749f2d769289d0dfc98d/ferc1_blank_2011-12-31.pdf)
+> * [`Ferc1 Blank 2014-12-31`](_downloads/52b9ede253a4ff7c792ec19fe0d169af/ferc1_blank_2014-12-31.pdf)
+> * [`Ferc1 Blank 2016-11-30`](_downloads/2e222a563a331a1a90f42c9d2eb49d46/ferc1_blank_2016-11-30.pdf)
+> * [`Ferc1 Blank 2019-12-31`](_downloads/fd9ba713087c5c0be586ac51ba237731/ferc1_blank_2019-12-31.pdf)
+> * [`Ferc1 Blank 2022-11-30`](_downloads/6a316a949a522f595e7575b6fd7034b8/ferc1_blank_2022-11-30.pdf)
+> * [`Ferc1 Blank 2025-07-31`](_downloads/85f442fbf290270270ad3dd4a42b2a1f/ferc1_blank_2025-07-31.html)
+> * [`Ferc1 Db Diagram 2015`](_downloads/c119e7680944a8c2cf3bb251d4162912/ferc1_db_diagram_2015.pdf)
+> * [`Ferc1A Blank 2025-07-31`](_downloads/ab6519d78b244d9379f482d64011f347/ferc1a_blank_2025-07-31.html)
+> * [`Ferc1F Blank 2025-07-31`](_downloads/1c778b24ecf2dfdf859dbc3b81e42f69/ferc1f_blank_2025-07-31.html)
+> * [`Ferc3Q Electric 2025-07-31`](_downloads/5fe9aad5d45a9f43e5b7a65cf0ad5e97/ferc3q_electric_2025-07-31.html)
+> * [`Ferc3Q Gas 2025-07-31`](_downloads/ef645131fd15f0efceff23fca3adcdfd/ferc3q_gas_2025-07-31.html)
 
 ### Data available through PUDL
 
@@ -70956,9 +71057,9 @@ area and planning area operations.
 
 ### Download additional documentation
 
-* [`Ferc714 Blank 2022-06-30 (PDF)`](ferc714/ferc714_blank_2022-06-30.pdf)
-* [`Ferc714 Blank 2025-07-31 (HTML)`](ferc714/ferc714_blank_2025-07-31.html)
-* [`Ferc714 Instructions 2021-04-16 (PDF)`](ferc714/ferc714_instructions_2021-04-16.pdf)
+* [`Ferc714 Blank 2022-06-30 (PDF)`](_downloads/d0874df89534b6b73a470bc23b288d27/ferc714_blank_2022-06-30.pdf)
+* [`Ferc714 Blank 2025-07-31 (HTML)`](_downloads/491ac6bc102c6af3850e8feee982a4fe/ferc714_blank_2025-07-31.html)
+* [`Ferc714 Instructions 2021-04-16 (PDF)`](_downloads/f48d006b011903ae36c2e6a5acfb4f81/ferc714_instructions_2021-04-16.pdf)
 
 ### Data available through PUDL
 
@@ -71125,10 +71226,10 @@ organized wholesale markets.
 
 ### Download additional documentation
 
-> * [`Ferceqr Data Dictionary V30 2014-03-10`](ferceqr/ferceqr_data_dictionary_v30_2014-03-10.pdf)
-> * [`Ferceqr Data Dictionary V34 2017-01-12`](ferceqr/ferceqr_data_dictionary_v34_2017-01-12.pdf)
-> * [`Ferceqr Data Dictionary V35 2020-11-23`](ferceqr/ferceqr_data_dictionary_v35_2020-11-23.pdf)
-> * [`Ferceqr Filing Requirements 2023-11-08`](ferceqr/ferceqr_filing_requirements_2023-11-08.pdf)
+> * [`Ferceqr Data Dictionary V30 2014-03-10`](_downloads/db13fc3953f677cac1995f2d3674014f/ferceqr_data_dictionary_v30_2014-03-10.pdf)
+> * [`Ferceqr Data Dictionary V34 2017-01-12`](_downloads/c903304c9702fbd58a807b22e8b8748f/ferceqr_data_dictionary_v34_2017-01-12.pdf)
+> * [`Ferceqr Data Dictionary V35 2020-11-23`](_downloads/9aeea8d4e53377dae719d40559c31490/ferceqr_data_dictionary_v35_2020-11-23.pdf)
+> * [`Ferceqr Filing Requirements 2023-11-08`](_downloads/23d48956b7b5ab74ad7ebeb26eb5422c/ferceqr_filing_requirements_2023-11-08.pdf)
 
 ### Data available through PUDL
 
@@ -71522,11 +71623,11 @@ with projections through 2050.
 
 ### Download additional documentation
 
-* [`Nrelatb Definitions 2020 (HTML)`](nrelatb/nrelatb_definitions_2020.html)
-* [`Nrelatb Definitions 2021 (HTML)`](nrelatb/nrelatb_definitions_2021.html)
-* [`Nrelatb Definitions 2022 (HTML)`](nrelatb/nrelatb_definitions_2022.html)
-* [`Nrelatb Definitions 2023 (HTML)`](nrelatb/nrelatb_definitions_2023.html)
-* [`Nrelatb Definitions 2024 (HTML)`](nrelatb/nrelatb_definitions_2024.html)
+* [`Nrelatb Definitions 2020 (HTML)`](_downloads/d7595350dfe362c3d2e1a5bc53383601/nrelatb_definitions_2020.html)
+* [`Nrelatb Definitions 2021 (HTML)`](_downloads/899cce231a7cff5c097e14b663d5beb6/nrelatb_definitions_2021.html)
+* [`Nrelatb Definitions 2022 (HTML)`](_downloads/bab04d7c8a3f284f3c1016be1e2ea45d/nrelatb_definitions_2022.html)
+* [`Nrelatb Definitions 2023 (HTML)`](_downloads/ef1008b992db8aceecc639b540f6fcbf/nrelatb_definitions_2023.html)
+* [`Nrelatb Definitions 2024 (HTML)`](_downloads/ef1bb0966ad08ac9e8f100881564103c/nrelatb_definitions_2024.html)
 
 ### Data available through PUDL
 
@@ -71659,6 +71760,7 @@ the names and descriptions of each of its fields.
 | [\_core_phmsagas_\_yearly_distribution_filings](data_dictionaries/pudl_db.html.md#i-core-phmsagas-yearly-distribution-filings)                           | [https://data.catalyst.coop/preview/pudl/_core_phmsagas_\_yearly_distribution_filings](https://data.catalyst.coop/preview/pudl/_core_phmsagas__yearly_distribution_filings)                           |
 | [\_core_phmsagas_\_yearly_distribution_leaks](data_dictionaries/pudl_db.html.md#i-core-phmsagas-yearly-distribution-leaks)                               | [https://data.catalyst.coop/preview/pudl/_core_phmsagas_\_yearly_distribution_leaks](https://data.catalyst.coop/preview/pudl/_core_phmsagas__yearly_distribution_leaks)                               |
 | [\_core_phmsagas_\_yearly_distribution_misc](data_dictionaries/pudl_db.html.md#i-core-phmsagas-yearly-distribution-misc)                                 | [https://data.catalyst.coop/preview/pudl/_core_phmsagas_\_yearly_distribution_misc](https://data.catalyst.coop/preview/pudl/_core_phmsagas__yearly_distribution_misc)                                 |
+| [core_phmsagas_\_yearly_distribution_by_install_decade](data_dictionaries/pudl_db.html.md#core-phmsagas-yearly-distribution-by-install-decade)           | [https://data.catalyst.coop/preview/pudl/core_phmsagas_\_yearly_distribution_by_install_decade](https://data.catalyst.coop/preview/pudl/core_phmsagas__yearly_distribution_by_install_decade)         |
 | [core_phmsagas_\_yearly_distribution_operators](data_dictionaries/pudl_db.html.md#core-phmsagas-yearly-distribution-operators)                           | [https://data.catalyst.coop/preview/pudl/core_phmsagas_\_yearly_distribution_operators](https://data.catalyst.coop/preview/pudl/core_phmsagas__yearly_distribution_operators)                         |
 
 ## Background
@@ -71677,17 +71779,17 @@ For more details, see the [official PHMSA data page](https://www.phmsa.dot.gov/d
 
 Documentation for the gas distribution form:
 
-* [`Gas Distribution Annual Form - Phmsa F7100.1-1 (2005) - Data Fields (PDF/TXT)`](phmsagas/Gas Distribution Annual Form - PHMSA F7100.1-1 (2005) - Data Fields.pdf)
-* [`Gas Distribution Annual Form - Phmsa F7100.1-1 (2021) - Data Fields (PDF/TXT)`](phmsagas/Gas Distribution Annual Form - PHMSA F7100.1-1 (2021) - Data fields.pdf)
-* [`Gas Distribution Annual Form - Rspa F7100.1-1 (1985) - Data Fields (PDF/TXT)`](phmsagas/Gas Distribution Annual Form - RSPA F7100.1-1 (1985) - Data fields.txt)
+* [`Gas Distribution Annual Form - Phmsa F7100.1-1 (2005) - Data Fields (PDF/TXT)`](_downloads/94c25591fbbea8a301acde659b73e400/Gas Distribution Annual Form - PHMSA F7100.1-1 (2005) - Data Fields.pdf)
+* [`Gas Distribution Annual Form - Phmsa F7100.1-1 (2021) - Data Fields (PDF/TXT)`](_downloads/1a5932abc1b8b7879f2b8f8625844048/Gas Distribution Annual Form - PHMSA F7100.1-1 (2021) - Data fields.pdf)
+* [`Gas Distribution Annual Form - Rspa F7100.1-1 (1985) - Data Fields (PDF/TXT)`](_downloads/58f6dbc649a1f6cb18bd2a7154bec4c6/Gas Distribution Annual Form - RSPA F7100.1-1 (1985) - Data fields.txt)
 
 Documentation for the gas transmission and gathering form:
 
-* [`Gas Transmission And Gathering Pipeline Annual Form - Phmsa F7100.2-1 (2005) - Data Fields (PDF/TXT)`](phmsagas/Gas Transmission and Gathering Pipeline Annual Form - PHMSA F7100.2-1 (2005) - Data Fields.pdf)
-* [`Gas Transmission And Gathering Pipeline Annual Form - Phmsa F7100.2-1 (2005) - Data Fields Not On The Form (PDF/TXT)`](phmsagas/Gas Transmission and Gathering Pipeline Annual Form - PHMSA F7100.2-1 (2005) - Data fields not on the form.txt)
-* [`Gas Transmission And Gathering Pipeline Annual Form - Phmsa F7100.2-1 (2014) - Data Fields (PDF/TXT)`](phmsagas/Gas Transmission and Gathering Pipeline Annual Form - PHMSA F7100.2-1 (2014) - Data Fields.pdf)
-* [`Gas Transmission And Gathering Pipeline Annual Form - Phmsa F7100.2-1 (2022) - Data Fields (PDF/TXT)`](phmsagas/Gas Transmission and Gathering Pipeline Annual Form - PHMSA F7100.2-1 (2022) - Data Fields.pdf)
-* [`Gas Transmission And Gathering Pipeline Annual Form - Rspa F7100.2-1 (1985) - Data Fields (PDF/TXT)`](phmsagas/Gas Transmission and Gathering Pipeline Annual Form - RSPA F7100.2-1 (1985) - Data fields.txt)
+* [`Gas Transmission And Gathering Pipeline Annual Form - Phmsa F7100.2-1 (2005) - Data Fields (PDF/TXT)`](_downloads/aa383d0e74111c1d8f7d660b15dba1a5/Gas Transmission and Gathering Pipeline Annual Form - PHMSA F7100.2-1 (2005) - Data Fields.pdf)
+* [`Gas Transmission And Gathering Pipeline Annual Form - Phmsa F7100.2-1 (2005) - Data Fields Not On The Form (PDF/TXT)`](_downloads/fdbcb9f2d45272ca70731043d46fa720/Gas Transmission and Gathering Pipeline Annual Form - PHMSA F7100.2-1 (2005) - Data fields not on the form.txt)
+* [`Gas Transmission And Gathering Pipeline Annual Form - Phmsa F7100.2-1 (2014) - Data Fields (PDF/TXT)`](_downloads/51cb377f1e81ba53efdccd9316a309a2/Gas Transmission and Gathering Pipeline Annual Form - PHMSA F7100.2-1 (2014) - Data Fields.pdf)
+* [`Gas Transmission And Gathering Pipeline Annual Form - Phmsa F7100.2-1 (2022) - Data Fields (PDF/TXT)`](_downloads/2c5c64eca6c77cc23e90bce0c5fa223d/Gas Transmission and Gathering Pipeline Annual Form - PHMSA F7100.2-1 (2022) - Data Fields.pdf)
+* [`Gas Transmission And Gathering Pipeline Annual Form - Rspa F7100.2-1 (1985) - Data Fields (PDF/TXT)`](_downloads/d707f4cc8f914c8fd75c21f0a9340d42/Gas Transmission and Gathering Pipeline Annual Form - RSPA F7100.2-1 (1985) - Data fields.txt)
 
 ### Data available through PUDL
 
@@ -71814,9 +71916,9 @@ jurisdiction, and classification as non-public utilities.
 
 ### Download additional documentation
 
-* [`Rus12 Blank 2010 (PDF)`](rus12/rus12_blank_2010.pdf)
-* [`Rus12 Blank 2013 (PDF)`](rus12/rus12_blank_2013.pdf)
-* [`Uep Bulletin 1717B-3 2006-05-17 (PDF)`](rus12/uep_bulletin_1717B-3_2006-05-17.pdf)
+* [`Rus12 Blank 2010 (PDF)`](_downloads/66eb052cc3ef47c37e91d25f2071d019/rus12_blank_2010.pdf)
+* [`Rus12 Blank 2013 (PDF)`](_downloads/2cdce0bf7b969d4fadf5704070e44b5c/rus12_blank_2013.pdf)
+* [`Uep Bulletin 1717B-3 2006-05-17 (PDF)`](_downloads/63e2ee8ba027087f4e51d407f80e8c25/uep_bulletin_1717B-3_2006-05-17.pdf)
 
 ### What data is available through PUDL?
 
@@ -71931,9 +72033,9 @@ jurisdiction, and classification as non-public utilities.
 
 ### Download additional documentation
 
-* [`Rus7 Blank 2014 (PDF)`](rus7/rus7_blank_2014.pdf)
-* [`Rus7 Blank Pre2014 (PDF)`](rus7/rus7_blank_pre2014.pdf)
-* [`Uep Bulletin 1717B-2 2002-02-14 (PDF)`](rus7/uep_bulletin_1717B-2_2002-02-14.pdf)
+* [`Rus7 Blank 2014 (PDF)`](_downloads/f63ec5f4af758b6f4ffa81492110fa7b/rus7_blank_2014.pdf)
+* [`Rus7 Blank Pre2014 (PDF)`](_downloads/1120d9141b76b5f5acddce9bc2c2fe74/rus7_blank_pre2014.pdf)
+* [`Uep Bulletin 1717B-2 2002-02-14 (PDF)`](_downloads/07448753419c7b28e1e03461b8373e2a/uep_bulletin_1717B-2_2002-02-14.pdf)
 
 ### What data is available through PUDL?
 
@@ -72389,7 +72491,7 @@ detailed information.
 
 ### Download additional documentation
 
-* [`Vce Weather Dataset Overview August 2020 (PDF)`](vcerare/VCE_Weather_Dataset_Overview_August_2020.pdf)
+* [`Vce Weather Dataset Overview August 2020 (PDF)`](_downloads/93dc8b4038b311e48fa03fa1c7401f74/VCE_Weather_Dataset_Overview_August_2020.pdf)
 * [NOAA High Resolution Rapid Refresh (HRRR) Model Overview](https://rapidrefresh.noaa.gov/hrrr/)
 * [ESIG Weather Data for Power System Planning](https://www.esig.energy/weather-data-for-power-system-planning/)
   White Paper
@@ -72886,6 +72988,29 @@ dbt_helper validate --asset-select "+key:out_eia__yearly_generators" --exclude "
 
 See `dbt_helper validate --help` for usage details.
 
+#### TIP
+You may want to run the validation tests against multiple sets of Parquet files.
+
+To do this:
+
+1. Download the Parquet files to `<any_directory_you_want>/parquet/`.
+2. Set the `PUDL_OUTPUT` environment variable to `<any_directory_you_want>`.
+   (*note* use an absolute path!)
+3. Run any of the `dbt_helper` commands you need.
+
+Some examples of useful Parquet outputs and where to find them:
+
+* [the most recent nightly builds](https://s3.us-west-2.amazonaws.com/pudl.catalyst.coop/nightly/pudl_parquet.zip)
+* the fast ETL outputs from your integration tests:
+  these are in a temporary directory created by `pytest`.
+  Since these are already on your computer you don’t need to download them.
+  The path is printed out at the beginning of the `pytest` run and will look like:
+  `2025-07-25 16:05:49 [    INFO] test.conftest:386 Using temporary PUDL_OUTPUT:
+  /path/to/your/temp/dir`
+* Any [Branch builds](dev/data_validation_reference.html.md#branch-builds) outputs: if you have access to the internal build bucket,
+  [builds.catalyst.coop](https://console.cloud.google.com/storage/browser/builds.catalyst.coop),
+  you can also use the Parquet files you find there.
+
 <a id="update-dbt-schema"></a>
 
 ## Updating table schemas
@@ -72958,6 +73083,24 @@ overwrite existing row counts:
 ```bash
 dbt_helper update-tables --row-counts --clobber new_table_name
 ```
+
+#### TIP
+If you want to update a larger subset of tables (e.g.: all EIA 860 tables),
+you can use this dagster hack to avoid manually copy and pasting tons of table
+names. (For the time being, you cannot use the same `--asset-select` feature
+as the `validate` command.)
+
+- Launch dagster and go to `http://localhost:3000/assets`.
+- Use the search bar to find the group of assets you’d like to update. Use the select
+  all checkbox at the top to grab all assets.
+- Shift+click the “Materialize Selected” button.
+- In the search bar at the top left of the Launchpad, triple click to select all
+  table names.
+- Copy and paste the list of tables into a text editor of your choice and replace
+  remove commas so that table names are separated by a single space (as shown
+  in the codeblock above).
+- Put that list at the end of the `dbt_helper update-tables --row-counts`
+  command to update the row counts for all desired tables at once.
 
 
 # dev/data_validation_reference.html.md
@@ -76300,6 +76443,15 @@ the project to be used for requester pays access through applications:
 gcloud auth application-default login
 ```
 
+#### TIP
+If you’ve done all this and you are still getting “ERROR: (gcloud.storage.hash)
+HTTPError 400: Bucket is a requester pays bucket but no user project provided.”
+errors below, try:
+
+```default
+gcloud config set billing/quota_project catalyst-cooperative-pudl
+```
+
 To test whether your GCP account is set up correctly and authenticated you can run the
 following command to list the contents of the cloud storage bucket containing the PUDL
 data. This doesn’t actually download any data, but will show you the versions
@@ -77719,6 +77871,14 @@ We use different rules for columns with additional requirements:
 * We set the consistency threshold to 0% for a few columns so that we always get a
   value. These include plant name, utility name, and prime mover code.
 
+#### CAUTION
+Because we always choose the most consistent prime mover code, even when less than
+50% of occurrences have that value, we occasionally see a tie between two equally
+consistent values. In these cases, the resolved value may not be deterministic.
+Because prime mover code is part of the primary key in some tables it is possible for
+some records to appear or disappear based on which value was chosen. However, this
+scenario is extremely rare (on the order of 1 in 100,000 records).
+
 ## Interpreting Discrepancies
 
 If you compare a PUDL entity table, SCD table, or any table downstream of them to a raw
@@ -77746,6 +77906,12 @@ The entity resolution process is heuristic and can definitely be improved.
   or email us at [hello@catalyst.coop](mailto:hello.catalyst.coop)!
 * If you see any static entity attributes that should actually be allowed to vary from
   year to year, it’s easy for us to move them from the entity table to the SCD table.
+
+#### CAUTION
+We have **NOT** yet applied this process to the [EIA-861](data_sources/eia861.html.md)
+tables, so they still reflect the original, internally inconsistent reporting, and any
+utilities which only appear in the EIA-861 data do not yet show up in the utility
+entity tables.
 
 ## Related Tables And Source Documentation
 
@@ -78405,6 +78571,19 @@ This is the upcoming PUDL release.
   available for all reporting states rather than just California. The output is
   experimental and marked accordingly, since we are soliciting feedback from the
   community on the underlying methodology. See issue [#5106](https://github.com/catalyst-cooperative/pudl/issues/5106) and PR [#5190](https://github.com/catalyst-cooperative/pudl/pull/5190).
+
+### Expanded Data Coverage
+
+#### EIA-861
+
+* Added early release data from 2025 for [EIA-861](data_sources/eia861.html.md).
+  See issue [#5492](https://github.com/catalyst-cooperative/pudl/issues/5492) and PR [#5493](https://github.com/catalyst-cooperative/pudl/pull/5493).
+
+#### PHMSA
+
+* Added the `core_phmsagas__yearly_distribution_by_install_decade` table, which
+  reports [PHMSA](data_sources/phmsagas.html.md) gas distribution mains miles and
+  services by installation decade. See issue [#5266](https://github.com/catalyst-cooperative/pudl/issues/5266) and PR [#5443](https://github.com/catalyst-cooperative/pudl/pull/5443).
 
 <a id="release-v2026-8-0"></a>
 
@@ -79215,7 +79394,7 @@ resilient docs checks, and new secret-scanning hooks. See below for all the deta
   descriptions and allowed values for
   [core_ferceqr_\_contracts](data_dictionaries/pudl_db.html.md#core-ferceqr-contracts) and [core_ferceqr_\_transactions](data_dictionaries/pudl_db.html.md#core-ferceqr-transactions) so their
   constraints match their distinct ENUM constraints as documented in
-  [`v3.5 of the FERC EQR data dictionary`](data_sources/ferceqr/ferceqr_data_dictionary_v35_2020-11-23.pdf).
+  [`v3.5 of the FERC EQR data dictionary`](_downloads/9aeea8d4e53377dae719d40559c31490/ferceqr_data_dictionary_v35_2020-11-23.pdf).
   See [#5085](https://github.com/catalyst-cooperative/pudl/pull/5085).
 * Fixed EIA-757A extraction so raw columns are renamed correctly into PUDL’s
   standard naming conventions. See [#4722](https://github.com/catalyst-cooperative/pudl/issues/4722) and [#5107](https://github.com/catalyst-cooperative/pudl/pull/5107).

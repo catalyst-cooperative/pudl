@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.metadata.resources.allocate_gen_fuel &#8212; PUDL 2026.8.1.dev16 documentation</title>
+    <title>pudl.metadata.resources.allocate_gen_fuel &#8212; PUDL 2026.8.1.dev20 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../../_static/documentation_options.js?v=f981bf86"></script>
+    <script src="../../../../_static/documentation_options.js?v=8f1a003a"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev20 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev20 documentation - Home"/>
   
   
 </a></div>
@@ -871,7 +871,7 @@ window.runMermaid = runMermaid;</script>
                 <article class="bd-article">
                   
   <h1>Source code for pudl.metadata.resources.allocate_gen_fuel</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Resource metadata for the allocate_gen_fuel tables.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Resource metadata for the allocate_gen_fuel tables."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
 
@@ -879,19 +879,19 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="AGG_FREQS">
 <a class="viewcode-back" href="../../../../autoapi/pudl/metadata/resources/allocate_gen_fuel/index.html#pudl.metadata.resources.allocate_gen_fuel.AGG_FREQS">[docs]</a>
-<span class="n">AGG_FREQS</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;yearly&quot;</span><span class="p">,</span> <span class="s2">&quot;monthly&quot;</span><span class="p">]</span></div>
+<span class="n">AGG_FREQS</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"yearly"</span><span class="p">,</span> <span class="s2">"monthly"</span><span class="p">]</span></div>
 
 
 <div class="viewcode-block" id="USAGE_WARNING_DRAWBACK">
 <a class="viewcode-back" href="../../../../autoapi/pudl/metadata/resources/allocate_gen_fuel/index.html#pudl.metadata.resources.allocate_gen_fuel.USAGE_WARNING_DRAWBACK">[docs]</a>
 <span class="n">USAGE_WARNING_DRAWBACK</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;custom&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;This downscaling process used to create this table does not distinguish between primary and secondary energy_sources for generators (see below for implications).&quot;</span><span class="p">,</span>
+    <span class="s2">"type"</span><span class="p">:</span> <span class="s2">"custom"</span><span class="p">,</span>
+    <span class="s2">"description"</span><span class="p">:</span> <span class="s2">"This downscaling process used to create this table does not distinguish between primary and secondary energy_sources for generators (see below for implications)."</span><span class="p">,</span>
 <span class="p">}</span></div>
 
 <div class="viewcode-block" id="UPSTREAM_ALLOCATION_CONTEXT">
 <a class="viewcode-back" href="../../../../autoapi/pudl/metadata/resources/allocate_gen_fuel/index.html#pudl.metadata.resources.allocate_gen_fuel.UPSTREAM_ALLOCATION_CONTEXT">[docs]</a>
-<span class="n">UPSTREAM_ALLOCATION_CONTEXT</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;The net generation and fuel consumption allocation</span>
+<span class="n">UPSTREAM_ALLOCATION_CONTEXT</span> <span class="o">=</span> <span class="s2">"""The net generation and fuel consumption allocation</span>
 <span class="s2">method PUDL employs begins with the following context of the originally reported</span>
 <span class="s2">EIA-860 and EIA-923 data:</span>
 
@@ -911,17 +911,17 @@ window.runMermaid = runMermaid;</script>
 <span class="s2">  generators whose generation is being reported in the</span>
 <span class="s2">  :ref:`core_eia923__monthly_generation_fuel` table.</span>
 
-<span class="s2">&quot;&quot;&quot;</span></div>
+<span class="s2">"""</span></div>
 
 <div class="viewcode-block" id="KNOWN_DRAWBACKS_DESCRIPTION">
 <a class="viewcode-back" href="../../../../autoapi/pudl/metadata/resources/allocate_gen_fuel/index.html#pudl.metadata.resources.allocate_gen_fuel.KNOWN_DRAWBACKS_DESCRIPTION">[docs]</a>
 <span class="n">KNOWN_DRAWBACKS_DESCRIPTION</span> <span class="o">=</span> <span class="p">(</span>
-    <span class="s2">&quot;This process does not distinguish between primary and secondary energy_sources for generators. &quot;</span>
-    <span class="s2">&quot;Net generation is allocated equally between energy source codes, so if a &quot;</span>
-    <span class="s2">&quot;plant has multiple generators with the same prime_mover_code but different &quot;</span>
-    <span class="s2">&quot;energy source codes the core_eia923__monthly_generation_fuel records will be associated &quot;</span>
-    <span class="s2">&quot;similarly between these two generators. Allocated net generation will still &quot;</span>
-    <span class="s2">&quot;be proportional to each generator&#39;s net generation or capacity.&quot;</span>
+    <span class="s2">"This process does not distinguish between primary and secondary energy_sources for generators. "</span>
+    <span class="s2">"Net generation is allocated equally between energy source codes, so if a "</span>
+    <span class="s2">"plant has multiple generators with the same prime_mover_code but different "</span>
+    <span class="s2">"energy source codes the core_eia923__monthly_generation_fuel records will be associated "</span>
+    <span class="s2">"similarly between these two generators. Allocated net generation will still "</span>
+    <span class="s2">"be proportional to each generator's net generation or capacity."</span>
 <span class="p">)</span></div>
 
 
@@ -929,169 +929,169 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../../../autoapi/pudl/metadata/resources/allocate_gen_fuel/index.html#pudl.metadata.resources.allocate_gen_fuel.RESOURCE_METADATA">[docs]</a>
 <span class="n">RESOURCE_METADATA</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">(</span>
     <span class="p">{</span>
-        <span class="sa">f</span><span class="s2">&quot;out_eia923__</span><span class="si">{</span><span class="n">freq</span><span class="si">}</span><span class="s2">_generation_fuel_by_generator_energy_source&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;of estimated net generation and fuel consumption associated with each combination of generator, energy source, and prime mover.&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;layer_code&quot;</span><span class="p">:</span> <span class="s2">&quot;out_narrow&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Schedule 3)&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span>
-                    <span class="s2">&quot;estimated_values&quot;</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s2">"out_eia923__</span><span class="si">{</span><span class="n">freq</span><span class="si">}</span><span class="s2">_generation_fuel_by_generator_energy_source"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="s2">"of estimated net generation and fuel consumption associated with each combination of generator, energy source, and prime mover."</span><span class="p">,</span>
+                <span class="s2">"layer_code"</span><span class="p">:</span> <span class="s2">"out_narrow"</span><span class="p">,</span>
+                <span class="s2">"additional_source_text"</span><span class="p">:</span> <span class="s2">"(Schedule 3)"</span><span class="p">,</span>
+                <span class="s2">"usage_warnings"</span><span class="p">:</span> <span class="p">[</span>
+                    <span class="s2">"estimated_values"</span><span class="p">,</span>
                     <span class="n">USAGE_WARNING_DRAWBACK</span><span class="p">,</span>
-                    <span class="s2">&quot;month_as_date&quot;</span><span class="p">,</span>
+                    <span class="s2">"month_as_date"</span><span class="p">,</span>
                     <span class="p">{</span>
-                        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;custom&quot;</span><span class="p">,</span>
-                        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;A small number of respondents only report annual fuel consumption, and all of it is reported in December.&quot;</span><span class="p">,</span>
+                        <span class="s2">"type"</span><span class="p">:</span> <span class="s2">"custom"</span><span class="p">,</span>
+                        <span class="s2">"description"</span><span class="p">:</span> <span class="s2">"A small number of respondents only report annual fuel consumption, and all of it is reported in December."</span><span class="p">,</span>
                     <span class="p">},</span>
                 <span class="p">],</span>
-                <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">UPSTREAM_ALLOCATION_CONTEXT</span><span class="si">}</span><span class="se">\n\n</span><span class="s2">&quot;</span>
-                    <span class="s2">&quot;In this table, PUDL has allocated the net electricity generation &quot;</span>
-                    <span class="s2">&quot;and fuel consumption from &quot;</span>
-                    <span class="s2">&quot;:ref:`core_eia923__monthly_generation_fuel` to the ``generator_id``/&quot;</span>
-                    <span class="s2">&quot;``energy_source_code``/``prime_mover_code`` level.</span><span class="se">\n\n</span><span class="s2">&quot;</span>
-                    <span class="s2">&quot;The allocation process entails generating a fraction for each &quot;</span>
-                    <span class="s2">&quot;record based on the net generation in the &quot;</span>
-                    <span class="s2">&quot;:ref:`core_eia923__monthly_generation` table and the capacity &quot;</span>
-                    <span class="s2">&quot;from the :ref:`core_eia860__scd_generators` table. &quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">KNOWN_DRAWBACKS_DESCRIPTION</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="s2">"additional_details_text"</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">UPSTREAM_ALLOCATION_CONTEXT</span><span class="si">}</span><span class="se">\n\n</span><span class="s2">"</span>
+                    <span class="s2">"In this table, PUDL has allocated the net electricity generation "</span>
+                    <span class="s2">"and fuel consumption from "</span>
+                    <span class="s2">":ref:`core_eia923__monthly_generation_fuel` to the ``generator_id``/"</span>
+                    <span class="s2">"``energy_source_code``/``prime_mover_code`` level.</span><span class="se">\n\n</span><span class="s2">"</span>
+                    <span class="s2">"The allocation process entails generating a fraction for each "</span>
+                    <span class="s2">"record based on the net generation in the "</span>
+                    <span class="s2">":ref:`core_eia923__monthly_generation` table and the capacity "</span>
+                    <span class="s2">"from the :ref:`core_eia860__scd_generators` table. "</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">KNOWN_DRAWBACKS_DESCRIPTION</span><span class="si">}</span><span class="s2">"</span>
                 <span class="p">),</span>
             <span class="p">},</span>
-            <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                    <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;generator_id&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;prime_mover_code&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;energy_source_code&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;energy_source_code_num&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;net_generation_mwh&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;fuel_consumed_mmbtu&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;fuel_consumed_for_electricity_mmbtu&quot;</span><span class="p">,</span>
+            <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                    <span class="s2">"report_date"</span><span class="p">,</span>
+                    <span class="s2">"plant_id_eia"</span><span class="p">,</span>
+                    <span class="s2">"generator_id"</span><span class="p">,</span>
+                    <span class="s2">"prime_mover_code"</span><span class="p">,</span>
+                    <span class="s2">"energy_source_code"</span><span class="p">,</span>
+                    <span class="s2">"energy_source_code_num"</span><span class="p">,</span>
+                    <span class="s2">"net_generation_mwh"</span><span class="p">,</span>
+                    <span class="s2">"fuel_consumed_mmbtu"</span><span class="p">,</span>
+                    <span class="s2">"fuel_consumed_for_electricity_mmbtu"</span><span class="p">,</span>
                 <span class="p">],</span>
-                <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span>
-                    <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;generator_id&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;prime_mover_code&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;energy_source_code&quot;</span><span class="p">,</span>
+                <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span>
+                    <span class="s2">"report_date"</span><span class="p">,</span>
+                    <span class="s2">"plant_id_eia"</span><span class="p">,</span>
+                    <span class="s2">"generator_id"</span><span class="p">,</span>
+                    <span class="s2">"prime_mover_code"</span><span class="p">,</span>
+                    <span class="s2">"energy_source_code"</span><span class="p">,</span>
                 <span class="p">],</span>
             <span class="p">},</span>
-            <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;eia&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;eia923&quot;</span><span class="p">,</span> <span class="s2">&quot;eia860&quot;</span><span class="p">],</span>
-            <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;outputs&quot;</span><span class="p">,</span>
+            <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"eia"</span><span class="p">,</span>
+            <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"eia923"</span><span class="p">,</span> <span class="s2">"eia860"</span><span class="p">],</span>
+            <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"outputs"</span><span class="p">,</span>
         <span class="p">}</span>
         <span class="k">for</span> <span class="n">freq</span> <span class="ow">in</span> <span class="n">AGG_FREQS</span>
     <span class="p">}</span>
     <span class="o">|</span> <span class="p">{</span>
-        <span class="sa">f</span><span class="s2">&quot;out_eia923__</span><span class="si">{</span><span class="n">freq</span><span class="si">}</span><span class="s2">_generation_fuel_by_generator&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="s2">&quot;of estimated net generation and fuel consumption by generator.&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Schedule 3)&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span>
-                    <span class="s2">&quot;estimated_values&quot;</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s2">"out_eia923__</span><span class="si">{</span><span class="n">freq</span><span class="si">}</span><span class="s2">_generation_fuel_by_generator"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="s2">"of estimated net generation and fuel consumption by generator."</span><span class="p">,</span>
+                <span class="s2">"additional_source_text"</span><span class="p">:</span> <span class="s2">"(Schedule 3)"</span><span class="p">,</span>
+                <span class="s2">"usage_warnings"</span><span class="p">:</span> <span class="p">[</span>
+                    <span class="s2">"estimated_values"</span><span class="p">,</span>
                     <span class="n">USAGE_WARNING_DRAWBACK</span><span class="p">,</span>
-                    <span class="s2">&quot;month_as_date&quot;</span><span class="p">,</span>
+                    <span class="s2">"month_as_date"</span><span class="p">,</span>
                     <span class="p">{</span>
-                        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;custom&quot;</span><span class="p">,</span>
-                        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;A small number of respondents only report annual fuel consumption, and all of it is reported in December.&quot;</span><span class="p">,</span>
+                        <span class="s2">"type"</span><span class="p">:</span> <span class="s2">"custom"</span><span class="p">,</span>
+                        <span class="s2">"description"</span><span class="p">:</span> <span class="s2">"A small number of respondents only report annual fuel consumption, and all of it is reported in December."</span><span class="p">,</span>
                     <span class="p">},</span>
-                    <span class="s2">&quot;harvested&quot;</span><span class="p">,</span>
+                    <span class="s2">"harvested"</span><span class="p">,</span>
                 <span class="p">],</span>
-                <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                    <span class="s2">&quot;Based on allocating net electricity generation and fuel consumption reported &quot;</span>
-                    <span class="s2">&quot;in the EIA-923 generation and generation_fuel tables to individual generators.</span><span class="se">\n\n</span><span class="s2">&quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">UPSTREAM_ALLOCATION_CONTEXT</span><span class="si">}</span><span class="se">\n\n</span><span class="s2">&quot;</span>
-                    <span class="s2">&quot;In this table, PUDL aggregates the net generation and fuel consumption &quot;</span>
-                    <span class="s2">&quot;that has been allocated to the ``generator_id``/&quot;</span>
-                    <span class="s2">&quot;``energy_source_code``/``prime_mover_code`` level in the&quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;:ref:`out_eia923__</span><span class="si">{</span><span class="n">freq</span><span class="si">}</span><span class="s2">_generation_fuel_by_generator_energy_source` &quot;</span>
-                    <span class="s2">&quot;to the generator level.&quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">KNOWN_DRAWBACKS_DESCRIPTION</span><span class="si">}</span><span class="s2">&quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="si">{</span><span class="n">inherits_harvested_values_details</span><span class="p">(</span><span class="s1">&#39;generators, plants, and utilities&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="s2">"additional_details_text"</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="s2">"Based on allocating net electricity generation and fuel consumption reported "</span>
+                    <span class="s2">"in the EIA-923 generation and generation_fuel tables to individual generators.</span><span class="se">\n\n</span><span class="s2">"</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">UPSTREAM_ALLOCATION_CONTEXT</span><span class="si">}</span><span class="se">\n\n</span><span class="s2">"</span>
+                    <span class="s2">"In this table, PUDL aggregates the net generation and fuel consumption "</span>
+                    <span class="s2">"that has been allocated to the ``generator_id``/"</span>
+                    <span class="s2">"``energy_source_code``/``prime_mover_code`` level in the"</span>
+                    <span class="sa">f</span><span class="s2">":ref:`out_eia923__</span><span class="si">{</span><span class="n">freq</span><span class="si">}</span><span class="s2">_generation_fuel_by_generator_energy_source` "</span>
+                    <span class="s2">"to the generator level."</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">KNOWN_DRAWBACKS_DESCRIPTION</span><span class="si">}</span><span class="s2">"</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="se">\n\n</span><span class="si">{</span><span class="n">inherits_harvested_values_details</span><span class="p">(</span><span class="s1">'generators, plants, and utilities'</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
                 <span class="p">),</span>
             <span class="p">},</span>
-            <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                    <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;plant_id_pudl&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;plant_name_eia&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;utility_id_pudl&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;utility_name_eia&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;generator_id&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;unit_id_pudl&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;fuel_consumed_for_electricity_mmbtu&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;fuel_consumed_mmbtu&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;net_generation_mwh&quot;</span><span class="p">,</span>
+            <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                    <span class="s2">"report_date"</span><span class="p">,</span>
+                    <span class="s2">"plant_id_eia"</span><span class="p">,</span>
+                    <span class="s2">"plant_id_pudl"</span><span class="p">,</span>
+                    <span class="s2">"plant_name_eia"</span><span class="p">,</span>
+                    <span class="s2">"utility_id_eia"</span><span class="p">,</span>
+                    <span class="s2">"utility_id_pudl"</span><span class="p">,</span>
+                    <span class="s2">"utility_name_eia"</span><span class="p">,</span>
+                    <span class="s2">"generator_id"</span><span class="p">,</span>
+                    <span class="s2">"unit_id_pudl"</span><span class="p">,</span>
+                    <span class="s2">"fuel_consumed_for_electricity_mmbtu"</span><span class="p">,</span>
+                    <span class="s2">"fuel_consumed_mmbtu"</span><span class="p">,</span>
+                    <span class="s2">"net_generation_mwh"</span><span class="p">,</span>
                 <span class="p">],</span>
-                <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span>
-                    <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;generator_id&quot;</span><span class="p">,</span>
+                <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span>
+                    <span class="s2">"report_date"</span><span class="p">,</span>
+                    <span class="s2">"plant_id_eia"</span><span class="p">,</span>
+                    <span class="s2">"generator_id"</span><span class="p">,</span>
                 <span class="p">],</span>
             <span class="p">},</span>
-            <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;eia&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;eia923&quot;</span><span class="p">,</span> <span class="s2">&quot;eia860&quot;</span><span class="p">],</span>
-            <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;outputs&quot;</span><span class="p">,</span>
+            <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"eia"</span><span class="p">,</span>
+            <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"eia923"</span><span class="p">,</span> <span class="s2">"eia860"</span><span class="p">],</span>
+            <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"outputs"</span><span class="p">,</span>
         <span class="p">}</span>
         <span class="k">for</span> <span class="n">freq</span> <span class="ow">in</span> <span class="n">AGG_FREQS</span>
     <span class="p">}</span>
     <span class="o">|</span> <span class="p">{</span>
-        <span class="s2">&quot;out_eia923__yearly_generation_fuel_by_generator_energy_source_owner&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s2">&quot;additional_summary_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                    <span class="s2">&quot;of estimated net generation and fuel consumption for each generator, &quot;</span>
-                    <span class="s2">&quot;associated with each combination of generator, energy source, prime mover, and owner.&quot;</span>
+        <span class="s2">"out_eia923__yearly_generation_fuel_by_generator_energy_source_owner"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"description"</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">"additional_summary_text"</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="s2">"of estimated net generation and fuel consumption for each generator, "</span>
+                    <span class="s2">"associated with each combination of generator, energy source, prime mover, and owner."</span>
                 <span class="p">),</span>
-                <span class="s2">&quot;layer_code&quot;</span><span class="p">:</span> <span class="s2">&quot;out_narrow&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;additional_source_text&quot;</span><span class="p">:</span> <span class="s2">&quot;(Schedule 3)&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;usage_warnings&quot;</span><span class="p">:</span> <span class="p">[</span>
-                    <span class="s2">&quot;estimated_values&quot;</span><span class="p">,</span>
+                <span class="s2">"layer_code"</span><span class="p">:</span> <span class="s2">"out_narrow"</span><span class="p">,</span>
+                <span class="s2">"additional_source_text"</span><span class="p">:</span> <span class="s2">"(Schedule 3)"</span><span class="p">,</span>
+                <span class="s2">"usage_warnings"</span><span class="p">:</span> <span class="p">[</span>
+                    <span class="s2">"estimated_values"</span><span class="p">,</span>
                     <span class="n">USAGE_WARNING_DRAWBACK</span><span class="p">,</span>
-                    <span class="s2">&quot;month_as_date&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;harvested&quot;</span><span class="p">,</span>
+                    <span class="s2">"month_as_date"</span><span class="p">,</span>
+                    <span class="s2">"harvested"</span><span class="p">,</span>
                 <span class="p">],</span>
-                <span class="s2">&quot;additional_details_text&quot;</span><span class="p">:</span> <span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">UPSTREAM_ALLOCATION_CONTEXT</span><span class="si">}</span><span class="se">\n\n</span><span class="s2">&quot;</span>
-                    <span class="s2">&quot;In this table, PUDL has scaled the net electricity generation &quot;</span>
-                    <span class="s2">&quot;and fuel consumption from &quot;</span>
-                    <span class="s2">&quot;:ref:`core_eia923__monthly_generation_fuel` by ownership &quot;</span>
-                    <span class="s2">&quot;from :ref:`out_eia860__yearly_ownership`. Note that the &quot;</span>
-                    <span class="s2">&quot;utility_id_eia in this table refers to the OWNER of the generator, not the &quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;operator.</span><span class="se">\n\n</span><span class="si">{</span><span class="n">KNOWN_DRAWBACKS_DESCRIPTION</span><span class="si">}</span><span class="s2">&quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="si">{</span><span class="n">inherits_harvested_values_details</span><span class="p">(</span><span class="s1">&#39;generators and plants&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="s2">"additional_details_text"</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">UPSTREAM_ALLOCATION_CONTEXT</span><span class="si">}</span><span class="se">\n\n</span><span class="s2">"</span>
+                    <span class="s2">"In this table, PUDL has scaled the net electricity generation "</span>
+                    <span class="s2">"and fuel consumption from "</span>
+                    <span class="s2">":ref:`core_eia923__monthly_generation_fuel` by ownership "</span>
+                    <span class="s2">"from :ref:`out_eia860__yearly_ownership`. Note that the "</span>
+                    <span class="s2">"utility_id_eia in this table refers to the OWNER of the generator, not the "</span>
+                    <span class="sa">f</span><span class="s2">"operator.</span><span class="se">\n\n</span><span class="si">{</span><span class="n">KNOWN_DRAWBACKS_DESCRIPTION</span><span class="si">}</span><span class="s2">"</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="se">\n\n</span><span class="si">{</span><span class="n">inherits_harvested_values_details</span><span class="p">(</span><span class="s1">'generators and plants'</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
                 <span class="p">),</span>
             <span class="p">},</span>
-            <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span>
-                    <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;generator_id&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;prime_mover_code&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;energy_source_code&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;ownership_record_type&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;fraction_owned&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;capacity_mw&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;energy_source_code_num&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;net_generation_mwh&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;fuel_consumed_mmbtu&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;fuel_consumed_for_electricity_mmbtu&quot;</span><span class="p">,</span>
+            <span class="s2">"schema"</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">"fields"</span><span class="p">:</span> <span class="p">[</span>
+                    <span class="s2">"report_date"</span><span class="p">,</span>
+                    <span class="s2">"plant_id_eia"</span><span class="p">,</span>
+                    <span class="s2">"generator_id"</span><span class="p">,</span>
+                    <span class="s2">"prime_mover_code"</span><span class="p">,</span>
+                    <span class="s2">"energy_source_code"</span><span class="p">,</span>
+                    <span class="s2">"utility_id_eia"</span><span class="p">,</span>
+                    <span class="s2">"ownership_record_type"</span><span class="p">,</span>
+                    <span class="s2">"fraction_owned"</span><span class="p">,</span>
+                    <span class="s2">"capacity_mw"</span><span class="p">,</span>
+                    <span class="s2">"energy_source_code_num"</span><span class="p">,</span>
+                    <span class="s2">"net_generation_mwh"</span><span class="p">,</span>
+                    <span class="s2">"fuel_consumed_mmbtu"</span><span class="p">,</span>
+                    <span class="s2">"fuel_consumed_for_electricity_mmbtu"</span><span class="p">,</span>
                 <span class="p">],</span>
-                <span class="s2">&quot;primary_key&quot;</span><span class="p">:</span> <span class="p">[</span>
-                    <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;generator_id&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;prime_mover_code&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;energy_source_code&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;ownership_record_type&quot;</span><span class="p">,</span>
+                <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span>
+                    <span class="s2">"report_date"</span><span class="p">,</span>
+                    <span class="s2">"plant_id_eia"</span><span class="p">,</span>
+                    <span class="s2">"generator_id"</span><span class="p">,</span>
+                    <span class="s2">"prime_mover_code"</span><span class="p">,</span>
+                    <span class="s2">"energy_source_code"</span><span class="p">,</span>
+                    <span class="s2">"utility_id_eia"</span><span class="p">,</span>
+                    <span class="s2">"ownership_record_type"</span><span class="p">,</span>
                 <span class="p">],</span>
             <span class="p">},</span>
-            <span class="s2">&quot;field_namespace&quot;</span><span class="p">:</span> <span class="s2">&quot;eia&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;sources&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;eia923&quot;</span><span class="p">,</span> <span class="s2">&quot;eia860&quot;</span><span class="p">],</span>
-            <span class="s2">&quot;etl_group&quot;</span><span class="p">:</span> <span class="s2">&quot;outputs&quot;</span><span class="p">,</span>
+            <span class="s2">"field_namespace"</span><span class="p">:</span> <span class="s2">"eia"</span><span class="p">,</span>
+            <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"eia923"</span><span class="p">,</span> <span class="s2">"eia860"</span><span class="p">],</span>
+            <span class="s2">"etl_group"</span><span class="p">:</span> <span class="s2">"outputs"</span><span class="p">,</span>
         <span class="p">},</span>
     <span class="p">}</span>
 <span class="p">)</span></div>

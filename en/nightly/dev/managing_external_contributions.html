@@ -18,7 +18,7 @@
     </script>
     
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="managing_external_contributions.html.md" />
-    <title>Managing External Contributions &#8212; PUDL 2026.8.1.dev16 documentation</title>
+    <title>Managing External Contributions &#8212; PUDL 2026.8.1.dev20 documentation</title>
   
   
   
@@ -51,7 +51,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../_static/documentation_options.js?v=f981bf86"></script>
+    <script src="../_static/documentation_options.js?v=8f1a003a"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -142,8 +142,8 @@
       
     
     
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev20 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev20 documentation - Home"/>
   
   
 </a></div>
@@ -1087,14 +1087,14 @@ run the ETL, after repeated office hours or attempts to assist.</p></li>
 <p>To successfully check out a contributor’s PR from a fork, run the following:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Add the user as a remote (replace user-name with the actual username)</span>
 git<span class="w"> </span>remote<span class="w"> </span>add<span class="w"> </span>user-name<span class="w"> </span>https://github.com/user-name/pudl.git
-<span class="c1"># Fetch the latest version of that user&#39;s forked repository</span>
+<span class="c1"># Fetch the latest version of that user's forked repository</span>
 git<span class="w"> </span>fetch<span class="w"> </span>user-name
 <span class="c1"># List all your remotes to verify that it worked</span>
 git<span class="w"> </span>remote<span class="w"> </span>-v
 <span class="c1"># Checkout their branch to a local branch.</span>
-<span class="c1"># It&#39;s simplest if your local branch name matches the forked branch name.</span>
+<span class="c1"># It's simplest if your local branch name matches the forked branch name.</span>
 git<span class="w"> </span>checkout<span class="w"> </span>-b<span class="w"> </span>branch-name<span class="w"> </span>user-name/branch-name
-<span class="c1"># To check that you&#39;re in the right place and up to date, you can run</span>
+<span class="c1"># To check that you're in the right place and up to date, you can run</span>
 <span class="c1"># git log to verify the most recent commits on the branch.</span>
 git<span class="w"> </span>log
 </pre></div>

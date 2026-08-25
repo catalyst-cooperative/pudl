@@ -30,9 +30,9 @@ area and planning area operations.
 
 ### Download additional documentation
 
-* [`Ferc714 Blank 2022-06-30 (PDF)`](ferc714/ferc714_blank_2022-06-30.pdf)
-* [`Ferc714 Blank 2025-07-31 (HTML)`](ferc714/ferc714_blank_2025-07-31.html)
-* [`Ferc714 Instructions 2021-04-16 (PDF)`](ferc714/ferc714_instructions_2021-04-16.pdf)
+* [`Ferc714 Blank 2022-06-30 (PDF)`](_downloads/d0874df89534b6b73a470bc23b288d27/ferc714_blank_2022-06-30.pdf)
+* [`Ferc714 Blank 2025-07-31 (HTML)`](_downloads/491ac6bc102c6af3850e8feee982a4fe/ferc714_blank_2025-07-31.html)
+* [`Ferc714 Instructions 2021-04-16 (PDF)`](_downloads/f48d006b011903ae36c2e6a5acfb4f81/ferc714_instructions_2021-04-16.pdf)
 
 ### Data available through PUDL
 

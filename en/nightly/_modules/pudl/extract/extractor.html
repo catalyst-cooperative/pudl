@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.extract.extractor &#8212; PUDL 2026.8.1.dev16 documentation</title>
+    <title>pudl.extract.extractor &#8212; PUDL 2026.8.1.dev20 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=f981bf86"></script>
+    <script src="../../../_static/documentation_options.js?v=8f1a003a"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev20 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev20 documentation - Home"/>
   
   
 </a></div>
@@ -868,7 +868,7 @@ window.runMermaid = runMermaid;</script>
                 <article class="bd-article">
                   
   <h1>Source code for pudl.extract.extractor</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Generic functionality for extractors.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Generic functionality for extractors."""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">importlib.resources</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
@@ -910,7 +910,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="GenericMetadata">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/extractor/index.html#pudl.extract.extractor.GenericMetadata">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">GenericMetadata</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load generic metadata from Python package data.</span>
+<span class="w">    </span><span class="sd">"""Load generic metadata from Python package data.</span>
 
 <span class="sd">    When metadata object is instantiated, it is given ${dataset} name and it</span>
 <span class="sd">    will attempt to load csv files from pudl.package_data.${dataset} package.</span>
@@ -920,24 +920,24 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    * column_map/${page}.csv currently informs us how to translate input column</span>
 <span class="sd">      names to standardized pudl names for given (partition, input_col_name). Relevant</span>
 <span class="sd">      page is encoded in the filename.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create Metadata object and load metadata from python package.</span>
+<span class="w">        </span><span class="sd">"""Create Metadata object and load metadata from python package.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            dataset_name: Name of the package/dataset to load the metadata from.</span>
 <span class="sd">            Files will be loaded from pudl.package_data.${dataset_name}</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 <div class="viewcode-block" id="GenericMetadata._dataset_name">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/extractor/index.html#pudl.extract.extractor.GenericMetadata._dataset_name">[docs]</a>
         <span class="bp">self</span><span class="o">.</span><span class="n">_dataset_name</span> <span class="o">=</span> <span class="n">dataset_name</span></div>
 
 <div class="viewcode-block" id="GenericMetadata._pkg">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/extractor/index.html#pudl.extract.extractor.GenericMetadata._pkg">[docs]</a>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_pkg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;pudl.package_data.</span><span class="si">{</span><span class="n">dataset_name</span><span class="si">}</span><span class="s2">&quot;</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pkg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"pudl.package_data.</span><span class="si">{</span><span class="n">dataset_name</span><span class="si">}</span><span class="s2">"</span></div>
 
-        <span class="n">column_map_pkg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pkg</span> <span class="o">+</span> <span class="s2">&quot;.column_maps&quot;</span>
+        <span class="n">column_map_pkg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pkg</span> <span class="o">+</span> <span class="s2">".column_maps"</span>
 <div class="viewcode-block" id="GenericMetadata._column_map">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/extractor/index.html#pudl.extract.extractor.GenericMetadata._column_map">[docs]</a>
         <span class="bp">self</span><span class="o">.</span><span class="n">_column_map</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_column_maps</span><span class="p">(</span><span class="n">column_map_pkg</span><span class="p">)</span></div>
@@ -946,16 +946,16 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="GenericMetadata.get_dataset_name">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/extractor/index.html#pudl.extract.extractor.GenericMetadata.get_dataset_name">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_dataset_name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the name of the dataset described by this metadata.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Returns the name of the dataset described by this metadata."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset_name</span></div>
 
 
 <div class="viewcode-block" id="GenericMetadata._load_csv">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/extractor/index.html#pudl.extract.extractor.GenericMetadata._load_csv">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_load_csv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">package</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Load metadata from a filename that is found in a package.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Load metadata from a filename that is found in a package."""</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
-            <span class="n">importlib</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="n">package</span><span class="p">)</span> <span class="o">/</span> <span class="n">filename</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;#&quot;</span>
+            <span class="n">importlib</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="n">package</span><span class="p">)</span> <span class="o">/</span> <span class="n">filename</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">comment</span><span class="o">=</span><span class="s2">"#"</span>
         <span class="p">)</span>
         <span class="c1"># we are assigning the index which contains the partitions as a sting dtype.</span>
         <span class="c1"># many of the partitions are years which are reasonably interpreted as ints,</span>
@@ -968,16 +968,16 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="GenericMetadata._load_column_maps">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/extractor/index.html#pudl.extract.extractor.GenericMetadata._load_column_maps">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_load_column_maps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">column_map_pkg</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a dictionary of all column mapping CSVs to use in get_column_map().&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Create a dictionary of all column mapping CSVs to use in get_column_map()."""</span>
         <span class="n">column_dict</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">res_path</span> <span class="ow">in</span> <span class="n">importlib</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="n">column_map_pkg</span><span class="p">)</span><span class="o">.</span><span class="n">iterdir</span><span class="p">():</span>
             <span class="c1"># res_path is expected to end with ${page}.csv</span>
-            <span class="k">if</span> <span class="n">res_path</span><span class="o">.</span><span class="n">suffix</span> <span class="o">==</span> <span class="s2">&quot;.csv&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">res_path</span><span class="o">.</span><span class="n">suffix</span> <span class="o">==</span> <span class="s2">".csv"</span><span class="p">:</span>
                 <span class="k">try</span><span class="p">:</span>
                     <span class="n">column_map</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_csv</span><span class="p">(</span><span class="n">column_map_pkg</span><span class="p">,</span> <span class="n">res_path</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
                 <span class="k">except</span> <span class="n">pd</span><span class="o">.</span><span class="n">errors</span><span class="o">.</span><span class="n">ParserError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;Expected well-formed column map file at </span><span class="si">{</span><span class="n">column_map_pkg</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">res_path</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="sa">f</span><span class="s2">"Expected well-formed column map file at </span><span class="si">{</span><span class="n">column_map_pkg</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">res_path</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">"</span>
                     <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
                 <span class="n">column_dict</span><span class="p">[</span><span class="n">res_path</span><span class="o">.</span><span class="n">stem</span><span class="p">]</span> <span class="o">=</span> <span class="n">column_map</span>
         <span class="k">return</span> <span class="n">column_dict</span></div>
@@ -986,18 +986,18 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="GenericMetadata._get_partition_selection">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/extractor/index.html#pudl.extract.extractor.GenericMetadata._get_partition_selection">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_partition_selection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">partition</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">PartitionSelection</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Grab the partition key.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Grab the partition key."""</span>
         <span class="n">partition_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">partition</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">partition_names</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Expecting exactly one attribute to define this partition (found: </span><span class="si">{</span><span class="n">partition</span><span class="si">}</span><span class="s2">)&quot;</span>
+                <span class="sa">f</span><span class="s2">"Expecting exactly one attribute to define this partition (found: </span><span class="si">{</span><span class="n">partition</span><span class="si">}</span><span class="s2">)"</span>
             <span class="p">)</span>
 
         <span class="n">partition_name</span> <span class="o">=</span> <span class="n">partition_names</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">partition_selection</span> <span class="o">=</span> <span class="n">partition</span><span class="p">[</span><span class="n">partition_name</span><span class="p">]</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">partition_selection</span><span class="p">,</span> <span class="nb">list</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Expecting exactly one non-container value for this partition attribute (found: </span><span class="si">{</span><span class="n">partition</span><span class="si">}</span><span class="s2">)&quot;</span>
+                <span class="sa">f</span><span class="s2">"Expecting exactly one non-container value for this partition attribute (found: </span><span class="si">{</span><span class="n">partition</span><span class="si">}</span><span class="s2">)"</span>
             <span class="p">)</span>
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">partition_selection</span><span class="p">)</span></div>
 
@@ -1005,26 +1005,26 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="GenericMetadata.get_all_pages">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/extractor/index.html#pudl.extract.extractor.GenericMetadata.get_all_pages">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_all_pages</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns list of all known pages.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Returns list of all known pages."""</span>
         <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_column_map</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span></div>
 
 
 <div class="viewcode-block" id="GenericMetadata.get_all_columns">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/extractor/index.html#pudl.extract.extractor.GenericMetadata.get_all_columns">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_all_columns</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">page</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns list of all pudl columns for a given page across all partitions.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Returns list of all pudl columns for a given page across all partitions."""</span>
         <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_column_map</span><span class="p">[</span><span class="n">page</span><span class="p">]</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="GenericMetadata.get_column_map">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/extractor/index.html#pudl.extract.extractor.GenericMetadata.get_column_map">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_column_map</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">page</span><span class="p">,</span> <span class="o">**</span><span class="n">partition</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return dictionary of original columns to renamed columns for renaming in a given partition and page.</span>
+<span class="w">        </span><span class="sd">"""Return dictionary of original columns to renamed columns for renaming in a given partition and page.</span>
 
-<span class="sd">        Columns that don&#39;t exist in this partition/page will show up as pd.nan, so we need to filter those out.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        Columns that don't exist in this partition/page will show up as pd.nan, so we need to filter those out.</span>
+<span class="sd">        """</span>
         <span class="c1"># we drop all of the nulls which are either straight nulls (removed via dropna)</span>
-        <span class="c1"># OR they are -1&#39;s (which are often int&#39;s but sometimes show up as strings)</span>
+        <span class="c1"># OR they are -1's (which are often int's but sometimes show up as strings)</span>
         <span class="k">return</span> <span class="p">{</span>
             <span class="n">v</span><span class="p">:</span> <span class="n">k</span>
             <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_column_map</span><span class="p">[</span><span class="n">page</span><span class="p">]</span>
@@ -1032,7 +1032,7 @@ window.runMermaid = runMermaid;</script>
             <span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
             <span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
             <span class="o">.</span><span class="n">items</span><span class="p">()</span>
-            <span class="k">if</span> <span class="n">v</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;-1&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">v</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"-1"</span><span class="p">]</span>
         <span class="p">}</span></div>
 </div>
 
@@ -1041,28 +1041,28 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="GenericExtractor">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/extractor/index.html#pudl.extract.extractor.GenericExtractor">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">GenericExtractor</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generic extractor base class.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Generic extractor base class."""</span>
 
 <div class="viewcode-block" id="GenericExtractor.METADATA">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/extractor/index.html#pudl.extract.extractor.GenericExtractor.METADATA">[docs]</a>
     <span class="n">METADATA</span><span class="p">:</span> <span class="n">GenericMetadata</span> <span class="o">=</span> <span class="kc">None</span></div>
 
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Instance of metadata object to use with this extractor.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Instance of metadata object to use with this extractor."""</span>
 
 <div class="viewcode-block" id="GenericExtractor.BLACKLISTED_PAGES">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/extractor/index.html#pudl.extract.extractor.GenericExtractor.BLACKLISTED_PAGES">[docs]</a>
     <span class="n">BLACKLISTED_PAGES</span> <span class="o">=</span> <span class="p">[]</span></div>
 
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;List of supported pages that should not be extracted.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""List of supported pages that should not be extracted."""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ds</span><span class="p">:</span> <span class="n">Datastore</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create new extractor object and load metadata.</span>
+<span class="w">        </span><span class="sd">"""Create new extractor object and load metadata.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            ds: An initialized datastore, or subclass</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">METADATA</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;self.METADATA must be set.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">"self.METADATA must be set."</span><span class="p">)</span>
 <div class="viewcode-block" id="GenericExtractor._metadata">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/extractor/index.html#pudl.extract.extractor.GenericExtractor._metadata">[docs]</a>
         <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">METADATA</span></div>
@@ -1084,18 +1084,18 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="GenericExtractor.source_filename">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/extractor/index.html#pudl.extract.extractor.GenericExtractor.source_filename">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">source_filename</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">page</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">partition</span><span class="p">:</span> <span class="n">PartitionSelection</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Produce the source file name as it will appear in the archive.</span>
+<span class="w">        </span><span class="sd">"""Produce the source file name as it will appear in the archive.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            page: pudl name for the dataset contents, eg &quot;boiler_generator_assn&quot; or</span>
-<span class="sd">                &quot;coal_stocks&quot;</span>
+<span class="sd">            page: pudl name for the dataset contents, eg "boiler_generator_assn" or</span>
+<span class="sd">                "coal_stocks"</span>
 <span class="sd">            partition: partition to load. Examples:</span>
-<span class="sd">                {&#39;year&#39;: 2009}</span>
-<span class="sd">                {&#39;year_month&#39;: &#39;2020-08&#39;}</span>
+<span class="sd">                {'year': 2009}</span>
+<span class="sd">                {'year_month': '2020-08'}</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            string name of the source file</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="o">...</span></div>
 
 
@@ -1103,18 +1103,18 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="GenericExtractor.load_source">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/extractor/index.html#pudl.extract.extractor.GenericExtractor.load_source">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">load_source</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">page</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">partition</span><span class="p">:</span> <span class="n">PartitionSelection</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Produce the source data for the given page and partition(s).</span>
+<span class="w">        </span><span class="sd">"""Produce the source data for the given page and partition(s).</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            page: pudl name for the dataset contents, eg</span>
-<span class="sd">                &quot;boiler_generator_assn&quot; or &quot;coal_stocks&quot;</span>
+<span class="sd">                "boiler_generator_assn" or "coal_stocks"</span>
 <span class="sd">            partition: partition to load. Examples:</span>
-<span class="sd">                {&#39;year&#39;: 2009}</span>
-<span class="sd">                {&#39;year_month&#39;: &#39;2020-08&#39;}</span>
+<span class="sd">                {'year': 2009}</span>
+<span class="sd">                {'year_month': '2020-08'}</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            pd.DataFrame instance with the source data</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="o">...</span></div>
 
 
@@ -1123,7 +1123,7 @@ window.runMermaid = runMermaid;</script>
     <span class="k">def</span><span class="w"> </span><span class="nf">process_raw</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">page</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">partition</span><span class="p">:</span> <span class="n">PartitionSelection</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Takes any special steps for processing raw data and renaming columns.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Takes any special steps for processing raw data and renaming columns."""</span>
         <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="o">.</span><span class="n">get_column_map</span><span class="p">(</span><span class="n">page</span><span class="p">,</span> <span class="o">**</span><span class="n">partition</span><span class="p">))</span></div>
 
 
@@ -1132,19 +1132,19 @@ window.runMermaid = runMermaid;</script>
     <span class="k">def</span><span class="w"> </span><span class="nf">process_renamed</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">page</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">partition</span><span class="p">:</span> <span class="n">PartitionSelection</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Takes any special steps for processing data after columns are renamed.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Takes any special steps for processing data after columns are renamed."""</span>
         <span class="k">return</span> <span class="n">df</span></div>
 
 
 <div class="viewcode-block" id="GenericExtractor.get_page_cols">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/extractor/index.html#pudl.extract.extractor.GenericExtractor.get_page_cols">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_page_cols</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">page</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">partition_selection</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">RangeIndex</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the columns for a particular page and partition key.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Get the columns for a particular page and partition key."""</span>
         <span class="n">col_map</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="o">.</span><span class="n">_column_map</span><span class="p">[</span><span class="n">page</span><span class="p">]</span>
         <span class="k">return</span> <span class="p">(</span>
             <span class="n">col_map</span><span class="o">.</span><span class="n">loc</span><span class="p">[[</span><span class="n">partition_selection</span><span class="p">],</span> <span class="p">:]</span>
-            <span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">to_replace</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;-1&quot;</span><span class="p">],</span> <span class="n">value</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
-            <span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">how</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">to_replace</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"-1"</span><span class="p">],</span> <span class="n">value</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">how</span><span class="o">=</span><span class="s2">"all"</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
             <span class="o">.</span><span class="n">columns</span>
         <span class="p">)</span></div>
 
@@ -1152,7 +1152,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="GenericExtractor.validate">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/extractor/index.html#pudl.extract.extractor.GenericExtractor.validate">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">page</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">partition</span><span class="p">:</span> <span class="n">PartitionSelection</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if there are any missing or extra columns.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Check if there are any missing or extra columns."""</span>
         <span class="n">partition_selection</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="o">.</span><span class="n">_get_partition_selection</span><span class="p">(</span><span class="n">partition</span><span class="p">)</span>
         <span class="n">page_cols</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_page_cols</span><span class="p">(</span><span class="n">page</span><span class="p">,</span> <span class="n">partition_selection</span><span class="p">)</span>
         <span class="n">expected_cols</span> <span class="o">=</span> <span class="n">page_cols</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cols_added</span><span class="p">)</span>
@@ -1162,28 +1162,28 @@ window.runMermaid = runMermaid;</script>
             <span class="n">missing_raw_cols</span> <span class="o">=</span> <span class="p">[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">expected_cols</span> <span class="k">if</span> <span class="n">col</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">extra_raw_cols</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">page</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">partition_selection</span><span class="si">}</span><span class="s2">: Columns found in raw extracted table that are unmapped:&quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="si">{</span><span class="n">extra_raw_cols</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">page</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">partition_selection</span><span class="si">}</span><span class="s2">: Columns found in raw extracted table that are unmapped:"</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="se">\n</span><span class="si">{</span><span class="n">extra_raw_cols</span><span class="si">}</span><span class="s2">"</span>
                 <span class="p">)</span>
             <span class="k">if</span> <span class="n">missing_raw_cols</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">page</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">partition_selection</span><span class="si">}</span><span class="s2">: Expected columns not found in extracted table:&quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="si">{</span><span class="n">missing_raw_cols</span><span class="si">}</span><span class="s2">&quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Available columns: </span><span class="se">\n</span><span class="si">{</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">page</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">partition_selection</span><span class="si">}</span><span class="s2">: Expected columns not found in extracted table:"</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="se">\n</span><span class="si">{</span><span class="n">missing_raw_cols</span><span class="si">}</span><span class="s2">"</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="se">\n</span><span class="s2">Available columns: </span><span class="se">\n</span><span class="si">{</span><span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
                 <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="GenericExtractor.process_final_page">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/extractor/index.html#pudl.extract.extractor.GenericExtractor.process_final_page">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">process_final_page</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">page</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Final processing stage applied to a page DataFrame.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Final processing stage applied to a page DataFrame."""</span>
         <span class="k">return</span> <span class="n">df</span></div>
 
 
 <div class="viewcode-block" id="GenericExtractor.combine">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/extractor/index.html#pudl.extract.extractor.GenericExtractor.combine">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">combine</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dfs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">],</span> <span class="n">page</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Concatenate dataframes into one, take any special steps for processing final page.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Concatenate dataframes into one, take any special steps for processing final page."""</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">dfs</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
         <span class="c1"># After all years are loaded, add empty columns that could appear</span>
@@ -1199,7 +1199,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="GenericExtractor.extract">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/extractor/index.html#pudl.extract.extractor.GenericExtractor.extract">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">extract</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">partitions</span><span class="p">:</span> <span class="n">PartitionSelection</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Extracts dataframes.</span>
+<span class="w">        </span><span class="sd">"""Extracts dataframes.</span>
 
 <span class="sd">        Returns dict where keys are page names and values are</span>
 <span class="sd">        DataFrames containing data across given years.</span>
@@ -1207,33 +1207,33 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        Args:</span>
 <span class="sd">            partitions: keyword argument dictionary specifying how the source is partitioned and which</span>
 <span class="sd">                particular partitions to extract. Examples:</span>
-<span class="sd">                {&#39;years&#39;: [2009, 2010]}</span>
-<span class="sd">                {&#39;year_month&#39;: &#39;2020-08&#39;}</span>
-<span class="sd">                {&#39;form&#39;: &#39;gas_distribution&#39;, &#39;year&#39;=&#39;2020&#39;}</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">                {'years': [2009, 2010]}</span>
+<span class="sd">                {'year_month': '2020-08'}</span>
+<span class="sd">                {'form': 'gas_distribution', 'year'='2020'}</span>
+<span class="sd">        """</span>
         <span class="n">all_page_dfs</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">partitions</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;No partitions were given. Not extracting </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataset_name</span><span class="si">}</span><span class="s2"> &quot;</span>
-                <span class="s2">&quot;spreadsheet data.&quot;</span>
+                <span class="sa">f</span><span class="s2">"No partitions were given. Not extracting </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataset_name</span><span class="si">}</span><span class="s2"> "</span>
+                <span class="s2">"spreadsheet data."</span>
             <span class="p">)</span>
             <span class="k">return</span> <span class="n">all_page_dfs</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Extracting </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataset_name</span><span class="si">}</span><span class="s2"> spreadsheet data.&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Extracting </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataset_name</span><span class="si">}</span><span class="s2"> spreadsheet data."</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">page</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="o">.</span><span class="n">get_all_pages</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">page</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">BLACKLISTED_PAGES</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Skipping blacklisted page </span><span class="si">{</span><span class="n">page</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Skipping blacklisted page </span><span class="si">{</span><span class="n">page</span><span class="si">}</span><span class="s2">."</span><span class="p">)</span>
                 <span class="k">continue</span>
             <span class="n">current_page_dfs</span> <span class="o">=</span> <span class="p">[</span>
                 <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(),</span>
             <span class="p">]</span>
             <span class="k">for</span> <span class="n">partition</span> <span class="ow">in</span> <span class="n">pudl</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">iterate_multivalue_dict</span><span class="p">(</span><span class="o">**</span><span class="n">partitions</span><span class="p">):</span>
                 <span class="c1"># we are going to skip</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">source_filename</span><span class="p">(</span><span class="n">page</span><span class="p">,</span> <span class="o">**</span><span class="n">partition</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;-1&quot;</span><span class="p">:</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No page for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataset_name</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">page</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">partition</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">source_filename</span><span class="p">(</span><span class="n">page</span><span class="p">,</span> <span class="o">**</span><span class="n">partition</span><span class="p">)</span> <span class="o">==</span> <span class="s2">"-1"</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">"No page for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataset_name</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">page</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">partition</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
                     <span class="k">continue</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Loading dataframe for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataset_name</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">page</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">partition</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="sa">f</span><span class="s2">"Loading dataframe for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataset_name</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">page</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">partition</span><span class="si">}</span><span class="s2">"</span>
                 <span class="p">)</span>
                 <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_source</span><span class="p">(</span><span class="n">page</span><span class="p">,</span> <span class="o">**</span><span class="n">partition</span><span class="p">)</span>
                 <span class="n">df</span> <span class="o">=</span> <span class="n">pudl</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">simplify_columns</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
@@ -1248,11 +1248,11 @@ window.runMermaid = runMermaid;</script>
 
 
 
-<span class="nd">@op</span><span class="p">(</span><span class="n">tags</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;memory-use&quot;</span><span class="p">:</span> <span class="s2">&quot;high&quot;</span><span class="p">})</span>
+<span class="nd">@op</span><span class="p">(</span><span class="n">tags</span><span class="o">=</span><span class="p">{</span><span class="s2">"memory-use"</span><span class="p">:</span> <span class="s2">"high"</span><span class="p">})</span>
 <div class="viewcode-block" id="concat_pages">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/extractor/index.html#pudl.extract.extractor.concat_pages">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">concat_pages</span><span class="p">(</span><span class="n">paged_dfs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Concatenate similar pages of data from different years into single dataframes.</span>
+<span class="w">    </span><span class="sd">"""Concatenate similar pages of data from different years into single dataframes.</span>
 
 <span class="sd">    Transform a list of dictionaries of dataframes into a single dictionary of</span>
 <span class="sd">    dataframes, where each dataframe is the concatenation of dataframes with identical</span>
@@ -1270,8 +1270,8 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A dictionary of DataFrames keyed by page name, where the DataFrame contains that</span>
-<span class="sd">        page&#39;s data from all extracted years concatenated together.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">        page's data from all extracted years concatenated together.</span>
+<span class="sd">    """</span>
     <span class="c1"># Transform the list of dictionaries of dataframes into a dictionary of lists of</span>
     <span class="c1"># dataframes, in which all dataframes in each list represent different instances of</span>
     <span class="c1"># the same page of data from different years</span>
@@ -1302,12 +1302,12 @@ window.runMermaid = runMermaid;</script>
 
 
 
-<span class="c1"># 2024-03-27: Dagster can&#39;t automatically convert union types within</span>
+<span class="c1"># 2024-03-27: Dagster can't automatically convert union types within</span>
 <span class="c1"># parametrized types; we have to write our own custom DagsterType for now.</span>
 <div class="viewcode-block" id="dagster_dict_str_strint">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/extractor/index.html#pudl.extract.extractor.dagster_dict_str_strint">[docs]</a>
 <span class="n">dagster_dict_str_strint</span> <span class="o">=</span> <span class="n">DagsterType</span><span class="p">(</span>
-    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;dict[str, str | int]&quot;</span><span class="p">,</span> <span class="n">type_check_fn</span><span class="o">=</span><span class="n">_is_dict_str_strint</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">"dict[str, str | int]"</span><span class="p">,</span> <span class="n">type_check_fn</span><span class="o">=</span><span class="n">_is_dict_str_strint</span>
 <span class="p">)</span></div>
 
 
@@ -1317,22 +1317,22 @@ window.runMermaid = runMermaid;</script>
 <span class="k">def</span><span class="w"> </span><span class="nf">partition_extractor_factory</span><span class="p">(</span>
     <span class="n">extractor_cls</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">GenericExtractor</span><span class="p">],</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OpDefinition</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Construct a Dagster op that extracts one partition of data, given an extractor.</span>
+<span class="w">    </span><span class="sd">"""Construct a Dagster op that extracts one partition of data, given an extractor.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        extractor_cls: Class of type :class:`Extractor` used to extract the data.</span>
-<span class="sd">        name: Name of an Excel based dataset (e.g. &quot;eia860&quot;).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">        name: Name of an Excel based dataset (e.g. "eia860").</span>
+<span class="sd">    """</span>
 
     <span class="nd">@op</span><span class="p">(</span>
-        <span class="n">required_resource_keys</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;datastore&quot;</span><span class="p">},</span>
-        <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;extract_single_</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">_partition&quot;</span><span class="p">,</span>
-        <span class="n">ins</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;part_dict&quot;</span><span class="p">:</span> <span class="n">In</span><span class="p">(</span><span class="n">dagster_type</span><span class="o">=</span><span class="n">dagster_dict_str_strint</span><span class="p">)},</span>
+        <span class="n">required_resource_keys</span><span class="o">=</span><span class="p">{</span><span class="s2">"datastore"</span><span class="p">},</span>
+        <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">"extract_single_</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">_partition"</span><span class="p">,</span>
+        <span class="n">ins</span><span class="o">=</span><span class="p">{</span><span class="s2">"part_dict"</span><span class="p">:</span> <span class="n">In</span><span class="p">(</span><span class="n">dagster_type</span><span class="o">=</span><span class="n">dagster_dict_str_strint</span><span class="p">)},</span>
     <span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">extract_single_partition</span><span class="p">(</span>
         <span class="n">context</span><span class="p">,</span> <span class="n">part_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span><span class="p">]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;A function that extracts a year of spreadsheet data from an Excel file.</span>
+<span class="w">        </span><span class="sd">"""A function that extracts a year of spreadsheet data from an Excel file.</span>
 
 <span class="sd">        This function will be decorated with a Dagster op and returned.</span>
 
@@ -1342,7 +1342,7 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A dictionary of DataFrames extracted from Excel/CSV, keyed by page name.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">ds</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">datastore</span>
         <span class="k">return</span> <span class="n">extractor_cls</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span><span class="o">**</span><span class="n">part_dict</span><span class="p">)</span>
 
@@ -1353,20 +1353,20 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="partitions_from_data_config_factory">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/extractor/index.html#pudl.extract.extractor.partitions_from_data_config_factory">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">partitions_from_data_config_factory</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OpDefinition</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Construct a Dagster op to get target partitions from data config in Dagster context.</span>
+<span class="w">    </span><span class="sd">"""Construct a Dagster op to get target partitions from data config in Dagster context.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        name: Name of an Excel based dataset (e.g. &quot;eia860&quot;).</span>
+<span class="sd">        name: Name of an Excel based dataset (e.g. "eia860").</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="nd">@op</span><span class="p">(</span>
         <span class="n">out</span><span class="o">=</span><span class="n">DynamicOut</span><span class="p">(),</span>
-        <span class="n">required_resource_keys</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;global_data_config&quot;</span><span class="p">},</span>
-        <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">_partitions_from_data_config&quot;</span><span class="p">,</span>
+        <span class="n">required_resource_keys</span><span class="o">=</span><span class="p">{</span><span class="s2">"global_data_config"</span><span class="p">},</span>
+        <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">_partitions_from_data_config"</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">partitions_from_data_config</span><span class="p">(</span><span class="n">context</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DynamicOutput</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Produce target partitions for the given dataset from the dataset data config.</span>
+<span class="w">        </span><span class="sd">"""Produce target partitions for the given dataset from the dataset data config.</span>
 
 <span class="sd">        These will be used to kick off worker processes to extract each year of data in</span>
 <span class="sd">        parallel.</span>
@@ -1375,8 +1375,8 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">            A Dagster :class:`DynamicOutput` object representing the partition to be</span>
 <span class="sd">            extracted. See the Dagster API documentation for more details:</span>
 <span class="sd">            https://docs.dagster.io/_apidocs/dynamic#dagster.DynamicOut</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="s2">&quot;eia&quot;</span> <span class="ow">in</span> <span class="n">name</span><span class="p">:</span>  <span class="c1"># Account for nested data config if EIA</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="s2">"eia"</span> <span class="ow">in</span> <span class="n">name</span><span class="p">:</span>  <span class="c1"># Account for nested data config if EIA</span>
             <span class="n">partition_data_config</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">global_data_config</span><span class="o">.</span><span class="n">pudl</span><span class="o">.</span><span class="n">eia</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">partition_data_config</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">global_data_config</span><span class="o">.</span><span class="n">pudl</span>
@@ -1388,19 +1388,19 @@ window.runMermaid = runMermaid;</script>
             <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="nb">vars</span><span class="p">(</span><span class="n">data_config</span><span class="p">)</span>
             <span class="k">if</span> <span class="nb">any</span><span class="p">(</span>
                 <span class="n">date_partition</span> <span class="ow">in</span> <span class="n">var</span>
-                <span class="k">for</span> <span class="n">date_partition</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;years&quot;</span><span class="p">,</span> <span class="s2">&quot;half_years&quot;</span><span class="p">,</span> <span class="s2">&quot;year_quarters&quot;</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">date_partition</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"years"</span><span class="p">,</span> <span class="s2">"half_years"</span><span class="p">,</span> <span class="s2">"year_quarters"</span><span class="p">]</span>
             <span class="p">)</span>
         <span class="p">]</span>
         <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">partition</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Only one working partition is supported: </span><span class="si">{</span><span class="n">partition</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="sa">f</span><span class="s2">"Only one working partition is supported: </span><span class="si">{</span><span class="n">partition</span><span class="si">}</span><span class="s2">."</span>
         <span class="p">)</span>
         <span class="n">partition</span> <span class="o">=</span> <span class="n">partition</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">parts</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">data_config</span><span class="p">,</span> <span class="n">partition</span><span class="p">)</span>  <span class="c1"># Get the actual values</span>
-        <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;phmsagas&quot;</span><span class="p">:</span>  <span class="c1"># phmsa has old years with multiple years in each tab</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">"phmsagas"</span><span class="p">:</span>  <span class="c1"># phmsa has old years with multiple years in each tab</span>
             <span class="n">parts</span> <span class="o">=</span> <span class="n">data_config</span><span class="o">.</span><span class="n">extraction_years</span>
-        <span class="c1"># In Zenodo we use &quot;year&quot;, &quot;half_year&quot; as the partition, but in our data config</span>
-        <span class="c1"># we use the plural &quot;years&quot;. Drop the &quot;s&quot; at the end if present.</span>
-        <span class="n">partition</span> <span class="o">=</span> <span class="n">partition</span><span class="o">.</span><span class="n">removesuffix</span><span class="p">(</span><span class="s2">&quot;s&quot;</span><span class="p">)</span>
+        <span class="c1"># In Zenodo we use "year", "half_year" as the partition, but in our data config</span>
+        <span class="c1"># we use the plural "years". Drop the "s" at the end if present.</span>
+        <span class="n">partition</span> <span class="o">=</span> <span class="n">partition</span><span class="o">.</span><span class="n">removesuffix</span><span class="p">(</span><span class="s2">"s"</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">parts</span><span class="p">:</span>
             <span class="k">yield</span> <span class="n">DynamicOutput</span><span class="p">({</span><span class="n">partition</span><span class="p">:</span> <span class="n">part</span><span class="p">},</span> <span class="n">mapping_key</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">part</span><span class="p">))</span>
 
@@ -1413,13 +1413,13 @@ window.runMermaid = runMermaid;</script>
 <span class="k">def</span><span class="w"> </span><span class="nf">raw_df_factory</span><span class="p">(</span>
     <span class="n">extractor_cls</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">GenericExtractor</span><span class="p">],</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AssetsDefinition</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a dagster graph asset to extract raw DataFrames from CSV or Excel files.</span>
+<span class="w">    </span><span class="sd">"""Return a dagster graph asset to extract raw DataFrames from CSV or Excel files.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        extractor_cls: The dataset-specific CSV or Excel extractor used to extract the</span>
 <span class="sd">            data. Must correspond to the dataset identified by ``name``.</span>
-<span class="sd">        name: Name of a CSV or Excel based dataset (e.g. &quot;eia860&quot; or &quot;eia930&quot;).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">        name: Name of a CSV or Excel based dataset (e.g. "eia860" or "eia930").</span>
+<span class="sd">    """</span>
     <span class="c1"># Build a Dagster op that can extract a single year/half-year of data</span>
     <span class="n">partition_extractor</span> <span class="o">=</span> <span class="n">partition_extractor_factory</span><span class="p">(</span><span class="n">extractor_cls</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
     <span class="c1"># Get the list of target partitions to extract from the PUDL data config object</span>
@@ -1427,7 +1427,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">partitions_from_data_config</span> <span class="o">=</span> <span class="n">partitions_from_data_config_factory</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">raw_dfs</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Produce a dictionary of extracted dataframes.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Produce a dictionary of extracted dataframes."""</span>
         <span class="n">partitions</span> <span class="o">=</span> <span class="n">partitions_from_data_config</span><span class="p">()</span>
         <span class="c1"># Clone dagster op for each year using DynamicOut.map()</span>
         <span class="c1"># See https://docs.dagster.io/_apidocs/dynamic#dagster.DynamicOut</span>
@@ -1437,7 +1437,7 @@ window.runMermaid = runMermaid;</script>
         <span class="c1"># page in the spreadsheet based dataset using DynamicOut.collect()</span>
         <span class="k">return</span> <span class="n">concat_pages</span><span class="p">(</span><span class="n">dfs</span><span class="o">.</span><span class="n">collect</span><span class="p">())</span>
 
-    <span class="k">return</span> <span class="n">graph_asset</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;raw_</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">__all_dfs&quot;</span><span class="p">)(</span><span class="n">raw_dfs</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">graph_asset</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">"raw_</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">__all_dfs"</span><span class="p">)(</span><span class="n">raw_dfs</span><span class="p">)</span></div>
 
 </pre></div>
 

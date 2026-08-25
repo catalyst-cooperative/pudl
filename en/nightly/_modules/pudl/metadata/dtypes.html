@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.metadata.dtypes &#8212; PUDL 2026.8.1.dev16 documentation</title>
+    <title>pudl.metadata.dtypes &#8212; PUDL 2026.8.1.dev20 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=f981bf86"></script>
+    <script src="../../../_static/documentation_options.js?v=8f1a003a"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev20 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev20 documentation - Home"/>
   
   
 </a></div>
@@ -868,11 +868,11 @@ window.runMermaid = runMermaid;</script>
                 <article class="bd-article">
                   
   <h1>Source code for pudl.metadata.dtypes</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Canonical PUDL dtype mappings and dtype-application helpers.</span>
+<span></span><span class="sd">"""Canonical PUDL dtype mappings and dtype-application helpers.</span>
 
 <span class="sd">This module serves two related purposes:</span>
 
-<span class="sd">1. Define the canonical mapping from PUDL&#39;s simplified field types</span>
+<span class="sd">1. Define the canonical mapping from PUDL's simplified field types</span>
 <span class="sd">    (``string``, ``integer``, ``geometry``, etc.) to the concrete dtype objects used</span>
 <span class="sd">    by supported tabular backends like pandas, Polars, SQLite, DuckDB, and PyArrow.</span>
 <span class="sd">2. Expose helper functions that resolve those backend dtypes for either the global</span>
@@ -884,14 +884,14 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">information already encoded in ``PUDL_PACKAGE`` will be used directly where possible.</span>
 
 <span class="sd">Not every backend supports every canonical PUDL field type. In particular, some</span>
-<span class="sd">backends do not yet support PUDL&#39;s ``geometry`` fields. In those cases the dtype</span>
+<span class="sd">backends do not yet support PUDL's ``geometry`` fields. In those cases the dtype</span>
 <span class="sd">helpers intentionally omit unsupported fields rather than returning an incompatible</span>
 <span class="sd">dtype mapping.</span>
 
 <span class="sd">This module intentionally keeps the import of ``PUDL_PACKAGE`` local to the helper</span>
 <span class="sd">functions that need it, so the metadata class graph does not introduce a module import</span>
 <span class="sd">cycle.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span>
@@ -914,116 +914,116 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="FIELD_DTYPES_POLARS">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/dtypes/index.html#pudl.metadata.dtypes.FIELD_DTYPES_POLARS">[docs]</a>
 <span class="n">FIELD_DTYPES_POLARS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">type</span><span class="p">[</span><span class="n">pl</span><span class="o">.</span><span class="n">DataType</span><span class="p">]</span> <span class="o">|</span> <span class="n">pl</span><span class="o">.</span><span class="n">DataType</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;boolean&quot;</span><span class="p">:</span> <span class="n">polars_datatypes</span><span class="o">.</span><span class="n">Boolean</span><span class="p">,</span>
-    <span class="s2">&quot;date&quot;</span><span class="p">:</span> <span class="n">polars_datatypes</span><span class="o">.</span><span class="n">Date</span><span class="p">,</span>
-    <span class="s2">&quot;datetime&quot;</span><span class="p">:</span> <span class="n">polars_datatypes</span><span class="o">.</span><span class="n">Datetime</span><span class="p">(</span><span class="n">time_unit</span><span class="o">=</span><span class="s2">&quot;us&quot;</span><span class="p">),</span>
-    <span class="s2">&quot;integer&quot;</span><span class="p">:</span> <span class="n">polars_datatypes</span><span class="o">.</span><span class="n">Int64</span><span class="p">,</span>
-    <span class="s2">&quot;number&quot;</span><span class="p">:</span> <span class="n">polars_datatypes</span><span class="o">.</span><span class="n">Float64</span><span class="p">,</span>
-    <span class="s2">&quot;string&quot;</span><span class="p">:</span> <span class="n">polars_datatypes</span><span class="o">.</span><span class="n">String</span><span class="p">,</span>
-    <span class="s2">&quot;year&quot;</span><span class="p">:</span> <span class="n">polars_datatypes</span><span class="o">.</span><span class="n">Datetime</span><span class="p">(</span><span class="n">time_unit</span><span class="o">=</span><span class="s2">&quot;us&quot;</span><span class="p">),</span>
+    <span class="s2">"boolean"</span><span class="p">:</span> <span class="n">polars_datatypes</span><span class="o">.</span><span class="n">Boolean</span><span class="p">,</span>
+    <span class="s2">"date"</span><span class="p">:</span> <span class="n">polars_datatypes</span><span class="o">.</span><span class="n">Date</span><span class="p">,</span>
+    <span class="s2">"datetime"</span><span class="p">:</span> <span class="n">polars_datatypes</span><span class="o">.</span><span class="n">Datetime</span><span class="p">(</span><span class="n">time_unit</span><span class="o">=</span><span class="s2">"us"</span><span class="p">),</span>
+    <span class="s2">"integer"</span><span class="p">:</span> <span class="n">polars_datatypes</span><span class="o">.</span><span class="n">Int64</span><span class="p">,</span>
+    <span class="s2">"number"</span><span class="p">:</span> <span class="n">polars_datatypes</span><span class="o">.</span><span class="n">Float64</span><span class="p">,</span>
+    <span class="s2">"string"</span><span class="p">:</span> <span class="n">polars_datatypes</span><span class="o">.</span><span class="n">String</span><span class="p">,</span>
+    <span class="s2">"year"</span><span class="p">:</span> <span class="n">polars_datatypes</span><span class="o">.</span><span class="n">Datetime</span><span class="p">(</span><span class="n">time_unit</span><span class="o">=</span><span class="s2">"us"</span><span class="p">),</span>
 <span class="p">}</span></div>
 
-<span class="sd">&quot;&quot;&quot;Polars data type by simplified PUDL field type.&quot;&quot;&quot;</span>
+<span class="sd">"""Polars data type by simplified PUDL field type."""</span>
 
 <div class="viewcode-block" id="FIELD_DTYPES_DUCKDB">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/dtypes/index.html#pudl.metadata.dtypes.FIELD_DTYPES_DUCKDB">[docs]</a>
 <span class="n">FIELD_DTYPES_DUCKDB</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">sqltypes</span><span class="o">.</span><span class="n">DuckDBPyType</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;boolean&quot;</span><span class="p">:</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">sqltypes</span><span class="o">.</span><span class="n">BOOLEAN</span><span class="p">,</span>
-    <span class="s2">&quot;date&quot;</span><span class="p">:</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">sqltypes</span><span class="o">.</span><span class="n">DATE</span><span class="p">,</span>
-    <span class="s2">&quot;datetime&quot;</span><span class="p">:</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">sqltypes</span><span class="o">.</span><span class="n">TIMESTAMP</span><span class="p">,</span>
-    <span class="s2">&quot;integer&quot;</span><span class="p">:</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">sqltypes</span><span class="o">.</span><span class="n">BIGINT</span><span class="p">,</span>
-    <span class="s2">&quot;number&quot;</span><span class="p">:</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">sqltypes</span><span class="o">.</span><span class="n">DOUBLE</span><span class="p">,</span>
-    <span class="s2">&quot;string&quot;</span><span class="p">:</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">sqltypes</span><span class="o">.</span><span class="n">VARCHAR</span><span class="p">,</span>
-    <span class="s2">&quot;year&quot;</span><span class="p">:</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">sqltypes</span><span class="o">.</span><span class="n">TIMESTAMP</span><span class="p">,</span>
+    <span class="s2">"boolean"</span><span class="p">:</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">sqltypes</span><span class="o">.</span><span class="n">BOOLEAN</span><span class="p">,</span>
+    <span class="s2">"date"</span><span class="p">:</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">sqltypes</span><span class="o">.</span><span class="n">DATE</span><span class="p">,</span>
+    <span class="s2">"datetime"</span><span class="p">:</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">sqltypes</span><span class="o">.</span><span class="n">TIMESTAMP</span><span class="p">,</span>
+    <span class="s2">"integer"</span><span class="p">:</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">sqltypes</span><span class="o">.</span><span class="n">BIGINT</span><span class="p">,</span>
+    <span class="s2">"number"</span><span class="p">:</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">sqltypes</span><span class="o">.</span><span class="n">DOUBLE</span><span class="p">,</span>
+    <span class="s2">"string"</span><span class="p">:</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">sqltypes</span><span class="o">.</span><span class="n">VARCHAR</span><span class="p">,</span>
+    <span class="s2">"year"</span><span class="p">:</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">sqltypes</span><span class="o">.</span><span class="n">TIMESTAMP</span><span class="p">,</span>
 <span class="p">}</span></div>
 
-<span class="sd">&quot;&quot;&quot;DuckDB data type by simplified PUDL field type.&quot;&quot;&quot;</span>
+<span class="sd">"""DuckDB data type by simplified PUDL field type."""</span>
 
 <div class="viewcode-block" id="FIELD_DTYPES_PANDAS">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/dtypes/index.html#pudl.metadata.dtypes.FIELD_DTYPES_PANDAS">[docs]</a>
 <span class="n">FIELD_DTYPES_PANDAS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;boolean&quot;</span><span class="p">:</span> <span class="s2">&quot;boolean&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;date&quot;</span><span class="p">:</span> <span class="s2">&quot;datetime64[us]&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;datetime&quot;</span><span class="p">:</span> <span class="s2">&quot;datetime64[us]&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;geometry&quot;</span><span class="p">:</span> <span class="s2">&quot;geometry&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;integer&quot;</span><span class="p">:</span> <span class="s2">&quot;Int64&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;number&quot;</span><span class="p">:</span> <span class="s2">&quot;float64&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;string&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;year&quot;</span><span class="p">:</span> <span class="s2">&quot;datetime64[us]&quot;</span><span class="p">,</span>
+    <span class="s2">"boolean"</span><span class="p">:</span> <span class="s2">"boolean"</span><span class="p">,</span>
+    <span class="s2">"date"</span><span class="p">:</span> <span class="s2">"datetime64[us]"</span><span class="p">,</span>
+    <span class="s2">"datetime"</span><span class="p">:</span> <span class="s2">"datetime64[us]"</span><span class="p">,</span>
+    <span class="s2">"geometry"</span><span class="p">:</span> <span class="s2">"geometry"</span><span class="p">,</span>
+    <span class="s2">"integer"</span><span class="p">:</span> <span class="s2">"Int64"</span><span class="p">,</span>
+    <span class="s2">"number"</span><span class="p">:</span> <span class="s2">"float64"</span><span class="p">,</span>
+    <span class="s2">"string"</span><span class="p">:</span> <span class="s2">"string"</span><span class="p">,</span>
+    <span class="s2">"year"</span><span class="p">:</span> <span class="s2">"datetime64[us]"</span><span class="p">,</span>
 <span class="p">}</span></div>
 
-<span class="sd">&quot;&quot;&quot;Pandas data type by simplified PUDL field type.&quot;&quot;&quot;</span>
+<span class="sd">"""Pandas data type by simplified PUDL field type."""</span>
 
 <div class="viewcode-block" id="FIELD_DTYPES_PYARROW">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/dtypes/index.html#pudl.metadata.dtypes.FIELD_DTYPES_PYARROW">[docs]</a>
 <span class="n">FIELD_DTYPES_PYARROW</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pa</span><span class="o">.</span><span class="n">DataType</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;boolean&quot;</span><span class="p">:</span> <span class="n">pa</span><span class="o">.</span><span class="n">bool_</span><span class="p">(),</span>
-    <span class="s2">&quot;date&quot;</span><span class="p">:</span> <span class="n">pa</span><span class="o">.</span><span class="n">date32</span><span class="p">(),</span>
-    <span class="s2">&quot;datetime&quot;</span><span class="p">:</span> <span class="n">pa</span><span class="o">.</span><span class="n">timestamp</span><span class="p">(</span><span class="s2">&quot;us&quot;</span><span class="p">),</span>
-    <span class="s2">&quot;geometry&quot;</span><span class="p">:</span> <span class="n">ga</span><span class="o">.</span><span class="n">wkb</span><span class="p">(),</span>
-    <span class="s2">&quot;integer&quot;</span><span class="p">:</span> <span class="n">pa</span><span class="o">.</span><span class="n">int64</span><span class="p">(),</span>
-    <span class="s2">&quot;number&quot;</span><span class="p">:</span> <span class="n">pa</span><span class="o">.</span><span class="n">float64</span><span class="p">(),</span>
-    <span class="s2">&quot;string&quot;</span><span class="p">:</span> <span class="n">pa</span><span class="o">.</span><span class="n">string</span><span class="p">(),</span>
-    <span class="s2">&quot;year&quot;</span><span class="p">:</span> <span class="n">pa</span><span class="o">.</span><span class="n">int64</span><span class="p">(),</span>
+    <span class="s2">"boolean"</span><span class="p">:</span> <span class="n">pa</span><span class="o">.</span><span class="n">bool_</span><span class="p">(),</span>
+    <span class="s2">"date"</span><span class="p">:</span> <span class="n">pa</span><span class="o">.</span><span class="n">date32</span><span class="p">(),</span>
+    <span class="s2">"datetime"</span><span class="p">:</span> <span class="n">pa</span><span class="o">.</span><span class="n">timestamp</span><span class="p">(</span><span class="s2">"us"</span><span class="p">),</span>
+    <span class="s2">"geometry"</span><span class="p">:</span> <span class="n">ga</span><span class="o">.</span><span class="n">wkb</span><span class="p">(),</span>
+    <span class="s2">"integer"</span><span class="p">:</span> <span class="n">pa</span><span class="o">.</span><span class="n">int64</span><span class="p">(),</span>
+    <span class="s2">"number"</span><span class="p">:</span> <span class="n">pa</span><span class="o">.</span><span class="n">float64</span><span class="p">(),</span>
+    <span class="s2">"string"</span><span class="p">:</span> <span class="n">pa</span><span class="o">.</span><span class="n">string</span><span class="p">(),</span>
+    <span class="s2">"year"</span><span class="p">:</span> <span class="n">pa</span><span class="o">.</span><span class="n">int64</span><span class="p">(),</span>
 <span class="p">}</span></div>
 
-<span class="sd">&quot;&quot;&quot;Pyarrow data type by simplified PUDL field type.&quot;&quot;&quot;</span>
+<span class="sd">"""Pyarrow data type by simplified PUDL field type."""</span>
 
 <div class="viewcode-block" id="FIELD_DTYPES_SQLITE">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/dtypes/index.html#pudl.metadata.dtypes.FIELD_DTYPES_SQLITE">[docs]</a>
 <span class="n">FIELD_DTYPES_SQLITE</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">type</span><span class="p">[</span><span class="n">SATypeEngine</span><span class="p">]</span> <span class="o">|</span> <span class="n">SATypeEngine</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;boolean&quot;</span><span class="p">:</span> <span class="n">sa</span><span class="o">.</span><span class="n">Boolean</span><span class="p">,</span>
-    <span class="s2">&quot;date&quot;</span><span class="p">:</span> <span class="n">sa</span><span class="o">.</span><span class="n">Date</span><span class="p">,</span>
-    <span class="s2">&quot;datetime&quot;</span><span class="p">:</span> <span class="n">SQLITE_DATETIME</span><span class="p">(),</span>
-    <span class="s2">&quot;integer&quot;</span><span class="p">:</span> <span class="n">sa</span><span class="o">.</span><span class="n">Integer</span><span class="p">,</span>
-    <span class="s2">&quot;number&quot;</span><span class="p">:</span> <span class="n">sa</span><span class="o">.</span><span class="n">Float</span><span class="p">,</span>
-    <span class="s2">&quot;string&quot;</span><span class="p">:</span> <span class="n">sa</span><span class="o">.</span><span class="n">Text</span><span class="p">,</span>
-    <span class="s2">&quot;year&quot;</span><span class="p">:</span> <span class="n">sa</span><span class="o">.</span><span class="n">Integer</span><span class="p">,</span>
+    <span class="s2">"boolean"</span><span class="p">:</span> <span class="n">sa</span><span class="o">.</span><span class="n">Boolean</span><span class="p">,</span>
+    <span class="s2">"date"</span><span class="p">:</span> <span class="n">sa</span><span class="o">.</span><span class="n">Date</span><span class="p">,</span>
+    <span class="s2">"datetime"</span><span class="p">:</span> <span class="n">SQLITE_DATETIME</span><span class="p">(),</span>
+    <span class="s2">"integer"</span><span class="p">:</span> <span class="n">sa</span><span class="o">.</span><span class="n">Integer</span><span class="p">,</span>
+    <span class="s2">"number"</span><span class="p">:</span> <span class="n">sa</span><span class="o">.</span><span class="n">Float</span><span class="p">,</span>
+    <span class="s2">"string"</span><span class="p">:</span> <span class="n">sa</span><span class="o">.</span><span class="n">Text</span><span class="p">,</span>
+    <span class="s2">"year"</span><span class="p">:</span> <span class="n">sa</span><span class="o">.</span><span class="n">Integer</span><span class="p">,</span>
 <span class="p">}</span></div>
 
-<span class="sd">&quot;&quot;&quot;SQLAlchemy column types by simplified PUDL field type.&quot;&quot;&quot;</span>
+<span class="sd">"""SQLAlchemy column types by simplified PUDL field type."""</span>
 
 <div class="viewcode-block" id="CONSTRAINT_DTYPES">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/dtypes/index.html#pudl.metadata.dtypes.CONSTRAINT_DTYPES">[docs]</a>
 <span class="n">CONSTRAINT_DTYPES</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">type</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;boolean&quot;</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
-    <span class="s2">&quot;date&quot;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">,</span>
-    <span class="s2">&quot;datetime&quot;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">,</span>
-    <span class="s2">&quot;geometry&quot;</span><span class="p">:</span> <span class="n">geopandas</span><span class="o">.</span><span class="n">array</span><span class="o">.</span><span class="n">GeometryDtype</span><span class="p">,</span>
-    <span class="s2">&quot;integer&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-    <span class="s2">&quot;number&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-    <span class="s2">&quot;string&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="s2">&quot;year&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="s2">"boolean"</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="s2">"date"</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">,</span>
+    <span class="s2">"datetime"</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">,</span>
+    <span class="s2">"geometry"</span><span class="p">:</span> <span class="n">geopandas</span><span class="o">.</span><span class="n">array</span><span class="o">.</span><span class="n">GeometryDtype</span><span class="p">,</span>
+    <span class="s2">"integer"</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="s2">"number"</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="s2">"string"</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="s2">"year"</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
 <span class="p">}</span></div>
 
-<span class="sd">&quot;&quot;&quot;Python types for field constraints by simplified PUDL field type.&quot;&quot;&quot;</span>
+<span class="sd">"""Python types for field constraints by simplified PUDL field type."""</span>
 
 <div class="viewcode-block" id="PERIODS">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/dtypes/index.html#pudl.metadata.dtypes.PERIODS">[docs]</a>
 <span class="n">PERIODS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">],</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;year&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;datetime64[Y]&quot;</span><span class="p">)),</span>
-    <span class="s2">&quot;quarter&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+    <span class="s2">"year"</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">"datetime64[Y]"</span><span class="p">)),</span>
+    <span class="s2">"quarter"</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
         <span class="n">pd</span><span class="o">.</span><span class="n">tseries</span><span class="o">.</span><span class="n">offsets</span><span class="o">.</span><span class="n">QuarterBegin</span><span class="p">(</span><span class="n">startingMonth</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">rollback</span>
     <span class="p">),</span>
-    <span class="s2">&quot;month&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;datetime64[M]&quot;</span><span class="p">)),</span>
-    <span class="s2">&quot;date&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;datetime64[D]&quot;</span><span class="p">)),</span>
+    <span class="s2">"month"</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">"datetime64[M]"</span><span class="p">)),</span>
+    <span class="s2">"date"</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">"datetime64[D]"</span><span class="p">)),</span>
 <span class="p">}</span></div>
 
-<span class="sd">&quot;&quot;&quot;Functions converting datetimes to period start times, by time period.&quot;&quot;&quot;</span>
+<span class="sd">"""Functions converting datetimes to period start times, by time period."""</span>
 
 <div class="viewcode-block" id="PudlDtypeBackend">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/dtypes/index.html#pudl.metadata.dtypes.PudlDtypeBackend">[docs]</a>
-<span class="n">PudlDtypeBackend</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;pandas&quot;</span><span class="p">,</span> <span class="s2">&quot;polars&quot;</span><span class="p">,</span> <span class="s2">&quot;sqlite&quot;</span><span class="p">,</span> <span class="s2">&quot;duckdb&quot;</span><span class="p">,</span> <span class="s2">&quot;pyarrow&quot;</span><span class="p">]</span></div>
+<span class="n">PudlDtypeBackend</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"pandas"</span><span class="p">,</span> <span class="s2">"polars"</span><span class="p">,</span> <span class="s2">"sqlite"</span><span class="p">,</span> <span class="s2">"duckdb"</span><span class="p">,</span> <span class="s2">"pyarrow"</span><span class="p">]</span></div>
 
 
 <div class="viewcode-block" id="_DTYPE_MAPS_BY_BACKEND">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/dtypes/index.html#pudl.metadata.dtypes._DTYPE_MAPS_BY_BACKEND">[docs]</a>
 <span class="n">_DTYPE_MAPS_BY_BACKEND</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">PudlDtypeBackend</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;pandas&quot;</span><span class="p">:</span> <span class="n">FIELD_DTYPES_PANDAS</span><span class="p">,</span>
-    <span class="s2">&quot;polars&quot;</span><span class="p">:</span> <span class="n">FIELD_DTYPES_POLARS</span><span class="p">,</span>
-    <span class="s2">&quot;sqlite&quot;</span><span class="p">:</span> <span class="n">FIELD_DTYPES_SQLITE</span><span class="p">,</span>
-    <span class="s2">&quot;duckdb&quot;</span><span class="p">:</span> <span class="n">FIELD_DTYPES_DUCKDB</span><span class="p">,</span>
-    <span class="s2">&quot;pyarrow&quot;</span><span class="p">:</span> <span class="n">FIELD_DTYPES_PYARROW</span><span class="p">,</span>
+    <span class="s2">"pandas"</span><span class="p">:</span> <span class="n">FIELD_DTYPES_PANDAS</span><span class="p">,</span>
+    <span class="s2">"polars"</span><span class="p">:</span> <span class="n">FIELD_DTYPES_POLARS</span><span class="p">,</span>
+    <span class="s2">"sqlite"</span><span class="p">:</span> <span class="n">FIELD_DTYPES_SQLITE</span><span class="p">,</span>
+    <span class="s2">"duckdb"</span><span class="p">:</span> <span class="n">FIELD_DTYPES_DUCKDB</span><span class="p">,</span>
+    <span class="s2">"pyarrow"</span><span class="p">:</span> <span class="n">FIELD_DTYPES_PYARROW</span><span class="p">,</span>
 <span class="p">}</span></div>
 
 
@@ -1037,7 +1037,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">dtype_backend</span><span class="p">:</span> <span class="n">PudlDtypeBackend</span><span class="p">,</span>
     <span class="n">strict</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the subset of resolved dtypes needed to cast the given columns.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return the subset of resolved dtypes needed to cast the given columns."""</span>
     <span class="n">dtypes</span> <span class="o">=</span> <span class="n">get_pudl_dtypes</span><span class="p">(</span>
         <span class="n">field_namespace</span><span class="o">=</span><span class="n">field_namespace</span><span class="p">,</span>
         <span class="n">resource</span><span class="o">=</span><span class="n">resource</span><span class="p">,</span>
@@ -1058,7 +1058,7 @@ window.runMermaid = runMermaid;</script>
 
     <span class="n">unspecified_fields</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">columns</span><span class="p">)</span> <span class="o">-</span> <span class="n">known_fields</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">strict</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">unspecified_fields</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Found unspecified fields: </span><span class="si">{</span><span class="n">unspecified_fields</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Found unspecified fields: </span><span class="si">{</span><span class="n">unspecified_fields</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
     <span class="k">return</span> <span class="p">{</span><span class="n">column</span><span class="p">:</span> <span class="n">dtypes</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">columns</span> <span class="k">if</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">dtypes</span><span class="p">}</span></div>
 
 
@@ -1068,9 +1068,9 @@ window.runMermaid = runMermaid;</script>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_pudl_dtypes</span><span class="p">(</span>
     <span class="n">field_namespace</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">resource</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">dtype_backend</span><span class="p">:</span> <span class="n">PudlDtypeBackend</span> <span class="o">=</span> <span class="s2">&quot;pandas&quot;</span><span class="p">,</span>
+    <span class="n">dtype_backend</span><span class="p">:</span> <span class="n">PudlDtypeBackend</span> <span class="o">=</span> <span class="s2">"pandas"</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compile a dictionary of field dtypes.</span>
+<span class="w">    </span><span class="sd">"""Compile a dictionary of field dtypes.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        field_namespace: The field namespace (e.g. ferc1, eia) to use for overriding</span>
@@ -1078,16 +1078,16 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        resource: The resource (table) name whose schema should define the field</span>
 <span class="sd">            types. If provided, resource field types are authoritative.</span>
 <span class="sd">        dtype_backend: Named dtype backend to compile. Supported values are</span>
-<span class="sd">            ``&quot;pandas&quot;``, ``&quot;polars&quot;``, ``&quot;sqlite&quot;``, ``&quot;duckdb&quot;``, and ``&quot;pyarrow&quot;``.</span>
+<span class="sd">            ``"pandas"``, ``"polars"``, ``"sqlite"``, ``"duckdb"``, and ``"pyarrow"``.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A mapping of PUDL field names to their associated data types.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="p">(</span><span class="n">field_namespace</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">resource</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="s2">&quot;field_namespace and resource are mutually exclusive when selecting &quot;</span>
-            <span class="s2">&quot;PUDL dtypes. Suggestion: if you know the resource name use only &quot;</span>
-            <span class="s2">&quot;that. resource is more authoritative.&quot;</span>
+            <span class="s2">"field_namespace and resource are mutually exclusive when selecting "</span>
+            <span class="s2">"PUDL dtypes. Suggestion: if you know the resource name use only "</span>
+            <span class="s2">"that. resource is more authoritative."</span>
         <span class="p">)</span>
 
     <span class="k">if</span> <span class="n">resource</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -1108,9 +1108,9 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/dtypes/index.html#pudl.metadata.dtypes._get_pudl_namespace_dtypes">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_get_pudl_namespace_dtypes</span><span class="p">(</span>
     <span class="n">field_namespace</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">dtype_backend</span><span class="p">:</span> <span class="n">PudlDtypeBackend</span> <span class="o">=</span> <span class="s2">&quot;pandas&quot;</span><span class="p">,</span>
+    <span class="n">dtype_backend</span><span class="p">:</span> <span class="n">PudlDtypeBackend</span> <span class="o">=</span> <span class="s2">"pandas"</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compile a dictionary of field dtypes based on the namespace-level field metadata.</span>
+<span class="w">    </span><span class="sd">"""Compile a dictionary of field dtypes based on the namespace-level field metadata.</span>
 
 <span class="sd">    If no field_namespace is provided, the global PUDL field metadata is used.</span>
 
@@ -1118,18 +1118,18 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        field_namespace: The field namespace (e.g. ferc1, eia) whose schema should</span>
 <span class="sd">            define the field types. If None, no namespace overrides are applied.</span>
 <span class="sd">        dtype_backend: Named dtype backend to compile. Supported values are</span>
-<span class="sd">            ``&quot;pandas&quot;``, ``&quot;polars&quot;``, ``&quot;sqlite&quot;``, ``&quot;duckdb&quot;``, and ``&quot;pyarrow&quot;``.</span>
+<span class="sd">            ``"pandas"``, ``"polars"``, ``"sqlite"``, ``"duckdb"``, and ``"pyarrow"``.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A mapping of PUDL field names to their associated data types.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># This is here to avoid circular imports.</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.classes</span><span class="w"> </span><span class="kn">import</span> <span class="n">FIELD_NAMESPACES</span>
 
     <span class="k">if</span> <span class="p">(</span><span class="n">field_namespace</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">field_namespace</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">FIELD_NAMESPACES</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Unknown PUDL field namespace: </span><span class="si">{</span><span class="n">field_namespace</span><span class="si">!r}</span><span class="s2">. &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;Valid namespaces are: </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">FIELD_NAMESPACES</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">"Unknown PUDL field namespace: </span><span class="si">{</span><span class="n">field_namespace</span><span class="si">!r}</span><span class="s2">. "</span>
+            <span class="sa">f</span><span class="s2">"Valid namespaces are: </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">FIELD_NAMESPACES</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
         <span class="p">)</span>
     <span class="n">dtype_map</span> <span class="o">=</span> <span class="n">_DTYPE_MAPS_BY_BACKEND</span><span class="p">[</span><span class="n">dtype_backend</span><span class="p">]</span>
     <span class="n">field_meta</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">FIELD_METADATA</span><span class="p">)</span>
@@ -1142,8 +1142,8 @@ window.runMermaid = runMermaid;</script>
     <span class="k">for</span> <span class="n">field_name</span> <span class="ow">in</span> <span class="n">field_meta</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">field_name</span> <span class="ow">in</span> <span class="n">field_namespace_overrides</span><span class="p">:</span>
             <span class="n">field_meta</span><span class="p">[</span><span class="n">field_name</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">field_namespace_overrides</span><span class="p">[</span><span class="n">field_name</span><span class="p">])</span>
-        <span class="k">if</span> <span class="n">field_meta</span><span class="p">[</span><span class="n">field_name</span><span class="p">][</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">dtype_map</span><span class="p">:</span>
-            <span class="n">dtypes</span><span class="p">[</span><span class="n">field_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">dtype_map</span><span class="p">[</span><span class="n">field_meta</span><span class="p">[</span><span class="n">field_name</span><span class="p">][</span><span class="s2">&quot;type&quot;</span><span class="p">]]</span>
+        <span class="k">if</span> <span class="n">field_meta</span><span class="p">[</span><span class="n">field_name</span><span class="p">][</span><span class="s2">"type"</span><span class="p">]</span> <span class="ow">in</span> <span class="n">dtype_map</span><span class="p">:</span>
+            <span class="n">dtypes</span><span class="p">[</span><span class="n">field_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">dtype_map</span><span class="p">[</span><span class="n">field_meta</span><span class="p">[</span><span class="n">field_name</span><span class="p">][</span><span class="s2">"type"</span><span class="p">]]</span>
     <span class="k">return</span> <span class="n">dtypes</span></div>
 
 
@@ -1152,35 +1152,35 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/dtypes/index.html#pudl.metadata.dtypes._get_pudl_resource_dtypes">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_get_pudl_resource_dtypes</span><span class="p">(</span>
     <span class="n">resource</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">dtype_backend</span><span class="p">:</span> <span class="n">PudlDtypeBackend</span> <span class="o">=</span> <span class="s2">&quot;pandas&quot;</span><span class="p">,</span>
+    <span class="n">dtype_backend</span><span class="p">:</span> <span class="n">PudlDtypeBackend</span> <span class="o">=</span> <span class="s2">"pandas"</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compile a dictionary of field dtypes for a specific PUDL resource.</span>
+<span class="w">    </span><span class="sd">"""Compile a dictionary of field dtypes for a specific PUDL resource.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        resource: The resource (table) name whose schema should define the field</span>
 <span class="sd">            types. If provided, resource field types are authoritative.</span>
 <span class="sd">        dtype_backend: Named dtype backend to compile. Supported values are</span>
-<span class="sd">            ``&quot;pandas&quot;``, ``&quot;polars&quot;``, ``&quot;sqlite&quot;``, ``&quot;duckdb&quot;``, and ``&quot;pyarrow&quot;``.</span>
+<span class="sd">            ``"pandas"``, ``"polars"``, ``"sqlite"``, ``"duckdb"``, and ``"pyarrow"``.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A mapping of PUDL field names to their associated data types.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># This is here to avoid circular imports.</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.classes</span><span class="w"> </span><span class="kn">import</span> <span class="n">PUDL_PACKAGE</span>
 
     <span class="c1"># We need to build up resource-specific dtypes</span>
     <span class="n">resource_metadata</span> <span class="o">=</span> <span class="n">PUDL_PACKAGE</span><span class="o">.</span><span class="n">get_resource</span><span class="p">(</span><span class="n">resource</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">dtype_backend</span> <span class="o">==</span> <span class="s2">&quot;pandas&quot;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">dtype_backend</span> <span class="o">==</span> <span class="s2">"pandas"</span><span class="p">:</span>
         <span class="c1"># Pandas is easy, because it defines all dtypes and we have a</span>
         <span class="c1"># resource-level helper method to get them all at once.</span>
         <span class="n">dtypes</span> <span class="o">=</span> <span class="n">resource_metadata</span><span class="o">.</span><span class="n">to_pandas_dtypes</span><span class="p">()</span>
-    <span class="k">elif</span> <span class="n">dtype_backend</span> <span class="o">==</span> <span class="s2">&quot;pyarrow&quot;</span><span class="p">:</span>
+    <span class="k">elif</span> <span class="n">dtype_backend</span> <span class="o">==</span> <span class="s2">"pyarrow"</span><span class="p">:</span>
         <span class="c1"># pyarrow has the geometry dtype, but no resource-level helper method.</span>
         <span class="n">dtypes</span> <span class="o">=</span> <span class="p">{</span>
             <span class="n">field</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">field</span><span class="o">.</span><span class="n">to_pyarrow_dtype</span><span class="p">()</span>
             <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">resource_metadata</span><span class="o">.</span><span class="n">schema</span><span class="o">.</span><span class="n">fields</span>
         <span class="p">}</span>
-    <span class="k">elif</span> <span class="n">dtype_backend</span> <span class="o">==</span> <span class="s2">&quot;polars&quot;</span><span class="p">:</span>
+    <span class="k">elif</span> <span class="n">dtype_backend</span> <span class="o">==</span> <span class="s2">"polars"</span><span class="p">:</span>
         <span class="c1"># For polars we need to build a mapping of only the fields which have</span>
         <span class="c1"># dtypes defined, because it is missing the geometry dtype.</span>
         <span class="n">dtypes</span> <span class="o">=</span> <span class="p">{</span>
@@ -1188,7 +1188,7 @@ window.runMermaid = runMermaid;</script>
             <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">resource_metadata</span><span class="o">.</span><span class="n">schema</span><span class="o">.</span><span class="n">fields</span>
             <span class="k">if</span> <span class="n">field</span><span class="o">.</span><span class="n">type</span> <span class="ow">in</span> <span class="n">FIELD_DTYPES_POLARS</span>
         <span class="p">}</span>
-    <span class="k">elif</span> <span class="n">dtype_backend</span> <span class="o">==</span> <span class="s2">&quot;sqlite&quot;</span><span class="p">:</span>
+    <span class="k">elif</span> <span class="n">dtype_backend</span> <span class="o">==</span> <span class="s2">"sqlite"</span><span class="p">:</span>
         <span class="c1"># Similarly SQLite is also missing the geometry dtype.</span>
         <span class="n">dtypes</span> <span class="o">=</span> <span class="p">{</span>
             <span class="n">field</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">field</span><span class="o">.</span><span class="n">to_sqlite_dtype</span><span class="p">()</span>
@@ -1196,8 +1196,8 @@ window.runMermaid = runMermaid;</script>
             <span class="k">if</span> <span class="n">field</span><span class="o">.</span><span class="n">type</span> <span class="ow">in</span> <span class="n">FIELD_DTYPES_SQLITE</span>
         <span class="p">}</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">assert</span> <span class="n">dtype_backend</span> <span class="o">==</span> <span class="s2">&quot;duckdb&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Unknown dtype backend: </span><span class="si">{</span><span class="n">dtype_backend</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="c1"># We can&#39;t do the same field specific typing for DuckDB because it requires</span>
+        <span class="k">assert</span> <span class="n">dtype_backend</span> <span class="o">==</span> <span class="s2">"duckdb"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"Unknown dtype backend: </span><span class="si">{</span><span class="n">dtype_backend</span><span class="si">}</span><span class="s2">"</span>
+        <span class="c1"># We can't do the same field specific typing for DuckDB because it requires</span>
         <span class="c1"># a database connection to define a custom ENUM type, so it just gets the</span>
         <span class="c1"># more generic mapping</span>
         <span class="n">dtype_map</span> <span class="o">=</span> <span class="n">_DTYPE_MAPS_BY_BACKEND</span><span class="p">[</span><span class="n">dtype_backend</span><span class="p">]</span>
@@ -1218,7 +1218,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">resource</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">strict</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="n">geopandas</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Apply dtypes to those columns in a dataframe that have PUDL types defined.</span>
+<span class="w">    </span><span class="sd">"""Apply dtypes to those columns in a dataframe that have PUDL types defined.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        df: The dataframe to apply types to. Not all columns need to have types</span>
@@ -1230,12 +1230,12 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        The input dataframe, but with standard PUDL types applied.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">dtypes</span> <span class="o">=</span> <span class="n">_get_applicable_dtypes</span><span class="p">(</span>
         <span class="n">columns</span><span class="o">=</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
         <span class="n">field_namespace</span><span class="o">=</span><span class="n">field_namespace</span><span class="p">,</span>
         <span class="n">resource</span><span class="o">=</span><span class="n">resource</span><span class="p">,</span>
-        <span class="n">dtype_backend</span><span class="o">=</span><span class="s2">&quot;pandas&quot;</span><span class="p">,</span>
+        <span class="n">dtype_backend</span><span class="o">=</span><span class="s2">"pandas"</span><span class="p">,</span>
         <span class="n">strict</span><span class="o">=</span><span class="n">strict</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">astype</span><span class="p">({</span><span class="n">col</span><span class="p">:</span> <span class="n">dtypes</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">dtypes</span><span class="p">})</span></div>
@@ -1250,7 +1250,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">resource</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">strict</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pl</span><span class="o">.</span><span class="n">LazyFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Apply dtypes to those columns in a dataframe that have PUDL types defined.</span>
+<span class="w">    </span><span class="sd">"""Apply dtypes to those columns in a dataframe that have PUDL types defined.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        lf: The LazyFrame to apply types to. Not all columns need to have types</span>
@@ -1262,13 +1262,13 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        The input LazyFrame, but with standard PUDL types applied.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">columns</span> <span class="o">=</span> <span class="n">lf</span><span class="o">.</span><span class="n">collect_schema</span><span class="p">()</span><span class="o">.</span><span class="n">names</span><span class="p">()</span>
     <span class="n">dtypes</span> <span class="o">=</span> <span class="n">_get_applicable_dtypes</span><span class="p">(</span>
         <span class="n">columns</span><span class="o">=</span><span class="n">columns</span><span class="p">,</span>
         <span class="n">field_namespace</span><span class="o">=</span><span class="n">field_namespace</span><span class="p">,</span>
         <span class="n">resource</span><span class="o">=</span><span class="n">resource</span><span class="p">,</span>
-        <span class="n">dtype_backend</span><span class="o">=</span><span class="s2">&quot;polars&quot;</span><span class="p">,</span>
+        <span class="n">dtype_backend</span><span class="o">=</span><span class="s2">"polars"</span><span class="p">,</span>
         <span class="n">strict</span><span class="o">=</span><span class="n">strict</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">lf</span><span class="o">.</span><span class="n">cast</span><span class="p">({</span><span class="n">key</span><span class="p">:</span> <span class="n">value</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">dtypes</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">})</span></div>

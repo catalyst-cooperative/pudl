@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.metadata.resources &#8212; PUDL 2026.8.1.dev16 documentation</title>
+    <title>pudl.metadata.resources &#8212; PUDL 2026.8.1.dev20 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=f981bf86"></script>
+    <script src="../../../_static/documentation_options.js?v=8f1a003a"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev20 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev20 documentation - Home"/>
   
   
 </a></div>
@@ -868,7 +868,7 @@ window.runMermaid = runMermaid;</script>
                 <article class="bd-article">
                   
   <h1>Source code for pudl.metadata.resources</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;A subpackage to define and organize PUDL database tables by data group.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""A subpackage to define and organize PUDL database tables by data group."""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">importlib</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pkgutil</span>
@@ -882,7 +882,7 @@ window.runMermaid = runMermaid;</script>
 <span class="k">for</span> <span class="n">module_info</span> <span class="ow">in</span> <span class="n">pkgutil</span><span class="o">.</span><span class="n">iter_modules</span><span class="p">(</span><span class="n">__path__</span><span class="p">):</span>
 <div class="viewcode-block" id="module">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/resources/index.html#pudl.metadata.resources.module">[docs]</a>
-    <span class="n">module</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">module_info</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+    <span class="n">module</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">module_info</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span></div>
 
     <span class="n">resources</span> <span class="o">=</span> <span class="n">module</span><span class="o">.</span><span class="n">RESOURCE_METADATA</span>
     <span class="n">RESOURCE_METADATA</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">resources</span><span class="p">)</span>
@@ -891,332 +891,332 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/resources/index.html#pudl.metadata.resources.FOREIGN_KEYS">[docs]</a>
 <span class="n">FOREIGN_KEYS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]]</span> <span class="o">=</span> <span class="n">build_foreign_keys</span><span class="p">(</span><span class="n">RESOURCE_METADATA</span><span class="p">)</span></div>
 
-<span class="sd">&quot;&quot;&quot;Generated foreign key constraints by resource name.</span>
+<span class="sd">"""Generated foreign key constraints by resource name.</span>
 
 <span class="sd">See :func:`pudl.metadata.helpers.build_foreign_keys`.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <div class="viewcode-block" id="ENTITIES">
 <a class="viewcode-back" href="../../../autoapi/pudl/metadata/resources/index.html#pudl.metadata.resources.ENTITIES">[docs]</a>
 <span class="n">ENTITIES</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;plants&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;id_cols&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;plant_id_eia&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;static_cols&quot;</span><span class="p">:</span> <span class="p">[</span>
-            <span class="s2">&quot;city&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;county&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;latitude&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;longitude&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;plant_name_eia&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;state&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;street_address&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;zip_code&quot;</span><span class="p">,</span>
+    <span class="s2">"plants"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"id_cols"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"plant_id_eia"</span><span class="p">],</span>
+        <span class="s2">"static_cols"</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">"city"</span><span class="p">,</span>
+            <span class="s2">"county"</span><span class="p">,</span>
+            <span class="s2">"latitude"</span><span class="p">,</span>
+            <span class="s2">"longitude"</span><span class="p">,</span>
+            <span class="s2">"plant_name_eia"</span><span class="p">,</span>
+            <span class="s2">"state"</span><span class="p">,</span>
+            <span class="s2">"street_address"</span><span class="p">,</span>
+            <span class="s2">"zip_code"</span><span class="p">,</span>
         <span class="p">],</span>
-        <span class="s2">&quot;annual_cols&quot;</span><span class="p">:</span> <span class="p">[</span>
-            <span class="s2">&quot;ash_impoundment&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;ash_impoundment_lined&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;ash_impoundment_status&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;balancing_authority_code_eia&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;balancing_authority_name_eia&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;datum&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;energy_storage&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;ferc_cogen_docket_no&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;ferc_cogen_status&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;ferc_exempt_wholesale_generator_docket_no&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;ferc_exempt_wholesale_generator&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;ferc_small_power_producer_docket_no&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;ferc_small_power_producer&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;ferc_qualifying_facility_docket_no&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;grid_voltage_1_kv&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;grid_voltage_2_kv&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;grid_voltage_3_kv&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;iso_rto_code&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;liquefied_natural_gas_storage&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;natural_gas_local_distribution_company&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;natural_gas_storage&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;natural_gas_pipeline_name_1&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;natural_gas_pipeline_name_2&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;natural_gas_pipeline_name_3&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;nerc_region&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;has_net_metering&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;pipeline_notes&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;primary_purpose_id_naics&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;regulatory_status_code&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;reporting_frequency_code&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;sector_id_eia&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;sector_name_eia&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;service_area&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;transmission_distribution_owner_id&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;transmission_distribution_owner_name&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;transmission_distribution_owner_state&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;water_source&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;data_maturity&quot;</span><span class="p">,</span>
+        <span class="s2">"annual_cols"</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">"ash_impoundment"</span><span class="p">,</span>
+            <span class="s2">"ash_impoundment_lined"</span><span class="p">,</span>
+            <span class="s2">"ash_impoundment_status"</span><span class="p">,</span>
+            <span class="s2">"balancing_authority_code_eia"</span><span class="p">,</span>
+            <span class="s2">"balancing_authority_name_eia"</span><span class="p">,</span>
+            <span class="s2">"datum"</span><span class="p">,</span>
+            <span class="s2">"energy_storage"</span><span class="p">,</span>
+            <span class="s2">"ferc_cogen_docket_no"</span><span class="p">,</span>
+            <span class="s2">"ferc_cogen_status"</span><span class="p">,</span>
+            <span class="s2">"ferc_exempt_wholesale_generator_docket_no"</span><span class="p">,</span>
+            <span class="s2">"ferc_exempt_wholesale_generator"</span><span class="p">,</span>
+            <span class="s2">"ferc_small_power_producer_docket_no"</span><span class="p">,</span>
+            <span class="s2">"ferc_small_power_producer"</span><span class="p">,</span>
+            <span class="s2">"ferc_qualifying_facility_docket_no"</span><span class="p">,</span>
+            <span class="s2">"grid_voltage_1_kv"</span><span class="p">,</span>
+            <span class="s2">"grid_voltage_2_kv"</span><span class="p">,</span>
+            <span class="s2">"grid_voltage_3_kv"</span><span class="p">,</span>
+            <span class="s2">"iso_rto_code"</span><span class="p">,</span>
+            <span class="s2">"liquefied_natural_gas_storage"</span><span class="p">,</span>
+            <span class="s2">"natural_gas_local_distribution_company"</span><span class="p">,</span>
+            <span class="s2">"natural_gas_storage"</span><span class="p">,</span>
+            <span class="s2">"natural_gas_pipeline_name_1"</span><span class="p">,</span>
+            <span class="s2">"natural_gas_pipeline_name_2"</span><span class="p">,</span>
+            <span class="s2">"natural_gas_pipeline_name_3"</span><span class="p">,</span>
+            <span class="s2">"nerc_region"</span><span class="p">,</span>
+            <span class="s2">"has_net_metering"</span><span class="p">,</span>
+            <span class="s2">"pipeline_notes"</span><span class="p">,</span>
+            <span class="s2">"primary_purpose_id_naics"</span><span class="p">,</span>
+            <span class="s2">"regulatory_status_code"</span><span class="p">,</span>
+            <span class="s2">"reporting_frequency_code"</span><span class="p">,</span>
+            <span class="s2">"sector_id_eia"</span><span class="p">,</span>
+            <span class="s2">"sector_name_eia"</span><span class="p">,</span>
+            <span class="s2">"service_area"</span><span class="p">,</span>
+            <span class="s2">"transmission_distribution_owner_id"</span><span class="p">,</span>
+            <span class="s2">"transmission_distribution_owner_name"</span><span class="p">,</span>
+            <span class="s2">"transmission_distribution_owner_state"</span><span class="p">,</span>
+            <span class="s2">"utility_id_eia"</span><span class="p">,</span>
+            <span class="s2">"water_source"</span><span class="p">,</span>
+            <span class="s2">"data_maturity"</span><span class="p">,</span>
         <span class="p">],</span>
-        <span class="s2">&quot;mapped_schemas&quot;</span><span class="p">:</span> <span class="p">[</span>
-            <span class="p">{</span><span class="s2">&quot;operator_utility_id_eia&quot;</span><span class="p">:</span> <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">},</span>
-            <span class="p">{</span><span class="s2">&quot;plant_id_eia_direct_support_1&quot;</span><span class="p">:</span> <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">},</span>
-            <span class="p">{</span><span class="s2">&quot;plant_id_eia_direct_support_2&quot;</span><span class="p">:</span> <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">},</span>
-            <span class="p">{</span><span class="s2">&quot;plant_id_eia_direct_support_3&quot;</span><span class="p">:</span> <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">},</span>
-        <span class="p">],</span>
-    <span class="p">},</span>
-    <span class="s2">&quot;generators&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;id_cols&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;generator_id&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;static_cols&quot;</span><span class="p">:</span> <span class="p">[</span>
-            <span class="s2">&quot;duct_burners&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;generator_operating_date&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;topping_bottoming_code&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;solid_fuel_gasification&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;pulverized_coal_tech&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;fluidized_bed_tech&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;subcritical_tech&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;supercritical_tech&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;ultrasupercritical_tech&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;stoker_tech&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;other_combustion_tech&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;bypass_heat_recovery&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;rto_iso_lmp_node_id&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;rto_iso_location_wholesale_reporting_id&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;associated_combined_heat_power&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;original_planned_generator_operating_date&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;can_switch_when_operating&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;previously_canceled&quot;</span><span class="p">,</span>
-        <span class="p">],</span>
-        <span class="s2">&quot;annual_cols&quot;</span><span class="p">:</span> <span class="p">[</span>
-            <span class="s2">&quot;capacity_mw&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;fuel_type_code_pudl&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;can_burn_multiple_fuels&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;ownership_code&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;owned_by_non_utility&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;deliver_power_transgrid&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;summer_capacity_mw&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;winter_capacity_mw&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;summer_capacity_estimate&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;winter_capacity_estimate&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;minimum_load_mw&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;distributed_generation&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;technology_description&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;reactive_power_output_mvar&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;prime_mover_code&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;energy_source_code_1&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;energy_source_code_2&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;energy_source_code_3&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;energy_source_code_4&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;energy_source_code_5&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;energy_source_code_6&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;energy_source_1_transport_1&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;energy_source_1_transport_2&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;energy_source_1_transport_3&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;energy_source_2_transport_1&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;energy_source_2_transport_2&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;energy_source_2_transport_3&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;startup_source_code_1&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;startup_source_code_2&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;startup_source_code_3&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;startup_source_code_4&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;time_cold_shutdown_full_load_code&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;synchronized_transmission_grid&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;turbines_num&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;operational_status_code&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;operational_status&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;planned_modifications&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;planned_net_summer_capacity_uprate_mw&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;planned_net_winter_capacity_uprate_mw&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;planned_new_capacity_mw&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;planned_uprate_date&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;planned_net_summer_capacity_derate_mw&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;planned_net_winter_capacity_derate_mw&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;planned_derate_date&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;planned_new_prime_mover_code&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;planned_energy_source_code_1&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;planned_repower_date&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;other_planned_modifications&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;other_modifications_date&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;planned_generator_retirement_date&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;carbon_capture&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;can_cofire_fuels&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;can_switch_oil_gas&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;turbines_inverters_hydrokinetics&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;nameplate_power_factor&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;uprate_derate_during_year&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;uprate_derate_completed_date&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;current_planned_generator_operating_date&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;summer_estimated_capability_mw&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;winter_estimated_capability_mw&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;generator_retirement_date&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;ferc_qualifying_facility&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;data_maturity&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;energy_storage_capacity_mwh&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;net_capacity_mwdc&quot;</span><span class="p">,</span>
-        <span class="p">],</span>
-        <span class="s2">&quot;mapped_schemas&quot;</span><span class="p">:</span> <span class="p">[</span>
-            <span class="p">{</span><span class="s2">&quot;operator_utility_id_eia&quot;</span><span class="p">:</span> <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">},</span>
-            <span class="p">{</span>
-                <span class="s2">&quot;plant_id_eia_direct_support_1&quot;</span><span class="p">:</span> <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;generator_id_direct_support_1&quot;</span><span class="p">:</span> <span class="s2">&quot;generator_id&quot;</span><span class="p">,</span>
-            <span class="p">},</span>
-            <span class="p">{</span>
-                <span class="s2">&quot;plant_id_eia_direct_support_2&quot;</span><span class="p">:</span> <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;generator_id_direct_support_2&quot;</span><span class="p">:</span> <span class="s2">&quot;generator_id&quot;</span><span class="p">,</span>
-            <span class="p">},</span>
-            <span class="p">{</span>
-                <span class="s2">&quot;plant_id_eia_direct_support_3&quot;</span><span class="p">:</span> <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;generator_id_direct_support_3&quot;</span><span class="p">:</span> <span class="s2">&quot;generator_id&quot;</span><span class="p">,</span>
-            <span class="p">},</span>
+        <span class="s2">"mapped_schemas"</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span><span class="s2">"operator_utility_id_eia"</span><span class="p">:</span> <span class="s2">"utility_id_eia"</span><span class="p">},</span>
+            <span class="p">{</span><span class="s2">"plant_id_eia_direct_support_1"</span><span class="p">:</span> <span class="s2">"plant_id_eia"</span><span class="p">},</span>
+            <span class="p">{</span><span class="s2">"plant_id_eia_direct_support_2"</span><span class="p">:</span> <span class="s2">"plant_id_eia"</span><span class="p">},</span>
+            <span class="p">{</span><span class="s2">"plant_id_eia_direct_support_3"</span><span class="p">:</span> <span class="s2">"plant_id_eia"</span><span class="p">},</span>
         <span class="p">],</span>
     <span class="p">},</span>
-    <span class="s2">&quot;boilers&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;id_cols&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;boiler_id&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;static_cols&quot;</span><span class="p">:</span> <span class="p">[</span>
-            <span class="s2">&quot;boiler_manufacturer&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;boiler_manufacturer_code&quot;</span><span class="p">,</span>
+    <span class="s2">"generators"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"id_cols"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"plant_id_eia"</span><span class="p">,</span> <span class="s2">"generator_id"</span><span class="p">],</span>
+        <span class="s2">"static_cols"</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">"duct_burners"</span><span class="p">,</span>
+            <span class="s2">"generator_operating_date"</span><span class="p">,</span>
+            <span class="s2">"topping_bottoming_code"</span><span class="p">,</span>
+            <span class="s2">"solid_fuel_gasification"</span><span class="p">,</span>
+            <span class="s2">"pulverized_coal_tech"</span><span class="p">,</span>
+            <span class="s2">"fluidized_bed_tech"</span><span class="p">,</span>
+            <span class="s2">"subcritical_tech"</span><span class="p">,</span>
+            <span class="s2">"supercritical_tech"</span><span class="p">,</span>
+            <span class="s2">"ultrasupercritical_tech"</span><span class="p">,</span>
+            <span class="s2">"stoker_tech"</span><span class="p">,</span>
+            <span class="s2">"other_combustion_tech"</span><span class="p">,</span>
+            <span class="s2">"bypass_heat_recovery"</span><span class="p">,</span>
+            <span class="s2">"rto_iso_lmp_node_id"</span><span class="p">,</span>
+            <span class="s2">"rto_iso_location_wholesale_reporting_id"</span><span class="p">,</span>
+            <span class="s2">"associated_combined_heat_power"</span><span class="p">,</span>
+            <span class="s2">"original_planned_generator_operating_date"</span><span class="p">,</span>
+            <span class="s2">"can_switch_when_operating"</span><span class="p">,</span>
+            <span class="s2">"previously_canceled"</span><span class="p">,</span>
         <span class="p">],</span>
-        <span class="s2">&quot;annual_cols&quot;</span><span class="p">:</span> <span class="p">[</span>
-            <span class="s2">&quot;boiler_operating_date&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;boiler_status&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;boiler_retirement_date&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;boiler_type&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;firing_type_1&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;firing_type_2&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;firing_type_3&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;firing_rate_using_coal_tons_per_hour&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;firing_rate_using_oil_bbls_per_hour&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;firing_rate_using_gas_mcf_per_hour&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;firing_rate_using_other_fuels&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;boiler_fuel_code_1&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;boiler_fuel_code_2&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;boiler_fuel_code_3&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;boiler_fuel_code_4&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;waste_heat_input_mmbtu_per_hour&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;wet_dry_bottom_code&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;fly_ash_reinjection&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;hrsg&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;max_steam_flow_lbs_per_hour&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;turndown_ratio&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;efficiency_100pct_load&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;efficiency_50pct_load&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;air_flow_100pct_load_cubic_feet_per_minute&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;new_source_review&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;new_source_review_date&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;new_source_review_permit&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;regulation_particulate&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;regulation_so2&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;regulation_nox&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;standard_particulate_rate&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;standard_so2_rate&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;standard_nox_rate&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;unit_particulate&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;unit_so2&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;unit_nox&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;compliance_year_particulate&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;compliance_year_nox&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;compliance_year_so2&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;particulate_control_out_of_compliance_strategy_1&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;particulate_control_out_of_compliance_strategy_2&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;particulate_control_out_of_compliance_strategy_3&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;so2_control_out_of_compliance_strategy_1&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;so2_control_out_of_compliance_strategy_2&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;so2_control_out_of_compliance_strategy_3&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;so2_control_existing_caaa_compliance_strategy_1&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;so2_control_existing_caaa_compliance_strategy_2&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;so2_control_existing_caaa_compliance_strategy_3&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;so2_control_planned_caaa_compliance_strategy_1&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;so2_control_planned_caaa_compliance_strategy_2&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;so2_control_planned_caaa_compliance_strategy_3&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;nox_control_out_of_compliance_strategy_1&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;nox_control_out_of_compliance_strategy_2&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;nox_control_out_of_compliance_strategy_3&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;nox_control_existing_caaa_compliance_strategy_1&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;nox_control_existing_caaa_compliance_strategy_2&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;nox_control_existing_caaa_compliance_strategy_3&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;nox_control_planned_caaa_compliance_strategy_1&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;nox_control_planned_caaa_compliance_strategy_2&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;nox_control_planned_caaa_compliance_strategy_3&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;compliance_year_mercury&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;mercury_control_existing_strategy_1&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;mercury_control_existing_strategy_2&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;mercury_control_existing_strategy_3&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;mercury_control_existing_strategy_4&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;mercury_control_existing_strategy_5&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;mercury_control_existing_strategy_6&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;mercury_control_proposed_strategy_1&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;mercury_control_proposed_strategy_2&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;mercury_control_proposed_strategy_3&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;nox_control_existing_strategy_1&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;nox_control_existing_strategy_2&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;nox_control_existing_strategy_3&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;nox_control_manufacturer&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;nox_control_manufacturer_code&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;nox_control_proposed_strategy_1&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;nox_control_proposed_strategy_2&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;nox_control_proposed_strategy_3&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;nox_control_status_code&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;regulation_mercury&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;so2_control_existing_strategy_1&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;so2_control_existing_strategy_2&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;so2_control_existing_strategy_3&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;so2_control_proposed_strategy_1&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;so2_control_proposed_strategy_2&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;so2_control_proposed_strategy_3&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;standard_so2_scrubbed_fraction&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;data_maturity&quot;</span><span class="p">,</span>
+        <span class="s2">"annual_cols"</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">"capacity_mw"</span><span class="p">,</span>
+            <span class="s2">"fuel_type_code_pudl"</span><span class="p">,</span>
+            <span class="s2">"can_burn_multiple_fuels"</span><span class="p">,</span>
+            <span class="s2">"ownership_code"</span><span class="p">,</span>
+            <span class="s2">"owned_by_non_utility"</span><span class="p">,</span>
+            <span class="s2">"deliver_power_transgrid"</span><span class="p">,</span>
+            <span class="s2">"summer_capacity_mw"</span><span class="p">,</span>
+            <span class="s2">"winter_capacity_mw"</span><span class="p">,</span>
+            <span class="s2">"summer_capacity_estimate"</span><span class="p">,</span>
+            <span class="s2">"winter_capacity_estimate"</span><span class="p">,</span>
+            <span class="s2">"minimum_load_mw"</span><span class="p">,</span>
+            <span class="s2">"distributed_generation"</span><span class="p">,</span>
+            <span class="s2">"technology_description"</span><span class="p">,</span>
+            <span class="s2">"reactive_power_output_mvar"</span><span class="p">,</span>
+            <span class="s2">"prime_mover_code"</span><span class="p">,</span>
+            <span class="s2">"energy_source_code_1"</span><span class="p">,</span>
+            <span class="s2">"energy_source_code_2"</span><span class="p">,</span>
+            <span class="s2">"energy_source_code_3"</span><span class="p">,</span>
+            <span class="s2">"energy_source_code_4"</span><span class="p">,</span>
+            <span class="s2">"energy_source_code_5"</span><span class="p">,</span>
+            <span class="s2">"energy_source_code_6"</span><span class="p">,</span>
+            <span class="s2">"energy_source_1_transport_1"</span><span class="p">,</span>
+            <span class="s2">"energy_source_1_transport_2"</span><span class="p">,</span>
+            <span class="s2">"energy_source_1_transport_3"</span><span class="p">,</span>
+            <span class="s2">"energy_source_2_transport_1"</span><span class="p">,</span>
+            <span class="s2">"energy_source_2_transport_2"</span><span class="p">,</span>
+            <span class="s2">"energy_source_2_transport_3"</span><span class="p">,</span>
+            <span class="s2">"startup_source_code_1"</span><span class="p">,</span>
+            <span class="s2">"startup_source_code_2"</span><span class="p">,</span>
+            <span class="s2">"startup_source_code_3"</span><span class="p">,</span>
+            <span class="s2">"startup_source_code_4"</span><span class="p">,</span>
+            <span class="s2">"time_cold_shutdown_full_load_code"</span><span class="p">,</span>
+            <span class="s2">"synchronized_transmission_grid"</span><span class="p">,</span>
+            <span class="s2">"turbines_num"</span><span class="p">,</span>
+            <span class="s2">"operational_status_code"</span><span class="p">,</span>
+            <span class="s2">"operational_status"</span><span class="p">,</span>
+            <span class="s2">"planned_modifications"</span><span class="p">,</span>
+            <span class="s2">"planned_net_summer_capacity_uprate_mw"</span><span class="p">,</span>
+            <span class="s2">"planned_net_winter_capacity_uprate_mw"</span><span class="p">,</span>
+            <span class="s2">"planned_new_capacity_mw"</span><span class="p">,</span>
+            <span class="s2">"planned_uprate_date"</span><span class="p">,</span>
+            <span class="s2">"planned_net_summer_capacity_derate_mw"</span><span class="p">,</span>
+            <span class="s2">"planned_net_winter_capacity_derate_mw"</span><span class="p">,</span>
+            <span class="s2">"planned_derate_date"</span><span class="p">,</span>
+            <span class="s2">"planned_new_prime_mover_code"</span><span class="p">,</span>
+            <span class="s2">"planned_energy_source_code_1"</span><span class="p">,</span>
+            <span class="s2">"planned_repower_date"</span><span class="p">,</span>
+            <span class="s2">"other_planned_modifications"</span><span class="p">,</span>
+            <span class="s2">"other_modifications_date"</span><span class="p">,</span>
+            <span class="s2">"planned_generator_retirement_date"</span><span class="p">,</span>
+            <span class="s2">"carbon_capture"</span><span class="p">,</span>
+            <span class="s2">"can_cofire_fuels"</span><span class="p">,</span>
+            <span class="s2">"can_switch_oil_gas"</span><span class="p">,</span>
+            <span class="s2">"turbines_inverters_hydrokinetics"</span><span class="p">,</span>
+            <span class="s2">"nameplate_power_factor"</span><span class="p">,</span>
+            <span class="s2">"uprate_derate_during_year"</span><span class="p">,</span>
+            <span class="s2">"uprate_derate_completed_date"</span><span class="p">,</span>
+            <span class="s2">"current_planned_generator_operating_date"</span><span class="p">,</span>
+            <span class="s2">"summer_estimated_capability_mw"</span><span class="p">,</span>
+            <span class="s2">"winter_estimated_capability_mw"</span><span class="p">,</span>
+            <span class="s2">"generator_retirement_date"</span><span class="p">,</span>
+            <span class="s2">"utility_id_eia"</span><span class="p">,</span>
+            <span class="s2">"ferc_qualifying_facility"</span><span class="p">,</span>
+            <span class="s2">"data_maturity"</span><span class="p">,</span>
+            <span class="s2">"energy_storage_capacity_mwh"</span><span class="p">,</span>
+            <span class="s2">"net_capacity_mwdc"</span><span class="p">,</span>
         <span class="p">],</span>
-    <span class="p">},</span>
-    <span class="s2">&quot;utilities&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;id_cols&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;utility_id_eia&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;static_cols&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;utility_name_eia&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;annual_cols&quot;</span><span class="p">:</span> <span class="p">[</span>
-            <span class="s2">&quot;street_address&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;city&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;state&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;zip_code&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;entity_type&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;plants_reported_owner&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;plants_reported_operator&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;plants_reported_asset_manager&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;plants_reported_other_relationship&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;attention_line&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;address_2&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;zip_code_4&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;contact_firstname&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;contact_lastname&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;contact_title&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;contact_firstname_2&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;contact_lastname_2&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;contact_title_2&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;phone_extension&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;phone_extension_2&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;phone_number&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;phone_number_2&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;data_maturity&quot;</span><span class="p">,</span>
-        <span class="p">],</span>
-        <span class="s2">&quot;mapped_schemas&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">"mapped_schemas"</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span><span class="s2">"operator_utility_id_eia"</span><span class="p">:</span> <span class="s2">"utility_id_eia"</span><span class="p">},</span>
             <span class="p">{</span>
-                <span class="s2">&quot;owner_utility_id_eia&quot;</span><span class="p">:</span> <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;owner_utility_name_eia&quot;</span><span class="p">:</span> <span class="s2">&quot;utility_name_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;owner_state&quot;</span><span class="p">:</span> <span class="s2">&quot;state&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;owner_country&quot;</span><span class="p">:</span> <span class="s2">&quot;country&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;owner_street_address&quot;</span><span class="p">:</span> <span class="s2">&quot;street_address&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;owner_zip_code&quot;</span><span class="p">:</span> <span class="s2">&quot;zip_code&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;owner_city&quot;</span><span class="p">:</span> <span class="s2">&quot;city&quot;</span><span class="p">,</span>
+                <span class="s2">"plant_id_eia_direct_support_1"</span><span class="p">:</span> <span class="s2">"plant_id_eia"</span><span class="p">,</span>
+                <span class="s2">"generator_id_direct_support_1"</span><span class="p">:</span> <span class="s2">"generator_id"</span><span class="p">,</span>
             <span class="p">},</span>
             <span class="p">{</span>
-                <span class="s2">&quot;operator_utility_id_eia&quot;</span><span class="p">:</span> <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;operator_utility_name_eia&quot;</span><span class="p">:</span> <span class="s2">&quot;utility_name_eia&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;operator_state&quot;</span><span class="p">:</span> <span class="s2">&quot;state&quot;</span><span class="p">,</span>
+                <span class="s2">"plant_id_eia_direct_support_2"</span><span class="p">:</span> <span class="s2">"plant_id_eia"</span><span class="p">,</span>
+                <span class="s2">"generator_id_direct_support_2"</span><span class="p">:</span> <span class="s2">"generator_id"</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="p">{</span>
+                <span class="s2">"plant_id_eia_direct_support_3"</span><span class="p">:</span> <span class="s2">"plant_id_eia"</span><span class="p">,</span>
+                <span class="s2">"generator_id_direct_support_3"</span><span class="p">:</span> <span class="s2">"generator_id"</span><span class="p">,</span>
+            <span class="p">},</span>
+        <span class="p">],</span>
+    <span class="p">},</span>
+    <span class="s2">"boilers"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"id_cols"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"plant_id_eia"</span><span class="p">,</span> <span class="s2">"boiler_id"</span><span class="p">],</span>
+        <span class="s2">"static_cols"</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">"boiler_manufacturer"</span><span class="p">,</span>
+            <span class="s2">"boiler_manufacturer_code"</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="s2">"annual_cols"</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">"boiler_operating_date"</span><span class="p">,</span>
+            <span class="s2">"boiler_status"</span><span class="p">,</span>
+            <span class="s2">"boiler_retirement_date"</span><span class="p">,</span>
+            <span class="s2">"boiler_type"</span><span class="p">,</span>
+            <span class="s2">"firing_type_1"</span><span class="p">,</span>
+            <span class="s2">"firing_type_2"</span><span class="p">,</span>
+            <span class="s2">"firing_type_3"</span><span class="p">,</span>
+            <span class="s2">"firing_rate_using_coal_tons_per_hour"</span><span class="p">,</span>
+            <span class="s2">"firing_rate_using_oil_bbls_per_hour"</span><span class="p">,</span>
+            <span class="s2">"firing_rate_using_gas_mcf_per_hour"</span><span class="p">,</span>
+            <span class="s2">"firing_rate_using_other_fuels"</span><span class="p">,</span>
+            <span class="s2">"boiler_fuel_code_1"</span><span class="p">,</span>
+            <span class="s2">"boiler_fuel_code_2"</span><span class="p">,</span>
+            <span class="s2">"boiler_fuel_code_3"</span><span class="p">,</span>
+            <span class="s2">"boiler_fuel_code_4"</span><span class="p">,</span>
+            <span class="s2">"waste_heat_input_mmbtu_per_hour"</span><span class="p">,</span>
+            <span class="s2">"wet_dry_bottom_code"</span><span class="p">,</span>
+            <span class="s2">"fly_ash_reinjection"</span><span class="p">,</span>
+            <span class="s2">"hrsg"</span><span class="p">,</span>
+            <span class="s2">"max_steam_flow_lbs_per_hour"</span><span class="p">,</span>
+            <span class="s2">"turndown_ratio"</span><span class="p">,</span>
+            <span class="s2">"efficiency_100pct_load"</span><span class="p">,</span>
+            <span class="s2">"efficiency_50pct_load"</span><span class="p">,</span>
+            <span class="s2">"air_flow_100pct_load_cubic_feet_per_minute"</span><span class="p">,</span>
+            <span class="s2">"new_source_review"</span><span class="p">,</span>
+            <span class="s2">"new_source_review_date"</span><span class="p">,</span>
+            <span class="s2">"new_source_review_permit"</span><span class="p">,</span>
+            <span class="s2">"regulation_particulate"</span><span class="p">,</span>
+            <span class="s2">"regulation_so2"</span><span class="p">,</span>
+            <span class="s2">"regulation_nox"</span><span class="p">,</span>
+            <span class="s2">"standard_particulate_rate"</span><span class="p">,</span>
+            <span class="s2">"standard_so2_rate"</span><span class="p">,</span>
+            <span class="s2">"standard_nox_rate"</span><span class="p">,</span>
+            <span class="s2">"unit_particulate"</span><span class="p">,</span>
+            <span class="s2">"unit_so2"</span><span class="p">,</span>
+            <span class="s2">"unit_nox"</span><span class="p">,</span>
+            <span class="s2">"compliance_year_particulate"</span><span class="p">,</span>
+            <span class="s2">"compliance_year_nox"</span><span class="p">,</span>
+            <span class="s2">"compliance_year_so2"</span><span class="p">,</span>
+            <span class="s2">"particulate_control_out_of_compliance_strategy_1"</span><span class="p">,</span>
+            <span class="s2">"particulate_control_out_of_compliance_strategy_2"</span><span class="p">,</span>
+            <span class="s2">"particulate_control_out_of_compliance_strategy_3"</span><span class="p">,</span>
+            <span class="s2">"so2_control_out_of_compliance_strategy_1"</span><span class="p">,</span>
+            <span class="s2">"so2_control_out_of_compliance_strategy_2"</span><span class="p">,</span>
+            <span class="s2">"so2_control_out_of_compliance_strategy_3"</span><span class="p">,</span>
+            <span class="s2">"so2_control_existing_caaa_compliance_strategy_1"</span><span class="p">,</span>
+            <span class="s2">"so2_control_existing_caaa_compliance_strategy_2"</span><span class="p">,</span>
+            <span class="s2">"so2_control_existing_caaa_compliance_strategy_3"</span><span class="p">,</span>
+            <span class="s2">"so2_control_planned_caaa_compliance_strategy_1"</span><span class="p">,</span>
+            <span class="s2">"so2_control_planned_caaa_compliance_strategy_2"</span><span class="p">,</span>
+            <span class="s2">"so2_control_planned_caaa_compliance_strategy_3"</span><span class="p">,</span>
+            <span class="s2">"nox_control_out_of_compliance_strategy_1"</span><span class="p">,</span>
+            <span class="s2">"nox_control_out_of_compliance_strategy_2"</span><span class="p">,</span>
+            <span class="s2">"nox_control_out_of_compliance_strategy_3"</span><span class="p">,</span>
+            <span class="s2">"nox_control_existing_caaa_compliance_strategy_1"</span><span class="p">,</span>
+            <span class="s2">"nox_control_existing_caaa_compliance_strategy_2"</span><span class="p">,</span>
+            <span class="s2">"nox_control_existing_caaa_compliance_strategy_3"</span><span class="p">,</span>
+            <span class="s2">"nox_control_planned_caaa_compliance_strategy_1"</span><span class="p">,</span>
+            <span class="s2">"nox_control_planned_caaa_compliance_strategy_2"</span><span class="p">,</span>
+            <span class="s2">"nox_control_planned_caaa_compliance_strategy_3"</span><span class="p">,</span>
+            <span class="s2">"compliance_year_mercury"</span><span class="p">,</span>
+            <span class="s2">"mercury_control_existing_strategy_1"</span><span class="p">,</span>
+            <span class="s2">"mercury_control_existing_strategy_2"</span><span class="p">,</span>
+            <span class="s2">"mercury_control_existing_strategy_3"</span><span class="p">,</span>
+            <span class="s2">"mercury_control_existing_strategy_4"</span><span class="p">,</span>
+            <span class="s2">"mercury_control_existing_strategy_5"</span><span class="p">,</span>
+            <span class="s2">"mercury_control_existing_strategy_6"</span><span class="p">,</span>
+            <span class="s2">"mercury_control_proposed_strategy_1"</span><span class="p">,</span>
+            <span class="s2">"mercury_control_proposed_strategy_2"</span><span class="p">,</span>
+            <span class="s2">"mercury_control_proposed_strategy_3"</span><span class="p">,</span>
+            <span class="s2">"nox_control_existing_strategy_1"</span><span class="p">,</span>
+            <span class="s2">"nox_control_existing_strategy_2"</span><span class="p">,</span>
+            <span class="s2">"nox_control_existing_strategy_3"</span><span class="p">,</span>
+            <span class="s2">"nox_control_manufacturer"</span><span class="p">,</span>
+            <span class="s2">"nox_control_manufacturer_code"</span><span class="p">,</span>
+            <span class="s2">"nox_control_proposed_strategy_1"</span><span class="p">,</span>
+            <span class="s2">"nox_control_proposed_strategy_2"</span><span class="p">,</span>
+            <span class="s2">"nox_control_proposed_strategy_3"</span><span class="p">,</span>
+            <span class="s2">"nox_control_status_code"</span><span class="p">,</span>
+            <span class="s2">"regulation_mercury"</span><span class="p">,</span>
+            <span class="s2">"so2_control_existing_strategy_1"</span><span class="p">,</span>
+            <span class="s2">"so2_control_existing_strategy_2"</span><span class="p">,</span>
+            <span class="s2">"so2_control_existing_strategy_3"</span><span class="p">,</span>
+            <span class="s2">"so2_control_proposed_strategy_1"</span><span class="p">,</span>
+            <span class="s2">"so2_control_proposed_strategy_2"</span><span class="p">,</span>
+            <span class="s2">"so2_control_proposed_strategy_3"</span><span class="p">,</span>
+            <span class="s2">"standard_so2_scrubbed_fraction"</span><span class="p">,</span>
+            <span class="s2">"data_maturity"</span><span class="p">,</span>
+        <span class="p">],</span>
+    <span class="p">},</span>
+    <span class="s2">"utilities"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"id_cols"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"utility_id_eia"</span><span class="p">],</span>
+        <span class="s2">"static_cols"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"utility_name_eia"</span><span class="p">],</span>
+        <span class="s2">"annual_cols"</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">"street_address"</span><span class="p">,</span>
+            <span class="s2">"city"</span><span class="p">,</span>
+            <span class="s2">"state"</span><span class="p">,</span>
+            <span class="s2">"zip_code"</span><span class="p">,</span>
+            <span class="s2">"entity_type"</span><span class="p">,</span>
+            <span class="s2">"plants_reported_owner"</span><span class="p">,</span>
+            <span class="s2">"plants_reported_operator"</span><span class="p">,</span>
+            <span class="s2">"plants_reported_asset_manager"</span><span class="p">,</span>
+            <span class="s2">"plants_reported_other_relationship"</span><span class="p">,</span>
+            <span class="s2">"attention_line"</span><span class="p">,</span>
+            <span class="s2">"address_2"</span><span class="p">,</span>
+            <span class="s2">"zip_code_4"</span><span class="p">,</span>
+            <span class="s2">"contact_firstname"</span><span class="p">,</span>
+            <span class="s2">"contact_lastname"</span><span class="p">,</span>
+            <span class="s2">"contact_title"</span><span class="p">,</span>
+            <span class="s2">"contact_firstname_2"</span><span class="p">,</span>
+            <span class="s2">"contact_lastname_2"</span><span class="p">,</span>
+            <span class="s2">"contact_title_2"</span><span class="p">,</span>
+            <span class="s2">"phone_extension"</span><span class="p">,</span>
+            <span class="s2">"phone_extension_2"</span><span class="p">,</span>
+            <span class="s2">"phone_number"</span><span class="p">,</span>
+            <span class="s2">"phone_number_2"</span><span class="p">,</span>
+            <span class="s2">"data_maturity"</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="s2">"mapped_schemas"</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="s2">"owner_utility_id_eia"</span><span class="p">:</span> <span class="s2">"utility_id_eia"</span><span class="p">,</span>
+                <span class="s2">"owner_utility_name_eia"</span><span class="p">:</span> <span class="s2">"utility_name_eia"</span><span class="p">,</span>
+                <span class="s2">"owner_state"</span><span class="p">:</span> <span class="s2">"state"</span><span class="p">,</span>
+                <span class="s2">"owner_country"</span><span class="p">:</span> <span class="s2">"country"</span><span class="p">,</span>
+                <span class="s2">"owner_street_address"</span><span class="p">:</span> <span class="s2">"street_address"</span><span class="p">,</span>
+                <span class="s2">"owner_zip_code"</span><span class="p">:</span> <span class="s2">"zip_code"</span><span class="p">,</span>
+                <span class="s2">"owner_city"</span><span class="p">:</span> <span class="s2">"city"</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="p">{</span>
+                <span class="s2">"operator_utility_id_eia"</span><span class="p">:</span> <span class="s2">"utility_id_eia"</span><span class="p">,</span>
+                <span class="s2">"operator_utility_name_eia"</span><span class="p">:</span> <span class="s2">"utility_name_eia"</span><span class="p">,</span>
+                <span class="s2">"operator_state"</span><span class="p">:</span> <span class="s2">"state"</span><span class="p">,</span>
             <span class="p">},</span>
         <span class="p">],</span>
     <span class="p">},</span>
     <span class="c1"># THIS IS A RUS ENTITY (everything above is from EIA)</span>
-    <span class="s2">&quot;borrowers&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;id_cols&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;borrower_id_rus&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;static_cols&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;borrower_name_rus&quot;</span><span class="p">,</span> <span class="s2">&quot;state&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;annual_cols&quot;</span><span class="p">:</span> <span class="p">[],</span>
-        <span class="s2">&quot;mapped_schemas&quot;</span><span class="p">:</span> <span class="p">[],</span>
+    <span class="s2">"borrowers"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"id_cols"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"borrower_id_rus"</span><span class="p">],</span>
+        <span class="s2">"static_cols"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"borrower_name_rus"</span><span class="p">,</span> <span class="s2">"state"</span><span class="p">],</span>
+        <span class="s2">"annual_cols"</span><span class="p">:</span> <span class="p">[],</span>
+        <span class="s2">"mapped_schemas"</span><span class="p">:</span> <span class="p">[],</span>
     <span class="p">},</span>
 <span class="p">}</span></div>
 
-<span class="sd">&quot;&quot;&quot;Columns kept for either entity or annual EIA tables in the harvesting process.</span>
+<span class="sd">"""Columns kept for either entity or annual EIA tables in the harvesting process.</span>
 
 <span class="sd">For each entity type (key), the ID columns, static columns, annual columns, and mapped</span>
 <span class="sd">columns.</span>
@@ -1228,12 +1228,12 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">from multiple columns in the same input dataframe. Each item in ``mapped_schemas`` is a</span>
 <span class="sd">dictionary mapping column names in one of the cleaned tables to the standard column names</span>
 <span class="sd">for that entity.  This is useful if a table has entities that should be harvested,</span>
-<span class="sd">but whose column names don&#39;t have the same name as those in the ``id_cols``, ``static_cols``,</span>
+<span class="sd">but whose column names don't have the same name as those in the ``id_cols``, ``static_cols``,</span>
 <span class="sd">or ``annual_cols`` list. For example, in the ownership table the owner and operator utility</span>
-<span class="sd">columns map to different column names in the other tables, i.e. &quot;owner_utility_id_eia&quot;: &quot;utility_id_eia&quot;.</span>
+<span class="sd">columns map to different column names in the other tables, i.e. "owner_utility_id_eia": "utility_id_eia".</span>
 <span class="sd">In the harvesting process, a copy of the clean dataframe is made, and these columns are</span>
 <span class="sd">renamed so the relationship can be harvested and added to the normalized entity tables.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 </pre></div>
 
                 </article>

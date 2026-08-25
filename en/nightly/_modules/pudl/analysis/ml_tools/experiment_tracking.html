@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.analysis.ml_tools.experiment_tracking &#8212; PUDL 2026.8.1.dev16 documentation</title>
+    <title>pudl.analysis.ml_tools.experiment_tracking &#8212; PUDL 2026.8.1.dev20 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../../_static/documentation_options.js?v=f981bf86"></script>
+    <script src="../../../../_static/documentation_options.js?v=8f1a003a"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev20 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev20 documentation - Home"/>
   
   
 </a></div>
@@ -871,16 +871,16 @@ window.runMermaid = runMermaid;</script>
                 <article class="bd-article">
                   
   <h1>Source code for pudl.analysis.ml_tools.experiment_tracking</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;This module implements experiment tracking tooling using mlflow as a backend.</span>
+<span></span><span class="sd">"""This module implements experiment tracking tooling using mlflow as a backend.</span>
 
-<span class="sd">:class:`ExperimentTracker`&#39;s are created using an op factory :func:`experiment_tracker_factory`</span>
-<span class="sd">and can be passed around to op&#39;s which make up a PUDL model. This class will maintain</span>
+<span class="sd">:class:`ExperimentTracker`'s are created using an op factory :func:`experiment_tracker_factory`</span>
+<span class="sd">and can be passed around to op's which make up a PUDL model. This class will maintain</span>
 <span class="sd">state between ops, ensuring that all parameters and metrics are logged to the appropriate</span>
 <span class="sd">mlflow run. The following command will launch the mlflow UI to view model results:</span>
 <span class="sd">`mlflow ui --backend-store-uri {tracking_uri}`. `tracking_uri` by default will point</span>
-<span class="sd">to a file named &#39;experiments.sqlite&#39; in the base directory of your PUDL repo, but</span>
+<span class="sd">to a file named 'experiments.sqlite' in the base directory of your PUDL repo, but</span>
 <span class="sd">this is a configurable value, which can be found in the dagster UI.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
@@ -900,7 +900,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="_flatten_model_config">
 <a class="viewcode-back" href="../../../../autoapi/pudl/analysis/ml_tools/experiment_tracking/index.html#pudl.analysis.ml_tools.experiment_tracking._flatten_model_config">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_flatten_model_config</span><span class="p">(</span><span class="n">model_config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Take nested dictionary defining model config and flatten for logging purposes.</span>
+<span class="w">    </span><span class="sd">"""Take nested dictionary defining model config and flatten for logging purposes.</span>
 
 <span class="sd">    This is essentially a translation layer between Dagster configuration and mlflow,</span>
 <span class="sd">    which does not support displaying nested parameters in the UI.</span>
@@ -908,46 +908,46 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    Examples:</span>
 <span class="sd">        &gt;&gt;&gt; _flatten_model_config(</span>
 <span class="sd">        ...     {</span>
-<span class="sd">        ...         &#39;ferc_to_ferc&#39;: {</span>
-<span class="sd">        ...             &#39;link_ids_cross_year&#39;: {</span>
-<span class="sd">        ...                 &#39;compute_distance_matrix&#39;: {</span>
-<span class="sd">        ...                     &#39;distance_threshold&#39;: .5,</span>
-<span class="sd">        ...                      &#39;metric&#39;: &#39;euclidean&#39;,</span>
+<span class="sd">        ...         'ferc_to_ferc': {</span>
+<span class="sd">        ...             'link_ids_cross_year': {</span>
+<span class="sd">        ...                 'compute_distance_matrix': {</span>
+<span class="sd">        ...                     'distance_threshold': .5,</span>
+<span class="sd">        ...                      'metric': 'euclidean',</span>
 <span class="sd">        ...                 },</span>
-<span class="sd">        ...                 &#39;match_orphaned_records&#39;: {&#39;distance_threshold&#39;: 0.5},</span>
+<span class="sd">        ...                 'match_orphaned_records': {'distance_threshold': 0.5},</span>
 <span class="sd">        ...             }</span>
 <span class="sd">        ...         }</span>
 <span class="sd">        ...     }</span>
 <span class="sd">        ... ) == {</span>
-<span class="sd">        ...     &#39;ferc_to_ferc.link_ids_cross_year.compute_distance_matrix.distance_threshold&#39;: 0.5,</span>
-<span class="sd">        ...     &#39;ferc_to_ferc.link_ids_cross_year.compute_distance_matrix.metric&#39;: &#39;euclidean&#39;,</span>
-<span class="sd">        ...     &#39;ferc_to_ferc.link_ids_cross_year.match_orphaned_records.distance_threshold&#39;: 0.5</span>
+<span class="sd">        ...     'ferc_to_ferc.link_ids_cross_year.compute_distance_matrix.distance_threshold': 0.5,</span>
+<span class="sd">        ...     'ferc_to_ferc.link_ids_cross_year.compute_distance_matrix.metric': 'euclidean',</span>
+<span class="sd">        ...     'ferc_to_ferc.link_ids_cross_year.match_orphaned_records.distance_threshold': 0.5</span>
 <span class="sd">        ... }</span>
 <span class="sd">        True</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_flatten_level</span><span class="p">(</span><span class="n">config_level</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">param_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="n">flattened_dict</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">config_level</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="n">flattened_param</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">param_name</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">flattened_param</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">param_name</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">"</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
                 <span class="n">flattened_dict</span> <span class="o">|=</span> <span class="n">_flatten_level</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">param_name</span><span class="o">=</span><span class="n">flattened_param</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">flattened_dict</span><span class="p">[</span><span class="n">flattened_param</span><span class="p">[</span><span class="mi">1</span><span class="p">:]]</span> <span class="o">=</span> <span class="n">val</span>
         <span class="k">return</span> <span class="n">flattened_dict</span>
 
-    <span class="k">return</span> <span class="n">_flatten_level</span><span class="p">(</span><span class="n">model_config</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">_flatten_level</span><span class="p">(</span><span class="n">model_config</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="ExperimentTrackerConfig">
 <a class="viewcode-back" href="../../../../autoapi/pudl/analysis/ml_tools/experiment_tracking/index.html#pudl.analysis.ml_tools.experiment_tracking.ExperimentTrackerConfig">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ExperimentTrackerConfig</span><span class="p">(</span><span class="n">Config</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Dagster config to setup experiment tracking with mlflow.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Dagster config to setup experiment tracking with mlflow."""</span>
 
 <div class="viewcode-block" id="ExperimentTrackerConfig.tracking_uri">
 <a class="viewcode-back" href="../../../../autoapi/pudl/analysis/ml_tools/experiment_tracking/index.html#pudl.analysis.ml_tools.experiment_tracking.ExperimentTrackerConfig.tracking_uri">[docs]</a>
-    <span class="n">tracking_uri</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;sqlite:///</span><span class="si">{</span><span class="n">Path</span><span class="p">(</span><span class="s1">&#39;./&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span><span class="si">}</span><span class="s2">/experiments.sqlite&quot;</span></div>
+    <span class="n">tracking_uri</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"sqlite:///</span><span class="si">{</span><span class="n">Path</span><span class="p">(</span><span class="s1">'./'</span><span class="p">)</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span><span class="si">}</span><span class="s2">/experiments.sqlite"</span></div>
 
 <div class="viewcode-block" id="ExperimentTrackerConfig.tracking_enabled">
 <a class="viewcode-back" href="../../../../autoapi/pudl/analysis/ml_tools/experiment_tracking/index.html#pudl.analysis.ml_tools.experiment_tracking.ExperimentTrackerConfig.tracking_enabled">[docs]</a>
@@ -955,12 +955,12 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="ExperimentTrackerConfig.run_context">
 <a class="viewcode-back" href="../../../../autoapi/pudl/analysis/ml_tools/experiment_tracking/index.html#pudl.analysis.ml_tools.experiment_tracking.ExperimentTrackerConfig.run_context">[docs]</a>
-    <span class="n">run_context</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;production&quot;</span></div>
+    <span class="n">run_context</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"production"</span></div>
 
     <span class="c1">#: Location to store artifacts. Artifact storage not currently used.</span>
 <div class="viewcode-block" id="ExperimentTrackerConfig.artifact_location">
 <a class="viewcode-back" href="../../../../autoapi/pudl/analysis/ml_tools/experiment_tracking/index.html#pudl.analysis.ml_tools.experiment_tracking.ExperimentTrackerConfig.artifact_location">[docs]</a>
-    <span class="n">artifact_location</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;./&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">absolute</span><span class="p">())</span></div>
+    <span class="n">artifact_location</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">"./"</span><span class="p">)</span><span class="o">.</span><span class="n">absolute</span><span class="p">())</span></div>
 </div>
 
 
@@ -968,7 +968,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="ExperimentTracker">
 <a class="viewcode-back" href="../../../../autoapi/pudl/analysis/ml_tools/experiment_tracking/index.html#pudl.analysis.ml_tools.experiment_tracking.ExperimentTracker">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ExperimentTracker</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Class to manage tracking a machine learning model using MLflow.</span>
+<span class="w">    </span><span class="sd">"""Class to manage tracking a machine learning model using MLflow.</span>
 
 <span class="sd">    The following command will launch the mlflow UI to view model results:</span>
 <span class="sd">    `mlflow ui --backend-store-uri {tracking_uri}`. From here, you can compare metrics</span>
@@ -976,8 +976,8 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">    This class is designed to be created using the `op` :func:`create_experiment_tracker`.</span>
 <span class="sd">    This allows the `ExperimentTracker` to be passed around within a Dagster `graph`,</span>
-<span class="sd">    and be used for mlflow logging in any of the `op`&#39;s that make up the `graph`. This</span>
-<span class="sd">    is useful because Dagster executes `op`&#39;s in separate processes, while mlflow does</span>
+<span class="sd">    and be used for mlflow logging in any of the `op`'s that make up the `graph`. This</span>
+<span class="sd">    is useful because Dagster executes `op`'s in separate processes, while mlflow does</span>
 <span class="sd">    not maintain state between processes. This design also allows configuration of</span>
 <span class="sd">    the ExperimentTracker to be set from the Dagster UI.</span>
 
@@ -987,7 +987,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    of the PUDL context. If doing exploratory work in a notebook, you can use mlflow</span>
 <span class="sd">    directly in a notebook with the same experiment name used here, and mlflow will</span>
 <span class="sd">    seamlessly integrate the results with those from PUDL runs.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="ExperimentTracker.tracker_config">
 <a class="viewcode-back" href="../../../../autoapi/pudl/analysis/ml_tools/experiment_tracking/index.html#pudl.analysis.ml_tools.experiment_tracking.ExperimentTracker.tracker_config">[docs]</a>
@@ -1010,14 +1010,14 @@ window.runMermaid = runMermaid;</script>
         <span class="n">experiment_config</span><span class="p">:</span> <span class="n">ExperimentTrackerConfig</span><span class="p">,</span>
         <span class="n">experiment_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">model_config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;ExperimentTracker&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create experiment tracker for specified experiment.&quot;&quot;&quot;</span>
-        <span class="n">run_id</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"ExperimentTracker"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Create experiment tracker for specified experiment."""</span>
+        <span class="n">run_id</span> <span class="o">=</span> <span class="s2">""</span>
         <span class="k">if</span> <span class="n">experiment_config</span><span class="o">.</span><span class="n">tracking_enabled</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Experiment tracker is enabled for </span><span class="si">{</span><span class="n">experiment_name</span><span class="si">}</span><span class="s2">. &quot;</span>
-                <span class="s2">&quot;To view results in the mlflow ui, execute the command: &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;`mlflow ui --backend-store-uri </span><span class="si">{</span><span class="n">experiment_config</span><span class="o">.</span><span class="n">tracking_uri</span><span class="si">}</span><span class="s2">`&quot;</span>
+                <span class="sa">f</span><span class="s2">"Experiment tracker is enabled for </span><span class="si">{</span><span class="n">experiment_name</span><span class="si">}</span><span class="s2">. "</span>
+                <span class="s2">"To view results in the mlflow ui, execute the command: "</span>
+                <span class="sa">f</span><span class="s2">"`mlflow ui --backend-store-uri </span><span class="si">{</span><span class="n">experiment_config</span><span class="o">.</span><span class="n">tracking_uri</span><span class="si">}</span><span class="s2">`"</span>
             <span class="p">)</span>
             <span class="n">mlflow</span><span class="o">.</span><span class="n">set_tracking_uri</span><span class="p">(</span><span class="n">experiment_config</span><span class="o">.</span><span class="n">tracking_uri</span><span class="p">)</span>
             <span class="c1"># Create new run under specified experiment</span>
@@ -1026,7 +1026,7 @@ window.runMermaid = runMermaid;</script>
                     <span class="n">experiment_name</span><span class="o">=</span><span class="n">experiment_name</span><span class="p">,</span>
                     <span class="n">artifact_location</span><span class="o">=</span><span class="n">experiment_config</span><span class="o">.</span><span class="n">artifact_location</span><span class="p">,</span>
                 <span class="p">),</span>
-                <span class="n">tags</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;run_context&quot;</span><span class="p">:</span> <span class="n">experiment_config</span><span class="o">.</span><span class="n">run_context</span><span class="p">},</span>
+                <span class="n">tags</span><span class="o">=</span><span class="p">{</span><span class="s2">"run_context"</span><span class="p">:</span> <span class="n">experiment_config</span><span class="o">.</span><span class="n">run_context</span><span class="p">},</span>
             <span class="p">)</span> <span class="k">as</span> <span class="n">run</span><span class="p">:</span>
                 <span class="c1"># Log model configuration</span>
                 <span class="n">mlflow</span><span class="o">.</span><span class="n">log_params</span><span class="p">(</span><span class="n">model_config</span><span class="p">)</span>
@@ -1044,14 +1044,14 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="ExperimentTracker.execute_logging">
 <a class="viewcode-back" href="../../../../autoapi/pudl/analysis/ml_tools/experiment_tracking/index.html#pudl.analysis.ml_tools.experiment_tracking.ExperimentTracker.execute_logging">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">execute_logging</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">logging_func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Perform MLflow logging statement inside ExperimentTracker run.</span>
+<span class="w">        </span><span class="sd">"""Perform MLflow logging statement inside ExperimentTracker run.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            logging_func: Callable which should perform an mlflow logging statement</span>
 <span class="sd">                inside context manager for run. Passing in callable allows</span>
 <span class="sd">                ExperimentTracker to only execute logging if tracking is enabled</span>
 <span class="sd">                in configuration.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tracker_config</span><span class="o">.</span><span class="n">tracking_enabled</span><span class="p">:</span>
             <span class="n">mlflow</span><span class="o">.</span><span class="n">set_tracking_uri</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tracker_config</span><span class="o">.</span><span class="n">tracking_uri</span><span class="p">)</span>
             <span class="c1"># Calling `start_run` with `run_id` will tell mlflow to start the run again</span>
@@ -1066,9 +1066,9 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="ExperimentTracker.get_or_create_experiment">
 <a class="viewcode-back" href="../../../../autoapi/pudl/analysis/ml_tools/experiment_tracking/index.html#pudl.analysis.ml_tools.experiment_tracking.ExperimentTracker.get_or_create_experiment">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_or_create_experiment</span><span class="p">(</span>
-        <span class="n">experiment_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">artifact_location</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">experiment_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">artifact_location</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retrieve the ID of an existing MLflow experiment or create a new one if it doesn&#39;t exist.</span>
+<span class="w">        </span><span class="sd">"""Retrieve the ID of an existing MLflow experiment or create a new one if it doesn't exist.</span>
 
 <span class="sd">        This function checks if an experiment with the given name exists within MLflow.</span>
 <span class="sd">        If it does, the function returns its ID. If not, it creates a new experiment</span>
@@ -1076,7 +1076,7 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            ID of the existing or newly created MLflow experiment.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="n">experiment</span> <span class="o">:=</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">get_experiment_by_name</span><span class="p">(</span><span class="n">experiment_name</span><span class="p">):</span>
             <span class="n">experiment_id</span> <span class="o">=</span> <span class="n">experiment</span><span class="o">.</span><span class="n">experiment_id</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1095,9 +1095,9 @@ window.runMermaid = runMermaid;</script>
     <span class="n">experiment_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">model_config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ExperimentTracker</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Use config to create an experiment tracker.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Use config to create an experiment tracker."""</span>
 
-    <span class="nd">@op</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">experiment_name</span><span class="si">}</span><span class="s2">_tracker&quot;</span><span class="p">)</span>
+    <span class="nd">@op</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">experiment_name</span><span class="si">}</span><span class="s2">_tracker"</span><span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">create_experiment_tracker</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="n">ExperimentTrackerConfig</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">ExperimentTracker</span><span class="o">.</span><span class="n">create_experiment_tracker</span><span class="p">(</span>
             <span class="n">config</span><span class="p">,</span>

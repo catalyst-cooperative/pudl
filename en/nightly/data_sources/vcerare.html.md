@@ -32,7 +32,7 @@ detailed information.
 
 ### Download additional documentation
 
-* [`Vce Weather Dataset Overview August 2020 (PDF)`](vcerare/VCE_Weather_Dataset_Overview_August_2020.pdf)
+* [`Vce Weather Dataset Overview August 2020 (PDF)`](_downloads/93dc8b4038b311e48fa03fa1c7401f74/VCE_Weather_Dataset_Overview_August_2020.pdf)
 * [NOAA High Resolution Rapid Refresh (HRRR) Model Overview](https://rapidrefresh.noaa.gov/hrrr/)
 * [ESIG Weather Data for Power System Planning](https://www.esig.energy/weather-data-for-power-system-planning/)
   White Paper

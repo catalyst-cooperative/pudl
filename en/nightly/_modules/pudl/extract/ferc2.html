@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.extract.ferc2 &#8212; PUDL 2026.8.1.dev16 documentation</title>
+    <title>pudl.extract.ferc2 &#8212; PUDL 2026.8.1.dev20 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=f981bf86"></script>
+    <script src="../../../_static/documentation_options.js?v=8f1a003a"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev20 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev20 documentation - Home"/>
   
   
 </a></div>
@@ -868,7 +868,7 @@ window.runMermaid = runMermaid;</script>
                 <article class="bd-article">
                   
   <h1>Source code for pudl.extract.ferc2</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Extract FERC Form 2 data from SQLite DBs derived from original DBF files.</span>
+<span></span><span class="sd">"""Extract FERC Form 2 data from SQLite DBs derived from original DBF files.</span>
 
 <span class="sd">The Form No. 2 is a compilation of financial and operational information from major</span>
 <span class="sd">interstate natural gas pipelines subject to the jurisdiction of the FERC. The form</span>
@@ -878,7 +878,7 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">Major is defined as having combined gas transported or stored for a fee that exceeds 50</span>
 <span class="sd">million dekatherms.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Self</span>
 
@@ -902,23 +902,23 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="Ferc2DbfExtractor">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/ferc2/index.html#pudl.extract.ferc2.Ferc2DbfExtractor">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Ferc2DbfExtractor</span><span class="p">(</span><span class="n">FercDbfExtractor</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Wrapper for running the foxpro to sqlite conversion of FERC1 dataset.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Wrapper for running the foxpro to sqlite conversion of FERC1 dataset."""</span>
 
 <div class="viewcode-block" id="Ferc2DbfExtractor.DATASET">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/ferc2/index.html#pudl.extract.ferc2.Ferc2DbfExtractor.DATASET">[docs]</a>
-    <span class="n">DATASET</span> <span class="o">=</span> <span class="s2">&quot;ferc2&quot;</span></div>
+    <span class="n">DATASET</span> <span class="o">=</span> <span class="s2">"ferc2"</span></div>
 
 <div class="viewcode-block" id="Ferc2DbfExtractor.DATABASE_NAME">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/ferc2/index.html#pudl.extract.ferc2.Ferc2DbfExtractor.DATABASE_NAME">[docs]</a>
-    <span class="n">DATABASE_NAME</span> <span class="o">=</span> <span class="s2">&quot;ferc2_dbf.sqlite&quot;</span></div>
+    <span class="n">DATABASE_NAME</span> <span class="o">=</span> <span class="s2">"ferc2_dbf.sqlite"</span></div>
 
 
 <div class="viewcode-block" id="Ferc2DbfExtractor.finalize_schema">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/ferc2/index.html#pudl.extract.ferc2.Ferc2DbfExtractor.finalize_schema">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">finalize_schema</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Self</span><span class="p">,</span> <span class="n">meta</span><span class="p">:</span> <span class="n">sa</span><span class="o">.</span><span class="n">MetaData</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">sa</span><span class="o">.</span><span class="n">MetaData</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add primary and foreign keys for respondent_id.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Add primary and foreign keys for respondent_id."""</span>
         <span class="k">return</span> <span class="n">add_key_constraints</span><span class="p">(</span>
-            <span class="n">meta</span><span class="p">,</span> <span class="n">pk_table</span><span class="o">=</span><span class="s2">&quot;f2_s0_respondent_id&quot;</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="s2">&quot;respondent_id&quot;</span>
+            <span class="n">meta</span><span class="p">,</span> <span class="n">pk_table</span><span class="o">=</span><span class="s2">"f2_s0_respondent_id"</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="s2">"respondent_id"</span>
         <span class="p">)</span></div>
 
 
@@ -926,8 +926,8 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="Ferc2DbfExtractor.is_valid_partition">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/ferc2/index.html#pudl.extract.ferc2.Ferc2DbfExtractor.is_valid_partition">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">is_valid_partition</span><span class="p">(</span><span class="n">fl</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Drops partition with non-empty `part` fields.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">fl</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;part&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;all&quot;</span></div>
+<span class="w">        </span><span class="sd">"""Drops partition with non-empty `part` fields."""</span>
+        <span class="k">return</span> <span class="n">fl</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"part"</span><span class="p">)</span> <span class="o">==</span> <span class="s2">"all"</span></div>
 
 
 <div class="viewcode-block" id="Ferc2DbfExtractor.aggregate_table_frames">
@@ -935,13 +935,13 @@ window.runMermaid = runMermaid;</script>
     <span class="k">def</span><span class="w"> </span><span class="nf">aggregate_table_frames</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">table_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">dfs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">PartitionedDataFrame</span><span class="p">]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Runs the deduplication on f2_s0_respondent_id table.</span>
+<span class="w">        </span><span class="sd">"""Runs the deduplication on f2_s0_respondent_id table.</span>
 
 <span class="sd">        Other tables are aggregated as usual, meaning that the partial frames are simply</span>
 <span class="sd">        concatenated.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">table_name</span> <span class="o">==</span> <span class="s2">&quot;f2_s0_respondent_id&quot;</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">deduplicate_by_year</span><span class="p">(</span><span class="n">dfs</span><span class="p">,</span> <span class="s2">&quot;respondent_id&quot;</span><span class="p">)</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="n">table_name</span> <span class="o">==</span> <span class="s2">"f2_s0_respondent_id"</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">deduplicate_by_year</span><span class="p">(</span><span class="n">dfs</span><span class="p">,</span> <span class="s2">"respondent_id"</span><span class="p">)</span>
         <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">aggregate_table_frames</span><span class="p">(</span><span class="n">table_name</span><span class="p">,</span> <span class="n">dfs</span><span class="p">)</span></div>
 </div>
 

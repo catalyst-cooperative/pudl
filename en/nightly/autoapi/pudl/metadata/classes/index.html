@@ -18,7 +18,7 @@
     </script>
     
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
-    <title>pudl.metadata.classes &#8212; PUDL 2026.8.1.dev16 documentation</title>
+    <title>pudl.metadata.classes &#8212; PUDL 2026.8.1.dev20 documentation</title>
   
   
   
@@ -51,7 +51,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../../_static/documentation_options.js?v=f981bf86"></script>
+    <script src="../../../../_static/documentation_options.js?v=8f1a003a"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -142,8 +142,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev20 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev20 documentation - Home"/>
   
   
 </a></div>
@@ -1001,8 +1001,8 @@
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">_unique</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
 <span class="go">[0, 2, 1]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">_unique</span><span class="p">([{</span><span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span> <span class="p">{</span><span class="s1">&#39;y&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}],</span> <span class="p">[{</span><span class="s1">&#39;z&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">}])</span>
-<span class="go">[{&#39;x&#39;: 0, &#39;y&#39;: 1}, {&#39;z&#39;: 2}]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">_unique</span><span class="p">([{</span><span class="s1">'x'</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">'y'</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span> <span class="p">{</span><span class="s1">'y'</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">'x'</span><span class="p">:</span> <span class="mi">0</span><span class="p">}],</span> <span class="p">[{</span><span class="s1">'z'</span><span class="p">:</span> <span class="mi">2</span><span class="p">}])</span>
+<span class="go">[{'x': 0, 'y': 1}, {'z': 2}]</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -1021,26 +1021,26 @@
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">_format_for_sql</span><span class="p">(</span><span class="s1">&#39;table_name&#39;</span><span class="p">,</span> <span class="n">identifier</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="go">&#39;&quot;table_name&quot;&#39;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">_format_for_sql</span><span class="p">(</span><span class="s1">&#39;any string&#39;</span><span class="p">)</span>
-<span class="go">&quot;&#39;any string&#39;&quot;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">_format_for_sql</span><span class="p">(</span><span class="s2">&quot;Single&#39;s quote&quot;</span><span class="p">)</span>
-<span class="go">&quot;&#39;Single&#39;&#39;s quote&#39;&quot;</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">_format_for_sql</span><span class="p">(</span><span class="s1">'table_name'</span><span class="p">,</span> <span class="n">identifier</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="go">'"table_name"'</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">_format_for_sql</span><span class="p">(</span><span class="s1">'any string'</span><span class="p">)</span>
+<span class="go">"'any string'"</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">_format_for_sql</span><span class="p">(</span><span class="s2">"Single's quote"</span><span class="p">)</span>
+<span class="go">"'Single''s quote'"</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">_format_for_sql</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
-<span class="go">&#39;null&#39;</span>
+<span class="go">'null'</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">_format_for_sql</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-<span class="go">&#39;1&#39;</span>
+<span class="go">'1'</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">_format_for_sql</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
-<span class="go">&#39;True&#39;</span>
+<span class="go">'True'</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">_format_for_sql</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
-<span class="go">&#39;False&#39;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">_format_for_sql</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s2">&quot;^[^&#39;]*$&quot;</span><span class="p">))</span>
-<span class="go">&quot;&#39;^[^&#39;&#39;]*$&#39;&quot;</span>
+<span class="go">'False'</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">_format_for_sql</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s2">"^[^']*$"</span><span class="p">))</span>
+<span class="go">"'^[^'']*$'"</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">_format_for_sql</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">(</span><span class="mi">2020</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
-<span class="go">&quot;&#39;2020-01-02&#39;&quot;</span>
+<span class="go">"'2020-01-02'"</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">_format_for_sql</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2020</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
-<span class="go">&quot;&#39;2020-01-02 03:04:05&#39;&quot;</span>
+<span class="go">"'2020-01-02 03:04:05'"</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -1132,7 +1132,7 @@
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span><span class="w"> </span><span class="nc">Class</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
 <span class="gp">... </span>    <span class="n">x</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span>
-<span class="gp">... </span>    <span class="n">_check_unique</span> <span class="o">=</span> <span class="n">_validator</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">_check_unique</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">_check_unique</span> <span class="o">=</span> <span class="n">_validator</span><span class="p">(</span><span class="s2">"x"</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">_check_unique</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">Class</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
 <span class="gt">Traceback (most recent call last):</span>
 <span class="gr">ValidationError</span>: <span class="n">...</span>
@@ -1394,14 +1394,14 @@ the result of data entry errors or changes in the standard codes over time.</p>
 <p>Field (<cite>resource.schema.fields[…]</cite>).</p>
 <p>See <a class="reference external" href="https://specs.frictionlessdata.io/table-schema/#field-descriptors">https://specs.frictionlessdata.io/table-schema/#field-descriptors</a>.</p>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">field</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">&#39;X&#39;</span><span class="p">,</span> <span class="n">constraints</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;enum&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">]})</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">field</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">'x'</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s1">'string'</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">'X'</span><span class="p">,</span> <span class="n">constraints</span><span class="o">=</span><span class="p">{</span><span class="s1">'enum'</span><span class="p">:</span> <span class="p">[</span><span class="s1">'x'</span><span class="p">,</span> <span class="s1">'y'</span><span class="p">]})</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">field</span><span class="o">.</span><span class="n">to_pandas_dtype</span><span class="p">()</span>
-<span class="go">CategoricalDtype(categories=[&#39;x&#39;, &#39;y&#39;], ordered=False, categories_dtype=object)</span>
+<span class="go">CategoricalDtype(categories=['x', 'y'], ordered=False, categories_dtype=object)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">field</span><span class="o">.</span><span class="n">to_sql</span><span class="p">()</span>
-<span class="go">Column(&#39;x&#39;, Enum(&#39;x&#39;, &#39;y&#39;), CheckConstraint(...), table=None, comment=&#39;X&#39;)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">field</span> <span class="o">=</span> <span class="n">Field</span><span class="o">.</span><span class="n">from_id</span><span class="p">(</span><span class="s1">&#39;utility_id_eia&#39;</span><span class="p">)</span>
+<span class="go">Column('x', Enum('x', 'y'), CheckConstraint(...), table=None, comment='X')</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">field</span> <span class="o">=</span> <span class="n">Field</span><span class="o">.</span><span class="n">from_id</span><span class="p">(</span><span class="s1">'utility_id_eia'</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">field</span><span class="o">.</span><span class="n">name</span>
-<span class="go">&#39;utility_id_eia&#39;</span>
+<span class="go">'utility_id_eia'</span>
 </pre></div>
 </div>
 <dl class="py attribute">
@@ -2279,15 +2279,15 @@ the Additional Details section of the preview.</p>
 <p>See <a class="reference external" href="https://specs.frictionlessdata.io/tabular-data-resource">https://specs.frictionlessdata.io/tabular-data-resource</a>.</p>
 <p class="rubric">Examples</p>
 <p>A simple example illustrates the conversion to SQLAlchemy objects.</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">fields</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;year&#39;</span><span class="p">,</span> <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="s1">&#39;X&#39;</span><span class="p">},</span> <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="s1">&#39;Y&#39;</span><span class="p">}]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">fkeys</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">&#39;fields&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">],</span> <span class="s1">&#39;reference&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;resource&#39;</span><span class="p">:</span> <span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="s1">&#39;fields&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">]}}]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">schema</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;fields&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="p">,</span> <span class="s1">&#39;primary_key&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">],</span> <span class="s1">&#39;foreign_keys&#39;</span><span class="p">:</span> <span class="n">fkeys</span><span class="p">}</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">resource</span> <span class="o">=</span> <span class="n">Resource</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">&#39;A&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">fields</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">'name'</span><span class="p">:</span> <span class="s1">'x'</span><span class="p">,</span> <span class="s1">'type'</span><span class="p">:</span> <span class="s1">'year'</span><span class="p">,</span> <span class="s1">'description'</span><span class="p">:</span> <span class="s1">'X'</span><span class="p">},</span> <span class="p">{</span><span class="s1">'name'</span><span class="p">:</span> <span class="s1">'y'</span><span class="p">,</span> <span class="s1">'type'</span><span class="p">:</span> <span class="s1">'string'</span><span class="p">,</span> <span class="s1">'description'</span><span class="p">:</span> <span class="s1">'Y'</span><span class="p">}]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fkeys</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">'fields'</span><span class="p">:</span> <span class="p">[</span><span class="s1">'x'</span><span class="p">,</span> <span class="s1">'y'</span><span class="p">],</span> <span class="s1">'reference'</span><span class="p">:</span> <span class="p">{</span><span class="s1">'resource'</span><span class="p">:</span> <span class="s1">'b'</span><span class="p">,</span> <span class="s1">'fields'</span><span class="p">:</span> <span class="p">[</span><span class="s1">'x'</span><span class="p">,</span> <span class="s1">'y'</span><span class="p">]}}]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">schema</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'fields'</span><span class="p">:</span> <span class="n">fields</span><span class="p">,</span> <span class="s1">'primary_key'</span><span class="p">:</span> <span class="p">[</span><span class="s1">'x'</span><span class="p">],</span> <span class="s1">'foreign_keys'</span><span class="p">:</span> <span class="n">fkeys</span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">resource</span> <span class="o">=</span> <span class="n">Resource</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">'a'</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">'A'</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">table</span> <span class="o">=</span> <span class="n">resource</span><span class="o">.</span><span class="n">to_sql</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">table</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">x</span>
-<span class="go">Column(&#39;x&#39;, Integer(), ForeignKey(&#39;b.x&#39;), CheckConstraint(...), table=&lt;a&gt;, primary_key=True, nullable=False, comment=&#39;X&#39;)</span>
+<span class="go">Column('x', Integer(), ForeignKey('b.x'), CheckConstraint(...), table=&lt;a&gt;, primary_key=True, nullable=False, comment='X')</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">table</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">y</span>
-<span class="go">Column(&#39;y&#39;, Text(), ForeignKey(&#39;b.y&#39;), CheckConstraint(...), table=&lt;a&gt;, comment=&#39;Y&#39;)</span>
+<span class="go">Column('y', Text(), ForeignKey('b.y'), CheckConstraint(...), table=&lt;a&gt;, comment='Y')</span>
 </pre></div>
 </div>
 <p>To illustrate harvesting operations,
@@ -2295,18 +2295,18 @@ say we have a resource with two fields - a primary key (<cite>id</cite>) and a d
 which we want to harvest from two different dataframes.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">unique</span><span class="p">,</span> <span class="n">as_dict</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">fields</span> <span class="o">=</span> <span class="p">[</span>
-<span class="gp">... </span>    <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;integer&#39;</span><span class="p">,</span> <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="s1">&#39;ID&#39;</span><span class="p">},</span>
-<span class="gp">... </span>    <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;integer&#39;</span><span class="p">,</span> <span class="s1">&#39;harvest&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;aggregate&#39;</span><span class="p">:</span> <span class="n">unique</span><span class="p">,</span> <span class="s1">&#39;tolerance&#39;</span><span class="p">:</span> <span class="mf">0.25</span><span class="p">},</span> <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="s1">&#39;X&#39;</span><span class="p">}</span>
+<span class="gp">... </span>    <span class="p">{</span><span class="s1">'name'</span><span class="p">:</span> <span class="s1">'id'</span><span class="p">,</span> <span class="s1">'type'</span><span class="p">:</span> <span class="s1">'integer'</span><span class="p">,</span> <span class="s1">'description'</span><span class="p">:</span> <span class="s1">'ID'</span><span class="p">},</span>
+<span class="gp">... </span>    <span class="p">{</span><span class="s1">'name'</span><span class="p">:</span> <span class="s1">'x'</span><span class="p">,</span> <span class="s1">'type'</span><span class="p">:</span> <span class="s1">'integer'</span><span class="p">,</span> <span class="s1">'harvest'</span><span class="p">:</span> <span class="p">{</span><span class="s1">'aggregate'</span><span class="p">:</span> <span class="n">unique</span><span class="p">,</span> <span class="s1">'tolerance'</span><span class="p">:</span> <span class="mf">0.25</span><span class="p">},</span> <span class="s1">'description'</span><span class="p">:</span> <span class="s1">'X'</span><span class="p">}</span>
 <span class="gp">... </span><span class="p">]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">resource</span> <span class="o">=</span> <span class="n">Resource</span><span class="p">(</span><span class="o">**</span><span class="p">{</span>
-<span class="gp">... </span>    <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;a&#39;</span><span class="p">,</span>
-<span class="gp">... </span>    <span class="s1">&#39;harvest&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;harvest&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
-<span class="gp">... </span>    <span class="s1">&#39;schema&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fields&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="p">,</span> <span class="s1">&#39;primary_key&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]},</span>
-<span class="gp">... </span>    <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="s1">&#39;A&#39;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="s1">'name'</span><span class="p">:</span> <span class="s1">'a'</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="s1">'harvest'</span><span class="p">:</span> <span class="p">{</span><span class="s1">'harvest'</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+<span class="gp">... </span>    <span class="s1">'schema'</span><span class="p">:</span> <span class="p">{</span><span class="s1">'fields'</span><span class="p">:</span> <span class="n">fields</span><span class="p">,</span> <span class="s1">'primary_key'</span><span class="p">:</span> <span class="p">[</span><span class="s1">'id'</span><span class="p">]},</span>
+<span class="gp">... </span>    <span class="s1">'description'</span><span class="p">:</span> <span class="s1">'A'</span><span class="p">,</span>
 <span class="gp">... </span><span class="p">})</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">dfs</span> <span class="o">=</span> <span class="p">{</span>
-<span class="gp">... </span>    <span class="s1">&#39;a&#39;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]}),</span>
-<span class="gp">... </span>    <span class="s1">&#39;b&#39;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">]})</span>
+<span class="gp">... </span>    <span class="s1">'a'</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">'id'</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="s1">'x'</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]}),</span>
+<span class="gp">... </span>    <span class="s1">'b'</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">'id'</span><span class="p">:</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="s1">'x'</span><span class="p">:</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">]})</span>
 <span class="gp">... </span><span class="p">}</span>
 </pre></div>
 </div>
@@ -2340,11 +2340,11 @@ and report aggregation errors.</p>
 <span class="go">1      1</span>
 <span class="go">2   &lt;NA&gt;</span>
 <span class="go">3      4</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">report</span><span class="p">[</span><span class="s1">&#39;stats&#39;</span><span class="p">]</span>
-<span class="go">{&#39;all&#39;: 2, &#39;invalid&#39;: 1, &#39;tolerance&#39;: 0.0, &#39;actual&#39;: 0.5}</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">report</span><span class="p">[</span><span class="s1">&#39;fields&#39;</span><span class="p">][</span><span class="s1">&#39;x&#39;</span><span class="p">][</span><span class="s1">&#39;stats&#39;</span><span class="p">]</span>
-<span class="go">{&#39;all&#39;: 3, &#39;invalid&#39;: 1, &#39;tolerance&#39;: 0.25, &#39;actual&#39;: 0.33...}</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">report</span><span class="p">[</span><span class="s1">&#39;fields&#39;</span><span class="p">][</span><span class="s1">&#39;x&#39;</span><span class="p">][</span><span class="s1">&#39;errors&#39;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">report</span><span class="p">[</span><span class="s1">'stats'</span><span class="p">]</span>
+<span class="go">{'all': 2, 'invalid': 1, 'tolerance': 0.0, 'actual': 0.5}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">report</span><span class="p">[</span><span class="s1">'fields'</span><span class="p">][</span><span class="s1">'x'</span><span class="p">][</span><span class="s1">'stats'</span><span class="p">]</span>
+<span class="go">{'all': 3, 'invalid': 1, 'tolerance': 0.25, 'actual': 0.33...}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">report</span><span class="p">[</span><span class="s1">'fields'</span><span class="p">][</span><span class="s1">'x'</span><span class="p">][</span><span class="s1">'errors'</span><span class="p">]</span>
 <span class="go">id</span>
 <span class="go">2    Not unique.</span>
 <span class="go">Name: x, dtype: object</span>
@@ -2353,18 +2353,18 @@ and report aggregation errors.</p>
 <p>Customize the error values in the error report.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">error</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span> <span class="n">as_dict</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="p">,</span> <span class="n">report</span> <span class="o">=</span> <span class="n">resource</span><span class="o">.</span><span class="n">harvest_dfs</span><span class="p">(</span>
-<span class="gp">... </span>   <span class="n">dfs</span><span class="p">,</span> <span class="n">aggregate_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;raised&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="n">error</span><span class="p">}</span>
+<span class="gp">... </span>   <span class="n">dfs</span><span class="p">,</span> <span class="n">aggregate_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s1">'raised'</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s1">'error'</span><span class="p">:</span> <span class="n">error</span><span class="p">}</span>
 <span class="gp">... </span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">report</span><span class="p">[</span><span class="s1">&#39;fields&#39;</span><span class="p">][</span><span class="s1">&#39;x&#39;</span><span class="p">][</span><span class="s1">&#39;errors&#39;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">report</span><span class="p">[</span><span class="s1">'fields'</span><span class="p">][</span><span class="s1">'x'</span><span class="p">][</span><span class="s1">'errors'</span><span class="p">]</span>
 <span class="go">id</span>
-<span class="go">2    {&#39;a&#39;: [2, 2], &#39;b&#39;: [3]}</span>
+<span class="go">2    {'a': [2, 2], 'b': [3]}</span>
 <span class="go">Name: x, dtype: object</span>
 </pre></div>
 </div>
 <p>Limit harvesting to the input dataframe of the same name
 by setting <a class="reference internal" href="#pudl.metadata.classes.Resource.harvest" title="pudl.metadata.classes.Resource.harvest"><code class="xref py py-attr docutils literal notranslate"><span class="pre">harvest</span></code></a>. <code class="docutils literal notranslate"><span class="pre">harvest=False</span></code>.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">resource</span><span class="o">.</span><span class="n">harvest</span><span class="o">.</span><span class="n">harvest</span> <span class="o">=</span> <span class="kc">False</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">resource</span><span class="o">.</span><span class="n">harvest_dfs</span><span class="p">(</span><span class="n">dfs</span><span class="p">,</span> <span class="n">aggregate_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;raised&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">resource</span><span class="o">.</span><span class="n">harvest_dfs</span><span class="p">(</span><span class="n">dfs</span><span class="p">,</span> <span class="n">aggregate_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s1">'raised'</span><span class="p">:</span> <span class="kc">False</span><span class="p">})</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">df</span>
 <span class="go">    id  x</span>
 <span class="go">df</span>
@@ -2377,18 +2377,18 @@ by setting <a class="reference internal" href="#pudl.metadata.classes.Resource.h
 <p>Harvesting can also handle conversion to longer time periods.
 Period harvesting requires primary key fields with a <code class="docutils literal notranslate"><span class="pre">datetime</span></code> data type,
 except for <code class="docutils literal notranslate"><span class="pre">year</span></code> fields which can be integer.</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">fields</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;report_year&#39;</span><span class="p">,</span> <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;year&#39;</span><span class="p">,</span> <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="s1">&#39;Report year&#39;</span><span class="p">}]</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">fields</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">'name'</span><span class="p">:</span> <span class="s1">'report_year'</span><span class="p">,</span> <span class="s1">'type'</span><span class="p">:</span> <span class="s1">'year'</span><span class="p">,</span> <span class="s1">'description'</span><span class="p">:</span> <span class="s1">'Report year'</span><span class="p">}]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">resource</span> <span class="o">=</span> <span class="n">Resource</span><span class="p">(</span><span class="o">**</span><span class="p">{</span>
-<span class="gp">... </span>    <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;table&#39;</span><span class="p">,</span> <span class="s1">&#39;harvest&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;harvest&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
-<span class="gp">... </span>    <span class="s1">&#39;schema&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fields&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="p">,</span> <span class="s1">&#39;primary_key&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;report_year&#39;</span><span class="p">]},</span>
-<span class="gp">... </span>    <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="s1">&#39;Table&#39;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="s1">'name'</span><span class="p">:</span> <span class="s1">'table'</span><span class="p">,</span> <span class="s1">'harvest'</span><span class="p">:</span> <span class="p">{</span><span class="s1">'harvest'</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+<span class="gp">... </span>    <span class="s1">'schema'</span><span class="p">:</span> <span class="p">{</span><span class="s1">'fields'</span><span class="p">:</span> <span class="n">fields</span><span class="p">,</span> <span class="s1">'primary_key'</span><span class="p">:</span> <span class="p">[</span><span class="s1">'report_year'</span><span class="p">]},</span>
+<span class="gp">... </span>    <span class="s1">'description'</span><span class="p">:</span> <span class="s1">'Table'</span><span class="p">,</span>
 <span class="gp">... </span><span class="p">})</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;report_date&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;2000-02-02&#39;</span><span class="p">,</span> <span class="s1">&#39;2000-03-03&#39;</span><span class="p">]})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">'report_date'</span><span class="p">:</span> <span class="p">[</span><span class="s1">'2000-02-02'</span><span class="p">,</span> <span class="s1">'2000-03-03'</span><span class="p">]})</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">resource</span><span class="o">.</span><span class="n">format_df</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
 <span class="go">  report_year</span>
 <span class="go">0  2000-01-01</span>
 <span class="go">1  2000-01-01</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;report_year&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">2000</span><span class="p">,</span> <span class="mi">2000</span><span class="p">]})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">'report_year'</span><span class="p">:</span> <span class="p">[</span><span class="mi">2000</span><span class="p">,</span> <span class="mi">2000</span><span class="p">]})</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">resource</span><span class="o">.</span><span class="n">format_df</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
 <span class="go">  report_year</span>
 <span class="go">0  2000-01-01</span>
@@ -2634,32 +2634,32 @@ or <code class="docutils literal notranslate"><span class="pre">None</span></cod
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">fields</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;x_year&#39;</span><span class="p">,</span> <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;year&#39;</span><span class="p">,</span> <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="s1">&#39;Year&#39;</span><span class="p">}]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">schema</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;fields&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="p">,</span> <span class="s1">&#39;primary_key&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;x_year&#39;</span><span class="p">]}</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">resource</span> <span class="o">=</span> <span class="n">Resource</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">&#39;R&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">fields</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">'name'</span><span class="p">:</span> <span class="s1">'x_year'</span><span class="p">,</span> <span class="s1">'type'</span><span class="p">:</span> <span class="s1">'year'</span><span class="p">,</span> <span class="s1">'description'</span><span class="p">:</span> <span class="s1">'Year'</span><span class="p">}]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">schema</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'fields'</span><span class="p">:</span> <span class="n">fields</span><span class="p">,</span> <span class="s1">'primary_key'</span><span class="p">:</span> <span class="p">[</span><span class="s1">'x_year'</span><span class="p">]}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">resource</span> <span class="o">=</span> <span class="n">Resource</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">'r'</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">'R'</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>By default, when <a class="reference internal" href="#pudl.metadata.classes.Resource.harvest" title="pudl.metadata.classes.Resource.harvest"><code class="xref py py-attr docutils literal notranslate"><span class="pre">harvest</span></code></a> .`harvest=False`,
 exact matches are required.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">resource</span><span class="o">.</span><span class="n">harvest</span><span class="o">.</span><span class="n">harvest</span>
 <span class="go">False</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">resource</span><span class="o">.</span><span class="n">match_primary_key</span><span class="p">([</span><span class="s1">&#39;x_month&#39;</span><span class="p">])</span> <span class="ow">is</span> <span class="kc">None</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">resource</span><span class="o">.</span><span class="n">match_primary_key</span><span class="p">([</span><span class="s1">'x_month'</span><span class="p">])</span> <span class="ow">is</span> <span class="kc">None</span>
 <span class="go">True</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">resource</span><span class="o">.</span><span class="n">match_primary_key</span><span class="p">([</span><span class="s1">&#39;x_year&#39;</span><span class="p">,</span> <span class="s1">&#39;x_month&#39;</span><span class="p">])</span>
-<span class="go">{&#39;x_year&#39;: &#39;x_year&#39;}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">resource</span><span class="o">.</span><span class="n">match_primary_key</span><span class="p">([</span><span class="s1">'x_year'</span><span class="p">,</span> <span class="s1">'x_month'</span><span class="p">])</span>
+<span class="go">{'x_year': 'x_year'}</span>
 </pre></div>
 </div>
 <p>When <a class="reference internal" href="#pudl.metadata.classes.Resource.harvest" title="pudl.metadata.classes.Resource.harvest"><code class="xref py py-attr docutils literal notranslate"><span class="pre">harvest</span></code></a> .`harvest=True`,
 in the absence of an exact match,
 periodic names may also match a basename with a smaller period.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">resource</span><span class="o">.</span><span class="n">harvest</span><span class="o">.</span><span class="n">harvest</span> <span class="o">=</span> <span class="kc">True</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">resource</span><span class="o">.</span><span class="n">match_primary_key</span><span class="p">([</span><span class="s1">&#39;x_year&#39;</span><span class="p">,</span> <span class="s1">&#39;x_month&#39;</span><span class="p">])</span>
-<span class="go">{&#39;x_year&#39;: &#39;x_year&#39;}</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">resource</span><span class="o">.</span><span class="n">match_primary_key</span><span class="p">([</span><span class="s1">&#39;x_month&#39;</span><span class="p">])</span>
-<span class="go">{&#39;x_month&#39;: &#39;x_year&#39;}</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">resource</span><span class="o">.</span><span class="n">match_primary_key</span><span class="p">([</span><span class="s1">&#39;x_month&#39;</span><span class="p">,</span> <span class="s1">&#39;x_date&#39;</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">resource</span><span class="o">.</span><span class="n">match_primary_key</span><span class="p">([</span><span class="s1">'x_year'</span><span class="p">,</span> <span class="s1">'x_month'</span><span class="p">])</span>
+<span class="go">{'x_year': 'x_year'}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">resource</span><span class="o">.</span><span class="n">match_primary_key</span><span class="p">([</span><span class="s1">'x_month'</span><span class="p">])</span>
+<span class="go">{'x_month': 'x_year'}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">resource</span><span class="o">.</span><span class="n">match_primary_key</span><span class="p">([</span><span class="s1">'x_month'</span><span class="p">,</span> <span class="s1">'x_date'</span><span class="p">])</span>
 <span class="gt">Traceback (most recent call last):</span>
-<span class="gr">ValueError</span>: <span class="n">... {&#39;x_month&#39;, &#39;x_date&#39;} match primary key field &#39;x_year&#39;</span>
+<span class="gr">ValueError</span>: <span class="n">... {'x_month', 'x_date'} match primary key field 'x_year'</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -2824,23 +2824,23 @@ report.</p>
 <p>See <a class="reference external" href="https://specs.frictionlessdata.io/data-package">https://specs.frictionlessdata.io/data-package</a>.</p>
 <p class="rubric">Examples</p>
 <p>Foreign keys between resources are checked for completeness and consistency.</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">fields</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;year&#39;</span><span class="p">,</span> <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="s1">&#39;X&#39;</span><span class="p">},</span> <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="s1">&#39;Y&#39;</span><span class="p">}]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">fkey</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;fields&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">],</span> <span class="s1">&#39;reference&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;resource&#39;</span><span class="p">:</span> <span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="s1">&#39;fields&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">]}}</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">schema</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;fields&#39;</span><span class="p">:</span> <span class="n">fields</span><span class="p">,</span> <span class="s1">&#39;primary_key&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">],</span> <span class="s1">&#39;foreign_keys&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">fkey</span><span class="p">]}</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">Resource</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">&#39;A&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span> <span class="o">=</span> <span class="n">Resource</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">Schema</span><span class="p">(</span><span class="n">fields</span><span class="o">=</span><span class="n">fields</span><span class="p">,</span> <span class="n">primary_key</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]),</span> <span class="n">description</span><span class="o">=</span><span class="s1">&#39;B&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">Package</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;ab&#39;</span><span class="p">,</span> <span class="n">resources</span><span class="o">=</span><span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">])</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">fields</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">'name'</span><span class="p">:</span> <span class="s1">'x'</span><span class="p">,</span> <span class="s1">'type'</span><span class="p">:</span> <span class="s1">'year'</span><span class="p">,</span> <span class="s1">'description'</span><span class="p">:</span> <span class="s1">'X'</span><span class="p">},</span> <span class="p">{</span><span class="s1">'name'</span><span class="p">:</span> <span class="s1">'y'</span><span class="p">,</span> <span class="s1">'type'</span><span class="p">:</span> <span class="s1">'string'</span><span class="p">,</span> <span class="s1">'description'</span><span class="p">:</span> <span class="s1">'Y'</span><span class="p">}]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fkey</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'fields'</span><span class="p">:</span> <span class="p">[</span><span class="s1">'x'</span><span class="p">,</span> <span class="s1">'y'</span><span class="p">],</span> <span class="s1">'reference'</span><span class="p">:</span> <span class="p">{</span><span class="s1">'resource'</span><span class="p">:</span> <span class="s1">'b'</span><span class="p">,</span> <span class="s1">'fields'</span><span class="p">:</span> <span class="p">[</span><span class="s1">'x'</span><span class="p">,</span> <span class="s1">'y'</span><span class="p">]}}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">schema</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'fields'</span><span class="p">:</span> <span class="n">fields</span><span class="p">,</span> <span class="s1">'primary_key'</span><span class="p">:</span> <span class="p">[</span><span class="s1">'x'</span><span class="p">],</span> <span class="s1">'foreign_keys'</span><span class="p">:</span> <span class="p">[</span><span class="n">fkey</span><span class="p">]}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">Resource</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">'a'</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">'A'</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span> <span class="o">=</span> <span class="n">Resource</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">'b'</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">Schema</span><span class="p">(</span><span class="n">fields</span><span class="o">=</span><span class="n">fields</span><span class="p">,</span> <span class="n">primary_key</span><span class="o">=</span><span class="p">[</span><span class="s1">'x'</span><span class="p">]),</span> <span class="n">description</span><span class="o">=</span><span class="s1">'B'</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Package</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">'ab'</span><span class="p">,</span> <span class="n">resources</span><span class="o">=</span><span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">])</span>
 <span class="gt">Traceback (most recent call last):</span>
 <span class="gr">ValidationError</span>: <span class="n">...</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span><span class="o">.</span><span class="n">schema</span><span class="o">.</span><span class="n">primary_key</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">package</span> <span class="o">=</span> <span class="n">Package</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;ab&#39;</span><span class="p">,</span> <span class="n">resources</span><span class="o">=</span><span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span><span class="o">.</span><span class="n">schema</span><span class="o">.</span><span class="n">primary_key</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'x'</span><span class="p">,</span> <span class="s1">'y'</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">package</span> <span class="o">=</span> <span class="n">Package</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">'ab'</span><span class="p">,</span> <span class="n">resources</span><span class="o">=</span><span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">])</span>
 </pre></div>
 </div>
 <p>SQL Alchemy can sort tables, based on foreign keys,
 in the order in which they need to be loaded into a database.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">metadata</span> <span class="o">=</span> <span class="n">package</span><span class="o">.</span><span class="n">to_sql</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="n">table</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">table</span> <span class="ow">in</span> <span class="n">metadata</span><span class="o">.</span><span class="n">sorted_tables</span><span class="p">]</span>
-<span class="go">[&#39;b&#39;, &#39;a&#39;]</span>
+<span class="go">['b', 'a']</span>
 </pre></div>
 </div>
 <dl class="py attribute">

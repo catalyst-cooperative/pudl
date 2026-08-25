@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.validate.dbt &#8212; PUDL 2026.8.1.dev16 documentation</title>
+    <title>pudl.validate.dbt &#8212; PUDL 2026.8.1.dev20 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=f981bf86"></script>
+    <script src="../../../_static/documentation_options.js?v=8f1a003a"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev20 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev20 documentation - Home"/>
   
   
 </a></div>
@@ -868,7 +868,7 @@ window.runMermaid = runMermaid;</script>
                 <article class="bd-article">
                   
   <h1>Source code for pudl.validate.dbt</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Wrap DBT invocations so we can get custom behavior.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Wrap DBT invocations so we can get custom behavior."""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">io</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
@@ -898,14 +898,14 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="_preserve_logging_propagation">
 <a class="viewcode-back" href="../../../autoapi/pudl/validate/dbt/index.html#pudl.validate.dbt._preserve_logging_propagation">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_preserve_logging_propagation</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Restore logging propagation settings after a dbt invocation.</span>
+<span class="w">    </span><span class="sd">"""Restore logging propagation settings after a dbt invocation.</span>
 
-<span class="sd">    Invoking dbt via dbtRunner triggers Dagster&#39;s logging initialization, which</span>
-<span class="sd">    resets ``logging.getLogger(&quot;dagster&quot;).propagate`` to ``False``. This context</span>
-<span class="sd">    manager saves and restores the setting so callers don&#39;t experience unexpected</span>
+<span class="sd">    Invoking dbt via dbtRunner triggers Dagster's logging initialization, which</span>
+<span class="sd">    resets ``logging.getLogger("dagster").propagate`` to ``False``. This context</span>
+<span class="sd">    manager saves and restores the setting so callers don't experience unexpected</span>
 <span class="sd">    side effects on the global logging configuration.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">dagster_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;dagster&quot;</span><span class="p">)</span>
+<span class="sd">    """</span>
+    <span class="n">dagster_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">"dagster"</span><span class="p">)</span>
     <span class="n">original_propagate</span> <span class="o">=</span> <span class="n">dagster_logger</span><span class="o">.</span><span class="n">propagate</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="k">yield</span>
@@ -917,7 +917,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="NodeContext">
 <a class="viewcode-back" href="../../../autoapi/pudl/validate/dbt/index.html#pudl.validate.dbt.NodeContext">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">NodeContext</span><span class="p">(</span><span class="n">NamedTuple</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Associate a node&#39;s *name* with information describing what went wrong.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Associate a node's *name* with information describing what went wrong."""</span>
 
 <div class="viewcode-block" id="NodeContext.name">
 <a class="viewcode-back" href="../../../autoapi/pudl/validate/dbt/index.html#pudl.validate.dbt.NodeContext.name">[docs]</a>
@@ -931,8 +931,8 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="NodeContext.pretty_print">
 <a class="viewcode-back" href="../../../autoapi/pudl/validate/dbt/index.html#pudl.validate.dbt.NodeContext.pretty_print">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">pretty_print</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Nice output for logging to stdout.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">:</span><span class="se">\n\n</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="si">}</span><span class="s2">&quot;</span></div>
+<span class="w">        </span><span class="sd">"""Nice output for logging to stdout."""</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">:</span><span class="se">\n\n</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="si">}</span><span class="s2">"</span></div>
 </div>
 
 
@@ -940,7 +940,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="BuildResult">
 <a class="viewcode-back" href="../../../autoapi/pudl/validate/dbt/index.html#pudl.validate.dbt.BuildResult">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">BuildResult</span><span class="p">(</span><span class="n">NamedTuple</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Combine overall result with any useful failure context.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Combine overall result with any useful failure context."""</span>
 
 <div class="viewcode-block" id="BuildResult.success">
 <a class="viewcode-back" href="../../../autoapi/pudl/validate/dbt/index.html#pudl.validate.dbt.BuildResult.success">[docs]</a>
@@ -954,8 +954,8 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="BuildResult.format_failure_contexts">
 <a class="viewcode-back" href="../../../autoapi/pudl/validate/dbt/index.html#pudl.validate.dbt.BuildResult.format_failure_contexts">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">format_failure_contexts</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Nice legible output for logs.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">=====</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">pretty_print</span><span class="p">()</span> <span class="k">for</span> <span class="n">ctx</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">failure_contexts</span><span class="p">)</span></div>
+<span class="w">        </span><span class="sd">"""Nice legible output for logs."""</span>
+        <span class="k">return</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">=====</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">pretty_print</span><span class="p">()</span> <span class="k">for</span> <span class="n">ctx</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">failure_contexts</span><span class="p">)</span></div>
 </div>
 
 
@@ -963,12 +963,12 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="install_dbt_deps">
 <a class="viewcode-back" href="../../../autoapi/pudl/validate/dbt/index.html#pudl.validate.dbt.install_dbt_deps">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">install_dbt_deps</span><span class="p">(</span><span class="n">dbt</span><span class="p">:</span> <span class="n">dbtRunner</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dbtRunner</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Ensure dbt package dependencies are installed in the project directory.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Ensure dbt package dependencies are installed in the project directory."""</span>
     <span class="k">if</span> <span class="n">dbt</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">dbt</span> <span class="o">=</span> <span class="n">dbtRunner</span><span class="p">()</span>
 
     <span class="k">with</span> <span class="n">chdir</span><span class="p">(</span><span class="n">PUDL_DBT_PATH</span><span class="p">):</span>
-        <span class="n">dbt</span><span class="o">.</span><span class="n">invoke</span><span class="p">([</span><span class="s2">&quot;deps&quot;</span><span class="p">])</span>
+        <span class="n">dbt</span><span class="o">.</span><span class="n">invoke</span><span class="p">([</span><span class="s2">"deps"</span><span class="p">])</span>
 
     <span class="k">return</span> <span class="n">dbt</span></div>
 
@@ -977,7 +977,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="__get_failed_nodes">
 <a class="viewcode-back" href="../../../autoapi/pudl/validate/dbt/index.html#pudl.validate.dbt.__get_failed_nodes">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">__get_failed_nodes</span><span class="p">(</span><span class="n">results</span><span class="p">:</span> <span class="n">RunExecutionResult</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">GenericTestNode</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get test node output from tests that failed.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Get test node output from tests that failed."""</span>
     <span class="k">return</span> <span class="p">[</span><span class="n">res</span><span class="o">.</span><span class="n">node</span> <span class="k">for</span> <span class="n">res</span> <span class="ow">in</span> <span class="n">results</span> <span class="k">if</span> <span class="n">res</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="n">TestStatus</span><span class="o">.</span><span class="n">Fail</span><span class="p">]</span></div>
 
 
@@ -987,7 +987,7 @@ window.runMermaid = runMermaid;</script>
 <span class="k">def</span><span class="w"> </span><span class="nf">__get_quantile_contexts</span><span class="p">(</span>
     <span class="n">nodes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">GenericTestNode</span><span class="p">],</span> <span class="n">dbt</span><span class="p">:</span> <span class="n">dbtRunner</span><span class="p">,</span> <span class="n">dbt_dir</span><span class="p">:</span> <span class="n">Path</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">NodeContext</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Run debug_quantile_constraints macro for failed quantile constraints.</span>
+<span class="w">    </span><span class="sd">"""Run debug_quantile_constraints macro for failed quantile constraints.</span>
 
 <span class="sd">    This is a little tricky because the macro output is just logged to</span>
 <span class="sd">    stdout, and not stored in the dbt.invoke result. So, for each node, we:</span>
@@ -996,36 +996,36 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    * run the macro based on node information</span>
 <span class="sd">    * parse stdout to get the context</span>
 
-<span class="sd">    Also, if a node has multiple parents, we don&#39;t know which table to pass into</span>
+<span class="sd">    Also, if a node has multiple parents, we don't know which table to pass into</span>
 <span class="sd">    ``debug_quantile_constraints`` so we just skip it.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">contexts</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">nodes</span><span class="p">:</span>
         <span class="n">parents</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">depends_on</span><span class="o">.</span><span class="n">nodes</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parents</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">parents</span><span class="p">)</span><span class="si">}</span><span class="s2"> parents for </span><span class="si">{</span><span class="n">node</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">, expected 1. Skipping&quot;</span>
+                <span class="sa">f</span><span class="s2">"Found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">parents</span><span class="p">)</span><span class="si">}</span><span class="s2"> parents for </span><span class="si">{</span><span class="n">node</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">, expected 1. Skipping"</span>
             <span class="p">)</span>
             <span class="k">continue</span>
 
-        <span class="n">table_name</span> <span class="o">=</span> <span class="n">parents</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">table_name</span> <span class="o">=</span> <span class="n">parents</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">"."</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
         <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="s2">&quot;run-operation&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;debug_quantile_constraints&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;--target&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;etl-full&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;--no-use-colors&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;--args&quot;</span><span class="p">,</span>
-            <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s2">&quot;table&quot;</span><span class="p">:</span> <span class="n">table_name</span><span class="p">,</span> <span class="s2">&quot;test&quot;</span><span class="p">:</span> <span class="n">node</span><span class="o">.</span><span class="n">name</span><span class="p">}),</span>
+            <span class="s2">"run-operation"</span><span class="p">,</span>
+            <span class="s2">"debug_quantile_constraints"</span><span class="p">,</span>
+            <span class="s2">"--target"</span><span class="p">,</span>
+            <span class="s2">"etl-full"</span><span class="p">,</span>
+            <span class="s2">"--no-use-colors"</span><span class="p">,</span>
+            <span class="s2">"--args"</span><span class="p">,</span>
+            <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s2">"table"</span><span class="p">:</span> <span class="n">table_name</span><span class="p">,</span> <span class="s2">"test"</span><span class="p">:</span> <span class="n">node</span><span class="o">.</span><span class="n">name</span><span class="p">}),</span>
         <span class="p">]</span>
         <span class="n">buffer</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">StringIO</span><span class="p">()</span>
         <span class="k">with</span> <span class="n">chdir</span><span class="p">(</span><span class="n">dbt_dir</span><span class="p">),</span> <span class="n">redirect_stdout</span><span class="p">(</span><span class="n">buffer</span><span class="p">):</span>
             <span class="n">dbt</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
 
-        <span class="n">context_lines</span> <span class="o">=</span> <span class="n">buffer</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">context_lines</span> <span class="o">=</span> <span class="n">buffer</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
         <span class="n">no_header</span> <span class="o">=</span> <span class="n">context_lines</span><span class="p">[</span><span class="mi">3</span><span class="p">:]</span>
-        <span class="n">no_timestamp</span> <span class="o">=</span> <span class="p">[</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">no_header</span><span class="p">]</span>
-        <span class="n">contexts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">NodeContext</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">node</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">no_timestamp</span><span class="p">)))</span>
+        <span class="n">no_timestamp</span> <span class="o">=</span> <span class="p">[</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">" "</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">no_header</span><span class="p">]</span>
+        <span class="n">contexts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">NodeContext</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">node</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">no_timestamp</span><span class="p">)))</span>
     <span class="k">return</span> <span class="n">contexts</span></div>
 
 
@@ -1033,22 +1033,22 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="__get_compiled_sql_contexts">
 <a class="viewcode-back" href="../../../autoapi/pudl/validate/dbt/index.html#pudl.validate.dbt.__get_compiled_sql_contexts">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">__get_compiled_sql_contexts</span><span class="p">(</span><span class="n">nodes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">GenericTestNode</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">NodeContext</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Run the compiled SQL against duckdb to get failure contexts.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Run the compiled SQL against duckdb to get failure contexts."""</span>
     <span class="n">contexts</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">duckdb_path</span> <span class="o">=</span> <span class="n">PudlPaths</span><span class="p">()</span><span class="o">.</span><span class="n">output_file</span><span class="p">(</span><span class="s2">&quot;pudl_dbt_tests.duckdb&quot;</span><span class="p">)</span>
+    <span class="n">duckdb_path</span> <span class="o">=</span> <span class="n">PudlPaths</span><span class="p">()</span><span class="o">.</span><span class="n">output_file</span><span class="p">(</span><span class="s2">"pudl_dbt_tests.duckdb"</span><span class="p">)</span>
     <span class="k">with</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">duckdb_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">con</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">nodes</span><span class="p">:</span>
             <span class="n">con</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">compiled_code</span><span class="p">)</span>
             <span class="n">node_df</span> <span class="o">=</span> <span class="n">con</span><span class="o">.</span><span class="n">fetchdf</span><span class="p">()</span>
             <span class="c1"># tabulate can raise on pd.NA, so normalize nulls to a sentinel string.</span>
             <span class="n">node_head</span> <span class="o">=</span> <span class="n">node_df</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">object</span><span class="p">)</span>
-            <span class="n">node_head</span> <span class="o">=</span> <span class="n">node_head</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">node_head</span><span class="o">.</span><span class="n">notna</span><span class="p">(),</span> <span class="s2">&quot;NULL&quot;</span><span class="p">)</span>
+            <span class="n">node_head</span> <span class="o">=</span> <span class="n">node_head</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">node_head</span><span class="o">.</span><span class="n">notna</span><span class="p">(),</span> <span class="s2">"NULL"</span><span class="p">)</span>
             <span class="n">node_str</span> <span class="o">=</span> <span class="n">node_head</span><span class="o">.</span><span class="n">to_markdown</span><span class="p">(</span><span class="n">maxcolwidths</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">node_str</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Couldn&#39;t format data for node </span><span class="si">{</span><span class="n">node</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Couldn't format data for node </span><span class="si">{</span><span class="n">node</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">."</span><span class="p">)</span>
                 <span class="k">continue</span>
             <span class="k">if</span> <span class="n">node_df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">20</span><span class="p">:</span>
-                <span class="n">node_str</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">(of </span><span class="si">{</span><span class="n">node_df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">)&quot;</span>
+                <span class="n">node_str</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">"</span><span class="se">\n</span><span class="s2">(of </span><span class="si">{</span><span class="n">node_df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">)"</span>
             <span class="n">contexts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">NodeContext</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">node</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">node_str</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">contexts</span></div>
 
@@ -1061,7 +1061,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">dbt_target</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">node_exclusion</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BuildResult</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Run the DBT build and get failure information back.</span>
+<span class="w">    </span><span class="sd">"""Run the DBT build and get failure information back.</span>
 
 <span class="sd">    * run the DBT build using our selection, returning test failures</span>
 <span class="sd">    * split the test failures by type - for most, we will just run the compiled</span>
@@ -1069,23 +1069,23 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">      handling</span>
 <span class="sd">    * get contexts for various test failure types</span>
 <span class="sd">    * print out test failure context</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">cli_args</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;--target&quot;</span><span class="p">,</span> <span class="n">dbt_target</span><span class="p">,</span> <span class="s2">&quot;--select&quot;</span><span class="p">,</span> <span class="n">node_selection</span><span class="p">]</span>
+<span class="sd">    """</span>
+    <span class="n">cli_args</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"--target"</span><span class="p">,</span> <span class="n">dbt_target</span><span class="p">,</span> <span class="s2">"--select"</span><span class="p">,</span> <span class="n">node_selection</span><span class="p">]</span>
     <span class="k">if</span> <span class="n">node_exclusion</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">cli_args</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;--exclude&quot;</span><span class="p">,</span> <span class="n">node_exclusion</span><span class="p">]</span>
+        <span class="n">cli_args</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">"--exclude"</span><span class="p">,</span> <span class="n">node_exclusion</span><span class="p">]</span>
     <span class="n">dbt</span> <span class="o">=</span> <span class="n">install_dbt_deps</span><span class="p">()</span>
 
     <span class="k">with</span> <span class="n">_preserve_logging_propagation</span><span class="p">(),</span> <span class="n">chdir</span><span class="p">(</span><span class="n">PUDL_DBT_PATH</span><span class="p">):</span>
-        <span class="n">dbt</span><span class="o">.</span><span class="n">invoke</span><span class="p">([</span><span class="s2">&quot;deps&quot;</span><span class="p">])</span>
-        <span class="n">dbt</span><span class="o">.</span><span class="n">invoke</span><span class="p">([</span><span class="s2">&quot;seed&quot;</span><span class="p">])</span>
-        <span class="n">build_output</span><span class="p">:</span> <span class="n">dbtRunnerResult</span> <span class="o">=</span> <span class="n">dbt</span><span class="o">.</span><span class="n">invoke</span><span class="p">([</span><span class="s2">&quot;build&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">cli_args</span><span class="p">)</span>
+        <span class="n">dbt</span><span class="o">.</span><span class="n">invoke</span><span class="p">([</span><span class="s2">"deps"</span><span class="p">])</span>
+        <span class="n">dbt</span><span class="o">.</span><span class="n">invoke</span><span class="p">([</span><span class="s2">"seed"</span><span class="p">])</span>
+        <span class="n">build_output</span><span class="p">:</span> <span class="n">dbtRunnerResult</span> <span class="o">=</span> <span class="n">dbt</span><span class="o">.</span><span class="n">invoke</span><span class="p">([</span><span class="s2">"build"</span><span class="p">]</span> <span class="o">+</span> <span class="n">cli_args</span><span class="p">)</span>
         <span class="n">build_results</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">RunExecutionResult</span><span class="p">,</span> <span class="n">build_output</span><span class="o">.</span><span class="n">result</span><span class="p">)</span>
 
     <span class="n">failed_nodes</span> <span class="o">=</span> <span class="n">__get_failed_nodes</span><span class="p">(</span><span class="n">build_results</span><span class="p">)</span>
 
     <span class="n">weighted_quantile_failures</span><span class="p">,</span> <span class="n">compiled_sql_failures</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">failed_nodes</span><span class="p">:</span>
-        <span class="k">if</span> <span class="s2">&quot;expect_quantile_constraints_&quot;</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s2">"expect_quantile_constraints_"</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
             <span class="n">weighted_quantile_failures</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">compiled_sql_failures</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
@@ -1107,7 +1107,7 @@ window.runMermaid = runMermaid;</script>
 <span class="k">def</span><span class="w"> </span><span class="nf">dagster_to_dbt_selection</span><span class="p">(</span>
     <span class="n">selection</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">defs</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">Definitions</span><span class="p">,</span> <span class="n">manifest</span><span class="o">=</span><span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Translate dagster asset selection to db node selection.</span>
+<span class="w">    </span><span class="sd">"""Translate dagster asset selection to db node selection.</span>
 
 <span class="sd">    We use the dbt manifest to determine which sources are defined in dbt so</span>
 <span class="sd">    that we can map them to dagster assets. So, we need to generate a fresh dbt</span>
@@ -1116,28 +1116,28 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    * turn asset selection into asset keys</span>
 <span class="sd">    * turn asset keys into node names</span>
 <span class="sd">    * turn node names into selection string</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">asset_keys</span> <span class="o">=</span> <span class="n">dg</span><span class="o">.</span><span class="n">AssetSelection</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">selection</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">(</span>
         <span class="n">defs</span><span class="o">.</span><span class="n">resolve_asset_graph</span><span class="p">()</span>
     <span class="p">)</span>
     <span class="n">asset_names</span> <span class="o">=</span> <span class="p">{</span><span class="n">asset_key</span><span class="o">.</span><span class="n">to_user_string</span><span class="p">()</span> <span class="k">for</span> <span class="n">asset_key</span> <span class="ow">in</span> <span class="n">asset_keys</span><span class="p">}</span>
 
     <span class="k">if</span> <span class="n">manifest</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">manifest_path</span> <span class="o">=</span> <span class="n">PUDL_DBT_PATH</span> <span class="o">/</span> <span class="s2">&quot;target&quot;</span> <span class="o">/</span> <span class="s2">&quot;manifest.json&quot;</span>
+        <span class="n">manifest_path</span> <span class="o">=</span> <span class="n">PUDL_DBT_PATH</span> <span class="o">/</span> <span class="s2">"target"</span> <span class="o">/</span> <span class="s2">"manifest.json"</span>
         <span class="k">with</span> <span class="n">_preserve_logging_propagation</span><span class="p">(),</span> <span class="n">chdir</span><span class="p">(</span><span class="n">PUDL_DBT_PATH</span><span class="p">):</span>
             <span class="n">dbt</span> <span class="o">=</span> <span class="n">dbtRunner</span><span class="p">()</span>
-            <span class="n">dbt</span><span class="o">.</span><span class="n">invoke</span><span class="p">([</span><span class="s2">&quot;parse&quot;</span><span class="p">])</span>
+            <span class="n">dbt</span><span class="o">.</span><span class="n">invoke</span><span class="p">([</span><span class="s2">"parse"</span><span class="p">])</span>
 
-        <span class="k">with</span> <span class="n">manifest_path</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">manifest_path</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">manifest</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
 
     <span class="c1"># all dagster assets are treated as sources so we only have to look here.</span>
     <span class="n">dbt_node_selectors</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="sa">f</span><span class="s2">&quot;source:</span><span class="si">{</span><span class="n">s</span><span class="p">[</span><span class="s1">&#39;source_name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">s</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;sources&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">s</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">asset_names</span>
+        <span class="sa">f</span><span class="s2">"source:</span><span class="si">{</span><span class="n">s</span><span class="p">[</span><span class="s1">'source_name'</span><span class="p">]</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">s</span><span class="p">[</span><span class="s1">'name'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span>
+        <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">manifest</span><span class="p">[</span><span class="s2">"sources"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">s</span><span class="p">[</span><span class="s2">"name"</span><span class="p">]</span> <span class="ow">in</span> <span class="n">asset_names</span>
     <span class="p">]</span>
-    <span class="k">return</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dbt_node_selectors</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="s2">" "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dbt_node_selectors</span><span class="p">)</span></div>
 
 </pre></div>
 

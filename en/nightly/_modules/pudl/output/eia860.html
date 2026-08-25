@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.output.eia860 &#8212; PUDL 2026.8.1.dev16 documentation</title>
+    <title>pudl.output.eia860 &#8212; PUDL 2026.8.1.dev20 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=f981bf86"></script>
+    <script src="../../../_static/documentation_options.js?v=8f1a003a"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev20 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev20 documentation - Home"/>
   
   
 </a></div>
@@ -868,7 +868,7 @@ window.runMermaid = runMermaid;</script>
                 <article class="bd-article">
                   
   <h1>Source code for pudl.output.eia860</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Denormalized versions of the EIA 860 tables.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Denormalized versions of the EIA 860 tables."""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dagster</span><span class="w"> </span><span class="kn">import</span> <span class="n">asset</span>
@@ -877,7 +877,7 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.codes</span><span class="w"> </span><span class="kn">import</span> <span class="n">CODE_METADATA</span>
 
 
-<span class="nd">@asset</span><span class="p">(</span><span class="n">io_manager_key</span><span class="o">=</span><span class="s2">&quot;pudl_io_manager&quot;</span><span class="p">,</span> <span class="n">compute_kind</span><span class="o">=</span><span class="s2">&quot;Python&quot;</span><span class="p">)</span>
+<span class="nd">@asset</span><span class="p">(</span><span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"pudl_io_manager"</span><span class="p">,</span> <span class="n">compute_kind</span><span class="o">=</span><span class="s2">"Python"</span><span class="p">)</span>
 <div class="viewcode-block" id="out_eia860__yearly_ownership">
 <a class="viewcode-back" href="../../../autoapi/pudl/output/eia860/index.html#pudl.output.eia860.out_eia860__yearly_ownership">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">out_eia860__yearly_ownership</span><span class="p">(</span>
@@ -885,7 +885,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">core_eia860__scd_ownership</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
     <span class="n">core_pudl__assn_eia_pudl_utilities</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A denormalized version of the EIA 860 ownership table.</span>
+<span class="w">    </span><span class="sd">"""A denormalized version of the EIA 860 ownership table.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        _out_eia__plants_utilities: Denormalized table containing plant and utility</span>
@@ -896,39 +896,39 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A denormalized version of the EIA 860 ownership table.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">pu_df</span> <span class="o">=</span> <span class="n">_out_eia__plants_utilities</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
         <span class="p">:,</span>
         <span class="p">[</span>
-            <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;plant_id_pudl&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;plant_name_eia&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
+            <span class="s2">"plant_id_eia"</span><span class="p">,</span>
+            <span class="s2">"plant_id_pudl"</span><span class="p">,</span>
+            <span class="s2">"plant_name_eia"</span><span class="p">,</span>
+            <span class="s2">"report_date"</span><span class="p">,</span>
         <span class="p">],</span>
     <span class="p">]</span>
     <span class="n">own_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
         <span class="n">core_eia860__scd_ownership</span><span class="p">,</span>
         <span class="n">pu_df</span><span class="p">,</span>
-        <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">,</span> <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">],</span>
-        <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span>
+        <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">"report_date"</span><span class="p">,</span> <span class="s2">"plant_id_eia"</span><span class="p">],</span>
+        <span class="n">how</span><span class="o">=</span><span class="s2">"left"</span><span class="p">,</span>
     <span class="p">)</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span>
-        <span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">,</span> <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;generator_id&quot;</span><span class="p">,</span> <span class="s2">&quot;owner_utility_id_eia&quot;</span><span class="p">]</span>
+        <span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">"report_date"</span><span class="p">,</span> <span class="s2">"plant_id_eia"</span><span class="p">,</span> <span class="s2">"generator_id"</span><span class="p">,</span> <span class="s2">"owner_utility_id_eia"</span><span class="p">]</span>
     <span class="p">)</span>
     <span class="n">util_df</span> <span class="o">=</span> <span class="n">core_pudl__assn_eia_pudl_utilities</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
-        <span class="p">:,</span> <span class="p">[</span><span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span> <span class="s2">&quot;utility_id_pudl&quot;</span><span class="p">]</span>
+        <span class="p">:,</span> <span class="p">[</span><span class="s2">"utility_id_eia"</span><span class="p">,</span> <span class="s2">"utility_id_pudl"</span><span class="p">]</span>
     <span class="p">]</span>
     <span class="n">own_df</span> <span class="o">=</span> <span class="n">own_df</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
-        <span class="n">util_df</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span> <span class="n">left_on</span><span class="o">=</span><span class="s2">&quot;owner_utility_id_eia&quot;</span><span class="p">,</span> <span class="n">right_on</span><span class="o">=</span><span class="s2">&quot;utility_id_eia&quot;</span>
+        <span class="n">util_df</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">"left"</span><span class="p">,</span> <span class="n">left_on</span><span class="o">=</span><span class="s2">"owner_utility_id_eia"</span><span class="p">,</span> <span class="n">right_on</span><span class="o">=</span><span class="s2">"utility_id_eia"</span>
     <span class="p">)</span>
     <span class="n">first_cols</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;plant_id_pudl&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;plant_name_eia&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;owner_utility_id_eia&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;utility_id_pudl&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;owner_utility_name_eia&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;generator_id&quot;</span><span class="p">,</span>
+        <span class="s2">"report_date"</span><span class="p">,</span>
+        <span class="s2">"plant_id_eia"</span><span class="p">,</span>
+        <span class="s2">"plant_id_pudl"</span><span class="p">,</span>
+        <span class="s2">"plant_name_eia"</span><span class="p">,</span>
+        <span class="s2">"owner_utility_id_eia"</span><span class="p">,</span>
+        <span class="s2">"utility_id_pudl"</span><span class="p">,</span>
+        <span class="s2">"owner_utility_name_eia"</span><span class="p">,</span>
+        <span class="s2">"generator_id"</span><span class="p">,</span>
     <span class="p">]</span>
 
     <span class="c1"># Re-arrange the columns for easier readability:</span>
@@ -936,14 +936,14 @@ window.runMermaid = runMermaid;</script>
 
 
 
-<span class="nd">@asset</span><span class="p">(</span><span class="n">io_manager_key</span><span class="o">=</span><span class="s2">&quot;pudl_io_manager&quot;</span><span class="p">,</span> <span class="n">compute_kind</span><span class="o">=</span><span class="s2">&quot;Python&quot;</span><span class="p">)</span>
+<span class="nd">@asset</span><span class="p">(</span><span class="n">io_manager_key</span><span class="o">=</span><span class="s2">"pudl_io_manager"</span><span class="p">,</span> <span class="n">compute_kind</span><span class="o">=</span><span class="s2">"Python"</span><span class="p">)</span>
 <div class="viewcode-block" id="out_eia860__yearly_emissions_control_equipment">
 <a class="viewcode-back" href="../../../autoapi/pudl/output/eia860/index.html#pudl.output.eia860.out_eia860__yearly_emissions_control_equipment">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">out_eia860__yearly_emissions_control_equipment</span><span class="p">(</span>
     <span class="n">core_eia860__scd_emissions_control_equipment</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
     <span class="n">_out_eia__plants_utilities</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A denormalized version of the EIA 860 emission control equipment table.</span>
+<span class="w">    </span><span class="sd">"""A denormalized version of the EIA 860 emission control equipment table.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        core_eia860__scd_emissions_control_equipment: EIA 860 emissions control equipment table.</span>
@@ -952,32 +952,32 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A denormalized version of the EIA 860 emissions control equipment table.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">pu_df</span> <span class="o">=</span> <span class="n">_out_eia__plants_utilities</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
         <span class="p">:,</span>
         <span class="p">[</span>
-            <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;plant_id_pudl&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;plant_name_eia&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;utility_id_eia&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;utility_id_pudl&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;utility_name_eia&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;report_date&quot;</span><span class="p">,</span>
+            <span class="s2">"plant_id_eia"</span><span class="p">,</span>
+            <span class="s2">"plant_id_pudl"</span><span class="p">,</span>
+            <span class="s2">"plant_name_eia"</span><span class="p">,</span>
+            <span class="s2">"utility_id_eia"</span><span class="p">,</span>
+            <span class="s2">"utility_id_pudl"</span><span class="p">,</span>
+            <span class="s2">"utility_name_eia"</span><span class="p">,</span>
+            <span class="s2">"report_date"</span><span class="p">,</span>
         <span class="p">],</span>
     <span class="p">]</span>
     <span class="n">emce_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
         <span class="n">core_eia860__scd_emissions_control_equipment</span><span class="p">,</span>
         <span class="n">pu_df</span><span class="p">,</span>
-        <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;report_date&quot;</span><span class="p">,</span> <span class="s2">&quot;plant_id_eia&quot;</span><span class="p">],</span>
-        <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span>
+        <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">"report_date"</span><span class="p">,</span> <span class="s2">"plant_id_eia"</span><span class="p">],</span>
+        <span class="n">how</span><span class="o">=</span><span class="s2">"left"</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="c1"># Add a column for operational status</span>
-    <span class="n">emce_df</span><span class="p">[</span><span class="s2">&quot;operational_status&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">emce_df</span><span class="o">.</span><span class="n">operational_status_code</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="o">.</span><span class="n">map</span><span class="p">(</span>
+    <span class="n">emce_df</span><span class="p">[</span><span class="s2">"operational_status"</span><span class="p">]</span> <span class="o">=</span> <span class="n">emce_df</span><span class="o">.</span><span class="n">operational_status_code</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="o">.</span><span class="n">map</span><span class="p">(</span>
         <span class="n">pudl</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">label_map</span><span class="p">(</span>
-            <span class="n">CODE_METADATA</span><span class="p">[</span><span class="s2">&quot;core_eia__codes_operational_status&quot;</span><span class="p">][</span><span class="s2">&quot;df&quot;</span><span class="p">],</span>
-            <span class="n">from_col</span><span class="o">=</span><span class="s2">&quot;code&quot;</span><span class="p">,</span>
-            <span class="n">to_col</span><span class="o">=</span><span class="s2">&quot;operational_status&quot;</span><span class="p">,</span>
+            <span class="n">CODE_METADATA</span><span class="p">[</span><span class="s2">"core_eia__codes_operational_status"</span><span class="p">][</span><span class="s2">"df"</span><span class="p">],</span>
+            <span class="n">from_col</span><span class="o">=</span><span class="s2">"code"</span><span class="p">,</span>
+            <span class="n">to_col</span><span class="o">=</span><span class="s2">"operational_status"</span><span class="p">,</span>
             <span class="n">null_value</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">NA</span><span class="p">,</span>
         <span class="p">)</span>
     <span class="p">)</span>

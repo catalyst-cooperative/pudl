@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.analysis.fuel_by_plant &#8212; PUDL 2026.8.1.dev16 documentation</title>
+    <title>pudl.analysis.fuel_by_plant &#8212; PUDL 2026.8.1.dev20 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=f981bf86"></script>
+    <script src="../../../_static/documentation_options.js?v=8f1a003a"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev20 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev20 documentation - Home"/>
   
   
 </a></div>
@@ -868,7 +868,7 @@ window.runMermaid = runMermaid;</script>
                 <article class="bd-article">
                   
   <h1>Source code for pudl.analysis.fuel_by_plant</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Calculates useful FERC Form 1 fuel metrics on a per plant-year basis.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Calculates useful FERC Form 1 fuel metrics on a per plant-year basis."""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
 
@@ -879,18 +879,18 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="revert_filled_in_string_nulls">
 <a class="viewcode-back" href="../../../autoapi/pudl/analysis/fuel_by_plant/index.html#pudl.analysis.fuel_by_plant.revert_filled_in_string_nulls">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">revert_filled_in_string_nulls</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Revert the filled nulls from string columns.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Revert the filled nulls from string columns."""</span>
     <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="p">[</span>
-        <span class="s2">&quot;plant_type&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;construction_type&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;fuel_type_code_pudl&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;primary_fuel_by_cost&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;primary_fuel_by_mmbtu&quot;</span><span class="p">,</span>
+        <span class="s2">"plant_type"</span><span class="p">,</span>
+        <span class="s2">"construction_type"</span><span class="p">,</span>
+        <span class="s2">"fuel_type_code_pudl"</span><span class="p">,</span>
+        <span class="s2">"primary_fuel_by_cost"</span><span class="p">,</span>
+        <span class="s2">"primary_fuel_by_mmbtu"</span><span class="p">,</span>
     <span class="p">]:</span>
         <span class="k">if</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
-            <span class="c1"># the replace to_replace={column_name: {&quot;&quot;, pd.NA}} mysteriously doesn&#39;t work.</span>
+            <span class="c1"># the replace to_replace={column_name: {"", pd.NA}} mysteriously doesn't work.</span>
             <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
-                <span class="n">to_replace</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;&quot;</span><span class="p">],</span>
+                <span class="n">to_replace</span><span class="o">=</span><span class="p">[</span><span class="s2">""</span><span class="p">],</span>
                 <span class="n">value</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">NA</span><span class="p">,</span>
             <span class="p">)</span>
     <span class="k">return</span> <span class="n">df</span></div>
@@ -900,7 +900,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="revert_filled_in_float_nulls">
 <a class="viewcode-back" href="../../../autoapi/pudl/analysis/fuel_by_plant/index.html#pudl.analysis.fuel_by_plant.revert_filled_in_float_nulls">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">revert_filled_in_float_nulls</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Revert the filled nulls from float columns.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Revert the filled nulls from float columns."""</span>
     <span class="n">float_cols</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">select_dtypes</span><span class="p">(</span><span class="n">include</span><span class="o">=</span><span class="p">[</span><span class="nb">float</span><span class="p">]))</span>
     <span class="k">if</span> <span class="n">float_cols</span><span class="p">:</span>
         <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">float_cols</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">float_cols</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
@@ -913,7 +913,7 @@ window.runMermaid = runMermaid;</script>
 <span class="k">def</span><span class="w"> </span><span class="nf">fuel_by_plant_ferc1</span><span class="p">(</span>
     <span class="n">fuel_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">fuel_categories</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">thresh</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculates useful FERC Form 1 fuel metrics on a per plant-year basis.</span>
+<span class="w">    </span><span class="sd">"""Calculates useful FERC Form 1 fuel metrics on a per plant-year basis.</span>
 
 <span class="sd">    Each record in the FERC Form 1 corresponds to a particular type of fuel. Many plants</span>
 <span class="sd">    -- especially coal plants -- use more than one fuel, with gas and/or diesel serving</span>
@@ -928,7 +928,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    The per-fuel records are then pivoted to create one column per fuel type. The total</span>
 <span class="sd">    is summed and stored separately, and the individual fuel costs &amp; heat contents are</span>
 <span class="sd">    divided by that total, to yield fuel proportions.  Based on those proportions and a</span>
-<span class="sd">    minimum threshold that&#39;s passed in, a &quot;primary&quot; fuel type is then assigned to the</span>
+<span class="sd">    minimum threshold that's passed in, a "primary" fuel type is then assigned to the</span>
 <span class="sd">    plant-year record and given a string label.</span>
 
 <span class="sd">    Args:</span>
@@ -936,7 +936,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">            result for the fuel_ferc1 table.</span>
 <span class="sd">        thresh: A value between 0.5 and 1.0 indicating the minimum fraction of</span>
 <span class="sd">            overall heat content that must have been provided by a fuel in a plant-year</span>
-<span class="sd">            for it to be considered the &quot;primary&quot; fuel for the plant in that year.</span>
+<span class="sd">            for it to be considered the "primary" fuel for the plant in that year.</span>
 <span class="sd">            Default value: 0.5.</span>
 
 <span class="sd">    Returns:</span>
@@ -945,63 +945,63 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        utility_id_ferc1, and plant_name) as well as totals for fuel mmbtu consumed in</span>
 <span class="sd">        that plant-year, and the cost of fuel in that year, the proportions of heat</span>
 <span class="sd">        content and fuel costs for each fuel in that year, and a column that labels the</span>
-<span class="sd">        plant&#39;s primary fuel for that year.</span>
+<span class="sd">        plant's primary fuel for that year.</span>
 
 <span class="sd">    Raises:</span>
 <span class="sd">        AssertionError: If the DataFrame input does not have the columns required to</span>
 <span class="sd">            run the function.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">keep_cols</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="s2">&quot;report_year&quot;</span><span class="p">,</span>  <span class="c1"># key</span>
-        <span class="s2">&quot;utility_id_ferc1&quot;</span><span class="p">,</span>  <span class="c1"># key</span>
-        <span class="s2">&quot;plant_name_ferc1&quot;</span><span class="p">,</span>  <span class="c1"># key</span>
-        <span class="s2">&quot;fuel_type_code_pudl&quot;</span><span class="p">,</span>  <span class="c1"># pivot</span>
-        <span class="s2">&quot;fuel_consumed_units&quot;</span><span class="p">,</span>  <span class="c1"># value</span>
-        <span class="s2">&quot;fuel_mmbtu_per_unit&quot;</span><span class="p">,</span>  <span class="c1"># value</span>
-        <span class="s2">&quot;fuel_cost_per_unit_burned&quot;</span><span class="p">,</span>  <span class="c1"># value</span>
+        <span class="s2">"report_year"</span><span class="p">,</span>  <span class="c1"># key</span>
+        <span class="s2">"utility_id_ferc1"</span><span class="p">,</span>  <span class="c1"># key</span>
+        <span class="s2">"plant_name_ferc1"</span><span class="p">,</span>  <span class="c1"># key</span>
+        <span class="s2">"fuel_type_code_pudl"</span><span class="p">,</span>  <span class="c1"># pivot</span>
+        <span class="s2">"fuel_consumed_units"</span><span class="p">,</span>  <span class="c1"># value</span>
+        <span class="s2">"fuel_mmbtu_per_unit"</span><span class="p">,</span>  <span class="c1"># value</span>
+        <span class="s2">"fuel_cost_per_unit_burned"</span><span class="p">,</span>  <span class="c1"># value</span>
     <span class="p">]</span>
 
-    <span class="c1"># Ensure that the dataframe we&#39;ve gotten has all the information we need:</span>
+    <span class="c1"># Ensure that the dataframe we've gotten has all the information we need:</span>
     <span class="n">missing_cols</span> <span class="o">=</span> <span class="p">[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">keep_cols</span> <span class="k">if</span> <span class="n">col</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">fuel_df</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span>
     <span class="k">if</span> <span class="n">missing_cols</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Required columns not found in input fuel_df: </span><span class="si">{</span><span class="n">missing_cols</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">"Required columns not found in input fuel_df: </span><span class="si">{</span><span class="n">missing_cols</span><span class="si">}</span><span class="s2">"</span>
         <span class="p">)</span>
 
     <span class="c1"># Calculate per-fuel derived values and add them to the DataFrame</span>
     <span class="n">df</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="c1"># Really there should *not* be any duplicates here but... there&#39;s a</span>
+        <span class="c1"># Really there should *not* be any duplicates here but... there's a</span>
         <span class="c1"># bug somewhere that introduces them into the fuel_ferc1 table.</span>
         <span class="n">fuel_df</span><span class="p">[</span><span class="n">keep_cols</span><span class="p">]</span>
         <span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span>
         <span class="c1"># Calculate totals for each record based on per-unit values:</span>
         <span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">fuel_mmbtu</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">fuel_consumed_units</span> <span class="o">*</span> <span class="n">x</span><span class="o">.</span><span class="n">fuel_mmbtu_per_unit</span><span class="p">)</span>
         <span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">fuel_cost</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">fuel_consumed_units</span> <span class="o">*</span> <span class="n">x</span><span class="o">.</span><span class="n">fuel_cost_per_unit_burned</span><span class="p">)</span>
-        <span class="c1"># Drop the ratios and heterogeneous fuel &quot;units&quot;</span>
+        <span class="c1"># Drop the ratios and heterogeneous fuel "units"</span>
         <span class="o">.</span><span class="n">drop</span><span class="p">(</span>
-            <span class="p">[</span><span class="s2">&quot;fuel_mmbtu_per_unit&quot;</span><span class="p">,</span> <span class="s2">&quot;fuel_cost_per_unit_burned&quot;</span><span class="p">,</span> <span class="s2">&quot;fuel_consumed_units&quot;</span><span class="p">],</span>
+            <span class="p">[</span><span class="s2">"fuel_mmbtu_per_unit"</span><span class="p">,</span> <span class="s2">"fuel_cost_per_unit_burned"</span><span class="p">,</span> <span class="s2">"fuel_consumed_units"</span><span class="p">],</span>
             <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="c1"># Group by the keys and fuel type, and sum:</span>
         <span class="o">.</span><span class="n">groupby</span><span class="p">(</span>
             <span class="p">[</span>
-                <span class="s2">&quot;utility_id_ferc1&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;plant_name_ferc1&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;report_year&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;fuel_type_code_pudl&quot;</span><span class="p">,</span>
+                <span class="s2">"utility_id_ferc1"</span><span class="p">,</span>
+                <span class="s2">"plant_name_ferc1"</span><span class="p">,</span>
+                <span class="s2">"report_year"</span><span class="p">,</span>
+                <span class="s2">"fuel_type_code_pudl"</span><span class="p">,</span>
             <span class="p">],</span>
             <span class="n">observed</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="o">.</span><span class="n">sum</span><span class="p">()</span>
         <span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
         <span class="c1"># Set the index to the keys, and pivot to get per-fuel columns:</span>
-        <span class="o">.</span><span class="n">set_index</span><span class="p">([</span><span class="s2">&quot;utility_id_ferc1&quot;</span><span class="p">,</span> <span class="s2">&quot;plant_name_ferc1&quot;</span><span class="p">,</span> <span class="s2">&quot;report_year&quot;</span><span class="p">])</span>
-        <span class="o">.</span><span class="n">pivot</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="s2">&quot;fuel_type_code_pudl&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">set_index</span><span class="p">([</span><span class="s2">"utility_id_ferc1"</span><span class="p">,</span> <span class="s2">"plant_name_ferc1"</span><span class="p">,</span> <span class="s2">"report_year"</span><span class="p">])</span>
+        <span class="o">.</span><span class="n">pivot</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="s2">"fuel_type_code_pudl"</span><span class="p">)</span>
         <span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
     <span class="p">)</span>
 
     <span class="c1"># Undo pivot. Could refactor this old function</span>
-    <span class="n">plant_year_totals</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="s2">&quot;fuel_type_code_pudl&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+    <span class="n">plant_year_totals</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="s2">"fuel_type_code_pudl"</span><span class="p">)</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
 
     <span class="c1"># Calculate total heat content burned for each plant, and divide it out</span>
     <span class="n">mmbtu_group</span> <span class="o">=</span> <span class="p">(</span>
@@ -1009,16 +1009,16 @@ window.runMermaid = runMermaid;</script>
             <span class="c1"># Sum up all the fuel heat content, and divide the individual fuel</span>
             <span class="c1"># heat contents by it (they are all contained in single higher</span>
             <span class="c1"># level group of columns labeled fuel_mmbtu)</span>
-            <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">&quot;fuel_mmbtu&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">div</span><span class="p">(</span>
-                <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">&quot;fuel_mmbtu&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="s2">&quot;rows&quot;</span>
+            <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">"fuel_mmbtu"</span><span class="p">]</span><span class="o">.</span><span class="n">div</span><span class="p">(</span>
+                <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">"fuel_mmbtu"</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="s2">"rows"</span>
             <span class="p">),</span>
             <span class="c1"># Merge that same total into the dataframe separately as well.</span>
-            <span class="n">plant_year_totals</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">&quot;fuel_mmbtu&quot;</span><span class="p">],</span>
+            <span class="n">plant_year_totals</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">"fuel_mmbtu"</span><span class="p">],</span>
             <span class="n">right_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
             <span class="n">left_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;$&quot;</span><span class="p">,</span> <span class="s2">&quot;_fraction_mmbtu&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">))</span>
-        <span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;_mmbtu_fraction_mmbtu$&quot;</span><span class="p">,</span> <span class="s2">&quot;_mmbtu&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">))</span>
+        <span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">"$"</span><span class="p">,</span> <span class="s2">"_fraction_mmbtu"</span><span class="p">,</span> <span class="n">x</span><span class="p">))</span>
+        <span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">"_mmbtu_fraction_mmbtu$"</span><span class="p">,</span> <span class="s2">"_mmbtu"</span><span class="p">,</span> <span class="n">x</span><span class="p">))</span>
     <span class="p">)</span>
 
     <span class="c1"># Calculate total fuel cost for each plant, and divide it out</span>
@@ -1027,14 +1027,14 @@ window.runMermaid = runMermaid;</script>
             <span class="c1"># Sum up all the fuel costs, and divide the individual fuel</span>
             <span class="c1"># costs by it (they are all contained in single higher</span>
             <span class="c1"># level group of columns labeled fuel_cost)</span>
-            <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">&quot;fuel_cost&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">div</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">&quot;fuel_cost&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="s2">&quot;rows&quot;</span><span class="p">),</span>
+            <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">"fuel_cost"</span><span class="p">]</span><span class="o">.</span><span class="n">div</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">"fuel_cost"</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="s2">"rows"</span><span class="p">),</span>
             <span class="c1"># Merge that same total into the dataframe separately as well.</span>
-            <span class="n">plant_year_totals</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">&quot;fuel_cost&quot;</span><span class="p">],</span>
+            <span class="n">plant_year_totals</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">"fuel_cost"</span><span class="p">],</span>
             <span class="n">right_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
             <span class="n">left_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;$&quot;</span><span class="p">,</span> <span class="s2">&quot;_fraction_cost&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">))</span>
-        <span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;_cost_fraction_cost$&quot;</span><span class="p">,</span> <span class="s2">&quot;_cost&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">))</span>
+        <span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">"$"</span><span class="p">,</span> <span class="s2">"_fraction_cost"</span><span class="p">,</span> <span class="n">x</span><span class="p">))</span>
+        <span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">"_cost_fraction_cost$"</span><span class="p">,</span> <span class="s2">"_cost"</span><span class="p">,</span> <span class="n">x</span><span class="p">))</span>
     <span class="p">)</span>
 
     <span class="c1"># Re-unify the cost and heat content information:</span>
@@ -1043,29 +1043,29 @@ window.runMermaid = runMermaid;</script>
     <span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
 
     <span class="c1"># Label each plant-year record by primary fuel:</span>
-    <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="p">[</span><span class="s2">&quot;primary_fuel_by_cost&quot;</span><span class="p">,</span> <span class="s2">&quot;primary_fuel_by_mmbtu&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="p">[</span><span class="s2">"primary_fuel_by_cost"</span><span class="p">,</span> <span class="s2">"primary_fuel_by_mmbtu"</span><span class="p">]]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span>
         <span class="p">{</span>
-            <span class="s2">&quot;primary_fuel_by_cost&quot;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">StringDtype</span><span class="p">(),</span>
-            <span class="s2">&quot;primary_fuel_by_mmbtu&quot;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">StringDtype</span><span class="p">(),</span>
+            <span class="s2">"primary_fuel_by_cost"</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">StringDtype</span><span class="p">(),</span>
+            <span class="s2">"primary_fuel_by_mmbtu"</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">StringDtype</span><span class="p">(),</span>
         <span class="p">}</span>
     <span class="p">)</span>
     <span class="k">for</span> <span class="n">fuel_str</span> <span class="ow">in</span> <span class="n">fuel_categories</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">mmbtu_mask</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">fuel_str</span><span class="si">}</span><span class="s2">_fraction_mmbtu&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">thresh</span>
-            <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">mmbtu_mask</span><span class="p">,</span> <span class="s2">&quot;primary_fuel_by_mmbtu&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fuel_str</span>
+            <span class="n">mmbtu_mask</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">fuel_str</span><span class="si">}</span><span class="s2">_fraction_mmbtu"</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">thresh</span>
+            <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">mmbtu_mask</span><span class="p">,</span> <span class="s2">"primary_fuel_by_mmbtu"</span><span class="p">]</span> <span class="o">=</span> <span class="n">fuel_str</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
             <span class="k">pass</span>
 
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">cost_mask</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">fuel_str</span><span class="si">}</span><span class="s2">_fraction_cost&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">thresh</span>
-            <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">cost_mask</span><span class="p">,</span> <span class="s2">&quot;primary_fuel_by_cost&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fuel_str</span>
+            <span class="n">cost_mask</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">fuel_str</span><span class="si">}</span><span class="s2">_fraction_cost"</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">thresh</span>
+            <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">cost_mask</span><span class="p">,</span> <span class="s2">"primary_fuel_by_cost"</span><span class="p">]</span> <span class="o">=</span> <span class="n">fuel_str</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
             <span class="k">pass</span>
 
-    <span class="n">df</span><span class="p">[[</span><span class="s2">&quot;primary_fuel_by_cost&quot;</span><span class="p">,</span> <span class="s2">&quot;primary_fuel_by_mmbtu&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span>
-        <span class="p">[</span><span class="s2">&quot;primary_fuel_by_cost&quot;</span><span class="p">,</span> <span class="s2">&quot;primary_fuel_by_mmbtu&quot;</span><span class="p">]</span>
-    <span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="n">df</span><span class="p">[[</span><span class="s2">"primary_fuel_by_cost"</span><span class="p">,</span> <span class="s2">"primary_fuel_by_mmbtu"</span><span class="p">]]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span>
+        <span class="p">[</span><span class="s2">"primary_fuel_by_cost"</span><span class="p">,</span> <span class="s2">"primary_fuel_by_mmbtu"</span><span class="p">]</span>
+    <span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="s2">""</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">df</span></div>
 

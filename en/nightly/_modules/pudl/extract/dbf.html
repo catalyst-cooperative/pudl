@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.extract.dbf &#8212; PUDL 2026.8.1.dev16 documentation</title>
+    <title>pudl.extract.dbf &#8212; PUDL 2026.8.1.dev20 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=f981bf86"></script>
+    <script src="../../../_static/documentation_options.js?v=8f1a003a"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev20 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev20 documentation - Home"/>
   
   
 </a></div>
@@ -868,7 +868,7 @@ window.runMermaid = runMermaid;</script>
                 <article class="bd-article">
                   
   <h1>Source code for pudl.extract.dbf</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Generalized DBF extractor for FERC data.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Generalized DBF extractor for FERC data."""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">csv</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">importlib.resources</span>
@@ -904,20 +904,20 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="DbcFileMissingError">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.DbcFileMissingError">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">DbcFileMissingError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;This is raised when the DBC index file is missing.&quot;&quot;&quot;</span></div>
+<span class="w">    </span><span class="sd">"""This is raised when the DBC index file is missing."""</span></div>
 
 
 
 <div class="viewcode-block" id="DbfTableSchema">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.DbfTableSchema">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">DbfTableSchema</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Simple data-wrapper for the fox-pro table schema.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Simple data-wrapper for the fox-pro table schema."""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">table_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Creates new instance of the table schema setting.</span>
+<span class="w">        </span><span class="sd">"""Creates new instance of the table schema setting.</span>
 
 <span class="sd">        The table name will be set as table_name and table will have no columns.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 <div class="viewcode-block" id="DbfTableSchema.name">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.DbfTableSchema.name">[docs]</a>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">table_name</span></div>
@@ -943,7 +943,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">col_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">sa</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">TypeEngine</span><span class="p">]</span> <span class="o">|</span> <span class="n">sa</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">TypeEngine</span><span class="p">,</span>
         <span class="n">short_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Adds a new column to this table schema.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Adds a new column to this table schema."""</span>
         <span class="k">assert</span> <span class="n">col_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">col_name</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_column_types</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">col_type</span>
@@ -956,7 +956,7 @@ window.runMermaid = runMermaid;</script>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_columns</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">type</span><span class="p">[</span><span class="n">sa</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">TypeEngine</span><span class="p">]</span> <span class="o">|</span> <span class="n">sa</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">TypeEngine</span><span class="p">]]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Iterates over the (column_name, column_type) pairs.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Iterates over the (column_name, column_type) pairs."""</span>
         <span class="k">for</span> <span class="n">col_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span><span class="p">:</span>
             <span class="k">yield</span> <span class="p">(</span><span class="n">col_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_column_types</span><span class="p">[</span><span class="n">col_name</span><span class="p">])</span></div>
 
@@ -964,25 +964,25 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="DbfTableSchema.get_column_names">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.DbfTableSchema.get_column_names">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_column_names</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns set of long column names.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Returns set of long column names."""</span>
         <span class="k">return</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_columns</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="DbfTableSchema.get_column_rename_map">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.DbfTableSchema.get_column_rename_map">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_column_rename_map</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns dictionary that maps from short to long column names.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Returns dictionary that maps from short to long column names."""</span>
         <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_short_name_map</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="DbfTableSchema.create_sa_table">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.DbfTableSchema.create_sa_table">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">create_sa_table</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sa_meta</span><span class="p">:</span> <span class="n">sa</span><span class="o">.</span><span class="n">MetaData</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">sa</span><span class="o">.</span><span class="n">Table</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Creates SQLAlchemy table described by this instance.</span>
+<span class="w">        </span><span class="sd">"""Creates SQLAlchemy table described by this instance.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            sa_meta: new table will be written to this MetaData object.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">table</span> <span class="o">=</span> <span class="n">sa</span><span class="o">.</span><span class="n">Table</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">sa_meta</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">col_name</span><span class="p">,</span> <span class="n">col_type</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_columns</span><span class="p">():</span>
             <span class="n">table</span><span class="o">.</span><span class="n">append_column</span><span class="p">(</span><span class="n">sa</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="n">col_name</span><span class="p">,</span> <span class="n">col_type</span><span class="p">))</span>
@@ -994,11 +994,11 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="FercDbfArchive">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.FercDbfArchive">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">FercDbfArchive</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Represents API for accessing files within a single DBF archive.</span>
+<span class="w">    </span><span class="sd">"""Represents API for accessing files within a single DBF archive.</span>
 
 <span class="sd">    Typically, archive contains data for a single year and single FERC form dataset</span>
 <span class="sd">    (e.g. FERC Form 1 or FERC Form 2).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -1008,7 +1008,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">partition</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
         <span class="n">field_parser</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">FieldParser</span><span class="p">],</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Constructs new instance of FercDbfArchive.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Constructs new instance of FercDbfArchive."""</span>
 <div class="viewcode-block" id="FercDbfArchive.zipfile">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.FercDbfArchive.zipfile">[docs]</a>
         <span class="bp">self</span><span class="o">.</span><span class="n">zipfile</span> <span class="o">=</span> <span class="n">zipfile</span></div>
@@ -1041,40 +1041,40 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="FercDbfArchive.get_file">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.FercDbfArchive.get_file">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">IO</span><span class="p">[</span><span class="nb">bytes</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Opens the file within this archive.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Opens the file within this archive."""</span>
         <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">root_path</span> <span class="o">/</span> <span class="n">filename</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">zipfile</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">as_posix</span><span class="p">())</span>
         <span class="k">except</span> <span class="ne">KeyError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2"> not available for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">partition</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">err</span></div>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2"> not available for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">partition</span><span class="si">}</span><span class="s2">."</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">err</span></div>
 
 
 <div class="viewcode-block" id="FercDbfArchive.get_db_schema">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.FercDbfArchive.get_db_schema">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_db_schema</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns dict with table names as keys, and list of column names as values.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Returns dict with table names as keys, and list of column names as values."""</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_table_schemas</span><span class="p">:</span>
             <span class="c1"># TODO(janrous): this should be locked to ensure multi-thread safety</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">dbf</span> <span class="o">=</span> <span class="n">DBF</span><span class="p">(</span>
-                    <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                    <span class="s2">""</span><span class="p">,</span>
                     <span class="n">ignore_missing_memofile</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                     <span class="n">filedata</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">zipfile</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dbc_path</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()),</span>
                 <span class="p">)</span>
             <span class="k">except</span> <span class="ne">KeyError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">DbcFileMissingError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;DBC file </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dbc_path</span><span class="si">}</span><span class="s2"> for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">partition</span><span class="si">}</span><span class="s2"> is missing.&quot;</span>
+                    <span class="sa">f</span><span class="s2">"DBC file </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dbc_path</span><span class="si">}</span><span class="s2"> for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">partition</span><span class="si">}</span><span class="s2"> is missing."</span>
                 <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">err</span>
             <span class="n">table_names</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
             <span class="n">table_columns</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">dbf</span><span class="p">:</span>
-                <span class="n">obj_id</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;OBJECTID&quot;</span><span class="p">)</span>
-                <span class="n">obj_name</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;OBJECTNAME&quot;</span><span class="p">)</span>
-                <span class="n">obj_type</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;OBJECTTYPE&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">obj_type</span> <span class="o">==</span> <span class="s2">&quot;Table&quot;</span><span class="p">:</span>
+                <span class="n">obj_id</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"OBJECTID"</span><span class="p">)</span>
+                <span class="n">obj_name</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"OBJECTNAME"</span><span class="p">)</span>
+                <span class="n">obj_type</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"OBJECTTYPE"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">obj_type</span> <span class="o">==</span> <span class="s2">"Table"</span><span class="p">:</span>
                     <span class="n">table_names</span><span class="p">[</span><span class="n">obj_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">obj_name</span>
-                <span class="k">elif</span> <span class="n">obj_type</span> <span class="o">==</span> <span class="s2">&quot;Field&quot;</span><span class="p">:</span>
-                    <span class="n">parent_id</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;PARENTID&quot;</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">obj_type</span> <span class="o">==</span> <span class="s2">"Field"</span><span class="p">:</span>
+                    <span class="n">parent_id</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"PARENTID"</span><span class="p">)</span>
                     <span class="n">table_columns</span><span class="p">[</span><span class="n">parent_id</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">obj_name</span><span class="p">)</span>
             <span class="c1"># Remap table ids to table names.</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_table_schemas</span> <span class="o">=</span> <span class="p">{</span>
@@ -1086,11 +1086,11 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="FercDbfArchive.get_table_dbf">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.FercDbfArchive.get_table_dbf">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_table_dbf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">table_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DBF</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Opens the DBF for a given table.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Opens the DBF for a given table."""</span>
         <span class="n">fname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_table_file_map</span><span class="p">[</span><span class="n">table_name</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">DBF</span><span class="p">(</span>
             <span class="n">fname</span><span class="p">,</span>
-            <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;latin1&quot;</span><span class="p">,</span>
+            <span class="n">encoding</span><span class="o">=</span><span class="s2">"latin1"</span><span class="p">,</span>
             <span class="n">parserclass</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">field_parser</span><span class="p">,</span>
             <span class="n">ignore_missing_memofile</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
             <span class="n">filedata</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_file</span><span class="p">(</span><span class="n">fname</span><span class="p">),</span>
@@ -1101,20 +1101,20 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="FercDbfArchive.get_table_schema">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.FercDbfArchive.get_table_schema">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_table_schema</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">table_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DbfTableSchema</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns TableSchema for a given table and a given year.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Returns TableSchema for a given table and a given year."""</span>
         <span class="n">table_columns</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_db_schema</span><span class="p">()[</span><span class="n">table_name</span><span class="p">]</span>
         <span class="n">dbf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_table_dbf</span><span class="p">(</span><span class="n">table_name</span><span class="p">)</span>
-        <span class="n">dbf_fields</span> <span class="o">=</span> <span class="p">[</span><span class="n">field</span> <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">dbf</span><span class="o">.</span><span class="n">fields</span> <span class="k">if</span> <span class="n">field</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="s2">&quot;_NullFlags&quot;</span><span class="p">]</span>
+        <span class="n">dbf_fields</span> <span class="o">=</span> <span class="p">[</span><span class="n">field</span> <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">dbf</span><span class="o">.</span><span class="n">fields</span> <span class="k">if</span> <span class="n">field</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="s2">"_NullFlags"</span><span class="p">]</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">dbf_fields</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">table_columns</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Number of DBF fields in </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2"> does not match what was &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;found in the DBC index file for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">partition</span><span class="si">}</span><span class="s2">.&quot;</span>
+                <span class="sa">f</span><span class="s2">"Number of DBF fields in </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2"> does not match what was "</span>
+                <span class="sa">f</span><span class="s2">"found in the DBC index file for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">partition</span><span class="si">}</span><span class="s2">."</span>
             <span class="p">)</span>
         <span class="n">schema</span> <span class="o">=</span> <span class="n">DbfTableSchema</span><span class="p">(</span><span class="n">table_name</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">long_name</span><span class="p">,</span> <span class="n">dbf_col</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">table_columns</span><span class="p">,</span> <span class="n">dbf_fields</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">long_name</span><span class="p">[:</span><span class="mi">8</span><span class="p">]</span> <span class="o">!=</span> <span class="n">dbf_col</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">()[:</span><span class="mi">8</span><span class="p">]:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;DBF field name mismatch: </span><span class="si">{</span><span class="n">dbf_col</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> != </span><span class="si">{</span><span class="n">long_name</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="sa">f</span><span class="s2">"DBF field name mismatch: </span><span class="si">{</span><span class="n">dbf_col</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> != </span><span class="si">{</span><span class="n">long_name</span><span class="si">}</span><span class="s2">"</span>
                 <span class="p">)</span>
             <span class="n">col_type</span> <span class="o">=</span> <span class="n">DBF_TYPES</span><span class="p">[</span><span class="n">dbf_col</span><span class="o">.</span><span class="n">type</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">col_type</span> <span class="o">==</span> <span class="n">sa</span><span class="o">.</span><span class="n">String</span><span class="p">:</span>
@@ -1126,14 +1126,14 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="FercDbfArchive.load_table">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.FercDbfArchive.load_table">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">load_table</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">table_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns dataframe that holds data for a table contained within this archive.</span>
+<span class="w">        </span><span class="sd">"""Returns dataframe that holds data for a table contained within this archive.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            table_name: name of the table.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">sch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_table_schema</span><span class="p">(</span><span class="n">table_name</span><span class="p">)</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_table_dbf</span><span class="p">(</span><span class="n">table_name</span><span class="p">)))</span>
-        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s2">&quot;_NullFlags&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s2">"_NullFlags"</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">"ignore"</span><span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
             <span class="n">sch</span><span class="o">.</span><span class="n">get_column_rename_map</span><span class="p">(),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">df</span></div>
@@ -1144,33 +1144,33 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="AbstractFercDbfReader">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.AbstractFercDbfReader">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">AbstractFercDbfReader</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;This is the interface definition for dealing with fox-pro datastores.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""This is the interface definition for dealing with fox-pro datastores."""</span>
 
 <div class="viewcode-block" id="AbstractFercDbfReader.get_dataset">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.AbstractFercDbfReader.get_dataset">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns name of the dataset that this datastore provides access to.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Returns name of the dataset that this datastore provides access to."""</span>
         <span class="o">...</span></div>
 
 
 <div class="viewcode-block" id="AbstractFercDbfReader.get_table_names">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.AbstractFercDbfReader.get_table_names">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_table_names</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns list of all available table names.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Returns list of all available table names."""</span>
         <span class="o">...</span></div>
 
 
 <div class="viewcode-block" id="AbstractFercDbfReader.get_archive">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.AbstractFercDbfReader.get_archive">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_archive</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Self</span><span class="p">,</span> <span class="o">**</span><span class="n">filters</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FercDbfArchive</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns single archive matching specific filters.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Returns single archive matching specific filters."""</span>
         <span class="o">...</span></div>
 
 
 <div class="viewcode-block" id="AbstractFercDbfReader.get_table_schema">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.AbstractFercDbfReader.get_table_schema">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_table_schema</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Self</span><span class="p">,</span> <span class="n">table_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">year</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DbfTableSchema</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns schema for a given table and a given year.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Returns schema for a given table and a given year."""</span>
         <span class="o">...</span></div>
 
 
@@ -1179,7 +1179,7 @@ window.runMermaid = runMermaid;</script>
     <span class="k">def</span><span class="w"> </span><span class="nf">load_table_dfs</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">:</span> <span class="n">Self</span><span class="p">,</span> <span class="n">table_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">partitions</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns dataframe that contains data for a given table across given years.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Returns dataframe that contains data for a given table across given years."""</span>
         <span class="o">...</span></div>
 </div>
 
@@ -1191,30 +1191,30 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="FercFieldParser">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.FercFieldParser">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">FercFieldParser</span><span class="p">(</span><span class="n">FieldParser</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A custom DBF parser to deal with bad FERC data types.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""A custom DBF parser to deal with bad FERC data types."""</span>
 
 <div class="viewcode-block" id="FercFieldParser.parseN">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.FercFieldParser.parseN">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">parseN</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># noqa: N802</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Augments the Numeric DBF parser to account for bad FERC data.</span>
+<span class="w">        </span><span class="sd">"""Augments the Numeric DBF parser to account for bad FERC data.</span>
 
 <span class="sd">        There are a small number of bad entries in the backlog of FERC Form 1</span>
 <span class="sd">        data. They take the form of leading/trailing zeroes or null characters</span>
-<span class="sd">        in supposedly numeric fields, and occasionally a naked &#39;.&#39;</span>
+<span class="sd">        in supposedly numeric fields, and occasionally a naked '.'</span>
 
 <span class="sd">        Accordingly, this custom parser strips leading and trailing zeros and</span>
-<span class="sd">        null characters, and replaces a bare &#39;.&#39; character with zero, allowing</span>
+<span class="sd">        null characters, and replaces a bare '.' character with zero, allowing</span>
 <span class="sd">        all these fields to be cast to numeric values.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            field: The DBF field being parsed.</span>
 <span class="sd">            data: Binary data (bytes) read from the DBF file.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># Strip whitespace, null characters, and zeroes</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;*</span><span class="se">\x00</span><span class="s2">&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;0&quot;</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="sa">b</span><span class="s2">"*</span><span class="se">\x00</span><span class="s2">"</span><span class="p">)</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="sa">b</span><span class="s2">"0"</span><span class="p">)</span>
         <span class="c1"># Replace bare periods (which are non-numeric) with zero.</span>
-        <span class="k">if</span> <span class="n">data</span> <span class="o">==</span> <span class="sa">b</span><span class="s2">&quot;.&quot;</span><span class="p">:</span>
-            <span class="n">data</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">&quot;0&quot;</span>
+        <span class="k">if</span> <span class="n">data</span> <span class="o">==</span> <span class="sa">b</span><span class="s2">"."</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">"0"</span>
         <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">parseN</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span></div>
 </div>
 
@@ -1223,41 +1223,41 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="DBF_TYPES">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.DBF_TYPES">[docs]</a>
 <span class="n">DBF_TYPES</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;C&quot;</span><span class="p">:</span> <span class="n">sa</span><span class="o">.</span><span class="n">String</span><span class="p">,</span>
-    <span class="s2">&quot;D&quot;</span><span class="p">:</span> <span class="n">sa</span><span class="o">.</span><span class="n">Date</span><span class="p">,</span>
-    <span class="s2">&quot;F&quot;</span><span class="p">:</span> <span class="n">sa</span><span class="o">.</span><span class="n">Float</span><span class="p">,</span>
-    <span class="s2">&quot;I&quot;</span><span class="p">:</span> <span class="n">sa</span><span class="o">.</span><span class="n">Integer</span><span class="p">,</span>
-    <span class="s2">&quot;L&quot;</span><span class="p">:</span> <span class="n">sa</span><span class="o">.</span><span class="n">Boolean</span><span class="p">,</span>
-    <span class="s2">&quot;M&quot;</span><span class="p">:</span> <span class="n">sa</span><span class="o">.</span><span class="n">Text</span><span class="p">,</span>  <span class="c1"># 10 digit .DBT block number, stored as a string...</span>
-    <span class="s2">&quot;N&quot;</span><span class="p">:</span> <span class="n">sa</span><span class="o">.</span><span class="n">Float</span><span class="p">,</span>
-    <span class="s2">&quot;T&quot;</span><span class="p">:</span> <span class="n">sa</span><span class="o">.</span><span class="n">DateTime</span><span class="p">,</span>
-    <span class="s2">&quot;0&quot;</span><span class="p">:</span> <span class="n">sa</span><span class="o">.</span><span class="n">Integer</span><span class="p">,</span>  <span class="c1"># based on dbf2sqlite mapping</span>
-    <span class="s2">&quot;B&quot;</span><span class="p">:</span> <span class="s2">&quot;XXX&quot;</span><span class="p">,</span>  <span class="c1"># .DBT block number, binary string</span>
-    <span class="s2">&quot;@&quot;</span><span class="p">:</span> <span class="s2">&quot;XXX&quot;</span><span class="p">,</span>  <span class="c1"># Timestamp... Date = Julian Day, Time is in milliseconds?</span>
-    <span class="s2">&quot;+&quot;</span><span class="p">:</span> <span class="s2">&quot;XXX&quot;</span><span class="p">,</span>  <span class="c1"># Autoincrement (e.g. for IDs)</span>
-    <span class="s2">&quot;O&quot;</span><span class="p">:</span> <span class="s2">&quot;XXX&quot;</span><span class="p">,</span>  <span class="c1"># Double, 8 bytes</span>
-    <span class="s2">&quot;G&quot;</span><span class="p">:</span> <span class="s2">&quot;XXX&quot;</span><span class="p">,</span>  <span class="c1"># OLE 10 digit/byte number of a .DBT block, stored as string</span>
+    <span class="s2">"C"</span><span class="p">:</span> <span class="n">sa</span><span class="o">.</span><span class="n">String</span><span class="p">,</span>
+    <span class="s2">"D"</span><span class="p">:</span> <span class="n">sa</span><span class="o">.</span><span class="n">Date</span><span class="p">,</span>
+    <span class="s2">"F"</span><span class="p">:</span> <span class="n">sa</span><span class="o">.</span><span class="n">Float</span><span class="p">,</span>
+    <span class="s2">"I"</span><span class="p">:</span> <span class="n">sa</span><span class="o">.</span><span class="n">Integer</span><span class="p">,</span>
+    <span class="s2">"L"</span><span class="p">:</span> <span class="n">sa</span><span class="o">.</span><span class="n">Boolean</span><span class="p">,</span>
+    <span class="s2">"M"</span><span class="p">:</span> <span class="n">sa</span><span class="o">.</span><span class="n">Text</span><span class="p">,</span>  <span class="c1"># 10 digit .DBT block number, stored as a string...</span>
+    <span class="s2">"N"</span><span class="p">:</span> <span class="n">sa</span><span class="o">.</span><span class="n">Float</span><span class="p">,</span>
+    <span class="s2">"T"</span><span class="p">:</span> <span class="n">sa</span><span class="o">.</span><span class="n">DateTime</span><span class="p">,</span>
+    <span class="s2">"0"</span><span class="p">:</span> <span class="n">sa</span><span class="o">.</span><span class="n">Integer</span><span class="p">,</span>  <span class="c1"># based on dbf2sqlite mapping</span>
+    <span class="s2">"B"</span><span class="p">:</span> <span class="s2">"XXX"</span><span class="p">,</span>  <span class="c1"># .DBT block number, binary string</span>
+    <span class="s2">"@"</span><span class="p">:</span> <span class="s2">"XXX"</span><span class="p">,</span>  <span class="c1"># Timestamp... Date = Julian Day, Time is in milliseconds?</span>
+    <span class="s2">"+"</span><span class="p">:</span> <span class="s2">"XXX"</span><span class="p">,</span>  <span class="c1"># Autoincrement (e.g. for IDs)</span>
+    <span class="s2">"O"</span><span class="p">:</span> <span class="s2">"XXX"</span><span class="p">,</span>  <span class="c1"># Double, 8 bytes</span>
+    <span class="s2">"G"</span><span class="p">:</span> <span class="s2">"XXX"</span><span class="p">,</span>  <span class="c1"># OLE 10 digit/byte number of a .DBT block, stored as string</span>
 <span class="p">}</span></div>
 
-<span class="sd">&quot;&quot;&quot;Dict: A mapping of DBF field types to SQLAlchemy Column types.</span>
+<span class="sd">"""Dict: A mapping of DBF field types to SQLAlchemy Column types.</span>
 
 <span class="sd">This dictionary maps the strings which are used to denote field types in the DBF objects</span>
 <span class="sd">to the corresponding generic SQLAlchemy Column types: These definitions come from a</span>
 <span class="sd">combination of the dbfread example program dbf2sqlite and this DBF file format</span>
 <span class="sd">documentation page:</span>
 <span class="sd">http://www.dbase.com/KnowledgeBase/int/db7_file_fmt.htm</span>
-<span class="sd">: http: //www.dbase.com/KnowledgeBase/int/db7_file_fmt.htm Unmapped types left as &#39;XXX&#39;</span>
+<span class="sd">: http: //www.dbase.com/KnowledgeBase/int/db7_file_fmt.htm Unmapped types left as 'XXX'</span>
 <span class="sd">which should result in an error if encountered.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 
 <div class="viewcode-block" id="PartitionedDataFrame">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.PartitionedDataFrame">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">PartitionedDataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;This class bundles :class:`pandas.DataFrame` with partition information.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""This class bundles :class:`pandas.DataFrame` with partition information."""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">partition</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Constructs new instance of PartitionedDataFrame.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Constructs new instance of PartitionedDataFrame."""</span>
 <div class="viewcode-block" id="PartitionedDataFrame.df">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.PartitionedDataFrame.df">[docs]</a>
         <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="n">df</span></div>
@@ -1275,7 +1275,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="FercDbfReader">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.FercDbfReader">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">FercDbfReader</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Wrapper to provide standardized access to FERC DBF databases.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Wrapper to provide standardized access to FERC DBF databases."""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">:</span> <span class="n">Self</span><span class="p">,</span>
@@ -1283,7 +1283,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">dataset</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">field_parser</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">FieldParser</span><span class="p">]</span> <span class="o">=</span> <span class="n">FercFieldParser</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a new instance of FercDbfReader.</span>
+<span class="w">        </span><span class="sd">"""Create a new instance of FercDbfReader.</span>
 
 <span class="sd">        This can be used for retrieving data from the legacy FoxPro databases that are</span>
 <span class="sd">        used by FERC Form N datasets up to 2020.</span>
@@ -1293,7 +1293,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">            dataset: name of the dataset (e.g. ferc1), this is used to load metadata</span>
 <span class="sd">                from package_data/{dataset} subdirectory.</span>
 <span class="sd">            field_parser: FieldParser class to use when loading data</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 <div class="viewcode-block" id="FercDbfReader._cache">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.FercDbfReader._cache">[docs]</a>
         <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span> <span class="o">=</span> <span class="p">{}</span></div>
@@ -1318,8 +1318,8 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.FercDbfReader._dbc_path">[docs]</a>
         <span class="bp">self</span><span class="o">.</span><span class="n">_dbc_path</span> <span class="o">=</span> <span class="p">{}</span></div>
 
-        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_open_csv_resource</span><span class="p">(</span><span class="s2">&quot;dbc_file_map.csv&quot;</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_dbc_path</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;year&quot;</span><span class="p">])]</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;path&quot;</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_open_csv_resource</span><span class="p">(</span><span class="s2">"dbc_file_map.csv"</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_dbc_path</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">"year"</span><span class="p">])]</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">"path"</span><span class="p">])</span>
 
         <span class="c1"># table_file_map holds mapping between tables and their corresponding</span>
         <span class="c1"># DBF files.</span>
@@ -1327,22 +1327,22 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.FercDbfReader._table_file_map">[docs]</a>
         <span class="bp">self</span><span class="o">.</span><span class="n">_table_file_map</span> <span class="o">=</span> <span class="p">{}</span></div>
 
-        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_open_csv_resource</span><span class="p">(</span><span class="s2">&quot;table_file_map.csv&quot;</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_table_file_map</span><span class="p">[</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;table&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;filename&quot;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_open_csv_resource</span><span class="p">(</span><span class="s2">"table_file_map.csv"</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_table_file_map</span><span class="p">[</span><span class="n">row</span><span class="p">[</span><span class="s2">"table"</span><span class="p">]]</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s2">"filename"</span><span class="p">]</span>
 
 <div class="viewcode-block" id="FercDbfReader.get_dataset">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.FercDbfReader.get_dataset">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the name of the dataset this datastore works with.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the name of the dataset this datastore works with."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span></div>
 
 
 <div class="viewcode-block" id="FercDbfReader._open_csv_resource">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.FercDbfReader._open_csv_resource">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_open_csv_resource</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Self</span><span class="p">,</span> <span class="n">base_filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">csv</span><span class="o">.</span><span class="n">DictReader</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Open the given resource file as :class:`csv.DictReader`.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Open the given resource file as :class:`csv.DictReader`."""</span>
         <span class="n">csv_path</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">importlib</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;pudl.package_data.</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">importlib</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="sa">f</span><span class="s2">"pudl.package_data.</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
             <span class="o">/</span> <span class="n">base_filename</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">csv</span><span class="o">.</span><span class="n">DictReader</span><span class="p">(</span><span class="n">csv_path</span><span class="o">.</span><span class="n">open</span><span class="p">())</span></div>
@@ -1352,7 +1352,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="FercDbfReader.get_archive">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.FercDbfReader.get_archive">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_archive</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Self</span><span class="p">,</span> <span class="n">year</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">**</span><span class="n">filters</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FercDbfArchive</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns single dbf archive matching given filters.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Returns single dbf archive matching given filters."""</span>
         <span class="n">nfilters</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_normalize</span><span class="p">(</span><span class="n">filters</span><span class="p">)</span>
         <span class="c1"># Not using a context manager for the zipfile here because it would</span>
         <span class="c1"># close the file after this method returns the FercDbfArchive instance.</span>
@@ -1368,7 +1368,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="FercDbfReader.get_table_names">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.FercDbfReader.get_table_names">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_table_names</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns list of tables that this datastore provides access to.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Returns list of tables that this datastore provides access to."""</span>
         <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_table_file_map</span><span class="p">)</span></div>
 
 
@@ -1376,20 +1376,20 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="FercDbfReader._normalize">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.FercDbfReader._normalize">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_normalize</span><span class="p">(</span><span class="n">filters</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Casts partition values to lowercase strings.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Casts partition values to lowercase strings."""</span>
         <span class="k">return</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">filters</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span></div>
 
 
 <div class="viewcode-block" id="FercDbfReader.valid_partition_filter">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.FercDbfReader.valid_partition_filter">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">valid_partition_filter</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Self</span><span class="p">,</span> <span class="n">fl</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns True if a given filter fl is considered to be valid.</span>
+<span class="w">        </span><span class="sd">"""Returns True if a given filter fl is considered to be valid.</span>
 
 <span class="sd">        This can be used to eliminate partitions that are not suitable for processing,</span>
 <span class="sd">        e.g. for early years of FERC Form 2, databases marked with part=1 or part=2 are</span>
 <span class="sd">        not suitable.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;running base class valid_partition_filter on </span><span class="si">{</span><span class="n">fl</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="sd">        """</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"running base class valid_partition_filter on </span><span class="si">{</span><span class="n">fl</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">True</span></div>
 
 
@@ -1398,14 +1398,14 @@ window.runMermaid = runMermaid;</script>
     <span class="k">def</span><span class="w"> </span><span class="nf">load_table_dfs</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">:</span> <span class="n">Self</span><span class="p">,</span> <span class="n">table_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">partitions</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">PartitionedDataFrame</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns all data for a given table.</span>
+<span class="w">        </span><span class="sd">"""Returns all data for a given table.</span>
 
 <span class="sd">        Merges data for a given table across all partitions.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            table_name: name of the table to load.</span>
 <span class="sd">            partitions: list of partition filters to use</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># Retrieve all archives that match given years</span>
         <span class="c1"># Then try to simply merge</span>
         <span class="c1"># There may be need for some first-pass aggregation of tables</span>
@@ -1416,7 +1416,7 @@ window.runMermaid = runMermaid;</script>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">dfs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">PartitionedDataFrame</span><span class="p">(</span><span class="n">archive</span><span class="o">.</span><span class="n">load_table</span><span class="p">(</span><span class="n">table_name</span><span class="p">),</span> <span class="n">p</span><span class="p">))</span>
             <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Table </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2"> missing for partition </span><span class="si">{</span><span class="n">p</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Table </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2"> missing for partition </span><span class="si">{</span><span class="n">p</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
                 <span class="k">continue</span>
         <span class="k">return</span> <span class="n">dfs</span></div>
 </div>
@@ -1426,7 +1426,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="FercDbfExtractor">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.FercDbfExtractor">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">FercDbfExtractor</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generalized class for loading data from foxpro databases into SQLAlchemy and parquet.</span>
+<span class="w">    </span><span class="sd">"""Generalized class for loading data from foxpro databases into SQLAlchemy and parquet.</span>
 
 <span class="sd">    When subclassing from this generic extractor, one should implement dataset specific</span>
 <span class="sd">    logic in the following manner:</span>
@@ -1444,14 +1444,14 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    2. aggregate_table_frames() is responsible for concatenating individual data frames</span>
 <span class="sd">    (one par input partition) into single one. This is where deduplication can take place.</span>
 <span class="sd">    3. transform_table(table_name, df) will be invoked after dataframe is loaded from</span>
-<span class="sd">    the foxpro database and before it&#39;s written to sqlite. This is good place for</span>
+<span class="sd">    the foxpro database and before it's written to sqlite. This is good place for</span>
 <span class="sd">    table-specific preprocessing and/or cleanup.</span>
 <span class="sd">    4. postprocess() is called after data is written to sqlite. This can be used for</span>
 <span class="sd">    database level final cleanup and transformations (e.g. injecting missing</span>
 <span class="sd">    respondent_ids).</span>
 
 <span class="sd">    The extraction logic is invoked by calling execute() method of this class.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="FercDbfExtractor.DATABASE_NAME">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.FercDbfExtractor.DATABASE_NAME">[docs]</a>
@@ -1468,13 +1468,13 @@ window.runMermaid = runMermaid;</script>
         <span class="n">data_config</span><span class="p">:</span> <span class="n">FercDbfToSqliteDataConfig</span><span class="p">,</span>
         <span class="n">output_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Constructs new instance of FercDbfExtractor.</span>
+<span class="w">        </span><span class="sd">"""Constructs new instance of FercDbfExtractor.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            datastore: top-level datastore instance for accessing raw data files.</span>
 <span class="sd">            data_config: generic data config object for this extractor.</span>
 <span class="sd">            output_path: directory where the output databases should be stored.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 <div class="viewcode-block" id="FercDbfExtractor.data_config">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.FercDbfExtractor.data_config">[docs]</a>
         <span class="bp">self</span><span class="o">.</span><span class="n">data_config</span><span class="p">:</span> <span class="n">FercDbfToSqliteDataConfig</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data_config</span><span class="p">(</span><span class="n">data_config</span><span class="p">)</span></div>
@@ -1506,40 +1506,40 @@ window.runMermaid = runMermaid;</script>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_data_config</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">ferc_to_sqlite_data_config</span><span class="p">:</span> <span class="n">FercToSqliteDataConfig</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FercDbfToSqliteDataConfig</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns dataset relevant data configuration from ferc_to_sqlite_data_config.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Returns dataset relevant data configuration from ferc_to_sqlite_data_config."""</span>
         <span class="k">return</span> <span class="n">ferc_to_sqlite_data_config</span><span class="o">.</span><span class="n">get_data_config</span><span class="p">(</span>
-            <span class="n">dataset</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">DATASET</span><span class="p">,</span> <span class="n">data_format</span><span class="o">=</span><span class="s2">&quot;dbf&quot;</span>
+            <span class="n">dataset</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">DATASET</span><span class="p">,</span> <span class="n">data_format</span><span class="o">=</span><span class="s2">"dbf"</span>
         <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="FercDbfExtractor.get_dbf_reader">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.FercDbfExtractor.get_dbf_reader">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_dbf_reader</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">datastore</span><span class="p">:</span> <span class="n">Datastore</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AbstractFercDbfReader</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns appropriate instance of AbstractFercDbfReader to access the data.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Returns appropriate instance of AbstractFercDbfReader to access the data."""</span>
         <span class="k">return</span> <span class="n">FercDbfReader</span><span class="p">(</span><span class="n">datastore</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">DATASET</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="FercDbfExtractor.get_db_path">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.FercDbfExtractor.get_db_path">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_db_path</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the path to the sqlite database.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Returns the path to the sqlite database."""</span>
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_path</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">DATABASE_NAME</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="FercDbfExtractor.get_db_uri">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.FercDbfExtractor.get_db_uri">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_db_uri</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the connection string for the sqlite database.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;sqlite:///</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">get_db_path</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span></div>
+<span class="w">        </span><span class="sd">"""Returns the connection string for the sqlite database."""</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"sqlite:///</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">get_db_path</span><span class="p">()</span><span class="si">}</span><span class="s2">"</span></div>
 
 
 <div class="viewcode-block" id="FercDbfExtractor._clean_frictionless_types">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.FercDbfExtractor._clean_frictionless_types">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_clean_frictionless_types</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Normalize types from SQLite to frictionless.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Normalize types from SQLite to frictionless."""</span>
         <span class="n">type_</span> <span class="o">=</span> <span class="n">type_</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
-        <span class="n">type_</span> <span class="o">=</span> <span class="s2">&quot;string&quot;</span> <span class="k">if</span> <span class="n">type_</span><span class="o">.</span><span class="n">startswith</span><span class="p">((</span><span class="s2">&quot;varchar&quot;</span><span class="p">,</span> <span class="s2">&quot;text&quot;</span><span class="p">))</span> <span class="k">else</span> <span class="n">type_</span>
-        <span class="n">type_</span> <span class="o">=</span> <span class="s2">&quot;number&quot;</span> <span class="k">if</span> <span class="n">type_</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;float&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="n">type_</span>
+        <span class="n">type_</span> <span class="o">=</span> <span class="s2">"string"</span> <span class="k">if</span> <span class="n">type_</span><span class="o">.</span><span class="n">startswith</span><span class="p">((</span><span class="s2">"varchar"</span><span class="p">,</span> <span class="s2">"text"</span><span class="p">))</span> <span class="k">else</span> <span class="n">type_</span>
+        <span class="n">type_</span> <span class="o">=</span> <span class="s2">"number"</span> <span class="k">if</span> <span class="n">type_</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"float"</span><span class="p">)</span> <span class="k">else</span> <span class="n">type_</span>
         <span class="k">return</span> <span class="n">type_</span></div>
 
 
@@ -1547,14 +1547,14 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="FercDbfExtractor.datapackage_path">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.FercDbfExtractor.datapackage_path">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">datapackage_path</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the path to the datapackage for this resource.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_path</span><span class="p">)</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">DATASET</span><span class="si">}</span><span class="s2">_dbf_datapackage.json&quot;</span></div>
+<span class="w">        </span><span class="sd">"""Returns the path to the datapackage for this resource."""</span>
+        <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_path</span><span class="p">)</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">DATASET</span><span class="si">}</span><span class="s2">_dbf_datapackage.json"</span></div>
 
 
 <div class="viewcode-block" id="FercDbfExtractor.to_frictionless">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.FercDbfExtractor.to_frictionless">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">to_frictionless</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a frictionless DataPackage describing the DBF DB and write to a JSON file.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Create a frictionless DataPackage describing the DBF DB and write to a JSON file."""</span>
         <span class="n">resources</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="k">for</span> <span class="n">table</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sqlite_meta</span><span class="o">.</span><span class="n">sorted_tables</span><span class="p">:</span>
@@ -1564,15 +1564,15 @@ window.runMermaid = runMermaid;</script>
                     <span class="n">name</span><span class="o">=</span><span class="n">table</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
                     <span class="n">title</span><span class="o">=</span><span class="n">table</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
                     <span class="n">description</span><span class="o">=</span><span class="n">table</span><span class="o">.</span><span class="n">description</span><span class="p">,</span>
-                    <span class="n">profile</span><span class="o">=</span><span class="s2">&quot;tabular-data-resource&quot;</span><span class="p">,</span>
-                    <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;sqlite&quot;</span><span class="p">,</span>
-                    <span class="n">mediatype</span><span class="o">=</span><span class="s2">&quot;application/vnd.sqlite3&quot;</span><span class="p">,</span>
+                    <span class="n">profile</span><span class="o">=</span><span class="s2">"tabular-data-resource"</span><span class="p">,</span>
+                    <span class="nb">format</span><span class="o">=</span><span class="s2">"sqlite"</span><span class="p">,</span>
+                    <span class="n">mediatype</span><span class="o">=</span><span class="s2">"application/vnd.sqlite3"</span><span class="p">,</span>
                     <span class="n">schema</span><span class="o">=</span><span class="n">frictionless</span><span class="o">.</span><span class="n">Schema</span><span class="p">(</span>
                         <span class="n">fields</span><span class="o">=</span><span class="p">[</span>
                             <span class="n">frictionless</span><span class="o">.</span><span class="n">Field</span><span class="o">.</span><span class="n">from_descriptor</span><span class="p">(</span>
                                 <span class="p">{</span>
-                                    <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">c</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
-                                    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_clean_frictionless_types</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">type</span><span class="p">)),</span>
+                                    <span class="s2">"name"</span><span class="p">:</span> <span class="n">c</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                                    <span class="s2">"type"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_clean_frictionless_types</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">type</span><span class="p">)),</span>
                                 <span class="p">}</span>
                             <span class="p">)</span>
                             <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">table</span><span class="o">.</span><span class="n">columns</span>
@@ -1583,7 +1583,7 @@ window.runMermaid = runMermaid;</script>
 
         <span class="n">package</span> <span class="o">=</span> <span class="n">frictionless</span><span class="o">.</span><span class="n">Package</span><span class="p">(</span>
             <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">datapackage_path</span><span class="o">.</span><span class="n">stem</span><span class="p">,</span>
-            <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">DATASET</span><span class="si">}</span><span class="s2"> data extracted from DBF filings&quot;</span><span class="p">,</span>
+            <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">DATASET</span><span class="si">}</span><span class="s2"> data extracted from DBF filings"</span><span class="p">,</span>
             <span class="n">resources</span><span class="o">=</span><span class="n">resources</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">package</span><span class="o">.</span><span class="n">to_json</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">datapackage_path</span><span class="p">))</span></div>
@@ -1592,8 +1592,8 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="FercDbfExtractor.to_parquet">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.FercDbfExtractor.to_parquet">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">to_parquet</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Write parquet files for this resource.&quot;&quot;&quot;</span>
-        <span class="n">parquet_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_path</span><span class="p">)</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">DATASET</span><span class="si">}</span><span class="s2">_dbf&quot;</span>
+<span class="w">        </span><span class="sd">"""Write parquet files for this resource."""</span>
+        <span class="n">parquet_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_path</span><span class="p">)</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">DATASET</span><span class="si">}</span><span class="s2">_dbf"</span>
         <span class="n">convert_db_into_parquet</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_db_path</span><span class="p">(),</span> <span class="n">parquet_path</span><span class="p">)</span>
         <span class="n">write_datapackage</span><span class="p">(</span>
             <span class="n">convert_and_validate_datapackage_sqlite_to_parquet</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">datapackage_path</span><span class="p">),</span>
@@ -1605,20 +1605,20 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="FercDbfExtractor.get_dagster_op">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.FercDbfExtractor.get_dagster_op">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_dagster_op</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns dagstger op that runs this extractor.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Returns dagstger op that runs this extractor."""</span>
 
         <span class="nd">@op</span><span class="p">(</span>
-            <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">cls</span><span class="o">.</span><span class="n">DATASET</span><span class="si">}</span><span class="s2">_dbf&quot;</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">cls</span><span class="o">.</span><span class="n">DATASET</span><span class="si">}</span><span class="s2">_dbf"</span><span class="p">,</span>
             <span class="n">required_resource_keys</span><span class="o">=</span><span class="p">{</span>
-                <span class="s2">&quot;global_data_config&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;datastore&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;pudl_paths&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;runtime_settings&quot;</span><span class="p">,</span>
+                <span class="s2">"global_data_config"</span><span class="p">,</span>
+                <span class="s2">"datastore"</span><span class="p">,</span>
+                <span class="s2">"pudl_paths"</span><span class="p">,</span>
+                <span class="s2">"runtime_settings"</span><span class="p">,</span>
             <span class="p">},</span>
-            <span class="n">tags</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;dataset&quot;</span><span class="p">:</span> <span class="bp">cls</span><span class="o">.</span><span class="n">DATASET</span><span class="p">,</span> <span class="s2">&quot;data_format&quot;</span><span class="p">:</span> <span class="s2">&quot;dbf&quot;</span><span class="p">},</span>
+            <span class="n">tags</span><span class="o">=</span><span class="p">{</span><span class="s2">"dataset"</span><span class="p">:</span> <span class="bp">cls</span><span class="o">.</span><span class="n">DATASET</span><span class="p">,</span> <span class="s2">"data_format"</span><span class="p">:</span> <span class="s2">"dbf"</span><span class="p">},</span>
         <span class="p">)</span>
         <span class="k">def</span><span class="w"> </span><span class="nf">inner_method</span><span class="p">(</span><span class="n">context</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;Instantiates dbf extractor and runs it.&quot;&quot;&quot;</span>
+<span class="w">            </span><span class="sd">"""Instantiates dbf extractor and runs it."""</span>
             <span class="n">dbf_extractor</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span>
                 <span class="n">datastore</span><span class="o">=</span><span class="n">context</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">datastore</span><span class="p">,</span>
                 <span class="n">data_config</span><span class="o">=</span><span class="n">context</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">global_data_config</span><span class="o">.</span><span class="n">ferc_to_sqlite</span><span class="p">,</span>
@@ -1632,12 +1632,12 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="FercDbfExtractor.execute">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.FercDbfExtractor.execute">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Runs the extraction of the data from dbf to sqlite and parquet.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Runs the extraction of the data from dbf to sqlite and parquet."""</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Running dbf extraction for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">DATASET</span><span class="si">}</span><span class="s2"> with data_config: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">data_config</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">"Running dbf extraction for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">DATASET</span><span class="si">}</span><span class="s2"> with data_config: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">data_config</span><span class="si">}</span><span class="s2">"</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_config</span><span class="o">.</span><span class="n">years</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Dataset </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">DATASET</span><span class="si">}</span><span class="s2"> has no years configured, skipping&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Dataset </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">DATASET</span><span class="si">}</span><span class="s2"> has no years configured, skipping"</span><span class="p">)</span>
             <span class="k">return</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">initialize_database</span><span class="p">()</span>
@@ -1654,7 +1654,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="FercDbfExtractor.initialize_database">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.FercDbfExtractor.initialize_database">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">initialize_database</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create sqlalchemy engine and metadata.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Create sqlalchemy engine and metadata."""</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sqlite_engine</span><span class="o">.</span><span class="n">dispose</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sqlite_engine</span> <span class="o">=</span> <span class="n">sa</span><span class="o">.</span><span class="n">create_engine</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_db_uri</span><span class="p">())</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sqlite_meta</span> <span class="o">=</span> <span class="n">sa</span><span class="o">.</span><span class="n">MetaData</span><span class="p">()</span>
@@ -1664,15 +1664,15 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="FercDbfExtractor.create_sqlite_tables">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.FercDbfExtractor.create_sqlite_tables">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">create_sqlite_tables</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Creates database schema based on the input tables.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Creates database schema based on the input tables."""</span>
         <span class="n">refyear</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_config</span><span class="o">.</span><span class="n">refyear</span>
         <span class="k">if</span> <span class="n">refyear</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">refyear</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span>
                 <span class="n">DataSource</span><span class="o">.</span><span class="n">from_id</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dbf_reader</span><span class="o">.</span><span class="n">get_dataset</span><span class="p">())</span><span class="o">.</span><span class="n">working_partitions</span><span class="p">[</span>
-                    <span class="s2">&quot;years&quot;</span>
+                    <span class="s2">"years"</span>
                 <span class="p">]</span>
             <span class="p">)</span>
-        <span class="n">ref_dbf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dbf_reader</span><span class="o">.</span><span class="n">get_archive</span><span class="p">(</span><span class="n">year</span><span class="o">=</span><span class="n">refyear</span><span class="p">,</span> <span class="n">data_format</span><span class="o">=</span><span class="s2">&quot;dbf&quot;</span><span class="p">)</span>
+        <span class="n">ref_dbf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dbf_reader</span><span class="o">.</span><span class="n">get_archive</span><span class="p">(</span><span class="n">year</span><span class="o">=</span><span class="n">refyear</span><span class="p">,</span> <span class="n">data_format</span><span class="o">=</span><span class="s2">"dbf"</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">tn</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dbf_reader</span><span class="o">.</span><span class="n">get_table_names</span><span class="p">():</span>
             <span class="n">ref_dbf</span><span class="o">.</span><span class="n">get_table_schema</span><span class="p">(</span><span class="n">tn</span><span class="p">)</span><span class="o">.</span><span class="n">create_sa_table</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sqlite_meta</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">finalize_schema</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sqlite_meta</span><span class="p">)</span>
@@ -1682,15 +1682,15 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="FercDbfExtractor.transform_table">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.FercDbfExtractor.transform_table">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">transform_table</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">table_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">in_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Transforms the content of a single table.</span>
+<span class="w">        </span><span class="sd">"""Transforms the content of a single table.</span>
 
 <span class="sd">        This method can be used to modify contents of the dataframe after it has</span>
-<span class="sd">        been loaded from fox pro database and before it&#39;s written to sqlite database.</span>
+<span class="sd">        been loaded from fox pro database and before it's written to sqlite database.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            table_name: name of the table that the dataframe is associated with</span>
 <span class="sd">            in_df: dataframe that holds all records.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="n">in_df</span></div>
 
 
@@ -1698,7 +1698,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="FercDbfExtractor.is_valid_partition">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.FercDbfExtractor.is_valid_partition">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">is_valid_partition</span><span class="p">(</span><span class="n">fl</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns True if the partition filter should be considered for processing.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Returns True if the partition filter should be considered for processing."""</span>
         <span class="k">return</span> <span class="kc">True</span></div>
 
 
@@ -1707,18 +1707,18 @@ window.runMermaid = runMermaid;</script>
     <span class="k">def</span><span class="w"> </span><span class="nf">aggregate_table_frames</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">table_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">dfs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">PartitionedDataFrame</span><span class="p">]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Function to aggregate partitioned data frames into a single one.</span>
+<span class="w">        </span><span class="sd">"""Function to aggregate partitioned data frames into a single one.</span>
 
 <span class="sd">        By default, this simply concatenates the frames, but custom dataset specific</span>
 <span class="sd">        behaviors can be implemented.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">dfs</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
         <span class="k">with</span> <span class="n">warnings</span><span class="o">.</span><span class="n">catch_warnings</span><span class="p">():</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span>
-                <span class="n">action</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span>
+                <span class="n">action</span><span class="o">=</span><span class="s2">"ignore"</span><span class="p">,</span>
                 <span class="n">category</span><span class="o">=</span><span class="ne">FutureWarning</span><span class="p">,</span>
-                <span class="n">message</span><span class="o">=</span><span class="s2">&quot;The behavior of DataFrame concatenation with empty or all-NA entries is deprecated&quot;</span><span class="p">,</span>
+                <span class="n">message</span><span class="o">=</span><span class="s2">"The behavior of DataFrame concatenation with empty or all-NA entries is deprecated"</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="n">aggregated_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df</span><span class="o">.</span><span class="n">df</span> <span class="k">for</span> <span class="n">df</span> <span class="ow">in</span> <span class="n">dfs</span><span class="p">])</span>
         <span class="k">return</span> <span class="n">aggregated_df</span></div>
@@ -1727,25 +1727,25 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="FercDbfExtractor.load_table_data">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.FercDbfExtractor.load_table_data">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">load_table_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Loads all tables from fox pro database and writes them to sqlite.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Loads all tables from fox pro database and writes them to sqlite."""</span>
         <span class="n">partitions</span> <span class="o">=</span> <span class="p">[</span>
             <span class="n">p</span>
             <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">datastore</span><span class="o">.</span><span class="n">get_datapackage_descriptor</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">DATASET</span>
-            <span class="p">)</span><span class="o">.</span><span class="n">get_partition_filters</span><span class="p">(</span><span class="n">data_format</span><span class="o">=</span><span class="s2">&quot;dbf&quot;</span><span class="p">)</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">get_partition_filters</span><span class="p">(</span><span class="n">data_format</span><span class="o">=</span><span class="s2">"dbf"</span><span class="p">)</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_valid_partition</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
-            <span class="ow">and</span> <span class="n">p</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;year&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_config</span><span class="o">.</span><span class="n">years</span>
+            <span class="ow">and</span> <span class="n">p</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"year"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_config</span><span class="o">.</span><span class="n">years</span>
         <span class="p">]</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Loading </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">DATASET</span><span class="si">}</span><span class="s2"> table data from </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">partitions</span><span class="p">)</span><span class="si">}</span><span class="s2"> partitions.&quot;</span>
+            <span class="sa">f</span><span class="s2">"Loading </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">DATASET</span><span class="si">}</span><span class="s2"> table data from </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">partitions</span><span class="p">)</span><span class="si">}</span><span class="s2"> partitions."</span>
         <span class="p">)</span>
         <span class="k">for</span> <span class="n">table</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dbf_reader</span><span class="o">.</span><span class="n">get_table_names</span><span class="p">():</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Pandas: reading </span><span class="si">{</span><span class="n">table</span><span class="si">}</span><span class="s2"> into a DataFrame.&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Pandas: reading </span><span class="si">{</span><span class="n">table</span><span class="si">}</span><span class="s2"> into a DataFrame."</span><span class="p">)</span>
             <span class="n">new_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aggregate_table_frames</span><span class="p">(</span>
                 <span class="n">table</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dbf_reader</span><span class="o">.</span><span class="n">load_table_dfs</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">partitions</span><span class="p">)</span>
             <span class="p">)</span>
             <span class="k">if</span> <span class="n">new_df</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_df</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Table </span><span class="si">{</span><span class="n">table</span><span class="si">}</span><span class="s2"> contains no data, skipping.&quot;</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Table </span><span class="si">{</span><span class="n">table</span><span class="si">}</span><span class="s2"> contains no data, skipping."</span><span class="p">)</span>
                 <span class="k">continue</span>
             <span class="n">new_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transform_table</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">new_df</span><span class="p">)</span>
 
@@ -1753,11 +1753,11 @@ window.runMermaid = runMermaid;</script>
                 <span class="k">continue</span>
 
             <span class="n">coltypes</span> <span class="o">=</span> <span class="p">{</span><span class="n">col</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">col</span><span class="o">.</span><span class="n">type</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sqlite_meta</span><span class="o">.</span><span class="n">tables</span><span class="p">[</span><span class="n">table</span><span class="p">]</span><span class="o">.</span><span class="n">c</span><span class="p">}</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;SQLite: loading </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">new_df</span><span class="p">)</span><span class="si">}</span><span class="s2"> rows into </span><span class="si">{</span><span class="n">table</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"SQLite: loading </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">new_df</span><span class="p">)</span><span class="si">}</span><span class="s2"> rows into </span><span class="si">{</span><span class="n">table</span><span class="si">}</span><span class="s2">."</span><span class="p">)</span>
             <span class="n">new_df</span><span class="o">.</span><span class="n">to_sql</span><span class="p">(</span>
                 <span class="n">table</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">sqlite_engine</span><span class="p">,</span>
-                <span class="n">if_exists</span><span class="o">=</span><span class="s2">&quot;append&quot;</span><span class="p">,</span>
+                <span class="n">if_exists</span><span class="o">=</span><span class="s2">"append"</span><span class="p">,</span>
                 <span class="n">chunksize</span><span class="o">=</span><span class="mi">100000</span><span class="p">,</span>
                 <span class="n">dtype</span><span class="o">=</span><span class="n">coltypes</span><span class="p">,</span>
                 <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
@@ -1767,18 +1767,18 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="FercDbfExtractor.finalize_schema">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.FercDbfExtractor.finalize_schema">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">finalize_schema</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">meta</span><span class="p">:</span> <span class="n">sa</span><span class="o">.</span><span class="n">MetaData</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">sa</span><span class="o">.</span><span class="n">MetaData</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;This method is called just before the schema is written to sqlite.</span>
+<span class="w">        </span><span class="sd">"""This method is called just before the schema is written to sqlite.</span>
 
 <span class="sd">        You can use this method to apply dataset specific alterations to the schema,</span>
 <span class="sd">        such as adding primary and foreign key constraints.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="n">meta</span></div>
 
 
 <div class="viewcode-block" id="FercDbfExtractor.postprocess">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.FercDbfExtractor.postprocess">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">postprocess</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;This method is called after all the data is loaded into sqlite.&quot;&quot;&quot;</span></div>
+<span class="w">        </span><span class="sd">"""This method is called after all the data is loaded into sqlite."""</span></div>
 </div>
 
 
@@ -1786,24 +1786,24 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="convert_db_into_parquet">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.convert_db_into_parquet">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">convert_db_into_parquet</span><span class="p">(</span><span class="n">db_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">parquet_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert the database into a directory of parquet files using duckdb.</span>
+<span class="w">    </span><span class="sd">"""Convert the database into a directory of parquet files using duckdb.</span>
 
 <span class="sd">    We do this using COPY. We tried using EXPORT DATABASE, but it unfortunately</span>
 <span class="sd">    sanitizes the table names, which removes the schedule numbers in the table</span>
-<span class="sd">    names so we can&#39;t use it.</span>
+<span class="sd">    names so we can't use it.</span>
 
 <span class="sd">    Maintainer note: this function was adapted from ferc-xbrl-extractor; changes</span>
 <span class="sd">    here should be considered for sync there and vice-versa.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">with</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">db_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">con</span><span class="p">:</span>
-        <span class="n">tables</span> <span class="o">=</span> <span class="n">con</span><span class="o">.</span><span class="n">sql</span><span class="p">(</span><span class="s2">&quot;SHOW TABLES&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
+        <span class="n">tables</span> <span class="o">=</span> <span class="n">con</span><span class="o">.</span><span class="n">sql</span><span class="p">(</span><span class="s2">"SHOW TABLES"</span><span class="p">)</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
         <span class="c1"># tables is a list of tuples, so condense the list</span>
         <span class="n">tables</span> <span class="o">=</span> <span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="n">tables</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">parquet_dir</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
             <span class="n">parquet_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">table</span> <span class="ow">in</span> <span class="n">tables</span><span class="p">:</span>
             <span class="n">con</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;COPY </span><span class="si">{</span><span class="n">table</span><span class="si">}</span><span class="s2"> TO &#39;</span><span class="si">{</span><span class="n">parquet_dir</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">table</span><span class="si">}</span><span class="s2">.parquet&#39; (FORMAT parquet);&quot;</span>
+                <span class="sa">f</span><span class="s2">"COPY </span><span class="si">{</span><span class="n">table</span><span class="si">}</span><span class="s2"> TO '</span><span class="si">{</span><span class="n">parquet_dir</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">table</span><span class="si">}</span><span class="s2">.parquet' (FORMAT parquet);"</span>
             <span class="p">)</span></div>
 
 
@@ -1811,26 +1811,26 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="convert_and_validate_datapackage_sqlite_to_parquet">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.convert_and_validate_datapackage_sqlite_to_parquet">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">convert_and_validate_datapackage_sqlite_to_parquet</span><span class="p">(</span><span class="n">datapackage_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert the SQLite datapackage into one that points at Parquet files.</span>
+<span class="w">    </span><span class="sd">"""Convert the SQLite datapackage into one that points at Parquet files.</span>
 
 <span class="sd">    * instead of ``path`` pointing at monolithic SQLite db, point at individual Parquet files instead</span>
 <span class="sd">    * update format/metadata fields</span>
 
 <span class="sd">    Maintainer note: this function was adapted from ferc-xbrl-extractor; changes</span>
 <span class="sd">    here should be considered for sync there and vice-versa.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># read existing datapackage</span>
     <span class="k">with</span> <span class="n">Path</span><span class="p">(</span><span class="n">datapackage_path</span><span class="p">)</span><span class="o">.</span><span class="n">open</span><span class="p">()</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
         <span class="n">datapackage</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">resource</span> <span class="ow">in</span> <span class="n">datapackage</span><span class="p">[</span><span class="s2">&quot;resources&quot;</span><span class="p">]:</span>
-        <span class="n">name</span> <span class="o">=</span> <span class="n">resource</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
-        <span class="n">resource</span><span class="p">[</span><span class="s2">&quot;path&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">.parquet&quot;</span>
-        <span class="n">resource</span><span class="p">[</span><span class="s2">&quot;format&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;parquet&quot;</span>
-        <span class="n">resource</span><span class="p">[</span><span class="s2">&quot;mediatype&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;application/vnd.apache.parquet&quot;</span>
+    <span class="k">for</span> <span class="n">resource</span> <span class="ow">in</span> <span class="n">datapackage</span><span class="p">[</span><span class="s2">"resources"</span><span class="p">]:</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">resource</span><span class="p">[</span><span class="s2">"name"</span><span class="p">]</span>
+        <span class="n">resource</span><span class="p">[</span><span class="s2">"path"</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">.parquet"</span>
+        <span class="n">resource</span><span class="p">[</span><span class="s2">"format"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"parquet"</span>
+        <span class="n">resource</span><span class="p">[</span><span class="s2">"mediatype"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"application/vnd.apache.parquet"</span>
     <span class="c1"># Verify that datapackage descriptor is valid before outputting</span>
     <span class="n">report</span> <span class="o">=</span> <span class="n">frictionless</span><span class="o">.</span><span class="n">Package</span><span class="o">.</span><span class="n">validate_descriptor</span><span class="p">(</span><span class="n">datapackage</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">report</span><span class="o">.</span><span class="n">valid</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Generated datapackage is invalid - </span><span class="si">{</span><span class="n">report</span><span class="o">.</span><span class="n">errors</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Generated datapackage is invalid - </span><span class="si">{</span><span class="n">report</span><span class="o">.</span><span class="n">errors</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">datapackage</span></div>
 
 
@@ -1838,14 +1838,14 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="write_datapackage">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/dbf/index.html#pudl.extract.dbf.write_datapackage">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">write_datapackage</span><span class="p">(</span><span class="n">datapackage</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Write a datapackage to &lt;output_dir&gt;/datapackage.json.</span>
+<span class="w">    </span><span class="sd">"""Write a datapackage to &lt;output_dir&gt;/datapackage.json.</span>
 
 <span class="sd">    output_dir must exist.</span>
 
 <span class="sd">    Maintainer note: this function was adapted from ferc-xbrl-extractor; changes</span>
 <span class="sd">    here should be considered for sync there and vice-versa.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">with</span> <span class="n">Path</span><span class="p">(</span><span class="n">output_dir</span> <span class="o">/</span> <span class="s2">&quot;datapackage.json&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+<span class="sd">    """</span>
+    <span class="k">with</span> <span class="n">Path</span><span class="p">(</span><span class="n">output_dir</span> <span class="o">/</span> <span class="s2">"datapackage.json"</span><span class="p">)</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">"w"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">datapackage</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span></div>
 
 
@@ -1855,7 +1855,7 @@ window.runMermaid = runMermaid;</script>
 <span class="k">def</span><span class="w"> </span><span class="nf">add_key_constraints</span><span class="p">(</span>
     <span class="n">meta</span><span class="p">:</span> <span class="n">sa</span><span class="o">.</span><span class="n">MetaData</span><span class="p">,</span> <span class="n">pk_table</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">column</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">pk_column</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">sa</span><span class="o">.</span><span class="n">MetaData</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Adds primary and foreign key to tables present in meta.</span>
+<span class="w">    </span><span class="sd">"""Adds primary and foreign key to tables present in meta.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        meta: constraints will be applied to this metadata instance</span>
@@ -1864,18 +1864,18 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">            have foreign-key constraint added.</span>
 <span class="sd">        pk_column: (optional) if specified, this is the primary key column name in</span>
 <span class="sd">            the table. If not specified, it is assumed that this is the same as pk_column.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">pk_column</span> <span class="o">=</span> <span class="n">pk_column</span> <span class="ow">or</span> <span class="n">column</span>
     <span class="k">for</span> <span class="n">table</span> <span class="ow">in</span> <span class="n">meta</span><span class="o">.</span><span class="n">tables</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
         <span class="n">constraint</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">table</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">pk_table</span><span class="p">:</span>
             <span class="n">constraint</span> <span class="o">=</span> <span class="n">sa</span><span class="o">.</span><span class="n">PrimaryKeyConstraint</span><span class="p">(</span>
-                <span class="n">pk_column</span><span class="p">,</span> <span class="n">sqlite_on_conflict</span><span class="o">=</span><span class="s2">&quot;REPLACE&quot;</span>
+                <span class="n">pk_column</span><span class="p">,</span> <span class="n">sqlite_on_conflict</span><span class="o">=</span><span class="s2">"REPLACE"</span>
             <span class="p">)</span>
         <span class="k">elif</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">table</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
             <span class="n">constraint</span> <span class="o">=</span> <span class="n">sa</span><span class="o">.</span><span class="n">ForeignKeyConstraint</span><span class="p">(</span>
                 <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="n">column</span><span class="p">],</span>
-                <span class="n">refcolumns</span><span class="o">=</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">pk_table</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">pk_column</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">],</span>
+                <span class="n">refcolumns</span><span class="o">=</span><span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">pk_table</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">pk_column</span><span class="si">}</span><span class="s2">"</span><span class="p">],</span>
             <span class="p">)</span>
         <span class="k">if</span> <span class="n">constraint</span><span class="p">:</span>
             <span class="n">table</span><span class="o">.</span><span class="n">append_constraint</span><span class="p">(</span><span class="n">constraint</span><span class="p">)</span>
@@ -1888,22 +1888,22 @@ window.runMermaid = runMermaid;</script>
 <span class="k">def</span><span class="w"> </span><span class="nf">deduplicate_by_year</span><span class="p">(</span>
     <span class="n">dfs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">PartitionedDataFrame</span><span class="p">],</span> <span class="n">pk_column</span><span class="p">:</span> <span class="nb">str</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Deduplicate records by year, keeping the most recent version of each record.</span>
+<span class="w">    </span><span class="sd">"""Deduplicate records by year, keeping the most recent version of each record.</span>
 
 <span class="sd">    It will use pk_column as the primary key column. report_yr column is expected to</span>
-<span class="sd">    either be present, or it will be derived from partition[&quot;year&quot;].</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    either be present, or it will be derived from partition["year"].</span>
+<span class="sd">    """</span>
     <span class="n">yr_dfs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">p_df</span> <span class="ow">in</span> <span class="n">dfs</span><span class="p">:</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">p_df</span><span class="o">.</span><span class="n">df</span>
-        <span class="k">if</span> <span class="s2">&quot;report_yr&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
-            <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">report_yr</span><span class="o">=</span><span class="n">p_df</span><span class="o">.</span><span class="n">partition</span><span class="p">[</span><span class="s2">&quot;year&quot;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="s2">"report_yr"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">report_yr</span><span class="o">=</span><span class="n">p_df</span><span class="o">.</span><span class="n">partition</span><span class="p">[</span><span class="s2">"year"</span><span class="p">])</span>
         <span class="n">yr_dfs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
     <span class="n">agg_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">yr_dfs</span><span class="p">)</span>
     <span class="k">return</span> <span class="p">(</span>
-        <span class="n">agg_df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;report_yr&quot;</span><span class="p">,</span> <span class="n">pk_column</span><span class="p">])</span>
-        <span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="n">pk_column</span><span class="p">,</span> <span class="n">keep</span><span class="o">=</span><span class="s2">&quot;last&quot;</span><span class="p">)</span>
-        <span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="s2">&quot;report_yr&quot;</span><span class="p">)</span>
+        <span class="n">agg_df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s2">"report_yr"</span><span class="p">,</span> <span class="n">pk_column</span><span class="p">])</span>
+        <span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="n">pk_column</span><span class="p">,</span> <span class="n">keep</span><span class="o">=</span><span class="s2">"last"</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="s2">"report_yr"</span><span class="p">)</span>
     <span class="p">)</span></div>
 
 </pre></div>

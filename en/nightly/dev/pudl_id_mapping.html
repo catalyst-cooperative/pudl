@@ -18,7 +18,7 @@
     </script>
     
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="pudl_id_mapping.html.md" />
-    <title>PUDL ID Mapping &#8212; PUDL 2026.8.1.dev16 documentation</title>
+    <title>PUDL ID Mapping &#8212; PUDL 2026.8.1.dev20 documentation</title>
   
   
   
@@ -51,7 +51,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../_static/documentation_options.js?v=f981bf86"></script>
+    <script src="../_static/documentation_options.js?v=8f1a003a"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -142,8 +142,8 @@
       
     
     
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev16 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev20 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev20 documentation - Home"/>
   
   
 </a></div>
@@ -945,10 +945,10 @@ top of that. Before running the local test for ID mapping, you’ll also need
 <span class="gp">$ </span>aws<span class="w"> </span>s3<span class="w"> </span>cp<span class="w"> </span>--no-sign-request<span class="w"> </span>s3://pudl.catalyst.coop/nightly/ferc1_xbrl.sqlite.zip<span class="w"> </span>./
 
 <span class="gp"># </span>Unzip<span class="w"> </span>the<span class="w"> </span>databases
-<span class="gp">$ </span>unzip<span class="w"> </span><span class="s1">&#39;*.zip&#39;</span>
+<span class="gp">$ </span>unzip<span class="w"> </span><span class="s1">'*.zip'</span>
 
 <span class="gp"># </span>Materialize<span class="w"> </span>the<span class="w"> </span>assets<span class="w"> </span>you<span class="w"> </span>modified<span class="w"> </span>on<span class="w"> </span>top<span class="w"> </span>of<span class="w"> </span>the<span class="w"> </span>fresh<span class="w"> </span>database
-<span class="gp">$ </span>pixi<span class="w"> </span>run<span class="w"> </span>dg<span class="w"> </span>launch<span class="w"> </span>--assets<span class="w"> </span><span class="s2">&quot;group:&#39;your_asset_group&#39;+&quot;</span>
+<span class="gp">$ </span>pixi<span class="w"> </span>run<span class="w"> </span>dg<span class="w"> </span>launch<span class="w"> </span>--assets<span class="w"> </span><span class="s2">"group:'your_asset_group'+"</span>
 </pre></div>
 </div>
 <p>Once that’s all set, you can run the following test to save unmapped IDs. This invokes
