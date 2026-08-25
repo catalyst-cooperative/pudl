@@ -12,11 +12,12 @@ NULL_OVERRIDE_RECORD_ID_FERC1 = "f1_gnrt_plant_2008_12_108_0_5"
 def test_add_null_overrides_preserves_condensed_columns():
     """Nulling EIA columns shouldn't wipe out condensed FERC1-derived columns.
 
-    ``report_date``, ``report_year``, ``plant_id_pudl``, and ``utility_id_pudl`` are
-    condensed in :func:`prettyify_best_matches` to hold a FERC1-derived value even for
-    records with no EIA match. Regression test for a bug where these shared columns
-    were included in ``eia_cols_to_null`` and got wiped out for every record in
-    ``eia_ferc1_null.csv``, producing spurious NULL report dates/years.
+    Regression test: previously these shared columns were included in
+    ``eia_cols_to_null`` and got wiped out for every record in ``eia_ferc1_null.csv``,
+    producing spurious NULL report dates/years. ``report_date``, ``report_year``,
+    ``plant_id_pudl``, and ``utility_id_pudl`` are condensed in
+    :func:`prettyify_best_matches` to hold a FERC1-derived value even for records with
+    no EIA match.
     """
     eia_field_names = Resource.from_id("out_eia__yearly_plant_parts").get_field_names()
     eia_only_col = next(
