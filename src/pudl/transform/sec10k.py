@@ -283,14 +283,20 @@ def _match_ex21_subsidiaries_to_filer_company(
     merged_df["report_date_diff_days"] = abs(
         (merged_df["report_date_sec"] - merged_df["report_date_ex21"]).dt.days
     )
+    # central_index_key is included purely as a tiebreaker: filers tied on
+    # every other key (same name, location, loc_overlap, and
+    # report_date_diff_days) would otherwise resolve to whichever one
+    # happens to come first in merged_df, which isn't guaranteed to be
+    # stable across pandas/numpy versions or upstream row order.
     merged_df = merged_df.sort_values(
         by=[
             "subsidiary_company_name",
             "subsidiary_company_location",
             "loc_overlap",
             "report_date_diff_days",
+            "central_index_key",
         ],
-        ascending=[True, True, False, True],
+        ascending=[True, True, False, True, True],
     )
     # Select the filer with the highest loc overlap and nearest report dates
     # for each subsidiary_company_id_sec10k
