@@ -562,7 +562,11 @@ class Datastore:
         for resource_key, content in self.get_resources(dataset, **filters):
             yield (
                 resource_key,
-                retry(zipfile.ZipFile, retry_on=(zipfile.BadZipFile), file=content),
+                retry(
+                    zipfile.ZipFile,
+                    retry_on=(zipfile.BadZipFile),
+                    file=io.BytesIO(content),
+                ),
             )
 
     def get_zipfile_file_names(self, zip_file: zipfile.ZipFile):
