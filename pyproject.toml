@@ -299,11 +299,11 @@ description = "Run unit tests and doctests"
 
 [tool.pixi.tasks.pytest-integration]
 cmd = "pytest --cov-fail-under=0 tests/integration"
-description = "Run fast integration tests that don't require a full ETL run."
+description = "Run fast integration tests that don't require any Dagster ETL pipeline outputs."
 
 [tool.pixi.tasks.pytest-pipeline]
 cmd = "pytest --cov-fail-under=0 --ignore=tests/pipeline/ferceqr_test.py tests/pipeline tests/validate/data_test.py"
-description = "Run pipeline tests (full ETL run) and (non-row-count) validation tests."
+description = "Run pipeline tests (including the fast ETL) and non-row-count data validation tests."
 env = { PUDL_INTEGRATION_TESTS = "true" }
 
 [tool.pixi.tasks.pytest-validate]

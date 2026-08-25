@@ -124,8 +124,8 @@ Developer Experience
   parse time instead of silently discarding them. Whitespace in description fields is
   also normalized at parse-time to avoid spurious diffs. See PR :pr:`5458`.
 * Reorganized ``tests/`` into four tiers by run-time: fast unit tests run as a
-  pre-commit hook, slower integration tests that run on every push, and slower
-  ETL-dependent pipeline and data validation tests run in the merge queue. Previously
+  pre-commit hook, slower integration tests run on every push, and slower ETL-dependent
+  pipeline and data validation tests run in the merge queue. Previously
   ``tests/integration`` mixed ETL and integration tests together, so many lightweight
   tests weren't getting run until the merge queue, leading to unexpected late-stage
   failures. A pytest collection hook enforces the ETL/no-ETL split. Also fixed a live

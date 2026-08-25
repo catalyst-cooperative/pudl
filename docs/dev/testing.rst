@@ -168,7 +168,7 @@ of that database. For example:
 
 .. code-block:: console
 
-   $ pixi run pytest --live-pudl-output tests/pipeline/dagster/pipeline_test.py
+   $ pixi run pytest --live-pudl-output tests/pipeline/glue/glue_test.py
 
 Foreign key checks and dbt validations can be selected separately from the rest of the
 pipeline suite by running the dedicated validation module directly. For example:
