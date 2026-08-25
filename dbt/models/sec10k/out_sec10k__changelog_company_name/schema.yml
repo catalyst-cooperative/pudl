@@ -8,7 +8,7 @@ sources:
           - check_row_counts_per_partition:
               arguments:
                 table_name: out_sec10k__changelog_company_name
-                partition_expr:
+                partition_expr: null
         columns:
           - name: central_index_key
           - name: name_change_date

@@ -20,6 +20,7 @@ Developer Guide
   run_a_release
   pudl_id_mapping
   naming_conventions
+  llm_best_practices
   data_guidelines
   nightly_data_builds
   ferceqr_data_builds

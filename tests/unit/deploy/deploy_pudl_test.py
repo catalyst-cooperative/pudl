@@ -565,15 +565,24 @@ def test_update_pudl_viewer_selects_workflow_by_environment(
 
 
 @pytest.mark.parametrize(
-    "create_builds,build_successful",
+    "create_builds,build_successful,build_type,git_ref_name",
     [
-        (True, True),
-        (True, False),
-        (False, True),
+        (create_builds, build_successful, *build_type_info)
+        for create_builds in [True, False]
+        for build_successful in [True, False]
+        for build_type_info in [
+            ("nightly", "main"),
+            ("stable", "v2026-01-01"),
+            ("branch", "my-branch-name"),
+        ]
     ],
 )
 def test_get_build_from_tag(
-    tmp_path: Path, create_builds: bool, build_successful: bool
+    tmp_path: Path,
+    create_builds: bool,
+    build_successful: bool,
+    build_type: str,
+    git_ref_name: str,
 ):
     """Test getting build path from git tag."""
     example_tag = "example_tag"
@@ -583,11 +592,11 @@ def test_get_build_from_tag(
     # Create build directories in tmp_path
     if create_builds:
         for build_name, most_recent_build in [
-            (f"2026-02-04-1230-{expected_hash}", True),
-            (f"2026-02-04-0530-{expected_hash}", False),
-            (f"2026-01-01-0000-{expected_hash}", False),
-            (f"2026-01-01-1200-{other_hash}", True),
-            (f"2025-12-31-1200-{other_hash}", False),
+            (f"{build_type}-2026-02-04-1230-{expected_hash}-{git_ref_name}", True),
+            (f"{build_type}-2026-02-04-0530-{expected_hash}-{git_ref_name}", False),
+            (f"{build_type}-2026-01-01-0000-{expected_hash}-{git_ref_name}", False),
+            (f"{build_type}-2026-01-01-1200-{other_hash}-{git_ref_name}", True),
+            (f"{build_type}-2025-12-31-1200-{other_hash}-{git_ref_name}", False),
         ]:
             build_path = tmp_path / build_name
             build_path.mkdir()

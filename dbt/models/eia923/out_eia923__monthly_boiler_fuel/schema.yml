@@ -8,7 +8,7 @@ sources:
           - check_row_counts_per_partition:
               arguments:
                 table_name: out_eia923__monthly_boiler_fuel
-                partition_expr: "EXTRACT(YEAR FROM report_date)"
+                partition_expr: EXTRACT(YEAR FROM report_date)
           - expect_date_frequency_ratio:
               arguments:
                 compare_model: source("pudl", "out_eia__yearly_generators")
@@ -87,7 +87,9 @@ sources:
                         max_value: 5.85
                     weight_column: fuel_consumed_units
               - expect_quantile_constraints:
-                  description: Quantile 0.05 dropped from 5.0 to 4.99 April 2025. Keep an eye on it and investigate if it drops further.
+                  description: |-
+                    Quantile 0.05 dropped from 5.0 to 4.99 April 2025. Keep an eye on it and investigate if
+                    it drops further.
                   arguments:
                     row_condition: fuel_type_code_pudl='oil'
                     constraints:
@@ -97,7 +99,11 @@ sources:
                         max_value: 6.6
                     weight_column: fuel_consumed_units
               - expect_quantile_constraints:
-                  description: Demoted to warning in April 2025 when quantile 0.01 dropped from 0.95 to 0.068. Investigate this further in issue 4181. Historically, this test may fail because of a population of bad data around 0.1 mmbtu/unit. This appears to be an off-by-10x error, possibly due to reporting error in units used.
+                  description: |-
+                    Demoted to warning in April 2025 when quantile 0.01 dropped from 0.95 to 0.068.
+                    Investigate this further in issue 4181. Historically, this test may fail because of a
+                    population of bad data around 0.1 mmbtu/unit. This appears to be an off-by-10x error,
+                    possibly due to reporting error in units used.
                   config:
                     severity: warn
                   arguments:

@@ -54,9 +54,7 @@ sources:
                     min_value: 0.0
                   config:
                     error_if: ">6"
-                  description:
-                    VA0039 reports 4 negative generations, two other companies
-                    in 2006. Investigate.
+                  description: VA0039 reports 4 negative generations, two other companies in 2006. Investigate.
           - name: interchange_mwh
             data_tests:
               - dbt_expectations.expect_column_min_to_be_between:

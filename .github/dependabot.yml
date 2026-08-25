@@ -6,3 +6,13 @@ updates:
     target-branch: main
     schedule:
       interval: weekly
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+
+  # Docker base image updates are handled by devtools/update_docker_pins.py as
+  # part of update-lockfiles.yml instead of Dependabot -- Dependabot's docker
+  # updater didn't reliably pick up the latest tag, and its own separate PRs
+  # triggered nightly builds just for a base image bump, independent of the
+  # already-scheduled weekly lockfile update.

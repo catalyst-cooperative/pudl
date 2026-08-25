@@ -1,0 +1,34 @@
+version: 2
+sources:
+  - name: pudl
+    tables:
+      - name: _core_eia923__yearly_fuel_stocks
+        data_tests:
+          - expect_columns_not_all_null
+          - check_row_counts_per_partition:
+              arguments:
+                table_name: _core_eia923__yearly_fuel_stocks
+                partition_expr: EXTRACT(YEAR FROM report_date)
+        columns:
+          - name: report_date
+            data_tests:
+              - not_null
+          - name: census_division_and_state
+            data_tests:
+              - not_null
+          - name: coal_stock_tons
+            data_tests:
+              - dbt_expectations.expect_column_values_to_be_between:
+                  arguments:
+                    min_value: 0.0
+          - name: petroleum_liquids_stock_barrels
+            data_tests:
+              - dbt_expectations.expect_column_values_to_be_between:
+                  arguments:
+                    min_value: 0.0
+          - name: petroleum_coke_stock_tons
+            data_tests:
+              - dbt_expectations.expect_column_values_to_be_between:
+                  arguments:
+                    min_value: 0.0
+          - name: data_maturity

@@ -1,34 +1,43 @@
 ---
 name: bot-auto-merge
 
+# Runs on pull_request_target (not pull_request) so it has access to secrets even for
+# PRs opened by Dependabot, which run with a read-only token by default. This is safe
+# here because we never check out or execute any code from the PR -- we only call the
+# GitHub API by PR URL to approve it and enable auto-merge.
 on:
-  workflow_run:
-    types: [completed]
-    workflows: ["pytest"]
+  pull_request_target:
+    types: [opened, reopened, synchronize]
+
+permissions: {}
 
 jobs:
   bot-auto-merge:
     name: Auto-merge passing bot PRs
     runs-on: ubuntu-latest
+    # Gate on who *opened* the PR, not github.actor -- for a `synchronize` event,
+    # github.actor is whoever pushed the latest commit (e.g. pre-commit-ci fixing up
+    # a human-authored PR), which must not by itself trigger auto-merge.
+    if: >-
+      github.event.pull_request.user.login == 'dependabot[bot]' ||
+      github.event.pull_request.user.login == 'pre-commit-ci[bot]'
     steps:
       - name: Impersonate auto merge PR bot
         uses: actions/create-github-app-token@v3
         id: generate-token
         with:
-          app-id: ${{ secrets.BOT_AUTO_MERGE_PRS_APP_ID }}
+          client-id: ${{ secrets.BOT_AUTO_MERGE_PRS_CLIENT_ID }}
           private-key: ${{ secrets.BOT_AUTO_MERGE_PRS_APP_KEY }}
-      - name: Auto-merge passing dependabot PRs
-        if: ${{ github.event.workflow_run.conclusion == 'success' }}
-        uses: ridedott/merge-me-action@v2
-        with:
-          # For clarity only. dependabot is default login.
-          GITHUB_LOGIN: dependabot
-          GITHUB_TOKEN: ${{ steps.generate-token.outputs.token }}
-          ENABLED_FOR_MANUAL_CHANGES: "true"
-      - name: Auto-merge passing pre-commit-ci PRs
-        if: ${{ github.event.workflow_run.conclusion == 'success' }}
-        uses: ridedott/merge-me-action@v2
-        with:
-          GITHUB_LOGIN: pre-commit-ci
-          GITHUB_TOKEN: ${{ steps.generate-token.outputs.token }}
-          ENABLED_FOR_MANUAL_CHANGES: "true"
+
+      - name: Approve and enable auto-merge
+        # `gh pr merge --auto` just flags the PR for GitHub to merge on its own once
+        # every required check passes. Since this repo requires a merge queue, gh
+        # handles that automatically too (enabling auto-merge, then queuing it once
+        # checks pass) -- no polling or retry logic needed here, and no separate
+        # action to keep up to date.
+        env:
+          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+        run: |
+          gh pr review --approve "$PR_URL"
+          gh pr merge --merge --auto "$PR_URL"

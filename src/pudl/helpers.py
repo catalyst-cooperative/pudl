@@ -1612,7 +1612,13 @@ def dedupe_on_category(
         pd.CategoricalDtype(categories=sorter, ordered=True)
     )
 
-    return dedup_df.drop_duplicates(subset=base_cols, keep="first")
+    # Sort by category_name as a tiebreaker: rows tied on base_cols would
+    # otherwise resolve to whichever value happens to come first in
+    # dedup_df, which isn't guaranteed to be stable across upstream row
+    # order.
+    return dedup_df.sort_values(category_name).drop_duplicates(
+        subset=base_cols, keep="first"
+    )
 
 
 def dedupe_and_drop_nas(
@@ -2221,16 +2227,12 @@ def get_parquet_table_polars(
         table_name: Name of the table to read.
         partitions: Optional dictionary of partitions to filter the data. See
             :class:`ParquetData` definition for details.
+        paths: optional :class:`PudlPaths`. By default, the default
+            :class:`PudlPaths` will be used.
 
     Returns:
         A polars LazyFrame representing the table.
     """
-    # Import here to avoid circular imports
-    from pudl.metadata.classes import Resource
-
-    resource = Resource.from_id(table_name)
-    schema = resource.to_polars_dtypes()
-
     # Get the Parquet file path
     if partitions is None:
         resolved_paths = PudlPaths() if paths is None else paths
@@ -2240,7 +2242,22 @@ def get_parquet_table_polars(
         # Points to a directory of parquet files when there partitions is non None
         parquet_path = parquet_data.parquet_path
 
-    return pl.scan_parquet(parquet_path).cast(schema, strict=False)
+    # Import here to avoid circular imports
+    from pudl.metadata.classes import Resource
+
+    resource = Resource.from_id(table_name)
+    # Pass the expected schema in directly rather than scanning then casting: casting
+    # a LazyFrame containing Enum-typed columns forces materialization, which is very
+    # slow for our largest hourly tables. Enum-constrained fields are stored as plain
+    # Categorical (see Field.to_polars_dtype), so no such cast is needed here anyway.
+    # Parquet files still store integer/float columns as 32-bit (FIELD_DTYPES_PYARROW),
+    # narrower than the 64-bit Polars schema we're requesting here, so allow scan-time
+    # upcasting rather than the strict match scan_parquet defaults to.
+    return pl.scan_parquet(
+        parquet_path,
+        schema=resource.to_polars_dtypes(),
+        cast_options=pl.ScanCastOptions(integer_cast="upcast", float_cast="upcast"),
+    )
 
 
 def get_parquet_table(

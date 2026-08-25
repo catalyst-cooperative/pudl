@@ -38,6 +38,7 @@ import pytest
 from dagster._core.definitions.asset_checks.asset_checks_definition import (
     AssetChecksDefinition,
 )
+from dagster._core.definitions.decorators.op_decorator import DecoratedOpFunction
 
 from pudl.dagster.asset_checks import (
     _build_registry_from_descriptor,
@@ -65,14 +66,14 @@ def test_asset_checks_preserve_runtime_input_types(
         dg.AssetKey([asset_name]),
         PUDL_PACKAGE,
         duckdb_asset=duckdb_asset,
-        high_memory_asset=False,
     )
 
     assert check is not None
-    assert (
-        check.node_def.compute_fn.decorated_fn.__annotations__["asset_value"]
-        is expected_type
-    )
+    node_def = check.node_def
+    assert isinstance(node_def, dg.OpDefinition)
+    compute_fn = node_def.compute_fn
+    assert isinstance(compute_fn, DecoratedOpFunction)
+    assert compute_fn.decorated_fn.__annotations__["asset_value"] is expected_type
 
 
 @pytest.mark.parametrize(

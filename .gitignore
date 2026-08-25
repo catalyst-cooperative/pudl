@@ -48,6 +48,7 @@ terraform/.terraform/*
 .env
 .hypothesis/
 *.conda
+.zed/**
 
 # dbt specific ignores
 dbt/dbt_packages/

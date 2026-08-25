@@ -81,6 +81,76 @@ def test__yearly_to_monthly_records__drops_all_null_months():
     pd.testing.assert_frame_equal(expected, actual)
 
 
+def test__core_eia923__yearly_fuel_stocks():
+    """Wide monthly stock columns become tall monthly records in base units.
+
+    Covers the wired asset for issue #5081: the ``early_release`` flag is dropped,
+    region labels are whitespace-stripped, the wide monthly columns are reshaped into
+    one row per populated month with a ``report_date``, and the reported thousand-unit
+    stock quantities are converted to base units (with non-numeric placeholders like
+    ``"."`` and the redacted-data marker ``"W"`` becoming NaN).
+    """
+    raw = pd.DataFrame(
+        {
+            "census_division_and_state": ["New England   ", "Middle Atlantic"],
+            "report_year": [2020, 2020],
+            "data_maturity": ["final", "final"],
+            "early_release": [pd.NA, pd.NA],
+            "coal_january": ["10.0", "20.0"],
+            "coal_june": ["11.0", "21.0"],
+            "oil_january": ["1.0", "2.0"],
+            "oil_june": ["1.5", "2.5"],
+            "petcoke_january": ["0.0", "0.1"],
+            "petcoke_june": [".", "W"],
+        }
+    )
+    out = eia923._core_eia923__yearly_fuel_stocks(raw)
+
+    # The early_release flag is dropped.
+    assert "early_release" not in out.columns
+    # Region labels are stripped of trailing whitespace.
+    assert set(out["census_division_and_state"]) == {"New England", "Middle Atlantic"}
+    # Two records x two populated months -> four monthly rows.
+    assert len(out) == 4
+    # report_date is built from report_year + the reshaped month.
+    assert set(out["report_date"]) == {
+        pd.Timestamp("2020-01-01"),
+        pd.Timestamp("2020-06-01"),
+    }
+    # Stock columns are numeric.
+    stock_cols = (
+        "coal_stock_tons",
+        "petroleum_liquids_stock_barrels",
+        "petroleum_coke_stock_tons",
+    )
+    for stock_col in stock_cols:
+        assert pd.api.types.is_float_dtype(out[stock_col])
+
+    ne_jan = out[
+        (out["census_division_and_state"] == "New England")
+        & (out["report_date"] == pd.Timestamp("2020-01-01"))
+    ].iloc[0]
+    # Thousand-unit values are converted to base units.
+    assert ne_jan["coal_stock_tons"] == 10_000.0
+    assert ne_jan["petroleum_liquids_stock_barrels"] == 1_000.0
+    assert ne_jan["petroleum_coke_stock_tons"] == 0.0
+
+    ne_jun = out[
+        (out["census_division_and_state"] == "New England")
+        & (out["report_date"] == pd.Timestamp("2020-06-01"))
+    ].iloc[0]
+    assert ne_jun["coal_stock_tons"] == 11_000.0
+    # A "." raw value coerces to NaN.
+    assert pd.isna(ne_jun["petroleum_coke_stock_tons"])
+
+    ma_jun = out[
+        (out["census_division_and_state"] == "Middle Atlantic")
+        & (out["report_date"] == pd.Timestamp("2020-06-01"))
+    ].iloc[0]
+    # A "W" (redacted data) raw value coerces to NaN, just like ".".
+    assert pd.isna(ma_jun["petroleum_coke_stock_tons"])
+
+
 def test___drop_duplicates__core_eia923__generation():
     """Test whether this bespoke de-duper actually preserves one of the records.
 

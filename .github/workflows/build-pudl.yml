@@ -49,18 +49,23 @@ jobs:
         # Nightly builds and builds triggered by stable tag pushes trigger production
         # deployments. Branch builds trigger staging deployments
         run: |
-          BUILD_ID="$(date +%Y-%m-%d-%H%M)-$(git rev-parse --short=9 HEAD)"
+          BUILD_ID_SUFFIX="$(date +%Y-%m-%d-%H%M)-$(git rev-parse --short=9 HEAD)-${{ github.ref_name }}"
           echo "BUILD_ID=$BUILD_ID" >> "$GITHUB_ENV"
           if [[ ${{ github.event_name }} == "schedule" ]]; then
               echo "GIT_TAG=nightly-$(date +%Y-%m-%d)" >> "$GITHUB_ENV"
               echo "DEPLOYMENT_ENVIRONMENT=production" >> "$GITHUB_ENV"
+              BUILD_ID_RAW="nightly-$BUILD_ID_SUFFIX"
           elif [[ ${{ github.event_name }} == "workflow_dispatch" ]]; then
-              echo "GIT_TAG=branch-$BUILD_ID" >> "$GITHUB_ENV"
               echo "DEPLOYMENT_ENVIRONMENT=staging" >> "$GITHUB_ENV"
+              BUILD_ID_RAW="branch-$BUILD_ID_SUFFIX"
+              echo "GIT_TAG=$BUILD_ID_RAW" >> "$GITHUB_ENV"
           elif [[ ${{ github.event_name }} == "push" ]]; then
               echo "GIT_TAG=${{ github.ref_name }}" >>  "$GITHUB_ENV"
               echo "DEPLOYMENT_ENVIRONMENT=production" >> "$GITHUB_ENV"
+              BUILD_ID_RAW="stable-$BUILD_ID_SUFFIX"
           fi
+          BUILD_ID_SANITIZED="${BUILD_ID_RAW//[^[:alnum:]-]/-}"
+          echo "BUILD_ID=${BUILD_ID_SANITIZED:0:63}" >> "$GITHUB_ENV"
 
       - name: Show freshly set envvars
         if: ${{ env.SKIP_BUILD != 'true' }}
@@ -180,7 +185,7 @@ jobs:
       # Start the batch job
       - name: Kick off batch job
         if: ${{ env.SKIP_BUILD != 'true' }}
-        run: gcloud batch jobs submit build-pudl-${{ env.BUILD_ID }} --config ${{ env.BATCH_JOB_JSON }} --location us-west1
+        run: gcloud batch jobs submit ${{ env.BUILD_ID }} --config ${{ env.BATCH_JOB_JSON }} --location us-west1
 
       - name: Status emoji
         if: ${{ env.SKIP_BUILD != 'true' }}

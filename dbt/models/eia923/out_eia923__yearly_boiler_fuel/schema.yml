@@ -8,7 +8,7 @@ sources:
           - check_row_counts_per_partition:
               arguments:
                 table_name: out_eia923__yearly_boiler_fuel
-                partition_expr: "EXTRACT(YEAR FROM report_date)"
+                partition_expr: EXTRACT(YEAR FROM report_date)
         columns:
           - name: report_date
           - name: plant_id_eia
@@ -82,7 +82,9 @@ sources:
                         max_value: 5.85
                     weight_column: fuel_consumed_units
               - expect_quantile_constraints:
-                  description: Quantile 0.05 dropped from 5.0 to 4.805 in April 2025. Keep an eye on it, and investigate if it gets worse.
+                  description: |-
+                    Quantile 0.05 dropped from 5.0 to 4.805 in April 2025. Keep an eye on it, and
+                    investigate if it gets worse.
                   arguments:
                     row_condition: fuel_type_code_pudl='oil'
                     constraints:
@@ -92,7 +94,11 @@ sources:
                         max_value: 6.6
                     weight_column: fuel_consumed_units
               - expect_quantile_constraints:
-                  description: Demoted to warning in April 2025 when quantile 0.01 dropped from 0.95 to 0.049 on etl-fast. Investigate in issue 4186. Historically, this test may fail because of a population of bad data around 0.1 mmbtu/unit. This appears to be an off-by-10x error, possibly due to reporting error in units used.
+                  description: |-
+                    Demoted to warning in April 2025 when quantile 0.01 dropped from 0.95 to 0.049 on
+                    etl-fast. Investigate in issue 4186. Historically, this test may fail because of a
+                    population of bad data around 0.1 mmbtu/unit. This appears to be an off-by-10x error,
+                    possibly due to reporting error in units used.
                   config:
                     severity: warn
                   arguments:

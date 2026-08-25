@@ -21,7 +21,7 @@ ferc_to_sqlite:
   ferc60_xbrl:
     years: []
   ferc714_xbrl:
-    years: [2021, 2024]
+    years: [2021, 2025]
 
 ###########################################################################
 # Settings for the main PUDL ETL
@@ -37,7 +37,7 @@ pudl:
   ferc1:
     years: [2020, 2021, 2025]
   ferc714:
-    years: [2020, 2024]
+    years: [2020, 2025]
   eia:
     eia176:
       years: [2020, 2024]
@@ -51,13 +51,13 @@ pudl:
       years: [2020, 2025]
       eia860m: true
     eia860m:
-      year_months: ["2026-04", "2026-05"]
+      year_months: ["2026-05", "2026-06"]
     eia861:
       # These years must overlap with FERC-714 to allow assets that depend on both to
       # be materialized. If you modify this list, be sure to update the matching
       # pudl_service_territories commands in
       # tests/integration/scripts/console_scripts_test.py
-      years: [2020, 2024]
+      years: [2020, 2025]
     eia930:
       half_years: ["2026half1"]
     eiaaeo:
@@ -69,6 +69,9 @@ pudl:
     #
     # We only use q1 for epacems etl_fast even if later quarters are available.
     year_quarters: ["2024q1"]
+  epamats:
+    # We only use q1 for epamats etl_fast even if later quarters are available.
+    year_quarters: ["2025q1"]
   phmsagas:
     years: [2024]
   nrelatb:

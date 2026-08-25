@@ -1,9 +1,12 @@
-FROM ghcr.io/prefix-dev/pixi:0.72.2-noble
+FROM ghcr.io/prefix-dev/pixi:0.77.0
 
 # Reuse the nightly build's Pixi base image, but keep the devcontainer lean:
 # the repository is bind-mounted at runtime and Dagster falls back to its
 # default SQLite instance storage under DAGSTER_HOME.
-USER root
+# Numeric UID/GID (rather than the "root"/"ubuntu" names) so host tooling that
+# resolves the container's USER against a bind mount doesn't depend on the
+# image's /etc/passwd contents. 1000 is the pixi base image's "ubuntu" user.
+USER 0
 
 SHELL ["/bin/bash", "-exo", "pipefail", "-c"]
 
@@ -29,7 +32,7 @@ RUN apt-get update && \
     mkdir -p /workspaces && \
     chown -R ubuntu:ubuntu /workspaces
 
-USER ubuntu
+USER 1000
 WORKDIR /workspaces
 
 

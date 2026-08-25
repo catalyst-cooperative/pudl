@@ -51,7 +51,7 @@ SOURCES: dict[str, Any] = {
             "These FIPS Codes are a subset of a broader Population Estimates dataset."
         ),
         "concept_doi": "10.5281/zenodo.14624611",
-        "working_partitions": {"years": [2009] + list(range(2011, 2025))},
+        "working_partitions": {"years": [2009] + list(range(2011, 2026))},
         "keywords": sorted(
             {"fips", "census", "county", "state", "geography", "geocodes"}
         ),
@@ -228,7 +228,7 @@ SOURCES: dict[str, Any] = {
         "working_partitions": {
             "year_months": [
                 str(q).lower()
-                for q in pd.period_range(start="2015-07", end="2026-05", freq="M")
+                for q in pd.period_range(start="2015-07", end="2026-06", freq="M")
             ],
         },
         "keywords": sorted(
@@ -258,7 +258,7 @@ SOURCES: dict[str, Any] = {
         ),
         "concept_doi": "10.5281/zenodo.4127028",
         "working_partitions": {
-            "years": sorted(set(range(2001, 2025))),
+            "years": sorted(set(range(2001, 2026))),
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
@@ -354,7 +354,7 @@ SOURCES: dict[str, Any] = {
         "working_partitions": {
             "half_years": [
                 f"{year}half{half}" for year in range(2015, 2027) for half in [1, 2]
-            ][1:-1]  # Begins in H2 of 2015 and currently ends in H2 of 2026
+            ][1:]  # Begins in H2 of 2015 and currently ends in H2 of 2026
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
@@ -488,7 +488,7 @@ SOURCES: dict[str, Any] = {
         },
         "working_partitions": {
             "year_quarters": _year_quarter_range(
-                start_quarter="1995q1", end_quarter="2026q1"
+                start_quarter="1995q1", end_quarter="2026q2"
             )
         },
         "contributors": [
@@ -503,6 +503,50 @@ SOURCES: dict[str, Any] = {
                     "ampd",
                     "hourly",
                 ]
+                + KEYWORDS["epa"]
+                + KEYWORDS["us_govt"]
+                + KEYWORDS["electricity"]
+                + KEYWORDS["environment"]
+            )
+        ),
+        "license_raw": LICENSES["us-govt"],
+        "license_pudl": LICENSES["cc-by-4.0"],
+    },
+    "epamats": {
+        "title": "EPA MATS -- Mercury and Air Toxics Standards",
+        "path": "https://www.epa.gov/stationary-sources-air-pollution/mercury-and-air-toxics-standards",
+        "description": (
+            "The EPA Mercury and Air Toxics Standards (MATS) dataset provides "
+            "detailed information on emissions of hazardous air pollutants, "
+            "specifically mercury and other toxic substances, from power plants in "
+            "the United States. Established by the U.S. Environmental Protection "
+            "Agency (EPA) under the Clean Air Act, MATS aims to reduce air "
+            "pollution and its associated health risks by setting limits on the "
+            "emissions of mercury, arsenic, acid gases, and other pollutants from "
+            "coal- and oil-fired power plants. The dataset typically includes "
+            "metrics such as emission levels, compliance testing results, facility "
+            "locations, and operational data. It serves as a critical resource for "
+            "policymakers, researchers, and environmental organizations to assess "
+            "the effectiveness of pollution control measures, monitor compliance, "
+            "and evaluate the environmental and public health impacts of power "
+            "plant emissions."
+        ),
+        "concept_doi": "10.5281/zenodo.14783043",
+        "source_file_dict": {
+            "respondents": "Power plants over 25MW",
+            "source_format": "Comma Separated Value (.csv)",
+        },
+        "working_partitions": {
+            "year_quarters": _year_quarter_range(
+                start_quarter="2015q1", end_quarter="2026q2"
+            )
+        },
+        "contributors": [
+            CONTRIBUTORS["catalyst-cooperative"],
+        ],
+        "keywords": sorted(
+            set(
+                ["mercury", "toxics", "standards", "air", "environment", "epa"]
                 + KEYWORDS["epa"]
                 + KEYWORDS["us_govt"]
                 + KEYWORDS["electricity"]
@@ -699,7 +743,7 @@ SOURCES: dict[str, Any] = {
         "working_partitions": {
             # 2021 and later data is in XBRL.
             # 2006-2020 data is in monolithic CSV files, so any year means all years.
-            "years": sorted(set(range(2006, 2025))),
+            "years": sorted(set(range(2006, 2026))),
         },
         "contributors": [
             CONTRIBUTORS["catalyst-cooperative"],
