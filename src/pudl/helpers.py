@@ -2283,8 +2283,8 @@ def get_parquet_table(
     """Read a table from Parquet files with optional column selection and filtering.
 
     This function provides a general-purpose interface for reading PUDL tables from
-    Parquet files. It supports selective column reading for performance, optional
-    filters for data subsetting, and automatic schema validation.
+    Parquet files. It supports selective column reading for performance and optional
+    filters for data subsetting.
 
     Args:
         table_name: Name of the table to read.
