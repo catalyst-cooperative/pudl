@@ -265,6 +265,11 @@ def test_main_ignores_source_dir_when_metadata_only(mocker):
     ``--doctest-modules src/pudl``, which imports every module -- including this
     one's module-level ``coloredlogs.install()`` -- before tests run), so asserting
     directly on the mock is the more robust check.
+
+    Doesn't assert an exact call count: main()'s ``finally`` block also logs a
+    warning whenever ``ZULIP_API_KEY`` happens to be unset in the environment, so the
+    real call count depends on ambient state outside this test's control (e.g. it
+    differs between local dev machines with that key set and CI without it).
     """
     mocker.patch("pudl.scripts.zenodo_data_release.send_zulip_message")
     mocker.patch.dict(os.environ, {"ZENODO_SANDBOX_TOKEN_PUBLISH": "fake-token"})
@@ -288,8 +293,8 @@ def test_main_ignores_source_dir_when_metadata_only(mocker):
     )
 
     assert isinstance(result.exception, RuntimeError)
-    assert mock_warning.call_count == 1
-    assert "ignoring --source-dir" in mock_warning.call_args[0][0]
+    warning_messages = [call.args[0] for call in mock_warning.call_args_list]
+    assert any("ignoring --source-dir" in message for message in warning_messages)
 
 
 def test_main_checks_git_tag_only_for_production_unless_skipped(mocker):
