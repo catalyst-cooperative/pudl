@@ -8,6 +8,43 @@ GENERIC_CLEANING_STATE_WARNING = {
 }
 
 RESOURCE_METADATA: dict[str, dict[str, Any]] = {
+    "core_phmsagas__yearly_distribution_by_install_decade": {
+        "description": {
+            "additional_summary_text": (
+                "miles of mains and the number of services in operation at "
+                "the end of the year by install decade."
+            ),
+            "additional_source_text": "(Part B - System Description / Section 4)",
+            "additional_details_text": (
+                "PHMSA indicated that some operators may have reported negative "
+                "``mains_miles`` or ``services`` values to reconcile totals across "
+                "Parts B1 and B4, but that negative values are not valid. These "
+                "negative values have been replaced with zero."
+            ),
+        },
+        "schema": {
+            "fields": [
+                "report_id",
+                "report_date",
+                "operator_id_phmsa",
+                "commodity",
+                "operating_state",
+                "install_decade",
+                "mains_miles",
+                "services",
+            ],
+            "primary_key": [
+                "report_id",
+                "report_date",
+                "operator_id_phmsa",
+                "commodity",
+                "install_decade",
+            ],
+        },
+        "sources": ["phmsagas"],
+        "field_namespace": "phmsagas",
+        "etl_group": "phmsagas",
+    },
     "_core_phmsagas__yearly_distribution_filings": {
         "description": {
             "additional_summary_text": (

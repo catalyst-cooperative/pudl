@@ -563,14 +563,18 @@ class FercDbfExtractor:
             return
 
         self.initialize_database()
-        self.create_sqlite_tables()
-        self.load_table_data()
-        self.postprocess()
-        self.to_frictionless()
-        self.to_parquet()
+        try:
+            self.create_sqlite_tables()
+            self.load_table_data()
+            self.postprocess()
+            self.to_frictionless()
+            self.to_parquet()
+        finally:
+            self.sqlite_engine.dispose()
 
     def initialize_database(self):
         """Create sqlalchemy engine and metadata."""
+        self.sqlite_engine.dispose()
         self.sqlite_engine = sa.create_engine(self.get_db_uri())
         self.sqlite_meta = sa.MetaData()
         self.sqlite_meta.reflect(self.sqlite_engine)
@@ -685,16 +689,16 @@ def convert_db_into_parquet(db_path: Path, parquet_dir: Path):
     Maintainer note: this function was adapted from ferc-xbrl-extractor; changes
     here should be considered for sync there and vice-versa.
     """
-    con = duckdb.connect(db_path)
-    tables = con.sql("SHOW TABLES").fetchall()
-    # tables is a list of tuples, so condense the list
-    tables = chain.from_iterable(tables)
-    if not parquet_dir.exists():
-        parquet_dir.mkdir(exist_ok=True)
-    for table in tables:
-        con.execute(
-            f"COPY {table} TO '{parquet_dir}/{table}.parquet' (FORMAT parquet);"
-        )
+    with duckdb.connect(db_path) as con:
+        tables = con.sql("SHOW TABLES").fetchall()
+        # tables is a list of tuples, so condense the list
+        tables = chain.from_iterable(tables)
+        if not parquet_dir.exists():
+            parquet_dir.mkdir(exist_ok=True)
+        for table in tables:
+            con.execute(
+                f"COPY {table} TO '{parquet_dir}/{table}.parquet' (FORMAT parquet);"
+            )
 
 
 def convert_and_validate_datapackage_sqlite_to_parquet(datapackage_path: Path) -> dict:

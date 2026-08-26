@@ -8,7 +8,7 @@ sources:
           - check_row_counts_per_partition:
               arguments:
                 table_name: core_pudl__assn_ferc1_dbf_pudl_utilities
-                partition_expr:
+                partition_expr: null
         columns:
           - name: utility_id_ferc1
           - name: utility_id_ferc1_dbf

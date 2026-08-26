@@ -11,9 +11,7 @@ sources:
                 or_equal: true
               config:
                 error_if: ">14"
-              description:
-                Some 0 cumulative values and a handful of other values causing
-                failure. Investigate.
+              description: Some 0 cumulative values and a handful of other values causing failure. Investigate.
           - check_row_counts_per_partition:
               arguments:
                 table_name: out_rus7__yearly_patronage_capital

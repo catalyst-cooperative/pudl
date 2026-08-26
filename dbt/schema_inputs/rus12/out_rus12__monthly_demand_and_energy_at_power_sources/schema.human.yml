@@ -12,9 +12,7 @@ sources:
                 expression:
                   date_trunc('month', report_date) >= date_trunc('month', peak_demand_date)
                   AND date_trunc('year', report_date) == date_trunc('year', peak_demand_date)
-              description:
-                Expect peak demand date reported prior to report date but within
-                the same year.
+              description: Expect peak demand date reported prior to report date but within the same year.
         columns:
           - name: energy_output_mwh
             data_tests:
