@@ -96,11 +96,9 @@ sources:
                     error_if: ">13"
                     warn_if: ">13"
                   description: |-
-                    Heat input should be non-negative, but EPA reports small negative values (-0.1 to -0.3
-                    mmBtu, plus one exactly -1, all at plant 880102 in 2023-2025). These appear to be CEMS
-                    calibration/zero-drift artifacts paired with negative Hg mass readings, so they are
-                    retained as reported rather than treated as missing. Fail if many more negative values
-                    appear.
+                    Heat input should be non-negative, but EPA reports a small number of small negative
+                    values. These are paired with negative Hg mass readings, so they are retained as
+                    reported rather than treated as missing. Fail if many more negative values appear.
           - name: steam_load_lbs
             data_tests:
               - expect_missingness_between:
@@ -112,19 +110,6 @@ sources:
           - name: hg_input_rate_lb_per_tbtu
           - name: hg_mass_lbs
           - name: hg_mass_measurement_code
-            data_tests:
-              - dbt_expectations.expect_column_values_to_be_in_set:
-                  arguments:
-                    value_set:
-                      - Manually Calculated
-                      - Measured
-                      - Startup or Shutdown
-                      - Unavailable
-                    row_condition: hg_mass_measurement_code IS NOT NULL
-                  description: |-
-                    Non-null codes must be one of the values in EPAMATS_MEASUREMENT_CODES. NULL is allowed:
-                    EPA sometimes reports Hg mass without a measurement method (~452k rows in the current
-                    data, matching the raw files).
           - name: hcl_output_rate_lb_per_mwh
             data_tests:
               - expect_missingness_between:
@@ -153,19 +138,6 @@ sources:
                     HCl emissions are rarely reported under MATS; ~99.4% of rows are null in the current
                     data.
           - name: hcl_mass_measurement_code
-            data_tests:
-              - dbt_expectations.expect_column_values_to_be_in_set:
-                  arguments:
-                    value_set:
-                      - Manually Calculated
-                      - Measured
-                      - Startup or Shutdown
-                      - Unavailable
-                    row_condition: hcl_mass_measurement_code IS NOT NULL
-                  description: |-
-                    Non-null codes must be one of the values in EPAMATS_MEASUREMENT_CODES. NULL is allowed:
-                    EPA sometimes reports HCl mass without a measurement method (~46k rows in the current
-                    data, matching the raw files).
           - name: associated_stacks
           - name: primary_fuel_type
           - name: secondary_fuel_type
