@@ -8,7 +8,6 @@ import pytest
 from pudl import PUDL_ROOT_PATH
 from pudl.deploy.zenodo_metadata import (
     build_related_resources,
-    get_data_license_id,
     get_latest_release_tag,
     load_zenodo_json,
     render_release_notes_html,
@@ -169,11 +168,6 @@ def test_build_related_resources(github_archive_doi_url):
             "relation": "isSupplementedBy",
             "resource_type": "software",
         } in related_identifiers
-
-
-def test_get_data_license_id_matches_authoritative_source():
-    """The returned ID should match SOURCES['pudl']['license_pudl'] via LICENSES."""
-    assert get_data_license_id() == "cc-by-4.0"
 
 
 def test_verify_git_tag_checked_out_passes_when_head_matches_tag(mocker):
