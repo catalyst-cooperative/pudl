@@ -10,10 +10,10 @@ sources:
                 table_name: out_epacems__yearly_operational_characteristics
                 partition_expr: report_year
         columns:
+          - name: report_year
           - name: plant_id_epa
           - name: emissions_unit_id_epa
           - name: plant_id_eia
-          - name: report_year
           - name: state
           - name: max_gross_load_mw
           - name: min_stable_load_factor
@@ -65,6 +65,11 @@ sources:
           - name: heat_rate_at_min_stable_load_factor_mmbtu_per_mwh
             data_tests:
               - dbt_expectations.expect_column_values_to_be_between:
+                  description: |-
+                    This is a per-unit median heat rate computed only from the hours in that unit's single
+                    highest load-factor bin. Under etl-fast's single quarter of data that bin can contain
+                    very few hours, making the median far more volatile than in production (12 trailing
+                    quarters), so this check is disabled for etl-fast.
                   arguments:
                     min_value: 5.4
                     max_value: 25.0
