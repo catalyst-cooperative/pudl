@@ -84,7 +84,7 @@ class ColumnVectorizer(BaseModel):
             "columns": self.columns,
         }
         for step in self.transform_steps:
-            step_dict = step.dict()
+            step_dict = step.model_dump()
             config[step_dict.pop("name")] = step_dict
 
         return config

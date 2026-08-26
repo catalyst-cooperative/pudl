@@ -8,7 +8,7 @@ sources:
           - check_row_counts_per_partition:
               arguments:
                 table_name: core_pudl__codes_data_maturities
-                partition_expr:
+                partition_expr: null
         columns:
           - name: code
           - name: description

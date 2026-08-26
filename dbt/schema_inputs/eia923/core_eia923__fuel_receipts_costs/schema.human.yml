@@ -29,7 +29,6 @@ sources:
                     max_value: 100
                   config:
                     error_if: ">12"
-                  description:
-                    12 coal receipts from plant 10860 in 2015 report moisture
-                    content of 247%, which is physically impossible and appears to be a
-                    data entry error in the EIA-923 source data.
+                  description: |-
+                    12 coal receipts from plant 10860 in 2015 report moisture content of 247%, which is
+                    physically impossible and appears to be a data entry error in the EIA-923 source data.

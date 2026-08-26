@@ -263,8 +263,11 @@ def fake_pudl_sqlite_io_manager_fixture(
 
     # Create the database and schemas
     engine: sa.Engine = sa.create_engine(f"sqlite:///{db_path}")
-    md: sa.MetaData = test_pkg.to_sql()
-    md.create_all(engine)
+    try:
+        md: sa.MetaData = test_pkg.to_sql()
+        md.create_all(engine)
+    finally:
+        engine.dispose()
     return PudlSqliteIOManager(base_dir=tmp_path, db_name="fake", package=test_pkg)
 
 
@@ -293,7 +296,6 @@ def test_pudl_sqlite_io_manager_delete_stmt(fake_pudl_sqlite_io_manager_fixture)
     assert len(returned_df) == 1
 
 
-@pytest.mark.slow
 def test_migrations_match_metadata(tmp_path, monkeypatch):
     """If you create a `PudlSqliteIOManager` that points at a non-existing
     `pudl.sqlite` - it will initialize the DB based on the `package`.

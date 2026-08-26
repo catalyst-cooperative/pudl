@@ -596,7 +596,7 @@
       "path": "src/pudl/analysis/record_linkage/link_cross_year.py",
       "code": -2,
       "name": "bad-index",
-      "description": "Cannot index into `tuple[ndarray, ndarray]`\n  No matching overload found for function `tuple.__getitem__` called with arguments: (tuple[slice[Any, Unknown, Unknown], slice[Any, Unknown, Unknown]])\n  Possible overloads:\n    (key: SupportsIndex, /) -> ndarray [closest match]\n    (key: slice[SupportsIndex | None, SupportsIndex | None, SupportsIndex | Unknown | None], /) -> tuple[ndarray, ...]\n  Argument `tuple[slice[Any, Unknown, Unknown], slice[Any, Unknown, Unknown]]` is not assignable to parameter `key` with type `SupportsIndex` in function `tuple.__getitem__`",
+      "description": "Cannot index into `tuple[ndarray, ndarray]`\n  No matching overload found for function `tuple.__getitem__` called with arguments: (tuple[slice[None, None, None], slice[None, None, None]])\n  Possible overloads:\n    (key: SupportsIndex, /) -> ndarray [closest match]\n    (key: slice[SupportsIndex | None, SupportsIndex | None, SupportsIndex | Unknown | None], /) -> tuple[ndarray, ...]\n  Argument `tuple[slice[None, None, None], slice[None, None, None]]` is not assignable to parameter `key` with type `SupportsIndex` in function `tuple.__getitem__`",
       "concise_description": "Cannot index into `tuple[ndarray, ndarray]`",
       "severity": "error"
     },
@@ -781,6 +781,42 @@
       "severity": "error"
     },
     {
+      "line": 45,
+      "column": 21,
+      "stop_line": 45,
+      "stop_column": 32,
+      "path": "src/pudl/analysis/spatial.py",
+      "code": -2,
+      "name": "missing-attribute",
+      "description": "Object of class `BaseGeometry` has no attribute `geoms`",
+      "concise_description": "Object of class `BaseGeometry` has no attribute `geoms`",
+      "severity": "error"
+    },
+    {
+      "line": 71,
+      "column": 30,
+      "stop_line": 71,
+      "stop_column": 31,
+      "path": "src/pudl/analysis/spatial.py",
+      "code": -2,
+      "name": "bad-argument-type",
+      "description": "Argument `MultiPolygon` is not assignable to parameter `iterable` with type `Iterable[Polygon]` in function `list.extend`\n  Protocol `Iterable` requires attribute `__iter__`",
+      "concise_description": "Argument `MultiPolygon` is not assignable to parameter `iterable` with type `Iterable[Polygon]` in function `list.extend`",
+      "severity": "error"
+    },
+    {
+      "line": 73,
+      "column": 22,
+      "stop_line": 73,
+      "stop_column": 26,
+      "path": "src/pudl/analysis/spatial.py",
+      "code": -2,
+      "name": "bad-argument-type",
+      "description": "Argument `MultiPolygon` is not assignable to parameter `iterable` with type `Iterable[Polygon]` in function `list.extend`\n  Protocol `Iterable` requires attribute `__iter__`",
+      "concise_description": "Argument `MultiPolygon` is not assignable to parameter `iterable` with type `Iterable[Polygon]` in function `list.extend`",
+      "severity": "error"
+    },
+    {
       "line": 85,
       "column": 60,
       "stop_line": 85,
@@ -790,6 +826,18 @@
       "name": "bad-function-definition",
       "description": "Default `None` is not assignable to parameter `ratios` with type `Iterable[str]`\n  Protocol `Iterable` requires attribute `__iter__`\n  The declared type does not allow `None`. Consider changing the declared type to `Iterable[str] | None`.",
       "concise_description": "Default `None` is not assignable to parameter `ratios` with type `Iterable[str]`",
+      "severity": "error"
+    },
+    {
+      "line": 106,
+      "column": 50,
+      "stop_line": 106,
+      "stop_column": 75,
+      "path": "src/pudl/analysis/spatial.py",
+      "code": -2,
+      "name": "no-matching-overload",
+      "description": "No matching overload found for function `pandas.core.series.Series.apply` called with arguments: ((self: CollectionOperator, geoms: OptGeoArrayLike) -> BaseGeometry)\n  Possible overloads:\n    (func: (...) -> Mapping[Unknown, Unknown] | NAType | Sequence[Unknown] | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | frozenset[Unknown] | int | integer | set[Unknown] | str | timedelta | timedelta64 | None, ...) -> Series [closest match]\n    (func: (...) -> BaseOffset, ...) -> Series[BaseOffset]\n    (func: (...) -> Series, ...) -> DataFrame\n  Argument `(self: CollectionOperator, geoms: OptGeoArrayLike) -> BaseGeometry` is not assignable to parameter `func` with type `(...) -> Mapping[Unknown, Unknown] | NAType | Sequence[Unknown] | Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | frozenset[Unknown] | int | integer | set[Unknown] | str | timedelta | timedelta64 | None` in function `pandas.core.series.Series.apply`",
+      "concise_description": "No matching overload found for function `pandas.core.series.Series.apply` called with arguments: ((self: CollectionOperator, geoms: OptGeoArrayLike) -> BaseGeometry)",
       "severity": "error"
     },
     {
@@ -814,6 +862,18 @@
       "name": "bad-function-definition",
       "description": "Default `None` is not assignable to parameter `ratios` with type `Iterable[str]`\n  Protocol `Iterable` requires attribute `__iter__`\n  The declared type does not allow `None`. Consider changing the declared type to `Iterable[str] | None`.",
       "concise_description": "Default `None` is not assignable to parameter `ratios` with type `Iterable[str]`",
+      "severity": "error"
+    },
+    {
+      "line": 148,
+      "column": 30,
+      "stop_line": 148,
+      "stop_column": 64,
+      "path": "src/pudl/analysis/spatial.py",
+      "code": -2,
+      "name": "bad-argument-type",
+      "description": "Argument `GeometrySequence[GeometryCollection[Polygon]]` is not assignable to parameter `data` with type `Buffer | Geometry | IndexOpsMixin | Mapping[int, Geometry] | Mapping[str, Geometry] | Sequence[Geometry] | _NestedSequence[bytes | complex | str] | _NestedSequence[_SupportsArray[dtype]] | _SupportsArray[dtype] | bytes | complex | str | None` in function `geopandas.geoseries.GeoSeries.__new__`\n  Protocol `Buffer` requires attribute `__buffer__`",
+      "concise_description": "Argument `GeometrySequence[GeometryCollection[Polygon]]` is not assignable to parameter `data` with type `Buffer | Geometry | IndexOpsMixin | Mapping[int, Geometry] | Mapping[str, Geometry] | Sequence[Geometry] | _NestedSequence[bytes | complex | str] | _NestedSequence[_SupportsArray[dtype]] | _SupportsArray[dtype] | bytes | complex | str | None` in function `geopandas.geoseries.GeoSeries.__new__`",
       "severity": "error"
     },
     {
@@ -997,15 +1057,39 @@
       "severity": "error"
     },
     {
-      "line": 29,
-      "column": 32,
-      "stop_line": 37,
-      "stop_column": 2,
+      "line": 31,
+      "column": 17,
+      "stop_line": 31,
+      "stop_column": 35,
       "path": "src/pudl/analysis/state_demand.py",
       "code": -2,
       "name": "bad-assignment",
-      "description": "`list[dict[str, Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64]]` is not assignable to `list[dict[str, str]]`",
-      "concise_description": "`list[dict[str, Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64]]` is not assignable to `list[dict[str, str]]`",
+      "description": "`Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64` is not assignable to dict value type `str`",
+      "concise_description": "`Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64` is not assignable to dict value type `str`",
+      "severity": "error"
+    },
+    {
+      "line": 32,
+      "column": 17,
+      "stop_line": 32,
+      "stop_column": 35,
+      "path": "src/pudl/analysis/state_demand.py",
+      "code": -2,
+      "name": "bad-assignment",
+      "description": "`Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64` is not assignable to dict value type `str`",
+      "concise_description": "`Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64` is not assignable to dict value type `str`",
+      "severity": "error"
+    },
+    {
+      "line": 33,
+      "column": 17,
+      "stop_line": 33,
+      "stop_column": 32,
+      "path": "src/pudl/analysis/state_demand.py",
+      "code": -2,
+      "name": "bad-assignment",
+      "description": "`Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64` is not assignable to dict value type `str`",
+      "concise_description": "`Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64` is not assignable to dict value type `str`",
       "severity": "error"
     },
     {
@@ -1045,15 +1129,99 @@
       "severity": "error"
     },
     {
-      "line": 64,
-      "column": 40,
-      "stop_line": 73,
-      "stop_column": 2,
+      "line": 65,
+      "column": 25,
+      "stop_line": 65,
+      "stop_column": 28,
       "path": "src/pudl/analysis/timeseries_cleaning.py",
       "code": -2,
       "name": "bad-assignment",
-      "description": "`dict[str, int]` is not assignable to `dict[str, str]`",
-      "concise_description": "`dict[str, int]` is not assignable to `dict[str, str]`",
+      "description": "`Literal[-10]` is not assignable to dict value type `str`",
+      "concise_description": "`Literal[-10]` is not assignable to dict value type `str`",
+      "severity": "error"
+    },
+    {
+      "line": 66,
+      "column": 26,
+      "stop_line": 66,
+      "stop_column": 28,
+      "path": "src/pudl/analysis/timeseries_cleaning.py",
+      "code": -2,
+      "name": "bad-assignment",
+      "description": "`Literal[-9]` is not assignable to dict value type `str`",
+      "concise_description": "`Literal[-9]` is not assignable to dict value type `str`",
+      "severity": "error"
+    },
+    {
+      "line": 67,
+      "column": 28,
+      "stop_line": 67,
+      "stop_column": 30,
+      "path": "src/pudl/analysis/timeseries_cleaning.py",
+      "code": -2,
+      "name": "bad-assignment",
+      "description": "`Literal[-8]` is not assignable to dict value type `str`",
+      "concise_description": "`Literal[-8]` is not assignable to dict value type `str`",
+      "severity": "error"
+    },
+    {
+      "line": 68,
+      "column": 23,
+      "stop_line": 68,
+      "stop_column": 25,
+      "path": "src/pudl/analysis/timeseries_cleaning.py",
+      "code": -2,
+      "name": "bad-assignment",
+      "description": "`Literal[-7]` is not assignable to dict value type `str`",
+      "concise_description": "`Literal[-7]` is not assignable to dict value type `str`",
+      "severity": "error"
+    },
+    {
+      "line": 69,
+      "column": 24,
+      "stop_line": 69,
+      "stop_column": 26,
+      "path": "src/pudl/analysis/timeseries_cleaning.py",
+      "code": -2,
+      "name": "bad-assignment",
+      "description": "`Literal[-7]` is not assignable to dict value type `str`",
+      "concise_description": "`Literal[-7]` is not assignable to dict value type `str`",
+      "severity": "error"
+    },
+    {
+      "line": 70,
+      "column": 24,
+      "stop_line": 70,
+      "stop_column": 26,
+      "path": "src/pudl/analysis/timeseries_cleaning.py",
+      "code": -2,
+      "name": "bad-assignment",
+      "description": "`Literal[-6]` is not assignable to dict value type `str`",
+      "concise_description": "`Literal[-6]` is not assignable to dict value type `str`",
+      "severity": "error"
+    },
+    {
+      "line": 71,
+      "column": 25,
+      "stop_line": 71,
+      "stop_column": 27,
+      "path": "src/pudl/analysis/timeseries_cleaning.py",
+      "code": -2,
+      "name": "bad-assignment",
+      "description": "`Literal[-5]` is not assignable to dict value type `str`",
+      "concise_description": "`Literal[-5]` is not assignable to dict value type `str`",
+      "severity": "error"
+    },
+    {
+      "line": 72,
+      "column": 24,
+      "stop_line": 72,
+      "stop_column": 26,
+      "path": "src/pudl/analysis/timeseries_cleaning.py",
+      "code": -2,
+      "name": "bad-assignment",
+      "description": "`Literal[-4]` is not assignable to dict value type `str`",
+      "concise_description": "`Literal[-4]` is not assignable to dict value type `str`",
       "severity": "error"
     },
     {
@@ -1789,18 +1957,6 @@
       "severity": "error"
     },
     {
-      "line": 328,
-      "column": 40,
-      "stop_line": 328,
-      "stop_column": 64,
-      "path": "src/pudl/dagster/asset_checks.py",
-      "code": -2,
-      "name": "bad-specialization",
-      "description": "`GeoDataFrame` is not assignable to any of constraints `LazyFrame`, `DataFrame` of type variable `PolarsFrame`",
-      "concise_description": "`GeoDataFrame` is not assignable to any of constraints `LazyFrame`, `DataFrame` of type variable `PolarsFrame`",
-      "severity": "error"
-    },
-    {
       "line": 355,
       "column": 15,
       "stop_line": 355,
@@ -2101,9 +2257,9 @@
       "severity": "error"
     },
     {
-      "line": 87,
+      "line": 99,
       "column": 12,
-      "stop_line": 87,
+      "stop_line": 99,
       "stop_column": 36,
       "path": "src/pudl/dagster/io_managers.py",
       "code": -2,
@@ -2113,9 +2269,9 @@
       "severity": "error"
     },
     {
-      "line": 289,
+      "line": 301,
       "column": 23,
-      "stop_line": 289,
+      "stop_line": 301,
       "stop_column": 65,
       "path": "src/pudl/dagster/io_managers.py",
       "code": -2,
@@ -2125,9 +2281,9 @@
       "severity": "error"
     },
     {
-      "line": 381,
+      "line": 393,
       "column": 24,
-      "stop_line": 381,
+      "stop_line": 393,
       "stop_column": 52,
       "path": "src/pudl/dagster/io_managers.py",
       "code": -2,
@@ -2137,9 +2293,9 @@
       "severity": "error"
     },
     {
-      "line": 396,
+      "line": 408,
       "column": 22,
-      "stop_line": 396,
+      "stop_line": 408,
       "stop_column": 44,
       "path": "src/pudl/dagster/io_managers.py",
       "code": -2,
@@ -2149,9 +2305,9 @@
       "severity": "error"
     },
     {
-      "line": 414,
+      "line": 426,
       "column": 61,
-      "stop_line": 414,
+      "stop_line": 426,
       "stop_column": 76,
       "path": "src/pudl/dagster/io_managers.py",
       "code": -2,
@@ -2161,9 +2317,9 @@
       "severity": "error"
     },
     {
-      "line": 416,
+      "line": 428,
       "column": 54,
-      "stop_line": 416,
+      "stop_line": 428,
       "stop_column": 69,
       "path": "src/pudl/dagster/io_managers.py",
       "code": -2,
@@ -2173,9 +2329,9 @@
       "severity": "error"
     },
     {
-      "line": 501,
+      "line": 517,
       "column": 23,
-      "stop_line": 501,
+      "stop_line": 517,
       "stop_column": 65,
       "path": "src/pudl/dagster/io_managers.py",
       "code": -2,
@@ -2185,9 +2341,9 @@
       "severity": "error"
     },
     {
-      "line": 585,
+      "line": 601,
       "column": 16,
-      "stop_line": 585,
+      "stop_line": 601,
       "stop_column": 46,
       "path": "src/pudl/dagster/io_managers.py",
       "code": -2,
@@ -2197,9 +2353,9 @@
       "severity": "error"
     },
     {
-      "line": 591,
+      "line": 607,
       "column": 13,
-      "stop_line": 591,
+      "stop_line": 607,
       "stop_column": 25,
       "path": "src/pudl/dagster/io_managers.py",
       "code": -2,
@@ -2209,9 +2365,9 @@
       "severity": "error"
     },
     {
-      "line": 592,
+      "line": 608,
       "column": 16,
-      "stop_line": 592,
+      "stop_line": 608,
       "stop_column": 28,
       "path": "src/pudl/dagster/io_managers.py",
       "code": -2,
@@ -2221,9 +2377,9 @@
       "severity": "error"
     },
     {
-      "line": 610,
+      "line": 626,
       "column": 13,
-      "stop_line": 610,
+      "stop_line": 626,
       "stop_column": 27,
       "path": "src/pudl/dagster/io_managers.py",
       "code": -2,
@@ -2233,9 +2389,9 @@
       "severity": "error"
     },
     {
-      "line": 612,
+      "line": 628,
       "column": 16,
-      "stop_line": 612,
+      "stop_line": 628,
       "stop_column": 30,
       "path": "src/pudl/dagster/io_managers.py",
       "code": -2,
@@ -2245,9 +2401,9 @@
       "severity": "error"
     },
     {
-      "line": 632,
+      "line": 648,
       "column": 22,
-      "stop_line": 632,
+      "stop_line": 648,
       "stop_column": 46,
       "path": "src/pudl/dagster/io_managers.py",
       "code": -2,
@@ -2257,9 +2413,9 @@
       "severity": "error"
     },
     {
-      "line": 638,
+      "line": 654,
       "column": 19,
-      "stop_line": 638,
+      "stop_line": 654,
       "stop_column": 57,
       "path": "src/pudl/dagster/io_managers.py",
       "code": -2,
@@ -2269,9 +2425,9 @@
       "severity": "error"
     },
     {
-      "line": 669,
+      "line": 685,
       "column": 13,
-      "stop_line": 669,
+      "stop_line": 685,
       "stop_column": 41,
       "path": "src/pudl/dagster/io_managers.py",
       "code": -2,
@@ -2389,9 +2545,9 @@
       "severity": "error"
     },
     {
-      "line": 399,
+      "line": 404,
       "column": 13,
-      "stop_line": 399,
+      "stop_line": 404,
       "stop_column": 71,
       "path": "src/pudl/deploy/pudl.py",
       "code": -2,
@@ -2401,9 +2557,9 @@
       "severity": "error"
     },
     {
-      "line": 601,
+      "line": 641,
       "column": 19,
-      "stop_line": 601,
+      "stop_line": 641,
       "stop_column": 79,
       "path": "src/pudl/deploy/pudl.py",
       "code": -2,
@@ -2422,6 +2578,18 @@
       "name": "bad-override",
       "description": "Class member `Extractor.get_dtypes` overrides parent class `ExcelExtractor` in an inconsistent manner\n  `Extractor.get_dtypes` has type `(page: Unknown, **partition: Unknown) -> StringDtype`, which is not assignable to `(page: str, **partition: PartitionSelection) -> dict[Unknown, Unknown]`, the type of `ExcelExtractor.get_dtypes`\n  Signature mismatch:\n  expected: def get_dtypes(page: str, **partition: PartitionSelection) -> dict[Unknown, Unknown]: ...\n                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^      ^^^^^^^^^^^^^^^^^^^^^^ return type\n                                 |\n                                 parameters\n  found:    def get_dtypes(page: Unknown, **partition: Unknown) -> StringDtype: ...\n                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^      ^^^^^^^^^^^ return type\n                                 |\n                                 parameters",
       "concise_description": "Class member `Extractor.get_dtypes` overrides parent class `ExcelExtractor` in an inconsistent manner",
+      "severity": "error"
+    },
+    {
+      "line": 141,
+      "column": 43,
+      "stop_line": 141,
+      "stop_column": 51,
+      "path": "src/pudl/extract/dbf.py",
+      "code": -2,
+      "name": "unsupported-operation",
+      "description": "Cannot set item in `dict[Any, str]`\n  Argument `bytes | Unknown | None` is not assignable to parameter `value` with type `str` in function `dict.__setitem__`\n  The declared type does not allow `None`. Consider narrowing the value with an `is not None` check.",
+      "concise_description": "Cannot set item in `dict[Any, str]`",
       "severity": "error"
     },
     {
@@ -2521,9 +2689,9 @@
       "severity": "error"
     },
     {
-      "line": 634,
+      "line": 638,
       "column": 17,
-      "stop_line": 634,
+      "stop_line": 638,
       "stop_column": 29,
       "path": "src/pudl/extract/dbf.py",
       "code": -2,
@@ -2533,9 +2701,9 @@
       "severity": "error"
     },
     {
-      "line": 645,
+      "line": 649,
       "column": 24,
-      "stop_line": 645,
+      "stop_line": 649,
       "stop_column": 73,
       "path": "src/pudl/extract/dbf.py",
       "code": -2,
@@ -2545,9 +2713,9 @@
       "severity": "error"
     },
     {
-      "line": 662,
+      "line": 666,
       "column": 23,
-      "stop_line": 662,
+      "stop_line": 666,
       "stop_column": 31,
       "path": "src/pudl/extract/dbf.py",
       "code": -2,
@@ -2557,9 +2725,9 @@
       "severity": "error"
     },
     {
-      "line": 22,
+      "line": 33,
       "column": 9,
-      "stop_line": 22,
+      "stop_line": 33,
       "stop_column": 22,
       "path": "src/pudl/extract/eia191.py",
       "code": -2,
@@ -2569,9 +2737,9 @@
       "severity": "error"
     },
     {
-      "line": 28,
+      "line": 39,
       "column": 16,
-      "stop_line": 28,
+      "stop_line": 39,
       "stop_column": 55,
       "path": "src/pudl/extract/eia191.py",
       "code": -2,
@@ -3152,8 +3320,8 @@
       "path": "src/pudl/extract/vcerare.py",
       "code": -2,
       "name": "missing-attribute",
-      "description": "Object of class `str` has no attribute `select`\nObject of class `tuple` has no attribute `select`",
-      "concise_description": "Object of class `str` has no attribute `select`\nObject of class `tuple` has no attribute `select`",
+      "description": "Object of type `str | tuple[str, Any]` has no attribute `select`\n  Object of class `str` has no attribute `select`\n  Object of class `tuple` has no attribute `select`",
+      "concise_description": "Object of type `str | tuple[str, Any]` has no attribute `select`",
       "severity": "error"
     },
     {
@@ -3368,8 +3536,8 @@
       "path": "src/pudl/glue/ferc714.py",
       "code": -2,
       "name": "not-a-type",
-      "description": "Expected a type form, got instance of `slice[type[str], type[DataFrame], type[DataFrame] | type[str]]`",
-      "concise_description": "Expected a type form, got instance of `slice[type[str], type[DataFrame], type[DataFrame] | type[str]]`",
+      "description": "Expected a type form, got instance of `slice[type[str], type[DataFrame], None]`",
+      "concise_description": "Expected a type form, got instance of `slice[type[str], type[DataFrame], None]`",
       "severity": "error"
     },
     {
@@ -3548,7 +3716,7 @@
       "path": "src/pudl/helpers.py",
       "code": -2,
       "name": "unsupported-operation",
-      "description": "`+` is not supported between `Iterable[str]` and `list[str]`\n  Cannot find `__add__` or `__radd__`",
+      "description": "`+` is not supported between `Iterable[str]` and `list[str]`\n  Cannot find `__radd__` or `__add__`",
       "concise_description": "`+` is not supported between `Iterable[str]` and `list[str]`",
       "severity": "error"
     },
@@ -3572,26 +3740,14 @@
       "path": "src/pudl/helpers.py",
       "code": -2,
       "name": "unsupported-operation",
-      "description": "`+` is not supported between `Iterable[str]` and `list[str]`\n  Cannot find `__add__` or `__radd__`",
+      "description": "`+` is not supported between `Iterable[str]` and `list[str]`\n  Cannot find `__radd__` or `__add__`",
       "concise_description": "`+` is not supported between `Iterable[str]` and `list[str]`",
       "severity": "error"
     },
     {
-      "line": 2243,
-      "column": 47,
-      "stop_line": 2243,
-      "stop_column": 53,
-      "path": "src/pudl/helpers.py",
-      "code": -2,
-      "name": "bad-argument-type",
-      "description": "Argument `dict[str, DataType]` is not assignable to parameter `dtypes` with type `DataType | DataTypeClass | DataTypeExpr | Mapping[DataType | DataTypeClass | Selector | str, DataType | DataTypeClass | type[Decimal | bool | bytes | date | datetime | float | int | list[Any] | object | str | time | timedelta | tuple[Any, ...] | None]] | Schema` in function `polars.lazyframe.frame.LazyFrame.cast`",
-      "concise_description": "Argument `dict[str, DataType]` is not assignable to parameter `dtypes` with type `DataType | DataTypeClass | DataTypeExpr | Mapping[DataType | DataTypeClass | Selector | str, DataType | DataTypeClass | type[Decimal | bool | bytes | date | datetime | float | int | list[Any] | object | str | time | timedelta | tuple[Any, ...] | None]] | Schema` in function `polars.lazyframe.frame.LazyFrame.cast`",
-      "severity": "error"
-    },
-    {
-      "line": 2360,
+      "line": 2371,
       "column": 57,
-      "stop_line": 2360,
+      "stop_line": 2371,
       "stop_column": 73,
       "path": "src/pudl/helpers.py",
       "code": -2,
@@ -3601,9 +3757,9 @@
       "severity": "error"
     },
     {
-      "line": 2481,
+      "line": 2492,
       "column": 1,
-      "stop_line": 2481,
+      "stop_line": 2492,
       "stop_column": 16,
       "path": "src/pudl/helpers.py",
       "code": -2,
@@ -3613,9 +3769,9 @@
       "severity": "error"
     },
     {
-      "line": 2484,
+      "line": 2495,
       "column": 6,
-      "stop_line": 2484,
+      "stop_line": 2495,
       "stop_column": 63,
       "path": "src/pudl/helpers.py",
       "code": -2,
@@ -3625,9 +3781,9 @@
       "severity": "error"
     },
     {
-      "line": 2510,
+      "line": 2521,
       "column": 6,
-      "stop_line": 2510,
+      "stop_line": 2521,
       "stop_column": 29,
       "path": "src/pudl/helpers.py",
       "code": -2,
@@ -3637,9 +3793,9 @@
       "severity": "error"
     },
     {
-      "line": 2658,
+      "line": 2669,
       "column": 27,
-      "stop_line": 2658,
+      "stop_line": 2669,
       "stop_column": 55,
       "path": "src/pudl/helpers.py",
       "code": -2,
@@ -3649,9 +3805,9 @@
       "severity": "error"
     },
     {
-      "line": 2686,
+      "line": 2697,
       "column": 12,
-      "stop_line": 2686,
+      "stop_line": 2697,
       "stop_column": 40,
       "path": "src/pudl/helpers.py",
       "code": -2,
@@ -3697,21 +3853,9 @@
       "severity": "error"
     },
     {
-      "line": 730,
-      "column": 28,
-      "stop_line": 730,
-      "stop_column": 49,
-      "path": "src/pudl/metadata/classes.py",
-      "code": -2,
-      "name": "bad-argument-type",
-      "description": "Argument `list[bool | date | datetime | float | int | str]` is not assignable to parameter `categories` with type `Iterable[str] | Series | type[Enum]` in function `polars.datatypes.classes.Enum.__init__`",
-      "concise_description": "Argument `list[bool | date | datetime | float | int | str]` is not assignable to parameter `categories` with type `Iterable[str] | Series | type[Enum]` in function `polars.datatypes.classes.Enum.__init__`",
-      "severity": "error"
-    },
-    {
-      "line": 731,
+      "line": 739,
       "column": 16,
-      "stop_line": 731,
+      "stop_line": 739,
       "stop_column": 46,
       "path": "src/pudl/metadata/classes.py",
       "code": -2,
@@ -3721,9 +3865,9 @@
       "severity": "error"
     },
     {
-      "line": 751,
+      "line": 750,
       "column": 20,
-      "stop_line": 751,
+      "stop_line": 750,
       "stop_column": 51,
       "path": "src/pudl/metadata/classes.py",
       "code": -2,
@@ -3733,9 +3877,9 @@
       "severity": "error"
     },
     {
-      "line": 751,
+      "line": 750,
       "column": 27,
-      "stop_line": 751,
+      "stop_line": 750,
       "stop_column": 51,
       "path": "src/pudl/metadata/classes.py",
       "code": -2,
@@ -3745,9 +3889,9 @@
       "severity": "error"
     },
     {
-      "line": 752,
+      "line": 751,
       "column": 16,
-      "stop_line": 752,
+      "stop_line": 751,
       "stop_column": 46,
       "path": "src/pudl/metadata/classes.py",
       "code": -2,
@@ -3757,21 +3901,9 @@
       "severity": "error"
     },
     {
-      "line": 895,
-      "column": 63,
-      "stop_line": 895,
-      "stop_column": 79,
-      "path": "src/pudl/metadata/classes.py",
-      "code": -2,
-      "name": "bad-argument-type",
-      "description": "Argument `list[bool | date | datetime | float | int | str]` is not assignable to parameter `categories` with type `Iterable[str] | Series | type[Enum]` in function `polars.datatypes.classes.Enum.__init__`",
-      "concise_description": "Argument `list[bool | date | datetime | float | int | str]` is not assignable to parameter `categories` with type `Iterable[str] | Series | type[Enum]` in function `polars.datatypes.classes.Enum.__init__`",
-      "severity": "error"
-    },
-    {
-      "line": 907,
+      "line": 929,
       "column": 16,
-      "stop_line": 912,
+      "stop_line": 934,
       "stop_column": 10,
       "path": "src/pudl/metadata/classes.py",
       "code": -2,
@@ -3781,45 +3913,33 @@
       "severity": "error"
     },
     {
-      "line": 908,
+      "line": 930,
       "column": 13,
-      "stop_line": 908,
+      "stop_line": 930,
       "stop_column": 24,
       "path": "src/pudl/metadata/classes.py",
       "code": -2,
       "name": "bad-argument-type",
-      "description": "Argument `polars.datatypes.classes.DataType | Enum | GeometryDtype | str | type[polars.datatypes.classes.DataType]` is not assignable to parameter `dtype` with type `pandera.dtypes.DataType | ExtensionDtype | dtype | str | type[Any] | None` in function `pandera.api.pandas.components.Column.__init__`",
-      "concise_description": "Argument `polars.datatypes.classes.DataType | Enum | GeometryDtype | str | type[polars.datatypes.classes.DataType]` is not assignable to parameter `dtype` with type `pandera.dtypes.DataType | ExtensionDtype | dtype | str | type[Any] | None` in function `pandera.api.pandas.components.Column.__init__`",
+      "description": "Argument `Categorical | polars.datatypes.classes.DataType | GeometryDtype | str | type[polars.datatypes.classes.DataType]` is not assignable to parameter `dtype` with type `pandera.dtypes.DataType | ExtensionDtype | dtype | str | type[Any] | None` in function `pandera.api.pandas.components.Column.__init__`",
+      "concise_description": "Argument `Categorical | polars.datatypes.classes.DataType | GeometryDtype | str | type[polars.datatypes.classes.DataType]` is not assignable to parameter `dtype` with type `pandera.dtypes.DataType | ExtensionDtype | dtype | str | type[Any] | None` in function `pandera.api.pandas.components.Column.__init__`",
       "severity": "error"
     },
     {
-      "line": 908,
+      "line": 930,
       "column": 13,
-      "stop_line": 908,
+      "stop_line": 930,
       "stop_column": 24,
       "path": "src/pudl/metadata/classes.py",
       "code": -2,
       "name": "bad-argument-type",
-      "description": "Argument `DataType | Enum | GeometryDtype | str | type[DataType]` is not assignable to parameter `dtype` with type `DataType | DataTypeClass | str | type[Any] | None` in function `pandera.api.polars.components.Column.__init__`",
-      "concise_description": "Argument `DataType | Enum | GeometryDtype | str | type[DataType]` is not assignable to parameter `dtype` with type `DataType | DataTypeClass | str | type[Any] | None` in function `pandera.api.polars.components.Column.__init__`",
+      "description": "Argument `Categorical | DataType | GeometryDtype | str | type[DataType]` is not assignable to parameter `dtype` with type `DataType | DataTypeClass | str | type[Any] | None` in function `pandera.api.polars.components.Column.__init__`",
+      "concise_description": "Argument `Categorical | DataType | GeometryDtype | str | type[DataType]` is not assignable to parameter `dtype` with type `DataType | DataTypeClass | str | type[Any] | None` in function `pandera.api.polars.components.Column.__init__`",
       "severity": "error"
     },
     {
-      "line": 1029,
-      "column": 16,
-      "stop_line": 1035,
-      "stop_column": 10,
-      "path": "src/pudl/metadata/classes.py",
-      "code": -2,
-      "name": "bad-return",
-      "description": "Returned type `pandera.api.pandas.container.DataFrameSchema | pandera.api.polars.container.DataFrameSchema` is not assignable to declared return type `pandera.api.polars.container.DataFrameSchema`",
-      "concise_description": "Returned type `pandera.api.pandas.container.DataFrameSchema | pandera.api.polars.container.DataFrameSchema` is not assignable to declared return type `pandera.api.polars.container.DataFrameSchema`",
-      "severity": "error"
-    },
-    {
-      "line": 1161,
+      "line": 1183,
       "column": 56,
-      "stop_line": 1161,
+      "stop_line": 1183,
       "stop_column": 60,
       "path": "src/pudl/metadata/classes.py",
       "code": -2,
@@ -3829,9 +3949,9 @@
       "severity": "error"
     },
     {
-      "line": 1190,
+      "line": 1212,
       "column": 40,
-      "stop_line": 1190,
+      "stop_line": 1212,
       "stop_column": 69,
       "path": "src/pudl/metadata/classes.py",
       "code": -2,
@@ -3841,9 +3961,9 @@
       "severity": "error"
     },
     {
-      "line": 1660,
+      "line": 1682,
       "column": 5,
-      "stop_line": 1660,
+      "stop_line": 1682,
       "stop_column": 11,
       "path": "src/pudl/metadata/classes.py",
       "code": -2,
@@ -3853,9 +3973,9 @@
       "severity": "error"
     },
     {
-      "line": 1744,
+      "line": 1766,
       "column": 59,
-      "stop_line": 1744,
+      "stop_line": 1766,
       "stop_column": 74,
       "path": "src/pudl/metadata/classes.py",
       "code": -2,
@@ -3865,9 +3985,9 @@
       "severity": "error"
     },
     {
-      "line": 1745,
+      "line": 1767,
       "column": 69,
-      "stop_line": 1745,
+      "stop_line": 1767,
       "stop_column": 78,
       "path": "src/pudl/metadata/classes.py",
       "code": -2,
@@ -3877,9 +3997,9 @@
       "severity": "error"
     },
     {
-      "line": 1859,
+      "line": 1881,
       "column": 33,
-      "stop_line": 1859,
+      "stop_line": 1881,
       "stop_column": 37,
       "path": "src/pudl/metadata/classes.py",
       "code": -2,
@@ -3889,9 +4009,9 @@
       "severity": "error"
     },
     {
-      "line": 1877,
+      "line": 1899,
       "column": 32,
-      "stop_line": 1877,
+      "stop_line": 1899,
       "stop_column": 44,
       "path": "src/pudl/metadata/classes.py",
       "code": -2,
@@ -3901,9 +4021,21 @@
       "severity": "error"
     },
     {
-      "line": 1979,
+      "line": 1920,
+      "column": 24,
+      "stop_line": 1920,
+      "stop_column": 39,
+      "path": "src/pudl/metadata/classes.py",
+      "code": -2,
+      "name": "bad-argument-type",
+      "description": "Argument `list[str] | None` is not assignable to parameter `extrapaths` with type `list[str]` in function `frictionless.resource.resource.Resource.__init__`\n  The declared type does not allow `None`. Consider narrowing the value with an `is not None` check.",
+      "concise_description": "Argument `list[str] | None` is not assignable to parameter `extrapaths` with type `list[str]` in function `frictionless.resource.resource.Resource.__init__`",
+      "severity": "error"
+    },
+    {
+      "line": 1997,
       "column": 16,
-      "stop_line": 1979,
+      "stop_line": 1997,
       "stop_column": 21,
       "path": "src/pudl/metadata/classes.py",
       "code": -2,
@@ -3913,21 +4045,9 @@
       "severity": "error"
     },
     {
-      "line": 2051,
-      "column": 37,
-      "stop_line": 2051,
-      "stop_column": 66,
-      "path": "src/pudl/metadata/classes.py",
-      "code": -2,
-      "name": "missing-attribute",
-      "description": "Object of class `str` has no attribute `categories`",
-      "concise_description": "Object of class `str` has no attribute `categories`",
-      "severity": "error"
-    },
-    {
-      "line": 2061,
+      "line": 2077,
       "column": 32,
-      "stop_line": 2061,
+      "stop_line": 2077,
       "stop_column": 45,
       "path": "src/pudl/metadata/classes.py",
       "code": -2,
@@ -3937,9 +4057,9 @@
       "severity": "error"
     },
     {
-      "line": 2114,
+      "line": 2130,
       "column": 73,
-      "stop_line": 2114,
+      "stop_line": 2130,
       "stop_column": 77,
       "path": "src/pudl/metadata/classes.py",
       "code": -2,
@@ -3949,9 +4069,9 @@
       "severity": "error"
     },
     {
-      "line": 2221,
+      "line": 2237,
       "column": 27,
-      "stop_line": 2221,
+      "stop_line": 2237,
       "stop_column": 31,
       "path": "src/pudl/metadata/classes.py",
       "code": -2,
@@ -3961,9 +4081,9 @@
       "severity": "error"
     },
     {
-      "line": 2287,
+      "line": 2303,
       "column": 47,
-      "stop_line": 2287,
+      "stop_line": 2303,
       "stop_column": 70,
       "path": "src/pudl/metadata/classes.py",
       "code": -2,
@@ -3973,9 +4093,9 @@
       "severity": "error"
     },
     {
-      "line": 2393,
+      "line": 2409,
       "column": 36,
-      "stop_line": 2393,
+      "stop_line": 2409,
       "stop_column": 68,
       "path": "src/pudl/metadata/classes.py",
       "code": -2,
@@ -3985,9 +4105,9 @@
       "severity": "error"
     },
     {
-      "line": 2395,
+      "line": 2411,
       "column": 43,
-      "stop_line": 2395,
+      "stop_line": 2411,
       "stop_column": 45,
       "path": "src/pudl/metadata/classes.py",
       "code": -2,
@@ -3997,9 +4117,9 @@
       "severity": "error"
     },
     {
-      "line": 2471,
+      "line": 2487,
       "column": 16,
-      "stop_line": 2471,
+      "stop_line": 2487,
       "stop_column": 28,
       "path": "src/pudl/metadata/classes.py",
       "code": -2,
@@ -4009,9 +4129,9 @@
       "severity": "error"
     },
     {
-      "line": 2557,
+      "line": 2573,
       "column": 40,
-      "stop_line": 2557,
+      "stop_line": 2573,
       "stop_column": 53,
       "path": "src/pudl/metadata/classes.py",
       "code": -2,
@@ -4021,9 +4141,9 @@
       "severity": "error"
     },
     {
-      "line": 2561,
+      "line": 2577,
       "column": 72,
-      "stop_line": 2561,
+      "stop_line": 2577,
       "stop_column": 88,
       "path": "src/pudl/metadata/classes.py",
       "code": -2,
@@ -4033,9 +4153,9 @@
       "severity": "error"
     },
     {
-      "line": 2562,
+      "line": 2578,
       "column": 59,
-      "stop_line": 2562,
+      "stop_line": 2578,
       "stop_column": 83,
       "path": "src/pudl/metadata/classes.py",
       "code": -2,
@@ -4045,9 +4165,9 @@
       "severity": "error"
     },
     {
-      "line": 2563,
+      "line": 2579,
       "column": 62,
-      "stop_line": 2563,
+      "stop_line": 2579,
       "stop_column": 89,
       "path": "src/pudl/metadata/classes.py",
       "code": -2,
@@ -4057,9 +4177,9 @@
       "severity": "error"
     },
     {
-      "line": 2584,
+      "line": 2600,
       "column": 44,
-      "stop_line": 2584,
+      "stop_line": 2600,
       "stop_column": 80,
       "path": "src/pudl/metadata/classes.py",
       "code": -2,
@@ -4309,18 +4429,6 @@
       "severity": "error"
     },
     {
-      "line": 348,
-      "column": 29,
-      "stop_line": 348,
-      "stop_column": 33,
-      "path": "src/pudl/metadata/helpers.py",
-      "code": -2,
-      "name": "bad-function-definition",
-      "description": "Default `None` is not assignable to parameter `error` with type `((...) -> Unknown) | str`\n  The declared type does not allow `None`. Consider changing the declared type to `((...) -> Unknown) | str | None`.",
-      "concise_description": "Default `None` is not assignable to parameter `error` with type `((...) -> Unknown) | str`",
-      "severity": "error"
-    },
-    {
       "line": 391,
       "column": 27,
       "stop_line": 391,
@@ -4345,18 +4453,6 @@
       "severity": "error"
     },
     {
-      "line": 422,
-      "column": 23,
-      "stop_line": 422,
-      "stop_column": 27,
-      "path": "src/pudl/metadata/helpers.py",
-      "code": -2,
-      "name": "bad-function-definition",
-      "description": "Default `None` is not assignable to parameter `error` with type `(...) -> Unknown`\n  The declared type does not allow `None`. Consider changing the declared type to `(...) -> Unknown | None`.",
-      "concise_description": "Default `None` is not assignable to parameter `error` with type `(...) -> Unknown`",
-      "severity": "error"
-    },
-    {
       "line": 466,
       "column": 25,
       "stop_line": 466,
@@ -4366,18 +4462,6 @@
       "name": "no-matching-overload",
       "description": "No matching overload found for function `pandas.core.frame.DataFrame.groupby` called with arguments: (Iterable[Unknown])\n  Possible overloads:\n    (by: Scalar, ...) -> DataFrameGroupBy[Scalar, Literal[True]] [closest match]\n    (by: Scalar, ...) -> DataFrameGroupBy[Scalar, Literal[False]]\n    (by: DatetimeIndex, ...) -> DataFrameGroupBy[Timestamp, Literal[True]]\n    (by: DatetimeIndex, ...) -> DataFrameGroupBy[Timestamp, Literal[False]]\n    (by: TimedeltaIndex, ...) -> DataFrameGroupBy[Timedelta, Literal[True]]\n    (by: TimedeltaIndex, ...) -> DataFrameGroupBy[Timedelta, Literal[False]]\n    (by: PeriodIndex, ...) -> DataFrameGroupBy[Period, Literal[True]]\n    (by: PeriodIndex, ...) -> DataFrameGroupBy[Period, Literal[False]]\n    (by: IntervalIndex[IntervalT], ...) -> DataFrameGroupBy[IntervalT, Literal[True]]\n    (by: IntervalIndex[IntervalT], ...) -> DataFrameGroupBy[IntervalT, Literal[False]]\n    (by: ((...) -> Any) | Grouper | Mapping[Hashable | None, Any] | MultiIndex | list[((...) -> Any) | ufunc] | list[Grouper] | list[Index] | list[Mapping[Hashable | None, Any]] | list[Series] | list[ndarray] | list[Unknown] | ndarray | ufunc | tuple[Unknown, ...] | None = ..., ...) -> DataFrameGroupBy[tuple[Unknown, ...], Literal[True]]\n    (by: ((...) -> Any) | Grouper | Mapping[Hashable | None, Any] | MultiIndex | list[((...) -> Any) | ufunc] | list[Grouper] | list[Index] | list[Mapping[Hashable | None, Any]] | list[Series] | list[ndarray] | list[Unknown] | ndarray | ufunc | tuple[Unknown, ...] | None = ..., ...) -> DataFrameGroupBy[tuple[Unknown, ...], Literal[False]]\n    (by: Series[SeriesByT], ...) -> DataFrameGroupBy[SeriesByT, Literal[True]]\n    (by: Series[SeriesByT], ...) -> DataFrameGroupBy[SeriesByT, Literal[False]]\n    (by: CategoricalIndex | Index | Series, ...) -> DataFrameGroupBy[Any, Literal[True]]\n    (by: CategoricalIndex | Index | Series, ...) -> DataFrameGroupBy[Any, Literal[False]]\n  Argument `Iterable[Unknown]` is not assignable to parameter `by` with type `Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64` in function `pandas.core.frame.DataFrame.groupby`",
       "concise_description": "No matching overload found for function `pandas.core.frame.DataFrame.groupby` called with arguments: (Iterable[Unknown])",
-      "severity": "error"
-    },
-    {
-      "line": 508,
-      "column": 23,
-      "stop_line": 508,
-      "stop_column": 27,
-      "path": "src/pudl/metadata/helpers.py",
-      "code": -2,
-      "name": "bad-function-definition",
-      "description": "Default `None` is not assignable to parameter `error` with type `(...) -> Unknown`\n  The declared type does not allow `None`. Consider changing the declared type to `(...) -> Unknown | None`.",
-      "concise_description": "Default `None` is not assignable to parameter `error` with type `(...) -> Unknown`",
       "severity": "error"
     },
     {
@@ -4393,15 +4477,39 @@
       "severity": "error"
     },
     {
-      "line": 20,
-      "column": 62,
-      "stop_line": 336,
-      "stop_column": 2,
+      "line": 74,
+      "column": 27,
+      "stop_line": 79,
+      "stop_column": 10,
       "path": "src/pudl/metadata/resources/__init__.py",
       "code": -2,
       "name": "bad-assignment",
-      "description": "`dict[str, dict[str, list[dict[str, str]] | list[str]] | dict[str, list[str] | list[@_]] | dict[str, list[str]]]` is not assignable to `dict[str, dict[str, dict[str, str] | list[str]]]`",
-      "concise_description": "`dict[str, dict[str, list[dict[str, str]] | list[str]] | dict[str, list[str] | list[@_]] | dict[str, list[str]]]` is not assignable to `dict[str, dict[str, dict[str, str] | list[str]]]`",
+      "description": "`list[dict[str, str]]` is not assignable to dict value type `dict[str, str] | list[str]`",
+      "concise_description": "`list[dict[str, str]]` is not assignable to dict value type `dict[str, str] | list[str]`",
+      "severity": "error"
+    },
+    {
+      "line": 171,
+      "column": 27,
+      "stop_line": 185,
+      "stop_column": 10,
+      "path": "src/pudl/metadata/resources/__init__.py",
+      "code": -2,
+      "name": "bad-assignment",
+      "description": "`list[dict[str, str]]` is not assignable to dict value type `dict[str, str] | list[str]`",
+      "concise_description": "`list[dict[str, str]]` is not assignable to dict value type `dict[str, str] | list[str]`",
+      "severity": "error"
+    },
+    {
+      "line": 312,
+      "column": 27,
+      "stop_line": 327,
+      "stop_column": 10,
+      "path": "src/pudl/metadata/resources/__init__.py",
+      "code": -2,
+      "name": "bad-assignment",
+      "description": "`list[dict[str, str]]` is not assignable to dict value type `dict[str, str] | list[str]`",
+      "concise_description": "`list[dict[str, str]]` is not assignable to dict value type `dict[str, str] | list[str]`",
       "severity": "error"
     },
     {
@@ -4417,9 +4525,9 @@
       "severity": "error"
     },
     {
-      "line": 144,
+      "line": 147,
       "column": 26,
-      "stop_line": 144,
+      "stop_line": 147,
       "stop_column": 31,
       "path": "src/pudl/output/censusdp1tract.py",
       "code": -2,
@@ -4477,9 +4585,9 @@
       "severity": "error"
     },
     {
-      "line": 619,
+      "line": 670,
       "column": 14,
-      "stop_line": 619,
+      "stop_line": 670,
       "stop_column": 18,
       "path": "src/pudl/output/eia923.py",
       "code": -2,
@@ -4777,9 +4885,9 @@
       "severity": "error"
     },
     {
-      "line": 1968,
+      "line": 1993,
       "column": 21,
-      "stop_line": 1968,
+      "stop_line": 1993,
       "stop_column": 43,
       "path": "src/pudl/output/ferc1.py",
       "code": -2,
@@ -4789,9 +4897,9 @@
       "severity": "error"
     },
     {
-      "line": 1975,
+      "line": 2000,
       "column": 44,
-      "stop_line": 1975,
+      "stop_line": 2000,
       "stop_column": 77,
       "path": "src/pudl/output/ferc1.py",
       "code": -2,
@@ -4801,9 +4909,9 @@
       "severity": "error"
     },
     {
-      "line": 1977,
+      "line": 2002,
       "column": 16,
-      "stop_line": 1977,
+      "stop_line": 2002,
       "stop_column": 76,
       "path": "src/pudl/output/ferc1.py",
       "code": -2,
@@ -4813,9 +4921,9 @@
       "severity": "error"
     },
     {
-      "line": 2043,
+      "line": 2068,
       "column": 65,
-      "stop_line": 2043,
+      "stop_line": 2068,
       "stop_column": 68,
       "path": "src/pudl/output/ferc1.py",
       "code": -2,
@@ -4825,9 +4933,9 @@
       "severity": "error"
     },
     {
-      "line": 2045,
+      "line": 2070,
       "column": 65,
-      "stop_line": 2045,
+      "stop_line": 2070,
       "stop_column": 68,
       "path": "src/pudl/output/ferc1.py",
       "code": -2,
@@ -4837,9 +4945,9 @@
       "severity": "error"
     },
     {
-      "line": 2127,
+      "line": 2152,
       "column": 17,
-      "stop_line": 2127,
+      "stop_line": 2152,
       "stop_column": 35,
       "path": "src/pudl/output/ferc1.py",
       "code": -2,
@@ -4849,9 +4957,9 @@
       "severity": "error"
     },
     {
-      "line": 2132,
+      "line": 2157,
       "column": 37,
-      "stop_line": 2132,
+      "stop_line": 2157,
       "stop_column": 69,
       "path": "src/pudl/output/ferc1.py",
       "code": -2,
@@ -4861,9 +4969,9 @@
       "severity": "error"
     },
     {
-      "line": 2375,
+      "line": 2400,
       "column": 39,
-      "stop_line": 2375,
+      "stop_line": 2400,
       "stop_column": 43,
       "path": "src/pudl/output/ferc1.py",
       "code": -2,
@@ -4873,9 +4981,9 @@
       "severity": "error"
     },
     {
-      "line": 2436,
+      "line": 2461,
       "column": 36,
-      "stop_line": 2436,
+      "stop_line": 2461,
       "stop_column": 41,
       "path": "src/pudl/output/ferc1.py",
       "code": -2,
@@ -4885,9 +4993,9 @@
       "severity": "error"
     },
     {
-      "line": 2530,
+      "line": 2555,
       "column": 20,
-      "stop_line": 2530,
+      "stop_line": 2555,
       "stop_column": 44,
       "path": "src/pudl/output/ferc1.py",
       "code": -2,
@@ -4897,9 +5005,9 @@
       "severity": "error"
     },
     {
-      "line": 2545,
+      "line": 2570,
       "column": 53,
-      "stop_line": 2545,
+      "stop_line": 2570,
       "stop_column": 70,
       "path": "src/pudl/output/ferc1.py",
       "code": -2,
@@ -4909,9 +5017,9 @@
       "severity": "error"
     },
     {
-      "line": 2580,
+      "line": 2605,
       "column": 34,
-      "stop_line": 2580,
+      "stop_line": 2605,
       "stop_column": 43,
       "path": "src/pudl/output/ferc1.py",
       "code": -2,
@@ -4921,9 +5029,9 @@
       "severity": "error"
     },
     {
-      "line": 2632,
+      "line": 2657,
       "column": 44,
-      "stop_line": 2632,
+      "stop_line": 2657,
       "stop_column": 61,
       "path": "src/pudl/output/ferc1.py",
       "code": -2,
@@ -4933,9 +5041,9 @@
       "severity": "error"
     },
     {
-      "line": 2879,
+      "line": 2904,
       "column": 13,
-      "stop_line": 2888,
+      "stop_line": 2913,
       "stop_column": 10,
       "path": "src/pudl/output/ferc1.py",
       "code": -2,
@@ -4945,9 +5053,9 @@
       "severity": "error"
     },
     {
-      "line": 2893,
+      "line": 2918,
       "column": 13,
-      "stop_line": 2900,
+      "stop_line": 2925,
       "stop_column": 10,
       "path": "src/pudl/output/ferc1.py",
       "code": -2,
@@ -4957,9 +5065,9 @@
       "severity": "error"
     },
     {
-      "line": 2905,
+      "line": 2930,
       "column": 13,
-      "stop_line": 2905,
+      "stop_line": 2930,
       "stop_column": 80,
       "path": "src/pudl/output/ferc1.py",
       "code": -2,
@@ -4969,9 +5077,9 @@
       "severity": "error"
     },
     {
-      "line": 2910,
+      "line": 2935,
       "column": 13,
-      "stop_line": 2916,
+      "stop_line": 2941,
       "stop_column": 10,
       "path": "src/pudl/output/ferc1.py",
       "code": -2,
@@ -5317,9 +5425,9 @@
       "severity": "error"
     },
     {
-      "line": 307,
+      "line": 324,
       "column": 21,
-      "stop_line": 307,
+      "stop_line": 324,
       "stop_column": 69,
       "path": "src/pudl/settings.py",
       "code": -2,
@@ -6361,9 +6469,9 @@
       "severity": "error"
     },
     {
-      "line": 229,
+      "line": 241,
       "column": 34,
-      "stop_line": 229,
+      "stop_line": 241,
       "stop_column": 43,
       "path": "src/pudl/transform/eia176.py",
       "code": -2,
@@ -6373,9 +6481,9 @@
       "severity": "error"
     },
     {
-      "line": 386,
+      "line": 398,
       "column": 13,
-      "stop_line": 386,
+      "stop_line": 398,
       "stop_column": 38,
       "path": "src/pudl/transform/eia176.py",
       "code": -2,
@@ -6385,9 +6493,9 @@
       "severity": "error"
     },
     {
-      "line": 395,
+      "line": 407,
       "column": 13,
-      "stop_line": 395,
+      "stop_line": 407,
       "stop_column": 35,
       "path": "src/pudl/transform/eia176.py",
       "code": -2,
@@ -6452,8 +6560,8 @@
       "path": "src/pudl/transform/eia860.py",
       "code": -2,
       "name": "missing-attribute",
-      "description": "Object of class `Timedelta` has no attribute `index`\nObject of class `Timestamp` has no attribute `index`\nObject of class `bool` has no attribute `index`\nObject of class `complex` has no attribute `index`\nObject of class `complexfloating` has no attribute `index`\nObject of class `date` has no attribute `index`\nObject of class `datetime64` has no attribute `index`\nObject of class `datetime` has no attribute `index`\nObject of class `float` has no attribute `index`\nObject of class `floating` has no attribute `index`\nObject of class `int` has no attribute `index`\nObject of class `integer` has no attribute `index`\nObject of class `timedelta64` has no attribute `index`\nObject of class `timedelta` has no attribute `index`",
-      "concise_description": "Object of class `Timedelta` has no attribute `index`\nObject of class `Timestamp` has no attribute `index`\nObject of class `bool` has no attribute `index`\nObject of class `complex` has no attribute `index`\nObject of class `complexfloating` has no attribute `index`\nObject of class `date` has no attribute `index`\nObject of class `datetime64` has no attribute `index`\nObject of class `datetime` has no attribute `index`\nObject of class `float` has no attribute `index`\nObject of class `floating` has no attribute `index`\nObject of class `int` has no attribute `index`\nObject of class `integer` has no attribute `index`\nObject of class `timedelta64` has no attribute `index`\nObject of class `timedelta` has no attribute `index`",
+      "description": "Object of type `Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64` has no attribute `index`\n  Object of class `Timedelta` has no attribute `index`\n  Object of class `Timestamp` has no attribute `index`\n  Object of class `bool` has no attribute `index`\n  Object of class `complex` has no attribute `index`\n  Object of class `complexfloating` has no attribute `index`\n  Object of class `date` has no attribute `index`\n  Object of class `datetime64` has no attribute `index`\n  Object of class `datetime` has no attribute `index`\n  Object of class `float` has no attribute `index`\n  Object of class `floating` has no attribute `index`\n  Object of class `int` has no attribute `index`\n  Object of class `integer` has no attribute `index`\n  Object of class `timedelta64` has no attribute `index`\n  Object of class `timedelta` has no attribute `index`",
+      "concise_description": "Object of type `Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64` has no attribute `index`",
       "severity": "error"
     },
     {
@@ -6464,8 +6572,8 @@
       "path": "src/pudl/transform/eia860.py",
       "code": -2,
       "name": "missing-attribute",
-      "description": "Object of class `Timedelta` has no attribute `reset_index`\nObject of class `Timestamp` has no attribute `reset_index`\nObject of class `bool` has no attribute `reset_index`\nObject of class `bytes` has no attribute `reset_index`\nObject of class `complex` has no attribute `reset_index`\nObject of class `complexfloating` has no attribute `reset_index`\nObject of class `date` has no attribute `reset_index`\nObject of class `datetime64` has no attribute `reset_index`\nObject of class `datetime` has no attribute `reset_index`\nObject of class `float` has no attribute `reset_index`\nObject of class `floating` has no attribute `reset_index`\nObject of class `int` has no attribute `reset_index`\nObject of class `integer` has no attribute `reset_index`\nObject of class `str` has no attribute `reset_index`\nObject of class `timedelta64` has no attribute `reset_index`\nObject of class `timedelta` has no attribute `reset_index`",
-      "concise_description": "Object of class `Timedelta` has no attribute `reset_index`\nObject of class `Timestamp` has no attribute `reset_index`\nObject of class `bool` has no attribute `reset_index`\nObject of class `bytes` has no attribute `reset_index`\nObject of class `complex` has no attribute `reset_index`\nObject of class `complexfloating` has no attribute `reset_index`\nObject of class `date` has no attribute `reset_index`\nObject of class `datetime64` has no attribute `reset_index`\nObject of class `datetime` has no attribute `reset_index`\nObject of class `float` has no attribute `reset_index`\nObject of class `floating` has no attribute `reset_index`\nObject of class `int` has no attribute `reset_index`\nObject of class `integer` has no attribute `reset_index`\nObject of class `str` has no attribute `reset_index`\nObject of class `timedelta64` has no attribute `reset_index`\nObject of class `timedelta` has no attribute `reset_index`",
+      "description": "Object of type `Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64` has no attribute `reset_index`\n  Object of class `Timedelta` has no attribute `reset_index`\n  Object of class `Timestamp` has no attribute `reset_index`\n  Object of class `bool` has no attribute `reset_index`\n  Object of class `bytes` has no attribute `reset_index`\n  Object of class `complex` has no attribute `reset_index`\n  Object of class `complexfloating` has no attribute `reset_index`\n  Object of class `date` has no attribute `reset_index`\n  Object of class `datetime64` has no attribute `reset_index`\n  Object of class `datetime` has no attribute `reset_index`\n  Object of class `float` has no attribute `reset_index`\n  Object of class `floating` has no attribute `reset_index`\n  Object of class `int` has no attribute `reset_index`\n  Object of class `integer` has no attribute `reset_index`\n  Object of class `str` has no attribute `reset_index`\n  Object of class `timedelta64` has no attribute `reset_index`\n  Object of class `timedelta` has no attribute `reset_index`",
+      "concise_description": "Object of type `Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64` has no attribute `reset_index`",
       "severity": "error"
     },
     {
@@ -6625,15 +6733,15 @@
       "severity": "error"
     },
     {
-      "line": 515,
-      "column": 35,
-      "stop_line": 533,
-      "stop_column": 2,
+      "line": 527,
+      "column": 5,
+      "stop_line": 527,
+      "stop_column": 10,
       "path": "src/pudl/transform/eia861.py",
       "code": -2,
       "name": "bad-assignment",
-      "description": "`dict[int | str, str]` is not assignable to `dict[str, str]`",
-      "concise_description": "`dict[int | str, str]` is not assignable to `dict[str, str]`",
+      "description": "`Literal[25470]` is not assignable to dict key type `str`",
+      "concise_description": "`Literal[25470]` is not assignable to dict key type `str`",
       "severity": "error"
     },
     {
@@ -7177,9 +7285,9 @@
       "severity": "error"
     },
     {
-      "line": 728,
+      "line": 744,
       "column": 16,
-      "stop_line": 728,
+      "stop_line": 744,
       "stop_column": 44,
       "path": "src/pudl/transform/eia923.py",
       "code": -2,
@@ -7189,9 +7297,9 @@
       "severity": "error"
     },
     {
-      "line": 731,
+      "line": 747,
       "column": 16,
-      "stop_line": 731,
+      "stop_line": 747,
       "stop_column": 47,
       "path": "src/pudl/transform/eia923.py",
       "code": -2,
@@ -7201,9 +7309,9 @@
       "severity": "error"
     },
     {
-      "line": 1067,
+      "line": 1083,
       "column": 17,
-      "stop_line": 1067,
+      "stop_line": 1083,
       "stop_column": 43,
       "path": "src/pudl/transform/eia923.py",
       "code": -2,
@@ -7213,9 +7321,9 @@
       "severity": "error"
     },
     {
-      "line": 1101,
+      "line": 1117,
       "column": 12,
-      "stop_line": 1101,
+      "stop_line": 1117,
       "stop_column": 38,
       "path": "src/pudl/transform/eia923.py",
       "code": -2,
@@ -7225,9 +7333,9 @@
       "severity": "error"
     },
     {
-      "line": 1105,
+      "line": 1121,
       "column": 20,
-      "stop_line": 1105,
+      "stop_line": 1121,
       "stop_column": 51,
       "path": "src/pudl/transform/eia923.py",
       "code": -2,
@@ -7237,9 +7345,9 @@
       "severity": "error"
     },
     {
-      "line": 1107,
+      "line": 1123,
       "column": 14,
-      "stop_line": 1107,
+      "stop_line": 1123,
       "stop_column": 40,
       "path": "src/pudl/transform/eia923.py",
       "code": -2,
@@ -7249,9 +7357,9 @@
       "severity": "error"
     },
     {
-      "line": 1109,
+      "line": 1125,
       "column": 20,
-      "stop_line": 1109,
+      "stop_line": 1125,
       "stop_column": 51,
       "path": "src/pudl/transform/eia923.py",
       "code": -2,
@@ -7261,9 +7369,9 @@
       "severity": "error"
     },
     {
-      "line": 1377,
+      "line": 1393,
       "column": 22,
-      "stop_line": 1377,
+      "stop_line": 1393,
       "stop_column": 51,
       "path": "src/pudl/transform/eia923.py",
       "code": -2,
@@ -7273,9 +7381,9 @@
       "severity": "error"
     },
     {
-      "line": 1741,
+      "line": 1757,
       "column": 28,
-      "stop_line": 1741,
+      "stop_line": 1757,
       "stop_column": 57,
       "path": "src/pudl/transform/eia923.py",
       "code": -2,
@@ -7285,9 +7393,9 @@
       "severity": "error"
     },
     {
-      "line": 1998,
+      "line": 2072,
       "column": 28,
-      "stop_line": 1998,
+      "stop_line": 2072,
       "stop_column": 53,
       "path": "src/pudl/transform/eia923.py",
       "code": -2,
@@ -7400,8 +7508,8 @@
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
       "name": "not-a-type",
-      "description": "Expected a type form, got instance of `slice[type[str], type[list[str]], type[str] | type[list[str]]]`",
-      "concise_description": "Expected a type form, got instance of `slice[type[str], type[list[str]], type[str] | type[list[str]]]`",
+      "description": "Expected a type form, got instance of `slice[type[str], type[list[str]], None]`",
+      "concise_description": "Expected a type form, got instance of `slice[type[str], type[list[str]], None]`",
       "severity": "error"
     },
     {
@@ -7448,7 +7556,7 @@
       "path": "src/pudl/transform/ferc1.py",
       "code": -2,
       "name": "bad-index",
-      "description": "Cannot index into `_LocIndexerSeries`\n  No matching overload found for function `pandas.core.series._LocIndexerSeries.__getitem__` called with arguments: (tuple[slice[Any, Unknown, Unknown], list[str] | None])\n  Possible overloads:\n    (key: Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64 | tuple[Scalar, ...]) -> Any [closest match]\n    (idx: ((...) -> Unknown) | Index | Sequence[tuple[IndexOpsMixin | Sequence[Scalar] | Series[builtins.bool] | Timedelta | Timestamp | builtins.bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | list[builtins.bool] | ndarray[tuple[Any, ...], dtype[numpy.bool]] | slice[Any, Any, Any] | str | timedelta | timedelta64, ...]] | SequenceNotStr[Timestamp | float | str] | Series[builtins.bool] | Series | list[builtins.bool] | ndarray[tuple[Any, ...], dtype[numpy.bool]] | slice[Any, Any, Any] | tuple[IndexOpsMixin | Sequence[Scalar] | Series[builtins.bool] | Timedelta | Timestamp | builtins.bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | list[builtins.bool] | ndarray[tuple[Any, ...], dtype[numpy.bool]] | slice[Any, Any, Any] | str | timedelta | timedelta64, ...]) -> Series\n  Argument `tuple[slice[Any, Unknown, Unknown], list[str] | None]` is not assignable to parameter `key` with type `Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64 | tuple[Scalar, ...]` in function `pandas.core.series._LocIndexerSeries.__getitem__`",
+      "description": "Cannot index into `_LocIndexerSeries`\n  No matching overload found for function `pandas.core.series._LocIndexerSeries.__getitem__` called with arguments: (tuple[slice[None, None, None], list[str] | None])\n  Possible overloads:\n    (key: Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64 | tuple[Scalar, ...]) -> Any [closest match]\n    (idx: ((...) -> Unknown) | Index | Sequence[tuple[IndexOpsMixin | Sequence[Scalar] | Series[builtins.bool] | Timedelta | Timestamp | builtins.bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | list[builtins.bool] | ndarray[tuple[Any, ...], dtype[numpy.bool]] | slice[Any, Any, Any] | str | timedelta | timedelta64, ...]] | SequenceNotStr[Timestamp | float | str] | Series[builtins.bool] | Series | list[builtins.bool] | ndarray[tuple[Any, ...], dtype[numpy.bool]] | slice[Any, Any, Any] | tuple[IndexOpsMixin | Sequence[Scalar] | Series[builtins.bool] | Timedelta | Timestamp | builtins.bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | list[builtins.bool] | ndarray[tuple[Any, ...], dtype[numpy.bool]] | slice[Any, Any, Any] | str | timedelta | timedelta64, ...]) -> Series\n  Argument `tuple[slice[None, None, None], list[str] | None]` is not assignable to parameter `key` with type `Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64 | tuple[Scalar, ...]` in function `pandas.core.series._LocIndexerSeries.__getitem__`",
       "concise_description": "Cannot index into `_LocIndexerSeries`",
       "severity": "error"
     },
@@ -8761,9 +8869,9 @@
       "severity": "error"
     },
     {
-      "line": 395,
+      "line": 400,
       "column": 9,
-      "stop_line": 396,
+      "stop_line": 401,
       "stop_column": 38,
       "path": "src/pudl/transform/ferc714.py",
       "code": -2,
@@ -8773,9 +8881,9 @@
       "severity": "error"
     },
     {
-      "line": 426,
+      "line": 434,
       "column": 77,
-      "stop_line": 426,
+      "stop_line": 434,
       "stop_column": 87,
       "path": "src/pudl/transform/ferc714.py",
       "code": -2,
@@ -8785,9 +8893,9 @@
       "severity": "error"
     },
     {
-      "line": 446,
+      "line": 454,
       "column": 9,
-      "stop_line": 447,
+      "stop_line": 455,
       "stop_column": 38,
       "path": "src/pudl/transform/ferc714.py",
       "code": -2,
@@ -8797,9 +8905,9 @@
       "severity": "error"
     },
     {
-      "line": 977,
+      "line": 985,
       "column": 28,
-      "stop_line": 977,
+      "stop_line": 985,
       "stop_column": 54,
       "path": "src/pudl/transform/ferc714.py",
       "code": -2,
@@ -8809,9 +8917,9 @@
       "severity": "error"
     },
     {
-      "line": 982,
+      "line": 990,
       "column": 21,
-      "stop_line": 982,
+      "stop_line": 990,
       "stop_column": 47,
       "path": "src/pudl/transform/ferc714.py",
       "code": -2,
@@ -8821,9 +8929,9 @@
       "severity": "error"
     },
     {
-      "line": 989,
+      "line": 997,
       "column": 13,
-      "stop_line": 989,
+      "stop_line": 997,
       "stop_column": 37,
       "path": "src/pudl/transform/ferc714.py",
       "code": -2,
@@ -8833,9 +8941,9 @@
       "severity": "error"
     },
     {
-      "line": 990,
+      "line": 998,
       "column": 14,
-      "stop_line": 990,
+      "stop_line": 998,
       "stop_column": 38,
       "path": "src/pudl/transform/ferc714.py",
       "code": -2,
@@ -8845,9 +8953,9 @@
       "severity": "error"
     },
     {
-      "line": 1066,
+      "line": 1074,
       "column": 16,
-      "stop_line": 1066,
+      "stop_line": 1074,
       "stop_column": 21,
       "path": "src/pudl/transform/ferc714.py",
       "code": -2,
@@ -8869,63 +8977,63 @@
       "severity": "error"
     },
     {
-      "line": 335,
-      "column": 40,
-      "stop_line": 338,
-      "stop_column": 2,
+      "line": 336,
+      "column": 19,
+      "stop_line": 337,
+      "stop_column": 29,
       "path": "src/pudl/transform/params/ferc1.py",
       "code": -2,
       "name": "bad-assignment",
-      "description": "`dict[str, Traversable]` is not assignable to `dict[str, set[str]]`",
-      "concise_description": "`dict[str, Traversable]` is not assignable to `dict[str, set[str]]`",
+      "description": "`Traversable` is not assignable to dict value type `set[str]`",
+      "concise_description": "`Traversable` is not assignable to dict value type `set[str]`",
       "severity": "error"
     },
     {
-      "line": 345,
-      "column": 45,
-      "stop_line": 348,
-      "stop_column": 2,
+      "line": 346,
+      "column": 19,
+      "stop_line": 347,
+      "stop_column": 34,
       "path": "src/pudl/transform/params/ferc1.py",
       "code": -2,
       "name": "bad-assignment",
-      "description": "`dict[str, Traversable]` is not assignable to `dict[str, set[str]]`",
-      "concise_description": "`dict[str, Traversable]` is not assignable to `dict[str, set[str]]`",
+      "description": "`Traversable` is not assignable to dict value type `set[str]`",
+      "concise_description": "`Traversable` is not assignable to dict value type `set[str]`",
       "severity": "error"
     },
     {
-      "line": 352,
-      "column": 46,
-      "stop_line": 355,
-      "stop_column": 2,
+      "line": 353,
+      "column": 19,
+      "stop_line": 354,
+      "stop_column": 35,
       "path": "src/pudl/transform/params/ferc1.py",
       "code": -2,
       "name": "bad-assignment",
-      "description": "`dict[str, Traversable]` is not assignable to `dict[str, set[str]]`",
-      "concise_description": "`dict[str, Traversable]` is not assignable to `dict[str, set[str]]`",
+      "description": "`Traversable` is not assignable to dict value type `set[str]`",
+      "concise_description": "`Traversable` is not assignable to dict value type `set[str]`",
       "severity": "error"
     },
     {
-      "line": 366,
-      "column": 52,
-      "stop_line": 463,
-      "stop_column": 2,
+      "line": 367,
+      "column": 19,
+      "stop_line": 462,
+      "stop_column": 6,
       "path": "src/pudl/transform/params/ferc1.py",
       "code": -2,
       "name": "bad-assignment",
-      "description": "`dict[str, dict[str, set[str]]]` is not assignable to `dict[str, set[str]]`",
-      "concise_description": "`dict[str, dict[str, set[str]]]` is not assignable to `dict[str, set[str]]`",
+      "description": "`dict[str, set[str]]` is not assignable to dict value type `set[str]`",
+      "concise_description": "`dict[str, set[str]]` is not assignable to dict value type `set[str]`",
       "severity": "error"
     },
     {
-      "line": 474,
-      "column": 53,
-      "stop_line": 477,
-      "stop_column": 2,
+      "line": 475,
+      "column": 19,
+      "stop_line": 476,
+      "stop_column": 42,
       "path": "src/pudl/transform/params/ferc1.py",
       "code": -2,
       "name": "bad-assignment",
-      "description": "`dict[str, Traversable]` is not assignable to `dict[str, set[str]]`",
-      "concise_description": "`dict[str, Traversable]` is not assignable to `dict[str, set[str]]`",
+      "description": "`Traversable` is not assignable to dict value type `set[str]`",
+      "concise_description": "`Traversable` is not assignable to dict value type `set[str]`",
       "severity": "error"
     },
     {
@@ -9337,9 +9445,9 @@
       "severity": "error"
     },
     {
-      "line": 322,
+      "line": 323,
       "column": 16,
-      "stop_line": 322,
+      "stop_line": 323,
       "stop_column": 55,
       "path": "src/pudl/workspace/datastore.py",
       "code": -2,
@@ -9349,9 +9457,9 @@
       "severity": "error"
     },
     {
-      "line": 359,
+      "line": 360,
       "column": 42,
-      "stop_line": 359,
+      "stop_line": 360,
       "stop_column": 49,
       "path": "src/pudl/workspace/datastore.py",
       "code": -2,
@@ -9361,9 +9469,9 @@
       "severity": "error"
     },
     {
-      "line": 555,
+      "line": 556,
       "column": 43,
-      "stop_line": 555,
+      "stop_line": 556,
       "stop_column": 61,
       "path": "src/pudl/workspace/datastore.py",
       "code": -2,
@@ -9373,9 +9481,9 @@
       "severity": "error"
     },
     {
-      "line": 564,
+      "line": 565,
       "column": 50,
-      "stop_line": 564,
+      "stop_line": 565,
       "stop_column": 68,
       "path": "src/pudl/workspace/datastore.py",
       "code": -2,
@@ -9385,9 +9493,9 @@
       "severity": "error"
     },
     {
-      "line": 584,
+      "line": 585,
       "column": 42,
-      "stop_line": 584,
+      "stop_line": 585,
       "stop_column": 53,
       "path": "src/pudl/workspace/datastore.py",
       "code": -2,
@@ -9397,9 +9505,9 @@
       "severity": "error"
     },
     {
-      "line": 588,
+      "line": 589,
       "column": 56,
-      "stop_line": 588,
+      "stop_line": 589,
       "stop_column": 63,
       "path": "src/pudl/workspace/datastore.py",
       "code": -2,
@@ -9409,9 +9517,9 @@
       "severity": "error"
     },
     {
-      "line": 610,
+      "line": 611,
       "column": 52,
-      "stop_line": 610,
+      "stop_line": 611,
       "stop_column": 63,
       "path": "src/pudl/workspace/datastore.py",
       "code": -2,
@@ -9985,21 +10093,9 @@
       "severity": "error"
     },
     {
-      "line": 73,
-      "column": 9,
-      "stop_line": 73,
-      "stop_column": 34,
-      "path": "tests/unit/dagster/asset_checks_test.py",
-      "code": -2,
-      "name": "missing-attribute",
-      "description": "Object of class `NodeDefinition` has no attribute `compute_fn`",
-      "concise_description": "Object of class `NodeDefinition` has no attribute `compute_fn`",
-      "severity": "error"
-    },
-    {
-      "line": 138,
+      "line": 139,
       "column": 27,
-      "stop_line": 138,
+      "stop_line": 139,
       "stop_column": 55,
       "path": "tests/unit/dagster/asset_checks_test.py",
       "code": -2,
@@ -10033,6 +10129,18 @@
       "severity": "error"
     },
     {
+      "line": 134,
+      "column": 12,
+      "stop_line": 134,
+      "stop_column": 44,
+      "path": "tests/unit/dagster/ferceqr_deployment_test.py",
+      "code": -2,
+      "name": "not-iterable",
+      "description": "`in` is not supported between `Unknown` and `None`",
+      "concise_description": "`in` is not supported between `Unknown` and `None`",
+      "severity": "error"
+    },
+    {
       "line": 208,
       "column": 12,
       "stop_line": 208,
@@ -10040,8 +10148,8 @@
       "path": "tests/unit/dagster/ferceqr_deployment_test.py",
       "code": -2,
       "name": "missing-attribute",
-      "description": "Object of class `DagsterRunReaction` has no attribute `run_key`\nObject of class `Iterator` has no attribute `run_key`\nObject of class `NoneType` has no attribute `run_key`\nObject of class `SensorResult` has no attribute `run_key`\nObject of class `Sequence` has no attribute `run_key`\nObject of class `SkipReason` has no attribute `run_key`",
-      "concise_description": "Object of class `DagsterRunReaction` has no attribute `run_key`\nObject of class `Iterator` has no attribute `run_key`\nObject of class `NoneType` has no attribute `run_key`\nObject of class `SensorResult` has no attribute `run_key`\nObject of class `Sequence` has no attribute `run_key`\nObject of class `SkipReason` has no attribute `run_key`",
+      "description": "Object of type `DagsterRunReaction | Iterator[DagsterRunReaction | RunRequest | SensorResult | SkipReason] | RunRequest | SensorResult | Sequence[RunRequest] | SkipReason | None` has no attribute `run_key`\n  Object of class `DagsterRunReaction` has no attribute `run_key`\n  Object of class `Iterator` has no attribute `run_key`\n  Object of class `NoneType` has no attribute `run_key`\n  Object of class `SensorResult` has no attribute `run_key`\n  Object of class `Sequence` has no attribute `run_key`\n  Object of class `SkipReason` has no attribute `run_key`",
+      "concise_description": "Object of type `DagsterRunReaction | Iterator[DagsterRunReaction | RunRequest | SensorResult | SkipReason] | RunRequest | SensorResult | Sequence[RunRequest] | SkipReason | None` has no attribute `run_key`",
       "severity": "error"
     },
     {
@@ -10052,8 +10160,8 @@
       "path": "tests/unit/dagster/ferceqr_deployment_test.py",
       "code": -2,
       "name": "missing-attribute",
-      "description": "Object of class `DagsterRunReaction` has no attribute `asset_selection`\nObject of class `Iterator` has no attribute `asset_selection`\nObject of class `NoneType` has no attribute `asset_selection`\nObject of class `SensorResult` has no attribute `asset_selection`\nObject of class `Sequence` has no attribute `asset_selection`\nObject of class `SkipReason` has no attribute `asset_selection`",
-      "concise_description": "Object of class `DagsterRunReaction` has no attribute `asset_selection`\nObject of class `Iterator` has no attribute `asset_selection`\nObject of class `NoneType` has no attribute `asset_selection`\nObject of class `SensorResult` has no attribute `asset_selection`\nObject of class `Sequence` has no attribute `asset_selection`\nObject of class `SkipReason` has no attribute `asset_selection`",
+      "description": "Object of type `DagsterRunReaction | Iterator[DagsterRunReaction | RunRequest | SensorResult | SkipReason] | RunRequest | SensorResult | Sequence[RunRequest] | SkipReason | None` has no attribute `asset_selection`\n  Object of class `DagsterRunReaction` has no attribute `asset_selection`\n  Object of class `Iterator` has no attribute `asset_selection`\n  Object of class `NoneType` has no attribute `asset_selection`\n  Object of class `SensorResult` has no attribute `asset_selection`\n  Object of class `Sequence` has no attribute `asset_selection`\n  Object of class `SkipReason` has no attribute `asset_selection`",
+      "concise_description": "Object of type `DagsterRunReaction | Iterator[DagsterRunReaction | RunRequest | SensorResult | SkipReason] | RunRequest | SensorResult | Sequence[RunRequest] | SkipReason | None` has no attribute `asset_selection`",
       "severity": "error"
     },
     {
@@ -10064,8 +10172,8 @@
       "path": "tests/unit/dagster/ferceqr_deployment_test.py",
       "code": -2,
       "name": "missing-attribute",
-      "description": "Object of class `DagsterRunReaction` has no attribute `tags`\nObject of class `Iterator` has no attribute `tags`\nObject of class `NoneType` has no attribute `tags`\nObject of class `SensorResult` has no attribute `tags`\nObject of class `Sequence` has no attribute `tags`\nObject of class `SkipReason` has no attribute `tags`",
-      "concise_description": "Object of class `DagsterRunReaction` has no attribute `tags`\nObject of class `Iterator` has no attribute `tags`\nObject of class `NoneType` has no attribute `tags`\nObject of class `SensorResult` has no attribute `tags`\nObject of class `Sequence` has no attribute `tags`\nObject of class `SkipReason` has no attribute `tags`",
+      "description": "Object of type `DagsterRunReaction | Iterator[DagsterRunReaction | RunRequest | SensorResult | SkipReason] | RunRequest | SensorResult | Sequence[RunRequest] | SkipReason | None` has no attribute `tags`\n  Object of class `DagsterRunReaction` has no attribute `tags`\n  Object of class `Iterator` has no attribute `tags`\n  Object of class `NoneType` has no attribute `tags`\n  Object of class `SensorResult` has no attribute `tags`\n  Object of class `Sequence` has no attribute `tags`\n  Object of class `SkipReason` has no attribute `tags`",
+      "concise_description": "Object of type `DagsterRunReaction | Iterator[DagsterRunReaction | RunRequest | SensorResult | SkipReason] | RunRequest | SensorResult | Sequence[RunRequest] | SkipReason | None` has no attribute `tags`",
       "severity": "error"
     },
     {
@@ -10076,8 +10184,8 @@
       "path": "tests/unit/dagster/ferceqr_deployment_test.py",
       "code": -2,
       "name": "missing-attribute",
-      "description": "Object of class `DagsterRunReaction` has no attribute `run_key`\nObject of class `Iterator` has no attribute `run_key`\nObject of class `NoneType` has no attribute `run_key`\nObject of class `SensorResult` has no attribute `run_key`\nObject of class `Sequence` has no attribute `run_key`\nObject of class `SkipReason` has no attribute `run_key`",
-      "concise_description": "Object of class `DagsterRunReaction` has no attribute `run_key`\nObject of class `Iterator` has no attribute `run_key`\nObject of class `NoneType` has no attribute `run_key`\nObject of class `SensorResult` has no attribute `run_key`\nObject of class `Sequence` has no attribute `run_key`\nObject of class `SkipReason` has no attribute `run_key`",
+      "description": "Object of type `DagsterRunReaction | Iterator[DagsterRunReaction | RunRequest | SensorResult | SkipReason] | RunRequest | SensorResult | Sequence[RunRequest] | SkipReason | None` has no attribute `run_key`\n  Object of class `DagsterRunReaction` has no attribute `run_key`\n  Object of class `Iterator` has no attribute `run_key`\n  Object of class `NoneType` has no attribute `run_key`\n  Object of class `SensorResult` has no attribute `run_key`\n  Object of class `Sequence` has no attribute `run_key`\n  Object of class `SkipReason` has no attribute `run_key`",
+      "concise_description": "Object of type `DagsterRunReaction | Iterator[DagsterRunReaction | RunRequest | SensorResult | SkipReason] | RunRequest | SensorResult | Sequence[RunRequest] | SkipReason | None` has no attribute `run_key`",
       "severity": "error"
     },
     {
@@ -10088,8 +10196,8 @@
       "path": "tests/unit/dagster/ferceqr_deployment_test.py",
       "code": -2,
       "name": "missing-attribute",
-      "description": "Object of class `DagsterRunReaction` has no attribute `asset_selection`\nObject of class `Iterator` has no attribute `asset_selection`\nObject of class `NoneType` has no attribute `asset_selection`\nObject of class `SensorResult` has no attribute `asset_selection`\nObject of class `Sequence` has no attribute `asset_selection`\nObject of class `SkipReason` has no attribute `asset_selection`",
-      "concise_description": "Object of class `DagsterRunReaction` has no attribute `asset_selection`\nObject of class `Iterator` has no attribute `asset_selection`\nObject of class `NoneType` has no attribute `asset_selection`\nObject of class `SensorResult` has no attribute `asset_selection`\nObject of class `Sequence` has no attribute `asset_selection`\nObject of class `SkipReason` has no attribute `asset_selection`",
+      "description": "Object of type `DagsterRunReaction | Iterator[DagsterRunReaction | RunRequest | SensorResult | SkipReason] | RunRequest | SensorResult | Sequence[RunRequest] | SkipReason | None` has no attribute `asset_selection`\n  Object of class `DagsterRunReaction` has no attribute `asset_selection`\n  Object of class `Iterator` has no attribute `asset_selection`\n  Object of class `NoneType` has no attribute `asset_selection`\n  Object of class `SensorResult` has no attribute `asset_selection`\n  Object of class `Sequence` has no attribute `asset_selection`\n  Object of class `SkipReason` has no attribute `asset_selection`",
+      "concise_description": "Object of type `DagsterRunReaction | Iterator[DagsterRunReaction | RunRequest | SensorResult | SkipReason] | RunRequest | SensorResult | Sequence[RunRequest] | SkipReason | None` has no attribute `asset_selection`",
       "severity": "error"
     },
     {
@@ -10100,14 +10208,14 @@
       "path": "tests/unit/dagster/ferceqr_deployment_test.py",
       "code": -2,
       "name": "missing-attribute",
-      "description": "Object of class `DagsterRunReaction` has no attribute `tags`\nObject of class `Iterator` has no attribute `tags`\nObject of class `NoneType` has no attribute `tags`\nObject of class `SensorResult` has no attribute `tags`\nObject of class `Sequence` has no attribute `tags`\nObject of class `SkipReason` has no attribute `tags`",
-      "concise_description": "Object of class `DagsterRunReaction` has no attribute `tags`\nObject of class `Iterator` has no attribute `tags`\nObject of class `NoneType` has no attribute `tags`\nObject of class `SensorResult` has no attribute `tags`\nObject of class `Sequence` has no attribute `tags`\nObject of class `SkipReason` has no attribute `tags`",
+      "description": "Object of type `DagsterRunReaction | Iterator[DagsterRunReaction | RunRequest | SensorResult | SkipReason] | RunRequest | SensorResult | Sequence[RunRequest] | SkipReason | None` has no attribute `tags`\n  Object of class `DagsterRunReaction` has no attribute `tags`\n  Object of class `Iterator` has no attribute `tags`\n  Object of class `NoneType` has no attribute `tags`\n  Object of class `SensorResult` has no attribute `tags`\n  Object of class `Sequence` has no attribute `tags`\n  Object of class `SkipReason` has no attribute `tags`",
+      "concise_description": "Object of type `DagsterRunReaction | Iterator[DagsterRunReaction | RunRequest | SensorResult | SkipReason] | RunRequest | SensorResult | Sequence[RunRequest] | SkipReason | None` has no attribute `tags`",
       "severity": "error"
     },
     {
-      "line": 331,
+      "line": 334,
       "column": 33,
-      "stop_line": 334,
+      "stop_line": 337,
       "stop_column": 10,
       "path": "tests/unit/dagster/io_managers_test.py",
       "code": -2,
@@ -10117,9 +10225,9 @@
       "severity": "error"
     },
     {
-      "line": 362,
+      "line": 365,
       "column": 61,
-      "stop_line": 366,
+      "stop_line": 369,
       "stop_column": 6,
       "path": "tests/unit/dagster/io_managers_test.py",
       "code": -2,
@@ -10129,9 +10237,9 @@
       "severity": "error"
     },
     {
-      "line": 376,
+      "line": 379,
       "column": 5,
-      "stop_line": 376,
+      "stop_line": 379,
       "stop_column": 26,
       "path": "tests/unit/dagster/io_managers_test.py",
       "code": -2,
@@ -10141,21 +10249,21 @@
       "severity": "error"
     },
     {
-      "line": 385,
-      "column": 27,
-      "stop_line": 385,
-      "stop_column": 78,
+      "line": 381,
+      "column": 5,
+      "stop_line": 381,
+      "stop_column": 59,
       "path": "tests/unit/dagster/io_managers_test.py",
       "code": -2,
       "name": "missing-attribute",
-      "description": "Object of class `NoneType` has no attribute `get_dataset_years`",
-      "concise_description": "Object of class `NoneType` has no attribute `get_dataset_years`",
+      "description": "Object of class `FunctionType` has no attribute `return_value`",
+      "concise_description": "Object of class `FunctionType` has no attribute `return_value`",
       "severity": "error"
     },
     {
-      "line": 408,
+      "line": 411,
       "column": 9,
-      "stop_line": 408,
+      "stop_line": 411,
       "stop_column": 38,
       "path": "tests/unit/dagster/io_managers_test.py",
       "code": -2,
@@ -10165,9 +10273,9 @@
       "severity": "error"
     },
     {
-      "line": 420,
+      "line": 423,
       "column": 63,
-      "stop_line": 424,
+      "stop_line": 427,
       "stop_column": 6,
       "path": "tests/unit/dagster/io_managers_test.py",
       "code": -2,
@@ -10177,9 +10285,9 @@
       "severity": "error"
     },
     {
-      "line": 436,
+      "line": 439,
       "column": 5,
-      "stop_line": 436,
+      "stop_line": 439,
       "stop_column": 26,
       "path": "tests/unit/dagster/io_managers_test.py",
       "code": -2,
@@ -10189,21 +10297,21 @@
       "severity": "error"
     },
     {
-      "line": 444,
-      "column": 27,
-      "stop_line": 444,
-      "stop_column": 78,
+      "line": 440,
+      "column": 5,
+      "stop_line": 440,
+      "stop_column": 59,
       "path": "tests/unit/dagster/io_managers_test.py",
       "code": -2,
       "name": "missing-attribute",
-      "description": "Object of class `NoneType` has no attribute `get_dataset_years`",
-      "concise_description": "Object of class `NoneType` has no attribute `get_dataset_years`",
+      "description": "Object of class `FunctionType` has no attribute `return_value`",
+      "concise_description": "Object of class `FunctionType` has no attribute `return_value`",
       "severity": "error"
     },
     {
-      "line": 468,
+      "line": 471,
       "column": 9,
-      "stop_line": 468,
+      "stop_line": 471,
       "stop_column": 38,
       "path": "tests/unit/dagster/io_managers_test.py",
       "code": -2,
@@ -10213,9 +10321,9 @@
       "severity": "error"
     },
     {
-      "line": 481,
+      "line": 484,
       "column": 61,
-      "stop_line": 485,
+      "stop_line": 488,
       "stop_column": 6,
       "path": "tests/unit/dagster/io_managers_test.py",
       "code": -2,
@@ -10225,9 +10333,9 @@
       "severity": "error"
     },
     {
-      "line": 495,
+      "line": 498,
       "column": 19,
-      "stop_line": 495,
+      "stop_line": 498,
       "stop_column": 70,
       "path": "tests/unit/dagster/io_managers_test.py",
       "code": -2,
@@ -10237,9 +10345,9 @@
       "severity": "error"
     },
     {
-      "line": 502,
+      "line": 505,
       "column": 5,
-      "stop_line": 502,
+      "stop_line": 505,
       "stop_column": 26,
       "path": "tests/unit/dagster/io_managers_test.py",
       "code": -2,
@@ -10249,9 +10357,21 @@
       "severity": "error"
     },
     {
-      "line": 530,
+      "line": 506,
+      "column": 5,
+      "stop_line": 506,
+      "stop_column": 59,
+      "path": "tests/unit/dagster/io_managers_test.py",
+      "code": -2,
+      "name": "missing-attribute",
+      "description": "Object of class `FunctionType` has no attribute `return_value`",
+      "concise_description": "Object of class `FunctionType` has no attribute `return_value`",
+      "severity": "error"
+    },
+    {
+      "line": 533,
       "column": 61,
-      "stop_line": 534,
+      "stop_line": 537,
       "stop_column": 6,
       "path": "tests/unit/dagster/io_managers_test.py",
       "code": -2,
@@ -10261,9 +10381,9 @@
       "severity": "error"
     },
     {
-      "line": 540,
+      "line": 543,
       "column": 5,
-      "stop_line": 540,
+      "stop_line": 543,
       "stop_column": 26,
       "path": "tests/unit/dagster/io_managers_test.py",
       "code": -2,
@@ -10273,9 +10393,21 @@
       "severity": "error"
     },
     {
-      "line": 828,
+      "line": 544,
+      "column": 5,
+      "stop_line": 544,
+      "stop_column": 59,
+      "path": "tests/unit/dagster/io_managers_test.py",
+      "code": -2,
+      "name": "missing-attribute",
+      "description": "Object of class `FunctionType` has no attribute `return_value`",
+      "concise_description": "Object of class `FunctionType` has no attribute `return_value`",
+      "severity": "error"
+    },
+    {
+      "line": 831,
       "column": 40,
-      "stop_line": 828,
+      "stop_line": 831,
       "stop_column": 62,
       "path": "tests/unit/dagster/io_managers_test.py",
       "code": -2,
@@ -10297,9 +10429,9 @@
       "severity": "error"
     },
     {
-      "line": 618,
+      "line": 627,
       "column": 55,
-      "stop_line": 618,
+      "stop_line": 627,
       "stop_column": 68,
       "path": "tests/unit/deploy/deploy_pudl_test.py",
       "code": -2,
@@ -10621,9 +10753,9 @@
       "severity": "error"
     },
     {
-      "line": 400,
+      "line": 455,
       "column": 13,
-      "stop_line": 400,
+      "stop_line": 455,
       "stop_column": 38,
       "path": "tests/unit/metadata/metadata_test.py",
       "code": -2,
@@ -11233,9 +11365,9 @@
       "severity": "error"
     },
     {
-      "line": 342,
+      "line": 384,
       "column": 13,
-      "stop_line": 342,
+      "stop_line": 384,
       "stop_column": 28,
       "path": "tests/unit/settings_test.py",
       "code": -2,
@@ -11245,9 +11377,9 @@
       "severity": "error"
     },
     {
-      "line": 346,
+      "line": 388,
       "column": 13,
-      "stop_line": 346,
+      "stop_line": 388,
       "stop_column": 31,
       "path": "tests/unit/settings_test.py",
       "code": -2,
@@ -11257,9 +11389,9 @@
       "severity": "error"
     },
     {
-      "line": 374,
+      "line": 416,
       "column": 16,
-      "stop_line": 374,
+      "stop_line": 416,
       "stop_column": 45,
       "path": "tests/unit/settings_test.py",
       "code": -2,
@@ -11269,9 +11401,9 @@
       "severity": "error"
     },
     {
-      "line": 543,
+      "line": 585,
       "column": 16,
-      "stop_line": 543,
+      "stop_line": 585,
       "stop_column": 52,
       "path": "tests/unit/settings_test.py",
       "code": -2,
@@ -11281,9 +11413,9 @@
       "severity": "error"
     },
     {
-      "line": 565,
+      "line": 607,
       "column": 18,
-      "stop_line": 565,
+      "stop_line": 607,
       "stop_column": 64,
       "path": "tests/unit/settings_test.py",
       "code": -2,
@@ -11293,9 +11425,9 @@
       "severity": "error"
     },
     {
-      "line": 566,
+      "line": 608,
       "column": 16,
-      "stop_line": 566,
+      "stop_line": 608,
       "stop_column": 52,
       "path": "tests/unit/settings_test.py",
       "code": -2,
@@ -11305,15 +11437,15 @@
       "severity": "error"
     },
     {
-      "line": 155,
-      "column": 36,
-      "stop_line": 185,
-      "stop_column": 2,
+      "line": 156,
+      "column": 19,
+      "stop_line": 184,
+      "stop_column": 6,
       "path": "tests/unit/transform/classes_test.py",
       "code": -2,
       "name": "bad-assignment",
-      "description": "`dict[str, dict[str, set[str]]]` is not assignable to `dict[str, set[str]]`",
-      "concise_description": "`dict[str, dict[str, set[str]]]` is not assignable to `dict[str, set[str]]`",
+      "description": "`dict[str, set[str]]` is not assignable to dict value type `set[str]`",
+      "concise_description": "`dict[str, set[str]]` is not assignable to dict value type `set[str]`",
       "severity": "error"
     },
     {
@@ -11446,6 +11578,174 @@
       "name": "not-iterable",
       "description": "Type `object` is not iterable",
       "concise_description": "Type `object` is not iterable",
+      "severity": "error"
+    },
+    {
+      "line": 110,
+      "column": 35,
+      "stop_line": 110,
+      "stop_column": 46,
+      "path": "tests/unit/transform/eia923_test.py",
+      "code": -2,
+      "name": "missing-attribute",
+      "description": "Object of class `object` has no attribute `columns`",
+      "concise_description": "Object of class `object` has no attribute `columns`",
+      "severity": "error"
+    },
+    {
+      "line": 112,
+      "column": 16,
+      "stop_line": 112,
+      "stop_column": 48,
+      "path": "tests/unit/transform/eia923_test.py",
+      "code": -2,
+      "name": "bad-index",
+      "description": "Cannot index into `object`\n  Object of class `object` has no attribute `__getitem__`",
+      "concise_description": "Cannot index into `object`",
+      "severity": "error"
+    },
+    {
+      "line": 114,
+      "column": 16,
+      "stop_line": 114,
+      "stop_column": 19,
+      "path": "tests/unit/transform/eia923_test.py",
+      "code": -2,
+      "name": "bad-argument-type",
+      "description": "Argument `object` is not assignable to parameter `obj` with type `Sized` in function `len`\n  Protocol `Sized` requires attribute `__len__`",
+      "concise_description": "Argument `object` is not assignable to parameter `obj` with type `Sized` in function `len`",
+      "severity": "error"
+    },
+    {
+      "line": 116,
+      "column": 16,
+      "stop_line": 116,
+      "stop_column": 34,
+      "path": "tests/unit/transform/eia923_test.py",
+      "code": -2,
+      "name": "bad-index",
+      "description": "Cannot index into `object`\n  Object of class `object` has no attribute `__getitem__`",
+      "concise_description": "Cannot index into `object`",
+      "severity": "error"
+    },
+    {
+      "line": 127,
+      "column": 44,
+      "stop_line": 127,
+      "stop_column": 58,
+      "path": "tests/unit/transform/eia923_test.py",
+      "code": -2,
+      "name": "bad-index",
+      "description": "Cannot index into `object`\n  Object of class `object` has no attribute `__getitem__`",
+      "concise_description": "Cannot index into `object`",
+      "severity": "error"
+    },
+    {
+      "line": 129,
+      "column": 14,
+      "stop_line": 132,
+      "stop_column": 6,
+      "path": "tests/unit/transform/eia923_test.py",
+      "code": -2,
+      "name": "bad-index",
+      "description": "Cannot index into `object`\n  Object of class `object` has no attribute `__getitem__`",
+      "concise_description": "Cannot index into `object`",
+      "severity": "error"
+    },
+    {
+      "line": 130,
+      "column": 10,
+      "stop_line": 130,
+      "stop_column": 42,
+      "path": "tests/unit/transform/eia923_test.py",
+      "code": -2,
+      "name": "bad-index",
+      "description": "Cannot index into `object`\n  Object of class `object` has no attribute `__getitem__`",
+      "concise_description": "Cannot index into `object`",
+      "severity": "error"
+    },
+    {
+      "line": 131,
+      "column": 12,
+      "stop_line": 131,
+      "stop_column": 30,
+      "path": "tests/unit/transform/eia923_test.py",
+      "code": -2,
+      "name": "bad-index",
+      "description": "Cannot index into `object`\n  Object of class `object` has no attribute `__getitem__`",
+      "concise_description": "Cannot index into `object`",
+      "severity": "error"
+    },
+    {
+      "line": 138,
+      "column": 14,
+      "stop_line": 141,
+      "stop_column": 6,
+      "path": "tests/unit/transform/eia923_test.py",
+      "code": -2,
+      "name": "bad-index",
+      "description": "Cannot index into `object`\n  Object of class `object` has no attribute `__getitem__`",
+      "concise_description": "Cannot index into `object`",
+      "severity": "error"
+    },
+    {
+      "line": 139,
+      "column": 10,
+      "stop_line": 139,
+      "stop_column": 42,
+      "path": "tests/unit/transform/eia923_test.py",
+      "code": -2,
+      "name": "bad-index",
+      "description": "Cannot index into `object`\n  Object of class `object` has no attribute `__getitem__`",
+      "concise_description": "Cannot index into `object`",
+      "severity": "error"
+    },
+    {
+      "line": 140,
+      "column": 12,
+      "stop_line": 140,
+      "stop_column": 30,
+      "path": "tests/unit/transform/eia923_test.py",
+      "code": -2,
+      "name": "bad-index",
+      "description": "Cannot index into `object`\n  Object of class `object` has no attribute `__getitem__`",
+      "concise_description": "Cannot index into `object`",
+      "severity": "error"
+    },
+    {
+      "line": 146,
+      "column": 14,
+      "stop_line": 149,
+      "stop_column": 6,
+      "path": "tests/unit/transform/eia923_test.py",
+      "code": -2,
+      "name": "bad-index",
+      "description": "Cannot index into `object`\n  Object of class `object` has no attribute `__getitem__`",
+      "concise_description": "Cannot index into `object`",
+      "severity": "error"
+    },
+    {
+      "line": 147,
+      "column": 10,
+      "stop_line": 147,
+      "stop_column": 42,
+      "path": "tests/unit/transform/eia923_test.py",
+      "code": -2,
+      "name": "bad-index",
+      "description": "Cannot index into `object`\n  Object of class `object` has no attribute `__getitem__`",
+      "concise_description": "Cannot index into `object`",
+      "severity": "error"
+    },
+    {
+      "line": 148,
+      "column": 12,
+      "stop_line": 148,
+      "stop_column": 30,
+      "path": "tests/unit/transform/eia923_test.py",
+      "code": -2,
+      "name": "bad-index",
+      "description": "Cannot index into `object`\n  Object of class `object` has no attribute `__getitem__`",
+      "concise_description": "Cannot index into `object`",
       "severity": "error"
     },
     {

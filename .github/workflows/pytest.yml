@@ -76,6 +76,7 @@ jobs:
               - '!.taplo.toml'
               - '!terraform/**'
               - '!tests/unit/**'
+              - '!tests/integration/**'
               - '!skills-lock.json'
       - name: print out components
         run: |
@@ -201,9 +202,50 @@ jobs:
           test -s /tmp/dg-defs.json
 
   ci-integration:
+    # Fast integration tests that don't require a full ETL run (no prebuilt_outputs
+    # dependency), so this runs on every push, same as ci-unit/ci-docs, with no
+    # datastore/FERC caching needed.
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    strategy:
+      fail-fast: false
+    defaults:
+      run:
+        shell: bash -l {0}
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 2
+
+      - name: Install pudl environment using pixi
+        uses: prefix-dev/setup-pixi@v0.10.1
+        with:
+          locked: true
+          cache: true
+          # See ci-docs above for why this is always false.
+          cache-write: false
+
+      - name: Make input, output and dagster dirs
+        run: mkdir -p ${{ env.PUDL_OUTPUT }} ${{ env.PUDL_INPUT}} ${{ env.DAGSTER_HOME }}
+
+      - name: Run PUDL fast integration tests and collect test coverage
+        run: |
+          pixi run pytest-integration
+
+      - name: Upload integration test coverage artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: coverage-integration
+          include-hidden-files: true
+          path: .coverage
+
+  ci-pipeline:
     # The blacksmith-4vcpu-ubuntu-2404 runner has 4vCPUs, 16GB RAM, 80 GB disk.
     # It's much cheaper and a little faster than the 8vCPU GitHub runner, which
-    # is the smallest GitHub runner we seemt to be able to run our integration
+    # is the smallest GitHub runner we seemt to be able to run our pipeline
     # tests on.
     # Dashboard at https://app.blacksmith.sh/catalyst-cooperative/
     # runs-on: ubuntu-latest-8core
@@ -282,15 +324,15 @@ jobs:
             ${{ env.PUDL_OUTPUT }}/ferc714_xbrl_taxonomy_metadata.json
           key: ferc714-xbrl-${{ env.FERC714_XBRL_HASH }}
 
-      - name: Run the integration tests
+      - name: Run the pipeline tests
         run: |
           mkdir -p ${{ env.PUDL_OUTPUT }} ${{ env.PUDL_INPUT}} ${{ env.DAGSTER_HOME }}
-          pixi run pytest-integration
+          pixi run pytest-pipeline
 
-      - name: Upload integration test coverage artifact
+      - name: Upload pipeline test coverage artifact
         uses: actions/upload-artifact@v7
         with:
-          name: coverage-integration
+          name: coverage-pipeline
           include-hidden-files: true
           path: .coverage
 
@@ -312,6 +354,7 @@ jobs:
       - ci-docs
       - ci-unit
       - ci-integration
+      - ci-pipeline
       - change_filter
     if: ${{ needs.change_filter.outputs.run_code_checks == 'true' }}
     steps:

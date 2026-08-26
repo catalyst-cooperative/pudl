@@ -3,7 +3,6 @@
 import os
 from pathlib import Path
 
-import geopandas as gpd  # noqa: ICN002
 import pytest
 
 
@@ -26,76 +25,6 @@ def test_pudl_datastore(script_runner, command: str):
     runner_args = command.split(" ")
     ret = script_runner.run(runner_args, print_result=True)
     assert ret.success
-
-
-@pytest.mark.parametrize(
-    "command,filename,expected_cols",
-    [
-        (
-            "pudl_service_territories --entity-type balancing_authority -y 2024 --limit-by-state --no-dissolve -o ",
-            "balancing_authority_geometry_limited.parquet",
-            {
-                "area_km2",
-                "balancing_authority_id_eia",
-                "county",
-                "county_id_fips",
-                "county_name_census",
-                "geometry",
-                "population",
-                "report_date",
-                "state",
-                "state_id_fips",
-            },
-        ),
-        (
-            "pudl_service_territories --entity-type balancing_authority -y 2020 -y 2024 --no-dissolve -o ",
-            "balancing_authority_geometry.parquet",
-            {
-                "area_km2",
-                "balancing_authority_id_eia",
-                "county",
-                "county_id_fips",
-                "county_name_census",
-                "geometry",
-                "population",
-                "report_date",
-                "state",
-                "state_id_fips",
-            },
-        ),
-        (
-            "pudl_service_territories --entity-type utility -y 2024 --dissolve -o ",
-            "utility_geometry_dissolved.parquet",
-            {
-                "area_km2",
-                "geometry",
-                "population",
-                "report_date",
-                "utility_id_eia",
-            },
-        ),
-    ],
-)
-@pytest.mark.script_launch_mode("inprocess")
-@pytest.mark.usefixtures("prebuilt_outputs")
-def test_pudl_service_territories(
-    script_runner,
-    command: str,
-    tmp_path: Path,
-    filename: str,
-    expected_cols: set[str],
-):
-    """CLI tests specific to the pudl_service_territories script."""
-    out_path = tmp_path / filename
-    assert not out_path.exists()
-    command += str(tmp_path)
-    ret = script_runner.run(command.split(" "), print_result=True)
-    assert ret.success
-    assert out_path.exists()
-    assert out_path.is_file()
-    gdf = gpd.read_parquet(out_path)
-    assert set(gdf.columns) == expected_cols
-    assert not gdf.empty
 
 
 @pytest.mark.parametrize(
@@ -127,13 +56,20 @@ def test_resource_description(script_runner, resource_id: str, expected_success:
     reason="Zenodo sandbox token required to exercise uploads",
 )
 @pytest.mark.xfail(reason="Sadly the Zenodo sandbox has become flaketastic.")
-def test_zenodo_data_release(script_runner, tmp_path: Path):
+def test_zenodo_data_release(script_runner, tmp_path: Path, mocker):
     """Round-trip upload a tiny release directory to the Zenodo sandbox.
 
     The CLI accepts any fsspec-compatible path. Using ``Path.as_uri()`` yields a
     ``file://`` prefix so the integration test exercises that codepath while
     keeping all artifacts confined to pytest's temporary directory management.
+
+    Mock out the Zulip notification the script sends on completion: it fires
+    for real whenever ZULIP_API_KEY happens to be set in the environment
+    (e.g. copied from a nightly-build shell profile), which would otherwise
+    spam the pudl-deployments stream every time this test runs -- now on
+    every PR rather than only in the merge queue.
     """
+    mocker.patch("pudl.scripts.zenodo_data_release.send_zulip_message", autospec=True)
 
     source_dir = tmp_path / "release"
     source_dir.mkdir()

@@ -108,21 +108,20 @@ nbconvert = ">=7"
 nbformat = ">=5.10"
 networkx = ">=3.6"
 nodejs = ">=26"
-numba = ">=0.66"
+numba = ">=0.67"
 numexpr = ">=2.10"
-numpy = ">=2.4"
+numpy = ">=2.5"
 packaging = ">=25"
 pandas = ">=2.3"
 pandoc = ">=3.7"
 pandera-polars = ">=0.31"
 parallel = ">=20250822"
 pint = ">=0.25.3"
-polars = ">=1.43" # v1.41.2 fixed a big memory leak
+polars = ">=1.43"
 prek = ">=0.4.11"
 # potentially unresolveable breaking changes in prettier 4.x
 prettier = ">=3.8,<4"
 proj = ">=9.8.1"
-# pyarrow upgrade blocked by stale geopandas 0.14 in Kaggle environment
 pyarrow = ">=24"
 pydantic = ">=2.13"
 pydantic-settings = ">=2.13"
@@ -134,7 +133,7 @@ pytest-cov = ">=7"
 pytest-mock = ">=3.15"
 pytest-order = ">=1.3"
 pytest-xdist = ">=3.8"
-python-calamine = ">=0.6.1"
+python-calamine = ">=0.8"
 python-dotenv = ">=1"
 python-duckdb = ">=1.5,<1.6"
 pytz = ">=2025"
@@ -186,13 +185,38 @@ marimo = ">=0.23.15"
 matplotx = ">=0.3.10"
 plotly = ">=6.6"
 pydantic-ai-slim = "*"
-pyrefly = ">=1.1.1" # Experimental, also for agent skills use
+pyrefly = ">=1.2.0" # Experimental, also for agent skills use
 ripgrep = ">=15" # Primarily for agent skills use
+types-pyyaml = ">=6.0.12"
+types-pytz = ">=2026.3.1"
+types-python-dateutil = ">=2.9.0"
+types-networkx = ">=3.6.1"
+types-shapely = ">=2.1.0"
 
 # linux-aarch64 (e.g. Docker via OrbStack on Apple Silicon) only has marimo <=0.13
 # available on conda-forge, so relax the version requirement for that platform only.
 [tool.pixi.feature.dev.target.linux-aarch64.dependencies]
 marimo = ">=0.13"
+
+# pyrefly is a dev-only dependency (see above), so this task is scoped to the dev
+# feature rather than the default task table. That makes it uniquely defined in the
+# dev environment, so `pixi run pyrefly-check` resolves there automatically -- no
+# `-e dev` needed, and no risk of silently falling back to a `pyrefly` found on $PATH
+# outside the pixi environment (e.g. one installed globally for editor/LSP use).
+[tool.pixi.feature.dev.tasks.pyrefly-check]
+cmd = "pyrefly check --baseline .pyrefly-baseline.json"
+description = "Type-check with pyrefly against the tracked baseline"
+
+[tool.pixi.feature.dev.tasks.pyrefly-update-baseline]
+cmd = "pyrefly check --baseline .pyrefly-baseline.json --update-baseline"
+
+[tool.pixi.feature.dev.tasks.pyrefly-baseline-diff]
+cmd = "pyrefly_baseline_diff"
+description = """
+Diff .pyrefly-baseline.json against git HEAD by (file, code, description), ignoring \
+line/column churn. Run after `pyrefly check --baseline .pyrefly-baseline.json \
+--update-baseline` to sanity-check the regenerated baseline before committing it.
+"""
 
 [tool.pixi.environments]
 dev = { features = ["dev"], solve-group = "default" }
@@ -276,8 +300,12 @@ cmd = "pytest --cov-fail-under=0 --doctest-modules src/pudl tests/unit"
 description = "Run unit tests and doctests"
 
 [tool.pixi.tasks.pytest-integration]
-cmd = "pytest --cov-fail-under=0 tests/integration tests/validate/data_test.py"
-description = "Run integration and (non-row-count) validation tests."
+cmd = "pytest --cov-fail-under=0 tests/integration"
+description = "Run fast integration tests that don't require any Dagster ETL pipeline outputs."
+
+[tool.pixi.tasks.pytest-pipeline]
+cmd = "pytest --cov-fail-under=0 --ignore=tests/pipeline/ferceqr_test.py tests/pipeline tests/validate/data_test.py"
+description = "Run pipeline tests (including the fast ETL) and non-row-count data validation tests."
 env = { PUDL_INTEGRATION_TESTS = "true" }
 
 [tool.pixi.tasks.pytest-validate]
@@ -289,8 +317,12 @@ cmd = "pytest -n auto --no-cov --dg-config $DG_NIGHTLY_CONFIG --doctest-modules 
 description = "Run nightly-build unit tests with the nightly Dagster config"
 
 [tool.pixi.tasks.pytest-integration-nightly]
-cmd = "pytest -n auto --no-cov --live-pudl-output --dg-config $DG_NIGHTLY_CONFIG tests/integration"
-description = "Run nightly-build integration tests against live nightly-style outputs"
+cmd = "pytest -n auto --no-cov --dg-config $DG_NIGHTLY_CONFIG tests/integration"
+description = "Run nightly-build fast integration tests with the nightly Dagster config"
+
+[tool.pixi.tasks.pytest-pipeline-nightly]
+cmd = "pytest -n auto --no-cov --live-pudl-output --dg-config $DG_NIGHTLY_CONFIG --ignore=tests/pipeline/ferceqr_test.py tests/pipeline"
+description = "Run nightly-build pipeline tests against live nightly-style outputs"
 
 [tool.pixi.tasks.pytest-validate-nightly]
 cmd = "pytest -n auto --no-cov --live-pudl-output --dg-config $DG_NIGHTLY_CONFIG tests/validate/data_test.py"
@@ -305,6 +337,7 @@ cmd = "true"
 depends-on = [
     "pytest-unit-nightly",
     "pytest-integration-nightly",
+    "pytest-pipeline-nightly",
     "pytest-validate-nightly",
     "pytest-validate-row-counts-nightly",
 ]
@@ -317,11 +350,12 @@ depends-on = [
     "docs-check",
     "pytest-unit",
     "pytest-integration",
+    "pytest-pipeline",
 ]
 description = "Run all CI tests and report test coverage"
 
 [tool.pixi.tasks.pytest-jupyter]
-cmd = "pytest --live-pudl-output tests/integration/notebooks_test.py"
+cmd = "pytest --live-pudl-output tests/pipeline/notebooks_test.py"
 description = "Test Jupyter notebooks"
 # Build the FERC 1 and PUDL DBs.
 # Identify any plant or utility IDs in the DBs that haven't yet been mapped
@@ -331,7 +365,7 @@ cmd = """
 pytest \
     --save-unmapped-ids
     --dg-config $DG_FULL_CONFIG \
-    tests/integration/glue/glue_test.py
+    tests/pipeline/glue/glue_test.py
 """
 description = "Identify unmapped plant and utility IDs"
 
@@ -411,10 +445,6 @@ npx -y @devcontainers/cli build --workspace-folder . --log-level info
 """
 description = "Rebuild devcontainer image metadata (workspace .pixi and caches are now separate volumes)"
 
-[tool.pixi.tasks.pyrefly-check]
-cmd = "pyrefly check --baseline .pyrefly-baseline.json"
-description = "Type-check with pyrefly against the tracked baseline"
-
 # Coding agent environment
 # NOTE (2026-03-17): We're using the `experimental_install` command
 # which is the workaround for "restoring from a lockfile" - see
@@ -441,6 +471,7 @@ resource_description = "pudl.scripts.resource_description:main"
 update_zenodo_dois = "pudl.scripts.update_zenodo_dois:main"
 zenodo_data_release = "pudl.scripts.zenodo_data_release:main"
 generate_ferc_provenance = "pudl.scripts.generate_ferc_provenance:main"
+pyrefly_baseline_diff = "pudl.scripts.pyrefly_baseline_diff:main"
 
 [tool.ruff]
 # Configurations that apply to both the `format` and `lint` subcommands.
@@ -579,7 +610,6 @@ filterwarnings = [
     "ignore:invalid escape sequence:SyntaxWarning:parsedatetime",
 ]
 
-markers = ["slow: marks tests as slow (deselect with '-m \"not slow\"')"]
 # must not end with `--cov` since that will treat the first argument you pass
 # to pytest as a coverage source! see
 # https://github.com/catalyst-cooperative/pudl/issues/3609

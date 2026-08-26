@@ -37,7 +37,7 @@ repos:
   ####################################################################################
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.16.2
+    rev: v0.16.4
     hooks:
       - id: ruff-check
         args: [--fix]
@@ -58,7 +58,7 @@ repos:
         args: []
 
   - repo: https://github.com/shellcheck-py/shellcheck-py
-    rev: v0.11.0.1
+    rev: v0.11.0.1-1
     hooks:
       - id: shellcheck
 
@@ -105,7 +105,7 @@ repos:
 
   # Scan for secrets and credentials
   - repo: https://github.com/trufflesecurity/trufflehog
-    rev: v3.96.0
+    rev: v3.97.1
     hooks:
       - id: trufflehog
         name: TruffleHog
@@ -201,7 +201,7 @@ repos:
         verbose: false
         pass_filenames: false
         always_run: true
-        entry: pixi run pytest --no-cov --doctest-modules src/pudl tests/unit -m "not slow"
+        entry: pixi run pytest --no-cov --doctest-modules src/pudl tests/unit
 
 # Configuration for pre-commit.ci
 ci:

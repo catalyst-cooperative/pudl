@@ -8,7 +8,7 @@ sources:
           - check_row_counts_per_partition:
               arguments:
                 table_name: out_eia923__yearly_generation_fuel_combined
-                partition_expr: "EXTRACT(YEAR FROM report_date)"
+                partition_expr: EXTRACT(YEAR FROM report_date)
           - dbt_expectations.expect_column_pair_values_A_to_be_greater_than_B:
               arguments:
                 column_A: fuel_consumed_mmbtu

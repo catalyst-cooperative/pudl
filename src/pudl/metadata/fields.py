@@ -10,6 +10,7 @@ from pudl.metadata.enums import (
     ASSET_TYPES_FERC1,
     ASSET_TYPES_RUS7,
     ASSET_TYPES_RUS12,
+    COMMODITY_TYPES_PHMSAGAS,
     COUNTRY_CODES_ISO3166,
     CUSTOMER_CLASSES,
     CUSTOMER_CLASSES_EIA176,
@@ -397,6 +398,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "Whether the utility plants to operate alternative-fueled vehicles this coming year."
         ),
+    },
+    "alternative_fleet_size": {
+        "type": "integer",
+        "description": "Number of alternative-fuel vehicles in the company's fleet.",
     },
     "alternative_fuel_vehicle_activity": {
         "type": "boolean",
@@ -1184,6 +1189,16 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Indicates whether the generator uses carbon capture technology."
         ),
     },
+    "census_division_and_state": {
+        "type": "string",
+        "description": (
+            "Census division, state, or grouping of states as reported in the "
+            "EIA-923 fuel stocks table. The raw values mix census divisions, "
+            "individual states, multi-state groupings, and a national total, and "
+            "are not yet standardized against PUDL's state or census-region "
+            "conventions."
+        ),
+    },
     "central_index_key": {
         "type": "string",
         "description": "Identifier of the company in SEC database.",
@@ -1249,6 +1264,14 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Coal heat content as a fraction (0-1) of overall fuel heat content, "
             "measured in MMBtu. The '_mmbtu' suffix indicates the denominator unit "
             "used to compute the fraction, not the unit of this field."
+        ),
+    },
+    "coal_stock_tons": {
+        "type": "number",
+        "unit": "short_ton",
+        "description": (
+            "End-of-month coal stocks held at electric power sector generating "
+            "facilities, aggregated by census division or state."
         ),
     },
     "coalmine_county_id_fips": {
@@ -1534,6 +1557,18 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "The most recently updated effective date on which the generator is scheduled to start operation"
         ),
     },
+    "customer_choice_residential_eligible": {
+        "type": "integer",
+        "description": (
+            "Number of residential customers eligible for customer choice programs."
+        ),
+    },
+    "customer_choice_residential_participating": {
+        "type": "integer",
+        "description": (
+            "Number of residential customers participating in customer choice programs."
+        ),
+    },
     "customer_class": {
         "type": "string",
         "description": (
@@ -1770,6 +1805,17 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "type": "boolean",
         "description": (
             "Whether limited on-site fuel storage is a factor that limits the generator's ability to switch between oil and natural gas."
+        ),
+    },
+    "has_alternative_fuel_fleet": {
+        "type": "boolean",
+        "description": "Whether the company operated a fleet of alternative-fuel vehicles during the report year.",
+    },
+    "has_sales_or_acquisitions": {
+        "type": "boolean",
+        "description": (
+            "Whether the company completed sales or acquisitions of natural gas "
+            "distribution assets during the report year."
         ),
     },
     "debt_ending_balance": {
@@ -4441,11 +4487,51 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Continuous Emissions Monitoring System."
         ),
     },
+    "is_distribution_company_cooperative": {
+        "type": "boolean",
+        "description": "Whether the company is a cooperative distribution company.",
+    },
+    "is_distribution_company_investor_owned": {
+        "type": "boolean",
+        "description": "Whether the company is an investor-owned distribution company.",
+    },
+    "is_distribution_company_municipally_owned": {
+        "type": "boolean",
+        "description": "Whether the company is a municipally-owned distribution company.",
+    },
+    "is_distribution_company_privately_owned": {
+        "type": "boolean",
+        "description": "Whether the company is a privately-owned distribution company.",
+    },
+    "is_gatherer": {
+        "type": "boolean",
+        "description": (
+            "Whether the company gathers natural gas from production areas for "
+            "delivery to processing plants, transmission pipelines, or distribution "
+            "systems."
+        ),
+    },
     "is_generation_only": {
         "type": "boolean",
         "description": (
             "Indicates whether the balancing authority is generation-only, meaning it does not serve retail customers and thus reports only net generation and interchange, but not demand."
         ),
+    },
+    "is_interstate_pipeline": {
+        "type": "boolean",
+        "description": "Whether the company operates an interstate natural gas pipeline.",
+    },
+    "is_intrastate_pipeline": {
+        "type": "boolean",
+        "description": "Whether the company operates an intrastate natural gas pipeline.",
+    },
+    "is_liquid_natural_gas_marine_terminal": {
+        "type": "boolean",
+        "description": "Whether the company operates a liquefied natural gas marine terminal.",
+    },
+    "is_liquid_natural_gas_peak_facility_operator": {
+        "type": "boolean",
+        "description": "Whether the company operates a liquefied natural gas peak-shaving facility.",
     },
     "is_loan_guarantee": {
         "type": "boolean",
@@ -4453,6 +4539,30 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Indicates a third-party loan that the reporting utility (referred as a borrower) "
             "has co-signed, taking on responsibility for repayment if the primary borrower defaults."
         ),
+    },
+    "is_other_ownership": {
+        "type": "boolean",
+        "description": "Whether the company reported an ownership type other than investor-owned, cooperative, municipal, or private.",
+    },
+    "is_producer": {
+        "type": "boolean",
+        "description": "Whether the company operates as a natural gas producer.",
+    },
+    "is_public_compressed_natural_gas_fueling_station": {
+        "type": "boolean",
+        "description": "Whether the company operates a public compressed natural gas (CNG) fueling station.",
+    },
+    "is_public_lng_fueling_station": {
+        "type": "boolean",
+        "description": "Whether the company operates a public liquefied natural gas (LNG) fueling station.",
+    },
+    "is_storage_operator": {
+        "type": "boolean",
+        "description": "Whether the company operates natural gas storage facilities.",
+    },
+    "is_synthetic_natural_gas_plant_operator": {
+        "type": "boolean",
+        "description": "Whether the company operates a synthetic natural gas production plant.",
     },
     "iso_rto_code": {
         "type": "string",
@@ -5046,6 +5156,13 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
         "description": (
             "The name of the owner or operator of natural gas pipeline that connects directly to this facility or that connects to a lateral pipeline owned by this facility."
         ),
+    },
+    "natural_gas_pump_price_dollars_per_mcf": {
+        "type": "number",
+        "description": (
+            "Price of natural gas at public fueling stations operated by the company."
+        ),
+        "unit": "USD / Mcf",
     },
     "natural_gas_storage": {
         "type": "boolean",
@@ -5882,6 +5999,10 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
             "Planned effective date that the generator is scheduled to enter commercial operation after any other planned modification is complete."
         ),
     },
+    "other_ownership_description": {
+        "type": "string",
+        "description": "Free-text description of ownership type when 'other' ownership is indicated.",
+    },
     "other_planned_modifications": {
         "type": "boolean",
         "description": (
@@ -6165,6 +6286,22 @@ FIELD_METADATA: dict[str, dict[str, Any]] = {
     "dry_cooling_fraction": {
         "description": "Fraction of cooling load served by dry cooling components.",
         "type": "number",
+    },
+    "petroleum_coke_stock_tons": {
+        "type": "number",
+        "unit": "short_ton",
+        "description": (
+            "End-of-month petroleum coke stocks held at electric power sector "
+            "generating facilities, aggregated by census division or state."
+        ),
+    },
+    "petroleum_liquids_stock_barrels": {
+        "type": "number",
+        "unit": "barrel",
+        "description": (
+            "End-of-month petroleum liquids stocks held at electric power sector "
+            "generating facilities, aggregated by census division or state."
+        ),
     },
     "phone_extension": {
         "type": "string",
@@ -10702,6 +10839,26 @@ elements which should be overridden need to be specified.
 """
 
 FIELD_METADATA_BY_RESOURCE: dict[str, dict[str, Any]] = {
+    "core_phmsagas__yearly_distribution_by_install_decade": {
+        "commodity": {
+            "constraints": {"enum": COMMODITY_TYPES_PHMSAGAS},
+        },
+        "operating_state": {
+            "description": (
+                "Two-letter postal abbreviation for the state or territory the "
+                "distribution utility is reporting for."
+            ),
+            "constraints": {"enum": SUBDIVISION_CODES_ISO3166},
+        },
+    },
+    "core_eia176__yearly_company_characteristics": {
+        # Non-US codes (FX, OO, BL, MX) are dropped in transform before this constraint
+        # is checked — they represent national-level adjustment records, not state data.
+        "operating_state": {
+            "description": "State that the operator is reporting for.",
+            "constraints": {"enum": SUBDIVISION_CODES_ISO3166},
+        },
+    },
     "core_eia176__yearly_gas_disposition_by_consumer": {
         "operating_state": {
             "description": "State that the operator is reporting for.",
