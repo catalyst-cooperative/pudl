@@ -114,7 +114,7 @@ EIA datasets that do not yet appear in the stored ID maps.
 
 .. code-block:: console
 
-    $ pixi run pytest tests/integration/glue/glue_test.py --live-pudl-output --save-unmapped-ids
+    $ pixi run pytest tests/pipeline/glue/glue_test.py --live-pudl-output --save-unmapped-ids
 
 The ``--save-unmapped-ids`` flag saves unmapped plants and utilities in the
 ``devtools/ferc1-eia-glue`` folder by default.
@@ -273,7 +273,7 @@ live PUDL DB, and all of the new FERC 1 data loaded into your cloned FERC 1 DB:
 
 .. code-block:: console
 
-    $ pixi run pytest --live-pudl-output tests/integration/glue/glue_test.py
+    $ pixi run pytest --live-pudl-output tests/pipeline/glue/glue_test.py
 
 Integrating Newly Mapped Records into PUDL
 ------------------------------------------

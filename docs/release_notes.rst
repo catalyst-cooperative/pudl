@@ -9,40 +9,6 @@ v2026.9.0 (2026-09-xx)
 
 This is the upcoming PUDL release.
 
-Bug Fixes & Data Cleaning
-^^^^^^^^^^^^^^^^^^^^^^^^^
-
-* Fixed ``set_gcs_temporary_hold`` only protecting the top level of a versioned
-  release path from deletion. It shelled out to ``gcloud storage objects update
-  gs://bucket/prefix/*``, and that glob only matches one path segment, so anything
-  nested in a subdirectory was silently left unheld. Updated the function to use the
-  ``google-cloud-storage`` API to recursively hold every object under the prefix and
-  verify after the fact that none were missed. Manually re-applied the hold to 4,000+
-  previously published versioned release objects that had been missed by the original
-  bug. See PR pr:`5477`.
-* Fixed EIA-176 extraction bug where ``raw_eia176__operation_types_and_sector_items``
-  was always empty due to a mismatched page key. See :issue:`4697` and :pr:`5412`.
-* Recovered dbt data validation tests that were being silently dropped from several
-  tables as their source ``schema.human.yml`` files still used the deprecated ``tests:``
-  key instead of ``data_tests:``, meaning ``dbt_helper`` silently discarded the tests
-  they contained instead of merging them into the generated ``schema.yml``. See PR
-  :pr:`5458`.
-
-Developer Experience
-^^^^^^^^^^^^^^^^^^^^
-
-* Fixed several issues with how ``dbt_helper update-tables`` renders ``schema.yml``
-  (:mod:`pudl.dbt_schema`): long ``description:`` fields are now wrapped into readable
-  paragraph blocks and strings that need quoting prefer double quotes. This now matches
-  Prettier's YAML conventions, minimizing the need for reformatting after generation.
-  Standardized multi-line ``description:`` fields across all ``schema.human.yml``
-  inputs. ``dbt_helper update-tables --schema --clobber all`` is now idempotent across
-  all tables. See PR :pr:`5458`.
-* Pydantic models representing ``dbt`` structures defined in  :mod:`pudl.dbt_schema`
-  now reject any unrecognized keys (like stray ``tests:`` instead of ``data_tests:``) at
-  parse time instead of silently discarding them. Whitespace in description fields is
-  also normalized at parse-time to avoid spurious diffs. See PR :pr:`5458`.
-
 New Data
 ^^^^^^^^
 
@@ -110,6 +76,69 @@ PHMSA
 * Added the ``core_phmsagas__yearly_distribution_by_install_decade`` table, which
   reports :doc:`PHMSA <data_sources/phmsagas>` gas distribution mains miles and
   services by installation decade. See issue :issue:`5266` and PR :pr:`5443`.
+
+Bug Fixes & Data Cleaning
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Fixed ``set_gcs_temporary_hold`` only protecting the top level of a versioned
+  release path from deletion. It shelled out to ``gcloud storage objects update
+  gs://bucket/prefix/*``, and that glob only matches one path segment, so anything
+  nested in a subdirectory was silently left unheld. Updated the function to use the
+  ``google-cloud-storage`` API to recursively hold every object under the prefix and
+  verify after the fact that none were missed. Manually re-applied the hold to 4,000+
+  previously published versioned release objects that had been missed by the original
+  bug. See PR pr:`5477`.
+* Fixed EIA-176 extraction bug where ``raw_eia176__operation_types_and_sector_items``
+  was always empty due to a mismatched page key. See :issue:`4697` and :pr:`5412`.
+* Recovered dbt data validation tests that were being silently dropped from several
+  tables as their source ``schema.human.yml`` files still used the deprecated ``tests:``
+  key instead of ``data_tests:``, meaning ``dbt_helper`` silently discarded the tests
+  they contained instead of merging them into the generated ``schema.yml``. See PR
+  :pr:`5458`.
+* Fixed several sources of non-deterministic row counts, where identical code and data
+  produced different results on different machines (e.g. local macOS vs. nightly Linux
+  builds) because several functions resolved ties among candidate values using
+  incidental pandas/numpy sort or dedup behavior instead of an explicit, deterministic
+  rule. Affected tables now use the standard, exact ``check_row_counts_per_partition``
+  dbt test in place of the looser row-count range checks previously used to work around
+  the instability. See :issue:`4574`, :issue:`4254`, and :pr:`5503`.
+* Fixed ``add_null_overrides()`` in the FERC1-EIA record linkage nulling out the
+  condensed ``report_date``, ``report_year``, ``plant_id_pudl``, and ``utility_id_pudl``
+  columns for every known-unmatched FERC1 record, instead of only the EIA match columns.
+  With the fix, 788 records in ``out_pudl__yearly_assn_eia_ferc1_plant_parts`` which
+  used to have a NULL ``report_date`` now appear with correct date information. See
+  issue :issue:`4130` and PR :pr:`5503`
+
+Performance Improvements
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Fixed a performance regression resulting from the update to Numpy 2.5, which ended up
+  using complex arithmetic in calculating eigenvalues due to floating point noise in the
+  imaginary components of the matrix math we were doing in our timeseries imputations.
+  See PR :pr:`5503`.
+
+Developer Experience
+^^^^^^^^^^^^^^^^^^^^
+
+* Fixed several issues with how ``dbt_helper update-tables`` renders ``schema.yml``
+  (:mod:`pudl.dbt_schema`): long ``description:`` fields are now wrapped into readable
+  paragraph blocks and strings that need quoting prefer double quotes. This now matches
+  Prettier's YAML conventions, minimizing the need for reformatting after generation.
+  Standardized multi-line ``description:`` fields across all ``schema.human.yml``
+  inputs. ``dbt_helper update-tables --schema --clobber all`` is now idempotent across
+  all tables. See PR :pr:`5458`.
+* Pydantic models representing ``dbt`` structures defined in  :mod:`pudl.dbt_schema`
+  now reject any unrecognized keys (like stray ``tests:`` instead of ``data_tests:``) at
+  parse time instead of silently discarding them. Whitespace in description fields is
+  also normalized at parse-time to avoid spurious diffs. See PR :pr:`5458`.
+* Reorganized ``tests/`` into four tiers by run-time: fast unit tests run as a
+  pre-commit hook, slower integration tests run on every push, and slower ETL-dependent
+  pipeline and data validation tests run in the merge queue. Previously
+  ``tests/integration`` mixed ETL and integration tests together, so many lightweight
+  tests weren't getting run until the merge queue, leading to unexpected late-stage
+  failures. A pytest collection hook enforces the ETL/no-ETL split. Also fixed a live
+  Zulip notification firing from the test suite and tightened the dbt ``schema.yml``
+  round-trip test. See issue :issue:`5508` and PR :pr:`5507`.
 
 .. _release-v2026.8.0:
 

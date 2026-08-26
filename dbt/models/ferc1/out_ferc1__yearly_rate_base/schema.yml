@@ -4,13 +4,6 @@ sources:
     tables:
       - name: out_ferc1__yearly_rate_base
         data_tests:
-          - dbt_expectations.expect_table_row_count_to_be_between:
-              description: Nightly builds and local ETL yield slightly different output
-              config:
-                enabled: "{{ target.name == 'etl-full' }}"
-              arguments:
-                min_value: 456000
-                max_value: 457000
           - check_row_counts_per_partition:
               arguments:
                 table_name: out_ferc1__yearly_rate_base
