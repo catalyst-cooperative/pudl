@@ -137,11 +137,7 @@ def get_latest_release_tag(repo_root: Path) -> str:
 
     Used as a stand-in release tag for sandbox test runs, which aren't publishing a
     real new version and so have no real release tag of their own to look up release
-    notes for. Git tags are the actual authoritative record of what's been released
-    (matching the ``tag-pattern``/``git_describe_command`` PUDL's own version is
-    derived from in ``pyproject.toml``), so this asks git directly rather than
-    relying on some other file (e.g. ``CITATION.cff``) that would need to be kept in
-    sync with the tags separately.
+    notes for.
 
     Args:
         repo_root: Path to the repo's working tree.

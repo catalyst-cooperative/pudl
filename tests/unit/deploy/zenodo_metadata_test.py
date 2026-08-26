@@ -1,11 +1,11 @@
 """Tests for gathering Zenodo deposition metadata from repo sources."""
 
-import json
 import subprocess
 from pathlib import Path
 
 import pytest
 
+from pudl import PUDL_ROOT_PATH
 from pudl.deploy.zenodo_metadata import (
     build_related_resources,
     get_data_license_id,
@@ -58,35 +58,18 @@ def docs_html_dir(tmp_path):
     return tmp_path
 
 
-def test_load_zenodo_json(tmp_path):
+def test_load_zenodo_json():
     """load_zenodo_json should pass creators through as-is and return keywords."""
-    path = tmp_path / ".zenodo.json"
-    path.write_text(
-        json.dumps(
-            {
-                "creators": [
-                    {
-                        "name": "Selvans, Zane",
-                        "affiliation": "Catalyst Cooperative",
-                        "orcid": "0000-0002-9961-7208",
-                    }
-                ],
-                "keywords": ["electricity", "energy"],
-            }
-        ),
-        encoding="utf-8",
-    )
+    zane_selvans = {
+        "name": "Selvans, Zane",
+        "affiliation": "Catalyst Cooperative",
+        "orcid": "0000-0002-9961-7208",
+    }
 
-    creators, keywords = load_zenodo_json(path)
-
-    assert creators == [
-        {
-            "name": "Selvans, Zane",
-            "affiliation": "Catalyst Cooperative",
-            "orcid": "0000-0002-9961-7208",
-        }
-    ]
-    assert keywords == ["electricity", "energy"]
+    creators, keywords = load_zenodo_json(PUDL_ROOT_PATH / ".zenodo.json")
+    assert len(creators) >= 4
+    assert "electricity" in keywords
+    assert zane_selvans in creators
 
 
 def test_get_latest_release_tag(mocker):

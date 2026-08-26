@@ -558,11 +558,6 @@ class ContentComplete(State):
     ) -> "CompleteDraft":
         """Build and set fresh deposition metadata for this release.
 
-        Rather than blindly copying the previous version's metadata forward (the old
-        behavior -- and one that silently dropped ``keywords``/``version`` since
-        ``_LegacyMetadata`` didn't declare those fields), we rebuild metadata from its
-        actual sources of truth in the repo on every release:
-
         * creators & keywords: ``.zenodo.json``
         * description: the built release notes HTML for ``version_tag``, plus a
           footer of release-specific resource links and a static contact-us section
