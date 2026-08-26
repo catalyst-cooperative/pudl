@@ -4,9 +4,10 @@
 Testing PUDL
 ===============================================================================
 
-We use `pytest <https://pytest.org>`__ to specify software unit & integration tests,
-including calling ``dbt build`` to run our :doc:`data_validation_quickstart` tests.
-Several common test commands are available as pixi tasks for convenience.
+We use `pytest <https://pytest.org>`__ to specify software unit, integration, and
+pipeline tests, including calling ``dbt build`` to run our
+:doc:`data_validation_quickstart` tests. Several common test commands are available as
+pixi tasks for convenience.
 
 For day-to-day work, the most commonly used pixi testing tasks are:
 
@@ -15,16 +16,19 @@ For day-to-day work, the most commonly used pixi testing tasks are:
    $ pixi run pytest-unit
    $ pixi run pytest-integration
 
-To run the tests that will be run on a PR by our continuous integration (CI) on GitHub
-before it's merged into the ``main`` branch you can use the following command:
+``pytest-unit`` also runs automatically as a pre-commit hook on every commit, and
+both ``pytest-unit`` and ``pytest-integration`` runs in GitHub Actions on every push.
+
+To run everything that's required before a PR can merge -- including the slower
+pipeline and data validation tests that only run in the merge queue -- use:
 
 .. code-block:: console
 
     $ pixi run pytest-ci
 
-This includes building the documentation, running unit & integration tests, dbt data
-validations other than the row counts, and checking to make sure we've got sufficient
-test coverage.
+This includes building the documentation, running the unit, integration, and pipeline
+tests, dbt data validations (other than the row count checks), foreign key constraints,
+and checking to make sure we've got sufficient test coverage.
 
 .. note::
 
@@ -35,21 +39,36 @@ test coverage.
 -------------------------------------------------------------------------------
 Software Tests
 -------------------------------------------------------------------------------
-Our ``pytest`` based software tests are all stored under the ``tests/``
-directory in the main repository. They are organized into 2 main categories
-each with its own subdirectory:
+Our ``pytest`` based software tests are all stored under the ``tests/`` directory in
+the main repository. They're organized into four tiers, primarily distinguished by how
+long they take to run:
 
 * **Software Unit Tests** (``tests/unit/``) can be run in seconds and don't
-  require any external data. They test the basic functionality of various
-  functions and classes, often using minimal inline data structures that are
-  specified in the test modules themselves.
-* **Software Integration Tests** (``tests/integration/``) test larger
-   collections of functionality including the interactions between different
-   parts of the overall software system and in some cases interactions with
-   external systems requiring network connectivity. They run a Dagster-managed
-   prebuild of the ETL using ``dg_pytest.yml`` and then exercise code against
-   those outputs. These tests take around 45 minutes to run.
+  require any external data or a Dagster ETL run. They test the basic functionality of
+  various functions and classes, often using minimal inline data structures that are
+  specified in the test modules themselves. These run as a pre-commit hook on every
+  commit.
+* **Software Integration Tests** (``tests/integration/``) test the interactions
+  between different parts of the overall software system, and in some cases
+  interactions with external systems requiring network connectivity (e.g. downloading
+  a small amount of data from Zenodo). Like the unit tests, they do **not** depend on a
+  full Dagster ETL run, so they stay fast (a few minutes at most) and run in GitHub
+  Actions on every push.
+* **Pipeline Tests** (``tests/pipeline/``) run a Dagster-managed fast ETL
+  using ``dg_pytest.yml`` and then exercise code against those outputs -- an
+  end-to-end smoke test of the pipeline. Because running the fast ETL takes ~45
+  minutes these only run in the merge queue as a final check before a PR merges into
+  ``main``, rather than on every push.
+* **Data Validation Tests** (``tests/validate/``) check that the outputs of a
+  pipeline test run are valid: foreign key constraints and the ``dbt`` data validation
+  suite. They depend on the pipeline tests having already produced outputs to check,
+  and also run in the merge queue (with the exception of the dbt row-count checks,
+  which expect all years of data to be processed).
 
+A ``pytest_collection_modifyitems`` hook in ``tests/conftest.py`` enforces this split
+automatically: a test outside ``tests/pipeline/``/``tests/validate/`` that depends on
+the ETL, or a test inside either of those directories that doesn't, will fail
+collection with a message telling you where to move it.
 
 -------------------------------------------------------------------------------
 Running the tests and other tasks with pixi
@@ -63,9 +82,9 @@ The pixi tasks that pertain to software and data tests coordinated by
     $ pixi task list
 
 -------------------------------------------------------------------------------
-Selecting Input Data for Integration Tests
+Selecting Input Data for Pipeline Tests
 -------------------------------------------------------------------------------
-The software integration tests need a year's worth of input data to process. By
+The pipeline tests need a year or two of input data to process. By
 default they will look in your local PUDL datastore to find it. If the data
 they need isn't available locally, they will download it from Zenodo and put it
 in the local datastore.
@@ -76,7 +95,7 @@ datastore instead by using our custom ``--temp-pudl-input`` with ``pytest``:
 
 .. code-block:: console
 
-   $ pixi run pytest --temp-pudl-input tests/integration
+   $ pixi run pytest --temp-pudl-input tests/pipeline
 
 .. seealso::
 
@@ -94,11 +113,11 @@ You can run pytest directly without the ``pixi run`` prefix if you're working
 within the activated pixi environment, or use ``pixi run pytest`` to run it
 explicitly.
 
-If you are working on integration tests, note that most of them require processed PUDL
-outputs. If you try to run a single integration test directly with pytest it will likely
-end up running the fast ETL which will take 45 minutes. If you have processed PUDL
-outputs locally already, you can use ``--live-pudl-output`` instead. This is only
-helpful if the thing you're testing isn't part of the ETL itself.
+If you are working on pipeline tests, note that they require processed PUDL outputs.
+If you try to run a single pipeline test directly with pytest it will likely end up
+running the fast ETL which will take 45 minutes. If you have processed PUDL outputs
+locally already, you can use ``--live-pudl-output`` instead. This is only helpful if
+the thing you're testing isn't part of the ETL itself.
 
 Running specific tests
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -145,14 +164,14 @@ test suite and keeps the data and tests very clearly separated.
 The ``--live-pudl-output`` option lets you use your existing FERC 1 and PUDL databases
 instead of building a new database at all. This can be useful if you want to test code
 that only operates on an existing database, and has nothing to do with the construction
-of that database. For example, the EPA CEMS specific tests:
+of that database. For example:
 
 .. code-block:: console
 
-   $ pixi run pytest --live-pudl-output tests/integration/epacems_test.py
+   $ pixi run pytest --live-pudl-output tests/pipeline/glue/glue_test.py
 
 Foreign key checks and dbt validations can be selected separately from the rest of the
-integration suite by running the dedicated validation module directly. For example:
+pipeline suite by running the dedicated validation module directly. For example:
 
 .. code-block:: console
 
@@ -170,7 +189,7 @@ tasks we've defined for the nightly builds, which use
 
 .. code-block:: console
 
-   $ pixi run pytest-integration-nightly
+   $ pixi run pytest-pipeline-nightly
    $ pixi run pytest-validate-nightly
 
 .. note::
@@ -191,8 +210,9 @@ even if you already have a local copy, which is useful when you are testing the
 datastore functionality specifically.
 
 The tests that most directly exercise the datastore download path are the CSV and Excel
-extractor tests (which read archived data files via ``pudl_datastore_fixture``) and the
-Zenodo datapackage tests (which verify that datapackage descriptors are reachable):
+extractor tests (which read archived data files via the ``zenodo_datastore`` fixture)
+and the Zenodo datapackage tests (which verify that datapackage descriptors are
+reachable):
 
 .. code-block:: console
 
@@ -201,6 +221,7 @@ Zenodo datapackage tests (which verify that datapackage descriptors are reachabl
        tests/integration/extract/excel_test.py \
        tests/integration/workspace/zenodo_datapackage_test.py
 
-The FERC extractor tests (``ferc1_test.py``, ``ferc_dbf_extract_test.py``) also use the
+The FERC extractor pipeline tests (``ferc_dbf_extract_test.py`` and
+``ferc_xbrl_extract_test.py`` under ``tests/pipeline/extract/``) also use the
 datastore but additionally require building a FERC SQLite database, so they are more
 heavyweight and slower to run.
