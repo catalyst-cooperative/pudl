@@ -94,7 +94,6 @@ sources:
                     min_value: 0.0
                   config:
                     error_if: ">13"
-                    warn_if: ">13"
                   description: |-
                     Heat input should be non-negative, but EPA reports a small number of small negative
                     values. These are paired with negative Hg mass readings, so they are retained as
