@@ -7,10 +7,9 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
         "description": {
             "additional_summary_text": (
                 "hourly emissions of mercury (Hg), hydrogen chloride (HCl), and "
-                "hydrogen fluoride (HF) from coal-fired power plants."
+                "hydrogen fluoride (HF) from coal- and oil-fired power plants."
             ),
             "usage_warnings": ["incomplete_id_coverage"],
-            "availability_text": "2026",
             "additional_details_text": """The EPA Mercury and Air Toxics Standards
 (MATS) dataset provides detailed information on emissions of hazardous air
 pollutants, specifically mercury (Hg), hydrogen chloride (HCl), and hydrogen
