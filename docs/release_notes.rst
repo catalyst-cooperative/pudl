@@ -87,6 +87,27 @@ Bug Fixes & Data Cleaning
   key instead of ``data_tests:``, meaning ``dbt_helper`` silently discarded the tests
   they contained instead of merging them into the generated ``schema.yml``. See PR
   :pr:`5458`.
+* Fixed several sources of non-deterministic row counts, where identical code and data
+  produced different results on different machines (e.g. local macOS vs. nightly Linux
+  builds) because several functions resolved ties among candidate values using
+  incidental pandas/numpy sort or dedup behavior instead of an explicit, deterministic
+  rule. Affected tables now use the standard, exact ``check_row_counts_per_partition``
+  dbt test in place of the looser row-count range checks previously used to work around
+  the instability. See :issue:`4574`, :issue:`4254`, and :pr:`5503`.
+* Fixed ``add_null_overrides()`` in the FERC1-EIA record linkage nulling out the
+  condensed ``report_date``, ``report_year``, ``plant_id_pudl``, and ``utility_id_pudl``
+  columns for every known-unmatched FERC1 record, instead of only the EIA match columns.
+  With the fix, 788 records in ``out_pudl__yearly_assn_eia_ferc1_plant_parts`` which
+  used to have a NULL ``report_date`` now appear with correct date information. See
+  issue :issue:`4130` and PR :pr:`5503`
+
+Performance Improvements
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Fixed a performance regression resulting from the update to Numpy 2.5, which ended up
+  using complex arithmetic in calculating eigenvalues due to floating point noise in the
+  imaginary components of the matrix math we were doing in our timeseries imputations.
+  See PR :pr:`5503`.
 
 Developer Experience
 ^^^^^^^^^^^^^^^^^^^^
@@ -102,6 +123,14 @@ Developer Experience
   now reject any unrecognized keys (like stray ``tests:`` instead of ``data_tests:``) at
   parse time instead of silently discarding them. Whitespace in description fields is
   also normalized at parse-time to avoid spurious diffs. See PR :pr:`5458`.
+* Reorganized ``tests/`` into four tiers by run-time: fast unit tests run as a
+  pre-commit hook, slower integration tests run on every push, and slower ETL-dependent
+  pipeline and data validation tests run in the merge queue. Previously
+  ``tests/integration`` mixed ETL and integration tests together, so many lightweight
+  tests weren't getting run until the merge queue, leading to unexpected late-stage
+  failures. A pytest collection hook enforces the ETL/no-ETL split. Also fixed a live
+  Zulip notification firing from the test suite and tightened the dbt ``schema.yml``
+  round-trip test. See issue :issue:`5508` and PR :pr:`5507`.
 * Automated updating the Zenodo deposition metadata (creators, keywords, version,
   description, and structured resource links) for monthly PUDL data releases, which
   previously had to be hand-edited in the Zenodo web UI every month. Creators and
@@ -110,7 +139,7 @@ Developer Experience
   links (versioned docs, data dictionary, S3/GCS paths, the GitHub release, and the
   corresponding GitHub-repo Zenodo software archive), which are also populated as
   structured ``related_identifiers`` for better DataCite/OpenAIRE indexing. See issue
-  :issue:`3326`.
+  :issue:`3326` and PR :pr:`5484`.
 
 .. _release-v2026.8.0:
 

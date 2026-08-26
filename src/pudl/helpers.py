@@ -1612,7 +1612,13 @@ def dedupe_on_category(
         pd.CategoricalDtype(categories=sorter, ordered=True)
     )
 
-    return dedup_df.drop_duplicates(subset=base_cols, keep="first")
+    # Sort by category_name as a tiebreaker: rows tied on base_cols would
+    # otherwise resolve to whichever value happens to come first in
+    # dedup_df, which isn't guaranteed to be stable across upstream row
+    # order.
+    return dedup_df.sort_values(category_name).drop_duplicates(
+        subset=base_cols, keep="first"
+    )
 
 
 def dedupe_and_drop_nas(

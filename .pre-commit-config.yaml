@@ -105,7 +105,7 @@ repos:
 
   # Scan for secrets and credentials
   - repo: https://github.com/trufflesecurity/trufflehog
-    rev: v3.97.0
+    rev: v3.97.1
     hooks:
       - id: trufflehog
         name: TruffleHog
@@ -201,7 +201,7 @@ repos:
         verbose: false
         pass_filenames: false
         always_run: true
-        entry: pixi run pytest --no-cov --doctest-modules src/pudl tests/unit -m "not slow"
+        entry: pixi run pytest --no-cov --doctest-modules src/pudl tests/unit
 
 # Configuration for pre-commit.ci
 ci:
