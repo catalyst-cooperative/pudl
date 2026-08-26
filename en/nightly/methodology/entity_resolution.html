@@ -18,7 +18,7 @@
     </script>
     
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="entity_resolution.html.md" />
-    <title>Entity Resolution &#8212; PUDL 2026.8.1.dev20 documentation</title>
+    <title>Entity Resolution &#8212; PUDL 2026.8.1.dev21 documentation</title>
   
   
   
@@ -51,7 +51,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../_static/documentation_options.js?v=8f1a003a"></script>
+    <script src="../_static/documentation_options.js?v=265a745c"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -498,8 +498,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev20 documentation - Home"/>
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev20 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev21 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev21 documentation - Home"/>
   
   
 </a></div>
@@ -1123,14 +1123,15 @@ be reached.</p></li>
 <li><p>We set the consistency threshold to 0% for a few columns so that we always get a
 value. These include plant name, utility name, and prime mover code.</p></li>
 </ul>
-<div class="admonition caution">
-<p class="admonition-title">Caution</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
 <p>Because we always choose the most consistent prime mover code, even when less than
 50% of occurrences have that value, we occasionally see a tie between two equally
-consistent values. In these cases, the resolved value may not be deterministic.
-Because prime mover code is part of the primary key in some tables it is possible for
-some records to appear or disappear based on which value was chosen. However, this
-scenario is extremely rare (on the order of 1 in 100,000 records).</p>
+consistent values. Because prime mover code is part of the primary key in some
+tables, which value is chosen can affect whether some records appear or not.
+Ties are resolved deterministically (the alphabetically first tied value wins), so
+the outcome is stable across ETL runs and platforms. This scenario is rare (on the
+order of 1 in 100,000 records).</p>
 </div>
 </section>
 </section>

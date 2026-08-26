@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.analysis.plant_parts_eia &#8212; PUDL 2026.8.1.dev20 documentation</title>
+    <title>pudl.analysis.plant_parts_eia &#8212; PUDL 2026.8.1.dev21 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=8f1a003a"></script>
+    <script src="../../../_static/documentation_options.js?v=265a745c"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev20 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev20 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev21 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev21 documentation - Home"/>
   
   
 </a></div>
@@ -2131,7 +2131,12 @@ window.runMermaid = runMermaid;</script>
         <span class="n">parts_to_gens</span><span class="p">[</span><span class="s2">"plant_part"</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Categorical</span><span class="p">(</span>
             <span class="n">parts_to_gens</span><span class="p">[</span><span class="s2">"plant_part"</span><span class="p">],</span> <span class="n">PLANT_PARTS</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
         <span class="p">)</span>
-        <span class="n">parts_to_gens</span> <span class="o">=</span> <span class="n">parts_to_gens</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s2">"plant_part"</span><span class="p">)</span>
+        <span class="c1"># Sort by record_id_eia as a tiebreaker: records tied on plant_part</span>
+        <span class="c1"># and gens_combo (e.g. ownership total/owned duplicates) would</span>
+        <span class="c1"># otherwise resolve to whichever record happens to come first in</span>
+        <span class="c1"># parts_to_gens, which isn't guaranteed to be stable across</span>
+        <span class="c1"># pandas/numpy versions or upstream row order.</span>
+        <span class="n">parts_to_gens</span> <span class="o">=</span> <span class="n">parts_to_gens</span><span class="o">.</span><span class="n">sort_values</span><span class="p">([</span><span class="s2">"plant_part"</span><span class="p">,</span> <span class="s2">"record_id_eia"</span><span class="p">])</span>
         <span class="c1"># get the true gran records by finding duplicate gen combos</span>
         <span class="c1"># this marks duplicate grans as True except for the first occurrence</span>
         <span class="c1"># non-duplicated granularities (unique records) are also marked False</span>
