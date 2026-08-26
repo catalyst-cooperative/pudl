@@ -11,7 +11,7 @@ def test_update_tables(dbt_target: str, script_runner):
     args = [
         "dbt_helper",
         "update-tables",
-        # "--schema",  # Uncomment when we have schema-preserving updates
+        "--schema",
         "all",
     ]
     if dbt_target == "etl-full":
