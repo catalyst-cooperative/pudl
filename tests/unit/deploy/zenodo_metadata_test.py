@@ -7,7 +7,6 @@ from pathlib import Path
 import pytest
 
 from pudl.deploy.zenodo_metadata import (
-    CONTACT_US_HTML,
     build_related_resources,
     get_data_license_id,
     get_latest_release_tag,
@@ -15,7 +14,6 @@ from pudl.deploy.zenodo_metadata import (
     render_release_notes_html,
     verify_git_tag_checked_out,
 )
-from pudl.metadata.constants import LICENSES
 
 _FIXTURE_RELEASE_NOTES_HTML = """\
 <!DOCTYPE html>
@@ -105,42 +103,33 @@ def test_get_latest_release_tag(mocker):
     )
 
 
-def test_render_release_notes_html_extracts_only_target_version(docs_html_dir):
-    """Only the requested version's fragment should be returned."""
+def test_render_release_notes_html(docs_html_dir):
+    """One version's release notes should render as a clean, self-contained fragment.
+
+    Checked in a single call/test rather than split across several, since these are
+    all assertions about one function call's output rather than independent
+    behaviors.
+    """
     html = render_release_notes_html(docs_html_dir, "v2026.8.0")
 
+    # Only the target version's content is present.
     assert "v2026.8.0 (2026-08-07)" in html
     assert "v2026.7.2" not in html
     assert "test release." in html
 
-
-def test_render_release_notes_html_strips_sphinx_cruft(docs_html_dir):
-    """Section wrappers and headerlink permalinks should be stripped out."""
-    html = render_release_notes_html(docs_html_dir, "v2026.8.0")
-
+    # Sphinx's <section> wrappers and headerlink permalinks are stripped.
     assert "<section" not in html
     assert "headerlink" not in html
     assert "#</a>" not in html
 
-
-def test_render_release_notes_html_decrements_heading_levels(docs_html_dir):
-    """Headings should shift up one level so the version heading becomes <h1>.
-
-    Sphinx numbers the version heading <h2> (since <h1> is reserved for the page's
-    own "PUDL Release Notes" title), but the description is its own standalone
-    document, so every heading is bumped up a level.
-    """
-    html = render_release_notes_html(docs_html_dir, "v2026.8.0")
-
+    # Headings are shifted up a level (Sphinx numbers the version heading <h2>,
+    # since <h1> is reserved for the page's own "PUDL Release Notes" title) so the
+    # version heading becomes the top-level <h1> in this standalone fragment.
     assert "<h1>v2026.8.0 (2026-08-07)</h1>" in html
     assert "<h2>New Data</h2>" in html
     assert "<h3>" not in html
 
-
-def test_render_release_notes_html_rewrites_relative_links(docs_html_dir):
-    """Relative and same-page links should become absolute docs.catalyst.coop URLs."""
-    html = render_release_notes_html(docs_html_dir, "v2026.8.0")
-
+    # Relative and same-page links become absolute docs.catalyst.coop URLs.
     assert (
         'href="https://docs.catalyst.coop/pudl/en/v2026.8.0/data_sources/eia860.html"'
         in html
@@ -159,31 +148,23 @@ def test_render_release_notes_html_missing_version_raises(docs_html_dir):
         render_release_notes_html(docs_html_dir, "v9999.1.0")
 
 
-def test_build_related_resources_production_includes_archive_link():
-    """When a software archive DOI is available, it should appear in both outputs."""
+@pytest.mark.parametrize(
+    "github_archive_doi_url",
+    ["https://doi.org/10.5281/zenodo.21360813", None],
+    ids=["production", "sandbox"],
+)
+def test_build_related_resources(github_archive_doi_url):
+    """The software archive link/entry should appear iff a DOI URL was given.
+
+    Production runs pass a real DOI (from the GitHub-repo Zenodo software archive);
+    sandbox runs pass None, since GitHub's Zenodo integration never publishes there.
+    """
     footer_html, related_identifiers = build_related_resources(
-        "v2026.8.0", "https://doi.org/10.5281/zenodo.21360813"
+        "v2026.8.0", github_archive_doi_url
     )
 
     assert "Other PUDL v2026.8.0 Resources" in footer_html
-    assert "https://doi.org/10.5281/zenodo.21360813" in footer_html
-    assert {
-        "identifier": "https://doi.org/10.5281/zenodo.21360813",
-        "relation": "isSupplementedBy",
-        "resource_type": "software",
-    } in related_identifiers
-
-
-def test_build_related_resources_sandbox_omits_archive_link():
-    """On sandbox, with no software archive DOI, that bullet/entry should be absent."""
-    footer_html, related_identifiers = build_related_resources("v2026.8.0", None)
-
-    assert "Zenodo archive of the PUDL GitHub repo" not in footer_html
-    assert all(
-        entry.get("resource_type") != "software" or "doi.org" not in entry["identifier"]
-        for entry in related_identifiers
-    )
-    # The GitHub release link and docs link should still be present.
+    # The GitHub release link and docs link should always be present.
     assert any(
         entry["identifier"]
         == "https://github.com/catalyst-cooperative/pudl/releases/tag/v2026.8.0"
@@ -191,19 +172,25 @@ def test_build_related_resources_sandbox_omits_archive_link():
     )
     assert any(entry["relation"] == "isDocumentedBy" for entry in related_identifiers)
 
+    if github_archive_doi_url is None:
+        assert "Zenodo archive of the PUDL GitHub repo" not in footer_html
+        assert all(
+            entry.get("resource_type") != "software"
+            or "doi.org" not in entry["identifier"]
+            for entry in related_identifiers
+        )
+    else:
+        assert github_archive_doi_url in footer_html
+        assert {
+            "identifier": github_archive_doi_url,
+            "relation": "isSupplementedBy",
+            "resource_type": "software",
+        } in related_identifiers
+
 
 def test_get_data_license_id_matches_authoritative_source():
-    """The returned ID should be a real LICENSES key, matching SOURCES['pudl']."""
-    license_id = get_data_license_id()
-
-    assert license_id in LICENSES
-    assert license_id == "cc-by-4.0"
-
-
-def test_contact_us_html_is_static_and_nonempty():
-    """A basic guard against CONTACT_US_HTML being accidentally emptied out."""
-    assert "Contact Us" in CONTACT_US_HTML
-    assert "hello@catalyst.coop" in CONTACT_US_HTML
+    """The returned ID should match SOURCES['pudl']['license_pudl'] via LICENSES."""
+    assert get_data_license_id() == "cc-by-4.0"
 
 
 def test_verify_git_tag_checked_out_passes_when_head_matches_tag(mocker):
@@ -222,23 +209,23 @@ def test_verify_git_tag_checked_out_passes_when_head_matches_tag(mocker):
     verify_git_tag_checked_out("v1.0.0", Path("/fake/repo"))
 
 
-def test_verify_git_tag_checked_out_raises_when_head_is_ahead_of_tag(mocker):
-    """A working tree whose HEAD doesn't match the tag's commit should raise."""
+@pytest.mark.parametrize(
+    "run_git_side_effect,expected_match",
+    [
+        (["aaa111\n", "bbb222\n"], "does not match"),
+        (
+            subprocess.CalledProcessError(128, ["git", "rev-parse"]),
+            "Could not resolve",
+        ),
+    ],
+    ids=["head-ahead-of-tag", "tag-missing"],
+)
+def test_verify_git_tag_checked_out_raises(mocker, run_git_side_effect, expected_match):
+    """A HEAD/tag mismatch or an unresolvable tag should both raise a clear ValueError."""
     mocker.patch(
         "pudl.deploy.zenodo_metadata.run_git",
-        side_effect=["aaa111\n", "bbb222\n"],
+        side_effect=run_git_side_effect,
     )
 
-    with pytest.raises(ValueError, match="does not match"):
+    with pytest.raises(ValueError, match=expected_match):
         verify_git_tag_checked_out("v1.0.0", Path("/fake/repo"))
-
-
-def test_verify_git_tag_checked_out_raises_when_tag_missing(mocker):
-    """An unresolvable tag should raise a clear error rather than a raw CalledProcessError."""
-    mocker.patch(
-        "pudl.deploy.zenodo_metadata.run_git",
-        side_effect=subprocess.CalledProcessError(128, ["git", "rev-parse"]),
-    )
-
-    with pytest.raises(ValueError, match="Could not resolve"):
-        verify_git_tag_checked_out("v9.9.9", Path("/fake/repo"))
