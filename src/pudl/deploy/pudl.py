@@ -27,7 +27,7 @@ from pydantic import BaseModel, ConfigDict, model_validator
 from upath import UPath
 
 from pudl import PUDL_ROOT_PATH
-from pudl.deploy.zenodo_metadata import load_citation_cff_version, run_git
+from pudl.deploy.zenodo_metadata import get_latest_release_tag, run_git
 from pudl.logging_helpers import configure_root_logger, get_logger
 
 logger = get_logger(__name__)
@@ -436,23 +436,22 @@ def update_git_branch(
         )
     logger.info(f"Updating git branch {branch} to tag {tag}")
 
-    run_git(["git", "config", "user.email", "pudl@catalyst.coop"])
-    run_git(["git", "config", "user.name", "pudlbot"])
+    run_git(["config", "user.email", "pudl@catalyst.coop"])
+    run_git(["config", "user.name", "pudlbot"])
     run_git(
         [
-            "git",
             "remote",
             "set-url",
             "origin",
             f"https://pudlbot:{github_token}@github.com/catalyst-cooperative/pudl.git",
         ]
     )
-    run_git(["git", "fetch", "--force", "--tags", "origin", tag])
-    run_git(["git", "fetch", "origin", f"{branch}:{branch}"])
-    run_git(["git", "checkout", branch])
-    run_git(["git", "merge", "--ff-only", tag])
+    run_git(["fetch", "--force", "--tags", "origin", tag])
+    run_git(["fetch", "origin", f"{branch}:{branch}"])
+    run_git(["checkout", branch])
+    run_git(["merge", "--ff-only", tag])
     if environment != "staging":
-        run_git(["git", "push", "-u", "origin", branch])
+        run_git(["push", "-u", "origin", branch])
 
     logger.info(f"Git branch {branch} updated successfully")
 
@@ -520,7 +519,7 @@ def trigger_zenodo_release(
         # Nightly/branch builds don't have a real release tag or release notes
         # section of their own -- these are just sandbox smoke tests of the Zenodo
         # release machinery, so fall back to the most recently published version.
-        pudl_version = load_citation_cff_version(PUDL_ROOT_PATH / "CITATION.cff")
+        pudl_version = get_latest_release_tag(PUDL_ROOT_PATH)
 
     logger.info(
         f"Triggering Zenodo release: env={env}, publish={publish_flag}, "
@@ -642,7 +641,7 @@ def get_build_from_tag(tag: str) -> UPath:
     """Find any builds associated with a git tag and return a GCS path to most recent build."""
     build_bucket = UPath("gs://builds.catalyst.coop")
     try:
-        git_ref = run_git(["git", "rev-parse", "--short=9", f"{tag}^{{}}"]).strip()
+        git_ref = run_git(["rev-parse", "--short=9", f"{tag}^{{}}"]).strip()
     except subprocess.CalledProcessError as e:
         raise RuntimeError(f"Can't find git tag: {tag}") from e
 

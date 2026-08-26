@@ -5,13 +5,12 @@ import subprocess
 from pathlib import Path
 
 import pytest
-import yaml
 
 from pudl.deploy.zenodo_metadata import (
     CONTACT_US_HTML,
     build_related_resources,
     get_data_license_id,
-    load_citation_cff_version,
+    get_latest_release_tag,
     load_zenodo_json,
     render_release_notes_html,
     verify_git_tag_checked_out,
@@ -92,12 +91,18 @@ def test_load_zenodo_json(tmp_path):
     assert keywords == ["electricity", "energy"]
 
 
-def test_load_citation_cff_version(tmp_path):
-    """load_citation_cff_version should prefix the CFF version with 'v'."""
-    path = tmp_path / "CITATION.cff"
-    path.write_text(yaml.dump({"version": "2026.8.0"}), encoding="utf-8")
+def test_get_latest_release_tag(mocker):
+    """get_latest_release_tag should return git's answer, stripped."""
+    mock_run_git = mocker.patch(
+        "pudl.deploy.zenodo_metadata.run_git",
+        return_value="v2026.8.0\n",
+    )
 
-    assert load_citation_cff_version(path) == "v2026.8.0"
+    assert get_latest_release_tag(Path("/fake/repo")) == "v2026.8.0"
+    mock_run_git.assert_called_once_with(
+        ["describe", "--tags", "--abbrev=0", "--match", "v20*"],
+        cwd=Path("/fake/repo"),
+    )
 
 
 def test_render_release_notes_html_extracts_only_target_version(docs_html_dir):

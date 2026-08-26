@@ -665,7 +665,8 @@ def build_zenodo_release_zulip_message(
     default=None,
     help="Path to a directory whose contents will be uploaded to Zenodo. "
     "Subdirectories are ignored. Accepts GCS or S3 URLs as well. Prefix remote paths "
-    "with e.g. gs:// or s3://. Required unless --metadata-only is set.",
+    "with e.g. gs:// or s3://. Required unless --metadata-only is set, in which case "
+    "it's ignored if passed.",
 )
 @click.option(
     "--ignore",
@@ -676,9 +677,10 @@ def build_zenodo_release_zulip_message(
     "--metadata-only",
     is_flag=True,
     default=False,
-    help="Update metadata on the existing draft without touching its files or "
-    "--source-dir/--ignore. For fixing up a draft's metadata (e.g. after a review "
-    "comment) without re-uploading the data.",
+    help="Update metadata on the existing draft without touching its files. Takes "
+    "precedence over --source-dir/--ignore, which are ignored if also passed. For "
+    "fixing up a draft's metadata (e.g. after a review comment) without re-uploading "
+    "the data.",
 )
 @click.option(
     "--publish/--no-publish",
@@ -709,10 +711,11 @@ def build_zenodo_release_zulip_message(
     is_flag=True,
     default=False,
     help="Skip verifying that the working tree's checked-out git commit matches "
-    "--pudl-version. Only used against production, where metadata is read live from "
-    "the working tree (release notes, creators, keywords), so a mismatched checkout "
-    "can silently produce incorrect metadata. Sandbox runs always skip this check, "
-    "since they intentionally use a stand-in version tag rather than a real release.",
+    "--pudl-version before building metadata. Only relevant against production: a "
+    "mismatched checkout there can silently produce metadata for the wrong release. "
+    "Sandbox runs always skip this specific check, since they intentionally pass a "
+    "stand-in version tag (the last real release, not the current commit) rather than "
+    "a real release tag of their own.",
 )
 def main(
     env: str,
@@ -730,8 +733,9 @@ def main(
             "--source-dir is required unless --metadata-only is set."
         )
     if metadata_only and (source_dir is not None or ignore):
-        raise click.UsageError(
-            "--metadata-only can't be combined with --source-dir/--ignore."
+        logger.warning(
+            "--metadata-only was set; ignoring --source-dir/--ignore (no files will "
+            "be uploaded)."
         )
 
     if docs_html_dir is None:

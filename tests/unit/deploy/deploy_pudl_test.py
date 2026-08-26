@@ -539,13 +539,13 @@ def test_trigger_zenodo_release_dispatches_expected_inputs(
 
     Nightly/branch releases have no real release tag of their own (they're just
     sandbox smoke tests of the Zenodo machinery), so they fall back to the most
-    recently published version instead -- mocked here via
-    ``load_citation_cff_version`` rather than reading the repo's actual CITATION.cff.
+    recently published version instead -- mocked here via ``get_latest_release_tag``
+    rather than actually resolving git tags in the real repo.
     """
     with (
         patch("pudl.deploy.pudl.dispatch_github_workflow") as mock_dispatch,
         patch(
-            "pudl.deploy.pudl.load_citation_cff_version",
+            "pudl.deploy.pudl.get_latest_release_tag",
             return_value="v2026.6.0",
         ),
     ):

@@ -96,24 +96,16 @@ jobs:
           ZENODO_SANDBOX_TOKEN_PUBLISH: ${{ secrets.ZENODO_SANDBOX_TOKEN_PUBLISH }}
           ZENODO_TOKEN_UPLOAD: ${{ secrets.ZENODO_TOKEN_UPLOAD }}
           ZULIP_API_KEY: ${{ secrets.ZULIP_API_KEY }}
-          METADATA_ONLY: ${{ inputs.metadata_only }}
-          SOURCE_DIR: ${{ inputs.source_dir }}
-          IGNORE_REGEX: ${{ inputs.ignore_regex }}
+        # --source-dir/--ignore are harmless to pass alongside --metadata-only: the
+        # script ignores them (with a warning) whenever --metadata-only is set.
         run: |
-          args=(
-            --env "${{ inputs.env }}"
-            --pudl-version "${{ inputs.pudl_version }}"
+          pixi run zenodo_data_release \
+            --env "${{ inputs.env }}" \
+            --pudl-version "${{ inputs.pudl_version }}" \
+            --source-dir "${{ inputs.source_dir }}" \
+            ${{ inputs.ignore_regex && format('--ignore "{0}"', inputs.ignore_regex) || '' }} \
+            ${{ inputs.metadata_only && '--metadata-only' || '' }} \
             --${{ inputs.publish }}
-          )
-          if [ "$METADATA_ONLY" = "true" ]; then
-            args+=(--metadata-only)
-          else
-            args+=(--source-dir "$SOURCE_DIR")
-            if [ -n "$IGNORE_REGEX" ]; then
-              args+=(--ignore "$IGNORE_REGEX")
-            fi
-          fi
-          pixi run zenodo_data_release "${args[@]}"
 
       - name: Notify Zulip of Zenodo data release status
         if: always()

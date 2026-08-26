@@ -251,9 +251,28 @@ def test_main_requires_source_dir_unless_metadata_only(mocker):
     assert "--source-dir is required" in result.output
 
 
-def test_main_rejects_metadata_only_with_source_dir(mocker):
-    """--metadata-only shouldn't be combined with --source-dir."""
+def test_main_ignores_source_dir_when_metadata_only(mocker):
+    """--metadata-only should take precedence over --source-dir/--ignore, with a warning.
+
+    Rather than rejecting the combination outright, main() just logs a warning and
+    ignores --source-dir/--ignore -- simpler for callers (e.g. the GitHub Actions
+    workflow) that would otherwise need extra branching to avoid ever passing
+    --source-dir alongside --metadata-only.
+
+    Asserts on a mocked ``logger.warning`` call rather than using ``caplog``: caplog
+    depends on logging propagation/handler setup that isn't consistent between
+    invocations (e.g. it's unreliable under ``pytest-unit``'s
+    ``--doctest-modules src/pudl``, which imports every module -- including this
+    one's module-level ``coloredlogs.install()`` -- before tests run), so asserting
+    directly on the mock is the more robust check.
+    """
     mocker.patch("pudl.scripts.zenodo_data_release.send_zulip_message")
+    mocker.patch.dict(os.environ, {"ZENODO_SANDBOX_TOKEN_PUBLISH": "fake-token"})
+    mocker.patch(
+        "pudl.scripts.zenodo_data_release.InitialDataset.get_existing_draft",
+        side_effect=RuntimeError("stop here -- only the warning matters"),
+    )
+    mock_warning = mocker.patch("pudl.scripts.zenodo_data_release.logger.warning")
 
     result = CliRunner().invoke(
         main,
@@ -268,15 +287,16 @@ def test_main_rejects_metadata_only_with_source_dir(mocker):
         ],
     )
 
-    assert result.exit_code != 0
-    assert "can't be combined with --source-dir" in result.output
+    assert isinstance(result.exception, RuntimeError)
+    assert mock_warning.call_count == 1
+    assert "ignoring --source-dir" in mock_warning.call_args[0][0]
 
 
 def test_main_checks_git_tag_only_for_production_unless_skipped(mocker):
     """The git tag guardrail should run for production runs, skippable by flag.
 
     Sandbox runs never check (they may intentionally use a stand-in version tag, see
-    load_citation_cff_version), and --skip-git-check is an explicit opt-out for
+    get_latest_release_tag), and --skip-git-check is an explicit opt-out for
     production. In both cases we stop the run right after the check (via a mocked
     get_existing_draft) since we don't want to actually hit any Zenodo API here.
 

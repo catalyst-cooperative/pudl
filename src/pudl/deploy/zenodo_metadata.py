@@ -19,7 +19,6 @@ import json
 import subprocess
 from pathlib import Path
 
-import yaml
 from bs4 import BeautifulSoup
 
 from pudl.logging_helpers import get_logger
@@ -103,35 +102,17 @@ def get_data_license_id() -> str:
     )
 
 
-def load_citation_cff_version(path: Path) -> str:
-    """Read the latest released version out of ``CITATION.cff``, as a release tag.
-
-    ``CITATION.cff``'s ``version`` field is bumped as part of cutting a release, so it
-    always names the most recently *published* PUDL version (e.g. while ``main`` is
-    accumulating changes for the upcoming ``v2026.9.0``, this still reads
-    ``"v2026.8.0"``, the last one actually released). Used as a stand-in release tag
-    for sandbox test runs, which aren't publishing a real new version and so have no
-    real release tag of their own to look up release notes for.
-
-    Args:
-        path: Path to the repo's ``CITATION.cff``.
-
-    Returns:
-        The version formatted as a PUDL release tag, e.g. ``"v2026.8.0"``.
-    """
-    data = yaml.safe_load(path.read_text(encoding="utf-8"))
-    return f"v{data['version']}"
-
-
-def run_git(cmd: list[str], cwd: Path | None = None) -> str:
-    """Run a git command and return its stdout, logging stderr on failure.
+def run_git(args: list[str], cwd: Path | None = None) -> str:
+    """Run a git subcommand and return its stdout, logging stderr on failure.
 
     Shared by every git-shelling-out call in ``pudl.deploy`` (branch updates, build
-    lookups, this module's tag verification), so there's one place that knows how to
-    invoke git and report failures consistently.
+    lookups, this module's tag verification/lookup), so there's one place that knows
+    how to invoke git and report failures consistently. Always runs ``git``, so
+    ``args`` should be the subcommand and its arguments only, e.g.
+    ``["rev-parse", "HEAD"]`` rather than ``["git", "rev-parse", "HEAD"]``.
 
     Args:
-        cmd: The full command to run, e.g. ``["git", "rev-parse", "HEAD"]``.
+        args: The git subcommand and arguments to run, e.g. ``["rev-parse", "HEAD"]``.
         cwd: Working directory to run the command in. Defaults to the current
             process's working directory.
 
@@ -141,6 +122,7 @@ def run_git(cmd: list[str], cwd: Path | None = None) -> str:
     Raises:
         subprocess.CalledProcessError: If the command exits non-zero.
     """
+    cmd = ["git", *args]
     try:
         return subprocess.run(  # noqa: S603
             cmd, cwd=cwd, check=True, capture_output=True, text=True
@@ -148,6 +130,28 @@ def run_git(cmd: list[str], cwd: Path | None = None) -> str:
     except subprocess.CalledProcessError as exc:
         logger.error(f"Command failed: {' '.join(cmd)}\n{exc.stderr}")
         raise
+
+
+def get_latest_release_tag(repo_root: Path) -> str:
+    """Get the most recently released PUDL version tag reachable from ``HEAD``.
+
+    Used as a stand-in release tag for sandbox test runs, which aren't publishing a
+    real new version and so have no real release tag of their own to look up release
+    notes for. Git tags are the actual authoritative record of what's been released
+    (matching the ``tag-pattern``/``git_describe_command`` PUDL's own version is
+    derived from in ``pyproject.toml``), so this asks git directly rather than
+    relying on some other file (e.g. ``CITATION.cff``) that would need to be kept in
+    sync with the tags separately.
+
+    Args:
+        repo_root: Path to the repo's working tree.
+
+    Returns:
+        The most recent reachable release tag, e.g. ``"v2026.8.0"``.
+    """
+    return run_git(
+        ["describe", "--tags", "--abbrev=0", "--match", "v20*"], cwd=repo_root
+    ).strip()
 
 
 def verify_git_tag_checked_out(tag: str, repo_root: Path) -> None:
@@ -168,16 +172,14 @@ def verify_git_tag_checked_out(tag: str, repo_root: Path) -> None:
             tree's current ``HEAD``.
     """
     try:
-        tag_commit = run_git(
-            ["git", "rev-parse", f"{tag}^{{commit}}"], cwd=repo_root
-        ).strip()
+        tag_commit = run_git(["rev-parse", f"{tag}^{{commit}}"], cwd=repo_root).strip()
     except subprocess.CalledProcessError as exc:
         raise ValueError(
             f"Could not resolve git tag {tag!r} in {repo_root} -- fetch it first "
             f"(git fetch --tags) or double check the tag name."
         ) from exc
 
-    head_commit = run_git(["git", "rev-parse", "HEAD"], cwd=repo_root).strip()
+    head_commit = run_git(["rev-parse", "HEAD"], cwd=repo_root).strip()
 
     if head_commit != tag_commit:
         raise ValueError(
