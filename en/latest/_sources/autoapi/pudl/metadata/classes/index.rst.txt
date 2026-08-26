@@ -60,7 +60,7 @@ Functions
    pudl.metadata.classes._format_for_sql
    pudl.metadata.classes._get_jinja_environment
    pudl.metadata.classes._check_unique
-   pudl.metadata.classes._validator
+   pudl.metadata.classes._sort_deterministically
 
 
 Module Contents
@@ -159,26 +159,14 @@ Module Contents
 
    All valid PUDL ETL group identifiers.
 
-.. py:function:: _check_unique(value: list = None) -> list | None
+.. py:function:: _check_unique(value: list | None = None) -> list | None
 
    Check that input list has unique values.
 
 
-.. py:function:: _validator(*names, fn: collections.abc.Callable) -> collections.abc.Callable
+.. py:function:: _sort_deterministically(value: list | None = None) -> list | None
 
-   Construct reusable Pydantic validator.
-
-   :param names: Names of attributes to validate.
-   :param fn: Validation function (see :meth:`pydantic.field_validator`).
-
-   .. rubric:: Examples
-
-   >>> class Class(BaseModel):
-   ...     x: list = None
-   ...     _check_unique = _validator("x", fn=_check_unique)
-   >>> Class(x=[0, 0])
-   Traceback (most recent call last):
-   ValidationError: ...
+   Sort an enum constraint's values into a deterministic order.
 
 
 .. py:class:: PudlMeta(/, **data: Any)
@@ -247,12 +235,20 @@ Module Contents
 
 
    .. py:attribute:: enum
-      :type:  StrictList[String | pydantic.StrictInt | pydantic.StrictFloat | pydantic.StrictBool | datetime.date | datetime.datetime] | None
+      :type:  Annotated[StrictList[String], AfterValidator(_check_unique), AfterValidator(_sort_deterministically)] | None
       :value: None
 
 
 
-   .. py:attribute:: _check_unique
+   .. py:method:: requires_content_validation() -> bool
+
+      Whether checking these constraints requires reading actual field values.
+
+      Every constraint field is assumed to require a content read (true of all
+      constraint types to date), so this checks all of ``model_fields`` rather
+      than a hand-maintained list — a newly added constraint field is covered
+      automatically instead of being silently skipped.
+
 
 
    .. py:method:: _check_max_length(value, info: pydantic.ValidationInfo)
@@ -630,7 +626,7 @@ Module Contents
 
 
 
-   .. py:method:: to_pandera_column(use_pandas_backend: bool) -> pandera.polars.Column
+   .. py:method:: to_pandera_column(use_pandas_backend: bool) -> pandera.polars.Column | pandera.pandas.Column
 
       Encode this field def as a Pandera column.
 
@@ -651,10 +647,7 @@ Module Contents
 
 
    .. py:attribute:: fields
-      :type:  StrictList[SnakeCase]
-
-
-   .. py:attribute:: _check_unique
+      :type:  Annotated[StrictList[SnakeCase], AfterValidator(_check_unique)]
 
 
 .. py:class:: ForeignKey(/, **data: Any)
@@ -668,14 +661,11 @@ Module Contents
 
 
    .. py:attribute:: fields
-      :type:  StrictList[SnakeCase]
+      :type:  Annotated[StrictList[SnakeCase], AfterValidator(_check_unique)]
 
 
    .. py:attribute:: reference
       :type:  ForeignKeyReference
-
-
-   .. py:attribute:: _check_unique
 
 
    .. py:method:: _check_fields_equal_length(value, info: pydantic.ValidationInfo)
@@ -733,11 +723,30 @@ Module Contents
 
 
 
+   .. py:attribute:: pk_check_chunk_field
+      :type:  SnakeCase | None
+      :value: None
+
+
+      Primary-key column to chunk primary-key uniqueness checks by, if any.
+
+      A date/datetime column is always chunked by calendar year; any other column is
+      chunked by exact distinct value. See ``Resource._chunk_filters``.
+
+
    .. py:attribute:: _check_unique
 
 
    .. py:method:: _check_field_names_unique(fields: list[Field])
       :classmethod:
+
+
+
+   .. py:method:: _check_pk_check_chunk_field_in_primary_key(pk_check_chunk_field, info: pydantic.ValidationInfo)
+      :classmethod:
+
+
+      Verify that pk_check_chunk_field, if set, is part of the primary key.
 
 
 
@@ -1103,6 +1112,12 @@ Module Contents
 
       .. py:attribute:: foreign_key_rules
          :type:  PudlResourceDescriptor.PudlSchemaDescriptor.PudlForeignKeyRules
+
+
+      .. py:attribute:: pk_check_chunk_field
+         :type:  SnakeCase | None
+         :value: None
+
 
 
 
@@ -1871,7 +1886,140 @@ Module Contents
 
 
 
-   .. py:method:: aggregate_df(df: pandas.DataFrame, raised: bool = False, error: collections.abc.Callable = None) -> tuple[pandas.DataFrame, dict]
+   .. py:method:: check_primary_key(data: pandas.DataFrame | geopandas.GeoDataFrame | polars.LazyFrame) -> list[pandera.errors.SchemaError]
+
+      Validate this resource's primary key for uniqueness and non-nullness.
+
+      Primary keys are validated to be unique and non-null. Returns every violation
+      found as a list of :class:`pandera.errors.SchemaError` (empty list if none).
+      Callers that want a hard failure (e.g. :meth:`enforce_schema` and
+      :func:`pudl.helpers.get_parquet_table`) should check the returned list and raise
+      themselves; a Dagster asset check instead combines it with other schema/content
+      errors into one report rather than stopping at whichever is found first.
+
+      For tables large enough that checking uniqueness in a single pass is
+      impractical, the check is chunked by ``self.schema.pk_check_chunk_field`` when
+      set -- by calendar year if it's a date/datetime column, by exact distinct value
+      otherwise (see ``_chunk_filters``). Only meaningful for a Polars ``LazyFrame``;
+      ignored for pandas/geopandas, which are already fully loaded into memory.
+
+      :param data: DataFrame, GeoDataFrame, or LazyFrame to check against the primary key
+                   defined in this resource's schema.
+
+      :returns: List of :class:`pandera.errors.SchemaError` for each primary key violation
+                found (empty if none).
+
+
+
+   .. py:method:: _check_primary_key_pandas(df: pandas.DataFrame | geopandas.GeoDataFrame) -> list[pandera.errors.SchemaError]
+
+      Check a pandas DataFrame for primary key uniqueness and non-nullness.
+
+      Does not do any chunking, since pandas DataFrames are already fully loaded into
+      memory.
+
+      :param df: DataFrame to check.
+
+      :returns: List of :class:`pandera.errors.SchemaError` for each primary key violation
+                found (empty if none).
+
+
+
+   .. py:method:: _check_primary_key_polars(lf: polars.LazyFrame) -> list[pandera.errors.SchemaError]
+
+      Validate LazyFrame primary-key is unique and non-null.
+
+      Uses a single group-by/count/filter reduction, run with ``engine="streaming"``,
+      to minimize memory usage. For tables large enough that checking uniqueness in
+      a single pass is impractical, the check is chunked by
+      ``self.schema.pk_check_chunk_field`` when set -- by calendar year if it's a
+      date/datetime column, by exact distinct value otherwise.
+
+      :param lf: LazyFrame to check.
+
+      :returns: List of :class:`pandera.errors.SchemaError` for each primary key violation
+                found (empty if none).
+
+
+
+   .. py:method:: _find_null_primary_keys(lf: polars.LazyFrame, primary_key: list[str]) -> polars.DataFrame
+      :staticmethod:
+
+
+      Return rows where any primary-key column is null.
+
+
+
+   .. py:method:: _find_duplicate_primary_keys(lf: polars.LazyFrame, primary_key: list[str]) -> polars.DataFrame
+      :staticmethod:
+
+
+      Return the primary-key combinations that appear more than once in ``lf``.
+
+      Uses a single group-by/count/filter reduction, run with ``engine="streaming"``
+      to minimize memory usage. For comparison, on the largest quarter of EQR
+      transaction data (228M rows) this method uses ~33GB of memory and takes ~3.4s,
+      versus ~109GB and 152s for pandera's built-in check on the same data.
+
+      :param lf: LazyFrame to check.
+      :param primary_key: List of column names to check for uniqueness.
+
+      :returns: DataFrame of primary-key combinations that appear more than once in ``lf``.
+
+
+
+   .. py:method:: _chunk_filters(lf: polars.LazyFrame, pk_check_chunk_field: str) -> list[polars.Expr]
+      :staticmethod:
+
+
+      Build filter expressions that partition ``lf`` by ``pk_check_chunk_field``.
+
+      Every filter is a literal comparison directly against ``pk_check_chunk_field``'s
+      own stored values -- always a one-calendar-year range for date/datetime
+      columns (chunking is annual only; no other granularity is supported), an
+      equality comparison against each distinct value otherwise -- never a derived
+      expression. This matters for two reasons:
+
+      1. Correctness: since ``pk_check_chunk_field`` is required to be part of the
+         primary key, two rows sharing a composite key necessarily share the
+         same value of it, so a boundary drawn directly on that column's own
+         value can never split a duplicate pair across chunks. Deriving the
+         boundary from some other, only approximately-correlated column would
+         not have this guarantee -- e.g. EPACEMS' separately stored `year`
+         field reflects reporting period, not the UTC timestamp, and disagrees
+         with `operating_datetime_utc.dt.year()` for hundreds of rows a year
+         near timezone-shifted boundaries.
+      2. Efficiency: a literal comparison against a stored column stays
+         eligible for Parquet row-group pruning, since Polars can compare it
+         directly to each row group's min/max statistics without decoding any
+         data. A filter on a *derived* expression (e.g. `.dt.year() == y`)
+         cannot be pushed down the same way, so Polars must read and decode
+         every row group on every chunk iteration regardless of whether that
+         chunk's rows are actually present. Measured on our billion-row table:
+         ~0.02s to select one year's rows via a literal range filter, vs ~0.56s
+         via a `.dt.year()` filter for the same result.
+
+      PUDL's long time-series tables are written and physically stored in
+      temporal (or, for `core_ferceqr__transactions`, filer) order, so this
+      pruning is not theoretical: EPACEMS' row groups are each confined to a
+      single calendar year, and most of `core_ferceqr__transactions`' row
+      groups are confined to a single seller.
+
+
+
+   .. py:method:: _duplicate_primary_key_error(duplicates: polars.DataFrame) -> pandera.errors.SchemaError
+
+      Build a SchemaError describing duplicate primary-key combinations.
+
+
+
+   .. py:method:: _null_primary_key_error(nulls: polars.DataFrame) -> pandera.errors.SchemaError
+
+      Build a SchemaError describing null primary-key values.
+
+
+
+   .. py:method:: aggregate_df(df: pandas.DataFrame, raised: bool = False, error: collections.abc.Callable | None = None) -> tuple[pandas.DataFrame, dict]
 
       Aggregate dataframe by primary key.
 

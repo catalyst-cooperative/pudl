@@ -96,6 +96,7 @@ Functions
    pudl.helpers.diff_wide_tables
    pudl.helpers.retry
    pudl.helpers.get_parquet_table_polars
+   pudl.helpers._fix_residual_dtypes
    pudl.helpers.get_parquet_table
    pudl.helpers.standardize_phone_column
    pudl.helpers.persist_table_as_parquet
@@ -1140,13 +1141,31 @@ Module Contents
    :returns: A polars LazyFrame representing the table.
 
 
+.. py:function:: _fix_residual_dtypes(df: pandas.DataFrame, resource: pudl.metadata.classes.Resource) -> pandas.DataFrame
+
+   Fix the two dtype gaps ``dtype_backend="numpy_nullable"`` can't get right.
+
+   Integer and datetime columns already come back from a
+   ``dtype_backend="numpy_nullable"`` read matching their pandas targets (see
+   ``FIELD_DTYPES_PANDAS``) directly. Two gaps remain, neither fixable by
+   ``dtype_backend`` alone:
+
+   * "number" columns come back as pandas' nullable ``Float64``, but PUDL's target
+     is plain (non-nullable) ``float64`` -- unlike integers, floats can already
+     represent missing values natively via ``NaN``, so PUDL doesn't use the
+     nullable dtype for them.
+   * "date" columns (Arrow ``date32``) always come back as plain ``object`` holding
+     Python ``datetime.date`` scalars, since pandas has no native nullable
+     date-only dtype.
+
+
 .. py:function:: get_parquet_table(table_name: str, columns: list[str] | None = None, filters: list[tuple[str, str, Any]] | list[list[tuple[str, str, Any]]] | None = None, paths: pudl.workspace.setup.PudlPaths | None = None) -> pandas.DataFrame | geopandas.GeoDataFrame
 
    Read a table from Parquet files with optional column selection and filtering.
 
    This function provides a general-purpose interface for reading PUDL tables from
-   Parquet files. It supports selective column reading for performance, optional
-   filters for data subsetting, and automatic schema validation.
+   Parquet files. It supports selective column reading for performance and optional
+   filters for data subsetting.
 
    :param table_name: Name of the table to read.
    :param columns: List of columns to read. If None, all columns are read.

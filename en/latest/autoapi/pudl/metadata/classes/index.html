@@ -18,7 +18,7 @@
     </script>
     
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="index.html.md" />
-    <title>pudl.metadata.classes &#8212; PUDL 2026.8.1.dev21 documentation</title>
+    <title>pudl.metadata.classes &#8212; PUDL 2026.8.1.dev23 documentation</title>
   
   
   
@@ -51,7 +51,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../../_static/documentation_options.js?v=265a745c"></script>
+    <script src="../../../../_static/documentation_options.js?v=afab9ad1"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -142,8 +142,8 @@
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev21 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev21 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev23 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev23 documentation - Home"/>
   
   
 </a></div>
@@ -975,8 +975,8 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#pudl.metadata.classes._check_unique" title="pudl.metadata.classes._check_unique"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_check_unique</span></code></a>(→ list | None)</p></td>
 <td><p>Check that input list has unique values.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.classes._validator" title="pudl.metadata.classes._validator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_validator</span></code></a>(→ collections.abc.Callable)</p></td>
-<td><p>Construct reusable Pydantic validator.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pudl.metadata.classes._sort_deterministically" title="pudl.metadata.classes._sort_deterministically"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_sort_deterministically</span></code></a>(→ list | None)</p></td>
+<td><p>Sort an enum constraint's values into a deterministic order.</p></td>
 </tr>
 </tbody>
 </table>
@@ -1113,31 +1113,14 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pudl.metadata.classes._check_unique">
-<span class="sig-prename descclassname"><span class="pre">pudl.metadata.classes.</span></span><span class="sig-name descname"><span class="pre">_check_unique</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/classes.html#_check_unique"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.classes._check_unique" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">pudl.metadata.classes.</span></span><span class="sig-name descname"><span class="pre">_check_unique</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/classes.html#_check_unique"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.classes._check_unique" title="Link to this definition">#</a></dt>
 <dd><p>Check that input list has unique values.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="pudl.metadata.classes._validator">
-<span class="sig-prename descclassname"><span class="pre">pudl.metadata.classes.</span></span><span class="sig-name descname"><span class="pre">_validator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">names</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable" title="(in Python v3.14)"><span class="pre">collections.abc.Callable</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable" title="(in Python v3.14)"><span class="pre">collections.abc.Callable</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/classes.html#_validator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.classes._validator" title="Link to this definition">#</a></dt>
-<dd><p>Construct reusable Pydantic validator.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>names</strong> – Names of attributes to validate.</p></li>
-<li><p><strong>fn</strong> – Validation function (see <code class="xref py py-meth docutils literal notranslate"><span class="pre">pydantic.field_validator()</span></code>).</p></li>
-</ul>
-</dd>
-</dl>
-<p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span><span class="w"> </span><span class="nc">Class</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-<span class="gp">... </span>    <span class="n">x</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span>
-<span class="gp">... </span>    <span class="n">_check_unique</span> <span class="o">=</span> <span class="n">_validator</span><span class="p">(</span><span class="s2">"x"</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">_check_unique</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">Class</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
-<span class="gt">Traceback (most recent call last):</span>
-<span class="gr">ValidationError</span>: <span class="n">...</span>
-</pre></div>
-</div>
+<dt class="sig sig-object py" id="pudl.metadata.classes._sort_deterministically">
+<span class="sig-prename descclassname"><span class="pre">pudl.metadata.classes.</span></span><span class="sig-name descname"><span class="pre">_sort_deterministically</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/classes.html#_sort_deterministically"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.classes._sort_deterministically" title="Link to this definition">#</a></dt>
+<dd><p>Sort an enum constraint’s values into a deterministic order.</p>
 </dd></dl>
 
 <dl class="py class">
@@ -1196,13 +1179,18 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pudl.metadata.classes.FieldConstraints.enum">
-<span class="sig-name descname"><span class="pre">enum</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#pudl.metadata.classes.StrictList" title="pudl.metadata.classes.StrictList"><span class="pre">StrictList</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#pudl.metadata.classes.String" title="pudl.metadata.classes.String"><span class="pre">String</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">pydantic.StrictInt</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">pydantic.StrictFloat</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">pydantic.StrictBool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.date" title="(in Python v3.14)"><span class="pre">datetime.date</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.14)"><span class="pre">datetime.datetime</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/classes.html#FieldConstraints.enum"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.classes.FieldConstraints.enum" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">enum</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#pudl.metadata.classes.StrictList" title="pudl.metadata.classes.StrictList"><span class="pre">StrictList</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#pudl.metadata.classes.String" title="pudl.metadata.classes.String"><span class="pre">String</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">AfterValidator</span><span class="p"><span class="pre">(</span></span><a class="reference internal" href="#pudl.metadata.classes.Schema._check_unique" title="pudl.metadata.classes.Schema._check_unique"><span class="pre">_check_unique</span></a><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">AfterValidator</span><span class="p"><span class="pre">(</span></span><span class="pre">_sort_deterministically</span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/classes.html#FieldConstraints.enum"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.classes.FieldConstraints.enum" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="pudl.metadata.classes.FieldConstraints._check_unique">
-<span class="sig-name descname"><span class="pre">_check_unique</span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/classes.html#FieldConstraints._check_unique"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.classes.FieldConstraints._check_unique" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.metadata.classes.FieldConstraints.requires_content_validation">
+<span class="sig-name descname"><span class="pre">requires_content_validation</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/classes.html#FieldConstraints.requires_content_validation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.classes.FieldConstraints.requires_content_validation" title="Link to this definition">#</a></dt>
+<dd><p>Whether checking these constraints requires reading actual field values.</p>
+<p>Every constraint field is assumed to require a content read (true of all
+constraint types to date), so this checks all of <code class="docutils literal notranslate"><span class="pre">model_fields</span></code> rather
+than a hand-maintained list — a newly added constraint field is covered
+automatically instead of being silently skipped.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pudl.metadata.classes.FieldConstraints._check_max_length">
@@ -1537,7 +1525,7 @@ PUDL’s <code class="docutils literal notranslate"><span class="pre">geometry</
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pudl.metadata.classes.Field.to_pandera_column">
-<span class="sig-name descname"><span class="pre">to_pandera_column</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">use_pandas_backend</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandera.polars.Column</span></span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/classes.html#Field.to_pandera_column"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.classes.Field.to_pandera_column" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">to_pandera_column</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">use_pandas_backend</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandera.polars.Column</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">pandera.pandas.Column</span></span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/classes.html#Field.to_pandera_column"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.classes.Field.to_pandera_column" title="Link to this definition">#</a></dt>
 <dd><p>Encode this field def as a Pandera column.</p>
 </dd></dl>
 
@@ -1556,12 +1544,7 @@ PUDL’s <code class="docutils literal notranslate"><span class="pre">geometry</
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pudl.metadata.classes.ForeignKeyReference.fields">
-<span class="sig-name descname"><span class="pre">fields</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#pudl.metadata.classes.StrictList" title="pudl.metadata.classes.StrictList"><span class="pre">StrictList</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#pudl.metadata.classes.SnakeCase" title="pudl.metadata.classes.SnakeCase"><span class="pre">SnakeCase</span></a><span class="p"><span class="pre">]</span></span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/classes.html#ForeignKeyReference.fields"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.classes.ForeignKeyReference.fields" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="pudl.metadata.classes.ForeignKeyReference._check_unique">
-<span class="sig-name descname"><span class="pre">_check_unique</span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/classes.html#ForeignKeyReference._check_unique"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.classes.ForeignKeyReference._check_unique" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">fields</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#pudl.metadata.classes.StrictList" title="pudl.metadata.classes.StrictList"><span class="pre">StrictList</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#pudl.metadata.classes.SnakeCase" title="pudl.metadata.classes.SnakeCase"><span class="pre">SnakeCase</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">AfterValidator</span><span class="p"><span class="pre">(</span></span><a class="reference internal" href="#pudl.metadata.classes.Schema._check_unique" title="pudl.metadata.classes.Schema._check_unique"><span class="pre">_check_unique</span></a><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">]</span></span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/classes.html#ForeignKeyReference.fields"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.classes.ForeignKeyReference.fields" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -1574,17 +1557,12 @@ PUDL’s <code class="docutils literal notranslate"><span class="pre">geometry</
 <p>See <a class="reference external" href="https://specs.frictionlessdata.io/table-schema/#foreign-keys">https://specs.frictionlessdata.io/table-schema/#foreign-keys</a>.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pudl.metadata.classes.ForeignKey.fields">
-<span class="sig-name descname"><span class="pre">fields</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#pudl.metadata.classes.StrictList" title="pudl.metadata.classes.StrictList"><span class="pre">StrictList</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#pudl.metadata.classes.SnakeCase" title="pudl.metadata.classes.SnakeCase"><span class="pre">SnakeCase</span></a><span class="p"><span class="pre">]</span></span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/classes.html#ForeignKey.fields"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.classes.ForeignKey.fields" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">fields</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#pudl.metadata.classes.StrictList" title="pudl.metadata.classes.StrictList"><span class="pre">StrictList</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#pudl.metadata.classes.SnakeCase" title="pudl.metadata.classes.SnakeCase"><span class="pre">SnakeCase</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">AfterValidator</span><span class="p"><span class="pre">(</span></span><a class="reference internal" href="#pudl.metadata.classes.Schema._check_unique" title="pudl.metadata.classes.Schema._check_unique"><span class="pre">_check_unique</span></a><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">]</span></span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/classes.html#ForeignKey.fields"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.classes.ForeignKey.fields" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pudl.metadata.classes.ForeignKey.reference">
 <span class="sig-name descname"><span class="pre">reference</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#pudl.metadata.classes.ForeignKeyReference" title="pudl.metadata.classes.ForeignKeyReference"><span class="pre">ForeignKeyReference</span></a></span><a class="reference internal" href="../../../../_modules/pudl/metadata/classes.html#ForeignKey.reference"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.classes.ForeignKey.reference" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="pudl.metadata.classes.ForeignKey._check_unique">
-<span class="sig-name descname"><span class="pre">_check_unique</span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/classes.html#ForeignKey._check_unique"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.classes.ForeignKey._check_unique" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -1639,6 +1617,14 @@ PUDL’s <code class="docutils literal notranslate"><span class="pre">geometry</
 <dd></dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.metadata.classes.Schema.pk_check_chunk_field">
+<span class="sig-name descname"><span class="pre">pk_check_chunk_field</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#pudl.metadata.classes.SnakeCase" title="pudl.metadata.classes.SnakeCase"><span class="pre">SnakeCase</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/classes.html#Schema.pk_check_chunk_field"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.classes.Schema.pk_check_chunk_field" title="Link to this definition">#</a></dt>
+<dd><p>Primary-key column to chunk primary-key uniqueness checks by, if any.</p>
+<p>A date/datetime column is always chunked by calendar year; any other column is
+chunked by exact distinct value. See <code class="docutils literal notranslate"><span class="pre">Resource._chunk_filters</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="pudl.metadata.classes.Schema._check_unique">
 <span class="sig-name descname"><span class="pre">_check_unique</span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/classes.html#Schema._check_unique"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.classes.Schema._check_unique" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
@@ -1647,6 +1633,12 @@ PUDL’s <code class="docutils literal notranslate"><span class="pre">geometry</
 <dt class="sig sig-object py" id="pudl.metadata.classes.Schema._check_field_names_unique">
 <span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">_check_field_names_unique</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fields</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#pudl.metadata.classes.Field" title="pudl.metadata.classes.Field"><span class="pre">Field</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pudl/metadata/classes.html#Schema._check_field_names_unique"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.classes.Schema._check_field_names_unique" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.metadata.classes.Schema._check_pk_check_chunk_field_in_primary_key">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">_check_pk_check_chunk_field_in_primary_key</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pk_check_chunk_field</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">info</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pydantic.dev/docs/validation/latest/api/pydantic-core/pydantic_core_schema/#pydantic_core.core_schema.ValidationInfo" title="(in Pydantic v0.0.0)"><span class="pre">pydantic.ValidationInfo</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pudl/metadata/classes.html#Schema._check_pk_check_chunk_field_in_primary_key"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.classes.Schema._check_pk_check_chunk_field_in_primary_key" title="Link to this definition">#</a></dt>
+<dd><p>Verify that pk_check_chunk_field, if set, is part of the primary key.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pudl.metadata.classes.Schema._check_primary_key_in_fields">
@@ -1970,6 +1962,11 @@ into this class.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pudl.metadata.classes.PudlResourceDescriptor.PudlSchemaDescriptor.foreign_key_rules">
 <span class="sig-name descname"><span class="pre">foreign_key_rules</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#pudl.metadata.classes.PudlResourceDescriptor.PudlSchemaDescriptor.PudlForeignKeyRules" title="pudl.metadata.classes.PudlResourceDescriptor.PudlSchemaDescriptor.PudlForeignKeyRules"><span class="pre">PudlResourceDescriptor.PudlSchemaDescriptor.PudlForeignKeyRules</span></a></span><a class="reference internal" href="../../../../_modules/pudl/metadata/classes.html#PudlResourceDescriptor.PudlSchemaDescriptor.foreign_key_rules"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.classes.PudlResourceDescriptor.PudlSchemaDescriptor.foreign_key_rules" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pudl.metadata.classes.PudlResourceDescriptor.PudlSchemaDescriptor.pk_check_chunk_field">
+<span class="sig-name descname"><span class="pre">pk_check_chunk_field</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#pudl.metadata.classes.SnakeCase" title="pudl.metadata.classes.SnakeCase"><span class="pre">SnakeCase</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/classes.html#PudlResourceDescriptor.PudlSchemaDescriptor.pk_check_chunk_field"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.classes.PudlResourceDescriptor.PudlSchemaDescriptor.pk_check_chunk_field" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -2695,8 +2692,147 @@ will be empty.</p></li>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="pudl.metadata.classes.Resource.check_primary_key">
+<span class="sig-name descname"><span class="pre">check_primary_key</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.5)"><span class="pre">pandas.DataFrame</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame" title="(in GeoPandas v1.1.4)"><span class="pre">geopandas.GeoDataFrame</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">polars.LazyFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://pandera.readthedocs.io/en/stable/reference/generated/pandera.errors.SchemaError.html#pandera.errors.SchemaError" title="(in pandera)"><span class="pre">pandera.errors.SchemaError</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/classes.html#Resource.check_primary_key"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.classes.Resource.check_primary_key" title="Link to this definition">#</a></dt>
+<dd><p>Validate this resource’s primary key for uniqueness and non-nullness.</p>
+<p>Primary keys are validated to be unique and non-null. Returns every violation
+found as a list of <a class="reference external" href="https://pandera.readthedocs.io/en/stable/reference/generated/pandera.errors.SchemaError.html#pandera.errors.SchemaError" title="(in pandera)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pandera.errors.SchemaError</span></code></a> (empty list if none).
+Callers that want a hard failure (e.g. <a class="reference internal" href="#pudl.metadata.classes.Resource.enforce_schema" title="pudl.metadata.classes.Resource.enforce_schema"><code class="xref py py-meth docutils literal notranslate"><span class="pre">enforce_schema()</span></code></a> and
+<a class="reference internal" href="../../helpers/index.html#pudl.helpers.get_parquet_table" title="pudl.helpers.get_parquet_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">pudl.helpers.get_parquet_table()</span></code></a>) should check the returned list and raise
+themselves; a Dagster asset check instead combines it with other schema/content
+errors into one report rather than stopping at whichever is found first.</p>
+<p>For tables large enough that checking uniqueness in a single pass is
+impractical, the check is chunked by <code class="docutils literal notranslate"><span class="pre">self.schema.pk_check_chunk_field</span></code> when
+set – by calendar year if it’s a date/datetime column, by exact distinct value
+otherwise (see <code class="docutils literal notranslate"><span class="pre">_chunk_filters</span></code>). Only meaningful for a Polars <code class="docutils literal notranslate"><span class="pre">LazyFrame</span></code>;
+ignored for pandas/geopandas, which are already fully loaded into memory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> – DataFrame, GeoDataFrame, or LazyFrame to check against the primary key
+defined in this resource’s schema.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of <a class="reference external" href="https://pandera.readthedocs.io/en/stable/reference/generated/pandera.errors.SchemaError.html#pandera.errors.SchemaError" title="(in pandera)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pandera.errors.SchemaError</span></code></a> for each primary key violation
+found (empty if none).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.metadata.classes.Resource._check_primary_key_pandas">
+<span class="sig-name descname"><span class="pre">_check_primary_key_pandas</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.5)"><span class="pre">pandas.DataFrame</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame" title="(in GeoPandas v1.1.4)"><span class="pre">geopandas.GeoDataFrame</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://pandera.readthedocs.io/en/stable/reference/generated/pandera.errors.SchemaError.html#pandera.errors.SchemaError" title="(in pandera)"><span class="pre">pandera.errors.SchemaError</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/classes.html#Resource._check_primary_key_pandas"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.classes.Resource._check_primary_key_pandas" title="Link to this definition">#</a></dt>
+<dd><p>Check a pandas DataFrame for primary key uniqueness and non-nullness.</p>
+<p>Does not do any chunking, since pandas DataFrames are already fully loaded into
+memory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>df</strong> – DataFrame to check.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of <a class="reference external" href="https://pandera.readthedocs.io/en/stable/reference/generated/pandera.errors.SchemaError.html#pandera.errors.SchemaError" title="(in pandera)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pandera.errors.SchemaError</span></code></a> for each primary key violation
+found (empty if none).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.metadata.classes.Resource._check_primary_key_polars">
+<span class="sig-name descname"><span class="pre">_check_primary_key_polars</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lf</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">polars.LazyFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://pandera.readthedocs.io/en/stable/reference/generated/pandera.errors.SchemaError.html#pandera.errors.SchemaError" title="(in pandera)"><span class="pre">pandera.errors.SchemaError</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/classes.html#Resource._check_primary_key_polars"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.classes.Resource._check_primary_key_polars" title="Link to this definition">#</a></dt>
+<dd><p>Validate LazyFrame primary-key is unique and non-null.</p>
+<p>Uses a single group-by/count/filter reduction, run with <code class="docutils literal notranslate"><span class="pre">engine=&quot;streaming&quot;</span></code>,
+to minimize memory usage. For tables large enough that checking uniqueness in
+a single pass is impractical, the check is chunked by
+<code class="docutils literal notranslate"><span class="pre">self.schema.pk_check_chunk_field</span></code> when set – by calendar year if it’s a
+date/datetime column, by exact distinct value otherwise.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>lf</strong> – LazyFrame to check.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of <a class="reference external" href="https://pandera.readthedocs.io/en/stable/reference/generated/pandera.errors.SchemaError.html#pandera.errors.SchemaError" title="(in pandera)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pandera.errors.SchemaError</span></code></a> for each primary key violation
+found (empty if none).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.metadata.classes.Resource._find_null_primary_keys">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">_find_null_primary_keys</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lf</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">polars.LazyFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">primary_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">polars.DataFrame</span></span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/classes.html#Resource._find_null_primary_keys"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.classes.Resource._find_null_primary_keys" title="Link to this definition">#</a></dt>
+<dd><p>Return rows where any primary-key column is null.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.metadata.classes.Resource._find_duplicate_primary_keys">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">_find_duplicate_primary_keys</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lf</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">polars.LazyFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">primary_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">polars.DataFrame</span></span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/classes.html#Resource._find_duplicate_primary_keys"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.classes.Resource._find_duplicate_primary_keys" title="Link to this definition">#</a></dt>
+<dd><p>Return the primary-key combinations that appear more than once in <code class="docutils literal notranslate"><span class="pre">lf</span></code>.</p>
+<p>Uses a single group-by/count/filter reduction, run with <code class="docutils literal notranslate"><span class="pre">engine=&quot;streaming&quot;</span></code>
+to minimize memory usage. For comparison, on the largest quarter of EQR
+transaction data (228M rows) this method uses ~33GB of memory and takes ~3.4s,
+versus ~109GB and 152s for pandera’s built-in check on the same data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lf</strong> – LazyFrame to check.</p></li>
+<li><p><strong>primary_key</strong> – List of column names to check for uniqueness.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>DataFrame of primary-key combinations that appear more than once in <code class="docutils literal notranslate"><span class="pre">lf</span></code>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.metadata.classes.Resource._chunk_filters">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">_chunk_filters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lf</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">polars.LazyFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pk_check_chunk_field</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><span class="pre">polars.Expr</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/classes.html#Resource._chunk_filters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.classes.Resource._chunk_filters" title="Link to this definition">#</a></dt>
+<dd><p>Build filter expressions that partition <code class="docutils literal notranslate"><span class="pre">lf</span></code> by <code class="docutils literal notranslate"><span class="pre">pk_check_chunk_field</span></code>.</p>
+<p>Every filter is a literal comparison directly against <code class="docutils literal notranslate"><span class="pre">pk_check_chunk_field</span></code>’s
+own stored values – always a one-calendar-year range for date/datetime
+columns (chunking is annual only; no other granularity is supported), an
+equality comparison against each distinct value otherwise – never a derived
+expression. This matters for two reasons:</p>
+<ol class="arabic simple">
+<li><p>Correctness: since <code class="docutils literal notranslate"><span class="pre">pk_check_chunk_field</span></code> is required to be part of the
+primary key, two rows sharing a composite key necessarily share the
+same value of it, so a boundary drawn directly on that column’s own
+value can never split a duplicate pair across chunks. Deriving the
+boundary from some other, only approximately-correlated column would
+not have this guarantee – e.g. EPACEMS’ separately stored <cite>year</cite>
+field reflects reporting period, not the UTC timestamp, and disagrees
+with <cite>operating_datetime_utc.dt.year()</cite> for hundreds of rows a year
+near timezone-shifted boundaries.</p></li>
+<li><p>Efficiency: a literal comparison against a stored column stays
+eligible for Parquet row-group pruning, since Polars can compare it
+directly to each row group’s min/max statistics without decoding any
+data. A filter on a <em>derived</em> expression (e.g. <cite>.dt.year() == y</cite>)
+cannot be pushed down the same way, so Polars must read and decode
+every row group on every chunk iteration regardless of whether that
+chunk’s rows are actually present. Measured on our billion-row table:
+~0.02s to select one year’s rows via a literal range filter, vs ~0.56s
+via a <cite>.dt.year()</cite> filter for the same result.</p></li>
+</ol>
+<p>PUDL’s long time-series tables are written and physically stored in
+temporal (or, for <cite>core_ferceqr__transactions</cite>, filer) order, so this
+pruning is not theoretical: EPACEMS’ row groups are each confined to a
+single calendar year, and most of <cite>core_ferceqr__transactions</cite>’ row
+groups are confined to a single seller.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.metadata.classes.Resource._duplicate_primary_key_error">
+<span class="sig-name descname"><span class="pre">_duplicate_primary_key_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">duplicates</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">polars.DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandera.readthedocs.io/en/stable/reference/generated/pandera.errors.SchemaError.html#pandera.errors.SchemaError" title="(in pandera)"><span class="pre">pandera.errors.SchemaError</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/classes.html#Resource._duplicate_primary_key_error"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.classes.Resource._duplicate_primary_key_error" title="Link to this definition">#</a></dt>
+<dd><p>Build a SchemaError describing duplicate primary-key combinations.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pudl.metadata.classes.Resource._null_primary_key_error">
+<span class="sig-name descname"><span class="pre">_null_primary_key_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nulls</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">polars.DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandera.readthedocs.io/en/stable/reference/generated/pandera.errors.SchemaError.html#pandera.errors.SchemaError" title="(in pandera)"><span class="pre">pandera.errors.SchemaError</span></a></span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/classes.html#Resource._null_primary_key_error"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.classes.Resource._null_primary_key_error" title="Link to this definition">#</a></dt>
+<dd><p>Build a SchemaError describing null primary-key values.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="pudl.metadata.classes.Resource.aggregate_df">
-<span class="sig-name descname"><span class="pre">aggregate_df</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.5)"><span class="pre">pandas.DataFrame</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">raised</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable" title="(in Python v3.14)"><span class="pre">collections.abc.Callable</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.5)"><span class="pre">pandas.DataFrame</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/classes.html#Resource.aggregate_df"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.classes.Resource.aggregate_df" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">aggregate_df</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.5)"><span class="pre">pandas.DataFrame</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">raised</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable" title="(in Python v3.14)"><span class="pre">collections.abc.Callable</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.5)"><span class="pre">pandas.DataFrame</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/pudl/metadata/classes.html#Resource.aggregate_df"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pudl.metadata.classes.Resource.aggregate_df" title="Link to this definition">#</a></dt>
 <dd><p>Aggregate dataframe by primary key.</p>
 <p>The dataframe is grouped by primary key fields
 and aggregated with the aggregate function of each field
@@ -3163,7 +3299,7 @@ CODE_METADATA dictionary.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.classes.EtlGroup"><code class="docutils literal notranslate"><span class="pre">EtlGroup</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.classes.ETL_GROUPS"><code class="docutils literal notranslate"><span class="pre">ETL_GROUPS</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.classes._check_unique"><code class="docutils literal notranslate"><span class="pre">_check_unique()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.classes._validator"><code class="docutils literal notranslate"><span class="pre">_validator()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.classes._sort_deterministically"><code class="docutils literal notranslate"><span class="pre">_sort_deterministically()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.classes.PudlMeta"><code class="docutils literal notranslate"><span class="pre">PudlMeta</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.classes.PudlMeta.model_config"><code class="docutils literal notranslate"><span class="pre">PudlMeta.model_config</span></code></a></li>
 </ul>
@@ -3177,7 +3313,7 @@ CODE_METADATA dictionary.</p>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.classes.FieldConstraints.maximum"><code class="docutils literal notranslate"><span class="pre">FieldConstraints.maximum</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.classes.FieldConstraints.pattern"><code class="docutils literal notranslate"><span class="pre">FieldConstraints.pattern</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.classes.FieldConstraints.enum"><code class="docutils literal notranslate"><span class="pre">FieldConstraints.enum</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.classes.FieldConstraints._check_unique"><code class="docutils literal notranslate"><span class="pre">FieldConstraints._check_unique</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.classes.FieldConstraints.requires_content_validation"><code class="docutils literal notranslate"><span class="pre">FieldConstraints.requires_content_validation()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.classes.FieldConstraints._check_max_length"><code class="docutils literal notranslate"><span class="pre">FieldConstraints._check_max_length()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.classes.FieldConstraints._check_max"><code class="docutils literal notranslate"><span class="pre">FieldConstraints._check_max()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.classes.FieldConstraints.to_pandera_checks"><code class="docutils literal notranslate"><span class="pre">FieldConstraints.to_pandera_checks()</span></code></a></li>
@@ -3237,13 +3373,11 @@ CODE_METADATA dictionary.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.classes.ForeignKeyReference"><code class="docutils literal notranslate"><span class="pre">ForeignKeyReference</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.classes.ForeignKeyReference.resource"><code class="docutils literal notranslate"><span class="pre">ForeignKeyReference.resource</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.classes.ForeignKeyReference.fields"><code class="docutils literal notranslate"><span class="pre">ForeignKeyReference.fields</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.classes.ForeignKeyReference._check_unique"><code class="docutils literal notranslate"><span class="pre">ForeignKeyReference._check_unique</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.classes.ForeignKey"><code class="docutils literal notranslate"><span class="pre">ForeignKey</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.classes.ForeignKey.fields"><code class="docutils literal notranslate"><span class="pre">ForeignKey.fields</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.classes.ForeignKey.reference"><code class="docutils literal notranslate"><span class="pre">ForeignKey.reference</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.classes.ForeignKey._check_unique"><code class="docutils literal notranslate"><span class="pre">ForeignKey._check_unique</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.classes.ForeignKey._check_fields_equal_length"><code class="docutils literal notranslate"><span class="pre">ForeignKey._check_fields_equal_length()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.classes.ForeignKey.is_simple"><code class="docutils literal notranslate"><span class="pre">ForeignKey.is_simple()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.classes.ForeignKey.to_sql"><code class="docutils literal notranslate"><span class="pre">ForeignKey.to_sql()</span></code></a></li>
@@ -3255,8 +3389,10 @@ CODE_METADATA dictionary.</p>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.classes.Schema.missing_values"><code class="docutils literal notranslate"><span class="pre">Schema.missing_values</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.classes.Schema.primary_key"><code class="docutils literal notranslate"><span class="pre">Schema.primary_key</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.classes.Schema.foreign_keys"><code class="docutils literal notranslate"><span class="pre">Schema.foreign_keys</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.classes.Schema.pk_check_chunk_field"><code class="docutils literal notranslate"><span class="pre">Schema.pk_check_chunk_field</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.classes.Schema._check_unique"><code class="docutils literal notranslate"><span class="pre">Schema._check_unique</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.classes.Schema._check_field_names_unique"><code class="docutils literal notranslate"><span class="pre">Schema._check_field_names_unique()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.classes.Schema._check_pk_check_chunk_field_in_primary_key"><code class="docutils literal notranslate"><span class="pre">Schema._check_pk_check_chunk_field_in_primary_key()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.classes.Schema._check_primary_key_in_fields"><code class="docutils literal notranslate"><span class="pre">Schema._check_primary_key_in_fields()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.classes.Schema._check_foreign_key_in_fields"><code class="docutils literal notranslate"><span class="pre">Schema._check_foreign_key_in_fields()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.classes.Schema.to_pandera"><code class="docutils literal notranslate"><span class="pre">Schema.to_pandera()</span></code></a></li>
@@ -3322,6 +3458,7 @@ CODE_METADATA dictionary.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.classes.PudlResourceDescriptor.PudlSchemaDescriptor.field_ids"><code class="docutils literal notranslate"><span class="pre">PudlResourceDescriptor.PudlSchemaDescriptor.field_ids</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.classes.PudlResourceDescriptor.PudlSchemaDescriptor.primary_key_ids"><code class="docutils literal notranslate"><span class="pre">PudlResourceDescriptor.PudlSchemaDescriptor.primary_key_ids</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.classes.PudlResourceDescriptor.PudlSchemaDescriptor.foreign_key_rules"><code class="docutils literal notranslate"><span class="pre">PudlResourceDescriptor.PudlSchemaDescriptor.foreign_key_rules</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.classes.PudlResourceDescriptor.PudlSchemaDescriptor.pk_check_chunk_field"><code class="docutils literal notranslate"><span class="pre">PudlResourceDescriptor.PudlSchemaDescriptor.pk_check_chunk_field</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.classes.PudlResourceDescriptor.PudlCodeMetadata"><code class="docutils literal notranslate"><span class="pre">PudlResourceDescriptor.PudlCodeMetadata</span></code></a><ul class="nav section-nav flex-column">
@@ -3403,6 +3540,14 @@ CODE_METADATA dictionary.</p>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.classes.Resource.match_primary_key"><code class="docutils literal notranslate"><span class="pre">Resource.match_primary_key()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.classes.Resource.format_df"><code class="docutils literal notranslate"><span class="pre">Resource.format_df()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.classes.Resource.enforce_schema"><code class="docutils literal notranslate"><span class="pre">Resource.enforce_schema()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.classes.Resource.check_primary_key"><code class="docutils literal notranslate"><span class="pre">Resource.check_primary_key()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.classes.Resource._check_primary_key_pandas"><code class="docutils literal notranslate"><span class="pre">Resource._check_primary_key_pandas()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.classes.Resource._check_primary_key_polars"><code class="docutils literal notranslate"><span class="pre">Resource._check_primary_key_polars()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.classes.Resource._find_null_primary_keys"><code class="docutils literal notranslate"><span class="pre">Resource._find_null_primary_keys()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.classes.Resource._find_duplicate_primary_keys"><code class="docutils literal notranslate"><span class="pre">Resource._find_duplicate_primary_keys()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.classes.Resource._chunk_filters"><code class="docutils literal notranslate"><span class="pre">Resource._chunk_filters()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.classes.Resource._duplicate_primary_key_error"><code class="docutils literal notranslate"><span class="pre">Resource._duplicate_primary_key_error()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.classes.Resource._null_primary_key_error"><code class="docutils literal notranslate"><span class="pre">Resource._null_primary_key_error()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.classes.Resource.aggregate_df"><code class="docutils literal notranslate"><span class="pre">Resource.aggregate_df()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.classes.Resource._build_aggregation_report"><code class="docutils literal notranslate"><span class="pre">Resource._build_aggregation_report()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pudl.metadata.classes.Resource.harvest_dfs"><code class="docutils literal notranslate"><span class="pre">Resource.harvest_dfs()</span></code></a></li>

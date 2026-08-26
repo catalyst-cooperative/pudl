@@ -44834,7 +44834,7 @@ Source:
   FERC Form 920 -- Electric Quarterly Report (EQR)
 
 Primary key:
-  year_quarter, seller_company_id_ferc, transaction_unique_id
+  This table has no primary key. The primary key ought to be ['year_quarter', 'seller_company_id_ferc', 'transaction_unique_id']. However, many reporting quarters contain a substantial number of records that duplicate this combination of columns, in some cases repeated many times over, and the number of duplicates appears to grow in more recent quarters. It isn't yet clear whether this reflects a data quality issue in the underlying FERC EQR submissions or a bug in PUDL's extraction or transformation of this table. Further investigation is required, so this table currently has no enforced primary key.
 
 
 Usage Warnings

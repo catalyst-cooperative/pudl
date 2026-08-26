@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.helpers &#8212; PUDL 2026.8.1.dev21 documentation</title>
+    <title>pudl.helpers &#8212; PUDL 2026.8.1.dev23 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../_static/documentation_options.js?v=265a745c"></script>
+    <script src="../../_static/documentation_options.js?v=afab9ad1"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev21 documentation - Home"/>
-    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev21 documentation - Home"/>
+    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev23 documentation - Home"/>
+    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev23 documentation - Home"/>
   
   
 </a></div>
@@ -891,7 +891,7 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">partial</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">io</span><span class="w"> </span><span class="kn">import</span> <span class="n">BytesIO</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">NamedTuple</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">NamedTuple</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">duckdb</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">geopandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gpd</span>  <span class="c1"># noqa: ICN002</span>
@@ -908,6 +908,9 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pudl.logging_helpers</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.dtypes</span><span class="w"> </span><span class="kn">import</span> <span class="n">apply_pudl_dtypes</span><span class="p">,</span> <span class="n">get_pudl_dtypes</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.workspace.setup</span><span class="w"> </span><span class="kn">import</span> <span class="n">PudlPaths</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.classes</span><span class="w"> </span><span class="kn">import</span> <span class="n">Resource</span>
 
 <div class="viewcode-block" id="sum_na">
 <a class="viewcode-back" href="../../autoapi/pudl/helpers/index.html#pudl.helpers.sum_na">[docs]</a>
@@ -3309,22 +3312,34 @@ window.runMermaid = runMermaid;</script>
         <span class="c1"># Points to a directory of parquet files when there partitions is non None</span>
         <span class="n">parquet_path</span> <span class="o">=</span> <span class="n">parquet_data</span><span class="o">.</span><span class="n">parquet_path</span>
 
-    <span class="c1"># Import here to avoid circular imports</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.classes</span><span class="w"> </span><span class="kn">import</span> <span class="n">Resource</span>
+    <span class="k">return</span> <span class="n">pl</span><span class="o">.</span><span class="n">scan_parquet</span><span class="p">(</span><span class="n">parquet_path</span><span class="p">)</span></div>
 
-    <span class="n">resource</span> <span class="o">=</span> <span class="n">Resource</span><span class="o">.</span><span class="n">from_id</span><span class="p">(</span><span class="n">table_name</span><span class="p">)</span>
-    <span class="c1"># Pass the expected schema in directly rather than scanning then casting: casting</span>
-    <span class="c1"># a LazyFrame containing Enum-typed columns forces materialization, which is very</span>
-    <span class="c1"># slow for our largest hourly tables. Enum-constrained fields are stored as plain</span>
-    <span class="c1"># Categorical (see Field.to_polars_dtype), so no such cast is needed here anyway.</span>
-    <span class="c1"># Parquet files still store integer/float columns as 32-bit (FIELD_DTYPES_PYARROW),</span>
-    <span class="c1"># narrower than the 64-bit Polars schema we're requesting here, so allow scan-time</span>
-    <span class="c1"># upcasting rather than the strict match scan_parquet defaults to.</span>
-    <span class="k">return</span> <span class="n">pl</span><span class="o">.</span><span class="n">scan_parquet</span><span class="p">(</span>
-        <span class="n">parquet_path</span><span class="p">,</span>
-        <span class="n">schema</span><span class="o">=</span><span class="n">resource</span><span class="o">.</span><span class="n">to_polars_dtypes</span><span class="p">(),</span>
-        <span class="n">cast_options</span><span class="o">=</span><span class="n">pl</span><span class="o">.</span><span class="n">ScanCastOptions</span><span class="p">(</span><span class="n">integer_cast</span><span class="o">=</span><span class="s2">"upcast"</span><span class="p">,</span> <span class="n">float_cast</span><span class="o">=</span><span class="s2">"upcast"</span><span class="p">),</span>
-    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="_fix_residual_dtypes">
+<a class="viewcode-back" href="../../autoapi/pudl/helpers/index.html#pudl.helpers._fix_residual_dtypes">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_fix_residual_dtypes</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">resource</span><span class="p">:</span> <span class="s2">"Resource"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Fix the two dtype gaps ``dtype_backend="numpy_nullable"`` can't get right.</span>
+
+<span class="sd">    Integer and datetime columns already come back from a</span>
+<span class="sd">    ``dtype_backend="numpy_nullable"`` read matching their pandas targets (see</span>
+<span class="sd">    ``FIELD_DTYPES_PANDAS``) directly. Two gaps remain, neither fixable by</span>
+<span class="sd">    ``dtype_backend`` alone:</span>
+
+<span class="sd">    * "number" columns come back as pandas' nullable ``Float64``, but PUDL's target</span>
+<span class="sd">      is plain (non-nullable) ``float64`` -- unlike integers, floats can already</span>
+<span class="sd">      represent missing values natively via ``NaN``, so PUDL doesn't use the</span>
+<span class="sd">      nullable dtype for them.</span>
+<span class="sd">    * "date" columns (Arrow ``date32``) always come back as plain ``object`` holding</span>
+<span class="sd">      Python ``datetime.date`` scalars, since pandas has no native nullable</span>
+<span class="sd">      date-only dtype.</span>
+<span class="sd">    """</span>
+    <span class="n">fixes</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">field</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">field</span><span class="o">.</span><span class="n">to_pandas_dtype</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">resource</span><span class="o">.</span><span class="n">schema</span><span class="o">.</span><span class="n">fields</span>
+        <span class="k">if</span> <span class="n">field</span><span class="o">.</span><span class="n">type</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"number"</span><span class="p">,</span> <span class="s2">"date"</span><span class="p">)</span> <span class="ow">and</span> <span class="n">field</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">fixes</span><span class="p">)</span> <span class="k">if</span> <span class="n">fixes</span> <span class="k">else</span> <span class="n">df</span></div>
 
 
 
@@ -3341,8 +3356,8 @@ window.runMermaid = runMermaid;</script>
 <span class="w">    </span><span class="sd">"""Read a table from Parquet files with optional column selection and filtering.</span>
 
 <span class="sd">    This function provides a general-purpose interface for reading PUDL tables from</span>
-<span class="sd">    Parquet files. It supports selective column reading for performance, optional</span>
-<span class="sd">    filters for data subsetting, and automatic schema validation.</span>
+<span class="sd">    Parquet files. It supports selective column reading for performance and optional</span>
+<span class="sd">    filters for data subsetting.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        table_name: Name of the table to read.</span>
@@ -3373,6 +3388,8 @@ window.runMermaid = runMermaid;</script>
 
     <span class="n">is_geospatial</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span><span class="n">resource</span><span class="o">.</span><span class="n">get_field</span><span class="p">(</span><span class="n">col</span><span class="p">)</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">"geometry"</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">)</span>
 
+    <span class="n">full_read</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">columns</span><span class="p">)</span> <span class="o">==</span> <span class="nb">set</span><span class="p">(</span><span class="n">resource</span><span class="o">.</span><span class="n">get_field_names</span><span class="p">())</span>
+
     <span class="k">if</span> <span class="n">is_geospatial</span><span class="p">:</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span>
             <span class="n">path</span><span class="o">=</span><span class="n">parquet_path</span><span class="p">,</span>
@@ -3382,7 +3399,15 @@ window.runMermaid = runMermaid;</script>
             <span class="n">use_threads</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
             <span class="n">memory_map</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># geopandas' reader has no equivalent to pandas' dtype_backend, so this</span>
+        <span class="c1"># branch still needs enforce_schema's full re-cast (which also runs the</span>
+        <span class="c1"># primary-key check for a full read).</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">resource</span><span class="o">.</span><span class="n">enforce_schema</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">full_read</span>
+            <span class="k">else</span> <span class="n">apply_pudl_dtypes</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">resource</span><span class="o">=</span><span class="n">resource</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>  <span class="c1"># not geospatial -- the normal case</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span>
             <span class="n">path</span><span class="o">=</span><span class="n">parquet_path</span><span class="p">,</span>
             <span class="n">columns</span><span class="o">=</span><span class="n">columns</span><span class="p">,</span>
@@ -3390,13 +3415,26 @@ window.runMermaid = runMermaid;</script>
             <span class="n">schema</span><span class="o">=</span><span class="n">pyarrow_schema</span><span class="p">,</span>
             <span class="n">use_threads</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
             <span class="n">memory_map</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">dtype_backend</span><span class="o">=</span><span class="s2">"numpy_nullable"</span><span class="p">,</span>
         <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">full_read</span><span class="p">:</span>
+            <span class="c1"># For specific columns, apply PUDL dtypes including resource-level overrides</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">apply_pudl_dtypes</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">resource</span><span class="o">=</span><span class="n">resource</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># dtype_backend="numpy_nullable" already gets every column to PUDL's target</span>
+            <span class="c1"># dtype except for the few gaps _fix_residual_dtypes covers -- enforce_schema's</span>
+            <span class="c1"># full re-cast of every column, including enum fields, is redundant here: pandas'</span>
+            <span class="c1"># Categorical reconstructs a constrained dtype's full category list (even unused</span>
+            <span class="c1"># ones) straight from the Parquet dictionary page, with no PUDL-metadata-driven</span>
+            <span class="c1"># re-derivation needed. See tests/unit/helpers_test.py's</span>
+            <span class="c1"># test_constrained_categorical_cross_backend_parquet_roundtrip.</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">_fix_residual_dtypes</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">resource</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">errors</span> <span class="o">:=</span> <span class="n">resource</span><span class="o">.</span><span class="n">check_primary_key</span><span class="p">(</span><span class="n">df</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">resource</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: "</span> <span class="o">+</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">error</span><span class="p">)</span> <span class="k">for</span> <span class="n">error</span> <span class="ow">in</span> <span class="n">errors</span><span class="p">)</span>
+                <span class="p">)</span>
 
-    <span class="c1"># Only enforce schema if we're reading all columns</span>
-    <span class="k">if</span> <span class="nb">set</span><span class="p">(</span><span class="n">columns</span><span class="p">)</span> <span class="o">==</span> <span class="nb">set</span><span class="p">(</span><span class="n">resource</span><span class="o">.</span><span class="n">get_field_names</span><span class="p">()):</span>
-        <span class="k">return</span> <span class="n">resource</span><span class="o">.</span><span class="n">enforce_schema</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
-    <span class="c1"># For specific columns, apply PUDL dtypes including resource-level overrides</span>
-    <span class="k">return</span> <span class="n">apply_pudl_dtypes</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">resource</span><span class="o">=</span><span class="n">resource</span><span class="o">.</span><span class="n">name</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">df</span></div>
 
 
 

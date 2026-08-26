@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.dagster.asset_checks &#8212; PUDL 2026.8.1.dev21 documentation</title>
+    <title>pudl.dagster.asset_checks &#8212; PUDL 2026.8.1.dev23 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=265a745c"></script>
+    <script src="../../../_static/documentation_options.js?v=afab9ad1"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev21 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev21 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev23 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev23 documentation - Home"/>
   
   
 </a></div>
@@ -892,6 +892,7 @@ window.runMermaid = runMermaid;</script>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">itertools</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">dagster</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">dg</span>
@@ -902,12 +903,17 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandera.polars</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pr_polars</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pint</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">polars</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pl</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pandera.errors</span><span class="w"> </span><span class="kn">import</span> <span class="n">SchemaErrors</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pandera.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">ValidationDepth</span><span class="p">,</span> <span class="n">config_context</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pandera.errors</span><span class="w"> </span><span class="kn">import</span> <span class="n">SchemaError</span><span class="p">,</span> <span class="n">SchemaErrors</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.dagster.assets</span><span class="w"> </span><span class="kn">import</span> <span class="n">all_asset_modules</span><span class="p">,</span> <span class="n">asset_keys</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.dagster.partitions</span><span class="w"> </span><span class="kn">import</span> <span class="n">ferceqr_year_quarters</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pudl.helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">ParquetData</span><span class="p">,</span> <span class="n">get_parquet_table_polars</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.classes</span><span class="w"> </span><span class="kn">import</span> <span class="n">PUDL_PACKAGE</span><span class="p">,</span> <span class="n">Package</span><span class="p">,</span> <span class="n">Resource</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pudl.metadata.classes</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">PUDL_PACKAGE</span><span class="p">,</span>
+    <span class="n">Package</span><span class="p">,</span>
+    <span class="n">Resource</span><span class="p">,</span>
+<span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_collect_asset_metadata</span><span class="p">(</span><span class="n">asset_value</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
@@ -967,7 +973,9 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A metadata dictionary with:</span>
-<span class="sd">        - ``field_details``: per-column expected and actual dtype details.</span>
+<span class="sd">        - ``field_details``: per-column expected/actual dtype details, declared</span>
+<span class="sd">          constraints, and whether the column is content-checked (see</span>
+<span class="sd">          :meth:`~pudl.metadata.classes.FieldConstraints.requires_content_validation`).</span>
 <span class="sd">        - ``column_comparison``: expected/actual column counts and optional missing</span>
 <span class="sd">          or extra column lists.</span>
 <span class="sd">        - ``type_mismatches``: only present when common columns have differing dtype</span>
@@ -1004,6 +1012,8 @@ window.runMermaid = runMermaid;</script>
             <span class="s2">"pudl_field_dtype"</span><span class="p">:</span> <span class="n">field</span><span class="o">.</span><span class="n">type</span><span class="p">,</span>
             <span class="s2">"expected_pandera_dtype"</span><span class="p">:</span> <span class="n">pandera_dtypes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">field</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">"Unknown"</span><span class="p">),</span>
             <span class="s2">"actual_dtype"</span><span class="p">:</span> <span class="n">actual_dtypes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">field</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">"Column not present"</span><span class="p">),</span>
+            <span class="s2">"content_checked"</span><span class="p">:</span> <span class="n">field</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">requires_content_validation</span><span class="p">(),</span>
+            <span class="s2">"constraints"</span><span class="p">:</span> <span class="n">field</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">model_dump_json</span><span class="p">(</span><span class="n">exclude_defaults</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
         <span class="p">}</span>
         <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">resource</span><span class="o">.</span><span class="n">schema</span><span class="o">.</span><span class="n">fields</span>
     <span class="p">}</span>
@@ -1061,26 +1071,105 @@ window.runMermaid = runMermaid;</script>
     <span class="k">return</span> <span class="n">metadata</span>
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">_collect_primary_key_metadata</span><span class="p">(</span>
+    <span class="n">resource</span><span class="p">:</span> <span class="n">Resource</span><span class="p">,</span> <span class="n">actual_columns</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Describe the primary-key check that will run for this resource, if any.</span>
+
+<span class="sd">    Whether a composite-uniqueness check is chunked (see</span>
+<span class="sd">    :attr:`~pudl.metadata.classes.Schema.pk_check_chunk_field`) is a cheap attribute lookup,</span>
+<span class="sd">    not a re-run of the (potentially expensive, for our largest tables) chunking</span>
+<span class="sd">    logic itself.</span>
+<span class="sd">    """</span>
+    <span class="n">primary_key</span> <span class="o">=</span> <span class="n">resource</span><span class="o">.</span><span class="n">schema</span><span class="o">.</span><span class="n">primary_key</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">primary_key</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"declared"</span><span class="p">:</span> <span class="kc">False</span><span class="p">}}</span>
+
+    <span class="n">missing_columns</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">primary_key</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">actual_columns</span><span class="p">))</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"declared"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s2">"columns"</span><span class="p">:</span> <span class="n">primary_key</span><span class="p">,</span>
+            <span class="s2">"chunked"</span><span class="p">:</span> <span class="n">resource</span><span class="o">.</span><span class="n">schema</span><span class="o">.</span><span class="n">pk_check_chunk_field</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s2">"checked"</span><span class="p">:</span> <span class="ow">not</span> <span class="n">missing_columns</span><span class="p">,</span>
+            <span class="s2">"missing_columns"</span><span class="p">:</span> <span class="n">missing_columns</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_failure_cases_sample</span><span class="p">(</span>
+    <span class="n">failure_cases</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">max_failure_samples</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">20</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Return ``(total_count, bounded_json_safe_sample)`` for an error's failure cases.</span>
+
+<span class="sd">    Structured (list of records) rather than a stringified table dump: the latter embeds</span>
+<span class="sd">    Polars' box-drawing-character table rendering as a giant escaped-newline blob,</span>
+<span class="sd">    unreadable once JSON-encoded for Dagster's UI. Falls back to a plain string only for</span>
+<span class="sd">    failure-case types we don't specifically recognize.</span>
+
+<span class="sd">    ``total_count`` always reflects the true total; max_failure_samples just bounds how</span>
+<span class="sd">    much actual data gets rendered inline, so a violation affecting millions of rows</span>
+<span class="sd">    doesn't balloon the check's metadata payload.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        failure_cases: The ``failure_cases`` attribute of a Pandera ``SchemaError``.</span>
+<span class="sd">            Can be a Polars or Pandas dataframe, a Pandas series, a list, or None.</span>
+<span class="sd">        max_failure_samples: Maximum number of rows to include in the returned sample.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">failure_cases</span><span class="p">,</span> <span class="n">pl</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">failure_cases</span><span class="o">.</span><span class="n">height</span><span class="p">,</span>
+            <span class="n">failure_cases</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="n">max_failure_samples</span><span class="p">)</span><span class="o">.</span><span class="n">to_dicts</span><span class="p">(),</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">failure_cases</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="nb">len</span><span class="p">(</span><span class="n">failure_cases</span><span class="p">),</span>
+            <span class="n">failure_cases</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="n">max_failure_samples</span><span class="p">)</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="n">orient</span><span class="o">=</span><span class="s2">"records"</span><span class="p">),</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">failure_cases</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="nb">len</span><span class="p">(</span><span class="n">failure_cases</span><span class="p">),</span>
+            <span class="n">failure_cases</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="n">max_failure_samples</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">failure_cases</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">failure_cases</span><span class="p">),</span> <span class="n">failure_cases</span><span class="p">[:</span><span class="n">max_failure_samples</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">failure_cases</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">failure_cases</span><span class="p">)</span>
+
+
 <span class="k">def</span><span class="w"> </span><span class="nf">_process_schema_errors</span><span class="p">(</span><span class="n">schema_errors</span><span class="p">:</span> <span class="n">SchemaErrors</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">"""Process Pandera schema errors into structured metadata."""</span>
+<span class="w">    </span><span class="sd">"""Process Pandera schema errors into compact, structured metadata.</span>
+
+<span class="sd">    Each error is reduced to its essentials -- a one-line message, the reason</span>
+<span class="sd">    and check that triggered it, which column/table it came from, and a</span>
+<span class="sd">    bounded sample of the actual offending rows -- rather than several</span>
+<span class="sd">    overlapping stringified dumps of the same underlying data (as ``args``,</span>
+<span class="sd">    ``data``, and a table-formatted ``failure_cases`` all tend to be).</span>
+<span class="sd">    """</span>
     <span class="n">detailed_errors</span> <span class="o">=</span> <span class="p">[]</span>
 
     <span class="k">for</span> <span class="n">err</span> <span class="ow">in</span> <span class="n">schema_errors</span><span class="o">.</span><span class="n">schema_errors</span><span class="p">:</span>
-        <span class="n">error_info</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">"error_type"</span><span class="p">:</span> <span class="nb">type</span><span class="p">(</span><span class="n">err</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
-            <span class="s2">"error_message"</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="p">),</span>
-            <span class="s2">"failure_cases"</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="o">.</span><span class="n">failure_cases</span><span class="p">)</span>
-            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">err</span><span class="p">,</span> <span class="s2">"failure_cases"</span><span class="p">)</span>
-            <span class="k">else</span> <span class="s2">"No failure_cases"</span><span class="p">,</span>
-            <span class="s2">"data"</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="o">.</span><span class="n">data</span><span class="p">)</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">err</span><span class="p">,</span> <span class="s2">"data"</span><span class="p">)</span> <span class="k">else</span> <span class="s2">"No data"</span><span class="p">,</span>
-        <span class="p">}</span>
+        <span class="n">failure_case_count</span><span class="p">,</span> <span class="n">failure_cases_sample</span> <span class="o">=</span> <span class="n">_failure_cases_sample</span><span class="p">(</span>
+            <span class="nb">getattr</span><span class="p">(</span><span class="n">err</span><span class="p">,</span> <span class="s2">"failure_cases"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">schema_obj</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">err</span><span class="p">,</span> <span class="s2">"schema"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
-        <span class="c1"># Add optional error attributes</span>
-        <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"schema"</span><span class="p">,</span> <span class="s2">"check"</span><span class="p">,</span> <span class="s2">"args"</span><span class="p">]:</span>
-            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">err</span><span class="p">,</span> <span class="n">attr</span><span class="p">):</span>
-                <span class="n">error_info</span><span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">attr</span><span class="si">}</span><span class="s2">_info"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">err</span><span class="p">,</span> <span class="n">attr</span><span class="p">))</span>
-
-        <span class="n">detailed_errors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">error_info</span><span class="p">)</span>
+        <span class="n">detailed_errors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">"error_type"</span><span class="p">:</span> <span class="nb">type</span><span class="p">(</span><span class="n">err</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
+                <span class="s2">"reason_code"</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="o">.</span><span class="n">reason_code</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">err</span><span class="p">,</span> <span class="s2">"reason_code"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="s2">"error_message"</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="p">),</span>
+                <span class="s2">"check"</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="o">.</span><span class="n">check</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">err</span><span class="p">,</span> <span class="s2">"check"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="s2">"schema_name"</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">schema_obj</span><span class="p">,</span> <span class="s2">"name"</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+                <span class="s2">"failure_case_count"</span><span class="p">:</span> <span class="n">failure_case_count</span><span class="p">,</span>
+                <span class="s2">"failure_cases_sample"</span><span class="p">:</span> <span class="n">failure_cases_sample</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
 
     <span class="k">return</span> <span class="p">{</span>
         <span class="s2">"detailed_errors"</span><span class="p">:</span> <span class="n">detailed_errors</span><span class="p">,</span>
@@ -1134,6 +1223,70 @@ window.runMermaid = runMermaid;</script>
 
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">_validate_polars_content</span><span class="p">(</span>
+    <span class="n">asset_value</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">LazyFrame</span><span class="p">,</span> <span class="n">resource</span><span class="p">:</span> <span class="n">Resource</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">SchemaError</span><span class="p">],</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">"""Validate per-column value constraints and primary-key uniqueness.</span>
+
+<span class="sd">    Returns the combined error list alongside a ``{"content_check_seconds": ...,</span>
+<span class="sd">    "pk_check_seconds": ...}`` timing breakdown, so slow phases are visible in</span>
+<span class="sd">    asset-check metadata without needing to reproduce the check locally.</span>
+
+<span class="sd">    Pandera's Polars backend only runs Check/nullable/unique validation</span>
+<span class="sd">    (as opposed to just column presence and dtype validation) when the</span>
+<span class="sd">    validation depth is explicitly forced to ``SCHEMA_AND_DATA``, and even</span>
+<span class="sd">    then it does so by repeatedly collecting the *entire* dataframe passed to</span>
+<span class="sd">    it -- once per check. For PUDL's largest tables (hundreds of millions to</span>
+<span class="sd">    billions of rows) collecting the full table is not tractable, even though</span>
+<span class="sd">    only a handful of columns actually carry constraints worth checking.</span>
+
+<span class="sd">    Instead, this validates one narrow slice at a time: for each field with an</span>
+<span class="sd">    actual constraint, ``.select()`` just that column before collecting.</span>
+<span class="sd">    Columns with no constraints at all are never read. This scales uniformly</span>
+<span class="sd">    regardless of table size, since a single narrow column is always small</span>
+<span class="sd">    enough to collect, even when the full table is not -- measured at ~1.2GB</span>
+<span class="sd">    peak memory total for all four checked columns on our billion-row table.</span>
+<span class="sd">    Composite primary-key uniqueness is handled separately -- see</span>
+<span class="sd">    `_validate_primary_key_uniqueness`.</span>
+
+<span class="sd">    Columns that are entirely missing from ``asset_value`` are skipped here</span>
+<span class="sd">    rather than selected: ``.select()`` on a genuinely absent column raises</span>
+<span class="sd">    immediately (a raw ``pl.exceptions.ColumnNotFoundError``, not a pandera</span>
+<span class="sd">    ``SchemaError``), and a missing column is already reported separately by</span>
+<span class="sd">    the schema-level check in ``pandera_schema_check``.</span>
+
+<span class="sd">    Composite primary-key uniqueness is handled separately -- see</span>
+<span class="sd">    :meth:`Resource.check_primary_key`.</span>
+<span class="sd">    """</span>
+    <span class="n">errors</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">SchemaError</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">timings</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">present_columns</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">asset_value</span><span class="o">.</span><span class="n">collect_schema</span><span class="p">()</span><span class="o">.</span><span class="n">names</span><span class="p">())</span>
+
+    <span class="n">content_start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
+    <span class="k">with</span> <span class="n">config_context</span><span class="p">(</span><span class="n">validation_depth</span><span class="o">=</span><span class="n">ValidationDepth</span><span class="o">.</span><span class="n">SCHEMA_AND_DATA</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">resource</span><span class="o">.</span><span class="n">schema</span><span class="o">.</span><span class="n">fields</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">field</span><span class="o">.</span><span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">present_columns</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">field</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">requires_content_validation</span><span class="p">():</span>
+                <span class="k">continue</span>
+            <span class="n">column_schema</span> <span class="o">=</span> <span class="n">pr_polars</span><span class="o">.</span><span class="n">DataFrameSchema</span><span class="p">(</span>
+                <span class="p">{</span><span class="n">field</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">field</span><span class="o">.</span><span class="n">to_pandera_column</span><span class="p">(</span><span class="n">use_pandas_backend</span><span class="o">=</span><span class="kc">False</span><span class="p">)}</span>
+            <span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">column_schema</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">asset_value</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">field</span><span class="o">.</span><span class="n">name</span><span class="p">),</span> <span class="n">lazy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">except</span> <span class="n">SchemaErrors</span> <span class="k">as</span> <span class="n">schema_errors</span><span class="p">:</span>
+                <span class="n">errors</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">schema_errors</span><span class="o">.</span><span class="n">schema_errors</span><span class="p">)</span>
+    <span class="n">timings</span><span class="p">[</span><span class="s2">"content_check_seconds"</span><span class="p">]</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span> <span class="o">-</span> <span class="n">content_start</span>
+
+    <span class="n">pk_start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
+    <span class="n">primary_key</span> <span class="o">=</span> <span class="n">resource</span><span class="o">.</span><span class="n">schema</span><span class="o">.</span><span class="n">primary_key</span>
+    <span class="k">if</span> <span class="n">primary_key</span> <span class="ow">and</span> <span class="nb">all</span><span class="p">(</span><span class="n">col</span> <span class="ow">in</span> <span class="n">present_columns</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">primary_key</span><span class="p">):</span>
+        <span class="n">errors</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">resource</span><span class="o">.</span><span class="n">check_primary_key</span><span class="p">(</span><span class="n">asset_value</span><span class="p">))</span>
+    <span class="n">timings</span><span class="p">[</span><span class="s2">"pk_check_seconds"</span><span class="p">]</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span> <span class="o">-</span> <span class="n">pk_start</span>
+
+    <span class="k">return</span> <span class="n">errors</span><span class="p">,</span> <span class="n">timings</span>
+
+
 <div class="viewcode-block" id="asset_check_from_schema">
 <a class="viewcode-back" href="../../../autoapi/pudl/dagster/asset_checks/index.html#pudl.dagster.asset_checks.asset_check_from_schema">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">asset_check_from_schema</span><span class="p">(</span>  <span class="c1"># noqa: C901</span>
@@ -1179,41 +1332,85 @@ window.runMermaid = runMermaid;</script>
     <span class="k">def</span><span class="w"> </span><span class="nf">pandera_schema_check</span><span class="p">(</span>
         <span class="n">asset_value</span><span class="p">:</span> <span class="n">asset_type</span><span class="p">,</span>  <span class="c1"># type: ignore[valid-type]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dg</span><span class="o">.</span><span class="n">AssetCheckResult</span><span class="p">:</span>
+        <span class="n">source_partitions</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">asset_value</span><span class="o">.</span><span class="n">partitions</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">asset_value</span><span class="p">,</span> <span class="n">ParquetData</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="p">)</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">asset_value</span><span class="p">,</span> <span class="n">ParquetData</span><span class="p">):</span>
             <span class="n">asset_value</span> <span class="o">=</span> <span class="n">get_parquet_table_polars</span><span class="p">(</span>
                 <span class="n">table_name</span><span class="o">=</span><span class="n">resource_id</span><span class="p">,</span>
                 <span class="n">partitions</span><span class="o">=</span><span class="n">asset_value</span><span class="o">.</span><span class="n">partitions</span><span class="p">,</span>
             <span class="p">)</span>
 
-        <span class="c1"># Collect all metadata</span>
-        <span class="n">metadata</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">actual_columns</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">_extract_actual_columns_and_dtypes</span><span class="p">(</span><span class="n">asset_value</span><span class="p">)</span>
+
+        <span class="c1"># Collect all metadata that's cheap and available regardless of outcome,</span>
+        <span class="c1"># up front -- so it's present on every return path below, including one</span>
+        <span class="c1"># that hits an entirely unexpected exception rather than a SchemaErrors.</span>
+        <span class="n">metadata</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">_collect_asset_metadata</span><span class="p">(</span><span class="n">asset_value</span><span class="p">)</span>
             <span class="o">|</span> <span class="n">_collect_dtype_metadata</span><span class="p">(</span><span class="n">asset_value</span><span class="p">,</span> <span class="n">resource</span><span class="p">)</span>
             <span class="o">|</span> <span class="n">_collect_geometry_metadata</span><span class="p">(</span><span class="n">asset_value</span><span class="p">)</span>
+            <span class="o">|</span> <span class="n">_collect_primary_key_metadata</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="n">actual_columns</span><span class="p">)</span>
         <span class="p">)</span>
+        <span class="n">metadata</span><span class="p">[</span><span class="s2">"is_duckdb_asset"</span><span class="p">]</span> <span class="o">=</span> <span class="n">duckdb_asset</span>
+        <span class="k">if</span> <span class="n">source_partitions</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">metadata</span><span class="p">[</span><span class="s2">"partitions"</span><span class="p">]</span> <span class="o">=</span> <span class="n">source_partitions</span>
+        <span class="n">timings</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
 
         <span class="k">try</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">asset_value</span><span class="p">,</span> <span class="n">pl</span><span class="o">.</span><span class="n">LazyFrame</span><span class="p">):</span>
-                <span class="c1"># NOTE: Pandera's polars backend only performs schema-level</span>
-                <span class="c1"># validation (column presence + dtype) for a `pl.LazyFrame`,</span>
-                <span class="c1"># via `collect_schema()` -- it does not run Check/unique/</span>
-                <span class="c1"># non-nullable content validation unless the validation depth</span>
-                <span class="c1"># is explicitly forced to `SCHEMA_AND_DATA`, which we do not</span>
-                <span class="c1"># currently do here. Content constraints declared in PUDL's</span>
-                <span class="c1"># metadata (enum values, ranges, uniqueness, etc.) are</span>
-                <span class="c1"># therefore NOT enforced for Polars LazyFrame assets today.</span>
+                <span class="c1"># Column presence and dtypes are checked here, using only the</span>
+                <span class="c1"># cheap `collect_schema()` metadata -- no data is read. Value</span>
+                <span class="c1"># constraints (ranges, enums, uniqueness, etc.) are checked</span>
+                <span class="c1"># separately below, one narrow column at a time, so that even</span>
+                <span class="c1"># PUDL's largest tables remain tractable to validate. Errors</span>
+                <span class="c1"># from both passes are collected and reported together,</span>
+                <span class="c1"># rather than stopping at whichever one fails first, since</span>
+                <span class="c1"># they're independent and a caller fixing one shouldn't have</span>
+                <span class="c1"># to re-run the check to discover the other.</span>
                 <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pandera_schema</span><span class="p">,</span> <span class="n">pr_polars</span><span class="o">.</span><span class="n">DataFrameSchema</span><span class="p">)</span>
-                <span class="n">pandera_schema</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">asset_value</span><span class="p">,</span> <span class="n">lazy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">errors</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">SchemaError</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="n">schema_check_start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">pandera_schema</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">asset_value</span><span class="p">,</span> <span class="n">lazy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="k">except</span> <span class="n">SchemaErrors</span> <span class="k">as</span> <span class="n">schema_errors</span><span class="p">:</span>
+                    <span class="n">errors</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">schema_errors</span><span class="o">.</span><span class="n">schema_errors</span><span class="p">)</span>
+                <span class="k">finally</span><span class="p">:</span>
+                    <span class="n">timings</span><span class="p">[</span><span class="s2">"schema_check_seconds"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span> <span class="o">-</span> <span class="n">schema_check_start</span>
+                    <span class="p">)</span>
+
+                <span class="n">content_errors</span><span class="p">,</span> <span class="n">content_timings</span> <span class="o">=</span> <span class="n">_validate_polars_content</span><span class="p">(</span>
+                    <span class="n">asset_value</span><span class="p">,</span> <span class="n">resource</span>
+                <span class="p">)</span>
+                <span class="n">errors</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">content_errors</span><span class="p">)</span>
+                <span class="n">timings</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">content_timings</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">errors</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">SchemaErrors</span><span class="p">(</span>
+                        <span class="n">schema</span><span class="o">=</span><span class="n">pandera_schema</span><span class="p">,</span>
+                        <span class="n">schema_errors</span><span class="o">=</span><span class="n">errors</span><span class="p">,</span>
+                        <span class="n">data</span><span class="o">=</span><span class="n">asset_value</span><span class="p">,</span>
+                    <span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pandera_schema</span><span class="p">,</span> <span class="n">pr_pandas</span><span class="o">.</span><span class="n">DataFrameSchema</span><span class="p">)</span>
-                <span class="n">pandera_schema</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">asset_value</span><span class="p">,</span> <span class="n">lazy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">schema_check_start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">pandera_schema</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">asset_value</span><span class="p">,</span> <span class="n">lazy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="k">finally</span><span class="p">:</span>
+                    <span class="n">timings</span><span class="p">[</span><span class="s2">"schema_check_seconds"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span> <span class="o">-</span> <span class="n">schema_check_start</span>
+                    <span class="p">)</span>
+            <span class="n">metadata</span><span class="p">[</span><span class="s2">"timing"</span><span class="p">]</span> <span class="o">=</span> <span class="n">timings</span>
             <span class="k">return</span> <span class="n">dg</span><span class="o">.</span><span class="n">AssetCheckResult</span><span class="p">(</span><span class="n">passed</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">)</span>
 
         <span class="k">except</span> <span class="n">SchemaErrors</span> <span class="k">as</span> <span class="n">schema_errors</span><span class="p">:</span>
+            <span class="n">metadata</span><span class="p">[</span><span class="s2">"timing"</span><span class="p">]</span> <span class="o">=</span> <span class="n">timings</span>
             <span class="n">metadata</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">_process_schema_errors</span><span class="p">(</span><span class="n">schema_errors</span><span class="p">))</span>
             <span class="k">return</span> <span class="n">dg</span><span class="o">.</span><span class="n">AssetCheckResult</span><span class="p">(</span><span class="n">passed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">)</span>
 
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="n">metadata</span><span class="p">[</span><span class="s2">"timing"</span><span class="p">]</span> <span class="o">=</span> <span class="n">timings</span>
             <span class="n">metadata</span><span class="p">[</span><span class="s2">"unexpected_error"</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
                 <span class="s2">"error_type"</span><span class="p">:</span> <span class="nb">type</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
                 <span class="s2">"error_message"</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">),</span>

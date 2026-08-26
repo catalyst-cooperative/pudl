@@ -27,7 +27,7 @@
 * [Testing PUDL](testing.html.md)
   * [Software Tests](testing.html.md#software-tests)
   * [Running the tests and other tasks with pixi](testing.html.md#running-the-tests-and-other-tasks-with-pixi)
-  * [Selecting Input Data for Integration Tests](testing.html.md#selecting-input-data-for-integration-tests)
+  * [Selecting Input Data for Pipeline Tests](testing.html.md#selecting-input-data-for-pipeline-tests)
   * [Running pytest Directly](testing.html.md#running-pytest-directly)
 * [Data validation quickstart](data_validation_quickstart.html.md)
   * [Setup](data_validation_quickstart.html.md#setup)
