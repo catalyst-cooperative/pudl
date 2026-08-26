@@ -283,6 +283,12 @@ def _core_nrelatb__transform_start(raw_nrelatb__data):
     }
     nrelatb = (
         raw_nrelatb__data.replace([""], pd.NA)
+        .replace("*", pd.NA)
+        .assign(
+            cost_recovery_period_years=lambda x: pd.to_numeric(
+                x["cost_recovery_period_years"], errors="coerce"
+            )
+        )
         .rename(columns=rename_dict)
         .pipe(
             helpers.fix_boolean_columns,
@@ -474,10 +480,6 @@ def core_nrelatb__yearly_projected_cost_performance(
     """
     df = transform_unstack(
         _core_nrelatb__transform_start, Unstacker().tech_detail_table
-    )
-    # Clean up some * values in cost_recovery_period_years column
-    df["cost_recovery_period_years"] = pd.to_numeric(
-        df["cost_recovery_period_years"], errors="coerce"
     )
     return df
 
