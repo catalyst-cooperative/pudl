@@ -39,6 +39,13 @@ MEASUREMENT_CODE_COLS: list[str] = [
     "hf_mass_measurement_code",
 ]
 
+MISSING_PLACEHOLDER_COLUMNS: list[str] = ["gross_load_mw"]
+"""
+Numeric columns in which EPA reports -1 as a placeholder for unknown values.
+
+Across the raw MATS data (2015-2026), -1 appears only in gross load as a placeholder.
+"""
+
 HF_COLUMNS: list[str] = [
     "hf_output_rate_lb_per_mwh",
     "hf_input_rate_lb_per_mmbtu",
@@ -72,6 +79,31 @@ def _map_measurement_codes(lf: pl.LazyFrame) -> pl.LazyFrame:
             expr = expr.when(col == old_val).then(pl.lit(new_val))
         lf = lf.with_columns(expr.otherwise(col).alias(col_name))
     return lf
+
+
+def _replace_missing_placeholders(lf: pl.LazyFrame) -> pl.LazyFrame:
+    """Convert EPA's -1 placeholder for missing values into null.
+
+    EPA hourly emissions data reports -1 when gross load is unknown, rather
+    than leaving it blank (see ``MISSING_PLACEHOLDER_COLUMNS``). Standardize
+    these as NA like other missing data so downstream users don't have to
+    special-case them.
+
+    Args:
+        lf: MATS hourly data as a Polars LazyFrame.
+
+    Returns:
+        The same data with -1 placeholders replaced by null.
+    """
+    return lf.with_columns(
+        [
+            pl.when(pl.col(col_name) == -1)
+            .then(None)
+            .otherwise(pl.col(col_name))
+            .alias(col_name)
+            for col_name in MISSING_PLACEHOLDER_COLUMNS
+        ]
+    )
 
 
 def _validate_and_drop_hf_columns(lf: pl.LazyFrame) -> pl.LazyFrame:
@@ -120,6 +152,7 @@ def transform_epamats(
     """
     return (
         raw_lf.pipe(_map_measurement_codes)
+        .pipe(_replace_missing_placeholders)
         .pipe(_validate_and_drop_hf_columns)
         .pipe(apply_pudl_dtypes_polars, resource="core_epamats__hourly_emissions")
         .with_columns(

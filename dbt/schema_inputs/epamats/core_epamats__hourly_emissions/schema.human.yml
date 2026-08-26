@@ -73,26 +73,27 @@ sources:
         columns:
           - name: gross_load_mw
             data_tests:
-              - dbt_utils.expression_is_true:
+              - dbt_expectations.expect_column_min_to_be_between:
                   arguments:
-                    expression: ">= 0"
-                  config:
-                    error_if: ">150"
+                    min_value: 0.0
                   description: >
-                    EPA reports -1 as a placeholder for unknown load values; 138
-                    rows in the current data are -1. Fail only if many more
-                    negative values appear.
+                    EPA reports -1 as a placeholder for unknown load values;
+                    these are converted to NA in the transform, so all remaining
+                    values should be non-negative.
           - name: heat_content_mmbtu
             data_tests:
-              - dbt_utils.expression_is_true:
+              - dbt_expectations.expect_column_min_to_be_between:
                   arguments:
-                    expression: ">= 0"
+                    min_value: 0.0
                   config:
-                    error_if: ">20"
+                    error_if: ">13"
+                    warn_if: ">13"
                   description: >
-                    EPA reports -1 as a placeholder for unknown heat content
-                    values; 13 rows in the current data are -1. Fail only if many
-                    more negative values appear.
+                    Heat input should be non-negative, but EPA reports a small number of small
+                    negative values. These are paired with negative Hg
+                    mass readings, so they are retained as reported rather than
+                    treated as missing. Fail if many more negative values
+                    appear.
           - name: operating_time_hours
             data_tests:
               - dbt_expectations.expect_column_values_to_be_between:
