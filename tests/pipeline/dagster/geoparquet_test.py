@@ -1,4 +1,4 @@
-"""Integration tests verifying GeoParquet outputs are spec-compliant.
+"""Pipeline tests verifying GeoParquet outputs are spec-compliant.
 
 These tests check that geo assets written by PudlParquetIOManager produce valid
 GeoParquet 1.0.0 files readable by geopandas, pandas, polars, and DuckDB >= 1.5.
@@ -10,7 +10,7 @@ column should now be recognised as a native GEOMETRY type.
 
 Run with --live-pudl-output to skip the ETL pre-build and use existing outputs:
 
-    pixi run pytest --no-cov --live-pudl-output tests/integration/dagster/geoparquet_test.py
+    pixi run pytest --no-cov --live-pudl-output tests/pipeline/dagster/geoparquet_test.py
 """
 
 from pathlib import Path

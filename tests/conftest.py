@@ -131,6 +131,11 @@ def pytest_collection_finish(session) -> None:
     ``PudlPaths()`` directly (rather than via the fixture) would then silently resolve
     to the wrong directory.  Run unit and integration tests in separate invocations.
     """
+    # Under pytest-xdist, this hook runs once on the controller process and again,
+    # redundantly, inside every worker subprocess (each worker re-collects its own
+    # shard of items). `config.workerinput` only exists on worker configs, so this
+    # skips the check there -- otherwise every worker would independently detect the
+    # same violations and call `pytest.exit`, producing duplicate/garbled output.
     if hasattr(session.config, "workerinput"):
         return
 
@@ -149,6 +154,95 @@ def pytest_collection_finish(session) -> None:
             "Run them in separate pytest invocations.",
             returncode=4,
         )
+
+
+_PIPELINE_FIXTURE_HOMES = ("tests/pipeline/", "tests/validate/")
+# The FERC EQR batch pipeline is a separate Dagster job, exercised end-to-end by its
+# own self-contained fixtures rather than `prebuilt_outputs`. It belongs under
+# tests/pipeline/ on cost grounds (it's slow, and not meant to run outside a
+# dedicated job), but it's exempt from the "must use prebuilt_outputs" check below.
+_FERCEQR_TEST_PATH = "tests/pipeline/ferceqr_test.py"
+
+
+def _slow_tests_in_fast_tiers(items) -> list[str]:
+    """Return nodeids of ETL-dependent tests hiding in a supposedly fast tier.
+
+    Every fixture that actually runs the Dagster pipeline (``pudl_engine``,
+    ``ferc1_engine_dbf``, ``ferc1_engine_xbrl``, ``ferc714_engine_xbrl``,
+    ``asset_value_loader``, and the FERC IO-manager/taxonomy-metadata fixtures built on
+    top of them) depends, directly or transitively, on ``prebuilt_outputs``. Checking
+    for that one fixture in each item's full (transitive) fixture closure is therefore
+    sufficient to catch all of them, without having to enumerate every fixture name by
+    hand.
+
+    A test outside tests/pipeline/ and tests/validate/ that requests one of these
+    fixtures would silently make its (supposedly fast) tier slow.
+    """
+    return [
+        item.nodeid
+        for item in items
+        if "prebuilt_outputs" in getattr(item, "fixturenames", ())
+        and not item.nodeid.startswith(_PIPELINE_FIXTURE_HOMES)
+    ]
+
+
+def _fast_tests_in_slow_tiers(items) -> list[str]:
+    """Return nodeids of tests/pipeline/ or tests/validate/ tests that don't need the ETL.
+
+    The reverse of ``_slow_tests_in_fast_tiers``: a test living in the slow tier that
+    doesn't actually depend on ``prebuilt_outputs`` should just run in
+    tests/integration/ instead, where it's collected far more often.
+    """
+    return [
+        item.nodeid
+        for item in items
+        if item.nodeid.startswith(_PIPELINE_FIXTURE_HOMES)
+        and not item.nodeid.startswith(_FERCEQR_TEST_PATH)
+        and "prebuilt_outputs" not in getattr(item, "fixturenames", ())
+    ]
+
+
+def pytest_collection_modifyitems(session: pytest.Session, items: list) -> None:
+    """Enforce that tests/pipeline/ and tests/validate/ line up with ETL dependence.
+
+    tests/unit/ and tests/integration/ are meant to run without a full ETL build. A test
+    that sneaks a ``prebuilt_outputs`` dependency into either directory would silently
+    make those tests very slow. Conversely, a test placed under tests/pipeline/ or
+    tests/validate/ that doesn't need ``prebuilt_outputs`` is just running less often
+    than it could.
+    """
+    # Under pytest-xdist, this hook runs once on the controller process and again,
+    # redundantly, inside every worker subprocess (each worker re-collects its own
+    # shard of items). `config.workerinput` only exists on worker configs, so this
+    # skips the check there -- otherwise every worker would independently detect the
+    # same violations and call `pytest.exit`, producing duplicate/garbled output.
+    if hasattr(session.config, "workerinput"):
+        return
+
+    messages = []
+
+    slow_tests_in_fast_tiers = _slow_tests_in_fast_tiers(items)
+    if slow_tests_in_fast_tiers:
+        violation_list = "\n".join(f"  {nodeid}" for nodeid in slow_tests_in_fast_tiers)
+        messages.append(
+            "Found tests outside tests/pipeline/ and tests/validate/ that depend "
+            f"on prebuilt_outputs (directly or transitively):\n{violation_list}\n"
+            "Move them to tests/pipeline/, or remove the Dagster ETL fixture "
+            "dependency if it isn't actually required."
+        )
+
+    fast_tests_in_slow_tiers = _fast_tests_in_slow_tiers(items)
+    if fast_tests_in_slow_tiers:
+        violation_list = "\n".join(f"  {nodeid}" for nodeid in fast_tests_in_slow_tiers)
+        messages.append(
+            "Found tests in tests/pipeline/ or tests/validate/ that don't depend on "
+            f"prebuilt_outputs (directly or transitively):\n{violation_list}\n"
+            "Move them to tests/integration/, or add the Dagster ETL fixture "
+            "dependency if it's actually required."
+        )
+
+    if messages:
+        pytest.exit("\n\n".join(messages), returncode=4)
 
 
 ################################################################################
