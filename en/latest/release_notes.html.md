@@ -89,6 +89,10 @@ This is the upcoming PUDL release.
   With the fix, 788 records in `out_pudl__yearly_assn_eia_ferc1_plant_parts` which
   used to have a NULL `report_date` now appear with correct date information. See
   issue [#4130](https://github.com/catalyst-cooperative/pudl/issues/4130) and PR [#5503](https://github.com/catalyst-cooperative/pudl/pull/5503)
+* Fixed a race condition that intermittently failed the docs build due to the HTML and
+  Markdown builds attempting to clean up the same dynamically generated output files at
+  the end of their build. Fixed by setting `llms_txt_build_parallel = False`. See
+  issue [#5502](https://github.com/catalyst-cooperative/pudl/issues/5502) and PR [#5516](https://github.com/catalyst-cooperative/pudl/pull/5516).
 
 ### Performance Improvements
 

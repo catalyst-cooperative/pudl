@@ -18,7 +18,7 @@
     </script>
     
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="release_notes.html.md" />
-    <title>PUDL Release Notes &#8212; PUDL 2026.8.1.dev23 documentation</title>
+    <title>PUDL Release Notes &#8212; PUDL 2026.8.1.dev24 documentation</title>
   
   
   
@@ -51,7 +51,7 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="_static/documentation_options.js?v=afab9ad1"></script>
+    <script src="_static/documentation_options.js?v=4788db61"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/design-tabs.js?v=f930bc37"></script>
@@ -141,8 +141,8 @@
       
     
     
-    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev23 documentation - Home"/>
-    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev23 documentation - Home"/>
+    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev24 documentation - Home"/>
+    <img src="_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev24 documentation - Home"/>
   
   
 </a></div>
@@ -611,6 +611,10 @@ columns for every known-unmatched FERC1 record, instead of only the EIA match co
 With the fix, 788 records in <code class="docutils literal notranslate"><span class="pre">out_pudl__yearly_assn_eia_ferc1_plant_parts</span></code> which
 used to have a NULL <code class="docutils literal notranslate"><span class="pre">report_date</span></code> now appear with correct date information. See
 issue <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/4130">#4130</a> and PR <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/5503">#5503</a></p></li>
+<li><p>Fixed a race condition that intermittently failed the docs build due to the HTML and
+Markdown builds attempting to clean up the same dynamically generated output files at
+the end of their build. Fixed by setting <code class="docutils literal notranslate"><span class="pre">llms_txt_build_parallel</span> <span class="pre">=</span> <span class="pre">False</span></code>. See
+issue <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/5502">#5502</a> and PR <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/pull/5516">#5516</a>.</p></li>
 </ul>
 </section>
 <section id="performance-improvements">
