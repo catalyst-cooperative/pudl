@@ -1153,7 +1153,7 @@ def _combine_88888_values(df: pd.DataFrame, idx_cols: list[str]) -> pd.DataFrame
 ###############################################################################
 # EIA Form 861 Table Transform Functions
 ###############################################################################
-@asset(io_manager_key="pudl_io_manager")
+@asset(io_manager_key="parquet_io_manager")
 def core_eia861__yearly_service_territory(
     raw_eia861__service_territory: pd.DataFrame,
     _core_censuspep__yearly_geocodes: pd.DataFrame,
@@ -1263,7 +1263,7 @@ def _core_eia861__balancing_authority(
     return _post_process(df)
 
 
-@asset(io_manager_key="pudl_io_manager")
+@asset(io_manager_key="parquet_io_manager")
 def core_eia861__yearly_sales(raw_eia861__sales: pd.DataFrame) -> pd.DataFrame:
     """Transform the EIA 861 Sales table.
 
@@ -1347,7 +1347,7 @@ def core_eia861__yearly_sales(raw_eia861__sales: pd.DataFrame) -> pd.DataFrame:
     return _post_process(transformed_sales, name="core_eia861__yearly_sales")
 
 
-@asset(io_manager_key="pudl_io_manager")
+@asset(io_manager_key="parquet_io_manager")
 def core_eia861__yearly_short_form(
     raw_eia861__short_form: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -1401,7 +1401,7 @@ def core_eia861__yearly_short_form(
     return _post_process(deduped_sf, name="core_eia861__yearly_short_form")
 
 
-@asset(io_manager_key="pudl_io_manager")
+@asset(io_manager_key="parquet_io_manager")
 def core_eia861__yearly_advanced_metering_infrastructure(
     raw_eia861__advanced_metering_infrastructure: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -1450,10 +1450,10 @@ def core_eia861__yearly_advanced_metering_infrastructure(
 @multi_asset(
     outs={
         "core_eia861__yearly_demand_response": AssetOut(
-            io_manager_key="pudl_io_manager"
+            io_manager_key="parquet_io_manager"
         ),
         "core_eia861__yearly_demand_response_water_heater": AssetOut(
-            io_manager_key="pudl_io_manager"
+            io_manager_key="parquet_io_manager"
         ),
     },
 )
@@ -1539,13 +1539,13 @@ def core_eia861__yearly_demand_response(raw_eia861__demand_response: pd.DataFram
 @multi_asset(
     outs={
         "core_eia861__yearly_demand_side_management_sales": AssetOut(
-            io_manager_key="pudl_io_manager"
+            io_manager_key="parquet_io_manager"
         ),
         "core_eia861__yearly_demand_side_management_ee_dr": AssetOut(
-            io_manager_key="pudl_io_manager"
+            io_manager_key="parquet_io_manager"
         ),
         "core_eia861__yearly_demand_side_management_misc": AssetOut(
-            io_manager_key="pudl_io_manager"
+            io_manager_key="parquet_io_manager"
         ),
     },
 )
@@ -1709,13 +1709,13 @@ def core_demand_side_management_eia861(
 @multi_asset(
     outs={
         "core_eia861__yearly_distributed_generation_tech": AssetOut(
-            io_manager_key="pudl_io_manager"
+            io_manager_key="parquet_io_manager"
         ),
         "core_eia861__yearly_distributed_generation_fuel": AssetOut(
-            io_manager_key="pudl_io_manager"
+            io_manager_key="parquet_io_manager"
         ),
         "core_eia861__yearly_distributed_generation_misc": AssetOut(
-            io_manager_key="pudl_io_manager"
+            io_manager_key="parquet_io_manager"
         ),
     },
 )
@@ -1903,7 +1903,7 @@ def core_distributed_generation_eia861(
     )
 
 
-@asset(io_manager_key="pudl_io_manager")
+@asset(io_manager_key="parquet_io_manager")
 def core_eia861__yearly_distribution_systems(
     raw_eia861__distribution_systems: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -1927,7 +1927,7 @@ def core_eia861__yearly_distribution_systems(
     return df
 
 
-@asset(io_manager_key="pudl_io_manager")
+@asset(io_manager_key="parquet_io_manager")
 def core_eia861__yearly_dynamic_pricing(
     raw_eia861__dynamic_pricing: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -1996,7 +1996,7 @@ def core_eia861__yearly_dynamic_pricing(
     return _post_process(tidy_dp, name="core_eia861__yearly_dynamic_pricing")
 
 
-@asset(io_manager_key="pudl_io_manager")
+@asset(io_manager_key="parquet_io_manager")
 def core_eia861__yearly_energy_efficiency(
     raw_eia861__energy_efficiency: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -2063,7 +2063,7 @@ def core_eia861__yearly_energy_efficiency(
     return _post_process(transformed_ee, name="core_eia861__yearly_energy_efficiency")
 
 
-@asset(io_manager_key="pudl_io_manager")
+@asset(io_manager_key="parquet_io_manager")
 def core_eia861__yearly_green_pricing(
     raw_eia861__green_pricing: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -2107,7 +2107,7 @@ def core_eia861__yearly_green_pricing(
     return _post_process(transformed_gp, name="core_eia861__yearly_green_pricing")
 
 
-@asset(io_manager_key="pudl_io_manager")
+@asset(io_manager_key="parquet_io_manager")
 def core_eia861__yearly_mergers(raw_eia861__mergers: pd.DataFrame) -> pd.DataFrame:
     """Transform the EIA 861 Mergers table."""
     # No duplicates to speak of but take measures to check just in case
@@ -2128,10 +2128,10 @@ def core_eia861__yearly_mergers(raw_eia861__mergers: pd.DataFrame) -> pd.DataFra
 @multi_asset(
     outs={
         "core_eia861__yearly_net_metering_customer_fuel_class": AssetOut(
-            io_manager_key="pudl_io_manager"
+            io_manager_key="parquet_io_manager"
         ),
         "core_eia861__yearly_net_metering_misc": AssetOut(
-            io_manager_key="pudl_io_manager"
+            io_manager_key="parquet_io_manager"
         ),
     },
 )
@@ -2219,10 +2219,10 @@ def core_net_metering_eia861(raw_eia861__net_metering: pd.DataFrame):
 @multi_asset(
     outs={
         "core_eia861__yearly_non_net_metering_customer_fuel_class": AssetOut(
-            io_manager_key="pudl_io_manager"
+            io_manager_key="parquet_io_manager"
         ),
         "core_eia861__yearly_non_net_metering_misc": AssetOut(
-            io_manager_key="pudl_io_manager"
+            io_manager_key="parquet_io_manager"
         ),
     },
 )
@@ -2331,10 +2331,10 @@ def core_non_net_metering_eia861(raw_eia861__non_net_metering: pd.DataFrame):
 @multi_asset(
     outs={
         "core_eia861__yearly_operational_data_revenue": AssetOut(
-            io_manager_key="pudl_io_manager"
+            io_manager_key="parquet_io_manager"
         ),
         "core_eia861__yearly_operational_data_misc": AssetOut(
-            io_manager_key="pudl_io_manager"
+            io_manager_key="parquet_io_manager"
         ),
     },
 )
@@ -2425,7 +2425,7 @@ def core_operational_data_eia861(raw_eia861__operational_data: pd.DataFrame):
     )
 
 
-@asset(io_manager_key="pudl_io_manager")
+@asset(io_manager_key="parquet_io_manager")
 def core_eia861__yearly_reliability(
     raw_eia861__reliability: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -2490,13 +2490,13 @@ def core_eia861__yearly_reliability(
 @multi_asset(
     outs={
         "core_eia861__yearly_utility_data_nerc": AssetOut(
-            io_manager_key="pudl_io_manager"
+            io_manager_key="parquet_io_manager"
         ),
         "core_eia861__yearly_utility_data_rto": AssetOut(
-            io_manager_key="pudl_io_manager"
+            io_manager_key="parquet_io_manager"
         ),
         "core_eia861__yearly_utility_data_misc": AssetOut(
-            io_manager_key="pudl_io_manager"
+            io_manager_key="parquet_io_manager"
         ),
     },
 )
@@ -2668,7 +2668,7 @@ def core_utility_data_eia861(raw_eia861__utility_data: pd.DataFrame):
         "core_eia861__yearly_utility_data_nerc": AssetIn(),
         "core_eia861__yearly_utility_data_rto": AssetIn(),
     },
-    io_manager_key="pudl_io_manager",
+    io_manager_key="parquet_io_manager",
 )
 def core_eia861__assn_utility(**data_dfs: dict[str, pd.DataFrame]) -> pd.DataFrame:
     """Harvest a Utility-Date-State Association Table."""
@@ -2709,7 +2709,7 @@ def core_eia861__assn_utility(**data_dfs: dict[str, pd.DataFrame]) -> pd.DataFra
         "core_eia861__yearly_utility_data_nerc": AssetIn(),
         "core_eia861__yearly_utility_data_rto": AssetIn(),
     },
-    io_manager_key="pudl_io_manager",
+    io_manager_key="parquet_io_manager",
 )
 def core_eia861__assn_balancing_authority(
     **dfs: dict[str, pd.DataFrame],
@@ -2806,7 +2806,7 @@ def core_eia861__assn_balancing_authority(
     return ba_assn_eia861
 
 
-@asset(io_manager_key="pudl_io_manager")
+@asset(io_manager_key="parquet_io_manager")
 def core_eia861__yearly_balancing_authority(
     _core_eia861__balancing_authority: pd.DataFrame,
 ) -> pd.DataFrame:

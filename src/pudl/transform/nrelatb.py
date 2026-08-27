@@ -328,7 +328,7 @@ def _core_nrelatb__transform_start(raw_nrelatb__data):
     )
 
 
-@asset(io_manager_key="pudl_io_manager")
+@asset(io_manager_key="parquet_io_manager")
 def core_nrelatb__yearly_projected_financial_cases(
     _core_nrelatb__transform_start,
 ) -> pd.DataFrame:
@@ -340,7 +340,7 @@ def core_nrelatb__yearly_projected_financial_cases(
     return df
 
 
-@asset(io_manager_key="pudl_io_manager")
+@asset(io_manager_key="parquet_io_manager")
 def core_nrelatb__yearly_projected_financial_cases_by_scenario(
     _core_nrelatb__transform_start,
 ) -> pd.DataFrame:
@@ -464,7 +464,7 @@ def _broadcast_core_metric_parameters(
     return nrelatb_unstacked_broadcast
 
 
-@asset(io_manager_key="pudl_io_manager")
+@asset(io_manager_key="parquet_io_manager")
 def core_nrelatb__yearly_projected_cost_performance(
     _core_nrelatb__transform_start,
 ) -> pd.DataFrame:
@@ -496,7 +496,7 @@ def _core_nrelatb__yearly_units(
     return units
 
 
-@asset(io_manager_key="pudl_io_manager")
+@asset(io_manager_key="parquet_io_manager")
 def core_nrelatb__yearly_technology_status(
     _core_nrelatb__transform_start: pd.DataFrame,
 ) -> pd.DataFrame:

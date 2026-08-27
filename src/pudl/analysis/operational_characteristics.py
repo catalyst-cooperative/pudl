@@ -706,7 +706,7 @@ def estimate_operational_characteristics_by_unit(
             ),
         ),
     },
-    io_manager_key="pudl_io_manager",
+    io_manager_key="parquet_io_manager",
     op_tags={"memory-use": "high"},  # Peak of ~16 GB as of 2026-08-05
 )
 def out_epacems__yearly_operational_characteristics(

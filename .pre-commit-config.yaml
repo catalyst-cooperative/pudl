@@ -81,7 +81,7 @@ repos:
             |.*\.html
             |.*\.json
             |src/pudl/package_data/ferc1/.*_categories\.yaml
-          )$ | migrations/ | devtools/ | tests/ | notebooks/ | src/pudl/metadata/codes.py | src/pudl/transform/params/ferc1.py
+          )$ | devtools/ | tests/ | notebooks/ | src/pudl/metadata/codes.py | src/pudl/transform/params/ferc1.py
         args: [] # Make this read, not write
 
   # Lint Dockerfiles for errors and to ensure best practices
@@ -123,7 +123,7 @@ repos:
           - "--exclude-lines"
           - "workload_identity_provider:"
           - "--exclude-files"
-          - "(?x)(dbt/package-lock\\.yml|.*\\.ipynb|docs/.*\\.html|migrations/.*|skills-lock\\.json)"
+          - "(?x)(dbt/package-lock\\.yml|.*\\.ipynb|docs/.*\\.html|skills-lock\\.json)"
 
   #####################################################################################
   # Our own pre-commit hooks, which don't come from the pre-commit project

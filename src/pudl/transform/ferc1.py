@@ -6641,7 +6641,7 @@ _FERC1_PLANT_TABLES = frozenset(
 def ferc1_transform_asset_factory(
     table_name: str,
     tfr_class: Ferc1AbstractTableTransformer,
-    io_manager_key: str = "pudl_io_manager",
+    io_manager_key: str = "parquet_io_manager",
     convert_dtypes: bool = True,
     generic: bool = False,
     op_tags: dict[str, Any] | None = None,

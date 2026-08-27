@@ -1,21 +1,19 @@
 """Dagster IO managers used by PUDL assets.
 
 This module defines the IO-manager implementations that translate between Dagster asset
-execution and PUDL's storage formats, including SQLite, Parquet (with native GeoParquet
-support for assets that return a :class:`geopandas.GeoDataFrame`), and the FERC
-prerequisite databases. Put :class:`dagster.IOManager` and
-:class:`dagster.ConfigurableIOManager` classes here, along with configured singleton
-instances that the default code location reuses. Keep data-processing logic out of this
-module; it should focus on persistence, loading, and storage-compatibility concerns.
+execution and PUDL's storage formats, including Parquet (with native GeoParquet support
+for assets that return a :class:`geopandas.GeoDataFrame`) and the FERC prerequisite
+SQLite databases. Put :class:`dagster.IOManager` and :class:`dagster.ConfigurableIOManager`
+classes here, along with configured singleton instances that the default code location
+reuses. Keep data-processing logic out of this module; it should focus on persistence,
+loading, and storage-compatibility concerns.
 
 For the underlying Dagster concept, see https://docs.dagster.io/guides/build/io-managers
 """
 
 import hashlib
 import re
-from functools import cached_property
 from pathlib import Path
-from sqlite3 import sqlite_version
 from typing import Any, ClassVar
 
 import dagster as dg
@@ -24,17 +22,8 @@ import pandas as pd
 import polars as pl
 import pyarrow.parquet as pq
 import sqlalchemy as sa
-from alembic.autogenerate.api import compare_metadata
-from alembic.migration import MigrationContext
-from dagster import (
-    ConfigurableIOManager,
-    DagsterInvariantViolationError,
-    InputContext,
-    OutputContext,
-)
-from packaging import version
-from pydantic import PrivateAttr, model_validator
-from sqlalchemy.exc import IntegrityError
+from dagster import DagsterInvariantViolationError, InputContext, OutputContext
+from pydantic import PrivateAttr
 
 import pudl.logging_helpers
 from pudl.dagster.provenance import (
@@ -52,23 +41,9 @@ from pudl.dagster.resources import (
     zenodo_doi_settings_resource,
 )
 from pudl.helpers import get_parquet_table, get_parquet_table_polars
-from pudl.metadata.classes import PUDL_PACKAGE, Package, Resource
+from pudl.metadata.classes import Resource
 
 logger = pudl.logging_helpers.get_logger(__name__)
-
-MINIMUM_SQLITE_VERSION = "3.32.0"
-
-# Alembic >=1.19 added a "checkconstraint_byname" autogenerate plugin that only
-# looks for CheckConstraints attached at the Table level, but every constraint
-# PUDL generates (see Field.to_sql()) is attached at the Column level instead.
-# That mismatch makes the plugin report every real, unchanged check constraint
-# as "removed" on each run. Disable it until upstream handles column-level
-# CheckConstraints -- this restores the pre-1.19 behavior of not diffing CHECK
-# constraints at all.
-ALEMBIC_AUTOGENERATE_PLUGINS = [
-    "alembic.autogenerate.*",
-    "~alembic.autogenerate.checkconstraint_byname",
-]
 
 
 def _get_dagster_instance_if_available(
@@ -97,255 +72,6 @@ def get_table_name_from_context(context: InputContext | OutputContext) -> str:
     if context.has_asset_key:
         return context.asset_key.to_python_identifier()
     return context.get_identifier()
-
-
-class PudlMixedFormatIOManager(ConfigurableIOManager):
-    """Format switching IOManager that supports sqlite and parquet.
-
-    This IOManager provides for the use of parquet files along with the standard SQLite
-    database produced by PUDL.
-    """
-
-    write_to_parquet: bool = True
-    """If true, data will be written to parquet files."""
-
-    read_from_parquet: bool = True
-    """If true, data will be read from parquet files instead of sqlite."""
-
-    pudl_paths: dg.ResourceDependency[PudlPathsResource]
-
-    @model_validator(mode="after")
-    def validate_parquet_settings(self) -> "PudlMixedFormatIOManager":
-        """Ensure the configured read/write mode is internally consistent."""
-        if self.read_from_parquet and not self.write_to_parquet:
-            raise RuntimeError(
-                "read_from_parquet cannot be set when write_to_parquet is False."
-            )
-        return self
-
-    @cached_property
-    def _sqlite_io_manager(self) -> "PudlSqliteIOManager":
-        """Build the SQLite-backed runtime IO manager lazily."""
-        return PudlSqliteIOManager(
-            base_dir=self.pudl_paths.pudl_output,
-            db_name="pudl",
-        )
-
-    @cached_property
-    def _parquet_io_manager(self) -> "PudlParquetIOManager":
-        """Build the Parquet-backed runtime IO manager lazily."""
-        return PudlParquetIOManager(pudl_paths=self.pudl_paths)
-
-    def handle_output(self, context: dg.OutputContext, obj: pd.DataFrame) -> None:
-        """Passes the output to the appropriate IO manager instance."""
-        self._sqlite_io_manager.handle_output(context, obj)
-        if self.write_to_parquet:
-            self._parquet_io_manager.handle_output(context, obj)
-
-    def load_input(
-        self, context: dg.InputContext
-    ) -> pd.DataFrame | geopandas.GeoDataFrame | pl.LazyFrame:
-        """Reads input from the appropriate IO manager instance."""
-        if self.read_from_parquet:
-            return self._parquet_io_manager.load_input(context)
-        return self._sqlite_io_manager.load_input(context)
-
-
-class SqliteIOManager(dg.IOManager):
-    """IO Manager that writes and retrieves dataframes from a SQLite database."""
-
-    def __init__(
-        self,
-        base_dir: str,
-        db_name: str,
-        md: sa.MetaData | None = None,
-        timeout: float = 1_000.0,
-    ):
-        """Init a SqliteIOManager.
-
-        Args:
-            base_dir: base directory where all the step outputs which use this object
-                manager will be stored in.
-            db_name: the name of sqlite database.
-            md: database metadata described as a SQLAlchemy MetaData object. If not
-                specified, default to metadata stored in the pudl.metadata subpackage.
-            timeout: How many seconds the connection should wait before raising
-                an exception, if the database is locked by another connection.
-                If another connection opens a transaction to modify the database,
-                it will be locked until that transaction is committed.
-        """
-        self.base_dir = Path(base_dir)
-        self.db_name = db_name
-
-        bad_sqlite_version = version.parse(sqlite_version) < version.parse(
-            MINIMUM_SQLITE_VERSION
-        )
-        if bad_sqlite_version:
-            logger.warning(
-                f"Found SQLite {sqlite_version} which is less than "
-                f"the minimum required version {MINIMUM_SQLITE_VERSION} "
-                "As a result, data type constraint checking has been disabled."
-            )
-
-        # If no metadata is specified, create an empty sqlalchemy metadata object.
-        if md is None:
-            md = sa.MetaData()
-        self.md = md
-
-        self.engine = self._setup_database(timeout=timeout)
-
-    def _setup_database(self, timeout: float = 1_000.0) -> sa.Engine:
-        """Create database and metadata if they don't exist.
-
-        Args:
-            timeout: How many seconds the connection should wait before raising an
-                exception, if the database is locked by another connection.  If another
-                connection opens a transaction to modify the database, it will be locked
-                until that transaction is committed.
-
-        Returns:
-            engine: SQL Alchemy engine that connects to a database in the base_dir.
-        """
-        # If the sqlite directory doesn't exist, create it.
-        if not self.base_dir.exists():
-            self.base_dir.mkdir(parents=True)
-        db_path = self.base_dir / f"{self.db_name}.sqlite"
-
-        engine = sa.create_engine(
-            f"sqlite:///{db_path}", connect_args={"timeout": timeout}
-        )
-
-        # Create the database and schemas
-        if not db_path.exists():
-            db_path.touch()
-            self.md.create_all(engine)
-
-        return engine
-
-    def _get_sqlalchemy_table(self, table_name: str) -> sa.Table:
-        """Get SQL Alchemy Table object from metadata given a table_name.
-
-        Args:
-            table_name: The name of the table to look up.
-
-        Returns:
-            table: Corresponding SQL Alchemy Table in SqliteIOManager metadata.
-
-        Raises:
-            ValueError: if table_name does not exist in the SqliteIOManager metadata.
-        """
-        sa_table = self.md.tables.get(table_name, None)
-        if sa_table is None:
-            raise ValueError(
-                f"{table_name} not found in database metadata. Either add the table to "
-                "the metadata or use a different IO Manager."
-            )
-        return sa_table
-
-    def _handle_pandas_output(
-        self, context: dg.OutputContext, df: pd.DataFrame
-    ) -> None:
-        """Write dataframe to the database.
-
-        SQLite does not support concurrent writes to the database. Instead, SQLite
-        queues write transactions and executes them one at a time.  This allows the
-        assets to be processed in parallel. See the `SQLAlchemy docs
-        <https://docs.sqlalchemy.org/en/14/dialects/sqlite.html#database-
-        locking-behavior-concurrency>`__ to learn more about SQLite concurrency.
-
-        Args:
-            context: dagster keyword that provides access to output information like
-                asset name.
-            df: dataframe to write to the database.
-        """
-        table_name = get_table_name_from_context(context)
-        sa_table = self._get_sqlalchemy_table(table_name)
-        column_difference = set(sa_table.columns.keys()) - set(df.columns)
-        if column_difference:
-            raise ValueError(
-                f"{table_name} dataframe is missing columns: {column_difference}"
-            )
-
-        # SQLite's INTEGER PRIMARY KEY is a ROWID alias: a single-column INTEGER PK
-        # silently treats NULL as "assign the next available rowid" rather than raising
-        # a constraint error. Composite PKs and non-INTEGER single PKs are not ROWID
-        # aliases, so SQLite enforces NOT NULL on them normally. Check explicitly only
-        # for the one case SQLite misses.
-        pk_cols = list(sa_table.primary_key.columns)
-        if (
-            len(pk_cols) == 1
-            and isinstance(pk_cols[0].type, sa.Integer)
-            and pk_cols[0].name in df.columns
-            and df[pk_cols[0].name].isna().any()
-        ):
-            raise IntegrityError(
-                f"INSERT INTO {table_name}",
-                {},
-                Exception(
-                    f"NOT NULL constraint failed: {table_name}.{pk_cols[0].name}"
-                ),
-            )
-
-        engine = self.engine
-        with engine.begin() as con:
-            # Remove old table records before loading to db
-            con.execute(sa_table.delete())
-
-        with engine.begin() as con:
-            df.to_sql(
-                table_name,
-                con,
-                if_exists="append",
-                index=False,
-                chunksize=100_000,
-                dtype={c.name: c.type for c in sa_table.columns},
-            )
-
-    def handle_output(self, context: dg.OutputContext, obj: pd.DataFrame) -> None:
-        """Handle an op or asset output.
-
-        Args:
-            context: dagster keyword that provides access output information like asset
-                name.
-            obj: a dataframe to add to the database.
-
-        Raises:
-            TypeError: if an asset or op returns an unsupported datatype.
-        """
-        if not isinstance(obj, pd.DataFrame):
-            raise TypeError(
-                f"SqliteIOManager only supports pandas DataFrames, got {type(obj)}."
-            )
-        self._handle_pandas_output(context, obj)
-
-    def load_input(self, context: dg.InputContext) -> pd.DataFrame:
-        """Load a dataframe from a sqlite database.
-
-        Args:
-            context: dagster keyword that provides access output information like asset
-                name.
-        """
-        table_name = get_table_name_from_context(context)
-        # Check if the table_name exists in the self.md object
-        _ = self._get_sqlalchemy_table(table_name)
-
-        engine = self.engine
-
-        with engine.begin() as con:
-            try:
-                df = pd.read_sql_table(table_name, con)
-            except ValueError as err:
-                raise ValueError(
-                    f"{table_name} not found. Either the table was dropped "
-                    "or it doesn't exist in the pudl.metadata.resources."
-                    "Add the table to the metadata and recreate the database."
-                ) from err
-            if df.empty:
-                raise AssertionError(
-                    f"The {table_name} table is empty. Materialize "
-                    f"the {table_name} asset so it is available in the database."
-                )
-            return df
 
 
 class PudlParquetIOManager(dg.ConfigurableIOManager):
@@ -429,140 +155,6 @@ class PudlParquetIOManager(dg.ConfigurableIOManager):
         return df
 
 
-class PudlSqliteIOManager(SqliteIOManager):
-    """IO Manager that writes and retrieves dataframes from a SQLite database.
-
-    This class extends the SqliteIOManager class to manage database metadata and dtypes
-    using the :class:`pudl.metadata.classes.Package` class.
-    """
-
-    def __init__(
-        self,
-        base_dir: str,
-        db_name: str,
-        package: Package | None = None,
-        timeout: float = 1_000.0,
-    ):
-        """Initialize PudlSqliteIOManager.
-
-        Args:
-            base_dir: base directory where all the step outputs which use this object
-                manager will be stored in.
-            db_name: the name of sqlite database.
-            package: Package object that contains collections of
-                :class:`pudl.metadata.classes.Resources` objects and methods
-                for validating and creating table metadata. It is used in this class
-                to create sqlalchemy metadata and check datatypes of dataframes. If not
-                specified, defaults to a Package with all metadata stored in the
-                :mod:`pudl.metadata.resources` subpackage.
-
-                Every table that appears in `self.md` is specified in `self.package`
-                as a :class:`pudl.metadata.classes.Resources`. However, not every
-                :class:`pudl.metadata.classes.Resources` in `self.package` is included
-                in `self.md` as a table. This is because `self.package` is used to ensure
-                datatypes of dataframes loaded from database views are correct. However,
-                the metadata for views in `self.package` should not be used to create
-                table schemas in the database because views are just stored sql statements
-                and do not require a schema.
-            timeout: How many seconds the connection should wait before raising an
-                exception, if the database is locked by another connection.  If another
-                connection opens a transaction to modify the database, it will be locked
-                until that transaction is committed.
-        """
-        if package is None:
-            package = PUDL_PACKAGE
-        self.package = package
-        md = self.package.to_sql()
-        sqlite_path = Path(base_dir) / f"{db_name}.sqlite"
-        if not sqlite_path.exists():
-            raise RuntimeError(
-                f"{sqlite_path} not initialized! Run `alembic upgrade head`."
-            )
-
-        super().__init__(base_dir, db_name, md, timeout)
-
-        with self.engine.connect() as connection:
-            existing_schema_context = MigrationContext.configure(
-                connection,
-                opts={"autogenerate_plugins": ALEMBIC_AUTOGENERATE_PLUGINS},
-            )
-            metadata_diff = compare_metadata(existing_schema_context, self.md)
-        if metadata_diff:
-            logger.info(f"Metadata diff:\n\n{metadata_diff}")
-            raise RuntimeError(
-                "Database schema has changed, run `alembic revision "
-                "--autogenerate -m 'relevant message' && alembic upgrade head`."
-            )
-
-    def _handle_pandas_output(
-        self, context: dg.OutputContext, df: pd.DataFrame
-    ) -> None:
-        """Enforce PUDL DB schema and write dataframe to SQLite."""
-        table_name = get_table_name_from_context(context)
-        # If table_name doesn't show up in the self.md object, this will raise an error
-        sa_table = self._get_sqlalchemy_table(table_name)
-        res = self.package.get_resource(table_name)
-
-        df = res.enforce_schema(df)
-        with self.engine.begin() as con:
-            # Remove old table records before loading to db
-            con.execute(sa_table.delete())
-
-            df.to_sql(
-                table_name,
-                con,
-                if_exists="append",
-                index=False,
-                chunksize=100_000,
-                dtype={c.name: c.type for c in sa_table.columns},
-            )
-
-    def load_input(self, context: dg.InputContext) -> pd.DataFrame:
-        """Load a dataframe from a sqlite database.
-
-        Args:
-            context: dagster keyword that provides access output information like asset
-                name.
-        """
-        table_name = get_table_name_from_context(context)
-
-        # Check if there is a Resource in self.package for table_name
-        try:
-            res = self.package.get_resource(table_name)
-        except ValueError as err:
-            raise ValueError(
-                f"{table_name} does not appear in pudl.metadata.resources. "
-                "Check for typos, or add the table to the metadata and recreate the "
-                f"PUDL SQlite database. It's also possible that {table_name} is one of "
-                "the tables that does not get loaded into the PUDL SQLite DB because "
-                "it's a work in progress or is distributed in Apache Parquet format."
-            ) from err
-
-        with self.engine.begin() as con:
-            try:
-                df = pd.concat(
-                    [
-                        res.enforce_schema(chunk_df)
-                        for chunk_df in pd.read_sql_table(
-                            table_name, con, chunksize=100_000
-                        )
-                    ]
-                )
-            except ValueError as err:
-                raise ValueError(
-                    f"{table_name} not found. Either the table was dropped "
-                    "or it doesn't exist in the pudl.metadata.resources."
-                    "Add the table to the metadata and recreate the database."
-                ) from err
-            if df.empty:
-                raise AssertionError(
-                    f"The {table_name} table is empty. Materialize the {table_name} "
-                    "asset so it is available in the database."
-                )
-        return df
-
-
-pudl_mixed_format_io_manager = PudlMixedFormatIOManager(pudl_paths=pudl_paths_resource)
 parquet_io_manager = PudlParquetIOManager(pudl_paths=pudl_paths_resource)
 
 
@@ -818,5 +410,4 @@ default_io_managers: dict[str, Any] = {
     "ferc1_xbrl_sqlite_io_manager": ferc1_xbrl_sqlite_io_manager,
     "ferc714_xbrl_sqlite_io_manager": ferc714_xbrl_sqlite_io_manager,
     "parquet_io_manager": parquet_io_manager,
-    "pudl_io_manager": pudl_mixed_format_io_manager,
 }

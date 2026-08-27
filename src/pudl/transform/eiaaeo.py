@@ -204,7 +204,7 @@ def unstack(df: pd.DataFrame, eventual_pk: list[str]):
     return unstacked
 
 
-@asset(io_manager_key="pudl_io_manager")
+@asset(io_manager_key="parquet_io_manager")
 def core_eiaaeo__yearly_projected_generation_in_electric_sector_by_technology(
     raw_eiaaeo__electric_power_projections_regional,
 ):
@@ -362,7 +362,7 @@ def core_eiaaeo__yearly_projected_generation_in_electric_sector_by_technology(
     return renamed_for_pudl
 
 
-@asset(io_manager_key="pudl_io_manager")
+@asset(io_manager_key="parquet_io_manager")
 def core_eiaaeo__yearly_projected_electric_sales(
     raw_eiaaeo__electric_power_projections_regional,
 ):
@@ -431,7 +431,7 @@ def core_eiaaeo__yearly_projected_electric_sales(
     return renamed_for_pudl
 
 
-@asset(io_manager_key="pudl_io_manager")
+@asset(io_manager_key="parquet_io_manager")
 def core_eiaaeo__yearly_projected_generation_in_end_use_sectors_by_fuel_type(
     raw_eiaaeo__electric_power_projections_regional,
 ):
@@ -515,7 +515,7 @@ def core_eiaaeo__yearly_projected_generation_in_end_use_sectors_by_fuel_type(
     return renamed_for_pudl
 
 
-@asset(io_manager_key="pudl_io_manager")
+@asset(io_manager_key="parquet_io_manager")
 def core_eiaaeo__yearly_projected_energy_use_by_sector_and_type(
     raw_eiaaeo__energy_consumption_by_sector_and_source,
 ):
@@ -623,7 +623,7 @@ def core_eiaaeo__yearly_projected_energy_use_by_sector_and_type(
     return renamed_for_pudl
 
 
-@asset(io_manager_key="pudl_io_manager")
+@asset(io_manager_key="parquet_io_manager")
 def core_eiaaeo__yearly_projected_fuel_cost_in_electric_sector_by_type(
     raw_eiaaeo__electric_power_projections_regional,
 ):

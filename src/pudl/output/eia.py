@@ -12,7 +12,7 @@ from pudl.transform.eia861 import add_backfilled_ba_code_column
 logger = pudl.logging_helpers.get_logger(__name__)
 
 
-@asset(io_manager_key="pudl_io_manager", compute_kind="Python")
+@asset(io_manager_key="parquet_io_manager", compute_kind="Python")
 def out_eia__yearly_utilities(
     core_eia__entity_utilities: pd.DataFrame,
     core_eia860__scd_utilities: pd.DataFrame,
@@ -53,7 +53,7 @@ def out_eia__yearly_utilities(
     return out_df
 
 
-@asset(io_manager_key="pudl_io_manager", compute_kind="Python")
+@asset(io_manager_key="parquet_io_manager", compute_kind="Python")
 def out_eia__yearly_plants(
     core_eia__entity_plants: pd.DataFrame,
     core_eia860__scd_plants: pd.DataFrame,
@@ -329,7 +329,7 @@ def _out_eia__yearly_generators(
     return out_df
 
 
-@asset(io_manager_key="pudl_io_manager", compute_kind="Python")
+@asset(io_manager_key="parquet_io_manager", compute_kind="Python")
 def out_eia__yearly_boilers(
     core_eia860__scd_boilers: pd.DataFrame,
     core_eia__entity_boilers: pd.DataFrame,

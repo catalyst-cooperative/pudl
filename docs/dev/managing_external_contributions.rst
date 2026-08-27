@@ -184,7 +184,6 @@ We would take over if:
   * Harvesting
   * Schema nitpicking
   * Writing dbt or other obscure tests
-  * Resolving alembic merges
   * Aligning code style to the rest of the repo, beyond what's available to the
     contributor in the dev guide
 
