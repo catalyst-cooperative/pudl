@@ -14,7 +14,6 @@ sources:
           - expect_columns_not_all_null
           - check_row_counts_per_partition:
               arguments:
-                table_name: out_eia930__hourly_operations
                 partition_expr: EXTRACT(YEAR FROM datetime_utc)
           - expect_columns_are_close:
               arguments:

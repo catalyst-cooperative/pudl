@@ -250,7 +250,6 @@ sources:
           - test_idle_capacity
           - check_row_counts_per_partition:
               arguments:
-                table_name: out_eia__monthly_generators
                 partition_expr: EXTRACT(YEAR FROM report_date)
         columns:
           - name: plant_id_eia

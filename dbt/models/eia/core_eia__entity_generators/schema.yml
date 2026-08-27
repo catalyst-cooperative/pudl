@@ -20,10 +20,7 @@ sources:
               arguments:
                 exclude_columns:
                   - can_switch_when_operating
-          - check_row_counts_per_partition:
-              arguments:
-                table_name: core_eia__entity_generators
-                partition_expr: null
+          - check_row_counts_per_partition
         columns:
           - name: plant_id_eia
           - name: generator_id

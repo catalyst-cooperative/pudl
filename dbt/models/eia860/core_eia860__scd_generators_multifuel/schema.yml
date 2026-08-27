@@ -96,7 +96,6 @@ sources:
                   fuel_switch_energy_source_6: EXTRACT(year FROM report_date) <= 2012
           - check_row_counts_per_partition:
               arguments:
-                table_name: core_eia860__scd_generators_multifuel
                 partition_expr: EXTRACT(YEAR FROM report_date)
         columns:
           - name: report_date

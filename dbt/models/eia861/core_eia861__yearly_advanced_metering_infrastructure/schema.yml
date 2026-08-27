@@ -14,7 +14,6 @@ sources:
           - expect_columns_not_all_null
           - check_row_counts_per_partition:
               arguments:
-                table_name: core_eia861__yearly_advanced_metering_infrastructure
                 partition_expr: EXTRACT(YEAR FROM report_date)
         columns:
           - name: advanced_metering_infrastructure

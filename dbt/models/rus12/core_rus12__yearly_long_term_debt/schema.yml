@@ -20,7 +20,6 @@ sources:
               description: Examine ~80 cases where interest + principal != total
           - check_row_counts_per_partition:
               arguments:
-                table_name: core_rus12__yearly_long_term_debt
                 partition_expr: EXTRACT(YEAR FROM report_date)
         columns:
           - name: report_date

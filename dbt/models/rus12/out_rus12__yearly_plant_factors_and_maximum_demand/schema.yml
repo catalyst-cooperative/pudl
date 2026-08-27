@@ -13,7 +13,6 @@ sources:
                   - borrower_id_rus
           - check_row_counts_per_partition:
               arguments:
-                table_name: out_rus12__yearly_plant_factors_and_maximum_demand
                 partition_expr: EXTRACT(YEAR FROM report_date)
         columns:
           - name: report_date

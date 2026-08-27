@@ -29,10 +29,7 @@ sources:
               arguments:
                 exclude_columns:
                   - county_id_fips
-          - check_row_counts_per_partition:
-              arguments:
-                table_name: core_eia923__entity_coalmine
-                partition_expr: null
+          - check_row_counts_per_partition
         columns:
           - name: mine_id_pudl
             data_tests:

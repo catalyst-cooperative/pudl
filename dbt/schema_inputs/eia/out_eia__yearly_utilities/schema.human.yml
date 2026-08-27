@@ -43,7 +43,6 @@ sources:
                   phone_extension_2: EXTRACT(year FROM report_date) <= 2006
           - check_row_counts_per_partition:
               arguments:
-                table_name: out_eia__yearly_utilities
                 partition_expr: EXTRACT(YEAR FROM report_date)
           - expect_date_frequency_ratio:
               arguments:

@@ -55,7 +55,6 @@ sources:
                   data_maturity: EXTRACT(year FROM report_date) >= 2009
           - check_row_counts_per_partition:
               arguments:
-                table_name: core_eia860__assn_boiler_generator
                 partition_expr: EXTRACT(YEAR FROM report_date)
           - expect_date_frequency_ratio:
               arguments:

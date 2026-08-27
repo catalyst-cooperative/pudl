@@ -20,7 +20,6 @@ sources:
                   - utility_id_pudl
           - check_row_counts_per_partition:
               arguments:
-                table_name: out_ferc1__yearly_rate_base
                 partition_expr: report_year
           - expect_columns_not_all_null:
               description: ferc_account is entirely null. Seems like an error.

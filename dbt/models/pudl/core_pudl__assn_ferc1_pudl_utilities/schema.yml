@@ -12,10 +12,7 @@ sources:
                 pk_column_names:
                   - utility_id_pudl
           - expect_columns_not_all_null
-          - check_row_counts_per_partition:
-              arguments:
-                table_name: core_pudl__assn_ferc1_pudl_utilities
-                partition_expr: null
+          - check_row_counts_per_partition
         columns:
           - name: utility_id_ferc1
             data_tests:

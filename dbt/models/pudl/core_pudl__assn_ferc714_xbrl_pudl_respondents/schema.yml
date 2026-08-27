@@ -12,10 +12,7 @@ sources:
                 pk_column_names:
                   - respondent_id_ferc714
           - expect_columns_not_all_null
-          - check_row_counts_per_partition:
-              arguments:
-                table_name: core_pudl__assn_ferc714_xbrl_pudl_respondents
-                partition_expr: null
+          - check_row_counts_per_partition
         columns:
           - name: respondent_id_ferc714
           - name: respondent_id_ferc714_xbrl

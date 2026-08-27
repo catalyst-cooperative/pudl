@@ -42,7 +42,6 @@ sources:
                   phone_extension_2: EXTRACT(year FROM report_date) <= 2006
           - check_row_counts_per_partition:
               arguments:
-                table_name: core_eia860__scd_utilities
                 partition_expr: EXTRACT(YEAR FROM report_date)
         columns:
           - name: utility_id_eia

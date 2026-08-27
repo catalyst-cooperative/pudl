@@ -12,10 +12,7 @@ sources:
                 pk_column_names:
                   - code
           - expect_columns_not_all_null
-          - check_row_counts_per_partition:
-              arguments:
-                table_name: core_eia__codes_balancing_authority_subregions
-                partition_expr: null
+          - check_row_counts_per_partition
         columns:
           - name: balancing_authority_code_eia
           - name: balancing_authority_subregion_code_eia

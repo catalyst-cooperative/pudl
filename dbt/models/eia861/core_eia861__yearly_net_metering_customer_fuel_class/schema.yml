@@ -20,7 +20,6 @@ sources:
                   sold_to_utility_mwh: EXTRACT(year FROM report_date) >= 2007
           - check_row_counts_per_partition:
               arguments:
-                table_name: core_eia861__yearly_net_metering_customer_fuel_class
                 partition_expr: EXTRACT(YEAR FROM report_date)
         columns:
           - name: balancing_authority_code_eia

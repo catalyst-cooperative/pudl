@@ -21,7 +21,6 @@ sources:
           - expect_columns_not_all_null
           - check_row_counts_per_partition:
               arguments:
-                table_name: out_ferc714__georeferenced_respondents
                 partition_expr: EXTRACT(year FROM report_date)
           - dbt_utils.unique_combination_of_columns:
               arguments:

@@ -24,7 +24,6 @@ sources:
                   short_form: EXTRACT(year FROM report_date) = 2019
           - check_row_counts_per_partition:
               arguments:
-                table_name: core_eia861__yearly_reliability
                 partition_expr: EXTRACT(YEAR FROM report_date)
         columns:
           - name: caidi_w_major_event_days_minus_loss_of_service_minutes

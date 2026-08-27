@@ -22,7 +22,6 @@ sources:
               description: Expect that RUS will generally not invest more than is invested in a plant.
           - check_row_counts_per_partition:
               arguments:
-                table_name: core_rus12__yearly_renewable_plants
                 partition_expr: EXTRACT(YEAR FROM report_date)
         columns:
           - name: report_date

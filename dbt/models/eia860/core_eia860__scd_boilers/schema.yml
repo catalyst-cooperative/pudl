@@ -469,7 +469,6 @@ sources:
                   standard_so2_scrubbed_fraction: EXTRACT(year FROM report_date) >= 2013
           - check_row_counts_per_partition:
               arguments:
-                table_name: core_eia860__scd_boilers
                 partition_expr: EXTRACT(YEAR FROM report_date)
         columns:
           - name: plant_id_eia

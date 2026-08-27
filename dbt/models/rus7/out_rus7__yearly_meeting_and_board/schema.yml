@@ -29,7 +29,6 @@ sources:
               description: MO0066 reports two bad values for 2020 and 2021.
           - check_row_counts_per_partition:
               arguments:
-                table_name: out_rus7__yearly_meeting_and_board
                 partition_expr: EXTRACT(YEAR FROM report_date)
         columns:
           - name: report_date

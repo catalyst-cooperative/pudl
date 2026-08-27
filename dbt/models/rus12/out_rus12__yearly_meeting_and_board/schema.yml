@@ -29,7 +29,6 @@ sources:
               description: AZ0028 reports 8 members but 14 present in 2006.
           - check_row_counts_per_partition:
               arguments:
-                table_name: out_rus12__yearly_meeting_and_board
                 partition_expr: EXTRACT(YEAR FROM report_date)
         columns:
           - name: report_date

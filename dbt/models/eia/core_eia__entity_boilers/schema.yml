@@ -28,10 +28,7 @@ sources:
                 exclude_columns:
                   - boiler_manufacturer
                   - boiler_manufacturer_code
-          - check_row_counts_per_partition:
-              arguments:
-                table_name: core_eia__entity_boilers
-                partition_expr: null
+          - check_row_counts_per_partition
         columns:
           - name: plant_id_eia
           - name: boiler_id

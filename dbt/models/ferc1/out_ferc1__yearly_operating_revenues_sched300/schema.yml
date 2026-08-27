@@ -21,7 +21,6 @@ sources:
           - expect_columns_not_all_null
           - check_row_counts_per_partition:
               arguments:
-                table_name: out_ferc1__yearly_operating_revenues_sched300
                 partition_expr: report_year
         columns:
           - name: report_year
