@@ -766,15 +766,27 @@ class Field(PudlMeta):
             metadata={"description": self.description},
         )
 
-    def to_sql(  # noqa: C901
+    def to_sql(
         self,
-        dialect: Literal["sqlite"] = "sqlite",
+        dialect: Literal["sqlite", "duckdb"] = "sqlite",
         check_types: bool = True,
         check_values: bool = True,
     ) -> sa.Column:
-        """Return equivalent SQL column."""
-        if dialect != "sqlite":
-            raise NotImplementedError(f"Dialect {dialect} is not supported")
+        """Return equivalent SQL column for the given dialect."""
+        if dialect == "sqlite":
+            return self._to_sql_sqlite(
+                check_types=check_types, check_values=check_values
+            )
+        if dialect == "duckdb":
+            return self._to_sql_duckdb(check_values=check_values)
+        raise NotImplementedError(f"Dialect {dialect} is not supported")
+
+    def _to_sql_sqlite(  # noqa: C901
+        self,
+        check_types: bool = True,
+        check_values: bool = True,
+    ) -> sa.Column:
+        """Return equivalent SQL column for the SQLite dialect."""
         checks = []
         name = _format_for_sql(self.name, identifier=True)
         if check_types:
@@ -850,6 +862,89 @@ class Field(PudlMeta):
             nullable=not self.constraints.required,
             unique=self.constraints.unique,
             comment=self.description,
+        )
+
+    def _to_sql_duckdb(self, check_values: bool = True) -> sa.Column:
+        """Return equivalent SQL column for the DuckDB dialect.
+
+        Unlike :meth:`_to_sql_sqlite`, there is no ``check_types`` block here at
+        all: DuckDB is statically typed, so a column declared e.g. ``BIGINT``
+        structurally can't hold a string value. The ``TYPEOF``/``DATETIME``/``GLOB``
+        checks built for SQLite exist specifically to compensate for SQLite's
+        dynamic typing, and have no analog under DuckDB's native column types.
+        """
+        checks = []
+        name = _format_for_sql(self.name, identifier=True)
+        if check_values:
+            if self.constraints.min_length is not None:
+                checks.append(f"LENGTH({name}) >= {self.constraints.min_length}")
+            if self.constraints.max_length is not None:
+                checks.append(f"LENGTH({name}) <= {self.constraints.max_length}")
+            if self.constraints.minimum is not None:
+                minimum = _format_for_sql(self.constraints.minimum)
+                checks.append(f"{name} >= {minimum}")
+            if self.constraints.maximum is not None:
+                maximum = _format_for_sql(self.constraints.maximum)
+                checks.append(f"{name} <= {maximum}")
+            if self.constraints.pattern:
+                pattern = _format_for_sql(self.constraints.pattern)
+                # DuckDB has no bare REGEXP keyword/operator (unlike SQLite);
+                # regexp_full_match() is the equivalent it actually supports.
+                checks.append(
+                    f"regexp_full_match({name}, {pattern.replace(':', r'\:')})"
+                )
+            # Enum membership is enforced by the native ENUM column type below,
+            # not a separate CHECK -- unlike the sqlite dialect, where sa.Enum
+            # degrades to a plain VARCHAR/TEXT column plus this same IN (...)
+            # check, DuckDB (via a real SQLAlchemy engine + metadata.create_all())
+            # supports a genuine named ENUM type shared across every table that
+            # references it.
+        if self.constraints.enum:
+            # Named ENUM types are shared across every table/column that requests
+            # the same name (see the module-level note above) -- but the same
+            # field *name* is reused across resources with different, resource-
+            # specific enum value sets (e.g. "plant_type" means something
+            # different, with different allowed values, in different tables; see
+            # FIELD_METADATA_BY_RESOURCE). Naming the type after the field alone
+            # would silently share one table's enum values with another's column
+            # of the same name, causing any legitimately-different value to fail
+            # to cast. Suffixing with a hash of the (already deterministically
+            # sorted -- see FieldConstraints' enum validator) value set keeps
+            # genuinely identical enums (the common case, e.g. state codes)
+            # sharing one type, while giving each distinct value set its own.
+            enum_hash = sha1(  # noqa: S324
+                repr(self.constraints.enum).encode("utf-8")
+            ).hexdigest()[:8]
+            dtype = sa.Enum(
+                *self.constraints.enum, name=f"{self.name}_{enum_hash}_enum"
+            )
+        elif self.type == "datetime":
+            # SQLite needs the custom SQLITE_DATETIME() text-based decorator (see
+            # to_sqlite_dtype()) to get microsecond precision out of a TEXT column;
+            # DuckDB has a native TIMESTAMP type that already stores microseconds.
+            dtype = sa.DateTime()
+        else:
+            dtype = FIELD_DTYPES_SQLITE[self.type]
+        return sa.Column(
+            self.name,
+            dtype,
+            *[
+                sa.CheckConstraint(
+                    check,
+                    name=sha1(check.encode("utf-8")).hexdigest()[:8],  # noqa: S324
+                )
+                for check in checks
+            ],
+            nullable=not self.constraints.required,
+            unique=self.constraints.unique,
+            comment=self.description,
+            # Prevents SQLAlchemy's postgres-derived DDL compiler (which
+            # duckdb-engine's dialect is built on) from upgrading an Integer
+            # primary-key column to SERIAL -- DuckDB has no such keyword. Set
+            # unconditionally since Field.to_sql() doesn't know here whether this
+            # column will end up part of the table's primary key (that's decided
+            # later, in Resource.to_sql()); harmless on non-PK columns.
+            autoincrement=False,
         )
 
     def encode(self, col: pd.Series, dtype: type | None = None) -> pd.Series:  # noqa: A003
@@ -1590,7 +1685,7 @@ class Resource(PudlMeta):
         >>> resource = Resource(name='a', schema=schema, description='A')
         >>> table = resource.to_sql()
         >>> table.columns.x
-        Column('x', Integer(), ForeignKey('b.x'), CheckConstraint(...), table=<a>, primary_key=True, nullable=False, comment='X')
+        Column('x', BigInteger(), ForeignKey('b.x'), CheckConstraint(...), table=<a>, primary_key=True, nullable=False, comment='X')
         >>> table.columns.y
         Column('y', Text(), ForeignKey('b.y'), CheckConstraint(...), table=<a>, comment='Y')
 
@@ -1904,24 +1999,42 @@ class Resource(PudlMeta):
     def to_sql(
         self,
         metadata: sa.MetaData = None,
+        dialect: Literal["sqlite", "duckdb"] = "sqlite",
         check_types: bool = True,
         check_values: bool = True,
+        include_foreign_keys: bool = True,
     ) -> sa.Table:
-        """Return equivalent SQL Table."""
+        """Return equivalent SQL Table.
+
+        Args:
+            metadata: SQLAlchemy metadata to attach the table to.
+            dialect: passed through to each field's :meth:`Field.to_sql`.
+            check_types: passed through to each field's :meth:`Field.to_sql`.
+                Ignored under the ``duckdb`` dialect (see
+                :meth:`Field._to_sql_duckdb`).
+            check_values: passed through to each field's :meth:`Field.to_sql`.
+            include_foreign_keys: if False, omit foreign key constraints entirely.
+                DuckDB enforces these at insert time by validating against the
+                referenced table, which gets prohibitively slow/memory-intensive at
+                PUDL's full data volume -- callers materializing a full DuckDB copy
+                may want to opt out.
+        """
         if metadata is None:
             metadata = sa.MetaData()
         columns = [
             f.to_sql(
+                dialect=dialect,
                 check_types=check_types,
                 check_values=check_values,
             )
             for f in self.schema.fields
         ]
-        constraints = []
+        constraints: list[sa.Constraint] = []
         if self.schema.primary_key:
             constraints.append(sa.PrimaryKeyConstraint(*self.schema.primary_key))
-        for key in self.schema.foreign_keys:
-            constraints.append(key.to_sql())
+        if include_foreign_keys:
+            for key in self.schema.foreign_keys:
+                constraints.append(key.to_sql())
         return sa.Table(self.name, metadata, *columns, *constraints)
 
     def to_frictionless(self) -> frictionless.Resource:
@@ -2783,10 +2896,20 @@ class Package(PudlMeta):
 
     def to_sql(
         self,
+        dialect: Literal["sqlite", "duckdb"] = "sqlite",
         check_types: bool = True,
         check_values: bool = True,
+        include_foreign_keys: bool = True,
     ) -> sa.MetaData:
-        """Return equivalent SQL MetaData."""
+        """Return equivalent SQL MetaData.
+
+        Args:
+            dialect: passed through to each resource's :meth:`Resource.to_sql`.
+            check_types: passed through to each resource's :meth:`Resource.to_sql`.
+            check_values: passed through to each resource's :meth:`Resource.to_sql`.
+            include_foreign_keys: passed through to each resource's
+                :meth:`Resource.to_sql`.
+        """
         metadata = sa.MetaData(
             naming_convention={
                 "ix": "ix_%(column_0_label)s",
@@ -2800,8 +2923,10 @@ class Package(PudlMeta):
             if resource.create_database_schema:
                 _ = resource.to_sql(
                     metadata,
+                    dialect=dialect,
                     check_types=check_types,
                     check_values=check_values,
+                    include_foreign_keys=include_foreign_keys,
                 )
         return metadata
 

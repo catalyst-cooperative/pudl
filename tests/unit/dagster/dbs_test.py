@@ -1,4 +1,4 @@
-"""Test the pudl_sqlite asset that rebuilds pudl.sqlite from Parquet."""
+"""Test the pudl_sqlite/pudl_duckdb assets that rebuild databases from Parquet."""
 
 import sqlite3
 from pathlib import Path
@@ -11,18 +11,25 @@ import sqlalchemy as sa
 from pudl.dagster.assets.output.dbs import (
     TableWriteError,
     TableWriteReport,
+    _copy_table_to_duckdb,
     _copy_table_to_sqlite,
     _has_integer_rowid_alias_pk,
     _validate_primary_key,
+    write_pudl_duckdb,
     write_pudl_sqlite,
 )
 from pudl.metadata.classes import Package, Resource
 from pudl.workspace.setup import PudlPaths
 
+# duckdb-engine's SQLAlchemy dialect inherits Postgres' 63-character identifier
+# length limit, which DuckDB itself doesn't actually have -- see the matching
+# constant/comment in dbs.py. Applied to every duckdb SQLAlchemy engine below.
+_DUCKDB_MAX_IDENTIFIER_LENGTH = 255
+
 
 @pytest.fixture
 def test_pkg() -> Package:
-    """Create a test metadata package for the pudl_sqlite asset tests."""
+    """Create a test metadata package for the pudl_sqlite/pudl_duckdb asset tests."""
     fields = [
         {"name": "artistid", "type": "integer", "description": "artistid"},
         {
@@ -71,6 +78,26 @@ def test_pkg() -> Package:
         name="genre", schema=schema, description="Genre (non-integer PK)"
     )
 
+    # Two resources sharing an enum-constrained field of the same name, to test that
+    # the DuckDB dialect's native ENUM type gets created once and reused rather than
+    # erroring on the second table.
+    status_fields = [
+        {"name": "id", "type": "integer", "description": "id"},
+        {
+            "name": "status",
+            "type": "string",
+            "constraints": {"required": True, "enum": ["active", "inactive"]},
+            "description": "status",
+        },
+    ]
+    status_schema = {"fields": status_fields, "primary_key": ["id"]}
+    status_a_resource = Resource(
+        name="status_a", schema=status_schema, description="Status A"
+    )
+    status_b_resource = Resource(
+        name="status_b", schema=status_schema, description="Status B"
+    )
+
     return Package(
         name="music",
         resources=[
@@ -78,6 +105,8 @@ def test_pkg() -> Package:
             artist_resource,
             track_label_resource,
             genre_resource,
+            status_a_resource,
+            status_b_resource,
         ],
     )
 
@@ -180,6 +209,11 @@ def test_table_write_report_summary_reports_full_success():
     """The summary should say so plainly when nothing failed."""
     report = TableWriteReport(row_counts={"artist": 1, "track": 1}, errors=[])
     assert report.summary() == "Wrote all 2 table(s)."
+
+
+################################################################################
+# SQLite
+################################################################################
 
 
 @pytest.fixture
@@ -426,4 +460,221 @@ def test_write_pudl_sqlite_continues_past_failing_table(
     with engine.connect() as conn:
         assert conn.execute(sa.text("SELECT COUNT(*) FROM track")).scalar_one() == 1
         assert conn.execute(sa.text("SELECT COUNT(*) FROM artist")).scalar_one() == 0
+    engine.dispose()
+
+
+################################################################################
+# DuckDB
+################################################################################
+
+
+@pytest.fixture
+def duckdb_path(tmp_path: Path) -> Path:
+    return tmp_path / "test.duckdb"
+
+
+@pytest.fixture
+def duckdb_sa_engine(duckdb_path: Path, test_pkg: Package):
+    """A SQLAlchemy engine with a freshly-created, FK-free DuckDB schema."""
+    metadata = test_pkg.to_sql(dialect="duckdb", include_foreign_keys=False)
+    engine = sa.create_engine(f"duckdb:///{duckdb_path}")
+    engine.dialect.max_identifier_length = _DUCKDB_MAX_IDENTIFIER_LENGTH
+    metadata.create_all(engine)
+    try:
+        yield engine
+    finally:
+        engine.dispose()
+
+
+@pytest.fixture
+def duckdb_sa_conn(duckdb_sa_engine: sa.Engine):
+    with duckdb_sa_engine.connect() as conn:
+        yield conn
+
+
+def test_write_pudl_duckdb_schema_excludes_foreign_keys(test_pkg: Package):
+    """The DuckDB schema should have no foreign key constraints at all.
+
+    "track" declares a foreign key to "artist" in the fixture package -- confirms
+    write_pudl_duckdb's include_foreign_keys=False actually takes effect, unlike the
+    sqlite schema (built without that flag), which does have the FK.
+    """
+    duckdb_metadata = test_pkg.to_sql(dialect="duckdb", include_foreign_keys=False)
+    assert list(duckdb_metadata.tables["track"].foreign_keys) == []
+
+    sqlite_metadata = test_pkg.to_sql()
+    assert list(sqlite_metadata.tables["track"].foreign_keys) != []
+
+
+def test_duckdb_schema_shares_enum_type_across_tables(test_pkg: Package):
+    """A named ENUM type shared by two tables should be created exactly once.
+
+    Regression test: the existing (unrelated) Field.to_duckdb_dtype() helper does
+    this via ad hoc per-call `CREATE TYPE`, which errors the second time the same
+    field name is reused across tables. Going through a real SQLAlchemy engine +
+    metadata.create_all() avoids that -- confirmed here against "status_a" and
+    "status_b", which both declare a "status" enum field with identical values.
+    """
+    metadata = test_pkg.to_sql(dialect="duckdb", include_foreign_keys=False)
+    engine = sa.create_engine("duckdb:///:memory:")
+    engine.dialect.max_identifier_length = _DUCKDB_MAX_IDENTIFIER_LENGTH
+    metadata.create_all(engine)  # should not raise CatalogException
+    with engine.connect() as conn:
+        conn.exec_driver_sql('INSERT INTO "status_a" VALUES (1, ?)', ("active",))
+        conn.exec_driver_sql('INSERT INTO "status_b" VALUES (1, ?)', ("inactive",))
+        conn.commit()
+        with pytest.raises(sa.exc.DBAPIError):
+            conn.exec_driver_sql('INSERT INTO "status_a" VALUES (2, ?)', ("bogus",))
+    engine.dispose()
+
+
+def test_copy_table_to_duckdb_not_null_violation(
+    paths: PudlPaths, test_pkg: Package, duckdb_sa_conn: sa.Connection
+):
+    """A NOT NULL constraint violation should raise sqlalchemy.exc.DBAPIError."""
+    artist = test_pkg.get_resource("artist")
+    _write_parquet(
+        paths, "artist", pd.DataFrame({"artistid": [1], "artistname": [None]})
+    )
+    with pytest.raises(sa.exc.DBAPIError, match="NOT NULL"):
+        _copy_table_to_duckdb(duckdb_sa_conn, artist, paths.parquet_path("artist"))
+
+
+def test_copy_table_to_duckdb_check_violation(
+    paths: PudlPaths, test_pkg: Package, duckdb_sa_conn: sa.Connection
+):
+    """A pattern CHECK constraint violation should raise sqlalchemy.exc.DBAPIError.
+
+    Regression test: DuckDB has no bare REGEXP keyword (unlike SQLite), so
+    Field._to_sql_duckdb must emit regexp_full_match(...) instead -- if it emitted
+    plain REGEXP, this CHECK constraint could never even be created, let alone
+    enforced.
+    """
+    artist = test_pkg.get_resource("artist")
+    _write_parquet(
+        paths, "artist", pd.DataFrame({"artistid": [1], "artistname": ["123"]})
+    )
+    with pytest.raises(sa.exc.DBAPIError, match="CHECK constraint failed"):
+        _copy_table_to_duckdb(duckdb_sa_conn, artist, paths.parquet_path("artist"))
+
+
+def test_copy_table_to_duckdb_missing_column(
+    paths: PudlPaths, test_pkg: Package, duckdb_sa_conn: sa.Connection
+):
+    """A Parquet file missing a declared column should raise a DuckDB binder error."""
+    artist = test_pkg.get_resource("artist")
+    _write_parquet(paths, "artist", pd.DataFrame({"artistid": [1]}))
+    with pytest.raises(sa.exc.DBAPIError, match="artistname"):
+        _copy_table_to_duckdb(duckdb_sa_conn, artist, paths.parquet_path("artist"))
+
+
+def test_copy_table_to_duckdb_returns_row_count(
+    paths: PudlPaths, test_pkg: Package, duckdb_sa_conn: sa.Connection
+):
+    """The row count DuckDB's own INSERT reports should be returned directly."""
+    artist = test_pkg.get_resource("artist")
+    _write_parquet(
+        paths,
+        "artist",
+        pd.DataFrame({"artistid": [1, 2, 3], "artistname": ["A", "B", "C"]}),
+    )
+    row_count = _copy_table_to_duckdb(
+        duckdb_sa_conn, artist, paths.parquet_path("artist")
+    )
+    assert row_count == 3
+
+
+def test_write_pudl_duckdb_end_to_end(
+    tmp_path: Path, paths: PudlPaths, test_pkg: Package, mocker
+):
+    """write_pudl_duckdb should build a fresh DuckDB DB matching the Parquet inputs."""
+    mocker.patch("pudl.dagster.assets.output.dbs.PUDL_PACKAGE", test_pkg)
+    _write_parquet(
+        paths,
+        "artist",
+        pd.DataFrame({"artistid": [1, 2], "artistname": ["A", "B"]}),
+    )
+    _write_parquet(
+        paths,
+        "track",
+        pd.DataFrame(
+            {
+                "trackid": [1, 2],
+                "trackname": ["T1", "T2"],
+                "trackartist": [1, 1],
+            }
+        ),
+    )
+
+    duckdb_path = tmp_path / "pudl.duckdb"
+    report = write_pudl_duckdb(duckdb_path, ["artist", "track"], paths=paths)
+
+    assert report.row_counts == {"artist": 2, "track": 2}
+    assert report.errors == []
+    assert duckdb_path.exists()
+
+    engine = sa.create_engine(f"duckdb:///{duckdb_path}")
+    with engine.connect() as conn:
+        assert conn.exec_driver_sql("SELECT COUNT(*) FROM artist").scalar_one() == 2
+        assert conn.exec_driver_sql("SELECT COUNT(*) FROM track").scalar_one() == 2
+        # No foreign key constraint should exist between track and artist.
+        insp = sa.inspect(engine)
+        assert insp.get_foreign_keys("track") == []
+    engine.dispose()
+
+
+def test_write_pudl_duckdb_removes_existing_file(
+    tmp_path: Path, paths: PudlPaths, test_pkg: Package, mocker
+):
+    """write_pudl_duckdb should start from a fresh file, not append to a stale one."""
+    mocker.patch("pudl.dagster.assets.output.dbs.PUDL_PACKAGE", test_pkg)
+    _write_parquet(
+        paths, "artist", pd.DataFrame({"artistid": [1], "artistname": ["A"]})
+    )
+    _write_parquet(
+        paths, "track", pd.DataFrame(columns=["trackid", "trackname", "trackartist"])
+    )
+
+    duckdb_path = tmp_path / "pudl.duckdb"
+    duckdb_path.write_text("not a real duckdb file")
+
+    write_pudl_duckdb(duckdb_path, ["artist", "track"], paths=paths)
+
+    engine = sa.create_engine(f"duckdb:///{duckdb_path}")
+    with engine.connect() as conn:
+        assert conn.exec_driver_sql("SELECT COUNT(*) FROM artist").scalar_one() == 1
+    engine.dispose()
+
+
+def test_write_pudl_duckdb_continues_past_failing_table(
+    tmp_path: Path, paths: PudlPaths, test_pkg: Package, mocker
+):
+    """A data-quality failure in one table shouldn't stop the rest from loading."""
+    mocker.patch("pudl.dagster.assets.output.dbs.PUDL_PACKAGE", test_pkg)
+    # "artist" violates its own CHECK constraint; "track" is perfectly valid.
+    _write_parquet(
+        paths, "artist", pd.DataFrame({"artistid": [1], "artistname": ["123"]})
+    )
+    _write_parquet(
+        paths,
+        "track",
+        pd.DataFrame({"trackid": [1], "trackname": ["T1"], "trackartist": [1]}),
+    )
+
+    duckdb_path = tmp_path / "pudl.duckdb"
+    report = write_pudl_duckdb(duckdb_path, ["artist", "track"], paths=paths)
+
+    # The successful table still gets loaded...
+    assert report.row_counts == {"track": 1}
+    # ...and the failure is recorded, rather than raised or silently dropped.
+    assert report.failed_tables == ["artist"]
+    assert len(report.errors) == 1
+    error = report.errors[0]
+    assert error.table_name == "artist"
+    assert isinstance(error.exception, sa.exc.DBAPIError)
+
+    engine = sa.create_engine(f"duckdb:///{duckdb_path}")
+    with engine.connect() as conn:
+        assert conn.exec_driver_sql("SELECT COUNT(*) FROM track").scalar_one() == 1
+        assert conn.exec_driver_sql("SELECT COUNT(*) FROM artist").scalar_one() == 0
     engine.dispose()

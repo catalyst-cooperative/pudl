@@ -163,6 +163,165 @@ def test_datetime_field_sql_check_constraint_accepts_real_values(
         engine.dispose()
 
 
+def test_field_to_sql_duckdb_pattern_uses_regexp_full_match() -> None:
+    """DuckDB has no bare REGEXP keyword; Field.to_sql() must emit regexp_full_match().
+
+    Regression test: unlike SQLite, DuckDB's parser rejects ``col REGEXP pattern``
+    outright (a ``Parser Error``, not a runtime failure), so this has to be caught
+    at CHECK-constraint-construction time, not just when a bad value is inserted.
+    """
+    field = Field(
+        name="code",
+        type="string",
+        description="A code.",
+        constraints=FieldConstraints(pattern="^[A-Z]{2}$"),
+    )
+    metadata = sa.MetaData()
+    sa.Table("t", metadata, field.to_sql(dialect="duckdb"))
+    engine = sa.create_engine("duckdb:///:memory:")
+    try:
+        metadata.create_all(engine)  # would raise a Parser Error for bare REGEXP
+        with engine.begin() as conn:
+            conn.execute(sa.text("INSERT INTO t (code) VALUES ('AB')"))
+            with pytest.raises(sa.exc.DBAPIError, match="CHECK constraint failed"):
+                conn.execute(sa.text("INSERT INTO t (code) VALUES ('abc')"))
+    finally:
+        engine.dispose()
+
+
+def test_field_to_sql_duckdb_has_no_type_checks() -> None:
+    """DuckDB's static typing makes SQLite's TYPEOF-based checks unnecessary.
+
+    A column declared with a native DuckDB type (e.g. DOUBLE) structurally can't
+    hold a value of the wrong type, unlike SQLite, which needed the TYPEOF checks
+    to compensate for its dynamic typing.
+    """
+    field = Field(name="amount", type="number", description="An amount.")
+    duckdb_column = field.to_sql(dialect="duckdb")
+    assert duckdb_column.constraints == set()
+
+    sqlite_column = field.to_sql()
+    check_texts = [
+        str(c.sqltext)
+        for c in sqlite_column.constraints
+        if isinstance(c, sa.CheckConstraint)
+    ]
+    assert any("TYPEOF" in text for text in check_texts)
+
+
+def test_field_to_sql_duckdb_integer_primary_key_has_no_autoincrement() -> None:
+    """An integer primary key should not become SERIAL under the duckdb dialect.
+
+    Regression test: SQLAlchemy's postgres-derived DDL compiler (which
+    duckdb-engine's dialect is built on) upgrades an Integer primary-key column to
+    SERIAL unless autoincrement is explicitly disabled -- DuckDB has no SERIAL
+    keyword, so this would otherwise break schema creation for every table with a
+    single-column integer primary key.
+    """
+    resource = Resource(
+        name="widgets",
+        schema={
+            "fields": [{"name": "id", "type": "integer", "description": "id"}],
+            "primary_key": ["id"],
+        },
+        description="Widgets",
+    )
+    metadata = sa.MetaData()
+    resource.to_sql(metadata, dialect="duckdb")
+    engine = sa.create_engine("duckdb:///:memory:")
+    try:
+        metadata.create_all(engine)  # would raise if SERIAL were emitted
+    finally:
+        engine.dispose()
+
+
+def test_resource_to_sql_duckdb_excludes_foreign_keys_when_requested() -> None:
+    """include_foreign_keys=False should omit FK constraints under any dialect."""
+    parent = Resource(
+        name="parent",
+        schema={
+            "fields": [{"name": "id", "type": "integer", "description": "id"}],
+            "primary_key": ["id"],
+        },
+        description="Parent",
+    )
+    child = Resource(
+        name="child",
+        schema={
+            "fields": [
+                {"name": "id", "type": "integer", "description": "id"},
+                {"name": "parent_id", "type": "integer", "description": "parent_id"},
+            ],
+            "primary_key": ["id"],
+            "foreign_keys": [
+                {
+                    "fields": ["parent_id"],
+                    "reference": {"resource": "parent", "fields": ["id"]},
+                }
+            ],
+        },
+        description="Child",
+    )
+
+    metadata = sa.MetaData()
+    parent.to_sql(metadata, dialect="duckdb", include_foreign_keys=False)
+    table = child.to_sql(metadata, dialect="duckdb", include_foreign_keys=False)
+    assert list(table.foreign_keys) == []
+
+    metadata_with_fk = sa.MetaData()
+    parent.to_sql(metadata_with_fk, dialect="duckdb")
+    table_with_fk = child.to_sql(metadata_with_fk, dialect="duckdb")
+    assert list(table_with_fk.foreign_keys) != []
+
+
+def test_field_to_sql_duckdb_same_name_different_enum_values_get_distinct_types() -> (
+    None
+):
+    """Two fields sharing a name but not their enum values must not share a type.
+
+    Regression test: PUDL reuses field names like "plant_type" across many
+    resources with resource-specific enum overrides (see
+    FIELD_METADATA_BY_RESOURCE) that don't all share the same allowed values.
+    Naming the DuckDB ENUM type after the field name alone caused whichever
+    resource's column got created first to "win" -- every other table with the
+    same field name but different values then failed to load, since its real
+    values weren't members of the first table's enum type. Caught via a real
+    Dagster pudl_duckdb run (e.g. "combined_cycle" is a valid "plant_type" value
+    in some FERC1 resources but not in the RUS12 resources that also use that
+    field name, whichever one happened to run first).
+    """
+    hydro_plant_type = Field(
+        name="plant_type",
+        type="string",
+        description="Type of plant.",
+        constraints=FieldConstraints(enum=["hydro", "storage"]),
+    )
+    fossil_plant_type = Field(
+        name="plant_type",
+        type="string",
+        description="Type of plant.",
+        constraints=FieldConstraints(enum=["combined_cycle", "steam"]),
+    )
+
+    metadata = sa.MetaData()
+    sa.Table("hydro_plants", metadata, hydro_plant_type.to_sql(dialect="duckdb"))
+    sa.Table("fossil_plants", metadata, fossil_plant_type.to_sql(dialect="duckdb"))
+
+    engine = sa.create_engine("duckdb:///:memory:")
+    try:
+        metadata.create_all(engine)
+        with engine.begin() as conn:
+            conn.execute(sa.text("INSERT INTO hydro_plants VALUES ('hydro')"))
+            # This is exactly the failure mode from the real bug: a value that's
+            # valid for fossil_plants' enum, but not hydro_plants', would have
+            # silently been checked against the wrong (first-created) type.
+            conn.execute(sa.text("INSERT INTO fossil_plants VALUES ('combined_cycle')"))
+            with pytest.raises(sa.exc.DBAPIError):
+                conn.execute(sa.text("INSERT INTO hydro_plants VALUES ('steam')"))
+    finally:
+        engine.dispose()
+
+
 def test_encoders() -> None:
     """All Encoders work on the kinds of values they're supposed to."""
     failures = []
@@ -1175,7 +1334,7 @@ def test_get_pudl_dtypes_global_type() -> None:
     [
         ("pandas", "Int64"),
         ("polars", pl.Int64),
-        ("sqlite", sa.Integer),
+        ("sqlite", sa.BigInteger),
         ("duckdb", duckdb.sqltypes.BIGINT),
         ("pyarrow", pa.int64()),
     ],
