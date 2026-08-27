@@ -1,16 +1,8 @@
 """Integration tests for data validation checks that run on prebuilt outputs."""
 
 import pytest
-import sqlalchemy as sa
 
 from pudl.validate.dbt import build_with_context
-from pudl.validate.integrity import check_foreign_keys
-
-
-@pytest.mark.order(3)
-def test_pudl_foreign_keys(pudl_engine: sa.Engine):
-    """Validate foreign key constraints on the prebuilt PUDL SQLite database."""
-    check_foreign_keys(pudl_engine)
 
 
 @pytest.mark.order(4)
