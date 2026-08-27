@@ -91,12 +91,21 @@ FIELD_DTYPES_SQLITE: dict[str, type[SATypeEngine] | SATypeEngine] = {
     "boolean": sa.Boolean,
     "date": sa.Date,
     "datetime": SQLITE_DATETIME(),
-    "integer": sa.Integer,
-    "number": sa.Float,
+    "integer": sa.BigInteger,
+    "number": sa.Double,
     "string": sa.Text,
-    "year": sa.Integer,
+    "year": sa.BigInteger,
 }
-"""SQLAlchemy column types by simplified PUDL field type."""
+"""SQLAlchemy column types by simplified PUDL field type.
+
+SQLite itself doesn't distinguish between 32- and 64-bit integers or single/double
+precision floats -- it stores all "INTEGER" affinity values as a dynamically-sized up
+to 8-byte integer, and all "REAL" affinity values as an 8-byte IEEE double,
+regardless of the declared column type name. ``BigInteger``/``Double`` are used here
+(rather than ``Integer``/``Float``) purely so this mapping stays correct if reused for
+a dialect where the declared width *is* enforced -- e.g. DuckDB, via
+:meth:`pudl.metadata.classes.Field._to_sql_duckdb`, which reuses this same dict.
+"""
 
 CONSTRAINT_DTYPES: dict[str, type] = {
     "boolean": bool,
