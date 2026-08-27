@@ -7,13 +7,6 @@ sources:
           - foreign_key:
               arguments:
                 fk_column_names:
-                  - utility_id_eia
-                pk_table_name: source('pudl', 'core_eia__entity_utilities')
-                pk_column_names:
-                  - utility_id_eia
-          - foreign_key:
-              arguments:
-                fk_column_names:
                   - respondent_id_ferc714
                 pk_table_name: source('pudl', 'core_pudl__assn_ferc714_pudl_respondents')
                 pk_column_names:

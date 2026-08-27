@@ -861,6 +861,7 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                     "core_eia861__yearly_dynamic_pricing",
                     "core_eia861__yearly_energy_efficiency",
                     "out_ferc714__respondents_with_fips",
+                    "out_ferc714__georeferenced_respondents",
                     "core_eia861__yearly_green_pricing",
                     "core_eia861__yearly_mergers",
                     "core_eia861__yearly_net_metering_customer_fuel_class",
