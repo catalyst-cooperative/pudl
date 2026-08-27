@@ -100,6 +100,10 @@ Bug Fixes & Data Cleaning
   With the fix, 788 records in ``out_pudl__yearly_assn_eia_ferc1_plant_parts`` which
   used to have a NULL ``report_date`` now appear with correct date information. See
   issue :issue:`4130` and PR :pr:`5503`
+* Fixed a race condition that intermittently failed the docs build due to the HTML and
+  Markdown builds attempting to clean up the same dynamically generated output files at
+  the end of their build. Fixed by setting ``llms_txt_build_parallel = False``. See
+  issue :issue:`5502`.
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
