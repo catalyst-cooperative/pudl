@@ -4,6 +4,20 @@ sources:
     tables:
       - name: core_eia__entity_boilers
         data_tests:
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - boiler_manufacturer_code
+                pk_table_name: source('pudl', 'core_eia__codes_environmental_equipment_manufacturers')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - plant_id_eia
+                pk_table_name: source('pudl', 'core_eia__entity_plants')
+                pk_column_names:
+                  - plant_id_eia
           - expect_columns_not_all_null:
               description: |-
                 The boiler manufacturer and boiler manufacturer code columns are only reported in a

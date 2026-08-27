@@ -4,6 +4,76 @@ sources:
     tables:
       - name: out_eia923__fuel_receipts_costs
         data_tests:
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - mine_type_code
+                pk_table_name: source('pudl', 'core_eia__codes_coalmine_types')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - contract_type_code
+                pk_table_name: source('pudl', 'core_eia__codes_contract_types')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - data_maturity
+                pk_table_name: source('pudl', 'core_pudl__codes_data_maturities')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - energy_source_code
+                pk_table_name: source('pudl', 'core_eia__codes_energy_sources')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - primary_transportation_mode_code
+                pk_table_name: source('pudl', 'core_eia__codes_fuel_transportation_modes')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - secondary_transportation_mode_code
+                pk_table_name: source('pudl', 'core_eia__codes_fuel_transportation_modes')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - plant_id_eia
+                pk_table_name: source('pudl', 'core_eia__entity_plants')
+                pk_column_names:
+                  - plant_id_eia
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - utility_id_eia
+                pk_table_name: source('pudl', 'core_eia__entity_utilities')
+                pk_column_names:
+                  - utility_id_eia
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - plant_id_pudl
+                pk_table_name: source('pudl', 'core_pudl__entity_plants_pudl')
+                pk_column_names:
+                  - plant_id_pudl
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - utility_id_pudl
+                pk_table_name: source('pudl', 'core_pudl__entity_utilities_pudl')
+                pk_column_names:
+                  - utility_id_pudl
           - expect_columns_not_all_null:
               arguments:
                 row_conditions:

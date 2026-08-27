@@ -4,6 +4,27 @@ sources:
     tables:
       - name: _core_eia923__yearly_fgd_operation_maintenance
         data_tests:
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - fgd_operational_status_code
+                pk_table_name: source('pudl', 'core_eia__codes_operational_status')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - data_maturity
+                pk_table_name: source('pudl', 'core_pudl__codes_data_maturities')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - plant_id_eia
+                pk_table_name: source('pudl', 'core_eia__entity_plants')
+                pk_column_names:
+                  - plant_id_eia
           - expect_columns_not_all_null:
               arguments:
                 row_conditions:

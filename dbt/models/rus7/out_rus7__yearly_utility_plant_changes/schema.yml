@@ -4,6 +4,13 @@ sources:
     tables:
       - name: out_rus7__yearly_utility_plant_changes
         data_tests:
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - borrower_id_rus
+                pk_table_name: source('pudl', 'core_rus7__entity_borrowers')
+                pk_column_names:
+                  - borrower_id_rus
           - expect_columns_not_all_null
           - check_row_counts_per_partition:
               arguments:

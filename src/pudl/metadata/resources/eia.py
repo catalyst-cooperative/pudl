@@ -51,6 +51,13 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                     "core_eia861__yearly_sales",
                     "out_ferc714__summarized_demand",
                     "core_eia861__yearly_short_form",
+                    # TODO: These tables reference balancing authority codes that are
+                    # missing from the curated BA list (e.g. SIKE, AMPL, SPPC).
+                    # See: https://github.com/catalyst-cooperative/pudl/issues/5515
+                    "core_eia930__hourly_interchange",
+                    "core_eia930__hourly_net_generation_by_energy_source",
+                    "core_eia930__hourly_operations",
+                    "out_ferc714__georeferenced_respondents",
                 ],
             },
         },
@@ -79,7 +86,14 @@ RESOURCE_METADATA: dict[str, dict[str, Any]] = {
                         "balancing_authority_code_eia",
                         "balancing_authority_subregion_code_eia",
                     ],
-                ]
+                ],
+                # TODO: These tables report subregion demand under BA code SWPW,
+                # whose subregions aren't cataloged separately from SWPP's.
+                # See: https://github.com/catalyst-cooperative/pudl/issues/5515
+                "exclude": [
+                    "core_eia930__hourly_subregion_demand",
+                    "out_eia930__hourly_subregion_demand",
+                ],
             },
         },
         "sources": ["eia930"],

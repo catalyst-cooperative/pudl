@@ -4,6 +4,17 @@ sources:
     tables:
       - name: core_eia860__assn_boiler_stack_flue
         data_tests:
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - plant_id_eia
+                  - boiler_id
+                  - report_date
+                pk_table_name: source('pudl', 'core_eia860__scd_boilers')
+                pk_column_names:
+                  - plant_id_eia
+                  - boiler_id
+                  - report_date
           - expect_columns_not_all_null:
               arguments:
                 row_conditions:

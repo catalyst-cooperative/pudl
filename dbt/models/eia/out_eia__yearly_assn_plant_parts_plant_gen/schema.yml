@@ -4,6 +4,38 @@ sources:
     tables:
       - name: out_eia__yearly_assn_plant_parts_plant_gen
         data_tests:
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - plant_id_eia
+                  - report_date
+                pk_table_name: source('pudl', 'core_eia860__scd_plants')
+                pk_column_names:
+                  - plant_id_eia
+                  - report_date
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - utility_id_eia
+                  - report_date
+                pk_table_name: source('pudl', 'core_eia860__scd_utilities')
+                pk_column_names:
+                  - utility_id_eia
+                  - report_date
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - record_id_eia
+                pk_table_name: source('pudl', 'out_eia__yearly_plant_parts')
+                pk_column_names:
+                  - record_id_eia
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - record_id_eia_plant_gen
+                pk_table_name: source('pudl', 'out_eia__yearly_plant_parts')
+                pk_column_names:
+                  - record_id_eia
           - expect_columns_not_all_null:
               arguments:
                 ignore_eia860m_nulls: true

@@ -4,6 +4,24 @@ sources:
     tables:
       - name: core_eia860__scd_generators_wind
         data_tests:
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - wind_quality_class
+                pk_table_name: source('pudl', 'core_eia__codes_wind_quality_class')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - plant_id_eia
+                  - generator_id
+                  - report_date
+                pk_table_name: source('pudl', 'core_eia860__scd_generators')
+                pk_column_names:
+                  - plant_id_eia
+                  - generator_id
+                  - report_date
           - expect_columns_not_all_null:
               arguments:
                 row_conditions:

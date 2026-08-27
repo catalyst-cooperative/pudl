@@ -4,6 +4,13 @@ sources:
     tables:
       - name: core_rus12__yearly_balance_sheet_liabilities
         data_tests:
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - borrower_id_rus
+                pk_table_name: source('pudl', 'core_rus12__entity_borrowers')
+                pk_column_names:
+                  - borrower_id_rus
           - check_row_counts_per_partition:
               arguments:
                 table_name: core_rus12__yearly_balance_sheet_liabilities

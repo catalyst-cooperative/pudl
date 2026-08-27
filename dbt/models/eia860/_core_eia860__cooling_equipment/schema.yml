@@ -4,6 +4,101 @@ sources:
     tables:
       - name: _core_eia860__cooling_equipment
         data_tests:
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - steam_plant_type_code
+                pk_table_name: source('pudl', 'core_eia__codes_steam_plant_types')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - cooling_status_code
+                pk_table_name: source('pudl', 'core_eia__codes_operational_status')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - tower_type_1
+                pk_table_name: source('pudl', 'core_eia__codes_cooling_tower_types')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - tower_type_2
+                pk_table_name: source('pudl', 'core_eia__codes_cooling_tower_types')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - tower_type_3
+                pk_table_name: source('pudl', 'core_eia__codes_cooling_tower_types')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - tower_type_4
+                pk_table_name: source('pudl', 'core_eia__codes_cooling_tower_types')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - water_type_code
+                pk_table_name: source('pudl', 'core_eia__codes_cooling_water_types')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - cooling_type_1
+                pk_table_name: source('pudl', 'core_eia__codes_cooling_system_types')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - cooling_type_2
+                pk_table_name: source('pudl', 'core_eia__codes_cooling_system_types')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - cooling_type_3
+                pk_table_name: source('pudl', 'core_eia__codes_cooling_system_types')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - cooling_type_4
+                pk_table_name: source('pudl', 'core_eia__codes_cooling_system_types')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - plant_id_eia
+                  - report_date
+                pk_table_name: source('pudl', 'core_eia860__scd_plants')
+                pk_column_names:
+                  - plant_id_eia
+                  - report_date
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - utility_id_eia
+                  - report_date
+                pk_table_name: source('pudl', 'core_eia860__scd_utilities')
+                pk_column_names:
+                  - utility_id_eia
+                  - report_date
           - expect_columns_not_all_null:
               description: |-
                 Excluded columns are 3rd and 4th tier categories that are very infrequently used. It's

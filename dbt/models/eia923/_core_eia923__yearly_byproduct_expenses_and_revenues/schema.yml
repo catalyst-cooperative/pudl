@@ -4,6 +4,20 @@ sources:
     tables:
       - name: _core_eia923__yearly_byproduct_expenses_and_revenues
         data_tests:
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - data_maturity
+                pk_table_name: source('pudl', 'core_pudl__codes_data_maturities')
+                pk_column_names:
+                  - code
+          - foreign_key:
+              arguments:
+                fk_column_names:
+                  - plant_id_eia
+                pk_table_name: source('pudl', 'core_eia__entity_plants')
+                pk_column_names:
+                  - plant_id_eia
           - expect_columns_not_all_null
           - check_row_counts_per_partition:
               arguments:
