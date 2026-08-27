@@ -37,7 +37,6 @@ from pudl.dagster.resources import (
 )
 from pudl.extract.ferc1 import raw_ferc1_xbrl__metadata_json
 from pudl.extract.ferc714 import raw_ferc714_xbrl__metadata_json
-from pudl.metadata.classes import PUDL_PACKAGE
 from pudl.settings import GlobalDataConfig
 from pudl.workspace.datastore import Datastore, ZenodoDoiSettings
 from pudl.workspace.setup import PudlPaths
@@ -645,15 +644,6 @@ def prebuilt_outputs(
     logger.info(
         f"Prebuilding PUDL outputs in temporary directory: {pudl_test_paths.pudl_output}"
     )
-    logger.info(
-        f"Initializing empty pudl.sqlite with current schema at {pudl_test_paths.pudl_db}."
-    )
-    md = PUDL_PACKAGE.to_sql()
-    pudl_engine = sa.create_engine(pudl_test_paths.pudl_db)
-    try:
-        md.create_all(pudl_engine)
-    finally:
-        pudl_engine.dispose()
 
     _pudl_etl(dg_config_path, pudl_test_paths, dagster_home)
     _assert_prebuilt_ferc_sqlite_dbs(pudl_test_paths)
