@@ -26,7 +26,9 @@ import pudl.transform
 from pudl.dagster.assets.core import eiaapi_electricity, glue, static
 from pudl.dagster.assets.core.datapackage import build_pudl_datapackage_asset
 from pudl.dagster.assets.deploy import ferceqr as deploy_ferceqr
+from pudl.dagster.assets.output.dbs import build_pudl_sqlite_asset
 from pudl.dagster.assets.raw import ferc_to_sqlite
+from pudl.metadata.classes import PUDL_PACKAGE
 
 raw_module_groups = {
     "raw_ferc_to_sqlite": [ferc_to_sqlite],
@@ -161,8 +163,22 @@ def _find_parquet_asset_keys(assets) -> list[dg.AssetKey]:
     return keys
 
 
+def _find_sqlite_asset_keys(assets) -> list[dg.AssetKey]:
+    """Return parquet asset keys for tables included in pudl.sqlite."""
+    sqlite_table_names = {
+        r.name for r in PUDL_PACKAGE.resources if r.create_database_schema
+    }
+    return [
+        key
+        for key in _find_parquet_asset_keys(assets)
+        if key.path[-1] in sqlite_table_names
+    ]
+
+
+_sqlite_asset_keys = _find_sqlite_asset_keys(_base_assets)
 default_assets = _base_assets + [
-    build_pudl_datapackage_asset(_find_parquet_asset_keys(_base_assets))
+    build_pudl_datapackage_asset(_find_parquet_asset_keys(_base_assets)),
+    build_pudl_sqlite_asset(_sqlite_asset_keys),
 ]
 
 
