@@ -394,10 +394,6 @@ remain in the table where they are reported. See
 :doc:`/methodology/entity_resolution` for details on how harvested entity and yearly SCD
 tables are constructed.
 
-**5.5)** Once you've updated the metadata, you'll need to update the alembic version.
-See the instructions for doing so in :doc:`run_the_etl`. You may have already updated
-alembic if you used Dagster to materialize the raw and clean assets.
-
 6. Connect Datasets
 -------------------
 

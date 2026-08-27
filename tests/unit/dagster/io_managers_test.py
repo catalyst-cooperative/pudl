@@ -5,32 +5,26 @@ import logging
 from importlib.metadata import version
 from pathlib import Path
 
-import alembic.config
 import duckdb
 import geopandas as gpd  # noqa: ICN002
 import pandas as pd
 import polars as pl
 import pytest
-import sqlalchemy as sa
 from dagster import AssetKey, DagsterInstance, build_input_context, build_output_context
 from dagster._core.execution.context.input import InputContext
 from dagster._core.execution.context.output import OutputContext
 from shapely.geometry import Point
-from sqlalchemy.exc import IntegrityError, OperationalError
 
 from pudl.dagster.io_managers import (
     FercDbfSqliteIOManager,
     FercXbrlSqliteIOManager,
-    PudlMixedFormatIOManager,
     PudlParquetIOManager,
-    PudlSqliteIOManager,
-    SqliteIOManager,
 )
 from pudl.dagster.provenance import (
     FERC_TO_SQLITE_METADATA_KEY,
     FercSqliteProvenanceRecord,
 )
-from pudl.metadata.classes import PUDL_PACKAGE, Package, Resource
+from pudl.metadata.classes import Resource
 from pudl.settings import (
     Ferc1DataConfig,
     FercToSqliteDataConfig,
@@ -38,287 +32,6 @@ from pudl.settings import (
     PudlDataConfig,
 )
 from pudl.workspace.datastore import ZenodoDoiSettings
-
-
-@pytest.fixture
-def test_pkg() -> Package:
-    """Create a test metadata package for the io manager tests."""
-    fields = [
-        {"name": "artistid", "type": "integer", "description": "artistid"},
-        {
-            "name": "artistname",
-            "type": "string",
-            "constraints": {"required": True},
-            "description": "artistid",
-        },
-    ]
-    schema = {"fields": fields, "primary_key": ["artistid"]}
-    artist_resource = Resource(name="artist", schema=schema, description="Artist")
-
-    fields = [
-        {"name": "artistid", "type": "integer", "description": "artistid"},
-        {
-            "name": "artistname",
-            "type": "string",
-            "constraints": {"required": True},
-            "description": "artistname",
-        },
-    ]
-    schema = {"fields": fields, "primary_key": ["artistid"]}
-    view_resource = Resource(
-        name="artist_view",
-        schema=schema,
-        description="Artist view",
-        create_database_schema=False,
-    )
-
-    fields = [
-        {"name": "trackid", "type": "integer", "description": "trackid"},
-        {
-            "name": "trackname",
-            "type": "string",
-            "constraints": {"required": True},
-            "description": "trackname",
-        },
-        {"name": "trackartist", "type": "integer", "description": "trackartist"},
-    ]
-    fkeys = [
-        {
-            "fields": ["trackartist"],
-            "reference": {"resource": "artist", "fields": ["artistid"]},
-        }
-    ]
-    schema = {"fields": fields, "primary_key": ["trackid"], "foreign_keys": fkeys}
-    track_resource = Resource(name="track", schema=schema, description="Track")
-    return Package(
-        name="music", resources=[track_resource, artist_resource, view_resource]
-    )
-
-
-@pytest.fixture
-def sqlite_io_manager_fixture(tmp_path, test_pkg) -> SqliteIOManager:
-    """Create a SqliteIOManager fixture with a simple database schema."""
-    md: sa.MetaData = test_pkg.to_sql()
-    return SqliteIOManager(base_dir=tmp_path, db_name="pudl", md=md)
-
-
-def test_sqlite_io_manager_delete_stmt(sqlite_io_manager_fixture):
-    """Test we are replacing the data without dropping the table schema."""
-    manager: SqliteIOManager = sqlite_io_manager_fixture
-
-    asset_key = "artist"
-    artist = pd.DataFrame({"artistid": [1], "artistname": ["Co-op Mop"]})
-    output_context: OutputContext = build_output_context(asset_key=AssetKey(asset_key))
-    manager.handle_output(output_context, artist)
-
-    # Read the table back into pandas
-    input_context: InputContext = build_input_context(asset_key=AssetKey(asset_key))
-    returned_df = manager.load_input(input_context)
-    assert len(returned_df) == 1
-
-    # Rerun the asset
-    # Load the dataframe to a sqlite table
-    output_context: OutputContext = build_output_context(asset_key=AssetKey(asset_key))
-    manager.handle_output(output_context, artist)
-
-    # Read the table back into pandas
-    input_context: InputContext = build_input_context(asset_key=AssetKey(asset_key))
-    returned_df: pd.DataFrame = manager.load_input(input_context)
-    assert len(returned_df) == 1
-
-
-def test_extra_column_error(sqlite_io_manager_fixture):
-    """Ensure an error is thrown when there is an extra column in the dataframe."""
-    manager: SqliteIOManager = sqlite_io_manager_fixture
-
-    asset_key = "artist"
-    artist = pd.DataFrame(
-        {"artistid": [1], "artistname": ["Co-op Mop"], "artistmanager": [1]}
-    )
-    output_context: OutputContext = build_output_context(asset_key=AssetKey(asset_key))
-    with pytest.raises(OperationalError):
-        manager.handle_output(output_context, artist)
-
-
-def test_missing_column_error(sqlite_io_manager_fixture):
-    """Ensure an error is thrown when a dataframe is missing a column in the schema."""
-    manager: SqliteIOManager = sqlite_io_manager_fixture
-
-    asset_key = "artist"
-    artist = pd.DataFrame(
-        {
-            "artistid": [1],
-        }
-    )
-    output_context: OutputContext = build_output_context(asset_key=AssetKey(asset_key))
-    with pytest.raises(ValueError):
-        manager.handle_output(output_context, artist)
-
-
-def test_nullable_column_error(sqlite_io_manager_fixture):
-    """Ensure an error is thrown when a non nullable column is missing data."""
-    manager: SqliteIOManager = sqlite_io_manager_fixture
-
-    asset_key = "artist"
-    artist = pd.DataFrame({"artistid": [1, 2], "artistname": ["Co-op Mop", pd.NA]})
-    output_context: OutputContext = build_output_context(asset_key=AssetKey(asset_key))
-
-    with pytest.raises(IntegrityError):
-        manager.handle_output(output_context, artist)
-
-
-def test_null_primary_key_column_error(sqlite_io_manager_fixture):
-    """Ensure IntegrityError is raised when a primary key column contains NULL.
-
-    SQLite's ``INTEGER PRIMARY KEY`` is a ROWID alias: inserting NULL into such a
-    column silently assigns an auto-incremented value rather than raising a constraint
-    error. This is a documented SQLite deviation from the SQL standard and affects all
-    write paths (pandas ``to_sql``, SQLAlchemy core, raw SQL). The IO manager therefore
-    enforces the NOT NULL constraint on primary key columns explicitly before writing,
-    raising ``IntegrityError`` to match the error that a spec-compliant database would
-    raise.
-    """
-    manager: SqliteIOManager = sqlite_io_manager_fixture
-
-    asset_key = "artist"
-    artist = pd.DataFrame(
-        {"artistid": [1, pd.NA], "artistname": ["Co-op Mop", "Cxtxlyst"]}
-    )
-    output_context: OutputContext = build_output_context(asset_key=AssetKey(asset_key))
-    with pytest.raises(IntegrityError):
-        manager.handle_output(output_context, artist)
-
-
-def test_primary_key_column_error(sqlite_io_manager_fixture):
-    """Ensure an error is thrown when a primary key is violated."""
-    manager: SqliteIOManager = sqlite_io_manager_fixture
-
-    asset_key = "artist"
-    artist = pd.DataFrame({"artistid": [1, 1], "artistname": ["Co-op Mop", "Cxtxlyst"]})
-    output_context: OutputContext = build_output_context(asset_key=AssetKey(asset_key))
-    with pytest.raises(IntegrityError):
-        manager.handle_output(output_context, artist)
-
-
-def test_incorrect_type_error(sqlite_io_manager_fixture):
-    """Ensure an error is thrown when dataframe type doesn't match the table schema."""
-    manager: SqliteIOManager = sqlite_io_manager_fixture
-
-    asset_key = "artist"
-    artist = pd.DataFrame({"artistid": ["abc"], "artistname": ["Co-op Mop"]})
-    output_context: OutputContext = build_output_context(asset_key=AssetKey(asset_key))
-    with pytest.raises(IntegrityError):
-        manager.handle_output(output_context, artist)
-
-
-def test_missing_schema_error(sqlite_io_manager_fixture):
-    """Test a ValueError is raised when a table without a schema is loaded."""
-    manager: SqliteIOManager = sqlite_io_manager_fixture
-
-    asset_key = "venues"
-    venue = pd.DataFrame({"venueid": [1], "venuename": "Vans Dive Bar"})
-    output_context: OutputContext = build_output_context(asset_key=AssetKey(asset_key))
-    with pytest.raises(ValueError):
-        manager.handle_output(output_context, venue)
-
-
-@pytest.fixture
-def fake_pudl_sqlite_io_manager_fixture(
-    tmp_path, test_pkg, monkeypatch
-) -> PudlSqliteIOManager:
-    """Create a SqliteIOManager fixture with a fake database schema."""
-    db_path: Path = tmp_path / "fake.sqlite"
-
-    # Create the database and schemas
-    engine: sa.Engine = sa.create_engine(f"sqlite:///{db_path}")
-    try:
-        md: sa.MetaData = test_pkg.to_sql()
-        md.create_all(engine)
-    finally:
-        engine.dispose()
-    return PudlSqliteIOManager(base_dir=tmp_path, db_name="fake", package=test_pkg)
-
-
-def test_pudl_sqlite_io_manager_delete_stmt(fake_pudl_sqlite_io_manager_fixture):
-    """Test we are replacing the data without dropping the table schema."""
-    manager: PudlSqliteIOManager = fake_pudl_sqlite_io_manager_fixture
-
-    asset_key = "artist"
-    artist = pd.DataFrame({"artistid": [1], "artistname": ["Co-op Mop"]})
-    output_context: OutputContext = build_output_context(asset_key=AssetKey(asset_key))
-    manager.handle_output(output_context, artist)
-
-    # Read the table back into pandas
-    input_context: InputContext = build_input_context(asset_key=AssetKey(asset_key))
-    returned_df: pd.DataFrame = manager.load_input(input_context)
-    assert len(returned_df) == 1
-
-    # Rerun the asset
-    # Load the dataframe to a sqlite table
-    output_context: OutputContext = build_output_context(asset_key=AssetKey(asset_key))
-    manager.handle_output(output_context, artist)
-
-    # Read the table back into pandas
-    input_context: InputContext = build_input_context(asset_key=AssetKey(asset_key))
-    returned_df: pd.DataFrame = manager.load_input(input_context)
-    assert len(returned_df) == 1
-
-
-def test_migrations_match_metadata(tmp_path, monkeypatch):
-    """If you create a `PudlSqliteIOManager` that points at a non-existing
-    `pudl.sqlite` - it will initialize the DB based on the `package`.
-
-    If you create a `PudlSqliteIOManager` that points at an existing
-    `pudl.sqlite`, like one initialized via `alembic upgrade head`, it
-    will compare the existing db schema with the db schema in `package`.
-
-    We want to make sure that the schema defined in `package` is the same as
-    the one we arrive at by applying all the migrations.
-    """
-    # alembic wants current directory to be the one with `alembic.ini` in it
-    monkeypatch.chdir(Path(__file__).parent.parent.parent.parent)
-    # alembic knows to use PudlPaths().pudl_db - so we need to set PUDL_OUTPUT env var
-    monkeypatch.setenv("PUDL_OUTPUT", str(tmp_path))
-    # run all the migrations on a fresh DB at tmp_path/pudl.sqlite
-    alembic.config.main(["upgrade", "head"])
-
-    PudlSqliteIOManager(base_dir=tmp_path, db_name="pudl", package=PUDL_PACKAGE)
-
-    # all we care about is that it didn't raise an error
-    assert True
-
-
-def test_empty_read_fails(fake_pudl_sqlite_io_manager_fixture):
-    """Reading empty table fails."""
-    with pytest.raises(AssertionError):
-        context: InputContext = build_input_context(asset_key=AssetKey("artist"))
-        fake_pudl_sqlite_io_manager_fixture.load_input(context)
-
-
-def test_mixed_format_io_manager_invalid_config():
-    """The mixed-format manager should reject parquet-read without parquet-write."""
-    with pytest.raises(RuntimeError):
-        PudlMixedFormatIOManager(
-            write_to_parquet=False,
-            read_from_parquet=True,
-        )
-
-
-def test_mixed_format_io_manager_initializes_backends(mocker):
-    """The migrated mixed-format IO manager should lazily expose both backends."""
-    sqlite_manager: PudlSqliteIOManager = mocker.MagicMock(spec=PudlSqliteIOManager)
-    parquet_manager: PudlParquetIOManager = mocker.MagicMock()
-    mocker.patch(
-        "pudl.dagster.io_managers.PudlSqliteIOManager", return_value=sqlite_manager
-    )
-    mocker.patch(
-        "pudl.dagster.io_managers.PudlParquetIOManager", return_value=parquet_manager
-    )
-
-    manager = PudlMixedFormatIOManager(pudl_paths=mocker.MagicMock())
-
-    assert manager._sqlite_io_manager is sqlite_manager
-    assert manager._parquet_io_manager is parquet_manager
 
 
 def test_ferc_dbf_io_manager_uses_injected_pudl_data_config(mocker):
@@ -518,30 +231,6 @@ def test_ferc_dbf_io_manager_requires_provenance_metadata(mocker):
         manager.load_input(context)
 
     query.assert_not_called()
-
-
-def test_replace_on_insert(fake_pudl_sqlite_io_manager_fixture):
-    """Tests that two runs of the same asset overwrite existing contents."""
-    artist_df = pd.DataFrame({"artistid": [1], "artistname": ["Co-op Mop"]})
-    output_context: OutputContext = build_output_context(asset_key=AssetKey("artist"))
-    input_context: InputContext = build_input_context(asset_key=AssetKey("artist"))
-
-    # Write then read.
-    fake_pudl_sqlite_io_manager_fixture.handle_output(output_context, artist_df)
-    read_df: pd.DataFrame = fake_pudl_sqlite_io_manager_fixture.load_input(
-        input_context
-    )
-    pd.testing.assert_frame_equal(artist_df, read_df, check_dtype=False)
-    # check_dtype=False, because int64 != Int64. /o\
-
-    # Rerunning the asset overrwrites contents, leaves only
-    # one artist in the database.
-    new_artist_df = pd.DataFrame({"artistid": [2], "artistname": ["Cxtxlyst"]})
-    fake_pudl_sqlite_io_manager_fixture.handle_output(output_context, new_artist_df)
-    read_df: pd.DataFrame = fake_pudl_sqlite_io_manager_fixture.load_input(
-        input_context
-    )
-    pd.testing.assert_frame_equal(new_artist_df, read_df, check_dtype=False)
 
 
 def test_report_year_fixing_instant():

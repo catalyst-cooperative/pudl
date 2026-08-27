@@ -2131,7 +2131,7 @@ class Resource(PudlMeta):
                 "The following columns are getting dropped when the table is written:"
                 f"{dropped_columns}. This is often the intended behavior. If you want "
                 "to keep any of these columns, add them to the metadata.resources "
-                "fields and update alembic."
+                "fields."
             )
 
         df = self.format_df(df)
