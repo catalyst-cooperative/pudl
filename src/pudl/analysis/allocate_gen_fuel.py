@@ -548,6 +548,7 @@ def standardize_input_frequency(
             gens_at_freq[["plant_id_eia", "generator_id", "report_date"]],
             how="outer",
             on=["plant_id_eia", "generator_id", "report_date"],
+            validate="1:1",
         )
     )
     return bf, gens_at_freq, gen
@@ -663,7 +664,11 @@ def stack_generators(
     # merge the stacked df back onto the gens table
     # we first drop the cols_to_stack so we don't duplicate data
     gens_stack = pd.merge(
-        gens.drop(columns=esc), gens_stack_prep, on=IDX_GENS, how="outer"
+        gens.drop(columns=esc),
+        gens_stack_prep,
+        on=IDX_GENS,
+        how="outer",
+        validate="1:m",
     )
     return gens_stack
 
@@ -750,6 +755,7 @@ def associate_generator_tables(
             gen.rename(columns={"net_generation_mwh": "net_generation_mwh_g_tbl"}),
             on=IDX_GENS,
             how="outer",
+            validate="m:1",
         )
         .merge(gf, on=IDX_PM_ESC, how="outer", validate="m:1", indicator=True)
         .pipe(remove_inactive_generators)
@@ -791,6 +797,7 @@ def associate_generator_tables(
         .reset_index(),
         on=IDX_ESC,
         how="outer",
+        validate="m:1",
     ).pipe(apply_pudl_dtypes, field_namespace="eia")
     return gen_assoc
 
@@ -976,6 +983,7 @@ def _identify_transitioning_generators(
         transitioning_generator_ids,
         how="inner",
         on=["plant_id_eia", "generator_id", "report_year"],
+        validate="m:1",
     ).drop(columns=["report_year"])
 
     return transitioning_generators
@@ -1166,6 +1174,7 @@ def _identify_entirely_transitioned_plants(
         candidate_plant_years,
         how="inner",
         on=["plant_id_eia", "report_year"],
+        validate="m:1",
     )[
         ["plant_id_eia", "report_year", "operational_status", transition_date_col]
     ].drop_duplicates()
@@ -1197,6 +1206,7 @@ def _identify_entirely_transitioned_plants(
             how="left",
             indicator=True,
             on=["plant_id_eia", "report_year"],
+            validate="1:1",
         )
         .query("_merge == 'left_only'")
         .drop(columns="_merge")
@@ -1205,6 +1215,7 @@ def _identify_entirely_transitioned_plants(
             how="left",
             indicator=True,
             on=["plant_id_eia", "report_year"],
+            validate="1:1",
         )
         .query("_merge == 'left_only'")
         .drop(columns="_merge")
@@ -1214,6 +1225,7 @@ def _identify_entirely_transitioned_plants(
         entirely_transitioned_plant_years,
         how="inner",
         on=["plant_id_eia", "report_year"],
+        validate="m:1",
     ).drop(columns=["report_year"])
 
     return transitioned_plants[
@@ -1409,6 +1421,7 @@ def prep_allocation_fraction(gen_assoc: pd.DataFrame) -> pd.DataFrame:
             gens_gb_pm_esc[["in_g_tbl"]].all().reset_index(),
             on=IDX_PM_ESC,
             suffixes=("", "_all"),
+            validate="m:1",
         )
         .merge(  # flag if some generators exist in the core_eia860__scd_generators tbl
             gens_gb_pm_esc[["in_g_tbl", "more_mwh_in_g_than_gf_tbl"]]
@@ -1416,16 +1429,19 @@ def prep_allocation_fraction(gen_assoc: pd.DataFrame) -> pd.DataFrame:
             .reset_index(),
             on=IDX_PM_ESC,
             suffixes=("", "_any"),
+            validate="m:1",
         )
         .merge(  # flag if all generators exist in the boiler fuel tbl
             gens_gb_pm_esc[["in_bf_tbl"]].all().reset_index(),
             on=IDX_PM_ESC,
             suffixes=("", "_all"),
+            validate="m:1",
         )
         .merge(  # flag if some generators exist in the boiler fuel tbl
             gens_gb_pm_esc[["in_bf_tbl"]].any().reset_index(),
             on=IDX_PM_ESC,
             suffixes=("", "_any"),
+            validate="m:1",
         )
         # Net generation and capacity are both proxies that can be used
         # to allocate the generation which only shows up in generation_fuel.
@@ -1447,6 +1463,7 @@ def prep_allocation_fraction(gen_assoc: pd.DataFrame) -> pd.DataFrame:
                 .reset_index()
             ),
             on=IDX_PM_ESC,
+            validate="m:1",
         )
         .merge(
             (
@@ -1461,6 +1478,7 @@ def prep_allocation_fraction(gen_assoc: pd.DataFrame) -> pd.DataFrame:
                 .reset_index()
             ),
             on=IDX_UNIT_ESC,
+            validate="m:1",
         )
         .assign(
             # fill in the missing generation with small numbers (this will help ensure
@@ -1491,6 +1509,7 @@ def prep_allocation_fraction(gen_assoc: pd.DataFrame) -> pd.DataFrame:
         .add_suffix("_in_g_tbl_group")
         .reset_index(),
         on=IDX_PM_ESC + ["in_g_tbl"],
+        validate="m:1",
     )
     gen_pm_fuel["capacity_mw_fuel_in_bf_tbl_group"] = gen_pm_fuel.groupby(
         IDX_PM_ESC + ["in_bf_tbl"], dropna=False
@@ -2081,6 +2100,7 @@ def identify_missing_gf_escs_in_gens(gens_at_freq, gf, bf):
         how="outer",
         on=["plant_id_eia", "prime_mover_code", "energy_source_code", "report_date"],
         indicator="source",
+        validate="m:1",
     )
     missing_gf_escs_from_gens = missing_gf_escs_from_gens[
         missing_gf_escs_from_gens["source"] == "right_only"
@@ -2272,6 +2292,7 @@ def _test_gen_pm_fuel_output(
             .reset_index(),
             on=idx,
             how="outer",
+            validate="m:1",
         ).assign(
             net_generation_mwh_diff=lambda x: (
                 x.net_generation_mwh_gf_tbl - x.net_generation_mwh_test
@@ -2339,6 +2360,7 @@ def test_gen_fuel_allocation(
         gen,
         on=IDX_GENS,
         suffixes=("_new", "_og"),
+        validate="1:1",
     ).assign(
         net_generation_new_v_og=lambda x: (
             x.net_generation_mwh_new / x.net_generation_mwh_og
@@ -2389,6 +2411,7 @@ def test_original_gf_vs_the_allocated_by_gens_gf(
         pd.DataFrame(original_gf.sum(), columns=["original_sum"]),
         right_index=True,
         left_index=True,
+        validate="1:1",
     ).assign(allocated_pct=lambda x: (x.allocated_sum / x.original_sum) * 100)[
         ["allocated_pct"]
     ]
@@ -2413,6 +2436,7 @@ def test_original_gf_vs_the_allocated_by_gens_gf(
         left_index=True,
         suffixes=("_og", "_allocated"),
         how="outer",
+        validate="1:1",
     )
     # calculate the difference between the allocated and the original data
     gf_test = gf_test.assign(
