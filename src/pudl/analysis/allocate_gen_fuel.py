@@ -135,7 +135,6 @@ net generation (if it's reported) or capacity (if generation is not reported).
 
 import operator
 import os
-from collections.abc import Callable
 from typing import Literal
 
 # Useful high-level external modules.
@@ -796,7 +795,25 @@ def associate_generator_tables(
     return gen_assoc
 
 
-def _label_gf_unique_to_gen(gen_assoc: pd.DataFrame):
+def _label_gf_unique_to_gen(gen_assoc: pd.DataFrame) -> pd.DataFrame:
+    """Flag rows whose plant/month/PM/ESC combo has only one generator.
+
+    A gf-table (:ref:`core_eia923__monthly_generation_fuel`) record is reported at
+    plant/prime-mover/energy-source granularity, not per generator, so a nonzero
+    value can't always be attributed to a specific generator. When a given
+    plant/report_date/prime_mover_code/energy_source_code combination is only ever
+    reported by a single generator, though, any gf-table data for that combination
+    can only belong to that one generator.
+
+    Args:
+        gen_assoc: table of generators with stacked energy sources and broadcasted
+            net generation data. Output of :func:`associate_generator_tables`.
+
+    Returns:
+        ``gen_assoc`` with a new boolean ``gf_unique_to_gen`` column, True for rows
+        whose plant/report_date/prime_mover_code/energy_source_code combination is
+        reported by exactly one generator.
+    """
     # identify whether a PM/ESC combo is unique to the generator_id at the plant
     gen_assoc["gf_unique_to_gen"] = (
         gen_assoc.groupby(
@@ -815,10 +832,10 @@ def remove_inactive_generators(gen_assoc: pd.DataFrame) -> pd.DataFrame:
     ``existing``). However, we do want to keep the generators that report operational
     statuses other than ``existing`` but which report non-zero data despite being
     ``retired`` or ``proposed``. This includes several categories of generators/plants,
-    which come in mirror-image pairs -- retiring/retired vs. coming online/proposed --
+    which come in mirror-image pairs -- retiring/retired vs. newly operating/proposed --
     built from shared logic (:func:`_identify_transitioning_generators` and
-    :func:`_identify_entirely_transitioned_plants`) so the two directions can't
-    silently drift out of sync with each other:
+    :func:`_identify_entirely_transitioned_plants`) so the two directions can't silently
+    drift out of sync with each other:
 
         * ``retiring_generators``: generators that retire mid-year, or report data
           on or after their retirement date despite being labeled "retired" for the
@@ -826,8 +843,8 @@ def remove_inactive_generators(gen_assoc: pd.DataFrame) -> pd.DataFrame:
         * ``retired_plants``: entire plants that supposedly retired prior to
           the current year but which report data. If a plant has a mix of gens
           which are existing and retired, they are not included in this category.
-        * ``proposed_generators``: generators that become operational mid-year, or
-          report data on or after their operating date despite being labeled
+        * ``newly_operating_generators``: generators that become operational mid-year,
+          or report data on or after their operating date despite being labeled
           "proposed" for the whole year, or which start reporting non-zero data
           despite having no known operating date yet.
         * ``proposed_plants``: entire plants that have a ``proposed`` status but
@@ -835,37 +852,36 @@ def remove_inactive_generators(gen_assoc: pd.DataFrame) -> pd.DataFrame:
           mix of gens which are existing and proposed, they are not included in this
           category.
 
-    When we do not have generator-specific generation for a proposed/retired
-    generator that is not coming online/retiring mid-year, we can also look
-    at whether there is generation reported for this generator in the gf table.
-    However, if a proposed/retired generator is part of an existing plant, it
-    is possible that the reported generation from the gf table belongs to one
-    of the other existing generators. Thus, we want to only keep proposed/retired
-    generators where the entire plant is proposed/retired (in which case the gf-
-    reported generation could only come from one of the new/retired generators). If the
-    reported gf data is for a prime_mover / energy_source_code combo that is unique
-    to the retiring/proposed generator, we can identify it at the generator level.
+    When we do not have generator-specific generation for a proposed/retired generator
+    that is not newly operating/retiring mid-year, we can also look at whether there is
+    generation reported for this generator in the gf table. However, if a
+    proposed/retired generator is part of an existing plant, it is possible that the
+    reported generation from the gf table belongs to one of the other existing
+    generators. Thus, we want to only keep proposed/retired generators where the entire
+    plant is proposed/retired (in which case the gf- reported generation could only come
+    from one of the new/retired generators). If the reported gf data is for a
+    prime_mover / energy_source_code combo that is unique to the
+    retiring/newly-operating generator, we can identify it at the generator level.
 
     We also want to keep unassociated plants that have no ``generator_id`` which will
     be associated via :func:`_allocate_unassociated_records`.
 
     Args:
         gen_assoc: table of generators with stacked energy sources and broadcasted net
-            generation data from the core_eia923__monthly_generation and core_eia923__monthly_generation_fuel
-            tables. Output of :func:`associate_generator_tables`.
+            generation data from the core_eia923__monthly_generation and
+            core_eia923__monthly_generation_fuel tables. Output of
+            :func:`associate_generator_tables`.
+
+    Returns:
+        ``gen_assoc`` filtered down to existing generators, unassociated plants, and
+        the retiring/retired/newly-operating/proposed categories described above.
     """
     gen_assoc = _label_gf_unique_to_gen(gen_assoc)
-
     existing = gen_assoc.loc[(gen_assoc.operational_status == "existing")]
-
     retiring_generators = identify_retiring_generators(gen_assoc)
-
     retired_plants = identify_retired_plants(gen_assoc)
-
-    proposed_generators = identify_generators_coming_online(gen_assoc)
-
+    newly_operating_generators = identify_newly_operating_generators(gen_assoc)
     proposed_plants = identify_proposed_plants(gen_assoc)
-
     unassociated_plants = gen_assoc[gen_assoc.generator_id.isnull()]
 
     gen_assoc_removed = pd.concat(
@@ -873,7 +889,7 @@ def remove_inactive_generators(gen_assoc: pd.DataFrame) -> pd.DataFrame:
             existing,
             retiring_generators,
             retired_plants,
-            proposed_generators,
+            newly_operating_generators,
             proposed_plants,
             unassociated_plants,
         ]
@@ -882,26 +898,31 @@ def remove_inactive_generators(gen_assoc: pd.DataFrame) -> pd.DataFrame:
     return gen_assoc_removed
 
 
+_TRANSITION_DATE_COL: dict[Literal["retired", "proposed"], str] = {
+    "retired": "generator_retirement_date",
+    "proposed": "generator_operating_date",
+}
+"""The column recording a generator's actual transition date, keyed by ``operational_status``."""
+
+
 def _identify_transitioning_generators(
     gen_assoc: pd.DataFrame,
-    status: str,
-    transition_date_col: str,
-    already_transitioned: Callable[[pd.Series, pd.Series], pd.Series],
+    operational_status: Literal["retired", "proposed"],
 ) -> pd.DataFrame:
     """Identify generators transitioning status mid-year, keeping all their months.
 
     Shared by :func:`identify_retiring_generators` (retiring, keyed on
-    ``generator_retirement_date``) and :func:`identify_generators_coming_online`
-    (coming online, keyed on ``generator_operating_date``), so the two mirror-image
+    ``generator_retirement_date``) and :func:`identify_newly_operating_generators`
+    (newly operating, keyed on ``generator_operating_date``), so the two mirror-image
     cases can't silently drift out of sync with each other.
 
     A generator qualifies for a given ``report_year`` if ANY of the following hold:
 
-    A) ``report_date`` already reflects the actual transition this report_year, per
-       ``already_transitioned(report_date, transition_date_col)`` -- e.g. a retiring
-       generator's ``report_date <= generator_retirement_date``, or a coming-online
-       generator's ``report_date >= generator_operating_date`` -- even though the
-       annual ``operational_status`` label for the whole year still says otherwise, OR
+    A) ``report_date`` already reflects the actual transition this report_year --
+       e.g. a retiring generator's ``report_date <= generator_retirement_date``, or a
+       newly-operating generator's ``report_date >= generator_operating_date`` -- even
+       though the annual ``operational_status`` label for the whole year still says
+       otherwise, OR
     B) it reports generator-specific generation data in the g table, OR
     C) it has non-zero generation or fuel reported in the gf table for a PM/ESC combo
        that is unique to that generator at the plant.
@@ -913,21 +934,26 @@ def _identify_transitioning_generators(
     Args:
         gen_assoc: table of generators with stacked energy sources and broadcasted
             net generation data. Output of :func:`associate_generator_tables`.
-        status: the ``operational_status`` value identifying candidate generators
-            (``"retired"`` or ``"proposed"``).
-        transition_date_col: the column recording when the transition actually
-            happened (``"generator_retirement_date"`` or ``"generator_operating_date"``).
-        already_transitioned: a two-argument comparison (e.g. :func:`operator.le` or
-            :func:`operator.ge`) applied to ``(report_date, transition_date_col)`` to
-            determine whether a given month already reflects the transition.
+        operational_status: the ``operational_status`` value identifying candidate
+            generators (``"retired"`` or ``"proposed"``). Determines both the
+            transition-date column (:data:`_TRANSITION_DATE_COL`) and the comparison
+            used to detect condition A above (:func:`operator.le` for ``"retired"``,
+            :func:`operator.ge` for ``"proposed"``).
+
+    Returns:
+        The subset of ``gen_assoc`` rows belonging to qualifying generators, with
+        every month of each qualifying generator's data retained for the
+        report_years it qualified in.
     """
+    transition_date_col = _TRANSITION_DATE_COL[operational_status]
+    has_stale_status = operator.le if operational_status == "retired" else operator.ge
     gen_assoc = gen_assoc.assign(report_year=lambda x: x.report_date.dt.year)
     # identify the complete set of generator ids that are transitioning mid year
-    # or have fuel or generation use while being labeled as status.
-    transitioning_generator_identities = gen_assoc.loc[
-        (gen_assoc.operational_status == status)
+    # or have fuel or generation use while being labeled as operational_status.
+    transitioning_generator_ids = gen_assoc.loc[
+        (gen_assoc.operational_status == operational_status)
         & (
-            already_transitioned(gen_assoc.report_date, gen_assoc[transition_date_col])
+            has_stale_status(gen_assoc.report_date, gen_assoc[transition_date_col])
             | (
                 gen_assoc.net_generation_mwh_g_tbl.notnull()
                 | (
@@ -947,7 +973,7 @@ def _identify_transitioning_generators(
 
     # merge these ids into gen_assoc and keep all months of data for these gens
     transitioning_generators = gen_assoc.merge(
-        transitioning_generator_identities,
+        transitioning_generator_ids,
         how="inner",
         on=["plant_id_eia", "generator_id", "report_year"],
     ).drop(columns=["report_year"])
@@ -966,17 +992,21 @@ def identify_retiring_generators(gen_assoc: pd.DataFrame) -> pd.DataFrame:
        retirement date, OR
     C) Have non-zero generation or fuel reported in the gf table for a PM/ESC combo that
        is unique to that generator at the plant, for a month after the retirement date.
+
+    Args:
+        gen_assoc: table of generators with stacked energy sources and broadcasted
+            net generation data. Output of :func:`associate_generator_tables`.
+
+    Returns:
+        The subset of ``gen_assoc`` rows belonging to retiring generators, with every
+        month of each retiring generator's data retained for the report_years it
+        qualified in.
     """
-    return _identify_transitioning_generators(
-        gen_assoc,
-        status="retired",
-        transition_date_col="generator_retirement_date",
-        already_transitioned=operator.le,
-    )
+    return _identify_transitioning_generators(gen_assoc, operational_status="retired")
 
 
-def identify_generators_coming_online(gen_assoc: pd.DataFrame) -> pd.DataFrame:
-    """Identify generators that are coming online mid-year.
+def identify_newly_operating_generators(gen_assoc: pd.DataFrame) -> pd.DataFrame:
+    """Identify generators that become newly operating mid-year.
 
     See :func:`_identify_transitioning_generators` for the shared logic. These are
     "proposed" generators that either:
@@ -987,66 +1017,93 @@ def identify_generators_coming_online(gen_assoc: pd.DataFrame) -> pd.DataFrame:
     C) Have non-zero generation or fuel reported in the gf table for a PM/ESC combo
        that is unique to that generator at the plant, for a month on or after the
        operating date.
+
+    Args:
+        gen_assoc: table of generators with stacked energy sources and broadcasted
+            net generation data. Output of :func:`associate_generator_tables`.
+
+    Returns:
+        The subset of ``gen_assoc`` rows belonging to newly operating generators,
+        with every month of each newly operating generator's data retained for the
+        report_years it qualified in.
     """
-    return _identify_transitioning_generators(
-        gen_assoc,
-        status="proposed",
-        transition_date_col="generator_operating_date",
-        already_transitioned=operator.ge,
+    return _identify_transitioning_generators(gen_assoc, operational_status="proposed")
+
+
+def _transition_date_in_report_year(
+    operational_status: Literal["retired", "proposed"],
+    transition_date: pd.Series,
+    report_year: pd.Series,
+) -> pd.Series:
+    """True if a generator's transition falls within ``report_year``.
+
+    For ``"retired"``, true if the retirement date falls on or after the start of
+    ``report_year``. For ``"proposed"``, true if the operating date falls on or
+    before the end of ``report_year``.
+
+    Args:
+        operational_status: the ``operational_status`` value identifying the kind of
+            transition (``"retired"`` or ``"proposed"``). Determines whether
+            ``transition_date`` is compared against the start or the end of
+            ``report_year``.
+        transition_date: the date the transition actually happened
+            (``generator_retirement_date`` for ``"retired"``, or
+            ``generator_operating_date`` for ``"proposed"``).
+        report_year: the calendar year each row's ``transition_date`` is being
+            checked against.
+
+    Raises:
+        ValueError: if ``operational_status`` is not ``"retired"`` or ``"proposed"``.
+
+    Returns:
+        A boolean series, True for rows whose ``transition_date`` falls within
+        ``report_year``.
+    """
+    if operational_status == "retired":
+        report_year_starts = pd.to_datetime(report_year.astype(str) + "-01-01")
+        return transition_date >= report_year_starts
+    if operational_status == "proposed":
+        report_year_ends = pd.to_datetime((report_year + 1).astype(str) + "-01-01")
+        return transition_date < report_year_ends
+    raise ValueError(
+        f"operational_status must be 'retired' or 'proposed', not {operational_status!r}"
     )
-
-
-def _retirement_within_report_year(
-    generator_retirement_date: pd.Series, report_year: pd.Series
-) -> pd.Series:
-    """True if a retirement falls on or after the start of ``report_year``."""
-    report_year_starts = pd.to_datetime(report_year.astype(str) + "-01-01")
-    return generator_retirement_date >= report_year_starts
-
-
-def _operating_date_within_report_year(
-    generator_operating_date: pd.Series, report_year: pd.Series
-) -> pd.Series:
-    """True if an operating date falls on or before the end of ``report_year``."""
-    report_year_ends = pd.to_datetime((report_year + 1).astype(str) + "-01-01")
-    return generator_operating_date < report_year_ends
 
 
 def _identify_entirely_transitioned_plants(
     gen_assoc: pd.DataFrame,
-    status: str,
-    transition_date_col: str,
-    anomalous_report: Callable[[pd.Series, pd.Series], pd.Series],
-    transitioned_within_report_year: Callable[[pd.Series, pd.Series], pd.Series],
+    operational_status: Literal["retired", "proposed"],
 ) -> pd.DataFrame:
-    """Identify entire plants uniformly ``status`` for a year, reporting anomalously.
+    """Identify entire plants uniformly ``operational_status`` for a year, reporting anomalously.
 
     Shared by :func:`identify_retired_plants` (a retired plant reporting generation
     *after* its retirement date) and :func:`identify_proposed_plants` (a proposed
     plant reporting generation *before* its operating date), so the two mirror-image
     cases can't silently drift out of sync with each other.
 
-    The "entirely `status`" check must be evaluated per year (``report_year``), not
-    across the full extent of ``gen_assoc``. If ``gen_assoc`` spans multiple years and
-    a plant's operational status isn't uniformly ``status`` across its whole history
-    (e.g. a plant is repowered and later has "existing" generators, or a proposed
-    plant eventually comes online), the plant would otherwise never pass the
-    "entirely `status`" test for *any* of its years, silently dropping legitimate
-    generation/fuel data for years it genuinely was ``status``-but-reporting.
+    The "entirely `operational_status`" check must be evaluated per year
+    (``report_year``), not across the full extent of ``gen_assoc``. If ``gen_assoc``
+    spans multiple years and a plant's operational status isn't uniformly
+    ``operational_status`` across its whole history (e.g. a plant is repowered and
+    later has "existing" generators, or a proposed plant eventually comes online), the
+    plant would otherwise never pass the "entirely `operational_status`" test for
+    *any* of its years, silently dropping legitimate generation/fuel data for years it
+    genuinely was ``operational_status``-but-reporting.
 
     A plant-year is included only if:
 
-    * it has at least one row where ``operational_status == status``, the row's
-      ``report_date`` is anomalous relative to ``transition_date_col`` per
-      ``anomalous_report(report_date, transition_date_col)``, gf-table generation is
-      reported (notnull, nonzero), and g-table generation is *not* reported --
-      deferring unambiguous generator-level data to
+    * it has at least one row whose ``operational_status`` column matches the given
+      ``operational_status``, whose ``report_date`` is anomalous relative to the
+      transition-date column (a retired plant reporting *after* its retirement date,
+      or a proposed plant reporting *before* its operating date), whose gf-table
+      generation is reported (notnull, nonzero), and whose g-table generation is
+      *not* reported -- deferring unambiguous generator-level data to
       :func:`_identify_transitioning_generators` instead;
-    * every generator reported for that plant-year shares ``status`` (no mixed
-      status);
-    * none of those generators' ``transition_date_col`` falls within the report_year,
-      per ``transitioned_within_report_year`` -- deferring mid-year transitions to
-      :func:`_identify_transitioning_generators` instead.
+    * every generator reported for that plant-year shares ``operational_status`` (no
+      mixed status);
+    * none of those generators' transition-date column falls within the report_year --
+      deferring mid-year transitions to :func:`_identify_transitioning_generators`
+      instead.
 
     The final output is filtered to months with non-null gf-table generation, since
     there's nothing to allocate in months where nothing was reported.
@@ -1054,17 +1111,21 @@ def _identify_entirely_transitioned_plants(
     Args:
         gen_assoc: table of generators with stacked energy sources and broadcasted
             net generation data. Output of :func:`associate_generator_tables`.
-        status: the ``operational_status`` value identifying candidate plant-years
-            (``"retired"`` or ``"proposed"``).
-        transition_date_col: the column recording when the transition actually
-            happened (``"generator_retirement_date"`` or ``"generator_operating_date"``).
-        anomalous_report: a two-argument comparison (e.g. :func:`operator.gt` or
-            :func:`operator.lt`) applied to ``(report_date, transition_date_col)`` to
-            identify reports that shouldn't exist given ``status``.
-        transitioned_within_report_year: a two-argument function applied to
-            ``(transition_date_col, report_year)`` identifying plant-years where a
-            generator's transition happened during that report_year.
+        operational_status: the ``operational_status`` value identifying candidate
+            plant-years (``"retired"`` or ``"proposed"``). Determines the
+            transition-date column (:data:`_TRANSITION_DATE_COL`), the comparison
+            used to detect an anomalous report (:func:`operator.gt` for
+            ``"retired"``, :func:`operator.lt` for ``"proposed"``), and the
+            within-report-year transition check
+            (:func:`_transition_date_in_report_year`).
+
+    Returns:
+        The subset of ``gen_assoc`` rows belonging to entirely-``operational_status``
+        plant-years that reported anomalous gf-table generation, filtered to months
+        with non-null gf-table generation.
     """
+    transition_date_col = _TRANSITION_DATE_COL[operational_status]
+    anomalous_report = operator.gt if operational_status == "retired" else operator.lt
     gen_assoc = gen_assoc.assign(report_year=lambda x: x.report_date.dt.year)
 
     # Get a list of all of the plant-years with at least one generator reporting
@@ -1088,7 +1149,7 @@ def _identify_entirely_transitioned_plants(
     # with no recorded operating date that nonetheless reports real generation --
     # see test_identify_plants_unknown_transition_date.
     candidate_plant_years = gen_assoc.loc[
-        (gen_assoc.operational_status == status)
+        (gen_assoc.operational_status == operational_status)
         & (
             anomalous_report(gen_assoc.report_date, gen_assoc[transition_date_col])
             | gen_assoc[transition_date_col].isnull()
@@ -1109,10 +1170,10 @@ def _identify_entirely_transitioned_plants(
         ["plant_id_eia", "report_year", "operational_status", transition_date_col]
     ].drop_duplicates()
 
-    # a plant-year is only "entirely `status`" if every generator reported that year
-    # has that same operational_status ...
+    # a plant-year is only "entirely `operational_status`" if every generator
+    # reported that year has that same operational_status ...
     plant_years_with_mixed_status = plant_years_with_any_candidate.loc[
-        plant_years_with_any_candidate["operational_status"] != status,
+        plant_years_with_any_candidate["operational_status"] != operational_status,
         ["plant_id_eia", "report_year"],
     ].drop_duplicates()
 
@@ -1120,7 +1181,8 @@ def _identify_entirely_transitioned_plants(
     # Mid-year transitions are _identify_transitioning_generators's responsibility,
     # not this function's.
     plant_years_transitioning_within_year = plant_years_with_any_candidate.loc[
-        transitioned_within_report_year(
+        _transition_date_in_report_year(
+            operational_status,
             plant_years_with_any_candidate[transition_date_col],
             plant_years_with_any_candidate["report_year"],
         ),
@@ -1163,13 +1225,18 @@ def identify_retired_plants(gen_assoc: pd.DataFrame) -> pd.DataFrame:
     """Identify entire plants that have previously retired but are reporting data.
 
     See :func:`_identify_entirely_transitioned_plants` for the shared logic.
+
+    Args:
+        gen_assoc: table of generators with stacked energy sources and broadcasted
+            net generation data. Output of :func:`associate_generator_tables`.
+
+    Returns:
+        The subset of ``gen_assoc`` rows belonging to entirely-retired plant-years
+        that reported anomalous gf-table generation, filtered to months with
+        non-null gf-table generation.
     """
     return _identify_entirely_transitioned_plants(
-        gen_assoc,
-        status="retired",
-        transition_date_col="generator_retirement_date",
-        anomalous_report=operator.gt,
-        transitioned_within_report_year=_retirement_within_report_year,
+        gen_assoc, operational_status="retired"
     )
 
 
@@ -1177,13 +1244,18 @@ def identify_proposed_plants(gen_assoc: pd.DataFrame) -> pd.DataFrame:
     """Identify entirely new plants that are proposed but are already reporting data.
 
     See :func:`_identify_entirely_transitioned_plants` for the shared logic.
+
+    Args:
+        gen_assoc: table of generators with stacked energy sources and broadcasted
+            net generation data. Output of :func:`associate_generator_tables`.
+
+    Returns:
+        The subset of ``gen_assoc`` rows belonging to entirely-proposed plant-years
+        that reported anomalous gf-table generation, filtered to months with
+        non-null gf-table generation.
     """
     return _identify_entirely_transitioned_plants(
-        gen_assoc,
-        status="proposed",
-        transition_date_col="generator_operating_date",
-        anomalous_report=operator.lt,
-        transitioned_within_report_year=_operating_date_within_report_year,
+        gen_assoc, operational_status="proposed"
     )
 
 
@@ -1208,6 +1280,12 @@ def _allocate_unassociated_pm_records(
         col_w_unexpected_codes: name of the column which has codes in it that were not
             found in the generators table.
         data_columns: the data columns to associate and allocate.
+
+    Returns:
+        ``gen_assoc`` with the unassociated records' ``data_columns`` merged onto and
+        allocated across the matching generators, weighted by each generator's share
+        of ``capacity_mw`` within ``idx_cols`` minus ``col_w_unexpected_codes``. If
+        there are no unassociated records, ``gen_assoc`` is returned unchanged.
     """
     # we're going to only associate these unassociated fuel records w/
     # the primary fuel so we don't have to deal w/ double counting
@@ -1249,6 +1327,16 @@ def _allocate_unassociated_pm_records(
         there is no data from the gf table and sometimes there is no unassociated data.
         The unassociated data column also needs to be allocated across the various
         gen/PM code combos in the plant that it is being merged with.
+
+        Args:
+            df: the merged table of connected generators and their matched
+                unassociated records, with both ``col`` and ``{col}_unassociated``
+                present, plus ``frac_cap_minus_one``.
+            col: name of the data column to allocate (e.g. ``"net_generation_mwh"``).
+
+        Returns:
+            ``df[col]``, updated in place to add each generator's allocated share of
+            ``df[f"{col}_unassociated"]`` wherever either column is non-null.
         """
         df.loc[df[col].notnull() | df[f"{col}_unassociated"].notnull(), col] = df[
             col
@@ -2115,7 +2203,16 @@ def warn_if_missing_pms(gens: pd.DataFrame) -> None:
 
 
 def _test_frac(gen_pm_fuel: pd.DataFrame) -> pd.DataFrame:
-    """Check if each of the IDX_PM_ESC groups frac's add up to 1."""
+    """Check if each of the IDX_PM_ESC groups frac's add up to 1.
+
+    Args:
+        gen_pm_fuel: table of generators with an allocation ``frac`` column, grouped
+            by ``IDX_PM_ESC``. Output of :func:`allocate_gen_fuel_by_gen_esc`.
+
+    Returns:
+        The subset of ``IDX_PM_ESC`` groups whose ``frac`` values don't sum to 1
+        (empty if none are bad). Any bad groups are also logged as a warning.
+    """
     frac_test = (
         gen_pm_fuel.groupby(IDX_PM_ESC)[["frac", "net_generation_mwh_g_tbl"]]
         .sum(min_count=1)
@@ -2136,8 +2233,37 @@ def _test_frac(gen_pm_fuel: pd.DataFrame) -> pd.DataFrame:
 def _test_gen_pm_fuel_output(
     gen_pm_fuel: pd.DataFrame, gf: pd.DataFrame, gen: pd.DataFrame
 ) -> pd.DataFrame:
-    # this is just for testing/debugging
-    def calc_net_gen_diff(gen_pm_fuel, idx):
+    """Log diagnostics comparing allocated net generation against the gf and g tables.
+
+    This is just for testing/debugging -- it doesn't assert anything, it logs how
+    closely the allocated ``net_generation_mwh`` sums back up to the reported gf-
+    and g-table totals, at both the ``IDX_PM_ESC`` and ``IDX_ESC`` grouping levels.
+
+    Args:
+        gen_pm_fuel: table of generators with allocated net generation. Output of
+            :func:`allocate_gen_fuel_by_gen_esc`.
+        gf: transformed :ref:`core_eia923__monthly_generation_fuel` table.
+        gen: transformed :ref:`core_eia923__monthly_generation` table.
+
+    Returns:
+        ``gen_pm_fuel`` with intermediate ``net_generation_mwh_test`` and
+        ``net_generation_mwh_diff`` columns dropped after being used to compute the
+        logged diagnostics.
+    """
+
+    def calc_net_gen_diff(gen_pm_fuel: pd.DataFrame, idx: list[str]) -> pd.DataFrame:
+        """Merge in group-level net generation totals and their diff from gf-table.
+
+        Args:
+            gen_pm_fuel: table of generators with allocated net generation.
+            idx: columns to group by when summing ``net_generation_mwh``.
+
+        Returns:
+            ``gen_pm_fuel`` with two new columns: ``net_generation_mwh_test`` (the
+            ``idx``-level sum of allocated ``net_generation_mwh``) and
+            ``net_generation_mwh_diff`` (that sum's difference from the reported
+            ``net_generation_mwh_gf_tbl``).
+        """
         gen_pm_fuel_test = pd.merge(
             gen_pm_fuel,
             gen_pm_fuel.groupby(by=idx)[["net_generation_mwh"]]

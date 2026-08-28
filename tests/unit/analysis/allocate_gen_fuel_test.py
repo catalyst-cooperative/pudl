@@ -8,7 +8,7 @@ import pytest
 from pudl.analysis import allocate_gen_fuel
 from pudl.metadata.dtypes import apply_pudl_dtypes
 
-# `identify_retiring_generators`/`identify_generators_coming_online` (via the shared
+# `identify_retiring_generators`/`identify_newly_operating_generators` (via the shared
 # `_identify_transitioning_generators` helper in `allocate_gen_fuel.py`) flag a
 # generator as transitioning mid-year if ANY of three conditions hold. Tests below
 # that exercise one of these are labeled "condition A/B/C" by this scheme:
@@ -572,13 +572,13 @@ def test_identify_retiring_generators_non_monotonic_status():
     assert (out.operational_status == "retired").all()
 
 
-def test_identify_generators_coming_online_mid_year_operating_date():
+def test_identify_newly_operating_generators_mid_year_operating_date():
     """Condition A: a generator whose confirmed operating date has already passed
     this year should be kept for the whole report_year, even with no reported data
     at all.
 
     This is the new capability enabled by plumbing ``generator_operating_date``
-    into this module -- previously ``identify_generators_coming_online`` relied
+    into this module -- previously ``identify_newly_operating_generators`` relied
     purely on data presence (g-table or unique gf-table reporting), so a generator
     that's genuinely already operating but hasn't shown up in either data table yet
     would have been invisible to it.
@@ -591,7 +591,7 @@ def test_identify_generators_coming_online_mid_year_operating_date():
 """
     )
 
-    out = allocate_gen_fuel.identify_generators_coming_online(gen_assoc)
+    out = allocate_gen_fuel.identify_newly_operating_generators(gen_assoc)
 
     # the whole report_year is kept, including December, despite no data ever
     # having been reported for this generator.
@@ -602,7 +602,7 @@ def test_identify_generators_coming_online_mid_year_operating_date():
     ]
 
 
-def test_identify_generators_coming_online_g_tbl_or_gf_unique_to_gen():
+def test_identify_newly_operating_generators_g_tbl_or_gf_unique_to_gen():
     """A proposed generator reporting generator-specific g-table data should be
     kept, mirroring ``identify_retiring_generators``'s condition B. So should one
     with non-zero gf-table generation for a PM/ESC combo unique to it, mirroring
@@ -613,7 +613,7 @@ def test_identify_generators_coming_online_g_tbl_or_gf_unique_to_gen():
 23456,GEN1,2023-03-01,proposed,,False,15,
 """
     )
-    assert len(allocate_gen_fuel.identify_generators_coming_online(g_tbl_data)) == 1
+    assert len(allocate_gen_fuel.identify_newly_operating_generators(g_tbl_data)) == 1
 
     gf_unique_to_gen = _read_gen_assoc(
         """plant_id_eia,generator_id,report_date,operational_status,generator_operating_date,gf_unique_to_gen,net_generation_mwh_g_tbl,net_generation_mwh_gf_tbl
@@ -621,15 +621,16 @@ def test_identify_generators_coming_online_g_tbl_or_gf_unique_to_gen():
 """
     )
     assert (
-        len(allocate_gen_fuel.identify_generators_coming_online(gf_unique_to_gen)) == 1
+        len(allocate_gen_fuel.identify_newly_operating_generators(gf_unique_to_gen))
+        == 1
     )
 
 
-def test_identify_generators_coming_online_sweeps_whole_generator_year():
+def test_identify_newly_operating_generators_sweeps_whole_generator_year():
     """A generator reporting real data in only one month of a report_year should
     have every month of that report_year kept, matching
     ``identify_retiring_generators``'s "seed then sweep the whole generator-year"
-    behavior. Previously ``identify_generators_coming_online`` was a flat row-by-row
+    behavior. Previously ``identify_newly_operating_generators`` was a flat row-by-row
     filter with no such sweep-in, so a generator's other months could be dropped.
     """
     gen_assoc = _read_gen_assoc(
@@ -640,7 +641,7 @@ def test_identify_generators_coming_online_sweeps_whole_generator_year():
 """
     )
 
-    out = allocate_gen_fuel.identify_generators_coming_online(gen_assoc)
+    out = allocate_gen_fuel.identify_newly_operating_generators(gen_assoc)
 
     assert _report_periods(out) == [
         "2023-01",
@@ -908,7 +909,7 @@ def test_identify_plants_unknown_transition_date(
 
 def test_remove_inactive_generators_composability_independent_transitions():
     """End-to-end check that ``identify_proposed_plants`` and
-    ``identify_generators_coming_online`` compose correctly within
+    ``identify_newly_operating_generators`` compose correctly within
     ``remove_inactive_generators`` when multiple generators (at different plants)
     transition from proposed to existing independently, across multiple years.
 
@@ -923,7 +924,7 @@ def test_remove_inactive_generators_composability_independent_transitions():
     existing itself in 2024. Because GEN2 is "existing" in the same years GEN1 is
     "proposed", plant 78901 never qualifies as "entirely proposed" in any year, so
     ``identify_proposed_plants`` correctly ignores it — GEN1's 2023 data is instead
-    the responsibility of ``identify_generators_coming_online``, which keeps it
+    the responsibility of ``identify_newly_operating_generators``, which keeps it
     because GEN1 reports generator-specific data in the g table.
 
     Together, no legitimate data should be lost for either plant.
@@ -963,7 +964,7 @@ def test_remove_inactive_generators_composability_independent_transitions():
     assert (plant_67890_2023.operational_status == "proposed").all()
 
     # plant 78901's GEN1 is proposed alongside an already-existing GEN2, so it's
-    # picked up by identify_generators_coming_online rather than
+    # picked up by identify_newly_operating_generators rather than
     # identify_proposed_plants, in both the years it's proposed and once it
     # becomes existing.
     plant_78901_gen1 = out[(out.plant_id_eia == 78901) & (out.generator_id == "GEN1")]
@@ -997,7 +998,7 @@ def test_identify_plants_excludes_mid_year_transition(
     """A plant transitioning status *during* the report_year (rather than having
     already transitioned before it began) should be excluded from
     ``identify_proposed_plants``/``identify_retired_plants`` -- that's
-    ``identify_generators_coming_online``/``identify_retiring_generators``'s
+    ``identify_newly_operating_generators``/``identify_retiring_generators``'s
     responsibility instead, and double-counting would inflate the plant-level data
     with months that are already handled elsewhere.
     """
