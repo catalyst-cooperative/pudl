@@ -10,6 +10,12 @@ We expect these assets to always be empty in a healthy ETL run; the asset checks
 registered against them in :mod:`pudl.dagster.asset_checks` fail the run if any of
 them contain rows. Each is also written out as a CSV under ``$PUDL_OUTPUT`` so the
 unmapped IDs are easy to find and use when updating the mapping spreadsheet.
+
+These CSVs are development-only artifacts: they should show up in the raw build
+outputs on ``builds.catalyst.coop``, but must never reach the public S3/GCS buckets
+or Zenodo releases. ``pudl.deploy.pudl.prepare_outputs_for_distribution`` excludes
+them from public distribution by matching the ``missing_*.csv`` filename pattern, so
+every output asset name defined here must keep that ``missing_`` prefix.
 """
 
 import dagster as dg

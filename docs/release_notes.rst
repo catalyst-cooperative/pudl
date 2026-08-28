@@ -135,13 +135,11 @@ Developer Experience
   failures. A pytest collection hook enforces the ETL/no-ETL split. Also fixed a live
   Zulip notification firing from the test suite and tightened the dbt ``schema.yml``
   round-trip test. See issue :issue:`5508` and PR :pr:`5507`.
-* Replaced the standalone ``pixi run unmapped-ids`` pytest task -- which rebuilt a
-  dedicated, FK-constraint-free FERC1 SQLite database and took 5+ hours -- with normal
-  Dagster assets (:mod:`pudl.dagster.assets.core.unmapped_ids`) that identify FERC1 and
-  EIA plant/utility IDs missing from the manual PUDL ID mapping spreadsheet. These
-  assets run as part of the regular ETL, are written out as CSVs under ``$PUDL_OUTPUT``
-  for use in mapping, and are backed by blocking asset checks that fail the run if any
-  unmapped IDs are found. See issue :issue:`4338` and PR :pr:`XXXX`.
+* Replaced the standalone ``pixi run unmapped-ids`` pytest task with analogous Dagster
+  assets (:mod:`pudl.dagster.assets.core.unmapped_ids`) that identify FERC1 and EIA
+  plant/utility IDs missing from the manual PUDL ID mapping spreadsheet. CSVs are saved
+  with other build outputs on ``builds.catalyst.coop`` and fail the ETL if they are
+  non-empty. See issue :issue:`4338` and PR :pr:`XXXX`.
 
 .. _release-v2026.8.0:
 
