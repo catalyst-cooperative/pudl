@@ -37,6 +37,7 @@ from pandera.config import ValidationDepth, config_context
 from pandera.errors import SchemaError, SchemaErrors
 
 from pudl.dagster.assets import all_asset_modules, asset_keys
+from pudl.dagster.assets.core.unmapped_ids import UNMAPPED_ID_ASSET_NAMES
 from pudl.dagster.partitions import ferceqr_year_quarters
 from pudl.helpers import ParquetData, get_parquet_table_polars
 from pudl.metadata.classes import (
@@ -603,12 +604,43 @@ def valid_datapackage_check(
     return _datapackage_check
 
 
+def unmapped_ids_check(
+    asset_key: dg.AssetKey | str,
+    *,
+    blocking: bool = True,
+) -> dg.AssetChecksDefinition:
+    """Return a check that fails if an unmapped FERC1/EIA ID asset has any rows.
+
+    Attach to assets from :mod:`pudl.dagster.assets.core.unmapped_ids`, which
+    identify FERC1 or EIA plant/utility IDs missing from the manual PUDL ID mapping
+    spreadsheet (see :mod:`pudl.glue.ferc1_eia`). We expect these assets to always be
+    empty; any rows indicate IDs that need to be added to the mapping spreadsheet.
+
+    Args:
+        asset_key: Key of the unmapped-IDs asset to check.
+        blocking: Whether the check is blocking (default ``True``).
+    """
+
+    @dg.asset_check(asset=asset_key, blocking=blocking)
+    def _unmapped_ids_check(asset_value: pd.DataFrame) -> dg.AssetCheckResult:
+        return dg.AssetCheckResult(
+            passed=asset_value.empty,
+            metadata={"n_unmapped_ids": len(asset_value)},
+        )
+
+    return _unmapped_ids_check
+
+
 default_asset_checks = list(
     itertools.chain.from_iterable(
         dg.load_asset_checks_from_modules(modules)
         for modules in all_asset_modules.values()
     )
 )
+
+default_asset_checks += [
+    unmapped_ids_check(asset_name) for asset_name in UNMAPPED_ID_ASSET_NAMES
+]
 
 duckdb_assets = [
     "core_ferceqr__quarterly_identity",

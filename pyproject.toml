@@ -79,7 +79,6 @@ dbt-duckdb = ">=1.9.4"
 deepdiff = ">=8"
 doc8 = ">=2"
 email-validator = ">=1.0.3"
-filelock = ">=3.29"
 frictionless = ">=5,<6"
 fsspec = ">=2026"
 gcsfs = ">=2026"
@@ -355,17 +354,6 @@ description = "Run all CI tests and report test coverage"
 [tool.pixi.tasks.pytest-jupyter]
 cmd = "pytest --live-pudl-output tests/pipeline/notebooks_test.py"
 description = "Test Jupyter notebooks"
-# Build the FERC 1 and PUDL DBs.
-# Identify any plant or utility IDs in the DBs that haven't yet been mapped
-# These outputs should be turned into normal dagster assets. See issue #4338
-[tool.pixi.tasks.unmapped-ids]
-cmd = """
-pytest \
-    --save-unmapped-ids
-    --dg-config $DG_FULL_CONFIG \
-    tests/pipeline/glue/glue_test.py
-"""
-description = "Identify unmapped plant and utility IDs"
 
 # Dagster tasks
 [tool.pixi.tasks.ferc-to-sqlite-clean]

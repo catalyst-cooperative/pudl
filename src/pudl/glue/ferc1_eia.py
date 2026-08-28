@@ -32,30 +32,14 @@ import importlib.resources
 
 import pandas as pd
 import sqlalchemy as sa
-from dagster import AssetIn, Definitions, JobDefinition, asset, define_asset_job
 
 import pudl.helpers
 import pudl.logging_helpers
-from pudl.dagster.io_managers import (
-    ferc1_dbf_sqlite_io_manager,
-    ferc1_xbrl_sqlite_io_manager,
-)
-from pudl.dagster.resources import (
-    global_data_config_resource,
-    pudl_paths_resource,
-    zenodo_doi_settings_resource,
-)
-from pudl.extract.ferc1 import raw_ferc1_assets, raw_ferc1_xbrl__metadata_json
-from pudl.helpers import get_parquet_table, simplify_strings
+from pudl.helpers import simplify_strings
 from pudl.metadata.classes import Package
 from pudl.metadata.dtypes import apply_pudl_dtypes
 from pudl.transform.classes import StringNormalization, normalize_strings_multicol
-from pudl.transform.ferc1 import (
-    Ferc1AbstractTableTransformer,
-    TableIdFerc1,
-    _core_ferc1_xbrl__metadata_json,
-    ferc1_transform_asset_factory,
-)
+from pudl.transform.ferc1 import Ferc1AbstractTableTransformer, TableIdFerc1
 from pudl.transform.params.ferc1 import FERC1_STRING_NORM
 
 logger = pudl.logging_helpers.get_logger(__name__)
@@ -269,85 +253,61 @@ class GenericPlantFerc1TableTransformer(Ferc1AbstractTableTransformer):
         return super().drop_invalid_rows(df)
 
 
-def get_plants_ferc1_raw_job() -> JobDefinition:
-    """Pull all plants in the FERC Form 1 DBF and XBRL DB for given years.
+GENERIC_FERC1_PLANT_TABLES: tuple[str, ...] = (
+    "core_ferc1__yearly_hydroelectric_plants_sched406",
+    "core_ferc1__yearly_small_plants_sched410",
+    "core_ferc1__yearly_pumped_storage_plants_sched408",
+    "core_ferc1__yearly_steam_plants_sched402",
+    "core_ferc1__yearly_steam_plants_fuel_sched402",  # bc it has plants/is associated w/ the steam table
+)
+"""FERC1 tables used to compile the full raw list of FERC1 plants for ID mapping.
 
-    This job expects ferc1_dbf.sqlite and ferc_xbrl.sqlite databases to be populated.
+Transformed using :class:`GenericPlantFerc1TableTransformer` rather than the real
+per-table transformers, since plants that haven't been manually assigned a
+``plant_id_pudl`` yet would otherwise fail the real transformers' FK/validity checks.
+"""
+
+
+def compile_plants_ferc1_raw(plant_dfs: list[pd.DataFrame]) -> pd.DataFrame:
+    """Compile a full list of raw FERC1 plants for manual ID mapping.
+
+    Args:
+        plant_dfs: one dataframe per table in :data:`GENERIC_FERC1_PLANT_TABLES`,
+            each produced by :class:`GenericPlantFerc1TableTransformer`.
     """
-    plant_tables = [
-        "core_ferc1__yearly_hydroelectric_plants_sched406",
-        "core_ferc1__yearly_small_plants_sched410",
-        "core_ferc1__yearly_pumped_storage_plants_sched408",
-        "core_ferc1__yearly_steam_plants_sched402",
-        "core_ferc1__yearly_steam_plants_fuel_sched402",  # bc it has plants/is associated w/ the steam table
-    ]
-
-    @asset(ins={table_name: AssetIn() for table_name in plant_tables})
-    def plants_ferc1_raw(**transformed_plant_tables):
-        plant_dfs = transformed_plant_tables.values()
-        all_plants = pd.concat(plant_dfs)
-        # add the utility_name_ferc1
-        util_map = get_utility_map_pudl()
-        unique_utils_ferc1 = util_map.loc[
-            util_map.utility_id_ferc1.notnull(),
-            ["utility_id_ferc1", "utility_name_ferc1"],
-        ].drop_duplicates(subset=["utility_id_ferc1"])
-        all_plants = all_plants.merge(
-            unique_utils_ferc1,
-            on=["utility_id_ferc1"],
-            how="left",
-            validate="m:1",
-        )
-        # grab the most recent plant record
-        all_plants = (
-            all_plants.sort_values(["report_year"], ascending=False)
-            .loc[
-                :,
-                [
-                    "utility_id_ferc1",
-                    "utility_name_ferc1",
-                    "plant_name_ferc1",
-                    "utility_id_ferc1_dbf",
-                    "utility_id_ferc1_xbrl",
-                    "capacity_mw",
-                    "report_year",
-                    "plant_table",
-                ],
-            ]
-            .drop_duplicates(["utility_id_ferc1", "plant_name_ferc1"])
-            .sort_values(["utility_id_ferc1", "plant_name_ferc1"])
-        )
-        return all_plants
-
-    transform_assets = [
-        ferc1_transform_asset_factory(
-            table_name,
-            GenericPlantFerc1TableTransformer,
-            io_manager_key=None,
-            convert_dtypes=False,
-            generic=True,
-        )
-        for table_name in plant_tables
-    ]
-
-    defs = Definitions(
-        assets=transform_assets
-        + raw_ferc1_assets
-        + [
-            plants_ferc1_raw,
-            raw_ferc1_xbrl__metadata_json,
-            _core_ferc1_xbrl__metadata_json,
-        ],
-        resources={
-            "ferc1_dbf_sqlite_io_manager": ferc1_dbf_sqlite_io_manager,
-            "ferc1_xbrl_sqlite_io_manager": ferc1_xbrl_sqlite_io_manager,
-            "global_data_config": global_data_config_resource,
-            "pudl_paths": pudl_paths_resource,
-            "zenodo_dois": zenodo_doi_settings_resource,
-        },
-        jobs=[define_asset_job(name="get_plants_ferc1_raw")],
+    all_plants = pd.concat(plant_dfs)
+    # add the utility_name_ferc1
+    util_map = get_utility_map_pudl()
+    unique_utils_ferc1 = util_map.loc[
+        util_map.utility_id_ferc1.notnull(),
+        ["utility_id_ferc1", "utility_name_ferc1"],
+    ].drop_duplicates(subset=["utility_id_ferc1"])
+    all_plants = all_plants.merge(
+        unique_utils_ferc1,
+        on=["utility_id_ferc1"],
+        how="left",
+        validate="m:1",
     )
-    return defs.resolve_job_def("get_plants_ferc1_raw")
+    # grab the most recent plant record
+    all_plants = (
+        all_plants.sort_values(["report_year"], ascending=False)
+        .loc[
+            :,
+            [
+                "utility_id_ferc1",
+                "utility_name_ferc1",
+                "plant_name_ferc1",
+                "utility_id_ferc1_dbf",
+                "utility_id_ferc1_xbrl",
+                "capacity_mw",
+                "report_year",
+                "plant_table",
+            ],
+        ]
+        .drop_duplicates(["utility_id_ferc1", "plant_name_ferc1"])
+        .sort_values(["utility_id_ferc1", "plant_name_ferc1"])
+    )
+    return all_plants
 
 
 ###############################
@@ -441,12 +401,13 @@ def label_utilities_ferc1_xbrl(
     )
 
 
-def get_utility_most_recent_capacity() -> pd.DataFrame:
+def get_utility_most_recent_capacity(
+    core_eia860__scd_generators: pd.DataFrame,
+) -> pd.Series:
     """Calculate total generation capacity by utility in most recent reported year."""
-    gen_caps = get_parquet_table(
-        "core_eia860__scd_generators",
-        columns=["utility_id_eia", "capacity_mw", "report_date"],
-    )
+    gen_caps = core_eia860__scd_generators[
+        ["utility_id_eia", "capacity_mw", "report_date"]
+    ]
 
     most_recent_gens_idx = (
         gen_caps.groupby("utility_id_eia")["report_date"].transform("max")
@@ -457,20 +418,33 @@ def get_utility_most_recent_capacity() -> pd.DataFrame:
     return utility_caps
 
 
-def get_core_eia923_plant_ids():
-    """Compile Plant IDs for all plants that appear in core EIA-923 tables."""
+def get_core_eia923_plant_id_tables() -> tuple[str, ...]:
+    """Get the names of core_eia923 tables that contain plant_id_eia.
+
+    This is a purely metadata-based lookup (no data is read) so it can be used at
+    Dagster asset-definition time to build a dynamic set of upstream dependencies.
+    """
     pudl_pkg = Package.from_resource_ids()
-    core_eia923_plants = [
-        r.name
-        for r in pudl_pkg.resources
-        if "core_eia923" in r.name
-        and "plant_id_eia" in [field.name for field in r.schema.fields]
-    ]
-    all_plant_ids = set()
-    for table in core_eia923_plants:
-        all_plant_ids.update(
-            get_parquet_table(table, columns=["plant_id_eia"])["plant_id_eia"].unique()
+    return tuple(
+        sorted(
+            r.name
+            for r in pudl_pkg.resources
+            if "core_eia923" in r.name
+            and "plant_id_eia" in [field.name for field in r.schema.fields]
         )
+    )
+
+
+def get_core_eia923_plant_ids(eia923_dfs: dict[str, pd.DataFrame]) -> set:
+    """Compile Plant IDs for all plants that appear in core EIA-923 tables.
+
+    Args:
+        eia923_dfs: mapping of table name to DataFrame for every table named by
+            :func:`get_core_eia923_plant_id_tables`.
+    """
+    all_plant_ids = set()
+    for df in eia923_dfs.values():
+        all_plant_ids.update(df["plant_id_eia"].unique())
     return all_plant_ids
 
 
@@ -478,6 +452,8 @@ def get_util_ids_eia_unmapped(
     out_eia__yearly_utilities: pd.DataFrame,
     out_eia__yearly_generators: pd.DataFrame,
     utilities_eia_mapped: pd.DataFrame,
+    eia923_plant_ids: set,
+    util_recent_cap: pd.Series,
 ) -> pd.DataFrame:
     """Get a list of all the EIA Utilities in the PUDL DB without PUDL IDs.
 
@@ -488,6 +464,15 @@ def get_util_ids_eia_unmapped(
     that do have plants reporting in EIA-923, sum up the total capacity of all of their
     plants and include that in the output dataframe so that we can effectively
     prioritize mapping them.
+
+    Args:
+        out_eia__yearly_utilities: the output EIA utilities table.
+        out_eia__yearly_generators: the output EIA generators table.
+        utilities_eia_mapped: the core_pudl__assn_eia_pudl_utilities glue table.
+        eia923_plant_ids: set of all plant_id_eia values that appear in the core
+            EIA-923 tables, from :func:`get_core_eia923_plant_ids`.
+        util_recent_cap: total generation capacity by utility in the most recent
+            reported year, from :func:`get_utility_most_recent_capacity`.
     """
     utilities_eia_db = out_eia__yearly_utilities[
         ["utility_id_eia", "utility_name_eia"]
@@ -499,7 +484,6 @@ def get_util_ids_eia_unmapped(
     # Get the most recent total capacity for the unmapped utils.
     utilities_eia_db = utilities_eia_db.set_index(["utility_id_eia"])
     unmapped_utils_eia = utilities_eia_db.loc[unmapped_utils_eia_index]
-    util_recent_cap = get_utility_most_recent_capacity()
 
     unmapped_utils_eia = pd.merge(
         unmapped_utils_eia,
@@ -509,14 +493,13 @@ def get_util_ids_eia_unmapped(
         how="left",
     )
 
-    plant_ids_in_eia923 = get_core_eia923_plant_ids()
     utils_with_plants = (
         out_eia__yearly_generators.loc[:, ["utility_id_eia", "plant_id_eia"]]
         .drop_duplicates()
         .dropna()
     )
     utils_with_data_in_eia923 = utils_with_plants.loc[
-        utils_with_plants["plant_id_eia"].isin(plant_ids_in_eia923), "utility_id_eia"
+        utils_with_plants["plant_id_eia"].isin(eia923_plant_ids), "utility_id_eia"
     ].to_frame()
 
     # Most unmapped utilities have no EIA 923 data and so don't need to be linked:

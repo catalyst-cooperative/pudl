@@ -154,7 +154,6 @@ looking at the ``custom options`` section:
      --temp-pudl-input     Download fresh input data for use with this test run only.
      --dg-config=PATH      Path to a non-standard Dagster config file to use.
      --bypass-local-cache  If enabled, the local file cache for datastore will not be used.
-     --save-unmapped-ids   Write the unmapped IDs to disk.
 
 The main flexibility that these custom options provide is in selecting where the raw
 input data comes from and what data the tests should be run against. Being able to
@@ -168,7 +167,7 @@ of that database. For example:
 
 .. code-block:: console
 
-   $ pixi run pytest --live-pudl-output tests/pipeline/glue/glue_test.py
+   $ pixi run pytest --live-pudl-output tests/pipeline/analysis
 
 Foreign key checks and dbt validations can be selected separately from the rest of the
 pipeline suite by running the dedicated validation module directly. For example:
