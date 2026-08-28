@@ -713,7 +713,10 @@ def impute_latc_tubal(  # noqa: C901
     snorm = np.linalg.norm(mat, "fro")
     rho = rho0
     temp1 = _ten2mat(_mat2ten(z, dim, 0), 2)
-    _, phi = np.linalg.eig(temp1 @ temp1.T)
+    # temp1 @ temp1.T is symmetric PSD by construction, so eigh is both
+    # correct and avoids eig's complex128 return dtype, which forces all
+    # downstream _tsvt() einsum/SVD calls into much slower complex arithmetic.
+    _, phi = np.linalg.eigh(temp1 @ temp1.T)
     del temp1
     if dim_time > 5e3 and dim_time <= 1e4:
         sample_rate = 0.2
@@ -752,7 +755,7 @@ def impute_latc_tubal(  # noqa: C901
         it += 1
         if not np.mod(it, 10):
             temp1 = _ten2mat(_mat2ten(z, dim, 0) - t / rho, 2)
-            _, phi = np.linalg.eig(temp1 @ temp1.T)
+            _, phi = np.linalg.eigh(temp1 @ temp1.T)
             del temp1
         print(f"Iteration: {it}", end="\r")
         if tol < epsilon or it >= maxiter:

@@ -1,7 +1,7 @@
 ---
 name: warm-gha-caches
 
-# Cache entries written by pytest.yml's ci-integration job (the raw Zenodo
+# Cache entries written by pytest.yml's ci-pipeline job (the raw Zenodo
 # datastore archives, and the generated ferc1/ferc714 databases) are scoped to
 # the branch that created them, with a fallback to the repository's default
 # branch. But pytest.yml never runs directly on main -- only on
@@ -11,8 +11,8 @@ name: warm-gha-caches
 # ephemeral gh-readonly-queue ref, which is unique per merge attempt.
 #
 # This workflow plugs that gap: once a day, it restores the same four caches
-# ci-integration relies on (the Zenodo datastore, and the ferc1 dbf/xbrl and
-# ferc714 xbrl databases), and only runs the full integration test suite --
+# ci-pipeline relies on (the Zenodo datastore, and the ferc1 dbf/xbrl and
+# ferc714 xbrl databases), and only runs the full pipeline test suite --
 # which downloads and regenerates all of them -- if at least one actually
 # missed.
 on:
@@ -27,8 +27,8 @@ env:
   ZENODO_SANDBOX_TOKEN_PUBLISH: ${{ secrets.ZENODO_SANDBOX_TOKEN_PUBLISH }}
 
 jobs:
-  warm-pytest-integration-caches:
-    # Same runner as pytest.yml's ci-integration job -- see the comment there.
+  warm-pytest-pipeline-caches:
+    # Same runner as pytest.yml's ci-pipeline job -- see the comment there.
     runs-on: blacksmith-4vcpu-ubuntu-2404
     permissions:
       contents: read
@@ -52,7 +52,7 @@ jobs:
           # on a feature branch from writing a dead-end branch-scoped copy.
           cache-write: ${{ github.ref_name == 'main' }}
 
-      # The steps below intentionally mirror pytest.yml's ci-integration job:
+      # The steps below intentionally mirror pytest.yml's ci-pipeline job:
       # they must use identical cache keys and paths so the entries this job
       # writes are usable by (and reused from) that job.
       - name: Restore Zenodo datastore from cache if possible
@@ -103,7 +103,7 @@ jobs:
             ${{ env.PUDL_OUTPUT }}/ferc714_xbrl_taxonomy_metadata.json
           key: ferc714-xbrl-${{ env.FERC714_XBRL_HASH }}
 
-      - name: Run the integration tests if any cache was missed
+      - name: Run the pipeline tests if any cache was missed
         if: |
           steps.cache-zenodo-datastore.outputs.cache-hit != 'true' ||
           steps.cache-ferc1-xbrl.outputs.cache-hit != 'true' ||
@@ -111,4 +111,4 @@ jobs:
           steps.cache-ferc714-xbrl.outputs.cache-hit != 'true'
         run: |
           mkdir -p ${{ env.PUDL_OUTPUT }} ${{ env.PUDL_INPUT }} ${{ env.DAGSTER_HOME }}
-          pixi run pytest-integration
+          pixi run pytest-pipeline

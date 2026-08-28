@@ -21,7 +21,7 @@ from contextlib import contextmanager
 from functools import partial
 from io import BytesIO
 from pathlib import Path
-from typing import Any, Literal, NamedTuple
+from typing import TYPE_CHECKING, Any, Literal, NamedTuple
 
 import duckdb
 import geopandas as gpd  # noqa: ICN002
@@ -38,6 +38,9 @@ from pydantic import BaseModel, Field
 import pudl.logging_helpers
 from pudl.metadata.dtypes import apply_pudl_dtypes, get_pudl_dtypes
 from pudl.workspace.setup import PudlPaths
+
+if TYPE_CHECKING:
+    from pudl.metadata.classes import Resource
 
 sum_na = partial(pd.Series.sum, skipna=False)
 """A sum function that returns NA if the Series includes any NA values.
@@ -1612,7 +1615,13 @@ def dedupe_on_category(
         pd.CategoricalDtype(categories=sorter, ordered=True)
     )
 
-    return dedup_df.drop_duplicates(subset=base_cols, keep="first")
+    # Sort by category_name as a tiebreaker: rows tied on base_cols would
+    # otherwise resolve to whichever value happens to come first in
+    # dedup_df, which isn't guaranteed to be stable across upstream row
+    # order.
+    return dedup_df.sort_values(category_name).drop_duplicates(
+        subset=base_cols, keep="first"
+    )
 
 
 def dedupe_and_drop_nas(
@@ -2236,22 +2245,31 @@ def get_parquet_table_polars(
         # Points to a directory of parquet files when there partitions is non None
         parquet_path = parquet_data.parquet_path
 
-    # Import here to avoid circular imports
-    from pudl.metadata.classes import Resource
+    return pl.scan_parquet(parquet_path)
 
-    resource = Resource.from_id(table_name)
-    # Pass the expected schema in directly rather than scanning then casting: casting
-    # a LazyFrame containing Enum-typed columns forces materialization, which is very
-    # slow for our largest hourly tables. Enum-constrained fields are stored as plain
-    # Categorical (see Field.to_polars_dtype), so no such cast is needed here anyway.
-    # Parquet files still store integer/float columns as 32-bit (FIELD_DTYPES_PYARROW),
-    # narrower than the 64-bit Polars schema we're requesting here, so allow scan-time
-    # upcasting rather than the strict match scan_parquet defaults to.
-    return pl.scan_parquet(
-        parquet_path,
-        schema=resource.to_polars_dtypes(),
-        cast_options=pl.ScanCastOptions(integer_cast="upcast", float_cast="upcast"),
-    )
+
+def _fix_residual_dtypes(df: pd.DataFrame, resource: "Resource") -> pd.DataFrame:
+    """Fix the two dtype gaps ``dtype_backend="numpy_nullable"`` can't get right.
+
+    Integer and datetime columns already come back from a
+    ``dtype_backend="numpy_nullable"`` read matching their pandas targets (see
+    ``FIELD_DTYPES_PANDAS``) directly. Two gaps remain, neither fixable by
+    ``dtype_backend`` alone:
+
+    * "number" columns come back as pandas' nullable ``Float64``, but PUDL's target
+      is plain (non-nullable) ``float64`` -- unlike integers, floats can already
+      represent missing values natively via ``NaN``, so PUDL doesn't use the
+      nullable dtype for them.
+    * "date" columns (Arrow ``date32``) always come back as plain ``object`` holding
+      Python ``datetime.date`` scalars, since pandas has no native nullable
+      date-only dtype.
+    """
+    fixes = {
+        field.name: field.to_pandas_dtype()
+        for field in resource.schema.fields
+        if field.type in ("number", "date") and field.name in df.columns
+    }
+    return df.astype(fixes) if fixes else df
 
 
 def get_parquet_table(
@@ -2265,8 +2283,8 @@ def get_parquet_table(
     """Read a table from Parquet files with optional column selection and filtering.
 
     This function provides a general-purpose interface for reading PUDL tables from
-    Parquet files. It supports selective column reading for performance, optional
-    filters for data subsetting, and automatic schema validation.
+    Parquet files. It supports selective column reading for performance and optional
+    filters for data subsetting.
 
     Args:
         table_name: Name of the table to read.
@@ -2297,6 +2315,8 @@ def get_parquet_table(
 
     is_geospatial = any(resource.get_field(col).type == "geometry" for col in columns)
 
+    full_read = set(columns) == set(resource.get_field_names())
+
     if is_geospatial:
         df = gpd.read_parquet(
             path=parquet_path,
@@ -2306,7 +2326,15 @@ def get_parquet_table(
             use_threads=True,
             memory_map=True,
         )
-    else:
+        # geopandas' reader has no equivalent to pandas' dtype_backend, so this
+        # branch still needs enforce_schema's full re-cast (which also runs the
+        # primary-key check for a full read).
+        df = (
+            resource.enforce_schema(df)
+            if full_read
+            else apply_pudl_dtypes(df, resource=resource.name)
+        )
+    else:  # not geospatial -- the normal case
         df = pd.read_parquet(
             path=parquet_path,
             columns=columns,
@@ -2314,13 +2342,26 @@ def get_parquet_table(
             schema=pyarrow_schema,
             use_threads=True,
             memory_map=True,
+            dtype_backend="numpy_nullable",
         )
+        if not full_read:
+            # For specific columns, apply PUDL dtypes including resource-level overrides
+            df = apply_pudl_dtypes(df, resource=resource.name)
+        else:
+            # dtype_backend="numpy_nullable" already gets every column to PUDL's target
+            # dtype except for the few gaps _fix_residual_dtypes covers -- enforce_schema's
+            # full re-cast of every column, including enum fields, is redundant here: pandas'
+            # Categorical reconstructs a constrained dtype's full category list (even unused
+            # ones) straight from the Parquet dictionary page, with no PUDL-metadata-driven
+            # re-derivation needed. See tests/unit/helpers_test.py's
+            # test_constrained_categorical_cross_backend_parquet_roundtrip.
+            df = _fix_residual_dtypes(df, resource)
+            if errors := resource.check_primary_key(df):
+                raise ValueError(
+                    f"{resource.name}: " + "\n".join(str(error) for error in errors)
+                )
 
-    # Only enforce schema if we're reading all columns
-    if set(columns) == set(resource.get_field_names()):
-        return resource.enforce_schema(df)
-    # For specific columns, apply PUDL dtypes including resource-level overrides
-    return apply_pudl_dtypes(df, resource=resource.name)
+    return df
 
 
 def standardize_phone_column(df: pd.DataFrame, columns: list[str]) -> pd.DataFrame:

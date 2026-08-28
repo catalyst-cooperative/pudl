@@ -361,6 +361,8 @@ def test_description_whitespace_is_normalized(schema_yaml):
     arbitrary ``data_tests`` entry, which pydantic doesn't otherwise model.
     """
     expected = "One flowing line, no wrapping at all."
-    table = _schema_from_yaml(schema_yaml).sources[0].tables[0]
+    # sources/tables/data_tests are Optional in the pydantic model, but the
+    # fixture YAML above always populates them.
+    table = _schema_from_yaml(schema_yaml).sources[0].tables[0]  # type: ignore[unsupported-operation]
     assert table.description == expected
-    assert table.data_tests[0]["some_test"]["description"] == expected
+    assert table.data_tests[0]["some_test"]["description"] == expected  # type: ignore[unsupported-operation]
