@@ -9690,7 +9690,7 @@ df <- read_parquet(
 | borrower_name_rus                   | string     |            | The name of the RUS (Rural Utilities Service) borrower.                                                                                          |
 | does_manager_have_written_contract  | boolean    |            | Whether or not the RUS borrower’s manager has a written contract.                                                                                |
 | fees_and_expenses_for_board_members | integer    | USD        | The total amount of fees and expenses for board members.                                                                                         |
-| last_annual_meeting_date            | datetime   |            | The date of the last annual meeting.                                                                                                             |
+| last_annual_meeting_date            | date       |            | The date of the last annual meeting.                                                                                                             |
 | members_num                         | integer    | count      | The total number of members.                                                                                                                     |
 | members_present_at_meeting_num      | integer    | count      | The number of members present at the last annual meeting.                                                                                        |
 | members_voting_by_proxy_or_mail_num | integer    | count      | The number of members voting by mail or by proxy.                                                                                                |
@@ -11774,7 +11774,7 @@ df <- read_parquet(
 | borrower_name_rus                   | string     |            | The name of the RUS (Rural Utilities Service) borrower.                                                                                          |
 | does_manager_have_written_contract  | boolean    |            | Whether or not the RUS borrower’s manager has a written contract.                                                                                |
 | fees_and_expenses_for_board_members | integer    | USD        | The total amount of fees and expenses for board members.                                                                                         |
-| last_annual_meeting_date            | datetime   |            | The date of the last annual meeting.                                                                                                             |
+| last_annual_meeting_date            | date       |            | The date of the last annual meeting.                                                                                                             |
 | members_num                         | integer    | count      | The total number of members.                                                                                                                     |
 | members_present_at_meeting_num      | integer    | count      | The number of members present at the last annual meeting.                                                                                        |
 | members_voting_by_proxy_or_mail_num | integer    | count      | The number of members voting by mail or by proxy.                                                                                                |
@@ -28577,7 +28577,7 @@ df <- read_parquet(
 | borrower_id_rus                     | string     |            | Unique identifier of RUS (Rural Utilities Service) borrower. These ID’s are structured as: two character state acronyms followed by four digits. |
 | does_manager_have_written_contract  | boolean    |            | Whether or not the RUS borrower’s manager has a written contract.                                                                                |
 | fees_and_expenses_for_board_members | integer    | USD        | The total amount of fees and expenses for board members.                                                                                         |
-| last_annual_meeting_date            | datetime   |            | The date of the last annual meeting.                                                                                                             |
+| last_annual_meeting_date            | date       |            | The date of the last annual meeting.                                                                                                             |
 | members_num                         | integer    | count      | The total number of members.                                                                                                                     |
 | members_present_at_meeting_num      | integer    | count      | The number of members present at the last annual meeting.                                                                                        |
 | members_voting_by_proxy_or_mail_num | integer    | count      | The number of members voting by mail or by proxy.                                                                                                |
@@ -30622,7 +30622,7 @@ df <- read_parquet(
 | borrower_id_rus                     | string     |            | Unique identifier of RUS (Rural Utilities Service) borrower. These ID’s are structured as: two character state acronyms followed by four digits. |
 | does_manager_have_written_contract  | boolean    |            | Whether or not the RUS borrower’s manager has a written contract.                                                                                |
 | fees_and_expenses_for_board_members | integer    | USD        | The total amount of fees and expenses for board members.                                                                                         |
-| last_annual_meeting_date            | datetime   |            | The date of the last annual meeting.                                                                                                             |
+| last_annual_meeting_date            | date       |            | The date of the last annual meeting.                                                                                                             |
 | members_num                         | integer    | count      | The total number of members.                                                                                                                     |
 | members_present_at_meeting_num      | integer    | count      | The number of members present at the last annual meeting.                                                                                        |
 | members_voting_by_proxy_or_mail_num | integer    | count      | The number of members voting by mail or by proxy.                                                                                                |

@@ -18,7 +18,7 @@
     </script>
     
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="testing.html.md" />
-    <title>Testing PUDL &#8212; PUDL 2026.8.1.dev24 documentation</title>
+    <title>Testing PUDL &#8212; PUDL 2026.8.1.dev25 documentation</title>
   
   
   
@@ -51,7 +51,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../_static/documentation_options.js?v=4788db61"></script>
+    <script src="../_static/documentation_options.js?v=eec8af07"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -142,8 +142,8 @@
       
     
     
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev24 documentation - Home"/>
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev24 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev25 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev25 documentation - Home"/>
   
   
 </a></div>
@@ -860,15 +860,15 @@ pipeline tests, including calling <code class="docutils literal notranslate"><sp
 <a class="reference internal" href="data_validation_quickstart.html"><span class="doc">Data validation quickstart</span></a> tests. Several common test commands are available as
 pixi tasks for convenience.</p>
 <p>For day-to-day work, the most commonly used pixi testing tasks are:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pixi<span class="w"> </span>run<span class="w"> </span>pytest-unit
-<span class="gp">$ </span>pixi<span class="w"> </span>run<span class="w"> </span>pytest-integration
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pixi<span class="w"> </span>run<span class="w"> </span>pytest-unit<span class="w">         </span><span class="c1"># runs in ~1 minute</span>
+<span class="gp">$ </span>pixi<span class="w"> </span>run<span class="w"> </span>pytest-integration<span class="w">  </span><span class="c1"># runs in ~2-5 minutes, no Dagster ETL required</span>
 </pre></div>
 </div>
 <p><code class="docutils literal notranslate"><span class="pre">pytest-unit</span></code> also runs automatically as a pre-commit hook on every commit, and
 both <code class="docutils literal notranslate"><span class="pre">pytest-unit</span></code> and <code class="docutils literal notranslate"><span class="pre">pytest-integration</span></code> runs in GitHub Actions on every push.</p>
 <p>To run everything that’s required before a PR can merge – including the slower
 pipeline and data validation tests that only run in the merge queue – use:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pixi<span class="w"> </span>run<span class="w"> </span>pytest-ci
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pixi<span class="w"> </span>run<span class="w"> </span>pytest-ci<span class="w">  </span><span class="c1"># runs in ~45-60 minutes, does a "fast" ETL</span>
 </pre></div>
 </div>
 <p>This includes building the documentation, running the unit, integration, and pipeline

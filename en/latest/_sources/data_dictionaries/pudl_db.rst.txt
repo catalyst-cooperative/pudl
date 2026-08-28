@@ -18823,7 +18823,7 @@ Columns
     - USD
     - The total amount of fees and expenses for board members.
   * - last_annual_meeting_date
-    - datetime
+    - date
     - 
     - The date of the last annual meeting.
   * - members_num
@@ -22181,7 +22181,7 @@ Columns
     - USD
     - The total amount of fees and expenses for board members.
   * - last_annual_meeting_date
-    - datetime
+    - date
     - 
     - The date of the last annual meeting.
   * - members_num
@@ -48902,7 +48902,7 @@ Columns
     - USD
     - The total amount of fees and expenses for board members.
   * - last_annual_meeting_date
-    - datetime
+    - date
     - 
     - The date of the last annual meeting.
   * - members_num
@@ -52042,7 +52042,7 @@ Columns
     - USD
     - The total amount of fees and expenses for board members.
   * - last_annual_meeting_date
-    - datetime
+    - date
     - 
     - The date of the last annual meeting.
   * - members_num

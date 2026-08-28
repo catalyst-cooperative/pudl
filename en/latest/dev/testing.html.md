@@ -10,8 +10,8 @@ pixi tasks for convenience.
 For day-to-day work, the most commonly used pixi testing tasks are:
 
 ```console
-$ pixi run pytest-unit
-$ pixi run pytest-integration
+$ pixi run pytest-unit         # runs in ~1 minute
+$ pixi run pytest-integration  # runs in ~2-5 minutes, no Dagster ETL required
 ```
 
 `pytest-unit` also runs automatically as a pre-commit hook on every commit, and
@@ -21,7 +21,7 @@ To run everything that’s required before a PR can merge – including the slow
 pipeline and data validation tests that only run in the merge queue – use:
 
 ```console
-$ pixi run pytest-ci
+$ pixi run pytest-ci  # runs in ~45-60 minutes, does a "fast" ETL
 ```
 
 This includes building the documentation, running the unit, integration, and pipeline
