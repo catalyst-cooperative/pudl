@@ -60,16 +60,7 @@ NREL ATB
 ~~~~~~~~
 
 * Updated the NREL ATB extractor and transformer to accommodate changes to the 2024
-  data and format. According to their published workbook, eratta since initial
-  publication include: The Offshore Wind CAPEX learning rates were corrected to
-  intended values (for fixed-bottom offshore wind energy: 6.3% [Conservative], 8.8%
-  [Moderate], and 11.2% [Advanced]; for floating offshore wind energy: 8.7%
-  [Conservative], 11.5% [Moderate], and 14.2% [Advanced]). Cost trajectories and
-  the Excel spreadsheet were adjusted to reflect the intended learning rates. The
-  Natural Gas 2-on-1 Combined ycle H-frame 97% CCS costs and performance numbers
-  have been corrected to the intended values. Previously they were a copy of the
-  95% CCS numbers. See issue :issue:`5467` and PR :pr:`5513`.
-
+  data and format. See issue :issue:`5467` and PR :pr:`5513`.
 
 EIA-861
 ~~~~~~~
