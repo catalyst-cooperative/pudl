@@ -851,7 +851,7 @@ def remove_inactive_generators(gen_assoc: pd.DataFrame) -> pd.DataFrame:
           the current year but which report data. If a plant has a mix of gens
           which are existing and retired, they are not included in this category.
         * ``newly_operating_generators``: generators that become operational mid-year,
-          or report data on or after their operating date despite being labeled
+          or report data before their operating date despite being labeled
           "proposed" for the whole year, or which start reporting non-zero data
           despite having no known operating date yet.
         * ``proposed_plants``: entire plants that have a ``proposed`` status but
@@ -916,7 +916,7 @@ def _identify_transitioning_generators(
     gen_assoc: pd.DataFrame,
     operational_status: Literal["retired", "proposed"],
 ) -> pd.DataFrame:
-    """Identify generators transitioning status mid-year, keeping all their months.
+    """Identify generators whose annual status label doesn't match reality, keeping all their months.
 
     Shared by :func:`identify_retiring_generators` (retiring, keyed on
     ``generator_retirement_date``) and :func:`identify_newly_operating_generators`
@@ -925,11 +925,16 @@ def _identify_transitioning_generators(
 
     A generator qualifies for a given ``report_year`` if ANY of the following hold:
 
-    A) ``report_date`` already reflects the actual transition this report_year --
-       e.g. a retiring generator's ``report_date <= generator_retirement_date``, or a
-       newly-operating generator's ``report_date >= generator_operating_date`` -- even
-       though the annual ``operational_status`` label for the whole year still says
-       otherwise, OR
+    A) the transition-date column shows the annual ``operational_status`` label is
+       stale for at least one month of the year -- e.g. a generator labeled "retired"
+       for the whole year whose ``report_date <= generator_retirement_date`` (it
+       hadn't actually retired yet as of that month), or a generator labeled
+       "proposed" whose ``report_date >= generator_operating_date`` (it had already
+       started operating as of that month). This check is purely date-based, with no
+       bound on *how* stale the label is -- a generator whose recorded transition date
+       is decades in the past, but whose annual status was simply never updated to
+       match, qualifies here just as readily as one that genuinely transitioned
+       mid-year, OR
     B) it reports generator-specific generation data in the g table, OR
     C) it has non-zero generation or fuel reported in the gf table for a PM/ESC combo
        that is unique to that generator at the plant.
@@ -990,16 +995,19 @@ def _identify_transitioning_generators(
 
 
 def identify_retiring_generators(gen_assoc: pd.DataFrame) -> pd.DataFrame:
-    """Identify any generators that retire mid-year.
+    """Identify any generators labeled "retired" whose annual status doesn't match reality.
 
     See :func:`_identify_transitioning_generators` for the shared logic. These are
     "retired" generators that either:
 
-    A) have a mid-year retirement date, OR
-    B) report generator-specific generation data in the g table for a month after the
-       retirement date, OR
-    C) Have non-zero generation or fuel reported in the gf table for a PM/ESC combo that
-       is unique to that generator at the plant, for a month after the retirement date.
+    A) have at least one month where ``report_date <= generator_retirement_date``,
+       meaning they hadn't actually retired yet as of that month despite being
+       labeled "retired" for the whole year -- this could reflect a genuine mid-year
+       retirement, or a retirement date that's been on the books for years without
+       the annual label ever catching up, OR
+    B) report generator-specific generation data in the g table, OR
+    C) have non-zero generation or fuel reported in the gf table for a PM/ESC combo
+       that is unique to that generator at the plant.
 
     Args:
         gen_assoc: table of generators with stacked energy sources and broadcasted
@@ -1014,17 +1022,19 @@ def identify_retiring_generators(gen_assoc: pd.DataFrame) -> pd.DataFrame:
 
 
 def identify_newly_operating_generators(gen_assoc: pd.DataFrame) -> pd.DataFrame:
-    """Identify generators that become newly operating mid-year.
+    """Identify any generators labeled "proposed" whose annual status doesn't match reality.
 
     See :func:`_identify_transitioning_generators` for the shared logic. These are
     "proposed" generators that either:
 
-    A) have a mid-year operating date, OR
-    B) report generator-specific generation data in the g table for a month on or
-       after the operating date, OR
-    C) Have non-zero generation or fuel reported in the gf table for a PM/ESC combo
-       that is unique to that generator at the plant, for a month on or after the
-       operating date.
+    A) have at least one month where ``report_date >= generator_operating_date``,
+       meaning they'd already started operating as of that month despite being
+       labeled "proposed" for the whole year -- this could reflect a genuine mid-year
+       start of operations, or an operating date that's been on the books for years
+       (even decades) without the annual label ever catching up, OR
+    B) report generator-specific generation data in the g table, OR
+    C) have non-zero generation or fuel reported in the gf table for a PM/ESC combo
+       that is unique to that generator at the plant.
 
     Args:
         gen_assoc: table of generators with stacked energy sources and broadcasted
