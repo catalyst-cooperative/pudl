@@ -916,7 +916,7 @@ def _identify_transitioning_generators(
     gen_assoc: pd.DataFrame,
     operational_status: Literal["retired", "proposed"],
 ) -> pd.DataFrame:
-    """Identify generators whose annual status label doesn't match reality, keeping all their months.
+    """Identify generators whose annual status is empirically inaccurate.
 
     Shared by :func:`identify_retiring_generators` (retiring, keyed on
     ``generator_retirement_date``) and :func:`identify_newly_operating_generators`
