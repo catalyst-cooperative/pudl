@@ -67,8 +67,13 @@ Key directories under `src/pudl/`:
 Other important directories:
 
 - `dbt/` — dbt models used for data validation only (not transformation)
-- `tests/unit/` — fast unit tests; run these during development
-- `tests/integration/` — slow integration tests; do not run interactively
+- `tests/unit/` — fast unit tests, no ETL outputs required; run these during development
+- `tests/integration/` — fast integration tests, no ETL outputs required; run these
+  during development
+- `tests/pipeline/` — slow pipeline tests that run a limited Dagster ETL; do not run
+  interactively
+- `tests/validate/` — data validation tests (foreign key checks, dbt) against pipeline
+  outputs; do not run interactively
 - `docs/` — Sphinx documentation source (reStructuredText)
 - `src/pudl/package_data/settings/` — packaged Dagster run config YAML files
   (`dg_fast.yml`, `dg_full.yml`, `dg_pytest.yml`, `dg_nightly.yml`)
@@ -134,8 +139,13 @@ pixi run prek run ruff-format --all-files # fix formatting
 pixi run pyrefly-check
 pixi run -e dev pyrefly check src/pudl/path/to/file.py  # quick check of one file
 
-# Unit tests (fast; run before every commit)
+# Unit and integration tests (fast, no ETL outputs required; run before every commit)
 pixi run pytest-unit
+pixi run pytest-integration
+
+# Pipeline and data validation tests (slow; require a full ETL run; merge queue only)
+pixi run pytest-pipeline
+pixi run pytest-validate
 
 # dbt data validation tests
 pixi run dbt_helper validate                                                  # all dbt tests
@@ -271,10 +281,18 @@ call `assert_ferc_sqlite_compatible()` before reading and raise a descriptive
 Always include `--no-cov` when running pytest directly (not via a pixi task) to skip
 coverage collection and avoid spurious failures.
 
+Tests are organized into four tiers under `tests/`, primarily distinguished by how long
+they take to run and whether they depend on a full Dagster ETL build. A
+`pytest_collection_modifyitems` hook in `tests/conftest.py` enforces this split
+automatically: a test outside `tests/pipeline/`/`tests/validate/` that depends on the
+ETL (via the `prebuilt_outputs` fixture, directly or transitively), or a test inside
+either of those directories that doesn't, fails collection with a message telling you
+where to move it.
+
 ### Unit tests
 
-Unit tests live under `tests/unit/`, take up to 2 minutes, and run automatically via the
-pre-commit hook on every commit.
+Unit tests live under `tests/unit/`, take up to 2 minutes, don't require any ETL
+outputs, and run automatically via the pre-commit hook on every commit.
 
 ```bash
 pixi run pytest-unit                                                           # all unit tests
@@ -284,32 +302,52 @@ pixi run pytest --no-cov tests/unit/extract/excel_test.py::TestGenericExtractor 
 
 ### Integration tests
 
-Integration tests live under `tests/integration/` and take up to 60 minutes. They use a
-`prebuilt_outputs` fixture that runs the full ETL via `dg launch` as a subprocess with
-`dg_pytest.yml` as the default config. Do not run them interactively during development.
+Integration tests live under `tests/integration/` and test interactions between
+different parts of the system, in some cases requiring network access (e.g. downloading
+a small amount of data from Zenodo). They take a few minutes at most and also run in GitHub
+Actions on every push.
 
 ```bash
-pixi run pytest-integration                                    # full integration suite
-pixi run pytest-ci                                             # docs + unit + integration + dbt + coverage
-pixi run pytest --no-cov --live-pudl-output tests/integration   # using existing local outputs
+pixi run pytest-integration                                          # full integration suite
+pixi run pytest --no-cov tests/integration/path/to/test_file.py       # single file
+```
+
+### Pipeline and data validation tests
+
+Pipeline tests (`tests/pipeline/`) run a Dagster-managed fast ETL using `dg_pytest.yml`
+and then exercise code against those outputs — an end-to-end smoke test. Data validation
+tests (`tests/validate/`) check the outputs of that ETL run (foreign key constraints and
+the `dbt` data validation suite) and depend on the pipeline tests having already
+produced outputs to check. Because the fast ETL takes ~45 minutes, both tiers only run
+in the merge queue as a final check before a PR merges into `main` — **do not run these
+interactively during development**, unless you pair them with `--live-pudl-output`
+against outputs you already have locally.
+
+```bash
+pixi run pytest-pipeline                                                  # pipeline tests + non-row-count validation
+pixi run pytest-validate                                                  # FK checks and dbt validation only, against existing PUDL_OUTPUT
+pixi run pytest --no-cov --live-pudl-output tests/validate/data_test.py   # using existing local outputs
+pixi run pytest-ci                                                        # docs + unit + integration + pipeline + coverage
 ```
 
 ### Custom pytest flags
 
-- `--live-pudl-output` — skip the prebuild and use existing local PUDL outputs. Useful
-  when your change doesn't affect the ETL itself (e.g. analysis code or data validation).
-  **Cannot be combined with unit tests** in the same session; the two suites require
-  incompatible `$PUDL_OUTPUT` environment variable handling.
+- `--live-pudl-output` — skip the ETL prebuild and use existing local PUDL outputs.
+  Useful for pipeline/validation tests when your change doesn't affect the ETL itself
+  (e.g. analysis code or data validation). **Cannot be combined with unit and
+  integration tests** in the same session; the suites require incompatible
+  `$PUDL_OUTPUT` environment variable handling.
 - `--temp-pudl-input` — download a fresh copy of raw inputs for this run only, instead
   of reusing the local datastore cache. Use when testing datastore functionality.
 - `--dg-config PATH` — override the default `dg_pytest.yml` with a custom Dagster config.
 
 ### Fixture constraints
 
-Do not run tests that depend on `prebuilt_outputs`, `pudl_engine`, `ferc1_xbrl_engine`,
-or `ferc1_dbf_engine` fixtures during development — these require a full integration ETL
-build. Exception: with `--live-pudl-output`, these fixtures use existing outputs and run
-quickly.
+Do not run tests that depend on `prebuilt_outputs`, `pudl_engine`, `ferc1_engine_dbf`,
+`ferc1_engine_xbrl`, or `ferc714_engine_xbrl` fixtures during development — these
+require a Dagster pipeline ETL build and belong under `tests/pipeline/` or
+`tests/validate/`. Exception: with `--live-pudl-output`, these fixtures use existing
+outputs and run quickly.
 
 ### Test style
 
@@ -480,7 +518,7 @@ underlying issue or ask for help — do not bypass the checks.
 Before marking a PR as ready for review:
 
 - [ ] Pre-commit hooks pass on all files: `pixi run prek-run`
-- [ ] All unit tests pass: `pixi run pytest-unit`
+- [ ] Unit and integration tests pass: `pixi run pytest-unit && pixi run pytest-integration`
 - [ ] No new pyrefly errors introduced: `pixi run pyrefly-check`
 - [ ] Docs check passes with no errors or warnings: `pixi run docs-check`
 - [ ] If public or contributor-facing behavior changed: release notes entry has been
