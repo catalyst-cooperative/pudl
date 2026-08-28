@@ -18,7 +18,7 @@
     </script>
     
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="existing_data_updates.html.md" />
-    <title>Existing Data Updates &#8212; PUDL 2026.8.1.dev21 documentation</title>
+    <title>Existing Data Updates &#8212; PUDL 2026.8.1.dev24 documentation</title>
   
   
   
@@ -51,7 +51,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../_static/documentation_options.js?v=265a745c"></script>
+    <script src="../_static/documentation_options.js?v=4788db61"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -142,8 +142,8 @@
       
     
     
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev21 documentation - Home"/>
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev21 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev24 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev24 documentation - Home"/>
   
   
 </a></div>
@@ -1268,15 +1268,15 @@ to populate complete FERC 1 &amp; PUDL DBs and EPA CEMS Parquet files.</p>
 <section id="run-and-update-data-validations">
 <h2>9. Run and Update Data Validations<a class="headerlink" href="#run-and-update-data-validations" title="Link to this heading">#</a></h2>
 <p><strong>9.1)</strong> To ensure that you fully exercise all of the possible output functions,
-run all the integration tests against your live PUDL DB with:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pixi<span class="w"> </span>run<span class="w"> </span>pytest-integration-nightly
+run all the pipeline tests against your live PUDL DB with:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pixi<span class="w"> </span>run<span class="w"> </span>pytest-pipeline-nightly
 <span class="gp">$ </span>pixi<span class="w"> </span>run<span class="w"> </span>pytest-validate-nightly
 </pre></div>
 </div>
 <p>We expect <code class="docutils literal notranslate"><span class="pre">tests/validate/data_test.py::test_dbt</span></code> to fail at this point,
 but everything else should pass. Fix any remaining failures and we’ll fix dbt in the
 next step.</p>
-<p><strong>9.2)</strong> When the non-dbt integration tests are passing against all years of data,
+<p><strong>9.2)</strong> When the non-dbt pipeline tests are passing against all years of data,
 sanity check the data in the database and the derived outputs by running</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>dbt_helper<span class="w"> </span>validate
 </pre></div>

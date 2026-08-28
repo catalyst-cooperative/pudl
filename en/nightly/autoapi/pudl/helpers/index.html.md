@@ -81,6 +81,7 @@ with cleaning and restructuring dataframes.
 | [`diff_wide_tables`](#pudl.helpers.diff_wide_tables)(→ TableDiff)                          | Diff values across multiple iterations of the same wide table.                                                                                                                                                                                                    |
 | [`retry`](#pudl.helpers.retry)(func, retry_on[, max_retries, base_delay_sec])   | Retry a function with a short sleep between each try.                                                                                                                                                                                                             |
 | [`get_parquet_table_polars`](#pudl.helpers.get_parquet_table_polars)(→ polars.LazyFrame)           | Read a table from a parquet file and return as a polars LazyFrame.                                                                                                                                                                                                |
+| [`_fix_residual_dtypes`](#pudl.helpers._fix_residual_dtypes)(→ pandas.DataFrame)               | Fix the two dtype gaps `dtype_backend="numpy_nullable"` can't get right.                                                                                                                                                                                          |
 | [`get_parquet_table`](#pudl.helpers.get_parquet_table)(...)                                 | Read a table from Parquet files with optional column selection and filtering.                                                                                                                                                                                     |
 | [`standardize_phone_column`](#pudl.helpers.standardize_phone_column)(→ pandas.DataFrame)           | Standardize phone numbers in the specified columns of the DataFrame.                                                                                                                                                                                              |
 | [`persist_table_as_parquet`](#pudl.helpers.persist_table_as_parquet)(→ ParquetData)                | Write data from DataFrame or LazyFrame to disk as a parquet file.                                                                                                                                                                                                 |
@@ -1090,13 +1091,30 @@ Read a table from a parquet file and return as a polars LazyFrame.
 * **Returns:**
   A polars LazyFrame representing the table.
 
+### pudl.helpers.\_fix_residual_dtypes(df: [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame), resource: [pudl.metadata.classes.Resource](../metadata/classes/index.html.md#pudl.metadata.classes.Resource)) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)
+
+Fix the two dtype gaps `dtype_backend="numpy_nullable"` can’t get right.
+
+Integer and datetime columns already come back from a
+`dtype_backend="numpy_nullable"` read matching their pandas targets (see
+`FIELD_DTYPES_PANDAS`) directly. Two gaps remain, neither fixable by
+`dtype_backend` alone:
+
+* “number” columns come back as pandas’ nullable `Float64`, but PUDL’s target
+  is plain (non-nullable) `float64` – unlike integers, floats can already
+  represent missing values natively via `NaN`, so PUDL doesn’t use the
+  nullable dtype for them.
+* “date” columns (Arrow `date32`) always come back as plain `object` holding
+  Python `datetime.date` scalars, since pandas has no native nullable
+  date-only dtype.
+
 ### pudl.helpers.get_parquet_table(table_name: [str](https://docs.python.org/3/library/stdtypes.html#str), columns: [list](https://docs.python.org/3/library/stdtypes.html#list)[[str](https://docs.python.org/3/library/stdtypes.html#str)] | [None](https://docs.python.org/3/library/constants.html#None) = None, filters: [list](https://docs.python.org/3/library/stdtypes.html#list)[[tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str), Any]] | [list](https://docs.python.org/3/library/stdtypes.html#list)[[list](https://docs.python.org/3/library/stdtypes.html#list)[[tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str), Any]]] | [None](https://docs.python.org/3/library/constants.html#None) = None, paths: [pudl.workspace.setup.PudlPaths](../workspace/setup/index.html.md#pudl.workspace.setup.PudlPaths) | [None](https://docs.python.org/3/library/constants.html#None) = None) → [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame) | [geopandas.GeoDataFrame](https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame)
 
 Read a table from Parquet files with optional column selection and filtering.
 
 This function provides a general-purpose interface for reading PUDL tables from
-Parquet files. It supports selective column reading for performance, optional
-filters for data subsetting, and automatic schema validation.
+Parquet files. It supports selective column reading for performance and optional
+filters for data subsetting.
 
 * **Parameters:**
   * **table_name** – Name of the table to read.

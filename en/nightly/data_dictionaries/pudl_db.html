@@ -18,7 +18,7 @@
     </script>
     
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="pudl_db.html.md" />
-    <title>PUDL Data Dictionary &#8212; PUDL 2026.8.1.dev21 documentation</title>
+    <title>PUDL Data Dictionary &#8212; PUDL 2026.8.1.dev24 documentation</title>
   
   
   
@@ -51,7 +51,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../_static/documentation_options.js?v=265a745c"></script>
+    <script src="../_static/documentation_options.js?v=4788db61"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -142,8 +142,8 @@
       
     
     
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev21 documentation - Home"/>
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev21 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev24 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev24 documentation - Home"/>
   
   
 </a></div>
@@ -48585,7 +48585,7 @@ R</label><div class="sd-tab-content docutils">
 </dd>
 <dt>Source:</dt><dd><p>FERC Form 920 – Electric Quarterly Report (EQR)</p>
 </dd>
-<dt>Primary key:</dt><dd><p>year_quarter, seller_company_id_ferc, transaction_unique_id</p>
+<dt>Primary key:</dt><dd><p>This table has no primary key. The primary key ought to be [‘year_quarter’, ‘seller_company_id_ferc’, ‘transaction_unique_id’]. However, many reporting quarters contain a substantial number of records that duplicate this combination of columns, in some cases repeated many times over, and the number of duplicates appears to grow in more recent quarters. It isn’t yet clear whether this reflects a data quality issue in the underlying FERC EQR submissions or a bug in PUDL’s extraction or transformation of this table. Further investigation is required, so this table currently has no enforced primary key.</p>
 </dd>
 </dl>
 <section id="id1345">

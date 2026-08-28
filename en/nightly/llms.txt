@@ -1,6 +1,6 @@
 # PUDL
 
-> PUDL 2026.8.1.dev21 documentation
+> PUDL 2026.8.1.dev24 documentation
 
 
 2016-2026, Catalyst Cooperative, CC-BY-4.0
@@ -287,7 +287,7 @@
 - [Running the ETL Pipeline](dev/run_the_etl.html.md): So you want to run the PUDL data processing pipeline? This is the most involved way
 - [Troubleshooting Dagster](dev/troubleshooting_dagster.html.md): When a new asset is added in the code it is not automatically added to the DAG in the
 - [Project Management](dev/project_management.html.md): The people working on PUDL are distributed all over North America. Collaboration takes
-- [Testing PUDL](dev/testing.html.md): We use [pytest](https://pytest.org) to specify software unit & integration tests,
+- [Testing PUDL](dev/testing.html.md): We use [pytest](https://pytest.org) to specify software unit, integration, and
 - [Data validation quickstart](dev/data_validation_quickstart.html.md): The `dbt/` directory contains the PUDL dbt project which manages our [data tests](https://docs.getdb...
 - [Data validation reference](dev/data_validation_reference.html.md): In dbt, every data validation test is a SQL query meant to select rows that fail the
 - [Metadata editing guide](dev/metadata.html.md): In PUDL, a dataset is called a source. For each source we archive, we record

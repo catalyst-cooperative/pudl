@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.metadata.dtypes &#8212; PUDL 2026.8.1.dev21 documentation</title>
+    <title>pudl.metadata.dtypes &#8212; PUDL 2026.8.1.dev24 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=265a745c"></script>
+    <script src="../../../_static/documentation_options.js?v=4788db61"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev21 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev21 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev24 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev24 documentation - Home"/>
   
   
 </a></div>
@@ -899,7 +899,7 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Literal</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">duckdb.sqltypes</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">geoarrow.pyarrow</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ga</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">geoarrow.pyarrow</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">geoarrow</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">geopandas</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">polars</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pl</span>
@@ -960,7 +960,7 @@ window.runMermaid = runMermaid;</script>
     <span class="s2">"boolean"</span><span class="p">:</span> <span class="n">pa</span><span class="o">.</span><span class="n">bool_</span><span class="p">(),</span>
     <span class="s2">"date"</span><span class="p">:</span> <span class="n">pa</span><span class="o">.</span><span class="n">date32</span><span class="p">(),</span>
     <span class="s2">"datetime"</span><span class="p">:</span> <span class="n">pa</span><span class="o">.</span><span class="n">timestamp</span><span class="p">(</span><span class="s2">"us"</span><span class="p">),</span>
-    <span class="s2">"geometry"</span><span class="p">:</span> <span class="n">ga</span><span class="o">.</span><span class="n">wkb</span><span class="p">(),</span>
+    <span class="s2">"geometry"</span><span class="p">:</span> <span class="n">geoarrow</span><span class="o">.</span><span class="n">wkb</span><span class="p">(),</span>
     <span class="s2">"integer"</span><span class="p">:</span> <span class="n">pa</span><span class="o">.</span><span class="n">int64</span><span class="p">(),</span>
     <span class="s2">"number"</span><span class="p">:</span> <span class="n">pa</span><span class="o">.</span><span class="n">float64</span><span class="p">(),</span>
     <span class="s2">"string"</span><span class="p">:</span> <span class="n">pa</span><span class="o">.</span><span class="n">string</span><span class="p">(),</span>

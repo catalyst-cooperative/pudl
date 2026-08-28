@@ -172,7 +172,9 @@ are configured to run the ``builds/pudl_batch.sh`` script. This script:
    Note: if the container is manually stopped, Zulip will not be notified.
 2. Runs ``pixi run pudl-with-ferc-to-sqlite-nightly``.
 3. Runs ``pixi run pytest-unit-nightly``, ``pixi run pytest-integration-nightly``,
-   and ``pixi run pytest-validate-nightly`` as separate stages.
+   ``pixi run pytest-pipeline-nightly``, ``pixi run pytest-validate-nightly``, and
+   ``pixi run pytest-validate-row-counts-nightly`` as separate stages. See
+   :doc:`testing` for what each of these test tiers covers.
 4. Copies the outputs and logs to a directory in the ``gs://builds.catalyst.coop``
    bucket, named ``<YYYY-MM-DD-HHMM>-<short git SHA>-<git ref>``, and writes a
    ``success`` marker file there if every stage passed.

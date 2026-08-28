@@ -89,6 +89,10 @@ This is the upcoming PUDL release.
   With the fix, 788 records in `out_pudl__yearly_assn_eia_ferc1_plant_parts` which
   used to have a NULL `report_date` now appear with correct date information. See
   issue [#4130](https://github.com/catalyst-cooperative/pudl/issues/4130) and PR [#5503](https://github.com/catalyst-cooperative/pudl/pull/5503)
+* Fixed a race condition that intermittently failed the docs build due to the HTML and
+  Markdown builds attempting to clean up the same dynamically generated output files at
+  the end of their build. Fixed by setting `llms_txt_build_parallel = False`. See
+  issue [#5502](https://github.com/catalyst-cooperative/pudl/issues/5502) and PR [#5516](https://github.com/catalyst-cooperative/pudl/pull/5516).
 
 ### Performance Improvements
 
@@ -110,6 +114,14 @@ This is the upcoming PUDL release.
   now reject any unrecognized keys (like stray `tests:` instead of `data_tests:`) at
   parse time instead of silently discarding them. Whitespace in description fields is
   also normalized at parse-time to avoid spurious diffs. See PR [#5458](https://github.com/catalyst-cooperative/pudl/pull/5458).
+* Reorganized `tests/` into four tiers by run-time: fast unit tests run as a
+  pre-commit hook, slower integration tests run on every push, and slower ETL-dependent
+  pipeline and data validation tests run in the merge queue. Previously
+  `tests/integration` mixed ETL and integration tests together, so many lightweight
+  tests weren’t getting run until the merge queue, leading to unexpected late-stage
+  failures. A pytest collection hook enforces the ETL/no-ETL split. Also fixed a live
+  Zulip notification firing from the test suite and tightened the dbt `schema.yml`
+  round-trip test. See issue [#5508](https://github.com/catalyst-cooperative/pudl/issues/5508) and PR [#5507](https://github.com/catalyst-cooperative/pudl/pull/5507).
 
 <a id="release-v2026-8-0"></a>
 

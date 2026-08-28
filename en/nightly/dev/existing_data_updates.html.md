@@ -438,10 +438,10 @@ to populate complete FERC 1 & PUDL DBs and EPA CEMS Parquet files.
 ## 9. Run and Update Data Validations
 
 **9.1)** To ensure that you fully exercise all of the possible output functions,
-run all the integration tests against your live PUDL DB with:
+run all the pipeline tests against your live PUDL DB with:
 
 ```console
-$ pixi run pytest-integration-nightly
+$ pixi run pytest-pipeline-nightly
 $ pixi run pytest-validate-nightly
 ```
 
@@ -449,7 +449,7 @@ We expect `tests/validate/data_test.py::test_dbt` to fail at this point,
 but everything else should pass. Fix any remaining failures and we’ll fix dbt in the
 next step.
 
-**9.2)** When the non-dbt integration tests are passing against all years of data,
+**9.2)** When the non-dbt pipeline tests are passing against all years of data,
 sanity check the data in the database and the derived outputs by running
 
 ```console

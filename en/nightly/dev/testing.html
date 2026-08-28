@@ -18,7 +18,7 @@
     </script>
     
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="testing.html.md" />
-    <title>Testing PUDL &#8212; PUDL 2026.8.1.dev21 documentation</title>
+    <title>Testing PUDL &#8212; PUDL 2026.8.1.dev24 documentation</title>
   
   
   
@@ -51,7 +51,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../_static/documentation_options.js?v=265a745c"></script>
+    <script src="../_static/documentation_options.js?v=4788db61"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -142,8 +142,8 @@
       
     
     
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev21 documentation - Home"/>
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev21 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev24 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev24 documentation - Home"/>
   
   
 </a></div>
@@ -855,22 +855,25 @@
                   
   <section id="testing-pudl">
 <span id="testing"></span><h1>Testing PUDL<a class="headerlink" href="#testing-pudl" title="Link to this heading">#</a></h1>
-<p>We use <a class="reference external" href="https://pytest.org">pytest</a> to specify software unit &amp; integration tests,
-including calling <code class="docutils literal notranslate"><span class="pre">dbt</span> <span class="pre">build</span></code> to run our <a class="reference internal" href="data_validation_quickstart.html"><span class="doc">Data validation quickstart</span></a> tests.
-Several common test commands are available as pixi tasks for convenience.</p>
+<p>We use <a class="reference external" href="https://pytest.org">pytest</a> to specify software unit, integration, and
+pipeline tests, including calling <code class="docutils literal notranslate"><span class="pre">dbt</span> <span class="pre">build</span></code> to run our
+<a class="reference internal" href="data_validation_quickstart.html"><span class="doc">Data validation quickstart</span></a> tests. Several common test commands are available as
+pixi tasks for convenience.</p>
 <p>For day-to-day work, the most commonly used pixi testing tasks are:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pixi<span class="w"> </span>run<span class="w"> </span>pytest-unit
 <span class="gp">$ </span>pixi<span class="w"> </span>run<span class="w"> </span>pytest-integration
 </pre></div>
 </div>
-<p>To run the tests that will be run on a PR by our continuous integration (CI) on GitHub
-before it’s merged into the <code class="docutils literal notranslate"><span class="pre">main</span></code> branch you can use the following command:</p>
+<p><code class="docutils literal notranslate"><span class="pre">pytest-unit</span></code> also runs automatically as a pre-commit hook on every commit, and
+both <code class="docutils literal notranslate"><span class="pre">pytest-unit</span></code> and <code class="docutils literal notranslate"><span class="pre">pytest-integration</span></code> runs in GitHub Actions on every push.</p>
+<p>To run everything that’s required before a PR can merge – including the slower
+pipeline and data validation tests that only run in the merge queue – use:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pixi<span class="w"> </span>run<span class="w"> </span>pytest-ci
 </pre></div>
 </div>
-<p>This includes building the documentation, running unit &amp; integration tests, dbt data
-validations other than the row counts, and checking to make sure we’ve got sufficient
-test coverage.</p>
+<p>This includes building the documentation, running the unit, integration, and pipeline
+tests, dbt data validations (other than the row count checks), foreign key constraints,
+and checking to make sure we’ve got sufficient test coverage.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>If you aren’t familiar with pytest already, you may want to check out:</p>
@@ -880,24 +883,36 @@ test coverage.</p>
 </div>
 <section id="software-tests">
 <h2>Software Tests<a class="headerlink" href="#software-tests" title="Link to this heading">#</a></h2>
-<p>Our <code class="docutils literal notranslate"><span class="pre">pytest</span></code> based software tests are all stored under the <code class="docutils literal notranslate"><span class="pre">tests/</span></code>
-directory in the main repository. They are organized into 2 main categories
-each with its own subdirectory:</p>
+<p>Our <code class="docutils literal notranslate"><span class="pre">pytest</span></code> based software tests are all stored under the <code class="docutils literal notranslate"><span class="pre">tests/</span></code> directory in
+the main repository. They’re organized into four tiers, primarily distinguished by how
+long they take to run:</p>
 <ul class="simple">
 <li><p><strong>Software Unit Tests</strong> (<code class="docutils literal notranslate"><span class="pre">tests/unit/</span></code>) can be run in seconds and don’t
-require any external data. They test the basic functionality of various
-functions and classes, often using minimal inline data structures that are
-specified in the test modules themselves.</p></li>
-<li><dl class="simple">
-<dt><strong>Software Integration Tests</strong> (<code class="docutils literal notranslate"><span class="pre">tests/integration/</span></code>) test larger</dt><dd><p>collections of functionality including the interactions between different
-parts of the overall software system and in some cases interactions with
-external systems requiring network connectivity. They run a Dagster-managed
-prebuild of the ETL using <code class="docutils literal notranslate"><span class="pre">dg_pytest.yml</span></code> and then exercise code against
-those outputs. These tests take around 45 minutes to run.</p>
-</dd>
-</dl>
-</li>
+require any external data or a Dagster ETL run. They test the basic functionality of
+various functions and classes, often using minimal inline data structures that are
+specified in the test modules themselves. These run as a pre-commit hook on every
+commit.</p></li>
+<li><p><strong>Software Integration Tests</strong> (<code class="docutils literal notranslate"><span class="pre">tests/integration/</span></code>) test the interactions
+between different parts of the overall software system, and in some cases
+interactions with external systems requiring network connectivity (e.g. downloading
+a small amount of data from Zenodo). Like the unit tests, they do <strong>not</strong> depend on a
+full Dagster ETL run, so they stay fast (a few minutes at most) and run in GitHub
+Actions on every push.</p></li>
+<li><p><strong>Pipeline Tests</strong> (<code class="docutils literal notranslate"><span class="pre">tests/pipeline/</span></code>) run a Dagster-managed fast ETL
+using <code class="docutils literal notranslate"><span class="pre">dg_pytest.yml</span></code> and then exercise code against those outputs – an
+end-to-end smoke test of the pipeline. Because running the fast ETL takes ~45
+minutes these only run in the merge queue as a final check before a PR merges into
+<code class="docutils literal notranslate"><span class="pre">main</span></code>, rather than on every push.</p></li>
+<li><p><strong>Data Validation Tests</strong> (<code class="docutils literal notranslate"><span class="pre">tests/validate/</span></code>) check that the outputs of a
+pipeline test run are valid: foreign key constraints and the <code class="docutils literal notranslate"><span class="pre">dbt</span></code> data validation
+suite. They depend on the pipeline tests having already produced outputs to check,
+and also run in the merge queue (with the exception of the dbt row-count checks,
+which expect all years of data to be processed).</p></li>
 </ul>
+<p>A <code class="docutils literal notranslate"><span class="pre">pytest_collection_modifyitems</span></code> hook in <code class="docutils literal notranslate"><span class="pre">tests/conftest.py</span></code> enforces this split
+automatically: a test outside <code class="docutils literal notranslate"><span class="pre">tests/pipeline/</span></code>/<code class="docutils literal notranslate"><span class="pre">tests/validate/</span></code> that depends on
+the ETL, or a test inside either of those directories that doesn’t, will fail
+collection with a message telling you where to move it.</p>
 </section>
 <section id="running-the-tests-and-other-tasks-with-pixi">
 <h2>Running the tests and other tasks with pixi<a class="headerlink" href="#running-the-tests-and-other-tasks-with-pixi" title="Link to this heading">#</a></h2>
@@ -907,16 +922,16 @@ those outputs. These tests take around 45 minutes to run.</p>
 </pre></div>
 </div>
 </section>
-<section id="selecting-input-data-for-integration-tests">
-<h2>Selecting Input Data for Integration Tests<a class="headerlink" href="#selecting-input-data-for-integration-tests" title="Link to this heading">#</a></h2>
-<p>The software integration tests need a year’s worth of input data to process. By
+<section id="selecting-input-data-for-pipeline-tests">
+<h2>Selecting Input Data for Pipeline Tests<a class="headerlink" href="#selecting-input-data-for-pipeline-tests" title="Link to this heading">#</a></h2>
+<p>The pipeline tests need a year or two of input data to process. By
 default they will look in your local PUDL datastore to find it. If the data
 they need isn’t available locally, they will download it from Zenodo and put it
 in the local datastore.</p>
 <p>However, if you’re editing code that affects how the datastore works, you probably don’t
 want to risk contaminating your working datastore. You can use a disposable temporary
 datastore instead by using our custom <code class="docutils literal notranslate"><span class="pre">--temp-pudl-input</span></code> with <code class="docutils literal notranslate"><span class="pre">pytest</span></code>:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pixi<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>--temp-pudl-input<span class="w"> </span>tests/integration
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pixi<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>--temp-pudl-input<span class="w"> </span>tests/pipeline
 </pre></div>
 </div>
 <div class="admonition seealso">
@@ -935,11 +950,11 @@ you’re debugging something specific or developing new test cases.</p>
 <p>You can run pytest directly without the <code class="docutils literal notranslate"><span class="pre">pixi</span> <span class="pre">run</span></code> prefix if you’re working
 within the activated pixi environment, or use <code class="docutils literal notranslate"><span class="pre">pixi</span> <span class="pre">run</span> <span class="pre">pytest</span></code> to run it
 explicitly.</p>
-<p>If you are working on integration tests, note that most of them require processed PUDL
-outputs. If you try to run a single integration test directly with pytest it will likely
-end up running the fast ETL which will take 45 minutes. If you have processed PUDL
-outputs locally already, you can use <code class="docutils literal notranslate"><span class="pre">--live-pudl-output</span></code> instead. This is only
-helpful if the thing you’re testing isn’t part of the ETL itself.</p>
+<p>If you are working on pipeline tests, note that they require processed PUDL outputs.
+If you try to run a single pipeline test directly with pytest it will likely end up
+running the fast ETL which will take 45 minutes. If you have processed PUDL outputs
+locally already, you can use <code class="docutils literal notranslate"><span class="pre">--live-pudl-output</span></code> instead. This is only helpful if
+the thing you’re testing isn’t part of the ETL itself.</p>
 <section id="running-specific-tests">
 <h3>Running specific tests<a class="headerlink" href="#running-specific-tests" title="Link to this heading">#</a></h3>
 <p>To run the software unit tests with <code class="docutils literal notranslate"><span class="pre">pytest</span></code> directly:</p>
@@ -976,12 +991,12 @@ test suite and keeps the data and tests very clearly separated.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">--live-pudl-output</span></code> option lets you use your existing FERC 1 and PUDL databases
 instead of building a new database at all. This can be useful if you want to test code
 that only operates on an existing database, and has nothing to do with the construction
-of that database. For example, the EPA CEMS specific tests:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pixi<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>--live-pudl-output<span class="w"> </span>tests/integration/epacems_test.py
+of that database. For example:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pixi<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>--live-pudl-output<span class="w"> </span>tests/pipeline/glue/glue_test.py
 </pre></div>
 </div>
 <p>Foreign key checks and dbt validations can be selected separately from the rest of the
-integration suite by running the dedicated validation module directly. For example:</p>
+pipeline suite by running the dedicated validation module directly. For example:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pixi<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>--live-pudl-output<span class="w"> </span>tests/validate/data_test.py
 </pre></div>
 </div>
@@ -993,7 +1008,7 @@ data config YAML file and contains the runtime settings needed for the prebuild.
 <p>If you want to run tests against an existing local full build instead, use the pixi
 tasks we’ve defined for the nightly builds, which use
 <code class="docutils literal notranslate"><span class="pre">--live-pudl-output</span></code> and <code class="docutils literal notranslate"><span class="pre">--dg-config</span> <span class="pre">src/pudl/package_data/settings/dg_full.yml</span></code>:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pixi<span class="w"> </span>run<span class="w"> </span>pytest-integration-nightly
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pixi<span class="w"> </span>run<span class="w"> </span>pytest-pipeline-nightly
 <span class="gp">$ </span>pixi<span class="w"> </span>run<span class="w"> </span>pytest-validate-nightly
 </pre></div>
 </div>
@@ -1013,15 +1028,17 @@ provided by the AWS Open Data Registry at <code class="docutils literal notransl
 even if you already have a local copy, which is useful when you are testing the
 datastore functionality specifically.</p>
 <p>The tests that most directly exercise the datastore download path are the CSV and Excel
-extractor tests (which read archived data files via <code class="docutils literal notranslate"><span class="pre">pudl_datastore_fixture</span></code>) and the
-Zenodo datapackage tests (which verify that datapackage descriptors are reachable):</p>
+extractor tests (which read archived data files via the <code class="docutils literal notranslate"><span class="pre">zenodo_datastore</span></code> fixture)
+and the Zenodo datapackage tests (which verify that datapackage descriptors are
+reachable):</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pixi<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>--temp-pudl-input<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>tests/integration/extract/csv_test.py<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>tests/integration/extract/excel_test.py<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>tests/integration/workspace/zenodo_datapackage_test.py
 </pre></div>
 </div>
-<p>The FERC extractor tests (<code class="docutils literal notranslate"><span class="pre">ferc1_test.py</span></code>, <code class="docutils literal notranslate"><span class="pre">ferc_dbf_extract_test.py</span></code>) also use the
+<p>The FERC extractor pipeline tests (<code class="docutils literal notranslate"><span class="pre">ferc_dbf_extract_test.py</span></code> and
+<code class="docutils literal notranslate"><span class="pre">ferc_xbrl_extract_test.py</span></code> under <code class="docutils literal notranslate"><span class="pre">tests/pipeline/extract/</span></code>) also use the
 datastore but additionally require building a FERC SQLite database, so they are more
 heavyweight and slower to run.</p>
 </section>
@@ -1077,7 +1094,7 @@ heavyweight and slower to run.</p>
     <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#software-tests">Software Tests</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#running-the-tests-and-other-tasks-with-pixi">Running the tests and other tasks with pixi</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#selecting-input-data-for-integration-tests">Selecting Input Data for Integration Tests</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#selecting-input-data-for-pipeline-tests">Selecting Input Data for Pipeline Tests</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#running-pytest-directly">Running pytest Directly</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#running-specific-tests">Running specific tests</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#custom-pudl-pytest-flags">Custom PUDL pytest flags</a></li>

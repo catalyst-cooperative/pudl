@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.metadata.resources.ferceqr &#8212; PUDL 2026.8.1.dev21 documentation</title>
+    <title>pudl.metadata.resources.ferceqr &#8212; PUDL 2026.8.1.dev24 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../../_static/documentation_options.js?v=265a745c"></script>
+    <script src="../../../../_static/documentation_options.js?v=4788db61"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev21 documentation - Home"/>
-    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev21 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev24 documentation - Home"/>
+    <img src="../../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev24 documentation - Home"/>
   
   
 </a></div>
@@ -908,6 +908,17 @@ window.runMermaid = runMermaid;</script>
             <span class="s2">"Contains information about individual electricity market transactions that took place"</span>
             <span class="s2">" during a given reporting quarter. Reported by the seller."</span>
         <span class="p">),</span>
+        <span class="s2">"additional_primary_key_text"</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">"The primary key ought to be ['year_quarter', 'seller_company_id_ferc', "</span>
+            <span class="s2">"'transaction_unique_id']. However, many reporting quarters contain a "</span>
+            <span class="s2">"substantial number of records that duplicate this combination of "</span>
+            <span class="s2">"columns, in some cases repeated many times over, and the number of "</span>
+            <span class="s2">"duplicates appears to grow in more recent quarters. It isn't yet clear "</span>
+            <span class="s2">"whether this reflects a data quality issue in the underlying FERC EQR "</span>
+            <span class="s2">"submissions or a bug in PUDL's extraction or transformation of this "</span>
+            <span class="s2">"table. Further investigation is required, so this table currently has "</span>
+            <span class="s2">"no enforced primary key."</span>
+        <span class="p">),</span>
         <span class="s2">"usage_warnings"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"experimental_wip"</span><span class="p">],</span>
     <span class="p">},</span>
     <span class="s2">"index_pub"</span><span class="p">:</span> <span class="p">{</span>
@@ -1035,11 +1046,6 @@ window.runMermaid = runMermaid;</script>
                 <span class="s2">"standardized_price"</span><span class="p">,</span>
                 <span class="s2">"total_transmission_charge"</span><span class="p">,</span>
                 <span class="s2">"total_transaction_charge"</span><span class="p">,</span>
-            <span class="p">],</span>
-            <span class="s2">"primary_key"</span><span class="p">:</span> <span class="p">[</span>
-                <span class="s2">"year_quarter"</span><span class="p">,</span>
-                <span class="s2">"seller_company_id_ferc"</span><span class="p">,</span>
-                <span class="s2">"transaction_unique_id"</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">},</span>
         <span class="s2">"create_database_schema"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
