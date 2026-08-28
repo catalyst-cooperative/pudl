@@ -114,6 +114,10 @@ Bug Fixes & Data Cleaning
 * Disabled primary key uniqueness enforcement on
   :ref:`core_ferceqr__quarterly_index_pub`, which was found to contain duplicate primary
   key values in FERC EQR filings from 2023 onward. See PR :pr:`5442`.
+* Fixed a race condition that intermittently failed the docs build due to the HTML and
+  Markdown builds attempting to clean up the same dynamically generated output files at
+  the end of their build. Fixed by setting ``llms_txt_build_parallel = False``. See
+  issue :issue:`5502` and PR :pr:`5516`.
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
