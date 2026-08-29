@@ -106,7 +106,7 @@ Bug Fixes & Data Cleaning
   issue :issue:`5502` and PR :pr:`5516`.
 * Changed ``subplant_id`` in :ref:`core_epa__assn_eia_epacamd_subplant_ids` to be
   1-indexed instead of 0-indexed within each ``plant_id_eia``, so the first subplant at
-  a plant is now ``1`` rather than ``0``. See issue :issue:`5499` and PR :pr:`XXXX`.
+  a plant is now ``1`` rather than ``0``. See issue :issue:`5499` and PR :pr:`5541`.
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
