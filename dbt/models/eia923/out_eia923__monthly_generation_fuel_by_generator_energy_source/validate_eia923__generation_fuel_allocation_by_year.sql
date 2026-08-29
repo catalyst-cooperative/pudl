@@ -24,7 +24,10 @@ with by_year as (
 select
     '{{ metric }}' as data_column,
     report_year,
-    allocated_{{ metric }} / nullif(original_{{ metric }}, 0) as retained_fraction
+    -- Rounded to stay well above floating-point summation noise (~1e-16), which
+    -- can otherwise push a true ratio of 1.0 a few ULPs past the test's upper bound
+    -- depending on aggregation order.
+    round(allocated_{{ metric }} / nullif(original_{{ metric }}, 0), 8) as retained_fraction
 from by_year
 {% if not loop.last %}union all{% endif %}
 {% endfor %}
