@@ -104,6 +104,9 @@ Bug Fixes & Data Cleaning
   Markdown builds attempting to clean up the same dynamically generated output files at
   the end of their build. Fixed by setting ``llms_txt_build_parallel = False``. See
   issue :issue:`5502` and PR :pr:`5516`.
+* Changed ``subplant_id`` in :ref:`core_epa__assn_eia_epacamd_subplant_ids` to be
+  1-indexed instead of 0-indexed within each ``plant_id_eia``, so the first subplant at
+  a plant is now ``1`` rather than ``0``. See issue :issue:`5499` and PR :pr:`XXXX`.
 
 Performance Improvements
 ^^^^^^^^^^^^^^^^^^^^^^^^
