@@ -694,6 +694,8 @@ def test_identify_plants_excludes_phantom_null_months(
             "generator_id": ["GEN1", "GEN1"],
             "report_date": ["2023-01-01", "2023-02-01"],
             "operational_status": [status, status],
+            "prime_mover_code": ["ST", "ST"],
+            "energy_source_code": ["NG", "NG"],
             transition_date_col: [transition_date, transition_date],
             "net_generation_mwh_g_tbl": [pd.NA, pd.NA],
             "net_generation_mwh_gf_tbl": [150, pd.NA],
@@ -710,13 +712,13 @@ def test_identify_plants_excludes_phantom_null_months(
     [
         pytest.param(
             allocate_gen_fuel.identify_proposed_plants,
-            """plant_id_eia,generator_id,report_date,operational_status,net_generation_mwh_gf_tbl,net_generation_mwh_g_tbl,generator_operating_date
-45678,GEN1,2023-01-01,proposed,100,,2025-01-01
-45678,GEN1,2023-02-01,proposed,110,,2025-01-01
-45678,GEN1,2024-01-01,proposed,120,,2025-01-01
-45678,GEN1,2024-02-01,proposed,130,,2025-01-01
-45678,GEN1,2025-01-01,existing,140,,2025-01-01
-45678,GEN1,2025-02-01,existing,150,,2025-01-01
+            """plant_id_eia,generator_id,report_date,operational_status,prime_mover_code,energy_source_code,net_generation_mwh_gf_tbl,net_generation_mwh_g_tbl,generator_operating_date
+45678,GEN1,2023-01-01,proposed,ST,NG,100,,2025-01-01
+45678,GEN1,2023-02-01,proposed,ST,NG,110,,2025-01-01
+45678,GEN1,2024-01-01,proposed,ST,NG,120,,2025-01-01
+45678,GEN1,2024-02-01,proposed,ST,NG,130,,2025-01-01
+45678,GEN1,2025-01-01,existing,ST,NG,140,,2025-01-01
+45678,GEN1,2025-02-01,existing,ST,NG,150,,2025-01-01
 """,
             ["2023-01", "2023-02", "2024-01", "2024-02"],
             "proposed",
@@ -726,11 +728,11 @@ def test_identify_plants_excludes_phantom_null_months(
             allocate_gen_fuel.identify_retired_plants,
             # real EIA-860M data: plant 314 is entirely "retired" in 2009 but has
             # "existing" generators in many later years (2010-2026).
-            """plant_id_eia,generator_id,report_date,operational_status,generator_retirement_date,net_generation_mwh_g_tbl,net_generation_mwh_gf_tbl
-314,OLD1,2009-01-01,retired,2008-01-01,,50
-314,OLD1,2009-02-01,retired,2008-01-01,,60
-314,NEW1,2014-01-01,existing,,,70
-314,NEW1,2014-02-01,existing,,,80
+            """plant_id_eia,generator_id,report_date,operational_status,prime_mover_code,energy_source_code,generator_retirement_date,net_generation_mwh_g_tbl,net_generation_mwh_gf_tbl
+314,OLD1,2009-01-01,retired,ST,NG,2008-01-01,,50
+314,OLD1,2009-02-01,retired,ST,NG,2008-01-01,,60
+314,NEW1,2014-01-01,existing,ST,NG,,,70
+314,NEW1,2014-02-01,existing,ST,NG,,,80
 """,
             ["2009-01", "2009-02"],
             "retired",
@@ -767,10 +769,12 @@ def test_identify_plants_multiyear_status_change(
 def test_identify_plants_mixed_status_same_year(
     identify_fn, status, transition_date_col, transition_date
 ):
-    """A plant with both ``status`` and "existing" generators in the *same* year
-    should be excluded, since the gf-reported generation can't be reliably
+    """A PM/ESC group with both ``status`` and "existing" generators in the *same*
+    year should be excluded, since the gf-reported generation can't be reliably
     attributed to just one of them. Confirms the multi-year fix doesn't regress
-    this within-year behavior, for either direction.
+    this within-year behavior, for either direction. GEN1 and GEN2 deliberately
+    share one PM/ESC group, so this exercises the mixed-status exclusion rather
+    than the (now group-scoped) cross-group transition check.
     """
     gen_assoc = _gen_assoc_df(
         {
@@ -778,6 +782,8 @@ def test_identify_plants_mixed_status_same_year(
             "generator_id": ["GEN1", "GEN2"],
             "report_date": ["2024-01-01", "2024-01-01"],
             "operational_status": [status, "existing"],
+            "prime_mover_code": ["ST", "ST"],
+            "energy_source_code": ["NG", "NG"],
             transition_date_col: [transition_date, pd.NA],
             "net_generation_mwh_g_tbl": [pd.NA, pd.NA],
             "net_generation_mwh_gf_tbl": [50, 60],
@@ -792,14 +798,14 @@ def test_identify_plants_mixed_status_same_year(
     [
         pytest.param(
             allocate_gen_fuel.identify_proposed_plants,
-            """plant_id_eia,generator_id,report_date,operational_status,net_generation_mwh_gf_tbl,net_generation_mwh_g_tbl,generator_operating_date
-56401,GEN2,2005-01-01,proposed,10,,2020-01-01
-56401,GEN2,2006-01-01,proposed,20,,2020-01-01
-56401,GEN2,2007-01-01,proposed,30,,2020-01-01
-56401,GEN2,2008-01-01,existing,40,,2020-01-01
-56401,GEN2,2009-01-01,existing,50,,2020-01-01
-56401,GEN2,2010-01-01,proposed,60,,2020-01-01
-56401,GEN2,2011-01-01,proposed,70,,2020-01-01
+            """plant_id_eia,generator_id,report_date,operational_status,prime_mover_code,energy_source_code,net_generation_mwh_gf_tbl,net_generation_mwh_g_tbl,generator_operating_date
+56401,GEN2,2005-01-01,proposed,ST,NG,10,,2020-01-01
+56401,GEN2,2006-01-01,proposed,ST,NG,20,,2020-01-01
+56401,GEN2,2007-01-01,proposed,ST,NG,30,,2020-01-01
+56401,GEN2,2008-01-01,existing,ST,NG,40,,2020-01-01
+56401,GEN2,2009-01-01,existing,ST,NG,50,,2020-01-01
+56401,GEN2,2010-01-01,proposed,ST,NG,60,,2020-01-01
+56401,GEN2,2011-01-01,proposed,ST,NG,70,,2020-01-01
 """,
             ["2005", "2006", "2007", "2010", "2011"],
             "proposed",
@@ -807,13 +813,13 @@ def test_identify_plants_mixed_status_same_year(
         ),
         pytest.param(
             allocate_gen_fuel.identify_retired_plants,
-            """plant_id_eia,generator_id,report_date,operational_status,generator_retirement_date,net_generation_mwh_g_tbl,net_generation_mwh_gf_tbl
-56789,GEN1,2015-01-01,retired,2010-01-01,,10
-56789,GEN1,2016-01-01,retired,2010-01-01,,20
-56789,GEN1,2018-01-01,existing,,,30
-56789,GEN1,2019-01-01,existing,,,40
-56789,GEN1,2021-01-01,retired,2020-06-01,,50
-56789,GEN1,2022-01-01,retired,2020-06-01,,60
+            """plant_id_eia,generator_id,report_date,operational_status,prime_mover_code,energy_source_code,generator_retirement_date,net_generation_mwh_g_tbl,net_generation_mwh_gf_tbl
+56789,GEN1,2015-01-01,retired,ST,NG,2010-01-01,,10
+56789,GEN1,2016-01-01,retired,ST,NG,2010-01-01,,20
+56789,GEN1,2018-01-01,existing,ST,NG,,,30
+56789,GEN1,2019-01-01,existing,ST,NG,,,40
+56789,GEN1,2021-01-01,retired,ST,NG,2020-06-01,,50
+56789,GEN1,2022-01-01,retired,ST,NG,2020-06-01,,60
 """,
             ["2015", "2016", "2021", "2022"],
             "retired",
@@ -859,6 +865,8 @@ def test_identify_plants_all_null_or_zero_generation(
             "generator_id": ["GEN1"] * 4,
             "report_date": ["2023-01-01", "2023-02-01", "2024-01-01", "2024-02-01"],
             "operational_status": [status] * 4,
+            "prime_mover_code": ["ST"] * 4,
+            "energy_source_code": ["NG"] * 4,
             transition_date_col: [transition_date] * 4,
             "net_generation_mwh_g_tbl": [pd.NA] * 4,
             "net_generation_mwh_gf_tbl": [pd.NA, 0, 100, 110],
@@ -896,6 +904,8 @@ def test_identify_plants_unknown_transition_date(
             "generator_id": ["GEN1", "GEN1"],
             "report_date": ["2022-01-01", "2022-02-01"],
             "operational_status": [status, status],
+            "prime_mover_code": ["ST", "ST"],
+            "energy_source_code": ["NG", "NG"],
             transition_date_col: [pd.NA, pd.NA],
             "net_generation_mwh_g_tbl": [pd.NA, pd.NA],
             "net_generation_mwh_gf_tbl": [0.1875, 0.166],
@@ -1008,6 +1018,8 @@ def test_identify_plants_excludes_mid_year_transition(
             "generator_id": ["GEN1"] * len(report_dates),
             "report_date": report_dates,
             "operational_status": [status] * len(report_dates),
+            "prime_mover_code": ["ST"] * len(report_dates),
+            "energy_source_code": ["NG"] * len(report_dates),
             transition_date_col: [transition_date] * len(report_dates),
             "net_generation_mwh_g_tbl": [pd.NA] * len(report_dates),
             "net_generation_mwh_gf_tbl": [85, 90],
@@ -1015,3 +1027,143 @@ def test_identify_plants_excludes_mid_year_transition(
     )
 
     assert identify_fn(gen_assoc).empty
+
+
+# Coverage-matrix tests for remove_inactive_generators(): systematically sweep
+# combinations of transition-date timing across generators, to find gaps where
+# reported gf-table data is silently dropped instead of being allocated to *some*
+# generator (even heuristically/ambiguously). Two roles matter for a generator's
+# transition date, relative to a fixed report_date of 2024-07-01 within report_year
+# 2024:
+#
+# * "triggering": individually self-rescues the generator via
+#   `_identify_transitioning_generators`'s condition A (a stale-or-mid-year
+#   transition relative to `report_date`), *and* marks the whole plant-year as
+#   having "transitioned within the report_year", which excludes it from
+#   `_identify_entirely_transitioned_groups`'s plant-level rescue path.
+# * "fallback": never self-rescues a generator via condition A on its own, and
+#   never triggers the plant-level exclusion -- it depends entirely on the
+#   plant-level rescue (or its own g-table/unique-gf-table data) to survive.
+#
+# A null transition date behaves like "fallback" for both mechanisms (comparisons
+# against NaT are always False), and is swept separately below.
+_TRANSITION_DATE_COL = {
+    "proposed": "generator_operating_date",
+    "retired": "generator_retirement_date",
+}
+_TRANSITION_DATE_ROLES = {
+    # report_date (2024-07-01) >= operating_date, and operating_date < 2025-01-01.
+    "proposed": {"triggering": "2020-01-01", "fallback": "2025-06-01"},
+    # report_date (2024-07-01) <= retirement_date, and retirement_date >= 2024-01-01.
+    "retired": {"triggering": "2024-09-01", "fallback": "2020-01-01"},
+}
+_COVERAGE_REPORT_DATE = "2024-07-01"
+
+
+def _dates_for(status: str, transition_date: str) -> tuple[str, str]:
+    """Return ``(generator_retirement_date, generator_operating_date)`` CSV fields.
+
+    ``remove_inactive_generators`` unconditionally calls both the retired-side and
+    proposed-side identify functions, regardless of which status a fixture is
+    exercising, so both date columns must always be present -- only the one
+    matching ``status`` is populated, the other stays blank.
+    """
+    if status == "retired":
+        return transition_date, ""
+    return "", transition_date
+
+
+@pytest.mark.parametrize("status", ["proposed", "retired"])
+def test_remove_inactive_generators_cross_group_transition_does_not_lose_data(
+    status,
+):
+    """A transition on one PM/ESC group must not drop an unrelated group's data.
+
+    ``_identify_entirely_transitioned_groups``'s "no generator transitioned
+    within/before the report_year" check must be scoped per PM/ESC group, not to
+    the whole plant-year -- gf-table data is reported at
+    (plant, prime_mover_code, energy_source_code, report_date) grain, so a
+    transition on one PM/ESC group can never create genuine attribution ambiguity
+    for a *different* group at the same plant. If any generator at the plant has
+    a "triggering" transition date, only *its own* PM/ESC group's plant-level
+    rescue should be blocked -- a completely different, uniformly-non-triggering
+    PM/ESC group must still be rescued.
+
+    GEN_TRIGGER (prime mover CT) has a "triggering" transition date: it
+    individually self-rescues via condition A, and disqualifies *its own* group
+    from the plant-level path (redundantly, since it doesn't need that rescue).
+    GEN_A and GEN_B (prime mover ST, sharing one PM/ESC group) both have
+    "fallback" transition dates -- neither has generator-specific data or a
+    PM/ESC combo unique to itself, so their reported 500 MWh depends entirely on
+    the plant-level rescue. GEN_TRIGGER's presence at the same plant must not
+    block that rescue, since it belongs to an entirely different PM/ESC group.
+
+    This was a real, confirmed gap: plant_id_eia 2835 lost ~93,000 MWh of
+    reported 2015 generation to exactly this mechanism -- a mid-2015 ST/SUB
+    retirement blocked the plant-level rescue for four long-since-retired ST/BIT
+    generators sharing a different PM/ESC group at the same plant.
+    """
+    trigger_ret, trigger_op = _dates_for(
+        status, _TRANSITION_DATE_ROLES[status]["triggering"]
+    )
+    fallback_ret, fallback_op = _dates_for(
+        status, _TRANSITION_DATE_ROLES[status]["fallback"]
+    )
+
+    gen_assoc = _read_gen_assoc(f"""plant_id_eia,generator_id,report_date,operational_status,prime_mover_code,energy_source_code,generator_retirement_date,generator_operating_date,net_generation_mwh_g_tbl,net_generation_mwh_gf_tbl,fuel_consumed_mmbtu_gf_tbl
+1,GEN_TRIGGER,{_COVERAGE_REPORT_DATE},{status},CT,NG,{trigger_ret},{trigger_op},,,
+1,GEN_A,{_COVERAGE_REPORT_DATE},{status},ST,DFO,{fallback_ret},{fallback_op},,500,
+1,GEN_B,{_COVERAGE_REPORT_DATE},{status},ST,DFO,{fallback_ret},{fallback_op},,500,
+""")
+
+    out = allocate_gen_fuel.remove_inactive_generators(gen_assoc)
+
+    # GEN_TRIGGER individually self-rescues via condition A, regardless of GEN_A/B.
+    assert "GEN_TRIGGER" in out.generator_id.to_numpy()
+
+    # GEN_A and GEN_B's shared 500 MWh must survive: GEN_TRIGGER's transition
+    # belongs to a different PM/ESC group and must not block their group's
+    # plant-level rescue.
+    assert not out[out.generator_id.isin(["GEN_A", "GEN_B"])].empty
+
+
+@pytest.mark.parametrize("status", ["proposed", "retired"])
+@pytest.mark.parametrize(
+    "position_a,position_b",
+    [
+        ("triggering", "triggering"),
+        ("triggering", "fallback"),
+        ("triggering", "null"),
+        ("fallback", "fallback"),
+        ("fallback", "null"),
+        ("null", "null"),
+    ],
+)
+def test_remove_inactive_generators_shared_group_heterogeneous_timing_no_loss(
+    status, position_a, position_b
+):
+    """Two generators sharing one PM/ESC group never lose the group's data outright
+    just because their own transition-date timing differs -- unlike the
+    cross-*group* case above.
+
+    If either generator has a "triggering" transition date, it self-rescues via
+    condition A regardless of the other's timing. If neither does, there's no
+    *other* generator at this plant to block the plant-level path, so it rescues
+    the whole plant-year instead. Either way, at least one row carrying the
+    group's reported gf-table value survives -- it may end up allocated to the
+    "wrong" specific generator, but the value itself isn't lost.
+    """
+    dates = {**_TRANSITION_DATE_ROLES[status], "null": ""}
+    ret_a, op_a = _dates_for(status, dates[position_a])
+    ret_b, op_b = _dates_for(status, dates[position_b])
+
+    gen_assoc = _read_gen_assoc(f"""plant_id_eia,generator_id,report_date,operational_status,prime_mover_code,energy_source_code,generator_retirement_date,generator_operating_date,net_generation_mwh_g_tbl,net_generation_mwh_gf_tbl,fuel_consumed_mmbtu_gf_tbl
+1,GEN_A,{_COVERAGE_REPORT_DATE},{status},ST,DFO,{ret_a},{op_a},,500,
+1,GEN_B,{_COVERAGE_REPORT_DATE},{status},ST,DFO,{ret_b},{op_b},,500,
+""")
+
+    out = allocate_gen_fuel.remove_inactive_generators(gen_assoc)
+
+    # At least one of the two generators must survive, so the shared 500 MWh
+    # value has somewhere to land during allocation.
+    assert not out.empty
