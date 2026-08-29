@@ -13,8 +13,8 @@ For day-to-day work, the most commonly used pixi testing tasks are:
 
 .. code-block:: console
 
-   $ pixi run pytest-unit
-   $ pixi run pytest-integration
+   $ pixi run pytest-unit         # runs in ~1 minute
+   $ pixi run pytest-integration  # runs in ~2-5 minutes, no Dagster ETL required
 
 ``pytest-unit`` also runs automatically as a pre-commit hook on every commit, and
 both ``pytest-unit`` and ``pytest-integration`` runs in GitHub Actions on every push.
@@ -24,7 +24,7 @@ pipeline and data validation tests that only run in the merge queue -- use:
 
 .. code-block:: console
 
-    $ pixi run pytest-ci
+    $ pixi run pytest-ci  # runs in ~45-60 minutes, does a "fast" ETL
 
 This includes building the documentation, running the unit, integration, and pipeline
 tests, dbt data validations (other than the row count checks), foreign key constraints,
