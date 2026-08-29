@@ -661,7 +661,7 @@ PLANT_LEVEL_CASES = pytest.mark.parametrize(
             id="proposed",
         ),
         pytest.param(
-            allocate_gen_fuel.identify_retired_plants,
+            allocate_gen_fuel.identify_retired_groups,
             "retired",
             "generator_retirement_date",
             "2020-01-01",
@@ -670,7 +670,7 @@ PLANT_LEVEL_CASES = pytest.mark.parametrize(
     ],
 )
 """Shared parametrization for the ``identify_proposed_plants`` /
-``identify_retired_plants`` mirror-image test cases below.
+``identify_retired_groups`` mirror-image test cases below.
 
 ``transition_date`` is chosen far enough from the 2023-2024 report_dates used in
 these tests to safely satisfy each direction's "anomalous report" condition
@@ -686,7 +686,7 @@ def test_identify_plants_excludes_phantom_null_months(
 ):
     """Within an otherwise-flagged plant-year, a month where nothing was reported
     at all should be excluded from the output. ``identify_proposed_plants`` and
-    ``identify_retired_plants`` should behave identically here.
+    ``identify_retired_groups`` should behave identically here.
     """
     gen_assoc = _gen_assoc_df(
         {
@@ -725,7 +725,7 @@ def test_identify_plants_excludes_phantom_null_months(
             id="proposed",
         ),
         pytest.param(
-            allocate_gen_fuel.identify_retired_plants,
+            allocate_gen_fuel.identify_retired_groups,
             # real EIA-860M data: plant 314 is entirely "retired" in 2009 but has
             # "existing" generators in many later years (2010-2026).
             """plant_id_eia,generator_id,report_date,operational_status,prime_mover_code,energy_source_code,generator_retirement_date,net_generation_mwh_g_tbl,net_generation_mwh_gf_tbl
@@ -748,7 +748,7 @@ def test_identify_plants_multiyear_status_change(
 
     Regression test for the bug described in :issue:`5440` and :pr:`5419`
     (``identify_proposed_plants``) and its sibling bug in
-    ``identify_retired_plants``, found while reviewing the fix: both functions
+    ``identify_retired_groups``, found while reviewing the fix: both functions
     checked whether a plant's operational_status was uniformly one status across
     the *entire* input frame, so a plant with mixed statuses across its history
     would never pass the check for *any* of its years, silently dropping
@@ -812,7 +812,7 @@ def test_identify_plants_mixed_status_same_year(
             id="proposed",
         ),
         pytest.param(
-            allocate_gen_fuel.identify_retired_plants,
+            allocate_gen_fuel.identify_retired_groups,
             """plant_id_eia,generator_id,report_date,operational_status,prime_mover_code,energy_source_code,generator_retirement_date,net_generation_mwh_g_tbl,net_generation_mwh_gf_tbl
 56789,GEN1,2015-01-01,retired,ST,NG,2010-01-01,,10
 56789,GEN1,2016-01-01,retired,ST,NG,2010-01-01,,20
@@ -993,7 +993,7 @@ def test_remove_inactive_generators_composability_independent_transitions():
             id="proposed",
         ),
         pytest.param(
-            allocate_gen_fuel.identify_retired_plants,
+            allocate_gen_fuel.identify_retired_groups,
             "retired",
             "generator_retirement_date",
             "2022-09-01",
@@ -1007,7 +1007,7 @@ def test_identify_plants_excludes_mid_year_transition(
 ):
     """A plant transitioning status *during* the report_year (rather than having
     already transitioned before it began) should be excluded from
-    ``identify_proposed_plants``/``identify_retired_plants`` -- that's
+    ``identify_proposed_plants``/``identify_retired_groups`` -- that's
     ``identify_newly_operating_generators``/``identify_retiring_generators``'s
     responsibility instead, and double-counting would inflate the plant-level data
     with months that are already handled elsewhere.

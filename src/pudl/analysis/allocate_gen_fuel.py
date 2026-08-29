@@ -892,7 +892,7 @@ def remove_inactive_generators(gen_assoc: pd.DataFrame) -> pd.DataFrame:
     gen_assoc = _label_gf_unique_to_gen(gen_assoc)
     existing = gen_assoc.loc[(gen_assoc.operational_status == "existing")]
     retiring_generators = identify_retiring_generators(gen_assoc)
-    retired_plants = identify_retired_plants(gen_assoc)
+    retired_plants = identify_retired_groups(gen_assoc)
     newly_operating_generators = identify_newly_operating_generators(gen_assoc)
     proposed_plants = identify_proposed_plants(gen_assoc)
     unassociated_plants = gen_assoc[gen_assoc.generator_id.isnull()]
@@ -1100,7 +1100,7 @@ def _identify_entirely_transitioned_groups(
 ) -> pd.DataFrame:
     """Identify entire PM/ESC groups uniformly ``operational_status`` for a year, reporting anomalously.
 
-    Shared by :func:`identify_retired_plants` (a retired plant reporting generation
+    Shared by :func:`identify_retired_groups` (a retired plant reporting generation
     *after* its retirement date) and :func:`identify_proposed_plants` (a proposed
     plant reporting generation *before* its operating date), so the two mirror-image
     cases can't silently drift out of sync with each other.
@@ -1263,7 +1263,7 @@ def _identify_entirely_transitioned_groups(
     ]
 
 
-def identify_retired_plants(gen_assoc: pd.DataFrame) -> pd.DataFrame:
+def identify_retired_groups(gen_assoc: pd.DataFrame) -> pd.DataFrame:
     """Identify entire plants that have previously retired but are reporting data.
 
     See :func:`_identify_entirely_transitioned_groups` for the shared logic.
