@@ -1,4 +1,4 @@
-{% macro subcomponent_label_condition(categorical_columns, label) -%}
+{% macro subcomponent_one_label_condition(categorical_columns, label) -%}
     {#-
         Render a SQL condition matching one subcomponent or total label.
 
@@ -21,11 +21,11 @@
     )
 {%- endmacro %}
 
-{% macro subcomponent_labels_condition(categorical_columns, labels) -%}
+{% macro subcomponent_all_labels_condition(categorical_columns, labels) -%}
     {#- Render a SQL condition matching any of the given labels. -#}
     (
     {%- for label in labels -%}
-        {{ subcomponent_label_condition(categorical_columns, label) }}{% if not loop.last %} OR {% endif %}
+        {{ subcomponent_one_label_condition(categorical_columns, label) }}{% if not loop.last %} OR {% endif %}
     {%- endfor -%}
     )
 {%- endmacro %}
@@ -42,15 +42,7 @@
     negative_subcomponents_list=None
 ) %}
 
-{#-
-    `categorical_column` may be a single column name or a list of column names.
-    When a list is given, `total_label` and every entry of `subcomponents_list`
-    and `negative_subcomponents_list` must be equal-length lists of values, so
-    that components whose values repeat within one column can be identified by
-    the combination of columns, e.g. subcomponents_list:
-    [["opex", "total"], ["capex", "total_fixed"]] with categorical_column:
-    ["cost_group", "cost_type"].
--#}
+{#- Argument documentation lives in dbt/macros/schema.yml. -#}
 {% set categorical_columns = [categorical_column] if categorical_column is string else categorical_column %}
 
 WITH filtered AS (
@@ -78,22 +70,25 @@ summary AS (
         SUM(
             CASE
                 {% if negative_subcomponents_list is not none and negative_subcomponents_list | length > 0 %}
-                -- Negative subcomponents come first so they are subtracted even
-                -- when the positive branch would otherwise match them
-                WHEN {{ subcomponent_labels_condition(categorical_columns, negative_subcomponents_list) }} THEN -1 * total
+                -- Negative subcomponents come first because when
+                -- subcomponents_list is omitted, the positive branch below
+                -- matches everything except the total_label - including the
+                -- negative subcomponents, which would silently be added
+                -- instead of subtracted if they were matched second
+                WHEN {{ subcomponent_all_labels_condition(categorical_columns, negative_subcomponents_list) }} THEN -1 * total
                 {% endif %}
                 {% if subcomponents_list is not none and subcomponents_list | length > 0 %}
                 -- Use provided subcomponents list
-                WHEN {{ subcomponent_labels_condition(categorical_columns, subcomponents_list) }} THEN total
+                WHEN {{ subcomponent_all_labels_condition(categorical_columns, subcomponents_list) }} THEN total
                 {% else %}
                 -- Sum everything except the total_label
-                WHEN NOT {{ subcomponent_label_condition(categorical_columns, total_label) }} THEN total
+                WHEN NOT {{ subcomponent_one_label_condition(categorical_columns, total_label) }} THEN total
                 {% endif %}
             END
         ) AS subcomponents_sum,
 
         -- Calculate totals
-        MAX(CASE WHEN {{ subcomponent_label_condition(categorical_columns, total_label) }} THEN total END) AS grand_total,
+        MAX(CASE WHEN {{ subcomponent_one_label_condition(categorical_columns, total_label) }} THEN total END) AS grand_total,
 
         -- Calculate the absolute difference between the subcomponents and total
         ABS(subcomponents_sum - grand_total) AS absolute_diff,
