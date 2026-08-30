@@ -346,6 +346,58 @@ def test_subplant_id_is_never_null():
     )
 
 
+def test_unmatched_epa_units_are_not_spuriously_merged():
+    """Unrelated unmatched EPA units shouldn't get merged into the same subplant.
+
+    EPA units that never match an EIA generator all end up with a null generator_id
+    at the point make_subplant_ids builds its bipartite graph. groupby(...).ngroup()
+    drops null-key rows from grouping and gives all of them the shared sentinel -1,
+    so naively reusing that value as a surrogate node id would connect every unmatched
+    unit in the plant to the same node -- and therefore to each other -- even though
+    they have nothing to do with one another. Two such units with no other connection
+    to each other must still land in different subplants.
+    """
+    generator_rows = [
+        {"plant_id_eia": 9000, "generator_id": "G1"},
+    ]
+    crosswalk_rows = [
+        {
+            "plant_id_epa": 9000,
+            "emissions_unit_id_epa": "U1",
+            "generator_id_epa": "G1",
+            "plant_id_eia": 9000,
+            "boiler_id": "U1",
+            "generator_id": "G1",
+        },
+    ]
+    emissions_unit_rows = [
+        {"plant_id_eia": 9000, "emissions_unit_id_epa": "U1"},
+        # Neither of these ever matches a generator, and they have no connection to
+        # each other or to U1.
+        {"plant_id_eia": 9000, "emissions_unit_id_epa": "U_ORPHAN1"},
+        {"plant_id_eia": 9000, "emissions_unit_id_epa": "U_ORPHAN2"},
+    ]
+    bga_rows = [
+        {"plant_id_eia": 9000, "generator_id": "G1", "unit_id_pudl": 1},
+    ]
+
+    actual = _make_subplant_ids(
+        crosswalk_rows, generator_rows, emissions_unit_rows, bga_rows
+    )
+
+    def _subplant_id_for(emissions_unit_id_epa: str) -> int:
+        matches = actual[
+            (actual.plant_id_eia == 9000)
+            & (actual.emissions_unit_id_epa == emissions_unit_id_epa)
+        ]
+        return matches.subplant_id.iloc[0]
+
+    assert _subplant_id_for("U_ORPHAN1") != _subplant_id_for("U_ORPHAN2"), (
+        "Two unrelated unmatched EPA units were merged into the same subplant: "
+        f"\n{actual}"
+    )
+
+
 def test_epacamd_eia_subplant_ids():
     """Ensure subplant_id gets applied appropriately to example plants."""
     epacamd_eia_test = pd.read_csv(
