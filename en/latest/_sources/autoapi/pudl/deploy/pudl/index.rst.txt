@@ -546,7 +546,7 @@ Module Contents
    Initialize every tracked deploy stage as skipped, in table display order.
 
 
-.. py:function:: run_stage[T](stage_fn: collections.abc.Callable[Ellipsis, T], stage_name: DeployStage, stage_results: dict[DeployStage, StageResult], *args, fail_hard: bool = True, **kwargs) -> T | None
+.. py:function:: run_stage[T](stage_fn: collections.abc.Callable[..., T], stage_name: DeployStage, stage_results: dict[DeployStage, StageResult], *args, fail_hard: bool = True, **kwargs) -> T | None
 
    Run a deploy stage, recording its status and duration in ``stage_results``.
 

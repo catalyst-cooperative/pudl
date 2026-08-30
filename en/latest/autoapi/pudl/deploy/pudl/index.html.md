@@ -413,7 +413,7 @@ Outcome of a single deployment stage, for Zulip stage-table reporting.
 
 Initialize every tracked deploy stage as skipped, in table display order.
 
-### pudl.deploy.pudl.run_stage(stage_fn: [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[Ellipsis, [T](../../metadata/classes/index.html.md#pudl.metadata.classes.T)], stage_name: [DeployStage](#pudl.deploy.pudl.DeployStage), stage_results: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[DeployStage](#pudl.deploy.pudl.DeployStage), [StageResult](#pudl.deploy.pudl.StageResult)], \*args, fail_hard: [bool](https://docs.python.org/3/library/functions.html#bool) = True, \*\*kwargs) → [T](../../metadata/classes/index.html.md#pudl.metadata.classes.T) | [None](https://docs.python.org/3/library/constants.html#None)
+### pudl.deploy.pudl.run_stage(stage_fn: [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[..., [T](../../metadata/classes/index.html.md#pudl.metadata.classes.T)], stage_name: [DeployStage](#pudl.deploy.pudl.DeployStage), stage_results: [dict](https://docs.python.org/3/library/stdtypes.html#dict)[[DeployStage](#pudl.deploy.pudl.DeployStage), [StageResult](#pudl.deploy.pudl.StageResult)], \*args, fail_hard: [bool](https://docs.python.org/3/library/functions.html#bool) = True, \*\*kwargs) → [T](../../metadata/classes/index.html.md#pudl.metadata.classes.T) | [None](https://docs.python.org/3/library/constants.html#None)
 
 Run a deploy stage, recording its status and duration in `stage_results`.
 

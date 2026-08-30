@@ -150,6 +150,6 @@ Run a single permission check and update the structured summary.
 
 Run the requested checks for one path and return a structured summary.
 
-### pudl.scripts.check_path_permissions.main(ctx: click.Context, paths: [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[str](https://docs.python.org/3/library/stdtypes.html#str), Ellipsis], read_requested: [bool](https://docs.python.org/3/library/functions.html#bool), write_requested: [bool](https://docs.python.org/3/library/functions.html#bool), json_output: [bool](https://docs.python.org/3/library/functions.html#bool), anon: [bool](https://docs.python.org/3/library/functions.html#bool), check_ferceqr_deployment_paths: [bool](https://docs.python.org/3/library/functions.html#bool)) → [int](https://docs.python.org/3/library/functions.html#int)
+### pudl.scripts.check_path_permissions.main(ctx: click.Context, paths: [tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[str](https://docs.python.org/3/library/stdtypes.html#str), ...], read_requested: [bool](https://docs.python.org/3/library/functions.html#bool), write_requested: [bool](https://docs.python.org/3/library/functions.html#bool), json_output: [bool](https://docs.python.org/3/library/functions.html#bool), anon: [bool](https://docs.python.org/3/library/functions.html#bool), check_ferceqr_deployment_paths: [bool](https://docs.python.org/3/library/functions.html#bool)) → [int](https://docs.python.org/3/library/functions.html#int)
 
 Check path permissions using UPath for local filesystems and cloud buckets.

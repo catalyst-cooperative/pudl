@@ -839,7 +839,7 @@ Module Contents
 
 
    .. py:attribute:: spot_fixes
-      :type:  list[tuple[str | int | float | bool, Ellipsis]]
+      :type:  list[tuple[str | int | float | bool, ...]]
 
       A tuple containing the values of the idx_cols and fix_cols for each fix.
 
@@ -950,7 +950,7 @@ Module Contents
 
 
 
-.. py:function:: cache_df(key: str = 'main') -> collections.abc.Callable[Ellipsis, pandas.DataFrame]
+.. py:function:: cache_df(key: str = 'main') -> collections.abc.Callable[..., pandas.DataFrame]
 
    A decorator for caching dataframes within an :class:`AbstractTableTransformer`.
 

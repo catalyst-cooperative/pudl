@@ -101,20 +101,20 @@ defined in the per-dataset modules under [`pudl.transform.params`](../params/ind
 
 ## Functions
 
-| [`multicol_transform_factory`](#pudl.transform.classes.multicol_transform_factory)(→ MultiColumnTransformFunc)   | Construct [`MultiColumnTransformFunc`](#pudl.transform.classes.MultiColumnTransformFunc) from a [`ColumnTransformFunc`](#pudl.transform.classes.ColumnTransformFunc).   |
-|-----------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [`rename_columns`](#pudl.transform.classes.rename_columns)(→ pandas.DataFrame)                       | Rename the whole collection of dataframe columns using input params.                                                                                               |
-| [`normalize_strings`](#pudl.transform.classes.normalize_strings)(→ pandas.Series)                       | Derive a canonical, simplified version of the strings in the column.                                                                                               |
-| [`enforce_snake_case`](#pudl.transform.classes.enforce_snake_case)(→ pandas.Series)                      | Enforce snake_case for a column.                                                                                                                                   |
-| [`strip_non_numeric_values`](#pudl.transform.classes.strip_non_numeric_values)(→ pandas.Series)                | Strip a column of any non numeric values.                                                                                                                          |
-| [`categorize_strings`](#pudl.transform.classes.categorize_strings)(→ pandas.Series)                      | Impose a controlled vocabulary on a freeform string column.                                                                                                        |
-| [`convert_units`](#pudl.transform.classes.convert_units)(→ pandas.Series)                           | Convert column units and rename the column to reflect the change.                                                                                                  |
-| [`nullify_outliers`](#pudl.transform.classes.nullify_outliers)(→ pandas.Series)                        | Set any values outside the valid range to NA.                                                                                                                      |
-| [`correct_units`](#pudl.transform.classes.correct_units)(→ pandas.DataFrame)                        | Correct outlying values based on inferred discrepancies in reported units.                                                                                         |
-| [`drop_invalid_rows`](#pudl.transform.classes.drop_invalid_rows)(→ pandas.DataFrame)                    | Drop rows with only invalid values in all specified columns.                                                                                                       |
-| [`replace_with_na`](#pudl.transform.classes.replace_with_na)(→ pandas.Series)                         | Replace specified values with NA.                                                                                                                                  |
-| [`spot_fix_values`](#pudl.transform.classes.spot_fix_values)(→ pandas.DataFrame)                      | Manually fix one-off singular missing values and typos across a DataFrame.                                                                                         |
-| [`cache_df`](#pudl.transform.classes.cache_df)(→ collections.abc.Callable[Ellipsis, ...)       | A decorator for caching dataframes within an [`AbstractTableTransformer`](#pudl.transform.classes.AbstractTableTransformer).                                            |
+| [`multicol_transform_factory`](#pudl.transform.classes.multicol_transform_factory)(→ MultiColumnTransformFunc)      | Construct [`MultiColumnTransformFunc`](#pudl.transform.classes.MultiColumnTransformFunc) from a [`ColumnTransformFunc`](#pudl.transform.classes.ColumnTransformFunc).   |
+|--------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [`rename_columns`](#pudl.transform.classes.rename_columns)(→ pandas.DataFrame)                          | Rename the whole collection of dataframe columns using input params.                                                                                               |
+| [`normalize_strings`](#pudl.transform.classes.normalize_strings)(→ pandas.Series)                          | Derive a canonical, simplified version of the strings in the column.                                                                                               |
+| [`enforce_snake_case`](#pudl.transform.classes.enforce_snake_case)(→ pandas.Series)                         | Enforce snake_case for a column.                                                                                                                                   |
+| [`strip_non_numeric_values`](#pudl.transform.classes.strip_non_numeric_values)(→ pandas.Series)                   | Strip a column of any non numeric values.                                                                                                                          |
+| [`categorize_strings`](#pudl.transform.classes.categorize_strings)(→ pandas.Series)                         | Impose a controlled vocabulary on a freeform string column.                                                                                                        |
+| [`convert_units`](#pudl.transform.classes.convert_units)(→ pandas.Series)                              | Convert column units and rename the column to reflect the change.                                                                                                  |
+| [`nullify_outliers`](#pudl.transform.classes.nullify_outliers)(→ pandas.Series)                           | Set any values outside the valid range to NA.                                                                                                                      |
+| [`correct_units`](#pudl.transform.classes.correct_units)(→ pandas.DataFrame)                           | Correct outlying values based on inferred discrepancies in reported units.                                                                                         |
+| [`drop_invalid_rows`](#pudl.transform.classes.drop_invalid_rows)(→ pandas.DataFrame)                       | Drop rows with only invalid values in all specified columns.                                                                                                       |
+| [`replace_with_na`](#pudl.transform.classes.replace_with_na)(→ pandas.Series)                            | Replace specified values with NA.                                                                                                                                  |
+| [`spot_fix_values`](#pudl.transform.classes.spot_fix_values)(→ pandas.DataFrame)                         | Manually fix one-off singular missing values and typos across a DataFrame.                                                                                         |
+| [`cache_df`](#pudl.transform.classes.cache_df)(→ collections.abc.Callable[..., pandas.DataFrame]) | A decorator for caching dataframes within an [`AbstractTableTransformer`](#pudl.transform.classes.AbstractTableTransformer).                                            |
 
 ## Module Contents
 
@@ -664,7 +664,7 @@ The column(s) to be fixed.
 
 Set to True if each fix should correspond to only one row.
 
-#### spot_fixes *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[str](https://docs.python.org/3/library/stdtypes.html#str) | [int](https://docs.python.org/3/library/functions.html#int) | [float](https://docs.python.org/3/library/functions.html#float) | [bool](https://docs.python.org/3/library/functions.html#bool), Ellipsis]]*
+#### spot_fixes *: [list](https://docs.python.org/3/library/stdtypes.html#list)[[tuple](https://docs.python.org/3/library/stdtypes.html#tuple)[[str](https://docs.python.org/3/library/stdtypes.html#str) | [int](https://docs.python.org/3/library/functions.html#int) | [float](https://docs.python.org/3/library/functions.html#float) | [bool](https://docs.python.org/3/library/functions.html#bool), ...]]*
 
 A tuple containing the values of the idx_cols and fix_cols for each fix.
 
@@ -738,7 +738,7 @@ This is a shortcut, which allows us to constitute the parameter models based on
 the table they are associated with without having to pass in a potentially large
 nested data structure, which gets messy in Dagster.
 
-### pudl.transform.classes.cache_df(key: [str](https://docs.python.org/3/library/stdtypes.html#str) = 'main') → [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[Ellipsis, [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)]
+### pudl.transform.classes.cache_df(key: [str](https://docs.python.org/3/library/stdtypes.html#str) = 'main') → [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[..., [pandas.DataFrame](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame)]
 
 A decorator for caching dataframes within an [`AbstractTableTransformer`](#pudl.transform.classes.AbstractTableTransformer).
 

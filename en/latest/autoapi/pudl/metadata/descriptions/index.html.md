@@ -24,10 +24,10 @@ Mechanisms and constants for setting standard resource descriptions.
 
 ## Functions
 
-| [`half_year_offset`](#pudl.metadata.descriptions.half_year_offset)(→ str)                             | Offset a half_year partition by the specified number of half_years.   |
-|------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------|
-| [`first_non_none`](#pudl.metadata.descriptions.first_non_none)(\*args)                              | Return the first argument which is not None.                          |
-| [`component`](#pudl.metadata.descriptions.component)(→ collections.abc.Callable[Ellipsis, ...) | Decorator for functions which resolve a description component.        |
+| [`half_year_offset`](#pudl.metadata.descriptions.half_year_offset)(→ str)                        | Offset a half_year partition by the specified number of half_years.   |
+|-------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------|
+| [`first_non_none`](#pudl.metadata.descriptions.first_non_none)(\*args)                         | Return the first argument which is not None.                          |
+| [`component`](#pudl.metadata.descriptions.component)(→ collections.abc.Callable[..., ...) | Decorator for functions which resolve a description component.        |
 
 ## Module Contents
 
@@ -172,7 +172,7 @@ This is suitable for low-overhead previews and debugging.
 
 Render all description components into the full static description text block using the resource_description template.
 
-### pudl.metadata.descriptions.component(fn: [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[Ellipsis, [ResourceTrait](#pudl.metadata.descriptions.ResourceTrait) | [list](https://docs.python.org/3/library/stdtypes.html#list)[[ResourceTrait](#pudl.metadata.descriptions.ResourceTrait)]]) → [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[Ellipsis, [ResourceTrait](#pudl.metadata.descriptions.ResourceTrait) | [list](https://docs.python.org/3/library/stdtypes.html#list)[[ResourceTrait](#pudl.metadata.descriptions.ResourceTrait)]]
+### pudl.metadata.descriptions.component(fn: [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[..., [ResourceTrait](#pudl.metadata.descriptions.ResourceTrait) | [list](https://docs.python.org/3/library/stdtypes.html#list)[[ResourceTrait](#pudl.metadata.descriptions.ResourceTrait)]]) → [collections.abc.Callable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[..., [ResourceTrait](#pudl.metadata.descriptions.ResourceTrait) | [list](https://docs.python.org/3/library/stdtypes.html#list)[[ResourceTrait](#pudl.metadata.descriptions.ResourceTrait)]]
 
 Decorator for functions which resolve a description component.
 

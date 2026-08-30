@@ -314,7 +314,7 @@ Module Contents
 
 
 
-.. py:function:: slice_axis(x: numpy.ndarray, start: int = None, end: int = None, step: int = None, axis: int = 0) -> tuple[slice, Ellipsis]
+.. py:function:: slice_axis(x: numpy.ndarray, start: int = None, end: int = None, step: int = None, axis: int = 0) -> tuple[slice, ...]
 
    Return an index that slices an array along an axis.
 
