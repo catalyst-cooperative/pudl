@@ -674,9 +674,9 @@ def connect_ids(
     subplant_crosswalk[f"{connecting_id}_connected"] = subplant_crosswalk[connecting_id]
     if len(duplicates) > 0:
         # find the lowest number subplant id associated with each duplicated unit_id_pudl
-        duplicates.loc[:, f"{connecting_id}_to_replace"] = (
-            duplicates.groupby([id_to_update])[connecting_id].min().iloc[0]
-        )
+        duplicates.loc[:, f"{connecting_id}_to_replace"] = duplicates.groupby(
+            [id_to_update]
+        )[connecting_id].transform("min")
         # merge this replacement subplant_id into the dataframe and use it to update the
         # existing subplant id
         subplant_crosswalk = subplant_crosswalk.merge(

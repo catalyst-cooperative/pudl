@@ -398,6 +398,112 @@ def test_unmatched_epa_units_are_not_spuriously_merged():
     )
 
 
+def test_shared_unit_id_pudl_reconciliation_handles_multiple_groups():
+    """Every generator sharing a unit_id_pudl should end up in the same subplant_id.
+
+    update_subplant_ids merges subplants together when EIA's boiler-generator
+    association table (BGA) says they share a unit_id_pudl, even though the EPA
+    crosswalk didn't connect them directly. connect_ids does this by replacing each
+    duplicated id with the minimum id in its group -- but when a plant has more than
+    one such group needing reconciliation, connect_ids collapses the fix to a single
+    scalar (the first group's minimum) instead of computing it per group, corrupting
+    every group but the first.
+
+    This plant has two independent pairs of subplants that each need to be merged
+    because they share a unit_id_pudl (10 for one pair, 20 for the other), plus one
+    generator in each original subplant with no BGA match at all (unit_id_pudl is
+    null), which is what actually triggers the bug via the NaN-fill in
+    update_subplant_ids.
+    """
+    generator_rows = [
+        {"plant_id_eia": 4002, "generator_id": g}
+        for g in ["Aa1", "Aa2", "Ab1", "Ac1", "Ac2", "Ad1"]
+    ]
+    crosswalk_rows = [
+        # Combustor Ca feeds both Aa1 (unit_id_pudl=10) and Aa2 (no BGA match).
+        {
+            "plant_id_epa": 4002,
+            "emissions_unit_id_epa": "Ca",
+            "generator_id_epa": "Aa1",
+            "plant_id_eia": 4002,
+            "boiler_id": "Ca",
+            "generator_id": "Aa1",
+        },
+        {
+            "plant_id_epa": 4002,
+            "emissions_unit_id_epa": "Ca",
+            "generator_id_epa": "Aa2",
+            "plant_id_eia": 4002,
+            "boiler_id": "Ca",
+            "generator_id": "Aa2",
+        },
+        # Combustor Cb feeds only Ab1 (unit_id_pudl=10, same unit as Aa1 above).
+        {
+            "plant_id_epa": 4002,
+            "emissions_unit_id_epa": "Cb",
+            "generator_id_epa": "Ab1",
+            "plant_id_eia": 4002,
+            "boiler_id": "Cb",
+            "generator_id": "Ab1",
+        },
+        # Combustor Cc feeds both Ac1 (unit_id_pudl=20) and Ac2 (no BGA match).
+        {
+            "plant_id_epa": 4002,
+            "emissions_unit_id_epa": "Cc",
+            "generator_id_epa": "Ac1",
+            "plant_id_eia": 4002,
+            "boiler_id": "Cc",
+            "generator_id": "Ac1",
+        },
+        {
+            "plant_id_epa": 4002,
+            "emissions_unit_id_epa": "Cc",
+            "generator_id_epa": "Ac2",
+            "plant_id_eia": 4002,
+            "boiler_id": "Cc",
+            "generator_id": "Ac2",
+        },
+        # Combustor Cd feeds only Ad1 (unit_id_pudl=20, same unit as Ac1 above).
+        {
+            "plant_id_epa": 4002,
+            "emissions_unit_id_epa": "Cd",
+            "generator_id_epa": "Ad1",
+            "plant_id_eia": 4002,
+            "boiler_id": "Cd",
+            "generator_id": "Ad1",
+        },
+    ]
+    emissions_unit_rows = [
+        {"plant_id_eia": 4002, "emissions_unit_id_epa": u}
+        for u in ["Ca", "Cb", "Cc", "Cd"]
+    ]
+    bga_rows = [
+        {"plant_id_eia": 4002, "generator_id": "Aa1", "unit_id_pudl": 10},
+        {"plant_id_eia": 4002, "generator_id": "Ab1", "unit_id_pudl": 10},
+        {"plant_id_eia": 4002, "generator_id": "Ac1", "unit_id_pudl": 20},
+        {"plant_id_eia": 4002, "generator_id": "Ad1", "unit_id_pudl": 20},
+    ]
+
+    actual = _make_subplant_ids(
+        crosswalk_rows, generator_rows, emissions_unit_rows, bga_rows
+    )
+
+    def _subplant_id_for(generator_id: str) -> int:
+        matches = actual[
+            (actual.plant_id_eia == 4002) & (actual.generator_id == generator_id)
+        ]
+        return matches.subplant_id.iloc[0]
+
+    assert _subplant_id_for("Ac1") == _subplant_id_for("Ad1"), (
+        "Ac1 and Ad1 share unit_id_pudl=20 but landed in different subplants: "
+        f"\n{actual}"
+    )
+    assert _subplant_id_for("Ac1") != _subplant_id_for("Aa1"), (
+        "Ac1 (unit_id_pudl=20) was incorrectly merged into the unrelated "
+        f"unit_id_pudl=10 group: \n{actual}"
+    )
+
+
 def test_epacamd_eia_subplant_ids():
     """Ensure subplant_id gets applied appropriately to example plants."""
     epacamd_eia_test = pd.read_csv(
