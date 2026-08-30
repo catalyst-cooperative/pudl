@@ -582,6 +582,47 @@ def test_duplicate_crosswalk_edges_raise_instead_of_silently_dropping_rows():
         glue_assets._subplant_ids_from_prepped_crosswalk(prepped)
 
 
+def test_subplant_id_is_one_indexed_and_contiguous_per_plant():
+    """subplant_id should start at 1 and have no gaps within each plant_id_eia.
+
+    subplant_id is only meaningful in combination with plant_id_eia, so each plant's
+    subplant_ids should independently form a contiguous 1..n sequence -- not just be
+    non-negative, and not share a single contiguous sequence across plants.
+    """
+    generator_rows = [
+        {"plant_id_eia": 8100, "generator_id": g} for g in ["G1", "G2", "G3"]
+    ]
+    # Three mutually disconnected generators/EPA units at the same plant, so they
+    # should land in three distinct subplants.
+    crosswalk_rows = [
+        {
+            "plant_id_epa": 8100,
+            "emissions_unit_id_epa": f"U{i}",
+            "generator_id_epa": f"G{i}",
+            "plant_id_eia": 8100,
+            "boiler_id": f"U{i}",
+            "generator_id": f"G{i}",
+        }
+        for i in (1, 2, 3)
+    ]
+    emissions_unit_rows = [
+        {"plant_id_eia": 8100, "emissions_unit_id_epa": f"U{i}"} for i in (1, 2, 3)
+    ]
+    bga_rows = [
+        {"plant_id_eia": 8100, "generator_id": f"G{i}", "unit_id_pudl": i}
+        for i in (1, 2, 3)
+    ]
+
+    actual = _make_subplant_ids(
+        crosswalk_rows, generator_rows, emissions_unit_rows, bga_rows
+    )
+
+    subplant_ids = sorted(actual[actual.plant_id_eia == 8100].subplant_id.unique())
+    assert subplant_ids == [1, 2, 3], (
+        f"Expected subplant_id 1..3 with no gaps, got {subplant_ids}: \n{actual}"
+    )
+
+
 def test_epacamd_eia_subplant_ids():
     """Ensure subplant_id gets applied appropriately to example plants."""
     epacamd_eia_test = pd.read_csv(

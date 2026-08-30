@@ -363,15 +363,17 @@ def core_epa__assn_eia_epacamd_subplant_ids(
         "Edited subplant_ids after update_subplant_ids: "
         f"{len(subplant_id_diff) / len(subplant_ids_updated):.1}%"
     )
-    # overwrite the subplant ids and apply manual update
-    subplant_ids_updated = (
-        subplant_ids_updated.assign(subplant_id=lambda x: x.subplant_id_updated)
-        .reset_index(drop=True)
-        .pipe(manually_update_subplant_id)
-    )
-    # the subplant_ids are currently zero-indexed, which results in less intuitive
-    # alignments between subplant_ids and generator_ids. Increment all subplant_ids by 1
+    # overwrite the subplant ids with the updated values
+    subplant_ids_updated = subplant_ids_updated.assign(
+        subplant_id=lambda x: x.subplant_id_updated
+    ).reset_index(drop=True)
+    # The subplant_ids from update_subplant_ids are zero-indexed, which results in
+    # less intuitive alignments between subplant_ids and generator_ids. Increment all
+    # subplant_ids by 1 *before* applying manual overrides below, so those overrides
+    # can be expressed in terms of the final, user-facing subplant_id values rather
+    # than needing to track this internal zero-indexed implementation detail.
     subplant_ids_updated["subplant_id"] = subplant_ids_updated["subplant_id"] + 1
+    subplant_ids_updated = manually_update_subplant_id(subplant_ids_updated)
     # check for duplicates in sudo-PKs. These are not the actual PKs because there are
     # some nulls in generator_id, so this won't be checked during the db construction
     if (
@@ -386,7 +388,7 @@ def core_epa__assn_eia_epacamd_subplant_ids(
         )
     ).any():
         raise AssertionError(
-            "Duplicates found in sudo primary keys of EPA CAMD/EIA subplant ID table "
+            "Duplicates found in pseudo primary keys of EPA CAMD/EIA subplant ID table "
             "when none are expected. Duplicates found: \n"
             f"{subplant_ids_updated[epacamd_eia_dupe_mask]}"
         )
@@ -730,6 +732,6 @@ def manually_update_subplant_id(subplant_crosswalk: pd.DataFrame) -> pd.DataFram
     # set all generators in plant 1391 to the same subplant
     subplant_crosswalk.loc[
         subplant_crosswalk["plant_id_eia"] == 1391, "subplant_id"
-    ] = 0
+    ] = 1
 
     return subplant_crosswalk
