@@ -226,6 +226,74 @@ def test_every_epa_emissions_unit_appears_with_a_subplant_id():
         )
 
 
+def test_every_epa_emissions_unit_gets_exactly_one_subplant_id():
+    """Every (plant_id_eia, emissions_unit_id_epa) should map to exactly one subplant_id.
+
+    An EPA unit that feeds more than one EIA generator (e.g. a single smokestack shared
+    by two combustion turbines) appears on more than one row of the subplant ID table --
+    one per generator_id it's matched to. Those rows must all agree on subplant_id,
+    since it's the same physical EPA unit.
+    """
+    emissions_unit_rows = [
+        {"plant_id_eia": 7000, "emissions_unit_id_epa": "U1"},
+        {"plant_id_eia": 7000, "emissions_unit_id_epa": "U2"},
+    ]
+    crosswalk_rows = [
+        # U1 feeds two different generators.
+        {
+            "plant_id_epa": 7000,
+            "emissions_unit_id_epa": "U1",
+            "generator_id_epa": "G1",
+            "plant_id_eia": 7000,
+            "boiler_id": "U1",
+            "generator_id": "G1",
+        },
+        {
+            "plant_id_epa": 7000,
+            "emissions_unit_id_epa": "U1",
+            "generator_id_epa": "G2",
+            "plant_id_eia": 7000,
+            "boiler_id": "U1",
+            "generator_id": "G2",
+        },
+        {
+            "plant_id_epa": 7000,
+            "emissions_unit_id_epa": "U2",
+            "generator_id_epa": "G3",
+            "plant_id_eia": 7000,
+            "boiler_id": "U2",
+            "generator_id": "G3",
+        },
+    ]
+    generator_rows = [
+        {"plant_id_eia": 7000, "generator_id": "G1"},
+        {"plant_id_eia": 7000, "generator_id": "G2"},
+        {"plant_id_eia": 7000, "generator_id": "G3"},
+    ]
+    bga_rows = [
+        {"plant_id_eia": 7000, "generator_id": "G1", "unit_id_pudl": 1},
+        {"plant_id_eia": 7000, "generator_id": "G2", "unit_id_pudl": 1},
+        {"plant_id_eia": 7000, "generator_id": "G3", "unit_id_pudl": 2},
+    ]
+
+    actual = _make_subplant_ids(
+        crosswalk_rows, generator_rows, emissions_unit_rows, bga_rows
+    )
+
+    for emissions_unit_row in emissions_unit_rows:
+        matches = actual[
+            (actual.plant_id_eia == emissions_unit_row["plant_id_eia"])
+            & (
+                actual.emissions_unit_id_epa
+                == emissions_unit_row["emissions_unit_id_epa"]
+            )
+        ]
+        subplant_ids = matches.subplant_id.to_numpy()
+        assert (subplant_ids == subplant_ids[0]).all(), (
+            f"EPA unit {emissions_unit_row} maps to more than one subplant_id: \n{matches}"
+        )
+
+
 def test_epacamd_eia_subplant_ids():
     """Ensure subplant_id gets applied appropriately to example plants."""
     epacamd_eia_test = pd.read_csv(
