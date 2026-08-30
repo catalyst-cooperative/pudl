@@ -3,6 +3,7 @@
 from io import StringIO
 
 import pandas as pd
+import pytest
 
 import pudl.dagster.assets.core.glue as glue_assets
 
@@ -504,6 +505,83 @@ def test_shared_unit_id_pudl_reconciliation_handles_multiple_groups():
     )
 
 
+def test_subplant_id_table_preserves_row_count():
+    """The subplant ID table should have one row per crosswalk association.
+
+    core_epa__assn_eia_epacamd_subplant_ids shouldn't silently gain or lose rows
+    relative to the augmented crosswalk that feeds make_subplant_ids -- every
+    (EPA unit, EIA generator) association from the input should show up exactly once
+    in the output, with none dropped and none duplicated.
+    """
+    generator_rows = [
+        {"plant_id_eia": 6500, "generator_id": "G1"},
+        {"plant_id_eia": 6500, "generator_id": "G2"},
+    ]
+    crosswalk_rows = [
+        {
+            "plant_id_epa": 6500,
+            "emissions_unit_id_epa": "U1",
+            "generator_id_epa": "G1",
+            "plant_id_eia": 6500,
+            "boiler_id": "U1",
+            "generator_id": "G1",
+        },
+        {
+            "plant_id_epa": 6500,
+            "emissions_unit_id_epa": "U2",
+            "generator_id_epa": "G2",
+            "plant_id_eia": 6500,
+            "boiler_id": "U2",
+            "generator_id": "G2",
+        },
+    ]
+    emissions_unit_rows = [
+        {"plant_id_eia": 6500, "emissions_unit_id_epa": "U1"},
+        {"plant_id_eia": 6500, "emissions_unit_id_epa": "U2"},
+    ]
+    bga_rows = [
+        {"plant_id_eia": 6500, "generator_id": "G1", "unit_id_pudl": 1},
+        {"plant_id_eia": 6500, "generator_id": "G2", "unit_id_pudl": 2},
+    ]
+
+    actual = _make_subplant_ids(
+        crosswalk_rows, generator_rows, emissions_unit_rows, bga_rows
+    )
+
+    assert len(actual) == len(crosswalk_rows), (
+        f"Expected {len(crosswalk_rows)} rows (one per crosswalk association), got "
+        f"{len(actual)}: \n{actual}"
+    )
+
+
+def test_duplicate_crosswalk_edges_raise_instead_of_silently_dropping_rows():
+    """A duplicated (EPA unit, EIA generator) edge should raise, not vanish.
+
+    make_subplant_ids builds a networkx graph with one edge per crosswalk row. A
+    plain nx.Graph silently collapses duplicate edges between the same pair of nodes,
+    keeping only the last one's attributes -- so a duplicated (combustor_id,
+    generator_id_unique) pair would otherwise make a row disappear with no warning.
+
+    make_subplant_ids itself already deduplicates its input before this can happen in
+    normal use (see test_subplant_id_table_preserves_row_count above and
+    make_subplant_ids's docstring), so this exercises the lower-level function
+    directly to confirm its own row-count guarantee holds independent of that
+    caller-side protection.
+    """
+    prepped = pd.DataFrame(
+        {
+            "plant_id_eia": [6501, 6501],
+            "emissions_unit_id_epa": ["U1", "U1"],
+            "generator_id": ["G1", "G1"],
+            "combustor_id": [0, 0],
+            "generator_id_unique": [1, 1],
+        }
+    )
+
+    with pytest.raises(AssertionError, match="row"):
+        glue_assets._subplant_ids_from_prepped_crosswalk(prepped)
+
+
 def test_epacamd_eia_subplant_ids():
     """Ensure subplant_id gets applied appropriately to example plants."""
     epacamd_eia_test = pd.read_csv(
@@ -573,7 +651,9 @@ plant_id_eia,plant_id_epa,unit_id_pudl,emissions_unit_id_epa,generator_id,subpla
         )
     )
     expected = epacamd_eia_subplant_ids_expected.convert_dtypes()
-    actual = glue_assets.core_epa__assn_eia_epacamd_subplant_ids(
+    # dg.asset-decorated functions type-check as returning `object`, not their
+    # declared return type, when called directly.
+    actual = glue_assets.core_epa__assn_eia_epacamd_subplant_ids(  # type: ignore[bad-return]
         _core_epa__assn_eia_epacamd_unique=epacamd_eia_test,
         core_eia860__scd_generators=generators_entity_eia_test,
         _core_epacems__emissions_unit_ids=emissions_unit_ids_epacems_test,

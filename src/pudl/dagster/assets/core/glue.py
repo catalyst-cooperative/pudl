@@ -496,7 +496,21 @@ def _subplant_ids_from_prepped_crosswalk(prepped: pd.DataFrame) -> pd.DataFrame:
             f"non-bipartite: i={i}, node_set={node_set}"
         )
         nx.set_edge_attributes(subgraph, name="global_subplant_id", values=i)
-    return nx.to_pandas_edgelist(graph)
+    edge_list = nx.to_pandas_edgelist(graph)
+    # nx.Graph silently collapses multiple edges between the same pair of nodes into
+    # one, keeping only the last edge's attributes. If prepped contains a duplicated
+    # (combustor_id, generator_id_unique) pair -- e.g. because upstream deduplication
+    # of the crosswalk failed to catch it -- that row disappears with no warning.
+    if len(edge_list) != len(prepped):
+        raise AssertionError(
+            "Expected make_subplant_ids to preserve row count, but networkx's graph "
+            f"construction collapsed {len(prepped) - len(edge_list)} duplicate "
+            "(combustor_id, generator_id_unique) edge(s). This likely means the "
+            "crosswalk contains a duplicated EPA unit/EIA generator association "
+            f"within a plant. Input had {len(prepped)} rows, output has "
+            f"{len(edge_list)}."
+        )
+    return edge_list
 
 
 def _convert_global_id_to_composite_id(
@@ -565,7 +579,12 @@ def make_subplant_ids(crosswalk: pd.DataFrame) -> pd.DataFrame:
     subplants, and 11% contain subplants with different technology types, such as a gas
     boiler and gas turbine (not in a combined cycle).
 
-    Any row filtering should be done before this step if desired.
+    Any row filtering should be done before this step if desired. Rows that are
+    duplicates with respect to the EPA unit/EIA generator association -- e.g. two
+    crosswalk rows that only differ in ``generator_id_epa`` or ``boiler_id``, neither
+    of which appears in the output -- are collapsed here explicitly, since silently
+    leaving that to the graph construction below would make its row-count guarantee
+    (see :func:`_subplant_ids_from_prepped_crosswalk`) fail on real data.
 
     Note that sub-plant ids should be used in conjunction with ``plant_id_eia`` rather
     than ``plant_id_epa`` because the former is more granular and integrated into CEMS
@@ -578,6 +597,15 @@ def make_subplant_ids(crosswalk: pd.DataFrame) -> pd.DataFrame:
         An edge list connecting EPA units to EIA generators, with connected pieces
         issued a subplant_id
     """
+    crosswalk = crosswalk.drop_duplicates(
+        subset=[
+            "plant_id_eia",
+            "plant_id_epa",
+            "emissions_unit_id_epa",
+            "generator_id",
+            "unit_id_pudl",
+        ]
+    )
     edge_list = _prep_for_networkx(crosswalk)
     edge_list = _subplant_ids_from_prepped_crosswalk(edge_list)
     edge_list = _convert_global_id_to_composite_id(edge_list)
