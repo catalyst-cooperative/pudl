@@ -110,6 +110,70 @@ def test_every_eia_generator_appears_with_a_subplant_id():
         )
 
 
+def test_every_eia_generator_gets_exactly_one_subplant_id():
+    """Every (plant_id_eia, generator_id) should map to exactly one subplant_id.
+
+    A generator that reports emissions through more than one EPA CAMD unit (e.g. it
+    feeds two separate smokestacks) appears on more than one row of the subplant ID
+    table -- one per emissions_unit_id_epa it's matched to. Those rows must all agree
+    on subplant_id, since it's the same physical generator.
+    """
+    generator_rows = [
+        {"plant_id_eia": 5000, "generator_id": "G1"},
+        {"plant_id_eia": 5000, "generator_id": "G2"},
+    ]
+    crosswalk_rows = [
+        # G1 reports through two different EPA units.
+        {
+            "plant_id_epa": 5000,
+            "emissions_unit_id_epa": "U1",
+            "generator_id_epa": "G1",
+            "plant_id_eia": 5000,
+            "boiler_id": "U1",
+            "generator_id": "G1",
+        },
+        {
+            "plant_id_epa": 5000,
+            "emissions_unit_id_epa": "U2",
+            "generator_id_epa": "G1",
+            "plant_id_eia": 5000,
+            "boiler_id": "U2",
+            "generator_id": "G1",
+        },
+        {
+            "plant_id_epa": 5000,
+            "emissions_unit_id_epa": "U3",
+            "generator_id_epa": "G2",
+            "plant_id_eia": 5000,
+            "boiler_id": "U3",
+            "generator_id": "G2",
+        },
+    ]
+    emissions_unit_rows = [
+        {"plant_id_eia": 5000, "emissions_unit_id_epa": "U1"},
+        {"plant_id_eia": 5000, "emissions_unit_id_epa": "U2"},
+        {"plant_id_eia": 5000, "emissions_unit_id_epa": "U3"},
+    ]
+    bga_rows = [
+        {"plant_id_eia": 5000, "generator_id": "G1", "unit_id_pudl": 1},
+        {"plant_id_eia": 5000, "generator_id": "G2", "unit_id_pudl": 2},
+    ]
+
+    actual = _make_subplant_ids(
+        crosswalk_rows, generator_rows, emissions_unit_rows, bga_rows
+    )
+
+    for generator_row in generator_rows:
+        matches = actual[
+            (actual.plant_id_eia == generator_row["plant_id_eia"])
+            & (actual.generator_id == generator_row["generator_id"])
+        ]
+        subplant_ids = matches.subplant_id.to_numpy()
+        assert (subplant_ids == subplant_ids[0]).all(), (
+            f"Generator {generator_row} maps to more than one subplant_id: \n{matches}"
+        )
+
+
 def test_epacamd_eia_subplant_ids():
     """Ensure subplant_id gets applied appropriately to example plants."""
     epacamd_eia_test = pd.read_csv(
