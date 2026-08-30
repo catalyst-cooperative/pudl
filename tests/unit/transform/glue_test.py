@@ -174,6 +174,58 @@ def test_every_eia_generator_gets_exactly_one_subplant_id():
         )
 
 
+def test_every_epa_emissions_unit_appears_with_a_subplant_id():
+    """Every (plant_id_eia, emissions_unit_id_epa) known to CEMS should get a subplant_id.
+
+    EPA's crosswalk is known to be incomplete: the docs for
+    core_epa__assn_eia_epacamd_subplant_ids note that ~2% of EPA CAMD records never
+    get matched to an EIA generator. Those unmatched units still report to CEMS and
+    still need a subplant_id, and are only introduced into the pipeline via the outer
+    merge in augment_crosswalk_with_epacamd_ids.
+    """
+    emissions_unit_rows = [
+        {"plant_id_eia": 6000, "emissions_unit_id_epa": "U1"},
+        # This EPA unit never matches any EIA generator in the crosswalk.
+        {"plant_id_eia": 6000, "emissions_unit_id_epa": "U_ORPHAN"},
+    ]
+    crosswalk_rows = [
+        {
+            "plant_id_epa": 6000,
+            "emissions_unit_id_epa": "U1",
+            "generator_id_epa": "G1",
+            "plant_id_eia": 6000,
+            "boiler_id": "U1",
+            "generator_id": "G1",
+        },
+    ]
+    generator_rows = [
+        {"plant_id_eia": 6000, "generator_id": "G1"},
+    ]
+    bga_rows = [
+        {"plant_id_eia": 6000, "generator_id": "G1", "unit_id_pudl": 1},
+    ]
+
+    actual = _make_subplant_ids(
+        crosswalk_rows, generator_rows, emissions_unit_rows, bga_rows
+    )
+
+    for emissions_unit_row in emissions_unit_rows:
+        matches = actual[
+            (actual.plant_id_eia == emissions_unit_row["plant_id_eia"])
+            & (
+                actual.emissions_unit_id_epa
+                == emissions_unit_row["emissions_unit_id_epa"]
+            )
+        ]
+        assert not matches.empty, (
+            f"EPA unit {emissions_unit_row} is missing from the subplant ID table "
+            "entirely."
+        )
+        assert matches.subplant_id.notna().all(), (
+            f"EPA unit {emissions_unit_row} appears with a null subplant_id: \n{matches}"
+        )
+
+
 def test_epacamd_eia_subplant_ids():
     """Ensure subplant_id gets applied appropriately to example plants."""
     epacamd_eia_test = pd.read_csv(
