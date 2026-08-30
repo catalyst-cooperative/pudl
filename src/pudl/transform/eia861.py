@@ -4,7 +4,7 @@ All transformations include:
 - Replace . values with NA.
 """
 
-from collections.abc import Callable
+from collections.abc import Callable, Hashable
 
 import pandas as pd
 from dagster import AssetIn, AssetOut, Output, asset, multi_asset
@@ -657,7 +657,7 @@ def _dedupe_cols_agg(
     non_numeric_non_idx_cols = [
         col for col in non_numeric_cols if col not in idx_cols + [class_type]
     ]
-    agg: dict[str, str | Callable[[pd.Series], object]] = {
+    agg: dict[str, str | Callable[[pd.Series], Hashable]] = {
         col: "sum"
         for col in data_dupes.columns
         if col not in idx_cols + non_numeric_non_idx_cols + [class_type]
@@ -665,7 +665,7 @@ def _dedupe_cols_agg(
     for col in non_numeric_non_idx_cols:
         if col in data_dupes.columns:
 
-            def _keep_non_null_value(s: pd.Series, col_name: str = col) -> object:
+            def _keep_non_null_value(s: pd.Series, col_name: str = col) -> Hashable:
                 """Make sure there's only one non-null value to keep."""
                 non_null = s.dropna()
                 if non_null.empty:
