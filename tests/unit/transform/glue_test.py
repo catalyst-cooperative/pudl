@@ -294,6 +294,58 @@ def test_every_epa_emissions_unit_gets_exactly_one_subplant_id():
         )
 
 
+def test_subplant_id_is_never_null():
+    """No row of the subplant ID table should ever have a null subplant_id.
+
+    This is a stronger, whole-table version of the completeness checks above: rather
+    than checking that specific known entities show up with a subplant_id, it checks
+    that *no* row -- across a mix of the edge cases those tests exercise individually
+    (an EIA-only generator, an EPA-only unit, multiple plants) -- is missing one.
+    """
+    generator_rows = [
+        {"plant_id_eia": 1392, "generator_id": "1A"},
+        # This generator never appears in the crosswalk, CEMS, or BGA inputs at all.
+        {"plant_id_eia": 1392, "generator_id": "SOLAR1"},
+        {"plant_id_eia": 8000, "generator_id": "G1"},
+    ]
+    crosswalk_rows = [
+        {
+            "plant_id_epa": 1392,
+            "emissions_unit_id_epa": "1A",
+            "generator_id_epa": "1A",
+            "plant_id_eia": 1392,
+            "boiler_id": "1A",
+            "generator_id": "1A",
+        },
+        {
+            "plant_id_epa": 8000,
+            "emissions_unit_id_epa": "U1",
+            "generator_id_epa": "G1",
+            "plant_id_eia": 8000,
+            "boiler_id": "U1",
+            "generator_id": "G1",
+        },
+    ]
+    emissions_unit_rows = [
+        {"plant_id_eia": 1392, "emissions_unit_id_epa": "1A"},
+        {"plant_id_eia": 8000, "emissions_unit_id_epa": "U1"},
+        # This EPA unit never matches any EIA generator in the crosswalk.
+        {"plant_id_eia": 8000, "emissions_unit_id_epa": "U_ORPHAN"},
+    ]
+    bga_rows = [
+        {"plant_id_eia": 1392, "generator_id": "1A", "unit_id_pudl": 1},
+        {"plant_id_eia": 8000, "generator_id": "G1", "unit_id_pudl": 1},
+    ]
+
+    actual = _make_subplant_ids(
+        crosswalk_rows, generator_rows, emissions_unit_rows, bga_rows
+    )
+
+    assert actual.subplant_id.notna().all(), (
+        f"Found rows with a null subplant_id: \n{actual[actual.subplant_id.isna()]}"
+    )
+
+
 def test_epacamd_eia_subplant_ids():
     """Ensure subplant_id gets applied appropriately to example plants."""
     epacamd_eia_test = pd.read_csv(
