@@ -316,13 +316,9 @@ def test_subplant_id_is_never_null():
 def test_unmatched_epa_units_are_not_spuriously_merged():
     """Unrelated unmatched EPA units shouldn't get merged into the same subplant.
 
-    EPA units that never match an EIA generator all end up with a null generator_id
-    at the point make_subplant_ids builds its bipartite graph. groupby(...).ngroup()
-    drops null-key rows from grouping and gives all of them the shared sentinel -1,
-    so naively reusing that value as a surrogate node id would connect every unmatched
-    unit in the plant to the same node -- and therefore to each other -- even though
-    they have nothing to do with one another. Two such units with no other connection
-    to each other must still land in different subplants.
+    EPA units that never match an EIA generator all end up with a null generator_id at
+    the point make_subplant_ids builds its bipartite graph. Two such units with no other
+    connection to each other must still land in different subplants.
     """
     generator_rows = [
         {"plant_id_eia": 9000, "generator_id": "G1"},

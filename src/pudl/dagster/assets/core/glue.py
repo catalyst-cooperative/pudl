@@ -332,7 +332,7 @@ def core_epa__assn_eia_epacamd_subplant_ids(
     """
     # Ensure ALL relevant IDs are present. Basically just merge in all the IDs
     # Later note: As of April 2023, there is an experimental augmentation of the
-    # unit_id_pudl living in pudl.output.eia860.assign_unit_ids. It is currently non-
+    # unit_id_pudl living in pudl.output.eia.assign_unit_ids. It is currently non-
     # functioning (#2535) but when it is, ensure that it gets plugged into the dag
     # BEFORE this step so the subplant IDs can benefit from the more fleshed out units
     epacamd_eia_complete = (
