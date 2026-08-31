@@ -61,8 +61,7 @@ def run_git(args: list[str], cwd: Path | None = None) -> str:
 
     Shared by every git-shelling-out call in PUDL, so there's one place that knows
     how to invoke git and report failures consistently. Always runs ``git``, so
-    ``args`` should be the subcommand and its arguments only, e.g.
-    ``["rev-parse", "HEAD"]`` rather than ``["git", "rev-parse", "HEAD"]``.
+    ``args`` should be the subcommand and its arguments only.
 
     Args:
         args: The git subcommand and arguments to run, e.g. ``["rev-parse", "HEAD"]``.

@@ -223,6 +223,7 @@ def render_release_notes_html(docs_html_dir: Path, version_tag: str) -> str:
         for heading in section.find_all(f"h{level}"):
             heading.name = f"h{level - 1}"
 
+    # strip the Sphinx <section> wrappers and return just the inner HTML fragments
     return "".join(str(child) for child in section.contents).strip()
 
 
