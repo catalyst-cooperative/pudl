@@ -150,6 +150,12 @@ autoapi_ignore = [
 ]
 autoapi_add_toctree_entry = False
 
+# sphinx_llm.txt normally builds its markdown twin of the docs in a background
+# subprocess that overlaps with the main HTML build. However, because of our
+# dynamic file generation and cleanup, this results in a race condition and
+# conflicts between the two builds, so we disable the parallel build.
+llms_txt_build_parallel = False
+
 # GitHub repo
 issues_github_path = "catalyst-cooperative/pudl"
 
