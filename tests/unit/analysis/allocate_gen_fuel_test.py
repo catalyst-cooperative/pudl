@@ -495,3 +495,67 @@ def test_identify_retiring_generators_same_pm_esc():
     assert allocate_gen_fuel.identify_retiring_generators(
         plant1_same_g
     ).generator_id.to_numpy() == ["B"]
+
+
+def test_identify_proposed_plants_multiyear_status_change():
+    """A plant that's proposed in early years and existing later should keep its
+    genuinely-all-proposed years.
+
+    Regression test: previously, ``identify_proposed_plants`` checked whether a
+    plant's operational_status was uniformly "proposed" across the *entire* input
+    frame. If the same gen_assoc spans multiple years and the plant transitions from
+    proposed to existing (e.g. it comes online), the plant would fail that check for
+    all of its years and its legitimately-proposed years' generation/fuel would be
+    silently dropped, even though within each of those years the plant genuinely was
+    entirely proposed.
+    """
+    gen_assoc = (
+        pd.read_csv(
+            StringIO(
+                """plant_id_eia,generator_id,report_date,operational_status,net_generation_mwh_gf_tbl
+99999,GEN1,2023-01-01,proposed,100
+99999,GEN1,2023-02-01,proposed,110
+99999,GEN1,2024-01-01,proposed,120
+99999,GEN1,2024-02-01,proposed,130
+99999,GEN1,2025-01-01,existing,140
+99999,GEN1,2025-02-01,existing,150
+"""
+            )
+        )
+        .convert_dtypes()
+        .assign(report_date=lambda x: pd.to_datetime(x.report_date))
+    )
+
+    out = allocate_gen_fuel.identify_proposed_plants(gen_assoc)
+
+    # the 2023 and 2024 "proposed" months should be kept...
+    assert sorted(out.report_date.dt.strftime("%Y-%m").tolist()) == [
+        "2023-01",
+        "2023-02",
+        "2024-01",
+        "2024-02",
+    ]
+    # ...but none of the later "existing" months, which aren't this function's concern
+    assert (out.operational_status == "proposed").all()
+
+
+def test_identify_proposed_plants_mixed_status_same_year():
+    """A plant with both a proposed and an existing generator in the *same* year
+    should still be excluded, since the gf-reported generation can't be reliably
+    attributed to just the proposed generator. Confirms the multi-year fix doesn't
+    regress this within-year behavior.
+    """
+    gen_assoc = (
+        pd.read_csv(
+            StringIO(
+                """plant_id_eia,generator_id,report_date,operational_status,net_generation_mwh_gf_tbl
+88888,GEN1,2024-01-01,proposed,50
+88888,GEN2,2024-01-01,existing,60
+"""
+            )
+        )
+        .convert_dtypes()
+        .assign(report_date=lambda x: pd.to_datetime(x.report_date))
+    )
+
+    assert allocate_gen_fuel.identify_proposed_plants(gen_assoc).empty
