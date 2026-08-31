@@ -392,6 +392,7 @@ always use f-strings for log messages that need to include variable values:
 
 ```python
 from pudl import logging_helpers
+
 logger = logging_helpers.get_logger(__name__)
 
 logger.info(f"Processing {len(df)} rows for year {year}.")
