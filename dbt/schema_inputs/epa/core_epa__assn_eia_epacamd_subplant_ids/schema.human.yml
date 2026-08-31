@@ -47,11 +47,11 @@ sources:
               description: |-
                 Generators/units that EIA-860's boiler-generator association (BGA) table says share a
                 unit_id_pudl should always end up reconciled into the same subplant_id within a plant,
-                even if the EPA crosswalk didn't connect them directly -- that's what
-                pudl.dagster.assets.core.glue.update_subplant_ids/connect_ids is for. Mirrors
+                even if the EPA crosswalk didn't connect them directly -- that's what folding
+                unit_id_pudl into the graph in
+                pudl.dagster.assets.core.glue._subplant_ids_from_prepped_crosswalk is for. Mirrors
                 test_shared_unit_id_pudl_reconciliation_handles_multiple_groups in
-                tests/unit/transform/glue_test.py, the regression test for the connect_ids bug fixed
-                in PR :pr:`XXXX`.
+                tests/unit/transform/glue_test.py. See PR :pr:`5543`.
         columns:
           - name: plant_id_eia
             data_tests:
