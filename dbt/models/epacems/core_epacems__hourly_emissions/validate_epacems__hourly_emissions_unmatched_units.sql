@@ -1,5 +1,3 @@
--- See validate_epa__assn_eia_epacamd_subplant_ids_distinct_ids.sql for why 'view'
--- rather than 'ephemeral'.
 {{ config(materialized='view') }}
 
 -- One row per (year, plant_id_eia, emissions_unit_id_epa) unit that ever reports to

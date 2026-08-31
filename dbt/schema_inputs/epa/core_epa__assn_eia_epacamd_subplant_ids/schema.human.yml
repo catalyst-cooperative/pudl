@@ -58,7 +58,15 @@ sources:
               - not_null
           - name: plant_id_epa
             data_tests:
-              - not_null
+              - dbt_utils.not_null_proportion:
+                  arguments:
+                    at_least: 0.97
+                  description: |-
+                    plant_id_epa is null for the same EPA units as generator_id (see below) -- units
+                    that never matched anything in the crosswalk get no plant_id_epa either, since
+                    that column only arrives via the crosswalk side of the outer merge in
+                    pudl.dagster.assets.core.glue.augment_crosswalk_with_epacamd_ids. Measured
+                    identical to generator_id at 1.80% null / 98.20% non-null as of 2026-08-30.
           - name: emissions_unit_id_epa
             data_tests:
               - not_null
@@ -75,18 +83,11 @@ sources:
                     max_value: 1
                     group_by: [plant_id_eia]
                   description: |-
-                    subplant_id should start at 1 within each plant_id_eia (see PR :pr:`XXXX`, which
-                    fixed the previous zero-indexed scheme, where the minimum was 0). Together with the
-                    sequential_values check below, this mirrors
-                    test_subplant_id_is_one_indexed_and_contiguous_per_plant in
+                    subplant_id should start at 1 within each plant_id_eia. Together
+                    with the sequential_values check on
+                    validate_epa__assn_eia_epacamd_subplant_ids_distinct_ids below, this
+                    mirrors test_subplant_id_is_one_indexed_and_contiguous_per_plant in
                     tests/unit/transform/glue_test.py.
-              - dbt_utils.sequential_values:
-                  arguments:
-                    interval: 1
-                    group_by_columns: [plant_id_eia]
-                  description: |-
-                    subplant_id should have no gaps within a plant_id_eia once sorted in ascending
-                    order -- i.e. it should be a contiguous 1..n sequence, not just start at 1.
           - name: generator_id
             data_tests:
               - dbt_utils.not_null_proportion:
@@ -96,12 +97,26 @@ sources:
                     generator_id is null for EPA units that never match an EIA generator, which is
                     expected for a small share of rows -- but if fewer than 97% of rows are non-null,
                     something is systemically wrong and should hard-fail rather than warn. The 97%
-                    floor is empirically grounded: measured directly (not taken from this table's
-                    docstring, which only says "~2%") at 1.80% null / 98.20% non-null as of
-                    2026-08-30, giving roughly a 1.2 percentage-point margin above the measured value.
-                    This table has no report_year/year column (it's a single all-years crosswalk), so
-                    a true per-year breakdown isn't possible here -- see
+                    floor was measured to be 1.80% null / 98.20% non-null as of 2026-08-30. See
                     core_epacems__hourly_emissions's validate_epacems__hourly_emissions_unmatched_units
-                    model for that, which checks the same underlying phenomenon (unmatched EPA CAMD
-                    units) with year-level granularity so that one bad year can't get diluted away in
-                    this table-wide aggregate.
+                    model for a per-year breakdown.
+models:
+  - name: validate_epa__assn_eia_epacamd_subplant_ids_distinct_ids
+    description: |-
+      Distinct (plant_id_eia, subplant_id) pairs from core_epa__assn_eia_epacamd_subplant_ids.
+      Exists solely so dbt_utils.sequential_values can be checked below -- applied directly to the
+      source table, which has multiple rows per (plant_id_eia, subplant_id) (one per
+      generator/unit combination), it would spuriously fail. De-duplicating first avoids that.
+    columns:
+      - name: plant_id_eia
+      - name: subplant_id
+        data_tests:
+          - dbt_utils.sequential_values:
+              arguments:
+                interval: 1
+                group_by_columns: [plant_id_eia]
+              description: |-
+                subplant_id should have no gaps within a plant_id_eia once sorted in ascending order
+                -- i.e. it should be a contiguous 1..n sequence, not just start at 1. Mirrors
+                test_subplant_id_is_one_indexed_and_contiguous_per_plant in
+                tests/unit/transform/glue_test.py.
