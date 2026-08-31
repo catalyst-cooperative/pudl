@@ -1,11 +1,37 @@
 """Tests for Glue functions."""
 
 from io import StringIO
+from typing import Any
 
 import pandas as pd
 import pytest
 
 import pudl.dagster.assets.core.glue as glue_assets
+
+_UNSET = object()
+
+
+def _crosswalk_row(
+    plant_id_eia: int,
+    emissions_unit_id_epa: str,
+    generator_id: str,
+    boiler_id: str | None = _UNSET,  # type: ignore[assignment]
+) -> dict:
+    """Build one crosswalk row, mirroring ``_core_epa__assn_eia_epacamd_unique``.
+
+    In every test scenario ``plant_id_epa`` equals ``plant_id_eia`` and
+    ``generator_id_epa`` equals ``generator_id``, and ``boiler_id`` usually just
+    equals ``emissions_unit_id_epa`` -- so those are filled in automatically unless
+    a test needs something different (e.g. a null ``boiler_id``).
+    """
+    return {
+        "plant_id_epa": plant_id_eia,
+        "emissions_unit_id_epa": emissions_unit_id_epa,
+        "generator_id_epa": generator_id,
+        "plant_id_eia": plant_id_eia,
+        "boiler_id": emissions_unit_id_epa if boiler_id is _UNSET else boiler_id,
+        "generator_id": generator_id,
+    }
 
 
 def _make_subplant_ids(
@@ -53,6 +79,52 @@ def _make_subplant_ids(
     )
 
 
+def _rows_mask(actual: pd.DataFrame, row: dict, id_cols: list[str]) -> pd.Series:
+    mask = pd.Series(True, index=actual.index)
+    for col in id_cols:
+        mask &= actual[col] == row[col]
+    return mask
+
+
+def _assert_present_with_subplant_id(
+    actual: pd.DataFrame, rows: list[dict], id_cols: list[str], entity_label: str
+) -> None:
+    """Assert every row's (id_cols) combination appears at least once, non-null."""
+    for row in rows:
+        matches = actual[_rows_mask(actual, row, id_cols)]
+        assert not matches.empty, (
+            f"{entity_label} {row} is missing from the subplant ID table entirely."
+        )
+        assert matches.subplant_id.notna().all(), (
+            f"{entity_label} {row} appears with a null subplant_id: \n{matches}"
+        )
+
+
+def _assert_single_subplant_id_per_row(
+    actual: pd.DataFrame, rows: list[dict], id_cols: list[str], entity_label: str
+) -> None:
+    """Assert every row's (id_cols) combination maps to exactly one subplant_id."""
+    for row in rows:
+        matches = actual[_rows_mask(actual, row, id_cols)]
+        subplant_ids = matches.subplant_id.to_numpy()
+        assert (subplant_ids == subplant_ids[0]).all(), (
+            f"{entity_label} {row} maps to more than one subplant_id: \n{matches}"
+        )
+
+
+def _subplant_id_for(actual: pd.DataFrame, plant_id_eia: int, **id_filter: Any) -> int:
+    """Look up the subplant_id for a single (plant_id_eia, id_col=id_value) row.
+
+    ``id_filter`` must contain exactly one keyword, naming the id column to filter
+    on (e.g. ``generator_id="G1"`` or ``emissions_unit_id_epa="U1"``).
+    """
+    [(id_col, id_value)] = id_filter.items()
+    matches = actual[
+        (actual.plant_id_eia == plant_id_eia) & (actual[id_col] == id_value)
+    ]
+    return matches.subplant_id.iloc[0]
+
+
 def test_every_eia_generator_appears_with_a_subplant_id():
     """Every (plant_id_eia, generator_id) known to EIA-860 should get a subplant_id.
 
@@ -68,22 +140,8 @@ def test_every_eia_generator_appears_with_a_subplant_id():
         {"plant_id_eia": 1392, "generator_id": "SOLAR1"},
     ]
     crosswalk_rows = [
-        {
-            "plant_id_epa": 1392,
-            "emissions_unit_id_epa": "1A",
-            "generator_id_epa": "1A",
-            "plant_id_eia": 1392,
-            "boiler_id": "1A",
-            "generator_id": "1A",
-        },
-        {
-            "plant_id_epa": 1392,
-            "emissions_unit_id_epa": "2A",
-            "generator_id_epa": "2A",
-            "plant_id_eia": 1392,
-            "boiler_id": "2A",
-            "generator_id": "2A",
-        },
+        _crosswalk_row(1392, "1A", "1A"),
+        _crosswalk_row(1392, "2A", "2A"),
     ]
     emissions_unit_rows = [
         {"plant_id_eia": 1392, "emissions_unit_id_epa": "1A"},
@@ -98,17 +156,9 @@ def test_every_eia_generator_appears_with_a_subplant_id():
         crosswalk_rows, generator_rows, emissions_unit_rows, bga_rows
     )
 
-    for generator_row in generator_rows:
-        matches = actual[
-            (actual.plant_id_eia == generator_row["plant_id_eia"])
-            & (actual.generator_id == generator_row["generator_id"])
-        ]
-        assert not matches.empty, (
-            f"Generator {generator_row} is missing from the subplant ID table entirely."
-        )
-        assert matches.subplant_id.notna().all(), (
-            f"Generator {generator_row} appears with a null subplant_id: \n{matches}"
-        )
+    _assert_present_with_subplant_id(
+        actual, generator_rows, ["plant_id_eia", "generator_id"], "Generator"
+    )
 
 
 def test_every_eia_generator_gets_exactly_one_subplant_id():
@@ -125,30 +175,9 @@ def test_every_eia_generator_gets_exactly_one_subplant_id():
     ]
     crosswalk_rows = [
         # G1 reports through two different EPA units.
-        {
-            "plant_id_epa": 5000,
-            "emissions_unit_id_epa": "U1",
-            "generator_id_epa": "G1",
-            "plant_id_eia": 5000,
-            "boiler_id": "U1",
-            "generator_id": "G1",
-        },
-        {
-            "plant_id_epa": 5000,
-            "emissions_unit_id_epa": "U2",
-            "generator_id_epa": "G1",
-            "plant_id_eia": 5000,
-            "boiler_id": "U2",
-            "generator_id": "G1",
-        },
-        {
-            "plant_id_epa": 5000,
-            "emissions_unit_id_epa": "U3",
-            "generator_id_epa": "G2",
-            "plant_id_eia": 5000,
-            "boiler_id": "U3",
-            "generator_id": "G2",
-        },
+        _crosswalk_row(5000, "U1", "G1"),
+        _crosswalk_row(5000, "U2", "G1"),
+        _crosswalk_row(5000, "U3", "G2"),
     ]
     emissions_unit_rows = [
         {"plant_id_eia": 5000, "emissions_unit_id_epa": "U1"},
@@ -164,15 +193,9 @@ def test_every_eia_generator_gets_exactly_one_subplant_id():
         crosswalk_rows, generator_rows, emissions_unit_rows, bga_rows
     )
 
-    for generator_row in generator_rows:
-        matches = actual[
-            (actual.plant_id_eia == generator_row["plant_id_eia"])
-            & (actual.generator_id == generator_row["generator_id"])
-        ]
-        subplant_ids = matches.subplant_id.to_numpy()
-        assert (subplant_ids == subplant_ids[0]).all(), (
-            f"Generator {generator_row} maps to more than one subplant_id: \n{matches}"
-        )
+    _assert_single_subplant_id_per_row(
+        actual, generator_rows, ["plant_id_eia", "generator_id"], "Generator"
+    )
 
 
 def test_every_epa_emissions_unit_appears_with_a_subplant_id():
@@ -190,14 +213,7 @@ def test_every_epa_emissions_unit_appears_with_a_subplant_id():
         {"plant_id_eia": 6000, "emissions_unit_id_epa": "U_ORPHAN"},
     ]
     crosswalk_rows = [
-        {
-            "plant_id_epa": 6000,
-            "emissions_unit_id_epa": "U1",
-            "generator_id_epa": "G1",
-            "plant_id_eia": 6000,
-            "boiler_id": "U1",
-            "generator_id": "G1",
-        },
+        _crosswalk_row(6000, "U1", "G1"),
     ]
     generator_rows = [
         {"plant_id_eia": 6000, "generator_id": "G1"},
@@ -210,21 +226,12 @@ def test_every_epa_emissions_unit_appears_with_a_subplant_id():
         crosswalk_rows, generator_rows, emissions_unit_rows, bga_rows
     )
 
-    for emissions_unit_row in emissions_unit_rows:
-        matches = actual[
-            (actual.plant_id_eia == emissions_unit_row["plant_id_eia"])
-            & (
-                actual.emissions_unit_id_epa
-                == emissions_unit_row["emissions_unit_id_epa"]
-            )
-        ]
-        assert not matches.empty, (
-            f"EPA unit {emissions_unit_row} is missing from the subplant ID table "
-            "entirely."
-        )
-        assert matches.subplant_id.notna().all(), (
-            f"EPA unit {emissions_unit_row} appears with a null subplant_id: \n{matches}"
-        )
+    _assert_present_with_subplant_id(
+        actual,
+        emissions_unit_rows,
+        ["plant_id_eia", "emissions_unit_id_epa"],
+        "EPA unit",
+    )
 
 
 def test_every_epa_emissions_unit_gets_exactly_one_subplant_id():
@@ -241,30 +248,9 @@ def test_every_epa_emissions_unit_gets_exactly_one_subplant_id():
     ]
     crosswalk_rows = [
         # U1 feeds two different generators.
-        {
-            "plant_id_epa": 7000,
-            "emissions_unit_id_epa": "U1",
-            "generator_id_epa": "G1",
-            "plant_id_eia": 7000,
-            "boiler_id": "U1",
-            "generator_id": "G1",
-        },
-        {
-            "plant_id_epa": 7000,
-            "emissions_unit_id_epa": "U1",
-            "generator_id_epa": "G2",
-            "plant_id_eia": 7000,
-            "boiler_id": "U1",
-            "generator_id": "G2",
-        },
-        {
-            "plant_id_epa": 7000,
-            "emissions_unit_id_epa": "U2",
-            "generator_id_epa": "G3",
-            "plant_id_eia": 7000,
-            "boiler_id": "U2",
-            "generator_id": "G3",
-        },
+        _crosswalk_row(7000, "U1", "G1"),
+        _crosswalk_row(7000, "U1", "G2"),
+        _crosswalk_row(7000, "U2", "G3"),
     ]
     generator_rows = [
         {"plant_id_eia": 7000, "generator_id": "G1"},
@@ -281,18 +267,12 @@ def test_every_epa_emissions_unit_gets_exactly_one_subplant_id():
         crosswalk_rows, generator_rows, emissions_unit_rows, bga_rows
     )
 
-    for emissions_unit_row in emissions_unit_rows:
-        matches = actual[
-            (actual.plant_id_eia == emissions_unit_row["plant_id_eia"])
-            & (
-                actual.emissions_unit_id_epa
-                == emissions_unit_row["emissions_unit_id_epa"]
-            )
-        ]
-        subplant_ids = matches.subplant_id.to_numpy()
-        assert (subplant_ids == subplant_ids[0]).all(), (
-            f"EPA unit {emissions_unit_row} maps to more than one subplant_id: \n{matches}"
-        )
+    _assert_single_subplant_id_per_row(
+        actual,
+        emissions_unit_rows,
+        ["plant_id_eia", "emissions_unit_id_epa"],
+        "EPA unit",
+    )
 
 
 def test_subplant_id_is_never_null():
@@ -310,22 +290,8 @@ def test_subplant_id_is_never_null():
         {"plant_id_eia": 8000, "generator_id": "G1"},
     ]
     crosswalk_rows = [
-        {
-            "plant_id_epa": 1392,
-            "emissions_unit_id_epa": "1A",
-            "generator_id_epa": "1A",
-            "plant_id_eia": 1392,
-            "boiler_id": "1A",
-            "generator_id": "1A",
-        },
-        {
-            "plant_id_epa": 8000,
-            "emissions_unit_id_epa": "U1",
-            "generator_id_epa": "G1",
-            "plant_id_eia": 8000,
-            "boiler_id": "U1",
-            "generator_id": "G1",
-        },
+        _crosswalk_row(1392, "1A", "1A"),
+        _crosswalk_row(8000, "U1", "G1"),
     ]
     emissions_unit_rows = [
         {"plant_id_eia": 1392, "emissions_unit_id_epa": "1A"},
@@ -362,14 +328,7 @@ def test_unmatched_epa_units_are_not_spuriously_merged():
         {"plant_id_eia": 9000, "generator_id": "G1"},
     ]
     crosswalk_rows = [
-        {
-            "plant_id_epa": 9000,
-            "emissions_unit_id_epa": "U1",
-            "generator_id_epa": "G1",
-            "plant_id_eia": 9000,
-            "boiler_id": "U1",
-            "generator_id": "G1",
-        },
+        _crosswalk_row(9000, "U1", "G1"),
     ]
     emissions_unit_rows = [
         {"plant_id_eia": 9000, "emissions_unit_id_epa": "U1"},
@@ -386,14 +345,9 @@ def test_unmatched_epa_units_are_not_spuriously_merged():
         crosswalk_rows, generator_rows, emissions_unit_rows, bga_rows
     )
 
-    def _subplant_id_for(emissions_unit_id_epa: str) -> int:
-        matches = actual[
-            (actual.plant_id_eia == 9000)
-            & (actual.emissions_unit_id_epa == emissions_unit_id_epa)
-        ]
-        return matches.subplant_id.iloc[0]
-
-    assert _subplant_id_for("U_ORPHAN1") != _subplant_id_for("U_ORPHAN2"), (
+    assert _subplant_id_for(
+        actual, 9000, emissions_unit_id_epa="U_ORPHAN1"
+    ) != _subplant_id_for(actual, 9000, emissions_unit_id_epa="U_ORPHAN2"), (
         "Two unrelated unmatched EPA units were merged into the same subplant: "
         f"\n{actual}"
     )
@@ -422,57 +376,15 @@ def test_shared_unit_id_pudl_reconciliation_handles_multiple_groups():
     ]
     crosswalk_rows = [
         # Combustor Ca feeds both Aa1 (unit_id_pudl=10) and Aa2 (no BGA match).
-        {
-            "plant_id_epa": 4002,
-            "emissions_unit_id_epa": "Ca",
-            "generator_id_epa": "Aa1",
-            "plant_id_eia": 4002,
-            "boiler_id": "Ca",
-            "generator_id": "Aa1",
-        },
-        {
-            "plant_id_epa": 4002,
-            "emissions_unit_id_epa": "Ca",
-            "generator_id_epa": "Aa2",
-            "plant_id_eia": 4002,
-            "boiler_id": "Ca",
-            "generator_id": "Aa2",
-        },
+        _crosswalk_row(4002, "Ca", "Aa1"),
+        _crosswalk_row(4002, "Ca", "Aa2"),
         # Combustor Cb feeds only Ab1 (unit_id_pudl=10, same unit as Aa1 above).
-        {
-            "plant_id_epa": 4002,
-            "emissions_unit_id_epa": "Cb",
-            "generator_id_epa": "Ab1",
-            "plant_id_eia": 4002,
-            "boiler_id": "Cb",
-            "generator_id": "Ab1",
-        },
+        _crosswalk_row(4002, "Cb", "Ab1"),
         # Combustor Cc feeds both Ac1 (unit_id_pudl=20) and Ac2 (no BGA match).
-        {
-            "plant_id_epa": 4002,
-            "emissions_unit_id_epa": "Cc",
-            "generator_id_epa": "Ac1",
-            "plant_id_eia": 4002,
-            "boiler_id": "Cc",
-            "generator_id": "Ac1",
-        },
-        {
-            "plant_id_epa": 4002,
-            "emissions_unit_id_epa": "Cc",
-            "generator_id_epa": "Ac2",
-            "plant_id_eia": 4002,
-            "boiler_id": "Cc",
-            "generator_id": "Ac2",
-        },
+        _crosswalk_row(4002, "Cc", "Ac1"),
+        _crosswalk_row(4002, "Cc", "Ac2"),
         # Combustor Cd feeds only Ad1 (unit_id_pudl=20, same unit as Ac1 above).
-        {
-            "plant_id_epa": 4002,
-            "emissions_unit_id_epa": "Cd",
-            "generator_id_epa": "Ad1",
-            "plant_id_eia": 4002,
-            "boiler_id": "Cd",
-            "generator_id": "Ad1",
-        },
+        _crosswalk_row(4002, "Cd", "Ad1"),
     ]
     emissions_unit_rows = [
         {"plant_id_eia": 4002, "emissions_unit_id_epa": u}
@@ -489,17 +401,15 @@ def test_shared_unit_id_pudl_reconciliation_handles_multiple_groups():
         crosswalk_rows, generator_rows, emissions_unit_rows, bga_rows
     )
 
-    def _subplant_id_for(generator_id: str) -> int:
-        matches = actual[
-            (actual.plant_id_eia == 4002) & (actual.generator_id == generator_id)
-        ]
-        return matches.subplant_id.iloc[0]
-
-    assert _subplant_id_for("Ac1") == _subplant_id_for("Ad1"), (
+    assert _subplant_id_for(actual, 4002, generator_id="Ac1") == _subplant_id_for(
+        actual, 4002, generator_id="Ad1"
+    ), (
         "Ac1 and Ad1 share unit_id_pudl=20 but landed in different subplants: "
         f"\n{actual}"
     )
-    assert _subplant_id_for("Ac1") != _subplant_id_for("Aa1"), (
+    assert _subplant_id_for(actual, 4002, generator_id="Ac1") != _subplant_id_for(
+        actual, 4002, generator_id="Aa1"
+    ), (
         "Ac1 (unit_id_pudl=20) was incorrectly merged into the unrelated "
         f"unit_id_pudl=10 group: \n{actual}"
     )
@@ -548,22 +458,8 @@ def test_unit_id_pudl_reconciliation_moves_orphaned_siblings_too(
     plant_id_eia = 5001
     generator_rows = [{"plant_id_eia": plant_id_eia, "generator_id": "A1"}]
     crosswalk_rows = [
-        {
-            "plant_id_epa": plant_id_eia,
-            "emissions_unit_id_epa": "CA",
-            "generator_id_epa": "A1",
-            "plant_id_eia": plant_id_eia,
-            "boiler_id": "CA",
-            "generator_id": "A1",
-        },
-        {
-            "plant_id_epa": plant_id_eia,
-            "emissions_unit_id_epa": "CB",
-            "generator_id_epa": "B1",
-            "plant_id_eia": plant_id_eia,
-            "boiler_id": "CB",
-            "generator_id": "B1",
-        },
+        _crosswalk_row(plant_id_eia, "CA", "A1"),
+        _crosswalk_row(plant_id_eia, "CB", "B1"),
     ]
     emissions_unit_rows = [
         {"plant_id_eia": plant_id_eia, "emissions_unit_id_epa": "CA"},
@@ -577,30 +473,12 @@ def test_unit_id_pudl_reconciliation_moves_orphaned_siblings_too(
 
     if target_group_has_orphan:
         generator_rows.append({"plant_id_eia": plant_id_eia, "generator_id": "A2"})
-        crosswalk_rows.append(
-            {
-                "plant_id_epa": plant_id_eia,
-                "emissions_unit_id_epa": "CA",
-                "generator_id_epa": "A2",
-                "plant_id_eia": plant_id_eia,
-                "boiler_id": "CA",
-                "generator_id": "A2",
-            }
-        )
+        crosswalk_rows.append(_crosswalk_row(plant_id_eia, "CA", "A2"))
         generator_ids.append("A2")
 
     if moving_group_has_orphan:
         generator_rows.append({"plant_id_eia": plant_id_eia, "generator_id": "B2"})
-        crosswalk_rows.append(
-            {
-                "plant_id_epa": plant_id_eia,
-                "emissions_unit_id_epa": "CB",
-                "generator_id_epa": "B2",
-                "plant_id_eia": plant_id_eia,
-                "boiler_id": "CB",
-                "generator_id": "B2",
-            }
-        )
+        crosswalk_rows.append(_crosswalk_row(plant_id_eia, "CB", "B2"))
         generator_ids.append("B2")
 
     actual = _make_subplant_ids(
@@ -657,93 +535,23 @@ def test_merged_groups_orphans_join_the_merged_group_not_each_other():
     ]
     crosswalk_rows = [
         # Combustor "1A" feeds both "1" (unit_id_pudl=1) and orphan "1A".
-        {
-            "plant_id_epa": plant_id_eia,
-            "emissions_unit_id_epa": "1A",
-            "generator_id_epa": "1",
-            "plant_id_eia": plant_id_eia,
-            "boiler_id": None,
-            "generator_id": "1",
-        },
-        {
-            "plant_id_epa": plant_id_eia,
-            "emissions_unit_id_epa": "1A",
-            "generator_id_epa": "1A",
-            "plant_id_eia": plant_id_eia,
-            "boiler_id": None,
-            "generator_id": "1A",
-        },
+        _crosswalk_row(plant_id_eia, "1A", "1", boiler_id=None),
+        _crosswalk_row(plant_id_eia, "1A", "1A", boiler_id=None),
         # Combustor "1B" feeds both "1" and orphan "1B".
-        {
-            "plant_id_epa": plant_id_eia,
-            "emissions_unit_id_epa": "1B",
-            "generator_id_epa": "1",
-            "plant_id_eia": plant_id_eia,
-            "boiler_id": None,
-            "generator_id": "1",
-        },
-        {
-            "plant_id_epa": plant_id_eia,
-            "emissions_unit_id_epa": "1B",
-            "generator_id_epa": "1B",
-            "plant_id_eia": plant_id_eia,
-            "boiler_id": None,
-            "generator_id": "1B",
-        },
+        _crosswalk_row(plant_id_eia, "1B", "1", boiler_id=None),
+        _crosswalk_row(plant_id_eia, "1B", "1B", boiler_id=None),
         # Combustor "2A" feeds both "2" (unit_id_pudl=1, same as "1" -- triggers the
         # merge) and orphan "2A".
-        {
-            "plant_id_epa": plant_id_eia,
-            "emissions_unit_id_epa": "2A",
-            "generator_id_epa": "2",
-            "plant_id_eia": plant_id_eia,
-            "boiler_id": None,
-            "generator_id": "2",
-        },
-        {
-            "plant_id_epa": plant_id_eia,
-            "emissions_unit_id_epa": "2A",
-            "generator_id_epa": "2A",
-            "plant_id_eia": plant_id_eia,
-            "boiler_id": None,
-            "generator_id": "2A",
-        },
+        _crosswalk_row(plant_id_eia, "2A", "2", boiler_id=None),
+        _crosswalk_row(plant_id_eia, "2A", "2A", boiler_id=None),
         # Combustor "2B" feeds both "2" and orphan "2B".
-        {
-            "plant_id_epa": plant_id_eia,
-            "emissions_unit_id_epa": "2B",
-            "generator_id_epa": "2",
-            "plant_id_eia": plant_id_eia,
-            "boiler_id": None,
-            "generator_id": "2",
-        },
-        {
-            "plant_id_epa": plant_id_eia,
-            "emissions_unit_id_epa": "2B",
-            "generator_id_epa": "2B",
-            "plant_id_eia": plant_id_eia,
-            "boiler_id": None,
-            "generator_id": "2B",
-        },
+        _crosswalk_row(plant_id_eia, "2B", "2", boiler_id=None),
+        _crosswalk_row(plant_id_eia, "2B", "2B", boiler_id=None),
         # Two unrelated, unmerged single-generator subplants -- present in the real
         # plant, and load-bearing for reproducing the bug (they change what
         # unit_id_pudl_connected.max() evaluates to).
-        {
-            "plant_id_epa": plant_id_eia,
-            "emissions_unit_id_epa": "5",
-            "generator_id_epa": "5",
-            "plant_id_eia": plant_id_eia,
-            "boiler_id": "5",
-            "generator_id": "5",
-        },
-        {
-            "plant_id_epa": plant_id_eia,
-            "emissions_unit_id_epa": "6",
-            "generator_id_epa": "6",
-            "plant_id_eia": plant_id_eia,
-            "boiler_id": "6",
-            "generator_id": "6",
-        },
+        _crosswalk_row(plant_id_eia, "5", "5"),
+        _crosswalk_row(plant_id_eia, "6", "6"),
     ]
     emissions_unit_rows = [
         {"plant_id_eia": plant_id_eia, "emissions_unit_id_epa": u}
@@ -760,24 +568,26 @@ def test_merged_groups_orphans_join_the_merged_group_not_each_other():
         crosswalk_rows, generator_rows, emissions_unit_rows, bga_rows
     )
 
-    def _subplant_id_for(generator_id: str) -> int:
-        matches = actual[
-            (actual.plant_id_eia == plant_id_eia)
-            & (actual.generator_id == generator_id)
-        ]
-        return matches.subplant_id.iloc[0]
-
-    merged_group = {g: _subplant_id_for(g) for g in ["1", "1A", "1B", "2", "2A", "2B"]}
+    merged_group = {
+        g: _subplant_id_for(actual, plant_id_eia, generator_id=g)
+        for g in ["1", "1A", "1B", "2", "2A", "2B"]
+    }
     assert len(set(merged_group.values())) == 1, (
         "generators 1/1A/1B/2/2A/2B are all connected -- directly by a shared "
         f"combustor, or transitively via unit_id_pudl=1 -- but landed in more than "
         f"one subplant_id: {merged_group}: \n{actual}"
     )
-    assert _subplant_id_for("5") not in merged_group.values(), (
+    assert (
+        _subplant_id_for(actual, plant_id_eia, generator_id="5")
+        not in merged_group.values()
+    ), (
         f"generator 5 (unrelated, unit_id_pudl=2) was incorrectly merged into the "
         f"1/2 group: \n{actual}"
     )
-    assert _subplant_id_for("6") not in merged_group.values(), (
+    assert (
+        _subplant_id_for(actual, plant_id_eia, generator_id="6")
+        not in merged_group.values()
+    ), (
         f"generator 6 (unrelated, unit_id_pudl=3) was incorrectly merged into the "
         f"1/2 group: \n{actual}"
     )
@@ -796,22 +606,8 @@ def test_subplant_id_table_preserves_row_count():
         {"plant_id_eia": 6500, "generator_id": "G2"},
     ]
     crosswalk_rows = [
-        {
-            "plant_id_epa": 6500,
-            "emissions_unit_id_epa": "U1",
-            "generator_id_epa": "G1",
-            "plant_id_eia": 6500,
-            "boiler_id": "U1",
-            "generator_id": "G1",
-        },
-        {
-            "plant_id_epa": 6500,
-            "emissions_unit_id_epa": "U2",
-            "generator_id_epa": "G2",
-            "plant_id_eia": 6500,
-            "boiler_id": "U2",
-            "generator_id": "G2",
-        },
+        _crosswalk_row(6500, "U1", "G1"),
+        _crosswalk_row(6500, "U2", "G2"),
     ]
     emissions_unit_rows = [
         {"plant_id_eia": 6500, "emissions_unit_id_epa": "U1"},
@@ -872,17 +668,7 @@ def test_subplant_id_is_one_indexed_and_contiguous_per_plant():
     ]
     # Three mutually disconnected generators/EPA units at the same plant, so they
     # should land in three distinct subplants.
-    crosswalk_rows = [
-        {
-            "plant_id_epa": 8100,
-            "emissions_unit_id_epa": f"U{i}",
-            "generator_id_epa": f"G{i}",
-            "plant_id_eia": 8100,
-            "boiler_id": f"U{i}",
-            "generator_id": f"G{i}",
-        }
-        for i in (1, 2, 3)
-    ]
+    crosswalk_rows = [_crosswalk_row(8100, f"U{i}", f"G{i}") for i in (1, 2, 3)]
     emissions_unit_rows = [
         {"plant_id_eia": 8100, "emissions_unit_id_epa": f"U{i}"} for i in (1, 2, 3)
     ]
