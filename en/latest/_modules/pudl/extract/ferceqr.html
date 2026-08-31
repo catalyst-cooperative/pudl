@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.extract.ferceqr &#8212; PUDL 2026.8.1.dev27 documentation</title>
+    <title>pudl.extract.ferceqr &#8212; PUDL 2026.8.1.dev28 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../../../_static/documentation_options.js?v=6739418a"></script>
+    <script src="../../../_static/documentation_options.js?v=c54eb0cd"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev27 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev27 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev28 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev28 documentation - Home"/>
   
   
 </a></div>
@@ -871,10 +871,14 @@ window.runMermaid = runMermaid;</script>
 <span></span><span class="sd">"""Extract FERC EQR data."""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">io</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">zipfile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Generator</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">contextlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">contextmanager</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">get_args</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">dagster</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">dg</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">duckdb</span>
@@ -891,11 +895,37 @@ window.runMermaid = runMermaid;</script>
 <span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span></div>
 
 
+<div class="viewcode-block" id="_PROGRESS_LOG_INTERVAL">
+<a class="viewcode-back" href="../../../autoapi/pudl/extract/ferceqr/index.html#pudl.extract.ferceqr._PROGRESS_LOG_INTERVAL">[docs]</a>
+<span class="n">_PROGRESS_LOG_INTERVAL</span> <span class="o">=</span> <span class="mi">500</span></div>
+
+<span class="sd">"""How often (in filings) to log extraction progress for a quarter.</span>
+
+<span class="sd">Some quarters contain thousands of filings, each processed one at a time; without</span>
+<span class="sd">this, a long-running extraction has no visible sign of progress in the logs.</span>
+<span class="sd">"""</span>
+
+<div class="viewcode-block" id="FercEqrTableType">
+<a class="viewcode-back" href="../../../autoapi/pudl/extract/ferceqr/index.html#pudl.extract.ferceqr.FercEqrTableType">[docs]</a>
+<span class="n">FercEqrTableType</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"ident"</span><span class="p">,</span> <span class="s2">"contracts"</span><span class="p">,</span> <span class="s2">"transactions"</span><span class="p">,</span> <span class="s2">"indexPub"</span><span class="p">]</span></div>
+
+<span class="sd">"""The four raw table types present in each FERC EQR filing."""</span>
+
+<div class="viewcode-block" id="_ALL_TABLE_TYPES">
+<a class="viewcode-back" href="../../../autoapi/pudl/extract/ferceqr/index.html#pudl.extract.ferceqr._ALL_TABLE_TYPES">[docs]</a>
+<span class="n">_ALL_TABLE_TYPES</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">FercEqrTableType</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="n">get_args</span><span class="p">(</span><span class="n">FercEqrTableType</span><span class="p">)</span></div>
+
+<span class="sd">"""Canonical list of all :data:`FercEqrTableType` values, in extraction order.</span>
+
+<span class="sd">``ident`` is extracted first so its CID can be attached to the other tables; see</span>
+<span class="sd">:func:`_extract_ident`.</span>
+<span class="sd">"""</span>
+
 
 <span class="nd">@contextmanager</span>
 <div class="viewcode-block" id="_get_csv">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/ferceqr/index.html#pudl.extract.ferceqr._get_csv">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">_get_csv</span><span class="p">(</span><span class="n">base_path</span><span class="p">:</span> <span class="n">UPath</span><span class="p">,</span> <span class="n">year_quarter</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_csv</span><span class="p">(</span><span class="n">base_path</span><span class="p">:</span> <span class="n">UPath</span><span class="p">,</span> <span class="n">year_quarter</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">"""Download CSV to a tempmorary directory to avoid reading into memory."""</span>
     <span class="n">zip_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"ferceqr-</span><span class="si">{</span><span class="n">year_quarter</span><span class="si">}</span><span class="s2">.zip"</span>
     <span class="n">remote_path</span> <span class="o">=</span> <span class="n">base_path</span> <span class="o">/</span> <span class="n">zip_name</span>
@@ -913,25 +943,66 @@ window.runMermaid = runMermaid;</script>
 
 
 
+<div class="viewcode-block" id="_UNSAFE_CSV_NAME_CHARS_REGEX">
+<a class="viewcode-back" href="../../../autoapi/pudl/extract/ferceqr/index.html#pudl.extract.ferceqr._UNSAFE_CSV_NAME_CHARS_REGEX">[docs]</a>
+<span class="n">_UNSAFE_CSV_NAME_CHARS_REGEX</span><span class="p">:</span> <span class="n">re</span><span class="o">.</span><span class="n">Pattern</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">f</span><span class="s2">"[</span><span class="si">{</span><span class="n">re</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="s1">'</span><span class="se">\'</span><span class="s1">"*?[]'</span><span class="p">)</span><span class="si">}</span><span class="s2">]"</span><span class="p">)</span></div>
+
+<span class="sd">"""Characters stripped from an extracted CSV's filename before duckdb reads it.</span>
+
+<span class="sd">``*``, ``?``, ``[``, and ``]`` are glob metacharacters that duckdb's CSV reader</span>
+<span class="sd">interprets even when passed a single literal path (not a SQL string): a file literally</span>
+<span class="sd">named ``[ab].csv`` gets silently read as ``a.csv`` instead, if that file happens to</span>
+<span class="sd">exist alongside it -- no error, just wrong data. Quote characters are stripped</span>
+<span class="sd">defensively too, a long-standing precaution predating this docstring; the specific</span>
+<span class="sd">failure it was guarding against isn't reproducible against the current duckdb version,</span>
+<span class="sd">but real filings do contain apostrophes (e.g. "Citizens' Electric") so there's no reason</span>
+<span class="sd">to stop.</span>
+
+<span class="sd">As of 2026-08-03 none of the known to be unsafe characters appeared in the most recent</span>
+<span class="sd">batch of FERC EQR filenames in any of the 52 quarters (2013q3-2026q2, ~146k</span>
+<span class="sd">filings/~533k CSVs). Real filenames do contain parentheses, ``#``, and occasional</span>
+<span class="sd">encoding-mangled accented letters, none of which are unsafe here and are left alone.</span>
+<span class="sd">Stripping this set costs nothing and closes a silent-wrong-data failure mode before it</span>
+<span class="sd">has a chance to occur.</span>
+<span class="sd">"""</span>
+
+
 <div class="viewcode-block" id="_clean_csv_name">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/ferceqr/index.html#pudl.extract.ferceqr._clean_csv_name">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_clean_csv_name</span><span class="p">(</span><span class="n">csv_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""Standardize zip file names to avoid errors when opening."""</span>
-    <span class="n">new_path</span> <span class="o">=</span> <span class="n">csv_path</span>
-    <span class="k">if</span> <span class="s2">"'"</span> <span class="ow">in</span> <span class="n">csv_path</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
-        <span class="n">new_path</span> <span class="o">=</span> <span class="n">csv_path</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">csv_path</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="n">csv_path</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"'"</span><span class="p">,</span> <span class="s2">""</span><span class="p">))</span>
-    <span class="k">if</span> <span class="s1">'"'</span> <span class="ow">in</span> <span class="n">csv_path</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
-        <span class="n">new_path</span> <span class="o">=</span> <span class="n">csv_path</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">csv_path</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="n">csv_path</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">'"'</span><span class="p">,</span> <span class="s2">""</span><span class="p">))</span>
-    <span class="k">return</span> <span class="n">new_path</span></div>
+<span class="w">    </span><span class="sd">"""Strip characters from an extracted CSV's filename that would confuse duckdb."""</span>
+    <span class="n">cleaned_name</span> <span class="o">=</span> <span class="n">_UNSAFE_CSV_NAME_CHARS_REGEX</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s2">""</span><span class="p">,</span> <span class="n">csv_path</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">cleaned_name</span> <span class="o">==</span> <span class="n">csv_path</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">csv_path</span>
+    <span class="k">return</span> <span class="n">csv_path</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">csv_path</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="n">cleaned_name</span><span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="_get_table_name">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/ferceqr/index.html#pudl.extract.ferceqr._get_table_name">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">_get_table_name</span><span class="p">(</span><span class="n">table_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">year_quarter</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_table_name</span><span class="p">(</span><span class="n">table_type</span><span class="p">:</span> <span class="n">FercEqrTableType</span><span class="p">,</span> <span class="n">year_quarter</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
     <span class="k">if</span> <span class="n">table_type</span> <span class="o">!=</span> <span class="s2">"indexPub"</span><span class="p">:</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">"raw_ferceqr__</span><span class="si">{</span><span class="n">table_type</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">year_quarter</span><span class="si">}</span><span class="s2">"</span>
     <span class="k">return</span> <span class="sa">f</span><span class="s2">"raw_ferceqr__index_pub_</span><span class="si">{</span><span class="n">year_quarter</span><span class="si">}</span><span class="s2">"</span></div>
+
+
+
+<div class="viewcode-block" id="_clear_raw_table_partition">
+<a class="viewcode-back" href="../../../autoapi/pudl/extract/ferceqr/index.html#pudl.extract.ferceqr._clear_raw_table_partition">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_clear_raw_table_partition</span><span class="p">(</span><span class="n">table_type</span><span class="p">:</span> <span class="n">FercEqrTableType</span><span class="p">,</span> <span class="n">year_quarter</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Delete any existing per-filing parquet output for one raw table+quarter.</span>
+
+<span class="sd">    Each filing's output file is named after that filing's own ID. Filing IDs change</span>
+<span class="sd">    with every revision or resubmission. This means if we don't clear the extracted</span>
+<span class="sd">    parquet output for a quarter before re-extracting it, we can end up with multiple</span>
+<span class="sd">    duplicate filings for the same company and quarter. This is unlikely to be an</span>
+<span class="sd">    issue in the production builds, but is a problem for local development and</span>
+<span class="sd">    testing.</span>
+<span class="sd">    """</span>
+    <span class="n">directory</span> <span class="o">=</span> <span class="n">ParquetData</span><span class="p">(</span>
+        <span class="n">table_name</span><span class="o">=</span><span class="n">_get_table_name</span><span class="p">(</span><span class="n">table_type</span><span class="p">,</span> <span class="n">year_quarter</span><span class="p">)</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">parquet_directory</span>
+    <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">ignore_errors</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
 
 
@@ -942,17 +1013,26 @@ window.runMermaid = runMermaid;</script>
     <span class="n">year_quarter</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">filing_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">duckdb_connection</span><span class="p">:</span> <span class="n">DuckDBPyConnection</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Extract data from ident csv, write to parquet, and return CID from table.</span>
 
 <span class="sd">    This table is always extracted first so we can pull the CID from it and include</span>
 <span class="sd">    a CID column in all other tables.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The company identifier (CID) read from the ident table's first row, or</span>
+<span class="sd">        ``None`` if the CSV parsed but contained no rows -- in which case no</span>
+<span class="sd">        ``raw_ferceqr__ident`` parquet is written for this filing. A CSV that fails</span>
+<span class="sd">        to parse at all instead raises ``duckdb.Error``, left to the caller.</span>
 <span class="sd">    """</span>
     <span class="c1"># Use duckdb to read CSV and write as parquet</span>
     <span class="n">csv_rel</span> <span class="o">=</span> <span class="n">duckdb_connection</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
         <span class="n">ident_csv</span><span class="p">,</span> <span class="n">all_varchar</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">store_rejects</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ignore_errors</span><span class="o">=</span><span class="kc">True</span>
     <span class="p">)</span>
-    <span class="p">(</span><span class="n">cid</span><span class="p">,)</span> <span class="o">=</span> <span class="n">csv_rel</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s2">"company_identifier"</span><span class="p">)</span><span class="o">.</span><span class="n">limit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+    <span class="n">row</span> <span class="o">=</span> <span class="n">csv_rel</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s2">"company_identifier"</span><span class="p">)</span><span class="o">.</span><span class="n">limit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">row</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="p">(</span><span class="n">cid</span><span class="p">,)</span> <span class="o">=</span> <span class="n">row</span>
     <span class="n">persist_table_as_parquet</span><span class="p">(</span>
         <span class="n">csv_rel</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="sa">f</span><span class="s2">"*, '</span><span class="si">{</span><span class="n">year_quarter</span><span class="si">}</span><span class="s2">' AS year_quarter"</span><span class="p">),</span>
         <span class="n">table_name</span><span class="o">=</span><span class="n">_get_table_name</span><span class="p">(</span><span class="s2">"ident"</span><span class="p">,</span> <span class="n">year_quarter</span><span class="p">),</span>
@@ -965,22 +1045,68 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="_extract_other_table">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/ferceqr/index.html#pudl.extract.ferceqr._extract_other_table">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">_extract_other_table</span><span class="p">(</span>
-    <span class="n">table_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">csv_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">table_type</span><span class="p">:</span> <span class="n">FercEqrTableType</span><span class="p">,</span>
+    <span class="n">csv_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
     <span class="n">year_quarter</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">cid</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">cid</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">filing_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">duckdb_connection</span><span class="p">:</span> <span class="n">DuckDBPyConnection</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">"""Extract data from a table other than ident and add year_quarter and CID columns."""</span>
+<span class="w">    </span><span class="sd">"""Extract data from a table other than ident and add year_quarter and CID columns.</span>
+
+<span class="sd">    ``cid`` is None when the filing has no usable identity CSV (missing entirely,</span>
+<span class="sd">    or present but unpareable) -- the table is still worth extracting, just</span>
+<span class="sd">    without a company_identifier to attach, so a real SQL NULL is used rather</span>
+<span class="sd">    than the literal string ``"None"``.</span>
+<span class="sd">    """</span>
+    <span class="n">cid_expr</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"'</span><span class="si">{</span><span class="n">cid</span><span class="si">}</span><span class="s2">'"</span> <span class="k">if</span> <span class="n">cid</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">"NULL"</span>
     <span class="c1"># Use duckdb to read CSV and write as parquet</span>
     <span class="n">persist_table_as_parquet</span><span class="p">(</span>
         <span class="n">duckdb_connection</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
             <span class="n">csv_path</span><span class="p">,</span> <span class="n">all_varchar</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">store_rejects</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ignore_errors</span><span class="o">=</span><span class="kc">True</span>
-        <span class="p">)</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="sa">f</span><span class="s2">"*, '</span><span class="si">{</span><span class="n">year_quarter</span><span class="si">}</span><span class="s2">' AS year_quarter, '</span><span class="si">{</span><span class="n">cid</span><span class="si">}</span><span class="s2">' as company_identifier"</span><span class="p">),</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">select</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"*, '</span><span class="si">{</span><span class="n">year_quarter</span><span class="si">}</span><span class="s2">' AS year_quarter, </span><span class="si">{</span><span class="n">cid_expr</span><span class="si">}</span><span class="s2"> as company_identifier"</span>
+        <span class="p">),</span>
         <span class="n">table_name</span><span class="o">=</span><span class="n">_get_table_name</span><span class="p">(</span><span class="n">table_type</span><span class="p">,</span> <span class="n">year_quarter</span><span class="p">),</span>
         <span class="n">partitions</span><span class="o">=</span><span class="p">{</span><span class="s2">"filing"</span><span class="p">:</span> <span class="n">filing_name</span><span class="p">},</span>
     <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="_resolve_cid">
+<a class="viewcode-back" href="../../../autoapi/pudl/extract/ferceqr/index.html#pudl.extract.ferceqr._resolve_cid">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_resolve_cid</span><span class="p">(</span>
+    <span class="n">ident_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">year_quarter</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">filing_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">duckdb_connection</span><span class="p">:</span> <span class="n">DuckDBPyConnection</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Extract one filing's ident table and return its CID, or ``None``.</span>
+
+<span class="sd">    Warns (but does not raise) if the identity CSV fails to parse entirely or</span>
+<span class="sd">    parses with no rows -- either way the rest of the filing is still worth</span>
+<span class="sd">    extracting, just with a null company_identifier.</span>
+<span class="sd">    """</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">cid</span> <span class="o">=</span> <span class="n">_extract_ident</span><span class="p">(</span>
+            <span class="n">ident_csv</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">ident_path</span><span class="p">),</span>
+            <span class="n">year_quarter</span><span class="o">=</span><span class="n">year_quarter</span><span class="p">,</span>
+            <span class="n">filing_name</span><span class="o">=</span><span class="n">filing_name</span><span class="p">,</span>
+            <span class="n">duckdb_connection</span><span class="o">=</span><span class="n">duckdb_connection</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">except</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">Error</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"Failed to parse ident table from </span><span class="si">{</span><span class="n">ident_path</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">err</span><span class="si">}</span><span class="s2">) -- "</span>
+            <span class="s2">"processing remaining tables with a null company_identifier."</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">cid</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"Identity CSV </span><span class="si">{</span><span class="n">ident_path</span><span class="o">.</span><span class="n">name</span><span class="si">!r}</span><span class="s2"> for filing </span><span class="si">{</span><span class="n">filing_name</span><span class="si">!r}</span><span class="s2"> "</span>
+            <span class="sa">f</span><span class="s2">"(</span><span class="si">{</span><span class="n">year_quarter</span><span class="si">}</span><span class="s2">) contains no rows -- processing remaining "</span>
+            <span class="s2">"tables with a null company_identifier."</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">cid</span></div>
 
 
 
@@ -991,60 +1117,166 @@ window.runMermaid = runMermaid;</script>
     <span class="n">year_quarter</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">filing_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">duckdb_connection</span><span class="p">:</span> <span class="n">DuckDBPyConnection</span><span class="p">,</span>
-<span class="p">):</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">frozenset</span><span class="p">[</span><span class="n">FercEqrTableType</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">"""Mirror CSVs in filing to a parquet file.</span>
 
-<span class="sd">    Each filing contains a CSV for 4 EQR tables. These will each be extracted</span>
-<span class="sd">    to a separate parquet file.</span>
+<span class="sd">    Each filing is expected to contain a CSV for each of 4 EQR tables, extracted</span>
+<span class="sd">    to a separate parquet file. Real filings are sometimes incomplete or</span>
+<span class="sd">    malformed in ways that have been observed in practice, and those cases are</span>
+<span class="sd">    not fatal to the rest of the filing. A missing contracts, transactions, or</span>
+<span class="sd">    indexPub CSV is routine -- many thousands of filings in a given quarter</span>
+<span class="sd">    simply have no data of that type -- so it's counted in the return value</span>
+<span class="sd">    rather than logged; logging a warning per filing for something this common</span>
+<span class="sd">    would flood the logs without conveying anything useful. A missing, empty,</span>
+<span class="sd">    or unparsable identity CSV, by contrast, is rare and more consequential (it</span>
+<span class="sd">    means no company_identifier (CID) can be attached to the other tables), so</span>
+<span class="sd">    it's still logged individually; the other tables are still extracted, with</span>
+<span class="sd">    a null CID rather than being dropped entirely. A zip archive that fails to</span>
+<span class="sd">    parse due to corruption and unrecognized CSVs are also logged with a</span>
+<span class="sd">    warning per filing since it is relatively rare.</span>
+
+<span class="sd">    More than one CSV matching the same table type has never been observed in</span>
+<span class="sd">    the wild and has no established handling strategy, so it raises rather</span>
+<span class="sd">    than silently guessing (e.g. by using the first match) -- a warning here</span>
+<span class="sd">    would be easy to miss among the routine ones above.</span>
+
+<span class="sd">    Records rejected by DuckDB due to too many or too few columns, invalid</span>
+<span class="sd">    UTF-8 encoding, or other reasons are not fatal. The bad records are</span>
+<span class="sd">    loaded into their own parquet files for later inspection.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The subset of ``_ALL_TABLE_TYPES`` whose CSV was present in this</span>
+<span class="sd">        filing, regardless of whether it was successfully parsed. Used by the</span>
+<span class="sd">        caller to tally how many filings in the quarter included each table.</span>
 <span class="sd">    """</span>
     <span class="c1"># Clean csv filenames for duckdb compatibility, then get ident table path</span>
     <span class="n">csv_paths</span> <span class="o">=</span> <span class="p">[</span><span class="n">_clean_csv_name</span><span class="p">(</span><span class="n">csv_file</span><span class="p">)</span> <span class="k">for</span> <span class="n">csv_file</span> <span class="ow">in</span> <span class="n">csv_path</span><span class="o">.</span><span class="n">iterdir</span><span class="p">()]</span>
-    <span class="p">[</span><span class="n">ident_path</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">ident_matches</span> <span class="o">=</span> <span class="p">[</span>
         <span class="n">csv_file</span> <span class="k">for</span> <span class="n">csv_file</span> <span class="ow">in</span> <span class="n">csv_paths</span> <span class="k">if</span> <span class="n">csv_file</span><span class="o">.</span><span class="n">stem</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">"ident"</span><span class="p">)</span>
     <span class="p">]</span>
-    <span class="n">csv_paths</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">ident_path</span><span class="p">)</span>
 
-    <span class="k">try</span><span class="p">:</span>
-        <span class="c1"># Extract ident table and return CID</span>
-        <span class="n">cid</span> <span class="o">=</span> <span class="n">_extract_ident</span><span class="p">(</span>
-            <span class="n">ident_csv</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">ident_path</span><span class="p">),</span>
+    <span class="n">found_table_types</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="n">FercEqrTableType</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="n">cid</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">ident_matches</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"Filing </span><span class="si">{</span><span class="n">filing_name</span><span class="si">!r}</span><span class="s2"> for </span><span class="si">{</span><span class="n">year_quarter</span><span class="si">}</span><span class="s2"> has no identity CSV -- "</span>
+            <span class="s2">"processing remaining tables with a null company_identifier. "</span>
+            <span class="sa">f</span><span class="s2">"Files present: </span><span class="si">{</span><span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">name</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">csv_paths</span><span class="p">]</span><span class="si">}</span><span class="s2">."</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">found_table_types</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">"ident"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ident_matches</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"Filing </span><span class="si">{</span><span class="n">filing_name</span><span class="si">!r}</span><span class="s2"> for </span><span class="si">{</span><span class="n">year_quarter</span><span class="si">}</span><span class="s2"> has "</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">ident_matches</span><span class="p">)</span><span class="si">}</span><span class="s2"> identity CSVs, expected at most 1: "</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">name</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">ident_matches</span><span class="p">]</span><span class="si">}</span><span class="s2">. This filing shape has "</span>
+                <span class="s2">"not been observed before -- inspect the raw archive to "</span>
+                <span class="s2">"determine how to handle it before proceeding."</span>
+            <span class="p">)</span>
+        <span class="n">ident_path</span> <span class="o">=</span> <span class="n">ident_matches</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">csv_paths</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">ident_path</span><span class="p">)</span>
+        <span class="n">cid</span> <span class="o">=</span> <span class="n">_resolve_cid</span><span class="p">(</span>
+            <span class="n">ident_path</span><span class="o">=</span><span class="n">ident_path</span><span class="p">,</span>
             <span class="n">year_quarter</span><span class="o">=</span><span class="n">year_quarter</span><span class="p">,</span>
             <span class="n">filing_name</span><span class="o">=</span><span class="n">filing_name</span><span class="p">,</span>
             <span class="n">duckdb_connection</span><span class="o">=</span><span class="n">duckdb_connection</span><span class="p">,</span>
         <span class="p">)</span>
-    <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">"Failed to parse ident table from </span><span class="si">{</span><span class="n">ident_path</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">."</span>
-            <span class="s2">" Skipping remaining tables for filing."</span>
-        <span class="p">)</span>
-        <span class="k">return</span>
 
-    <span class="c1"># Loop through remaining CSVs and extract, adding extracted CID as a column in each table</span>
+    <span class="c1"># Group remaining CSVs by table type, warning about anything unexpected: an</span>
+    <span class="c1"># unrecognized CSV, or more than one matching CSV for the same table type.</span>
+    <span class="c1"># A table with no matching CSV at all is routine and simply omitted from</span>
+    <span class="c1"># the return value -- not warned about, see docstring.</span>
+    <span class="n">other_table_types</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">t</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">_ALL_TABLE_TYPES</span> <span class="k">if</span> <span class="n">t</span> <span class="o">!=</span> <span class="s2">"ident"</span><span class="p">)</span>
+    <span class="n">files_by_type</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">FercEqrTableType</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">t</span><span class="p">:</span> <span class="p">[]</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">other_table_types</span>
+    <span class="p">}</span>
     <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">csv_paths</span><span class="p">:</span>
-        <span class="c1"># Detect which table type CSV is and prep output directory</span>
-        <span class="p">[</span><span class="n">table_type</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">key</span>
-            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"contracts"</span><span class="p">,</span> <span class="s2">"transactions"</span><span class="p">,</span> <span class="s2">"indexPub"</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">file</span><span class="o">.</span><span class="n">stem</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="n">table_type_matches</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">key</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">other_table_types</span> <span class="k">if</span> <span class="n">file</span><span class="o">.</span><span class="n">stem</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
         <span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">table_type_matches</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"Filing </span><span class="si">{</span><span class="n">filing_name</span><span class="si">!r}</span><span class="s2"> for </span><span class="si">{</span><span class="n">year_quarter</span><span class="si">}</span><span class="s2"> contains "</span>
+                <span class="sa">f</span><span class="s2">"unrecognized CSV </span><span class="si">{</span><span class="n">file</span><span class="o">.</span><span class="n">name</span><span class="si">!r}</span><span class="s2"> -- skipping this file."</span>
+            <span class="p">)</span>
+            <span class="k">continue</span>
+        <span class="n">files_by_type</span><span class="p">[</span><span class="n">table_type_matches</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">table_type</span><span class="p">,</span> <span class="n">files</span> <span class="ow">in</span> <span class="n">files_by_type</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">files</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">found_table_types</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">table_type</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">files</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"Filing </span><span class="si">{</span><span class="n">filing_name</span><span class="si">!r}</span><span class="s2"> for </span><span class="si">{</span><span class="n">year_quarter</span><span class="si">}</span><span class="s2"> has </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">files</span><span class="p">)</span><span class="si">}</span><span class="s2"> "</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">table_type</span><span class="si">}</span><span class="s2"> CSVs, expected at most 1: "</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">name</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">files</span><span class="p">]</span><span class="si">}</span><span class="s2">. This filing shape has not been "</span>
+                <span class="s2">"observed before -- inspect the raw archive to determine "</span>
+                <span class="s2">"how to handle it before proceeding."</span>
+            <span class="p">)</span>
 
         <span class="c1"># Use duckdb to read CSV and write as parquet</span>
-        <span class="n">_extract_other_table</span><span class="p">(</span>
-            <span class="n">table_type</span><span class="o">=</span><span class="n">table_type</span><span class="p">,</span>
-            <span class="n">csv_path</span><span class="o">=</span><span class="n">file</span><span class="p">,</span>
-            <span class="n">year_quarter</span><span class="o">=</span><span class="n">year_quarter</span><span class="p">,</span>
-            <span class="n">cid</span><span class="o">=</span><span class="n">cid</span><span class="p">,</span>
-            <span class="n">filing_name</span><span class="o">=</span><span class="n">filing_name</span><span class="p">,</span>
-            <span class="n">duckdb_connection</span><span class="o">=</span><span class="n">duckdb_connection</span><span class="p">,</span>
-        <span class="p">)</span></div>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">_extract_other_table</span><span class="p">(</span>
+                <span class="n">table_type</span><span class="o">=</span><span class="n">table_type</span><span class="p">,</span>
+                <span class="n">csv_path</span><span class="o">=</span><span class="n">files</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="n">year_quarter</span><span class="o">=</span><span class="n">year_quarter</span><span class="p">,</span>
+                <span class="n">cid</span><span class="o">=</span><span class="n">cid</span><span class="p">,</span>
+                <span class="n">filing_name</span><span class="o">=</span><span class="n">filing_name</span><span class="p">,</span>
+                <span class="n">duckdb_connection</span><span class="o">=</span><span class="n">duckdb_connection</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">Error</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"Failed to parse </span><span class="si">{</span><span class="n">table_type</span><span class="si">}</span><span class="s2"> table from </span><span class="si">{</span><span class="n">files</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> "</span>
+                <span class="sa">f</span><span class="s2">"(</span><span class="si">{</span><span class="n">err</span><span class="si">}</span><span class="s2">) -- skipping this table."</span>
+            <span class="p">)</span>
+
+    <span class="k">return</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">found_table_types</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="_get_rejected_record_counts">
+<a class="viewcode-back" href="../../../autoapi/pudl/extract/ferceqr/index.html#pudl.extract.ferceqr._get_rejected_record_counts">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_rejected_record_counts</span><span class="p">(</span>
+    <span class="n">duckdb_connection</span><span class="p">:</span> <span class="n">DuckDBPyConnection</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Count rejected CSV records by DuckDB's reason for rejecting them.</span>
+
+<span class="sd">    ``reject_errors.error_type`` is a DuckDB-defined enum with one row per</span>
+<span class="sd">    rejected record; as of DuckDB 1.5 its possible values are ``CAST``,</span>
+<span class="sd">    ``MISSING COLUMNS``, ``TOO MANY COLUMNS``, ``UNQUOTED VALUE``, ``LINE SIZE</span>
+<span class="sd">    OVER MAXIMUM``, ``INVALID ENCODING``, and ``INVALID STATE``. In FERC EQR</span>
+<span class="sd">    filings the two seen in practice are invalid UTF-8 encoding and a wrong</span>
+<span class="sd">    column count from unescaped quotes within a field.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A dict mapping each ``error_type`` string observed among rejected records</span>
+<span class="sd">        (e.g. ``"INVALID ENCODING"``) to the count of records rejected for that</span>
+<span class="sd">        reason, e.g. ``{"INVALID ENCODING": 12, "MISSING COLUMNS": 4}``. Error</span>
+<span class="sd">        types with no rejected records are simply absent from the dict.</span>
+<span class="sd">    """</span>
+    <span class="n">rows</span> <span class="o">=</span> <span class="n">duckdb_connection</span><span class="o">.</span><span class="n">sql</span><span class="p">(</span>
+        <span class="s2">"SELECT error_type, count(*) AS n FROM reject_errors GROUP BY error_type"</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
+    <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="_save_extract_errors">
 <a class="viewcode-back" href="../../../autoapi/pudl/extract/ferceqr/index.html#pudl.extract.ferceqr._save_extract_errors">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">_save_extract_errors</span><span class="p">(</span><span class="n">year_quarter</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">duckdb_connection</span><span class="p">:</span> <span class="n">DuckDBPyConnection</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">"""Create parquet file with metadata on any CSV parsing errors."""</span>
-    <span class="k">return</span> <span class="n">persist_table_as_parquet</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_save_extract_errors</span><span class="p">(</span>
+    <span class="n">year_quarter</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">duckdb_connection</span><span class="p">:</span> <span class="n">DuckDBPyConnection</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Persist DuckDB's CSV parsing errors for the quarter to parquet.</span>
+
+<span class="sd">    Joins DuckDB's ``reject_errors`` table (one row per rejected CSV record) against</span>
+<span class="sd">    ``reject_scans`` (one row per CSV file scanned) to attach the source filename to</span>
+<span class="sd">    each rejected record, then writes the result to the</span>
+<span class="sd">    ``raw_ferceqr__extract_errors`` table. ``extract_ferceqr`` builds its own</span>
+<span class="sd">    :class:`~pudl.helpers.ParquetData` pointing at this same table/quarter after</span>
+<span class="sd">    calling this function, the same way it does for the other four raw tables.</span>
+<span class="sd">    """</span>
+    <span class="n">persist_table_as_parquet</span><span class="p">(</span>
         <span class="n">duckdb_connection</span><span class="o">.</span><span class="n">table</span><span class="p">(</span><span class="s2">"reject_errors"</span><span class="p">)</span>
         <span class="o">.</span><span class="n">join</span><span class="p">(</span>
             <span class="n">duckdb_connection</span><span class="o">.</span><span class="n">table</span><span class="p">(</span><span class="s2">"reject_scans"</span><span class="p">),</span>
@@ -1062,11 +1294,11 @@ window.runMermaid = runMermaid;</script>
 <span class="nd">@dg</span><span class="o">.</span><span class="n">multi_asset</span><span class="p">(</span>
     <span class="n">partitions_def</span><span class="o">=</span><span class="n">ferceqr_year_quarters</span><span class="p">,</span>
     <span class="n">outs</span><span class="o">=</span><span class="p">{</span>
-        <span class="s2">"raw_ferceqr__ident"</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">AssetOut</span><span class="p">(),</span>
-        <span class="s2">"raw_ferceqr__contracts"</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">AssetOut</span><span class="p">(),</span>
-        <span class="s2">"raw_ferceqr__transactions"</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">AssetOut</span><span class="p">(),</span>
-        <span class="s2">"raw_ferceqr__index_pub"</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">AssetOut</span><span class="p">(),</span>
-        <span class="s2">"raw_ferceqr__extract_errors"</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">AssetOut</span><span class="p">(),</span>
+        <span class="s2">"raw_ferceqr__ident"</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">AssetOut</span><span class="p">(</span><span class="n">kinds</span><span class="o">=</span><span class="p">{</span><span class="s2">"duckdb"</span><span class="p">}),</span>
+        <span class="s2">"raw_ferceqr__contracts"</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">AssetOut</span><span class="p">(</span><span class="n">kinds</span><span class="o">=</span><span class="p">{</span><span class="s2">"duckdb"</span><span class="p">}),</span>
+        <span class="s2">"raw_ferceqr__transactions"</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">AssetOut</span><span class="p">(</span><span class="n">kinds</span><span class="o">=</span><span class="p">{</span><span class="s2">"duckdb"</span><span class="p">}),</span>
+        <span class="s2">"raw_ferceqr__index_pub"</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">AssetOut</span><span class="p">(</span><span class="n">kinds</span><span class="o">=</span><span class="p">{</span><span class="s2">"duckdb"</span><span class="p">}),</span>
+        <span class="s2">"raw_ferceqr__extract_errors"</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">AssetOut</span><span class="p">(</span><span class="n">kinds</span><span class="o">=</span><span class="p">{</span><span class="s2">"duckdb"</span><span class="p">}),</span>
     <span class="p">},</span>
 <span class="p">)</span>
 <div class="viewcode-block" id="extract_ferceqr">
@@ -1074,16 +1306,28 @@ window.runMermaid = runMermaid;</script>
 <span class="k">def</span><span class="w"> </span><span class="nf">extract_ferceqr</span><span class="p">(</span>
     <span class="n">context</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">AssetExecutionContext</span><span class="p">,</span>
     <span class="n">ferceqr_archive</span><span class="p">:</span> <span class="n">FercEqrArchiveResource</span> <span class="o">=</span> <span class="n">FercEqrArchiveResource</span><span class="p">(),</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ParquetData</span><span class="p">,</span> <span class="n">ParquetData</span><span class="p">,</span> <span class="n">ParquetData</span><span class="p">,</span> <span class="n">ParquetData</span><span class="p">,</span> <span class="n">ParquetData</span><span class="p">]:</span>
+<span class="p">):</span>
 <span class="w">    </span><span class="sd">"""Extract year quarter from CSVs and load to parquet files.</span>
 
 <span class="sd">    This method will loop through the nested EQR archive zipfiles and extract all tables</span>
 <span class="sd">    from them, and write to parquet. It opens a duckdb connection at the top level to</span>
 <span class="sd">    keep track of extraction errors, so we can write these to the ``raw_ferceqr__extract_errors``</span>
-<span class="sd">    table.</span>
+<span class="sd">    table. Summary statistics about the extraction (filing counts, corrupt archives,</span>
+<span class="sd">    and unextractable records by reason) are logged and attached as Dagster metadata</span>
+<span class="sd">    on the ``raw_ferceqr__extract_errors`` output.</span>
 <span class="sd">    """</span>
     <span class="c1"># Get year/quarter from selected partition</span>
     <span class="n">year_quarter</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">partition_key</span>
+
+    <span class="c1"># Clear any leftover per-filing output from a previous extraction of this same</span>
+    <span class="c1"># quarter before starting, so amended filings that changed ID between archive</span>
+    <span class="c1"># pulls can't leave stale, orphaned duplicates behind. See</span>
+    <span class="c1"># _clear_raw_table_partition for why this is necessary.</span>
+    <span class="k">for</span> <span class="n">table_type</span> <span class="ow">in</span> <span class="n">_ALL_TABLE_TYPES</span><span class="p">:</span>
+        <span class="n">_clear_raw_table_partition</span><span class="p">(</span><span class="n">table_type</span><span class="p">,</span> <span class="n">year_quarter</span><span class="p">)</span>
+
+    <span class="n">table_file_counts</span> <span class="o">=</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="n">_ALL_TABLE_TYPES</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">corrupt_filing_count</span> <span class="o">=</span> <span class="mi">0</span>
 
     <span class="c1"># Open top level zipfile</span>
     <span class="k">with</span> <span class="p">(</span>
@@ -1095,7 +1339,15 @@ window.runMermaid = runMermaid;</script>
         <span class="c1"># Loop through all nested zipfiles (one for each filing in the quarter)</span>
         <span class="n">filing_names</span> <span class="o">=</span> <span class="n">quarter_archive</span><span class="o">.</span><span class="n">namelist</span><span class="p">()</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Extracting </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">filing_names</span><span class="p">)</span><span class="si">}</span><span class="s2"> filings for </span><span class="si">{</span><span class="n">year_quarter</span><span class="si">}</span><span class="s2">."</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">filing</span> <span class="ow">in</span> <span class="n">filing_names</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">filing_number</span><span class="p">,</span> <span class="n">filing</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">filing_names</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+            <span class="c1"># Quarters can contain thousands of filings, each processed one at a</span>
+            <span class="c1"># time below -- log progress periodically so a long-running extraction</span>
+            <span class="c1"># doesn't look stalled.</span>
+            <span class="k">if</span> <span class="n">filing_number</span> <span class="o">%</span> <span class="n">_PROGRESS_LOG_INTERVAL</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">"Extracted </span><span class="si">{</span><span class="n">filing_number</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">filing_names</span><span class="p">)</span><span class="si">}</span><span class="s2"> filings "</span>
+                    <span class="sa">f</span><span class="s2">"for </span><span class="si">{</span><span class="n">year_quarter</span><span class="si">}</span><span class="s2">."</span>
+                <span class="p">)</span>
             <span class="c1"># Extract CSVs from filing to a temporary directory so duckdb can be used</span>
             <span class="c1"># to parse CSVs and mirror to parquet</span>
             <span class="k">try</span><span class="p">:</span>
@@ -1106,24 +1358,56 @@ window.runMermaid = runMermaid;</script>
                     <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmp_dir</span><span class="p">,</span>
                 <span class="p">):</span>
                     <span class="n">filing_archive</span><span class="o">.</span><span class="n">extractall</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">tmp_dir</span><span class="p">)</span>
-                    <span class="n">_csvs_to_parquet</span><span class="p">(</span>
+                    <span class="n">found_table_types</span> <span class="o">=</span> <span class="n">_csvs_to_parquet</span><span class="p">(</span>
                         <span class="n">csv_path</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="n">tmp_dir</span><span class="p">),</span>
                         <span class="n">year_quarter</span><span class="o">=</span><span class="n">year_quarter</span><span class="p">,</span>
                         <span class="n">filing_name</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="n">filing</span><span class="p">)</span><span class="o">.</span><span class="n">stem</span><span class="p">,</span>
                         <span class="n">duckdb_connection</span><span class="o">=</span><span class="n">conn</span><span class="p">,</span>
                     <span class="p">)</span>
+                    <span class="k">for</span> <span class="n">table_type</span> <span class="ow">in</span> <span class="n">found_table_types</span><span class="p">:</span>
+                        <span class="n">table_file_counts</span><span class="p">[</span><span class="n">table_type</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
             <span class="k">except</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">BadZipfile</span><span class="p">:</span>
+                <span class="n">corrupt_filing_count</span> <span class="o">+=</span> <span class="mi">1</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Could not open filing: </span><span class="si">{</span><span class="n">filing</span><span class="si">}</span><span class="s2">."</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">"Finished extracting </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">filing_names</span><span class="p">)</span><span class="si">}</span><span class="s2"> filings for </span><span class="si">{</span><span class="n">year_quarter</span><span class="si">}</span><span class="s2">."</span>
         <span class="p">)</span>
-        <span class="n">metadata</span> <span class="o">=</span> <span class="n">_save_extract_errors</span><span class="p">(</span><span class="n">year_quarter</span><span class="p">,</span> <span class="n">conn</span><span class="p">)</span>
+        <span class="n">_save_extract_errors</span><span class="p">(</span><span class="n">year_quarter</span><span class="p">,</span> <span class="n">conn</span><span class="p">)</span>
+        <span class="n">rejected_record_counts</span> <span class="o">=</span> <span class="n">_get_rejected_record_counts</span><span class="p">(</span><span class="n">conn</span><span class="p">)</span>
+
+    <span class="n">extraction_stats</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">"total_filings"</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">filing_names</span><span class="p">),</span>
+        <span class="s2">"corrupt_filings"</span><span class="p">:</span> <span class="n">corrupt_filing_count</span><span class="p">,</span>
+        <span class="s2">"table_file_counts"</span><span class="p">:</span> <span class="n">table_file_counts</span><span class="p">,</span>
+        <span class="s2">"rejected_record_counts"</span><span class="p">:</span> <span class="n">rejected_record_counts</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Extraction summary for </span><span class="si">{</span><span class="n">year_quarter</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">extraction_stats</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">add_output_metadata</span><span class="p">(</span>
+        <span class="n">metadata</span><span class="o">=</span><span class="p">{</span><span class="s2">"extraction_stats"</span><span class="p">:</span> <span class="n">dg</span><span class="o">.</span><span class="n">MetadataValue</span><span class="o">.</span><span class="n">json</span><span class="p">(</span><span class="n">extraction_stats</span><span class="p">)},</span>
+        <span class="n">output_name</span><span class="o">=</span><span class="s2">"raw_ferceqr__extract_errors"</span><span class="p">,</span>
+    <span class="p">)</span>
+
     <span class="k">return</span> <span class="p">(</span>
-        <span class="n">ParquetData</span><span class="p">(</span><span class="n">table_name</span><span class="o">=</span><span class="n">_get_table_name</span><span class="p">(</span><span class="s2">"ident"</span><span class="p">,</span> <span class="n">year_quarter</span><span class="p">)),</span>
-        <span class="n">ParquetData</span><span class="p">(</span><span class="n">table_name</span><span class="o">=</span><span class="n">_get_table_name</span><span class="p">(</span><span class="s2">"contracts"</span><span class="p">,</span> <span class="n">year_quarter</span><span class="p">)),</span>
-        <span class="n">ParquetData</span><span class="p">(</span><span class="n">table_name</span><span class="o">=</span><span class="n">_get_table_name</span><span class="p">(</span><span class="s2">"transactions"</span><span class="p">,</span> <span class="n">year_quarter</span><span class="p">)),</span>
-        <span class="n">ParquetData</span><span class="p">(</span><span class="n">table_name</span><span class="o">=</span><span class="n">_get_table_name</span><span class="p">(</span><span class="s2">"indexPub"</span><span class="p">,</span> <span class="n">year_quarter</span><span class="p">)),</span>
-        <span class="n">metadata</span><span class="p">,</span>
+        <span class="n">dg</span><span class="o">.</span><span class="n">Output</span><span class="p">(</span>
+            <span class="n">output_name</span><span class="o">=</span><span class="s2">"raw_ferceqr__ident"</span><span class="p">,</span>
+            <span class="n">value</span><span class="o">=</span><span class="n">ParquetData</span><span class="p">(</span><span class="n">table_name</span><span class="o">=</span><span class="n">_get_table_name</span><span class="p">(</span><span class="s2">"ident"</span><span class="p">,</span> <span class="n">year_quarter</span><span class="p">)),</span>
+        <span class="p">),</span>
+        <span class="n">dg</span><span class="o">.</span><span class="n">Output</span><span class="p">(</span>
+            <span class="n">output_name</span><span class="o">=</span><span class="s2">"raw_ferceqr__contracts"</span><span class="p">,</span>
+            <span class="n">value</span><span class="o">=</span><span class="n">ParquetData</span><span class="p">(</span><span class="n">table_name</span><span class="o">=</span><span class="n">_get_table_name</span><span class="p">(</span><span class="s2">"contracts"</span><span class="p">,</span> <span class="n">year_quarter</span><span class="p">)),</span>
+        <span class="p">),</span>
+        <span class="n">dg</span><span class="o">.</span><span class="n">Output</span><span class="p">(</span>
+            <span class="n">output_name</span><span class="o">=</span><span class="s2">"raw_ferceqr__transactions"</span><span class="p">,</span>
+            <span class="n">value</span><span class="o">=</span><span class="n">ParquetData</span><span class="p">(</span><span class="n">table_name</span><span class="o">=</span><span class="n">_get_table_name</span><span class="p">(</span><span class="s2">"transactions"</span><span class="p">,</span> <span class="n">year_quarter</span><span class="p">)),</span>
+        <span class="p">),</span>
+        <span class="n">dg</span><span class="o">.</span><span class="n">Output</span><span class="p">(</span>
+            <span class="n">output_name</span><span class="o">=</span><span class="s2">"raw_ferceqr__index_pub"</span><span class="p">,</span>
+            <span class="n">value</span><span class="o">=</span><span class="n">ParquetData</span><span class="p">(</span><span class="n">table_name</span><span class="o">=</span><span class="n">_get_table_name</span><span class="p">(</span><span class="s2">"indexPub"</span><span class="p">,</span> <span class="n">year_quarter</span><span class="p">)),</span>
+        <span class="p">),</span>
+        <span class="n">dg</span><span class="o">.</span><span class="n">Output</span><span class="p">(</span>
+            <span class="n">output_name</span><span class="o">=</span><span class="s2">"raw_ferceqr__extract_errors"</span><span class="p">,</span>
+            <span class="n">value</span><span class="o">=</span><span class="n">ParquetData</span><span class="p">(</span><span class="n">table_name</span><span class="o">=</span><span class="s2">"raw_ferceqr__extract_errors"</span><span class="p">),</span>
+        <span class="p">),</span>
     <span class="p">)</span></div>
 
 </pre></div>

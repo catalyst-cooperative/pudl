@@ -18,7 +18,7 @@
     </script>
     
 <link rel="alternate" type="text/markdown" title="Markdown version of this page" href="pudl_db.html.md" />
-    <title>PUDL Data Dictionary &#8212; PUDL 2026.8.1.dev27 documentation</title>
+    <title>PUDL Data Dictionary &#8212; PUDL 2026.8.1.dev28 documentation</title>
   
   
   
@@ -51,7 +51,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../_static/documentation_options.js?v=6739418a"></script>
+    <script src="../_static/documentation_options.js?v=c54eb0cd"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -142,8 +142,8 @@
       
     
     
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev27 documentation - Home"/>
-    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev27 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev28 documentation - Home"/>
+    <img src="../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev28 documentation - Home"/>
   
   
 </a></div>
@@ -48031,7 +48031,7 @@ R</label><div class="sd-tab-content docutils">
 <p>Noticed any irregularities with this table? <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/new?template=data_bug_report.yml&amp;table=core_ferceqr__contracts">File a report.</a></p>
 <p>Contains information about contracts between companies selling and buying electricity market products.</p>
 <dl class="simple">
-<dt>Most-recent data:</dt><dd><p>2026q1</p>
+<dt>Most-recent data:</dt><dd><p>2026q2</p>
 </dd>
 <dt>Processing:</dt><dd><p>Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.</p>
 </dd>
@@ -48287,7 +48287,7 @@ R</label><div class="sd-tab-content docutils">
 <p>Noticed any irregularities with this table? <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/new?template=data_bug_report.yml&amp;table=core_ferceqr__quarterly_identity">File a report.</a></p>
 <p>Quarterly time series of individuals who filed FERC EQR for a company in a given quarter.</p>
 <dl class="simple">
-<dt>Most-recent data:</dt><dd><p>2026q1</p>
+<dt>Most-recent data:</dt><dd><p>2026q2</p>
 </dd>
 <dt>Processing:</dt><dd><p>Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.</p>
 </dd>
@@ -48453,13 +48453,13 @@ R</label><div class="sd-tab-content docutils">
 <p>Noticed any irregularities with this table? <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/new?template=data_bug_report.yml&amp;table=core_ferceqr__quarterly_index_pub">File a report.</a></p>
 <p>Quarterly time series of electricity market price indices that individual EQR filers reported transactions to.</p>
 <dl class="simple">
-<dt>Most-recent data:</dt><dd><p>2026q1</p>
+<dt>Most-recent data:</dt><dd><p>2026q2</p>
 </dd>
 <dt>Processing:</dt><dd><p>Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.</p>
 </dd>
 <dt>Source:</dt><dd><p>FERC Form 920 – Electric Quarterly Report (EQR)</p>
 </dd>
-<dt>Primary key:</dt><dd><p>year_quarter, company_id_ferc, filer_unique_id</p>
+<dt>Primary key:</dt><dd><p>This table has no primary key. The primary key ought to be [‘year_quarter’, ‘company_id_ferc’, ‘filer_unique_id’], where filer_unique_id is an employee-level ID. However, there are two quarters in which these columns are not unique for 1-2 combinations of values.</p>
 </dd>
 </dl>
 <section id="id1340">
@@ -48579,7 +48579,7 @@ R</label><div class="sd-tab-content docutils">
 <p>Noticed any irregularities with this table? <a class="reference external" href="https://github.com/catalyst-cooperative/pudl/issues/new?template=data_bug_report.yml&amp;table=core_ferceqr__transactions">File a report.</a></p>
 <p>Contains information about individual electricity market transactions that took place during a given reporting quarter. Reported by the seller.</p>
 <dl class="simple">
-<dt>Most-recent data:</dt><dd><p>2026q1</p>
+<dt>Most-recent data:</dt><dd><p>2026q2</p>
 </dd>
 <dt>Processing:</dt><dd><p>Data has been cleaned and organized into well-modeled tables that serve as building blocks for downstream wide tables and analyses.</p>
 </dd>

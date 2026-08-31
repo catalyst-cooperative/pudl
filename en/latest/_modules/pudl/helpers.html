@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.helpers &#8212; PUDL 2026.8.1.dev27 documentation</title>
+    <title>pudl.helpers &#8212; PUDL 2026.8.1.dev28 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../../_static/documentation_options.js?v=6739418a"></script>
+    <script src="../../_static/documentation_options.js?v=c54eb0cd"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev27 documentation - Home"/>
-    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev27 documentation - Home"/>
+    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev28 documentation - Home"/>
+    <img src="../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev28 documentation - Home"/>
   
   
 </a></div>
@@ -898,6 +898,7 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">polars</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pl</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pyarrow.parquet</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pq</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">requests</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">sqlalchemy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sa</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">usaddress</span>
@@ -3581,11 +3582,32 @@ window.runMermaid = runMermaid;</script>
             <span class="n">compression</span><span class="o">=</span><span class="n">compression</span><span class="p">,</span>
         <span class="p">)</span>
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">table_data</span><span class="p">,</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">DuckDBPyRelation</span><span class="p">):</span>
-        <span class="n">table_data</span><span class="o">.</span><span class="n">to_parquet</span><span class="p">(</span>
-            <span class="nb">str</span><span class="p">(</span><span class="n">parquet_data</span><span class="o">.</span><span class="n">parquet_path</span><span class="p">),</span>
-            <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-            <span class="n">compression</span><span class="o">=</span><span class="n">compression</span><span class="p">,</span>
-        <span class="p">)</span>
+        <span class="c1"># DuckDB's own to_parquet() writer flattens ENUM columns down to plain</span>
+        <span class="c1"># Arrow `string` in the file's schema -- it still dictionary-encodes them</span>
+        <span class="c1"># at the physical Parquet page level (no space penalty), but loses the</span>
+        <span class="c1"># logical-type signal that lets pandas/Polars reconstitute a categorical</span>
+        <span class="c1"># column on read, unlike files written by either of those two backends.</span>
+        <span class="c1"># Converting to Arrow first preserves it correctly: DuckDB's Arrow export</span>
+        <span class="c1"># maps ENUM to a real `dictionary&lt;values=string, indices=...&gt;` type, which</span>
+        <span class="c1"># pandas and Polars both recognize. to_arrow_reader() is a genuine</span>
+        <span class="c1"># streaming, batched RecordBatchReader (not a single materialized Table),</span>
+        <span class="c1"># so writing it out batch-by-batch keeps memory bounded to one batch at a</span>
+        <span class="c1"># time -- necessary for our largest DuckDB-produced tables.</span>
+        <span class="c1">#</span>
+        <span class="c1"># This is measurably slower than DuckDB's native to_parquet() (~7-10x on</span>
+        <span class="c1"># core_ferceqr__transactions' largest quarterly partition, 58.9M rows):</span>
+        <span class="c1"># DuckDB's own writer runs its internal engine across all CPU cores, while</span>
+        <span class="c1"># pyarrow's ParquetWriter writes single-threaded regardless of batch size</span>
+        <span class="c1"># or pyarrow's global thread-pool settings. Accepted deliberately -- this</span>
+        <span class="c1"># data is processed rarely and quarters are written in parallel, so the</span>
+        <span class="c1"># wall-clock cost of any one partition writing more slowly matters less</span>
+        <span class="c1"># than getting correct, cross-backend-readable categorical dtypes.</span>
+        <span class="n">reader</span> <span class="o">=</span> <span class="n">table_data</span><span class="o">.</span><span class="n">to_arrow_reader</span><span class="p">(</span><span class="n">batch_size</span><span class="o">=</span><span class="mi">100_000</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">pq</span><span class="o">.</span><span class="n">ParquetWriter</span><span class="p">(</span>
+            <span class="nb">str</span><span class="p">(</span><span class="n">parquet_data</span><span class="o">.</span><span class="n">parquet_path</span><span class="p">),</span> <span class="n">reader</span><span class="o">.</span><span class="n">schema</span><span class="p">,</span> <span class="n">compression</span><span class="o">=</span><span class="n">compression</span>
+        <span class="p">)</span> <span class="k">as</span> <span class="n">writer</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">batch</span> <span class="ow">in</span> <span class="n">reader</span><span class="p">:</span>
+                <span class="n">writer</span><span class="o">.</span><span class="n">write_batch</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
             <span class="s2">"table_data must be of type pd.DataFrame, pl.LazyFrame or duckdb.DuckDBPyRelation."</span>

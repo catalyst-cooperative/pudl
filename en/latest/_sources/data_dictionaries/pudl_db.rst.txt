@@ -44322,7 +44322,7 @@ Contains information about contracts between companies selling and buying electr
 
 
 Most-recent data:
-  2026q1
+  2026q2
 
 
 Processing:
@@ -44548,7 +44548,7 @@ Quarterly time series of individuals who filed FERC EQR for a company in a given
 
 
 Most-recent data:
-  2026q1
+  2026q2
 
 
 Processing:
@@ -44702,7 +44702,7 @@ Quarterly time series of electricity market price indices that individual EQR fi
 
 
 Most-recent data:
-  2026q1
+  2026q2
 
 
 Processing:
@@ -44712,7 +44712,7 @@ Source:
   FERC Form 920 -- Electric Quarterly Report (EQR)
 
 Primary key:
-  year_quarter, company_id_ferc, filer_unique_id
+  This table has no primary key. The primary key ought to be ['year_quarter', 'company_id_ferc', 'filer_unique_id'], where filer_unique_id is an employee-level ID. However, there are two quarters in which these columns are not unique for 1-2 combinations of values.
 
 
 Usage Warnings
@@ -44824,7 +44824,7 @@ Contains information about individual electricity market transactions that took 
 
 
 Most-recent data:
-  2026q1
+  2026q2
 
 
 Processing:

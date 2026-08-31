@@ -16,7 +16,7 @@
         gtag('config', 'G-EXWBBTVMWK');
     </script>
     
-    <title>pudl.transform.ferceqr &#8212; PUDL 2026.8.1.dev27 documentation</title>
+    <title>pudl.transform.ferceqr &#8212; PUDL 2026.8.1.dev28 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../../../_static/documentation_options.js?v=6739418a"></script>
+    <script src="../../../_static/documentation_options.js?v=c54eb0cd"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -494,8 +494,8 @@ window.runMermaid = runMermaid;</script>
       
     
     
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev27 documentation - Home"/>
-    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev27 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-light" alt="PUDL 2026.8.1.dev28 documentation - Home"/>
+    <img src="../../../_static/catalyst_logo-200x200.png" class="logo__image only-dark pst-js-only" alt="PUDL 2026.8.1.dev28 documentation - Home"/>
   
   
 </a></div>
@@ -1057,7 +1057,7 @@ window.runMermaid = runMermaid;</script>
 
 
 
-<span class="nd">@dg</span><span class="o">.</span><span class="n">asset</span><span class="p">(</span><span class="n">partitions_def</span><span class="o">=</span><span class="n">ferceqr_year_quarters</span><span class="p">)</span>
+<span class="nd">@dg</span><span class="o">.</span><span class="n">asset</span><span class="p">(</span><span class="n">partitions_def</span><span class="o">=</span><span class="n">ferceqr_year_quarters</span><span class="p">,</span> <span class="n">kinds</span><span class="o">=</span><span class="p">{</span><span class="s2">"duckdb"</span><span class="p">})</span>
 <div class="viewcode-block" id="core_ferceqr__quarterly_identity">
 <a class="viewcode-back" href="../../../autoapi/pudl/transform/ferceqr/index.html#pudl.transform.ferceqr.core_ferceqr__quarterly_identity">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">core_ferceqr__quarterly_identity</span><span class="p">(</span>
@@ -1095,6 +1095,7 @@ window.runMermaid = runMermaid;</script>
 
 <span class="nd">@dg</span><span class="o">.</span><span class="n">asset</span><span class="p">(</span>
     <span class="n">partitions_def</span><span class="o">=</span><span class="n">ferceqr_year_quarters</span><span class="p">,</span>
+    <span class="n">kinds</span><span class="o">=</span><span class="p">{</span><span class="s2">"duckdb"</span><span class="p">},</span>
 <span class="p">)</span>
 <div class="viewcode-block" id="core_ferceqr__transactions">
 <a class="viewcode-back" href="../../../autoapi/pudl/transform/ferceqr/index.html#pudl.transform.ferceqr.core_ferceqr__transactions">[docs]</a>
@@ -1183,7 +1184,7 @@ window.runMermaid = runMermaid;</script>
 
 
 
-<span class="nd">@dg</span><span class="o">.</span><span class="n">asset</span><span class="p">(</span><span class="n">partitions_def</span><span class="o">=</span><span class="n">ferceqr_year_quarters</span><span class="p">)</span>
+<span class="nd">@dg</span><span class="o">.</span><span class="n">asset</span><span class="p">(</span><span class="n">partitions_def</span><span class="o">=</span><span class="n">ferceqr_year_quarters</span><span class="p">,</span> <span class="n">kinds</span><span class="o">=</span><span class="p">{</span><span class="s2">"duckdb"</span><span class="p">})</span>
 <div class="viewcode-block" id="core_ferceqr__contracts">
 <a class="viewcode-back" href="../../../autoapi/pudl/transform/ferceqr/index.html#pudl.transform.ferceqr.core_ferceqr__contracts">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">core_ferceqr__contracts</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">raw_ferceqr__contracts</span><span class="p">:</span> <span class="n">ParquetData</span><span class="p">):</span>
@@ -1263,7 +1264,7 @@ window.runMermaid = runMermaid;</script>
 
 
 
-<span class="nd">@dg</span><span class="o">.</span><span class="n">asset</span><span class="p">(</span><span class="n">partitions_def</span><span class="o">=</span><span class="n">ferceqr_year_quarters</span><span class="p">)</span>
+<span class="nd">@dg</span><span class="o">.</span><span class="n">asset</span><span class="p">(</span><span class="n">partitions_def</span><span class="o">=</span><span class="n">ferceqr_year_quarters</span><span class="p">,</span> <span class="n">kinds</span><span class="o">=</span><span class="p">{</span><span class="s2">"duckdb"</span><span class="p">})</span>
 <div class="viewcode-block" id="core_ferceqr__quarterly_index_pub">
 <a class="viewcode-back" href="../../../autoapi/pudl/transform/ferceqr/index.html#pudl.transform.ferceqr.core_ferceqr__quarterly_index_pub">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">core_ferceqr__quarterly_index_pub</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">raw_ferceqr__index_pub</span><span class="p">:</span> <span class="n">ParquetData</span><span class="p">):</span>
