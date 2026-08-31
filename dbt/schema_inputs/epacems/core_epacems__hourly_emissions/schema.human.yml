@@ -27,28 +27,217 @@ sources:
                 declared here rather than on the crosswalk itself. Mirrors
                 test_every_epa_emissions_unit_appears_with_a_subplant_id in
                 tests/unit/transform/glue_test.py.
-          # Declared at the table level rather than attached to emissions_unit_id_epa,
-          # since key_column is a composite (plant_id_eia, emissions_unit_id_epa)
-          # expression rather than a single real column.
-          - expect_grouped_unmatched_rate_to_be_below:
+models:
+  - name: validate_epacems__hourly_emissions_unmatched_units
+    description: |-
+      One row per (year, plant_id_eia, emissions_unit_id_epa) unit reporting to CEMS in a
+      given year, with matched_plant_id_eia non-null iff that unit found a matching non-null
+      generator_id in the EPA/EIA subplant crosswalk. Exists so per-year match-rate
+      thresholds can be checked below with a plain dbt_utils.not_null_proportion test.
+    columns:
+      - name: year
+      - name: plant_id_eia
+      - name: emissions_unit_id_epa
+      - name: matched_plant_id_eia
+        description: |-
+          Non-null iff the unit found a matching non-null generator_id in the EPA/EIA
+          subplant crosswalk. Tested below with one dbt_utils.not_null_proportion test
+          per CEMS reporting year, each with its own threshold, so a regression confined
+          to a single year isn't diluted away by all the other years and can be debugged
+          quickly. Matched non-null fractions were calculated 2026-08-30 and test
+          thresholds set 0.5% below the measured value for each year; revisit when this
+          table is next reprocessed with a new year of data. Tests pass when there is no
+          data for the given year, as is mostly the case in the fast ETL.
+        data_tests:
+          - dbt_utils.not_null_proportion:
+              name: not_null_proportion_matched_plant_id_eia_1995
+              config:
+                where: "year = 1995"
               arguments:
-                group_by_column: year
-                key_column: "cast(plant_id_eia as varchar) || '_' || emissions_unit_id_epa"
-                other_table: source('pudl', 'core_epa__assn_eia_epacamd_subplant_ids')
-                other_key_column: "cast(plant_id_eia as varchar) || '_' || emissions_unit_id_epa"
-                other_match_column: generator_id
-                max_unmatched_ratio: 0.20
-              description: |-
-                Codifies a concrete baseline for EPA/EIA crosswalk match coverage, checked per CEMS
-                reporting year rather than as a single table-wide aggregate, so that a regression
-                confined to one year isn't diluted away by all the other years the way it would be in
-                core_epa__assn_eia_epacamd_subplant_ids's table-wide not_null_proportion check on
-                generator_id. Measured directly as of 2026-08-30: the unmatched rate (the fraction of a
-                year's distinct (plant_id_eia, emissions_unit_id_epa) units with no matching non-null
-                generator_id) ranges from about 4.2% in the most recent years (2021-2024) up to about
-                15.4% in 1999, trending steadily better in more recent years -- match coverage has been
-                improving over time and we want that trend to continue, not reverse. max_unmatched_ratio
-                is set to 0.20, comfortably above the worst year on record (1999, ~15.4%) so normal
-                reprocessing of old, inherently-worse-matched years doesn't trip this test, while still
-                catching a genuine regression -- e.g. a matching step breaking for a whole year's worth
-                of units, or degrading well past what's ever been observed.
+                at_least: 0.9122
+          - dbt_utils.not_null_proportion:
+              name: not_null_proportion_matched_plant_id_eia_1996
+              config:
+                where: "year = 1996"
+              arguments:
+                at_least: 0.9063
+          - dbt_utils.not_null_proportion:
+              name: not_null_proportion_matched_plant_id_eia_1997
+              config:
+                where: "year = 1997"
+              arguments:
+                at_least: 0.8871
+          - dbt_utils.not_null_proportion:
+              name: not_null_proportion_matched_plant_id_eia_1998
+              config:
+                where: "year = 1998"
+              arguments:
+                at_least: 0.8745
+          - dbt_utils.not_null_proportion:
+              name: not_null_proportion_matched_plant_id_eia_1999
+              config:
+                where: "year = 1999"
+              arguments:
+                at_least: 0.8407
+          - dbt_utils.not_null_proportion:
+              name: not_null_proportion_matched_plant_id_eia_2000
+              config:
+                where: "year = 2000"
+              arguments:
+                at_least: 0.8663
+          - dbt_utils.not_null_proportion:
+              name: not_null_proportion_matched_plant_id_eia_2001
+              config:
+                where: "year = 2001"
+              arguments:
+                at_least: 0.884
+          - dbt_utils.not_null_proportion:
+              name: not_null_proportion_matched_plant_id_eia_2002
+              config:
+                where: "year = 2002"
+              arguments:
+                at_least: 0.8959
+          - dbt_utils.not_null_proportion:
+              name: not_null_proportion_matched_plant_id_eia_2003
+              config:
+                where: "year = 2003"
+              arguments:
+                at_least: 0.8945
+          - dbt_utils.not_null_proportion:
+              name: not_null_proportion_matched_plant_id_eia_2004
+              config:
+                where: "year = 2004"
+              arguments:
+                at_least: 0.8923
+          - dbt_utils.not_null_proportion:
+              name: not_null_proportion_matched_plant_id_eia_2005
+              config:
+                where: "year = 2005"
+              arguments:
+                at_least: 0.8967
+          - dbt_utils.not_null_proportion:
+              name: not_null_proportion_matched_plant_id_eia_2006
+              config:
+                where: "year = 2006"
+              arguments:
+                at_least: 0.9014
+          - dbt_utils.not_null_proportion:
+              name: not_null_proportion_matched_plant_id_eia_2007
+              config:
+                where: "year = 2007"
+              arguments:
+                at_least: 0.9054
+          - dbt_utils.not_null_proportion:
+              name: not_null_proportion_matched_plant_id_eia_2008
+              config:
+                where: "year = 2008"
+              arguments:
+                at_least: 0.916
+          - dbt_utils.not_null_proportion:
+              name: not_null_proportion_matched_plant_id_eia_2009
+              config:
+                where: "year = 2009"
+              arguments:
+                at_least: 0.9314
+          - dbt_utils.not_null_proportion:
+              name: not_null_proportion_matched_plant_id_eia_2010
+              config:
+                where: "year = 2010"
+              arguments:
+                at_least: 0.9364
+          - dbt_utils.not_null_proportion:
+              name: not_null_proportion_matched_plant_id_eia_2011
+              config:
+                where: "year = 2011"
+              arguments:
+                at_least: 0.938
+          - dbt_utils.not_null_proportion:
+              name: not_null_proportion_matched_plant_id_eia_2012
+              config:
+                where: "year = 2012"
+              arguments:
+                at_least: 0.9426
+          - dbt_utils.not_null_proportion:
+              name: not_null_proportion_matched_plant_id_eia_2013
+              config:
+                where: "year = 2013"
+              arguments:
+                at_least: 0.9426
+          - dbt_utils.not_null_proportion:
+              name: not_null_proportion_matched_plant_id_eia_2014
+              config:
+                where: "year = 2014"
+              arguments:
+                at_least: 0.945
+          - dbt_utils.not_null_proportion:
+              name: not_null_proportion_matched_plant_id_eia_2015
+              config:
+                where: "year = 2015"
+              arguments:
+                at_least: 0.9455
+          - dbt_utils.not_null_proportion:
+              name: not_null_proportion_matched_plant_id_eia_2016
+              config:
+                where: "year = 2016"
+              arguments:
+                at_least: 0.9488
+          - dbt_utils.not_null_proportion:
+              name: not_null_proportion_matched_plant_id_eia_2017
+              config:
+                where: "year = 2017"
+              arguments:
+                at_least: 0.9485
+          - dbt_utils.not_null_proportion:
+              name: not_null_proportion_matched_plant_id_eia_2018
+              config:
+                where: "year = 2018"
+              arguments:
+                at_least: 0.9485
+          - dbt_utils.not_null_proportion:
+              name: not_null_proportion_matched_plant_id_eia_2019
+              config:
+                where: "year = 2019"
+              arguments:
+                at_least: 0.9478
+          - dbt_utils.not_null_proportion:
+              name: not_null_proportion_matched_plant_id_eia_2020
+              config:
+                where: "year = 2020"
+              arguments:
+                at_least: 0.948
+          - dbt_utils.not_null_proportion:
+              name: not_null_proportion_matched_plant_id_eia_2021
+              config:
+                where: "year = 2021"
+              arguments:
+                at_least: 0.9519
+          - dbt_utils.not_null_proportion:
+              name: not_null_proportion_matched_plant_id_eia_2022
+              config:
+                where: "year = 2022"
+              arguments:
+                at_least: 0.9524
+          - dbt_utils.not_null_proportion:
+              name: not_null_proportion_matched_plant_id_eia_2023
+              config:
+                where: "year = 2023"
+              arguments:
+                at_least: 0.9527
+          - dbt_utils.not_null_proportion:
+              name: not_null_proportion_matched_plant_id_eia_2024
+              config:
+                where: "year = 2024"
+              arguments:
+                at_least: 0.9525
+          - dbt_utils.not_null_proportion:
+              name: not_null_proportion_matched_plant_id_eia_2025
+              config:
+                where: "year = 2025"
+              arguments:
+                at_least: 0.9459
+          - dbt_utils.not_null_proportion:
+              name: not_null_proportion_matched_plant_id_eia_2026
+              config:
+                where: "year = 2026"
+              arguments:
+                at_least: 0.9485

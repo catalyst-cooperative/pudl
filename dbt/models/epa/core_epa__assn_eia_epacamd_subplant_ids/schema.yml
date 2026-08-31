@@ -101,7 +101,7 @@ sources:
                     "~2%") at 1.80% null / 98.20% non-null as of 2026-08-30, giving roughly a 1.2
                     percentage-point margin above the measured value. This table has no report_year/year
                     column (it's a single all-years crosswalk), so a true per-year breakdown isn't possible
-                    here -- see core_epacems__hourly_emissions's expect_grouped_unmatched_rate_to_be_below
-                    test for that, which checks the same underlying phenomenon (unmatched EPA CAMD units)
-                    with year-level granularity so that one bad year can't get diluted away in this
-                    table-wide aggregate.
+                    here -- see core_epacems__hourly_emissions's
+                    validate_epacems__hourly_emissions_unmatched_units model for that, which checks the same
+                    underlying phenomenon (unmatched EPA CAMD units) with year-level granularity so that one
+                    bad year can't get diluted away in this table-wide aggregate.
