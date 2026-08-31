@@ -316,9 +316,11 @@ def test_subplant_id_is_never_null():
 def test_unmatched_epa_units_are_not_spuriously_merged():
     """Unrelated unmatched EPA units shouldn't get merged into the same subplant.
 
-    EPA units that never match an EIA generator all end up with a null generator_id at
-    the point make_subplant_ids builds its bipartite graph. Two such units with no other
-    connection to each other must still land in different subplants.
+    EPA units that never match an EIA generator have no generator_id at all, so
+    _prep_for_networkx keys their generator_node with a synthetic, per-row-unique
+    value (see its docstring) rather than one derived from the missing generator_id.
+    Two such units with no other connection to each other must still land in
+    different subplants.
     """
     generator_rows = [
         {"plant_id_eia": 9000, "generator_id": "G1"},
@@ -352,19 +354,15 @@ def test_unmatched_epa_units_are_not_spuriously_merged():
 def test_shared_unit_id_pudl_reconciliation_handles_multiple_groups():
     """Every generator sharing a unit_id_pudl should end up in the same subplant_id.
 
-    update_subplant_ids merges subplants together when EIA's boiler-generator
-    association table (BGA) says they share a unit_id_pudl, even though the EPA
-    crosswalk didn't connect them directly. connect_ids does this by replacing each
-    duplicated id with the minimum id in its group -- but when a plant has more than
-    one such group needing reconciliation, connect_ids collapses the fix to a single
-    scalar (the first group's minimum) instead of computing it per group, corrupting
-    every group but the first.
+    _subplant_ids_from_prepped_crosswalk folds EIA-860's boiler-generator association
+    (BGA) unit_id_pudl values into the same graph as the EPA crosswalk, so generators
+    that share a unit_id_pudl land in the same subplant even though the EPA crosswalk
+    doesn't connect them directly.
 
     This plant has two independent pairs of subplants that each need to be merged
     because they share a unit_id_pudl (10 for one pair, 20 for the other), plus one
     generator in each original subplant with no BGA match at all (unit_id_pudl is
-    null), which is what actually triggers the bug via the NaN-fill in
-    update_subplant_ids.
+    null), to confirm that the two independent merges don't interfere with each other.
     """
     generator_rows = [
         {"plant_id_eia": 4002, "generator_id": g}
@@ -425,31 +423,24 @@ def test_unit_id_pudl_reconciliation_moves_orphaned_siblings_too(
 ):
     """A generator with no BGA match must move with its combustor's other generator.
 
-    update_subplant_ids/connect_ids merges two make_subplant_ids groups together
-    whenever EIA-860's boiler-generator association (BGA) table says two of their
-    generators share a ``unit_id_pudl``, even though the EPA crosswalk didn't connect
-    them directly. One of the two groups keeps its original ``subplant_id`` (the
-    "target"); the other is remapped onto it (the "mover").
+    Whenever EIA-860's boiler-generator association (BGA) table says two generators
+    share a ``unit_id_pudl``, _subplant_ids_from_prepped_crosswalk merges their two
+    subplants into one, even though the EPA crosswalk didn't connect them directly.
+    One of the two groups keeps its original ``subplant_id`` (the "target"); the other
+    is remapped onto it (the "mover").
 
     Each group here has one generator with a real BGA match (``unit_id_pudl`` is not
     null) -- these are the two whose shared ``unit_id_pudl`` triggers the merge -- and
     optionally a second generator sharing the *same EPA combustor* as the first, but
-    with no BGA match of its own (``unit_id_pudl`` is null, an "orphan"). Because
-    make_subplant_ids already grouped the orphan with its BGA-matched sibling via
-    their shared combustor, both must land in the same final ``subplant_id`` as
-    everything else in the merge, regardless of which group is the target and which
-    is the mover, and regardless of whether an orphan is present in neither, either,
-    or both groups.
+    with no BGA match of its own (``unit_id_pudl`` is null, an "orphan"). Because the
+    crosswalk graph already groups the orphan with its BGA-matched sibling via their
+    shared combustor, both must land in the same final ``subplant_id`` as everything
+    else in the merge, regardless of which group is the target and which is the
+    mover, and regardless of whether an orphan is present in neither, either, or both
+    groups.
 
-    This is exhaustive over the two dimensions that determine whether connect_ids's
-    row-level merge key can leave an orphan behind: which group it's in (target vs.
-    mover), and whether it's present at all. A prior version of connect_ids joined its
-    replacement mapping on ``(id_to_update, connecting_id)`` -- the pair -- so a row
-    whose own ``unit_id_pudl`` was null (having no BGA match) never matched that key
-    and silently kept its stale, pre-merge ``subplant_id``, splitting what should have
-    been one subplant into two. That bug could only surface when the *mover* group
-    had an orphan (id="moving_group_has_an_orphan" and "both_groups_have_an_orphan"
-    below) -- the fix is keyed on ``connecting_id`` alone so it no longer matters.
+    This is exhaustive over the two dimensions that could plausibly leave an orphan
+    behind: which group it's in (target vs. mover), and whether it's present at all.
     """
     plant_id_eia = 5001
     generator_rows = [{"plant_id_eia": plant_id_eia, "generator_id": "A1"}]
@@ -498,31 +489,22 @@ def test_unit_id_pudl_reconciliation_moves_orphaned_siblings_too(
 def test_merged_groups_orphans_join_the_merged_group_not_each_other():
     """Orphans from two different merging groups must not form their own subplant.
 
-    This is a second, distinct regression test for the same real-world plant
-    (structured on plant_id_eia 2708) that motivated
-    test_unit_id_pudl_reconciliation_moves_orphaned_siblings_too above, but that
-    parametrized test's minimal two-generator-per-group scenario cannot, by itself,
-    catch every way connect_ids/update_subplant_ids can leave an orphan behind: with
-    only one real unit_id_pudl value (99) anywhere in the plant, the arithmetic in
-    update_subplant_ids's fallback fill -- ``unit_id_pudl_connected.fillna(
-    subplant_id_connected + unit_id_pudl_connected.max())`` -- can *coincidentally*
-    reproduce that same real value for an orphan whose subplant_id_connected happens
-    to be 0, masking a bug in that fallback formula itself (as opposed to the
-    connect_ids merge-key bug that test targets).
+    This is a second, distinct test for the same scenario shape (structured on
+    plant_id_eia 2708) as test_unit_id_pudl_reconciliation_moves_orphaned_siblings_too
+    above, exercising two independent merging groups within a single plant rather than
+    just one.
 
-    Here, two independent pairs of combustors each feed one BGA-matched generator
+    Two independent pairs of combustors each feed one BGA-matched generator
     (unit_id_pudl=1, shared, triggering a merge) and one orphan (no BGA match) that
     shares a combustor with the matched generator. Two more unrelated, unmerged
-    generators (unit_id_pudl 2 and 3) are also present, exactly as in the real
-    plant -- their presence changes what ``unit_id_pudl_connected.max()`` evaluates
-    to, which is what makes this scenario expose the fallback-fill bug where the
-    minimal version does not.
+    generators (unit_id_pudl 2 and 3) are also present, to confirm they aren't swept
+    into the merge.
 
-    The invariant: once make_subplant_ids has connected an orphan to a matched
-    generator via a shared combustor, and that matched generator is later merged into
-    a different subplant_id via unit_id_pudl, the orphan must move into that same
-    merged subplant_id too -- not get stranded with the *other* plant's orphan in a
-    subplant of their own.
+    The invariant: once the crosswalk graph has connected an orphan to a matched
+    generator via a shared combustor, and that matched generator is merged into a
+    different subplant_id via unit_id_pudl, the orphan must move into that same merged
+    subplant_id too -- not get stranded with the *other* group's orphan in a subplant
+    of their own.
     """
     plant_id_eia = 2708
     generator_ids = ["1", "1A", "1B", "2", "2A", "2B", "5", "6"]
@@ -629,8 +611,8 @@ def test_duplicate_crosswalk_edges_raise_instead_of_silently_dropping_rows():
 
     make_subplant_ids builds a networkx graph with one edge per crosswalk row. A
     plain nx.Graph silently collapses duplicate edges between the same pair of nodes,
-    keeping only the last one's attributes -- so a duplicated (combustor_id,
-    generator_id_unique) pair would otherwise make a row disappear with no warning.
+    keeping only the last one's attributes -- so a duplicated (combustor_node,
+    generator_node) pair would otherwise make a row disappear with no warning.
 
     make_subplant_ids itself already deduplicates its input before this can happen in
     normal use (see test_subplant_id_table_preserves_row_count above and
@@ -643,8 +625,8 @@ def test_duplicate_crosswalk_edges_raise_instead_of_silently_dropping_rows():
             "plant_id_eia": [6501, 6501],
             "emissions_unit_id_epa": ["U1", "U1"],
             "generator_id": ["G1", "G1"],
-            "combustor_id": [0, 0],
-            "generator_id_unique": [1, 1],
+            "combustor_node": [("combustor", 6501, "U1"), ("combustor", 6501, "U1")],
+            "generator_node": [("generator", 6501, "G1"), ("generator", 6501, "G1")],
         }
     )
 
