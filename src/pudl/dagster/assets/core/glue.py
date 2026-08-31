@@ -641,33 +641,25 @@ def update_subplant_ids(subplant_crosswalk: pd.DataFrame) -> pd.DataFrame:
             :func:`make_subplant_ids`
 
     """
-    # Step 1: Create corrected versions of subplant_id and unit_id_pudl
-    # if multiple unit_id_pudl are connected by a single subplant_id,
-    # unit_id_pudl_connected groups these unit_id_pudl together
+    # If a unit_id_pudl value is shared by generators in more than one
+    # make_subplant_ids subplant_id, those subplant_id values refer to the same
+    # physical subplant and must be merged -- subplant_id_connected records the
+    # (lowest-numbered) merged subplant_id every row belongs to, including rows whose
+    # own unit_id_pudl is null (e.g. a generator with no BGA match sharing a combustor
+    # with one that does), since connect_ids broadcasts the replacement to every row
+    # sharing the same original subplant_id regardless of that row's own unit_id_pudl.
+    #
+    # There is deliberately no second, symmetric connect_ids call unifying unit_id_pudl
+    # by subplant_id: once two subplant_id values are known to be the same physical
+    # subplant, that's already reflected in subplant_id_connected, which is the only
+    # thing subplant_id_updated below depends on.
     subplant_crosswalk = connect_ids(
         subplant_crosswalk, id_to_update="unit_id_pudl", connecting_id="subplant_id"
     )
-    # if multiple subplant_id are connected by a single unit_id_pudl, group these
-    # subplant_id together
-    subplant_crosswalk = connect_ids(
-        subplant_crosswalk, id_to_update="subplant_id", connecting_id="unit_id_pudl"
-    )
-
-    # Step 2: Update the subplant ID based on these now known unit/subplant overlaps
     subplant_crosswalk = subplant_crosswalk.assign(
-        unit_id_pudl_filled=(
-            lambda x: x.unit_id_pudl_connected.fillna(
-                x.subplant_id_connected + x.unit_id_pudl_connected.max()
-            )
-        ),
-        # create a new unique subplant_id based on the connected subplant ids and the
-        # filled unit_id
-        subplant_id_updated=(
-            lambda x: x.groupby(
-                ["subplant_id_connected", "unit_id_pudl_filled"],
-                dropna=False,
-            ).ngroup()
-        ),
+        # Renumber the merged subplant_id_connected values into a compact, contiguous
+        # sequence starting at 0.
+        subplant_id_updated=lambda x: x.groupby("subplant_id_connected").ngroup()
     )
 
     return subplant_crosswalk
@@ -709,17 +701,19 @@ def connect_ids(
         duplicates.loc[:, f"{connecting_id}_to_replace"] = duplicates.groupby(
             [id_to_update]
         )[connecting_id].transform("min")
-        # merge this replacement subplant_id into the dataframe and use it to update the
-        # existing subplant id
-        subplant_crosswalk = subplant_crosswalk.merge(
-            duplicates,
-            how="left",
-            on=[id_to_update, connecting_id],
-            validate="m:1",
-        )
-        mask = subplant_crosswalk[f"{connecting_id}_to_replace"].notna()
-        subplant_crosswalk.loc[mask, f"{connecting_id}_connected"] = (
-            subplant_crosswalk.loc[mask, f"{connecting_id}_to_replace"]
+        # Broadcast the replacement value to every row sharing that connecting_id, keyed
+        # on connecting_id alone E.g. if a combustor feeds a generator with a real
+        # unit_id_pudl (which triggers a merge into another subplant_id) and a second
+        # generator with no BGA match at all (unit_id_pudl is null), that second
+        # generator shares the same subplant_id and must move too, even though its own
+        # unit_id_pudl never appears in `duplicates`.
+        replacement_by_connecting_id = duplicates.groupby(connecting_id)[
+            f"{connecting_id}_to_replace"
+        ].min()
+        subplant_crosswalk[f"{connecting_id}_connected"] = (
+            subplant_crosswalk[connecting_id]
+            .map(replacement_by_connecting_id)
+            .fillna(subplant_crosswalk[connecting_id])
         )
     return subplant_crosswalk
 

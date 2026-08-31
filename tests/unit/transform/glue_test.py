@@ -505,6 +505,284 @@ def test_shared_unit_id_pudl_reconciliation_handles_multiple_groups():
     )
 
 
+@pytest.mark.parametrize(
+    "target_group_has_orphan,moving_group_has_orphan",
+    [
+        pytest.param(False, False, id="neither_group_has_an_orphan"),
+        pytest.param(True, False, id="target_group_has_an_orphan"),
+        pytest.param(False, True, id="moving_group_has_an_orphan"),
+        pytest.param(True, True, id="both_groups_have_an_orphan"),
+    ],
+)
+def test_unit_id_pudl_reconciliation_moves_orphaned_siblings_too(
+    target_group_has_orphan: bool, moving_group_has_orphan: bool
+):
+    """A generator with no BGA match must move with its combustor's other generator.
+
+    update_subplant_ids/connect_ids merges two make_subplant_ids groups together
+    whenever EIA-860's boiler-generator association (BGA) table says two of their
+    generators share a ``unit_id_pudl``, even though the EPA crosswalk didn't connect
+    them directly. One of the two groups keeps its original ``subplant_id`` (the
+    "target"); the other is remapped onto it (the "mover").
+
+    Each group here has one generator with a real BGA match (``unit_id_pudl`` is not
+    null) -- these are the two whose shared ``unit_id_pudl`` triggers the merge -- and
+    optionally a second generator sharing the *same EPA combustor* as the first, but
+    with no BGA match of its own (``unit_id_pudl`` is null, an "orphan"). Because
+    make_subplant_ids already grouped the orphan with its BGA-matched sibling via
+    their shared combustor, both must land in the same final ``subplant_id`` as
+    everything else in the merge, regardless of which group is the target and which
+    is the mover, and regardless of whether an orphan is present in neither, either,
+    or both groups.
+
+    This is exhaustive over the two dimensions that determine whether connect_ids's
+    row-level merge key can leave an orphan behind: which group it's in (target vs.
+    mover), and whether it's present at all. A prior version of connect_ids joined its
+    replacement mapping on ``(id_to_update, connecting_id)`` -- the pair -- so a row
+    whose own ``unit_id_pudl`` was null (having no BGA match) never matched that key
+    and silently kept its stale, pre-merge ``subplant_id``, splitting what should have
+    been one subplant into two. That bug could only surface when the *mover* group
+    had an orphan (id="moving_group_has_an_orphan" and "both_groups_have_an_orphan"
+    below) -- the fix is keyed on ``connecting_id`` alone so it no longer matters.
+    """
+    plant_id_eia = 5001
+    generator_rows = [{"plant_id_eia": plant_id_eia, "generator_id": "A1"}]
+    crosswalk_rows = [
+        {
+            "plant_id_epa": plant_id_eia,
+            "emissions_unit_id_epa": "CA",
+            "generator_id_epa": "A1",
+            "plant_id_eia": plant_id_eia,
+            "boiler_id": "CA",
+            "generator_id": "A1",
+        },
+        {
+            "plant_id_epa": plant_id_eia,
+            "emissions_unit_id_epa": "CB",
+            "generator_id_epa": "B1",
+            "plant_id_eia": plant_id_eia,
+            "boiler_id": "CB",
+            "generator_id": "B1",
+        },
+    ]
+    emissions_unit_rows = [
+        {"plant_id_eia": plant_id_eia, "emissions_unit_id_epa": "CA"},
+        {"plant_id_eia": plant_id_eia, "emissions_unit_id_epa": "CB"},
+    ]
+    bga_rows = [
+        {"plant_id_eia": plant_id_eia, "generator_id": "A1", "unit_id_pudl": 99},
+        {"plant_id_eia": plant_id_eia, "generator_id": "B1", "unit_id_pudl": 99},
+    ]
+    generator_ids = ["A1", "B1"]
+
+    if target_group_has_orphan:
+        generator_rows.append({"plant_id_eia": plant_id_eia, "generator_id": "A2"})
+        crosswalk_rows.append(
+            {
+                "plant_id_epa": plant_id_eia,
+                "emissions_unit_id_epa": "CA",
+                "generator_id_epa": "A2",
+                "plant_id_eia": plant_id_eia,
+                "boiler_id": "CA",
+                "generator_id": "A2",
+            }
+        )
+        generator_ids.append("A2")
+
+    if moving_group_has_orphan:
+        generator_rows.append({"plant_id_eia": plant_id_eia, "generator_id": "B2"})
+        crosswalk_rows.append(
+            {
+                "plant_id_epa": plant_id_eia,
+                "emissions_unit_id_epa": "CB",
+                "generator_id_epa": "B2",
+                "plant_id_eia": plant_id_eia,
+                "boiler_id": "CB",
+                "generator_id": "B2",
+            }
+        )
+        generator_ids.append("B2")
+
+    actual = _make_subplant_ids(
+        crosswalk_rows, generator_rows, emissions_unit_rows, bga_rows
+    )
+
+    subplant_ids = {
+        generator_id: actual.loc[
+            (actual.plant_id_eia == plant_id_eia)
+            & (actual.generator_id == generator_id),
+            "subplant_id",
+        ].iloc[0]
+        for generator_id in generator_ids
+    }
+    assert len(set(subplant_ids.values())) == 1, (
+        "All generators connected (directly or via a shared unit_id_pudl) should "
+        f"land in one subplant_id, but got {subplant_ids}: \n{actual}"
+    )
+
+
+def test_merged_groups_orphans_join_the_merged_group_not_each_other():
+    """Orphans from two different merging groups must not form their own subplant.
+
+    This is a second, distinct regression test for the same real-world plant
+    (structured on plant_id_eia 2708) that motivated
+    test_unit_id_pudl_reconciliation_moves_orphaned_siblings_too above, but that
+    parametrized test's minimal two-generator-per-group scenario cannot, by itself,
+    catch every way connect_ids/update_subplant_ids can leave an orphan behind: with
+    only one real unit_id_pudl value (99) anywhere in the plant, the arithmetic in
+    update_subplant_ids's fallback fill -- ``unit_id_pudl_connected.fillna(
+    subplant_id_connected + unit_id_pudl_connected.max())`` -- can *coincidentally*
+    reproduce that same real value for an orphan whose subplant_id_connected happens
+    to be 0, masking a bug in that fallback formula itself (as opposed to the
+    connect_ids merge-key bug that test targets).
+
+    Here, two independent pairs of combustors each feed one BGA-matched generator
+    (unit_id_pudl=1, shared, triggering a merge) and one orphan (no BGA match) that
+    shares a combustor with the matched generator. Two more unrelated, unmerged
+    generators (unit_id_pudl 2 and 3) are also present, exactly as in the real
+    plant -- their presence changes what ``unit_id_pudl_connected.max()`` evaluates
+    to, which is what makes this scenario expose the fallback-fill bug where the
+    minimal version does not.
+
+    The invariant: once make_subplant_ids has connected an orphan to a matched
+    generator via a shared combustor, and that matched generator is later merged into
+    a different subplant_id via unit_id_pudl, the orphan must move into that same
+    merged subplant_id too -- not get stranded with the *other* plant's orphan in a
+    subplant of their own.
+    """
+    plant_id_eia = 2708
+    generator_ids = ["1", "1A", "1B", "2", "2A", "2B", "5", "6"]
+    generator_rows = [
+        {"plant_id_eia": plant_id_eia, "generator_id": g} for g in generator_ids
+    ]
+    crosswalk_rows = [
+        # Combustor "1A" feeds both "1" (unit_id_pudl=1) and orphan "1A".
+        {
+            "plant_id_epa": plant_id_eia,
+            "emissions_unit_id_epa": "1A",
+            "generator_id_epa": "1",
+            "plant_id_eia": plant_id_eia,
+            "boiler_id": None,
+            "generator_id": "1",
+        },
+        {
+            "plant_id_epa": plant_id_eia,
+            "emissions_unit_id_epa": "1A",
+            "generator_id_epa": "1A",
+            "plant_id_eia": plant_id_eia,
+            "boiler_id": None,
+            "generator_id": "1A",
+        },
+        # Combustor "1B" feeds both "1" and orphan "1B".
+        {
+            "plant_id_epa": plant_id_eia,
+            "emissions_unit_id_epa": "1B",
+            "generator_id_epa": "1",
+            "plant_id_eia": plant_id_eia,
+            "boiler_id": None,
+            "generator_id": "1",
+        },
+        {
+            "plant_id_epa": plant_id_eia,
+            "emissions_unit_id_epa": "1B",
+            "generator_id_epa": "1B",
+            "plant_id_eia": plant_id_eia,
+            "boiler_id": None,
+            "generator_id": "1B",
+        },
+        # Combustor "2A" feeds both "2" (unit_id_pudl=1, same as "1" -- triggers the
+        # merge) and orphan "2A".
+        {
+            "plant_id_epa": plant_id_eia,
+            "emissions_unit_id_epa": "2A",
+            "generator_id_epa": "2",
+            "plant_id_eia": plant_id_eia,
+            "boiler_id": None,
+            "generator_id": "2",
+        },
+        {
+            "plant_id_epa": plant_id_eia,
+            "emissions_unit_id_epa": "2A",
+            "generator_id_epa": "2A",
+            "plant_id_eia": plant_id_eia,
+            "boiler_id": None,
+            "generator_id": "2A",
+        },
+        # Combustor "2B" feeds both "2" and orphan "2B".
+        {
+            "plant_id_epa": plant_id_eia,
+            "emissions_unit_id_epa": "2B",
+            "generator_id_epa": "2",
+            "plant_id_eia": plant_id_eia,
+            "boiler_id": None,
+            "generator_id": "2",
+        },
+        {
+            "plant_id_epa": plant_id_eia,
+            "emissions_unit_id_epa": "2B",
+            "generator_id_epa": "2B",
+            "plant_id_eia": plant_id_eia,
+            "boiler_id": None,
+            "generator_id": "2B",
+        },
+        # Two unrelated, unmerged single-generator subplants -- present in the real
+        # plant, and load-bearing for reproducing the bug (they change what
+        # unit_id_pudl_connected.max() evaluates to).
+        {
+            "plant_id_epa": plant_id_eia,
+            "emissions_unit_id_epa": "5",
+            "generator_id_epa": "5",
+            "plant_id_eia": plant_id_eia,
+            "boiler_id": "5",
+            "generator_id": "5",
+        },
+        {
+            "plant_id_epa": plant_id_eia,
+            "emissions_unit_id_epa": "6",
+            "generator_id_epa": "6",
+            "plant_id_eia": plant_id_eia,
+            "boiler_id": "6",
+            "generator_id": "6",
+        },
+    ]
+    emissions_unit_rows = [
+        {"plant_id_eia": plant_id_eia, "emissions_unit_id_epa": u}
+        for u in ["1A", "1B", "2A", "2B", "5", "6"]
+    ]
+    bga_rows = [
+        {"plant_id_eia": plant_id_eia, "generator_id": "1", "unit_id_pudl": 1},
+        {"plant_id_eia": plant_id_eia, "generator_id": "2", "unit_id_pudl": 1},
+        {"plant_id_eia": plant_id_eia, "generator_id": "5", "unit_id_pudl": 2},
+        {"plant_id_eia": plant_id_eia, "generator_id": "6", "unit_id_pudl": 3},
+    ]
+
+    actual = _make_subplant_ids(
+        crosswalk_rows, generator_rows, emissions_unit_rows, bga_rows
+    )
+
+    def _subplant_id_for(generator_id: str) -> int:
+        matches = actual[
+            (actual.plant_id_eia == plant_id_eia)
+            & (actual.generator_id == generator_id)
+        ]
+        return matches.subplant_id.iloc[0]
+
+    merged_group = {g: _subplant_id_for(g) for g in ["1", "1A", "1B", "2", "2A", "2B"]}
+    assert len(set(merged_group.values())) == 1, (
+        "generators 1/1A/1B/2/2A/2B are all connected -- directly by a shared "
+        f"combustor, or transitively via unit_id_pudl=1 -- but landed in more than "
+        f"one subplant_id: {merged_group}: \n{actual}"
+    )
+    assert _subplant_id_for("5") not in merged_group.values(), (
+        f"generator 5 (unrelated, unit_id_pudl=2) was incorrectly merged into the "
+        f"1/2 group: \n{actual}"
+    )
+    assert _subplant_id_for("6") not in merged_group.values(), (
+        f"generator 6 (unrelated, unit_id_pudl=3) was incorrectly merged into the "
+        f"1/2 group: \n{actual}"
+    )
+
+
 def test_subplant_id_table_preserves_row_count():
     """The subplant ID table should have one row per crosswalk association.
 
